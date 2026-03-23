@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Méthodologie | Projection Canada</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0d0f14;
+      --surface: #151820;
+      --surface2: #1c2030;
+      --border: #252a38;
+      --text: #e8eaf0;
+      --muted: #8b92a5;
+      --accent: #e8c96d;
+      --accent-soft: rgba(232, 201, 109, 0.12);
+      --radius: 12px;
+    }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(232, 201, 109, 0.08), transparent 30%),
+        radial-gradient(circle at top right, rgba(51, 178, 204, 0.06), transparent 25%),
+        var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.65;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      padding: 16px 24px;
+      background: rgba(13, 15, 20, 0.92);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: 'Instrument Serif', serif;
+      font-size: 18px;
+    }
+    .brand-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .lang-switch {
+      display: flex;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 3px;
+    }
+    .lang-btn {
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      padding: 6px 12px;
+      border-radius: 999px;
+      font: 600 12px 'DM Sans', sans-serif;
+      cursor: pointer;
+    }
+    .lang-btn.active {
+      background: var(--accent);
+      color: #0d0f14;
+    }
+    .back-link {
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      font-size: 12px;
+    }
+    main {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 44px 24px 80px;
+    }
+    .hero {
+      margin-bottom: 34px;
+    }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border: 1px solid rgba(232, 201, 109, 0.2);
+      background: var(--accent-soft);
+      color: var(--accent);
+      border-radius: 999px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: 14px;
+    }
+    h1 {
+      font-family: 'Instrument Serif', serif;
+      font-size: clamp(34px, 5vw, 60px);
+      line-height: 1.04;
+      letter-spacing: -.04em;
+      margin-bottom: 14px;
+    }
+    h1 em { color: var(--accent); font-style: italic; }
+    .hero-copy {
+      max-width: 760px;
+      color: var(--muted);
+      font-size: 16px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .card, .mini-card {
+      background: rgba(21, 24, 32, 0.92);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.22);
+    }
+    .card {
+      padding: 22px 24px;
+      margin-bottom: 16px;
+    }
+    .mini-stack {
+      display: grid;
+      gap: 16px;
+    }
+    .mini-card {
+      padding: 18px 20px;
+    }
+    .kicker {
+      color: var(--accent);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: 8px;
+    }
+    h2 {
+      font-family: 'Instrument Serif', serif;
+      font-size: 28px;
+      letter-spacing: -.03em;
+      margin-bottom: 12px;
+    }
+    h3 {
+      font-size: 15px;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    p + p { margin-top: 10px; }
+    ul {
+      margin-top: 10px;
+      padding-left: 18px;
+      color: var(--muted);
+    }
+    li + li { margin-top: 6px; }
+    .step-list {
+      display: grid;
+      gap: 12px;
+      margin-top: 14px;
+    }
+    .step {
+      display: grid;
+      grid-template-columns: 36px 1fr;
+      gap: 14px;
+      align-items: start;
+      padding: 14px 0;
+      border-top: 1px solid var(--border);
+    }
+    .step:first-child { border-top: none; padding-top: 0; }
+    .step-num {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: var(--surface2);
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .muted { color: var(--muted); }
+    .note {
+      padding: 14px 16px;
+      border: 1px solid rgba(232, 201, 109, 0.18);
+      background: rgba(232, 201, 109, 0.07);
+      border-radius: 10px;
+      color: var(--text);
+      margin-top: 12px;
+    }
+    footer {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 0 24px 48px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    @media (max-width: 820px) {
+      .grid { grid-template-columns: 1fr; }
+      header { padding: 14px 18px; }
+      main { padding: 28px 18px 64px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <span class="brand-dot"></span>
+      <span data-i18n="site_name">Projection Canada</span>
+    </div>
+    <div class="header-actions">
+      <a class="back-link" href="index.html" data-i18n="back_link">Retour à l'accueil</a>
+      <div class="lang-switch">
+        <button class="lang-btn active" onclick="setLang('fr')">FR</button>
+        <button class="lang-btn" onclick="setLang('en')">EN</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="eyebrow" data-i18n="eyebrow">Modèle v1 · Méthodologie</div>
+      <h1 data-i18n="title">Comment la <em>projection</em> est produite</h1>
+      <p class="hero-copy" data-i18n="intro">
+        Cette version du site combine des sondages publics, les résultats officiels de 2025 et un simulateur de sièges pour produire une lecture cohérente de la course fédérale. Le modèle est déjà utile pour suivre la dynamique nationale et la géographie des gains, mais il reste une version v1: certaines circonscriptions serrées et certaines partielles demandent encore un calibrage manuel.
+      </p>
+    </section>
+
+    <section class="grid">
+      <div class="card">
+        <div class="kicker" data-i18n="pipeline_kicker">Pipeline</div>
+        <h2 data-i18n="pipeline_title">Chaîne de production</h2>
+        <p class="muted" data-i18n="pipeline_intro">
+          Le site est alimenté par un pipeline local qui nettoie les données, estime les intentions de vote, simule les sièges puis exporte un JSON statique consommé par l'interface web.
+        </p>
+        <div class="step-list">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div>
+              <h3 data-i18n="step1_title">Ingestion des sondages</h3>
+              <p class="muted" data-i18n="step1_body">
+                Les sondages sont regroupés dans un fichier unique, harmonisés par date, taille d'échantillon et parti, puis pondérés avec une décroissance temporelle pour accorder plus de poids aux observations récentes.
+              </p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div>
+              <h3 data-i18n="step2_title">Estimation nationale</h3>
+              <p class="muted" data-i18n="step2_body">
+                Le cœur du modèle utilise une couche BSTS bayésienne, avec repli Python, pour générer une distribution postérieure des intentions de vote nationales plutôt qu'un seul point fixe.
+              </p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <div>
+              <h3 data-i18n="step3_title">Simulation des sièges</h3>
+              <p class="muted" data-i18n="step3_body">
+                Les résultats de 2025 servent de base par circonscription. Le simulateur applique ensuite des swings nationaux et régionaux, ajoute du bruit local et répète l'exercice 10 000 fois pour obtenir des probabilités de victoire et des intervalles de sièges.
+              </p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">4</div>
+            <div>
+              <h3 data-i18n="step4_title">Exports web</h3>
+              <p class="muted" data-i18n="step4_body">
+                Le pipeline publie ensuite des fichiers statiques dans <code>web_data/</code>, y compris les projections de circonscription, la composition actuelle de la Chambre et le GeoJSON de la carte.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mini-stack">
+        <div class="mini-card">
+          <div class="kicker" data-i18n="sources_kicker">Sources</div>
+          <h3 data-i18n="sources_title">Données utilisées</h3>
+          <ul>
+            <li data-i18n="source1">Sondages publics intégrés manuellement et harmonisés dans le dépôt</li>
+            <li data-i18n="source2">Résultats officiels d'Élections Canada pour l'élection générale de 2025</li>
+            <li data-i18n="source3">Changements de sièges, vacances et partielles saisis dans des tables séparées</li>
+            <li data-i18n="source4">Limites géographiques officielles d'Élections Canada pour la carte</li>
+          </ul>
+        </div>
+
+        <div class="mini-card">
+          <div class="kicker" data-i18n="read_kicker">Lecture</div>
+          <h3 data-i18n="read_title">Comment lire les chiffres</h3>
+          <ul>
+            <li data-i18n="read1">Les sièges affichés sont des moyennes de simulation, pas un scénario unique garanti</li>
+            <li data-i18n="read2">Une probabilité de victoire élevée ne veut pas dire qu'une circonscription est impossible à perdre</li>
+            <li data-i18n="read3">Les valeurs de la carte sont des projections courantes; les résultats 2025 restent affichés comme base de comparaison</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="kicker" data-i18n="limits_kicker">Limites</div>
+      <h2 data-i18n="limits_title">Ce que le modèle fait moins bien</h2>
+      <p class="muted" data-i18n="limits_intro">
+        Comme tout modèle de projection électorale, cette version simplifie certains comportements électoraux. Elle est plus solide pour la photo nationale et régionale que pour les circonscriptions les plus atypiques.
+      </p>
+      <ul>
+        <li data-i18n="limit1">Les partielles peuvent demander des règles ad hoc lorsqu'un contexte local dominant n'est pas bien capté par les sondages nationaux.</li>
+        <li data-i18n="limit2">Le vote stratégique et les candidatures personnelles fortes restent difficiles à modéliser mécaniquement dans quelques sièges urbains serrés.</li>
+        <li data-i18n="limit3">Les traversées de parquet et changements de caucus doivent être tenus à jour explicitement dans les données administratives du projet.</li>
+      </ul>
+      <div class="note" data-i18n="v1_note">
+        Version v1: le site vise d'abord une projection stable, transparente et publiable. Les prochaines itérations pourront affiner le calibrage local, documenter davantage les hypothèses et enrichir la carte.
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="kicker" data-i18n="repro_kicker">Reproduction</div>
+      <h2 data-i18n="repro_title">Mettre à jour la publication</h2>
+      <p class="muted" data-i18n="repro_body">
+        Pour régénérer la version publiée, il suffit de relancer le pipeline avec la date voulue, puis de déployer le contenu statique du dépôt. La page principale lit ensuite automatiquement <code>web_data/federal/latest.json</code> et <code>web_data/federal/ridings.geojson</code>.
+      </p>
+      <div class="note">
+        <code>python3 -u run_pipeline.py fed_46 2026-03-23</code>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span data-i18n="footer">Projection Canada · Modèle v1 · Publication statique prête pour GitHub Pages</span>
+  </footer>
+
+  <script>
+    const I18N = {
+      fr: {
+        site_name: 'Projection Canada',
+        back_link: "Retour à l'accueil",
+        eyebrow: 'Modèle v1 · Méthodologie',
+        title: "Comment la <em>projection</em> est produite",
+        intro: "Cette version du site combine des sondages publics, les résultats officiels de 2025 et un simulateur de sièges pour produire une lecture cohérente de la course fédérale. Le modèle est déjà utile pour suivre la dynamique nationale et la géographie des gains, mais il reste une version v1: certaines circonscriptions serrées et certaines partielles demandent encore un calibrage manuel.",
+        pipeline_kicker: 'Pipeline',
+        pipeline_title: 'Chaîne de production',
+        pipeline_intro: "Le site est alimenté par un pipeline local qui nettoie les données, estime les intentions de vote, simule les sièges puis exporte un JSON statique consommé par l'interface web.",
+        step1_title: 'Ingestion des sondages',
+        step1_body: "Les sondages sont regroupés dans un fichier unique, harmonisés par date, taille d'échantillon et parti, puis pondérés avec une décroissance temporelle pour accorder plus de poids aux observations récentes.",
+        step2_title: 'Estimation nationale',
+        step2_body: "Le cœur du modèle utilise une couche BSTS bayésienne, avec repli Python, pour générer une distribution postérieure des intentions de vote nationales plutôt qu'un seul point fixe.",
+        step3_title: 'Simulation des sièges',
+        step3_body: "Les résultats de 2025 servent de base par circonscription. Le simulateur applique ensuite des swings nationaux et régionaux, ajoute du bruit local et répète l'exercice 10 000 fois pour obtenir des probabilités de victoire et des intervalles de sièges.",
+        step4_title: 'Exports web',
+        step4_body: "Le pipeline publie ensuite des fichiers statiques dans <code>web_data/</code>, y compris les projections de circonscription, la composition actuelle de la Chambre et le GeoJSON de la carte.",
+        sources_kicker: 'Sources',
+        sources_title: 'Données utilisées',
+        source1: 'Sondages publics intégrés manuellement et harmonisés dans le dépôt',
+        source2: "Résultats officiels d'Élections Canada pour l'élection générale de 2025",
+        source3: 'Changements de sièges, vacances et partielles saisis dans des tables séparées',
+        source4: "Limites géographiques officielles d'Élections Canada pour la carte",
+        read_kicker: 'Lecture',
+        read_title: 'Comment lire les chiffres',
+        read1: 'Les sièges affichés sont des moyennes de simulation, pas un scénario unique garanti',
+        read2: "Une probabilité de victoire élevée ne veut pas dire qu'une circonscription est impossible à perdre",
+        read3: 'Les valeurs de la carte sont des projections courantes; les résultats 2025 restent affichés comme base de comparaison',
+        limits_kicker: 'Limites',
+        limits_title: 'Ce que le modèle fait moins bien',
+        limits_intro: "Comme tout modèle de projection électorale, cette version simplifie certains comportements électoraux. Elle est plus solide pour la photo nationale et régionale que pour les circonscriptions les plus atypiques.",
+        limit1: "Les partielles peuvent demander des règles ad hoc lorsqu'un contexte local dominant n'est pas bien capté par les sondages nationaux.",
+        limit2: "Le vote stratégique et les candidatures personnelles fortes restent difficiles à modéliser mécaniquement dans quelques sièges urbains serrés.",
+        limit3: 'Les traversées de parquet et changements de caucus doivent être tenus à jour explicitement dans les données administratives du projet.',
+        v1_note: "Version v1: le site vise d'abord une projection stable, transparente et publiable. Les prochaines itérations pourront affiner le calibrage local, documenter davantage les hypothèses et enrichir la carte.",
+        repro_kicker: 'Reproduction',
+        repro_title: 'Mettre à jour la publication',
+        repro_body: "Pour régénérer la version publiée, il suffit de relancer le pipeline avec la date voulue, puis de déployer le contenu statique du dépôt. La page principale lit ensuite automatiquement <code>web_data/federal/latest.json</code> et <code>web_data/federal/ridings.geojson</code>.",
+        footer: 'Projection Canada · Modèle v1 · Publication statique prête pour GitHub Pages'
+      },
+      en: {
+        site_name: 'Canada Projection',
+        back_link: 'Back to homepage',
+        eyebrow: 'Model v1 · Methodology',
+        title: 'How the <em>projection</em> is built',
+        intro: 'This version of the site combines public polling, official 2025 results and a seat simulator to produce a coherent view of the federal race. The model is already useful for following national momentum and the geography of gains, but it remains a v1: a few close ridings and some by-elections still require manual calibration.',
+        pipeline_kicker: 'Pipeline',
+        pipeline_title: 'Production chain',
+        pipeline_intro: 'The site is powered by a local pipeline that cleans the data, estimates vote intentions, simulates seats and then exports a static JSON file consumed by the web interface.',
+        step1_title: 'Poll ingestion',
+        step1_body: 'Polls are collected in a single file, harmonized by date, sample size and party, then weighted with time decay so that newer observations count more.',
+        step2_title: 'National estimate',
+        step2_body: 'The core model uses a Bayesian BSTS layer, with a Python fallback, to generate a posterior distribution of national vote intentions rather than a single fixed point.',
+        step3_title: 'Seat simulation',
+        step3_body: 'The 2025 election results serve as the riding-level baseline. The simulator then applies national and regional swings, adds local noise, and repeats the exercise 10,000 times to derive win probabilities and seat intervals.',
+        step4_title: 'Web exports',
+        step4_body: 'The pipeline then publishes static files in <code>web_data/</code>, including riding projections, the current House composition and the map GeoJSON.',
+        sources_kicker: 'Sources',
+        sources_title: 'Data used',
+        source1: 'Public polls manually integrated and harmonized in the repository',
+        source2: 'Official Elections Canada results for the 2025 general election',
+        source3: 'Seat changes, vacancies and by-elections tracked in dedicated tables',
+        source4: 'Official Elections Canada geographic boundaries for the map',
+        read_kicker: 'Reading',
+        read_title: 'How to read the numbers',
+        read1: 'Displayed seats are simulation averages, not one guaranteed scenario',
+        read2: 'A high win probability does not mean a riding is impossible to lose',
+        read3: 'Map values are current projections; 2025 results remain visible as the comparison baseline',
+        limits_kicker: 'Limits',
+        limits_title: 'What the model does less well',
+        limits_intro: 'Like any election model, this version simplifies some electoral behaviors. It is stronger on the national and regional picture than on the most atypical ridings.',
+        limit1: 'By-elections may require ad hoc rules when a dominant local context is not well captured by national polls.',
+        limit2: 'Strategic voting and very strong personal candidacies remain difficult to model mechanically in a few close urban seats.',
+        limit3: 'Floor crossings and caucus changes must be kept current explicitly in the project administrative data.',
+        v1_note: 'Version v1: the goal is first to provide a stable, transparent and publishable projection. Future iterations can further refine local calibration, document assumptions in more detail and enrich the map.',
+        repro_kicker: 'Reproducibility',
+        repro_title: 'Updating the publication',
+        repro_body: 'To regenerate the published version, simply rerun the pipeline for the desired date and then deploy the repository static content. The main page will automatically read <code>web_data/federal/latest.json</code> and <code>web_data/federal/ridings.geojson</code>.',
+        footer: 'Canada Projection · Model v1 · Static publication ready for GitHub Pages'
+      }
+    };
+
+    let lang = 'fr';
+
+    function setLang(nextLang) {
+      lang = nextLang;
+      document.documentElement.lang = nextLang;
+      document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.textContent === nextLang.toUpperCase());
+      });
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (I18N[lang][key]) el.innerHTML = I18N[lang][key];
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => setLang('fr'));
+  </script>
+</body>
+</html>
