@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Méthodologie | Projection Canada</title>
+  <title>Méthodologie | VoteScope</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
@@ -61,6 +61,25 @@
       align-items: center;
       gap: 12px;
       flex-wrap: wrap;
+    }
+    .top-nav {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .nav-link {
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .nav-link:hover {
+      color: var(--text);
+      border-color: rgba(232, 201, 109, 0.3);
     }
     .lang-switch {
       display: flex;
@@ -226,9 +245,16 @@
   <header>
     <div class="brand">
       <span class="brand-dot"></span>
-      <span data-i18n="site_name">Projection Canada</span>
+      <span data-i18n="site_name">VoteScope</span>
     </div>
     <div class="header-actions">
+      <nav class="top-nav">
+        <a class="nav-link" href="index.html" data-i18n="nav_federal">Fédéral</a>
+        <a class="nav-link" href="quebec.html" data-i18n="nav_quebec">Québec</a>
+        <a class="nav-link" href="ontario.html" data-i18n="nav_ontario">Ontario</a>
+        <a class="nav-link" href="us-house.html" data-i18n="nav_us_house">Chambre US</a>
+        <a class="nav-link" href="us-senate.html" data-i18n="nav_us_senate">Sénat US</a>
+      </nav>
       <a class="back-link" href="index.html" data-i18n="back_link">Retour à l'accueil</a>
       <div class="lang-switch">
         <button class="lang-btn active" onclick="setLang('fr')">FR</button>
@@ -242,7 +268,7 @@
       <div class="eyebrow" data-i18n="eyebrow">Modèle v1 · Méthodologie</div>
       <h1 data-i18n="title">Comment la <em>projection</em> est produite</h1>
       <p class="hero-copy" data-i18n="intro">
-        Cette version du site combine des sondages publics, les résultats officiels de 2025 et un simulateur de sièges pour produire une lecture cohérente de la course fédérale. Le modèle est déjà utile pour suivre la dynamique nationale et la géographie des gains, mais il reste une version v1: certaines circonscriptions serrées et certaines partielles demandent encore un calibrage manuel.
+        Cette version du site regroupe maintenant plusieurs modules: fédéral canadien, Québec, Ontario, Chambre américaine et Sénat américain. Chaque page repose sur la même logique générale, mais avec des données de base et des ajustements adaptés à la juridiction suivie.
       </p>
     </section>
 
@@ -251,7 +277,7 @@
         <div class="kicker" data-i18n="pipeline_kicker">Pipeline</div>
         <h2 data-i18n="pipeline_title">Chaîne de production</h2>
         <p class="muted" data-i18n="pipeline_intro">
-          Le site est alimenté par un pipeline local qui nettoie les données, estime les intentions de vote, simule les sièges puis exporte un JSON statique consommé par l'interface web.
+          Le site est alimenté par une architecture locale commune qui nettoie les données, estime les intentions de vote ou les probabilités de course, simule les sièges puis exporte un JSON statique consommé par l'interface web.
         </p>
         <div class="step-list">
           <div class="step">
@@ -268,7 +294,7 @@
             <div>
               <h3 data-i18n="step2_title">Estimation nationale</h3>
               <p class="muted" data-i18n="step2_body">
-                Le cœur du modèle utilise une couche BSTS bayésienne, avec repli Python, pour générer une distribution postérieure des intentions de vote nationales plutôt qu'un seul point fixe.
+                Le cœur du modèle utilise une couche BSTS bayésienne, avec repli Python, pour générer des distributions postérieures. Au Canada et dans les provinces, cette couche agit surtout sur le vote agrégé; aux États-Unis, elle alimente ensuite une projection par district ou une modélisation course par course.
               </p>
             </div>
           </div>
@@ -277,7 +303,7 @@
             <div>
               <h3 data-i18n="step3_title">Simulation des sièges</h3>
               <p class="muted" data-i18n="step3_body">
-                Les résultats de 2025 servent de base par circonscription. Le simulateur applique ensuite des swings nationaux et régionaux, ajoute du bruit local et répète l'exercice 10 000 fois pour obtenir des probabilités de victoire et des intervalles de sièges.
+                Les résultats de base varient selon la juridiction: 2025 au fédéral canadien, 2022 au Québec, 2025 en Ontario, 2024 pour la Chambre américaine et 2020 pour le Sénat américain. Le simulateur applique ensuite des swings, du bruit local et des ajustements structurels comme l'incumbence ou les sièges ouverts quand ils sont disponibles.
               </p>
             </div>
           </div>
@@ -286,7 +312,7 @@
             <div>
               <h3 data-i18n="step4_title">Exports web</h3>
               <p class="muted" data-i18n="step4_body">
-                Le pipeline publie ensuite des fichiers statiques dans <code>web_data/</code>, y compris les projections de circonscription, la composition actuelle de la Chambre et le GeoJSON de la carte.
+                Le pipeline publie ensuite des fichiers statiques dans <code>web_data/</code>, y compris les projections de chaque juridiction, les compositions actuelles des chambres et les GeoJSON de cartes pour le Canada, le Québec, l'Ontario, la Chambre américaine et le Sénat.
               </p>
             </div>
           </div>
@@ -299,9 +325,9 @@
           <h3 data-i18n="sources_title">Données utilisées</h3>
           <ul>
             <li data-i18n="source1">Sondages publics intégrés manuellement et harmonisés dans le dépôt</li>
-            <li data-i18n="source2">Résultats officiels d'Élections Canada pour l'élection générale de 2025</li>
-            <li data-i18n="source3">Changements de sièges, vacances et partielles saisis dans des tables séparées</li>
-            <li data-i18n="source4">Limites géographiques officielles d'Élections Canada pour la carte</li>
+            <li data-i18n="source2">Résultats officiels d'Élections Canada, d'Élections Québec, d'Élections Ontario et des sources électorales américaines intégrées au projet</li>
+            <li data-i18n="source3">Changements de sièges, vacances, traversées de parquet et partielles saisis dans des tables séparées</li>
+            <li data-i18n="source4">Limites géographiques officielles pour les cartes canadiennes et américaines</li>
           </ul>
         </div>
 
@@ -311,7 +337,7 @@
           <ul>
             <li data-i18n="read1">Les sièges affichés sont des moyennes de simulation, pas un scénario unique garanti</li>
             <li data-i18n="read2">Une probabilité de victoire élevée ne veut pas dire qu'une circonscription est impossible à perdre</li>
-            <li data-i18n="read3">Les valeurs de la carte sont des projections courantes; les résultats 2025 restent affichés comme base de comparaison</li>
+            <li data-i18n="read3">Les valeurs de la carte sont des projections courantes; l'année de base affichée dans les popups varie selon la juridiction</li>
           </ul>
         </div>
       </div>
@@ -321,12 +347,12 @@
       <div class="kicker" data-i18n="limits_kicker">Limites</div>
       <h2 data-i18n="limits_title">Ce que le modèle fait moins bien</h2>
       <p class="muted" data-i18n="limits_intro">
-        Comme tout modèle de projection électorale, cette version simplifie certains comportements électoraux. Elle est plus solide pour la photo nationale et régionale que pour les circonscriptions les plus atypiques.
+        Comme tout modèle de projection électorale, cette version simplifie certains comportements. Elle est plus solide pour la photo générale et les tendances structurantes que pour les cas très atypiques, les candidatures personnelles fortes et les environnements locaux très décalés.
       </p>
       <ul>
-        <li data-i18n="limit1">Les partielles peuvent demander des règles ad hoc lorsqu'un contexte local dominant n'est pas bien capté par les sondages nationaux.</li>
-        <li data-i18n="limit2">Le vote stratégique et les candidatures personnelles fortes restent difficiles à modéliser mécaniquement dans quelques sièges urbains serrés.</li>
-        <li data-i18n="limit3">Les traversées de parquet et changements de caucus doivent être tenus à jour explicitement dans les données administratives du projet.</li>
+        <li data-i18n="limit1">Les partielles et les courses spéciales peuvent demander des règles ad hoc lorsqu'un contexte local dominant n'est pas bien capté par les sondages agrégés.</li>
+        <li data-i18n="limit2">Le vote stratégique, les candidatures personnelles fortes et certaines réalités sociolinguistiques restent difficiles à modéliser mécaniquement dans quelques sièges serrés.</li>
+        <li data-i18n="limit3">Les traversées de parquet, changements de caucus, sièges vacants et retraits de candidats doivent être tenus à jour explicitement dans les données administratives du projet.</li>
       </ul>
       <div class="note" data-i18n="v1_note">
         Version v1: le site vise d'abord une projection stable, transparente et publiable. Les prochaines itérations pourront affiner le calibrage local, documenter davantage les hypothèses et enrichir la carte.
@@ -337,99 +363,112 @@
       <div class="kicker" data-i18n="repro_kicker">Reproduction</div>
       <h2 data-i18n="repro_title">Mettre à jour la publication</h2>
       <p class="muted" data-i18n="repro_body">
-        Pour régénérer la version publiée, il suffit de relancer le pipeline avec la date voulue, puis de déployer le contenu statique du dépôt. La page principale lit ensuite automatiquement <code>web_data/federal/latest.json</code> et <code>web_data/federal/ridings.geojson</code>.
+        Pour régénérer la version publiée, il suffit de relancer le pipeline de la juridiction voulue, puis de déployer le contenu statique du dépôt. Les modules canadiens et provinciaux utilisent <code>run_pipeline.py</code>; le Sénat américain utilise actuellement un runner dédié.
       </p>
       <div class="note">
-        <code>python3 -u run_pipeline.py fed_46 2026-03-23</code>
+        <code>python3 -u run_pipeline.py fed_46 2026-03-23</code><br>
+        <code>python3 -u run_pipeline.py qc_2026 2026-10-05</code><br>
+        <code>python3 -u run_pipeline.py us_house_2026 2026-11-03</code><br>
+        <code>python3 run_us_senate.py</code>
       </div>
     </section>
   </main>
 
   <footer>
-    <span data-i18n="footer">Projection Canada · Modèle v1 · Publication statique prête pour GitHub Pages</span>
+    <span data-i18n="footer">VoteScope · Modèle v1 · Publication statique prête pour GitHub Pages</span>
   </footer>
 
   <script>
     const I18N = {
       fr: {
-        site_name: 'Projection Canada',
+        site_name: 'VoteScope',
         back_link: "Retour à l'accueil",
+        nav_federal: 'Fédéral',
+        nav_quebec: 'Québec',
+        nav_ontario: 'Ontario',
+        nav_us_house: 'Chambre US',
+        nav_us_senate: 'Sénat US',
         eyebrow: 'Modèle v1 · Méthodologie',
         title: "Comment la <em>projection</em> est produite",
-        intro: "Cette version du site combine des sondages publics, les résultats officiels de 2025 et un simulateur de sièges pour produire une lecture cohérente de la course fédérale. Le modèle est déjà utile pour suivre la dynamique nationale et la géographie des gains, mais il reste une version v1: certaines circonscriptions serrées et certaines partielles demandent encore un calibrage manuel.",
+        intro: "Cette version du site regroupe maintenant plusieurs modules: fédéral canadien, Québec, Ontario, Chambre américaine et Sénat américain. Chaque page repose sur la même logique générale, mais avec des données de base et des ajustements adaptés à la juridiction suivie.",
         pipeline_kicker: 'Pipeline',
         pipeline_title: 'Chaîne de production',
-        pipeline_intro: "Le site est alimenté par un pipeline local qui nettoie les données, estime les intentions de vote, simule les sièges puis exporte un JSON statique consommé par l'interface web.",
+        pipeline_intro: "Le site est alimenté par une architecture locale commune qui nettoie les données, estime les intentions de vote ou les probabilités de course, simule les sièges puis exporte un JSON statique consommé par l'interface web.",
         step1_title: 'Ingestion des sondages',
         step1_body: "Les sondages sont regroupés dans un fichier unique, harmonisés par date, taille d'échantillon et parti, puis pondérés avec une décroissance temporelle pour accorder plus de poids aux observations récentes.",
-        step2_title: 'Estimation nationale',
-        step2_body: "Le cœur du modèle utilise une couche BSTS bayésienne, avec repli Python, pour générer une distribution postérieure des intentions de vote nationales plutôt qu'un seul point fixe.",
+        step2_title: 'Estimation probabiliste',
+        step2_body: "Le cœur du modèle utilise une couche BSTS bayésienne, avec repli Python, pour générer des distributions postérieures. Au Canada et dans les provinces, cette couche agit surtout sur le vote agrégé; aux États-Unis, elle alimente ensuite une projection par district ou une modélisation course par course.",
         step3_title: 'Simulation des sièges',
-        step3_body: "Les résultats de 2025 servent de base par circonscription. Le simulateur applique ensuite des swings nationaux et régionaux, ajoute du bruit local et répète l'exercice 10 000 fois pour obtenir des probabilités de victoire et des intervalles de sièges.",
+        step3_body: "Les résultats de base varient selon la juridiction: 2025 au fédéral canadien, 2022 au Québec, 2025 en Ontario, 2024 pour la Chambre américaine et 2020 pour le Sénat américain. Le simulateur applique ensuite des swings, du bruit local et des ajustements structurels comme l'incumbence ou les sièges ouverts quand ils sont disponibles.",
         step4_title: 'Exports web',
-        step4_body: "Le pipeline publie ensuite des fichiers statiques dans <code>web_data/</code>, y compris les projections de circonscription, la composition actuelle de la Chambre et le GeoJSON de la carte.",
+        step4_body: "Le pipeline publie ensuite des fichiers statiques dans <code>web_data/</code>, y compris les projections de chaque juridiction, les compositions actuelles des chambres et les GeoJSON de cartes pour le Canada, le Québec, l'Ontario, la Chambre américaine et le Sénat.",
         sources_kicker: 'Sources',
         sources_title: 'Données utilisées',
         source1: 'Sondages publics intégrés manuellement et harmonisés dans le dépôt',
-        source2: "Résultats officiels d'Élections Canada pour l'élection générale de 2025",
-        source3: 'Changements de sièges, vacances et partielles saisis dans des tables séparées',
-        source4: "Limites géographiques officielles d'Élections Canada pour la carte",
+        source2: "Résultats officiels d'Élections Canada, d'Élections Québec, d'Élections Ontario et des sources électorales américaines intégrées au projet",
+        source3: 'Changements de sièges, vacances, traversées de parquet et partielles saisis dans des tables séparées',
+        source4: "Limites géographiques officielles pour les cartes canadiennes et américaines",
         read_kicker: 'Lecture',
         read_title: 'Comment lire les chiffres',
         read1: 'Les sièges affichés sont des moyennes de simulation, pas un scénario unique garanti',
         read2: "Une probabilité de victoire élevée ne veut pas dire qu'une circonscription est impossible à perdre",
-        read3: 'Les valeurs de la carte sont des projections courantes; les résultats 2025 restent affichés comme base de comparaison',
+        read3: "Les valeurs de la carte sont des projections courantes; l'année de base affichée dans les popups varie selon la juridiction",
         limits_kicker: 'Limites',
         limits_title: 'Ce que le modèle fait moins bien',
-        limits_intro: "Comme tout modèle de projection électorale, cette version simplifie certains comportements électoraux. Elle est plus solide pour la photo nationale et régionale que pour les circonscriptions les plus atypiques.",
-        limit1: "Les partielles peuvent demander des règles ad hoc lorsqu'un contexte local dominant n'est pas bien capté par les sondages nationaux.",
-        limit2: "Le vote stratégique et les candidatures personnelles fortes restent difficiles à modéliser mécaniquement dans quelques sièges urbains serrés.",
-        limit3: 'Les traversées de parquet et changements de caucus doivent être tenus à jour explicitement dans les données administratives du projet.',
+        limits_intro: "Comme tout modèle de projection électorale, cette version simplifie certains comportements. Elle est plus solide pour la photo générale et les tendances structurantes que pour les cas très atypiques, les candidatures personnelles fortes et les environnements locaux très décalés.",
+        limit1: "Les partielles et les courses spéciales peuvent demander des règles ad hoc lorsqu'un contexte local dominant n'est pas bien capté par les sondages agrégés.",
+        limit2: "Le vote stratégique, les candidatures personnelles fortes et certaines réalités sociolinguistiques restent difficiles à modéliser mécaniquement dans quelques sièges serrés.",
+        limit3: 'Les traversées de parquet, changements de caucus, sièges vacants et retraits de candidats doivent être tenus à jour explicitement dans les données administratives du projet.',
         v1_note: "Version v1: le site vise d'abord une projection stable, transparente et publiable. Les prochaines itérations pourront affiner le calibrage local, documenter davantage les hypothèses et enrichir la carte.",
         repro_kicker: 'Reproduction',
         repro_title: 'Mettre à jour la publication',
-        repro_body: "Pour régénérer la version publiée, il suffit de relancer le pipeline avec la date voulue, puis de déployer le contenu statique du dépôt. La page principale lit ensuite automatiquement <code>web_data/federal/latest.json</code> et <code>web_data/federal/ridings.geojson</code>.",
-        footer: 'Projection Canada · Modèle v1 · Publication statique prête pour GitHub Pages'
+        repro_body: "Pour régénérer la version publiée, il suffit de relancer le pipeline de la juridiction voulue, puis de déployer le contenu statique du dépôt. Les modules canadiens et provinciaux utilisent <code>run_pipeline.py</code>; le Sénat américain utilise actuellement un runner dédié.",
+        footer: 'VoteScope · Modèle v1 · Publication statique prête pour GitHub Pages'
       },
       en: {
-        site_name: 'Canada Projection',
+        site_name: 'VoteScope',
         back_link: 'Back to homepage',
+        nav_federal: 'Federal',
+        nav_quebec: 'Quebec',
+        nav_ontario: 'Ontario',
+        nav_us_house: 'U.S. House',
+        nav_us_senate: 'U.S. Senate',
         eyebrow: 'Model v1 · Methodology',
         title: 'How the <em>projection</em> is built',
-        intro: 'This version of the site combines public polling, official 2025 results and a seat simulator to produce a coherent view of the federal race. The model is already useful for following national momentum and the geography of gains, but it remains a v1: a few close ridings and some by-elections still require manual calibration.',
+        intro: 'This version of the site now combines multiple modules: Canadian federal, Quebec, Ontario, U.S. House and U.S. Senate. Each page follows the same general architecture, but with baseline data and adjustments tailored to the jurisdiction being tracked.',
         pipeline_kicker: 'Pipeline',
         pipeline_title: 'Production chain',
-        pipeline_intro: 'The site is powered by a local pipeline that cleans the data, estimates vote intentions, simulates seats and then exports a static JSON file consumed by the web interface.',
+        pipeline_intro: 'The site is powered by a shared local architecture that cleans data, estimates vote intentions or race probabilities, simulates seats, and then exports static JSON consumed by the web interface.',
         step1_title: 'Poll ingestion',
         step1_body: 'Polls are collected in a single file, harmonized by date, sample size and party, then weighted with time decay so that newer observations count more.',
-        step2_title: 'National estimate',
-        step2_body: 'The core model uses a Bayesian BSTS layer, with a Python fallback, to generate a posterior distribution of national vote intentions rather than a single fixed point.',
+        step2_title: 'Probabilistic estimate',
+        step2_body: 'The core model uses a Bayesian BSTS layer, with a Python fallback, to generate posterior distributions. In Canada and the provinces, that layer mainly acts on aggregate vote; in the U.S. it then feeds district or race-by-race projections.',
         step3_title: 'Seat simulation',
-        step3_body: 'The 2025 election results serve as the riding-level baseline. The simulator then applies national and regional swings, adds local noise, and repeats the exercise 10,000 times to derive win probabilities and seat intervals.',
+        step3_body: 'Baseline elections vary by jurisdiction: 2025 for Canadian federal, 2022 for Quebec, 2025 for Ontario, 2024 for the U.S. House and 2020 for the U.S. Senate. The simulator then applies swings, local noise and structural adjustments such as incumbency or open seats when available.',
         step4_title: 'Web exports',
-        step4_body: 'The pipeline then publishes static files in <code>web_data/</code>, including riding projections, the current House composition and the map GeoJSON.',
+        step4_body: 'The pipeline then publishes static files in <code>web_data/</code>, including projections for each jurisdiction, current chamber compositions and GeoJSON maps for Canada and the United States.',
         sources_kicker: 'Sources',
         sources_title: 'Data used',
         source1: 'Public polls manually integrated and harmonized in the repository',
-        source2: 'Official Elections Canada results for the 2025 general election',
-        source3: 'Seat changes, vacancies and by-elections tracked in dedicated tables',
-        source4: 'Official Elections Canada geographic boundaries for the map',
+        source2: 'Official Elections Canada, Elections Quebec, Elections Ontario and integrated U.S. electoral results',
+        source3: 'Seat changes, vacancies, floor crossings and by-elections tracked in dedicated tables',
+        source4: 'Official Canadian and U.S. geographic boundaries for the maps',
         read_kicker: 'Reading',
         read_title: 'How to read the numbers',
         read1: 'Displayed seats are simulation averages, not one guaranteed scenario',
         read2: 'A high win probability does not mean a riding is impossible to lose',
-        read3: 'Map values are current projections; 2025 results remain visible as the comparison baseline',
+        read3: 'Map values are current projections; the baseline year shown in popups varies by jurisdiction',
         limits_kicker: 'Limits',
         limits_title: 'What the model does less well',
-        limits_intro: 'Like any election model, this version simplifies some electoral behaviors. It is stronger on the national and regional picture than on the most atypical ridings.',
-        limit1: 'By-elections may require ad hoc rules when a dominant local context is not well captured by national polls.',
-        limit2: 'Strategic voting and very strong personal candidacies remain difficult to model mechanically in a few close urban seats.',
-        limit3: 'Floor crossings and caucus changes must be kept current explicitly in the project administrative data.',
+        limits_intro: 'Like any election model, this version simplifies some behaviors. It is stronger on the broad picture and structural trends than on the most atypical cases, strong personal candidacies and unusually local environments.',
+        limit1: 'By-elections and special races may require ad hoc rules when a dominant local context is not well captured by aggregated polling.',
+        limit2: 'Strategic voting, strong personal candidacies and some sociolinguistic realities remain difficult to model mechanically in a few close seats.',
+        limit3: 'Floor crossings, caucus changes, vacancies and candidate withdrawals must be kept current explicitly in the administrative data.',
         v1_note: 'Version v1: the goal is first to provide a stable, transparent and publishable projection. Future iterations can further refine local calibration, document assumptions in more detail and enrich the map.',
         repro_kicker: 'Reproducibility',
         repro_title: 'Updating the publication',
-        repro_body: 'To regenerate the published version, simply rerun the pipeline for the desired date and then deploy the repository static content. The main page will automatically read <code>web_data/federal/latest.json</code> and <code>web_data/federal/ridings.geojson</code>.',
-        footer: 'Canada Projection · Model v1 · Static publication ready for GitHub Pages'
+        repro_body: 'To regenerate the published version, rerun the pipeline for the jurisdiction you want and then deploy the repository static content. Canadian federal and provincial modules use <code>run_pipeline.py</code>; the U.S. Senate currently uses a dedicated runner.',
+        footer: 'VoteScope · Model v1 · Static publication ready for GitHub Pages'
       }
     };
 

@@ -85,7 +85,10 @@
       border-radius:999px;
       background: rgba(28,32,48,.8);
       border:1px solid var(--border);
+      overflow-x:auto;
+      scrollbar-width:none;
     }
+    .top-nav::-webkit-scrollbar { display:none; }
     .nav-link {
       display:inline-flex; align-items:center;
       padding:6px 12px;
@@ -558,12 +561,12 @@
       .top-nav {
         grid-area: nav;
         width: 100%;
-        justify-content: space-between;
+        justify-content: flex-start;
         gap: 4px;
         padding: 3px;
       }
       .nav-link {
-        flex: 1;
+        flex: 0 0 auto;
         justify-content: center;
         padding: 7px 8px;
         font-size: 11px;
@@ -583,7 +586,7 @@
 
 <!-- LOADING -->
 <div id="loading">
-  <div class="loading-logo">Projection<em> Canada</em></div>
+  <div class="loading-logo">Vote<em>Scope</em></div>
   <div class="loading-bar"><div class="loading-progress"></div></div>
 </div>
 
@@ -592,12 +595,14 @@
   <div class="header-left">
     <div class="logo">
       <span class="logo-dot"></span>
-      <span data-i18n="site_name">Projection Canada</span>
+      <span data-i18n="site_name">VoteScope</span>
     </div>
     <nav class="top-nav">
       <a class="nav-link" id="navFederal" href="index.html" data-i18n="nav_federal">Fédéral</a>
       <a class="nav-link" id="navQuebec" href="quebec.html" data-i18n="nav_quebec">Québec</a>
       <a class="nav-link" id="navOntario" href="ontario.html" data-i18n="nav_ontario">Ontario</a>
+      <a class="nav-link" id="navUsHouse" href="us-house.html" data-i18n="nav_us_house">US House</a>
+      <a class="nav-link" id="navUsSenate" href="us-senate.html" data-i18n="nav_us_senate">US Senate</a>
     </nav>
   </div>
   <div class="header-right">
@@ -640,6 +645,16 @@
   <!-- PROJECTION SIÈGES -->
   <div class="section-title" data-i18n="seat_projection">Projection des sièges</div>
   <div class="seats-grid" id="seatsGrid"></div>
+
+  <!-- US HOUSE RATINGS -->
+  <div id="usRatingsSection" style="display:none">
+    <div class="section-title" data-i18n="us_ratings_title">Baromètre des courses</div>
+    <div class="section-subtitle" data-i18n="us_ratings_subtitle">Classement des courses selon notre probabilité de victoire: solid, likely, lean et toss-up.</div>
+    <div class="composition-block" style="padding:18px 18px 14px">
+      <div id="usRatingsBar" style="display:flex;height:54px;border-radius:16px;overflow:hidden;background:var(--surface2);border:1px solid var(--border)"></div>
+      <div id="usRatingsLegend" class="comp-legend" style="margin-top:14px"></div>
+    </div>
+  </div>
 
   <!-- GRAPHIQUES -->
   <div class="section-title" data-i18n="analysis">Analyse</div>
@@ -716,6 +731,8 @@ const pageName = location.pathname.split('/').pop() || 'index.html';
 const jurisdiction =
   pageName === 'quebec.html' ? 'quebec' :
   pageName === 'ontario.html' ? 'ontario' :
+  pageName === 'us-house.html' ? 'us-house' :
+  pageName === 'us-senate.html' ? 'us-senate' :
   'federal';
 const APP_CONFIG = {
   federal: {
@@ -771,7 +788,7 @@ const APP_CONFIG = {
     center: [46.8, -71.2],
     zoom: 6.2,
     parties: ['pq','plq','pcq','qs','caq','qc_oth'],
-    currentCompositionParties: ['caq','plq','qs','pq','qc_ind']
+    currentCompositionParties: ['caq','plq','qs','pq','pcq','qc_ind']
   },
   ontario: {
     key: 'ontario',
@@ -798,7 +815,64 @@ const APP_CONFIG = {
     byelections: false,
     center: [49.2, -84.6],
     zoom: 5.5,
-    parties: ['on_pc','on_ndp','on_lib','on_grn','on_oth']
+    parties: ['on_pc','on_ndp','on_lib','on_grn','on_oth'],
+    currentCompositionParties: ['on_pc','on_ndp','on_lib','on_grn','on_ind']
+  },
+  'us-house': {
+    key: 'us-house',
+    dataPath: 'web_data/us-house/latest.json',
+    geoPath: 'web_data/us-house/ridings.geojson',
+    heroTitle: {
+      fr: 'Projection <em>de la Chambre des représentants américaine</em>',
+      en: 'U.S. House <em>Projection</em>'
+    },
+    institution: {
+      fr: 'Composition actuelle de la Chambre des représentants',
+      en: 'Current House Composition'
+    },
+    source: {
+      fr: 'Sources : NYT Poll Tracker, MIT Election Lab, Census Bureau',
+      en: 'Sources: NYT Poll Tracker, MIT Election Lab, Census Bureau'
+    },
+    mapSubtitle: {
+      fr: 'Projection par district basée sur les résultats House 2024, les sondages nationaux 2026 et la structure partisane locale.',
+      en: 'District projection based on 2024 House results, 2026 national polling and district partisanship.'
+    },
+    baselineYear: 2024,
+    seatsTotal: 435,
+    byelections: false,
+    center: [39.8, -98.6],
+    zoom: 3.7,
+    parties: ['us_dem','us_rep','us_oth'],
+    currentCompositionParties: ['us_rep','us_dem','us_ind']
+  },
+  'us-senate': {
+    key: 'us-senate',
+    dataPath: 'web_data/us-senate/latest.json',
+    geoPath: 'web_data/us-senate/ridings.geojson',
+    heroTitle: {
+      fr: 'Projection <em>du Sénat américain</em>',
+      en: 'U.S. Senate <em>Projection</em>'
+    },
+    institution: {
+      fr: 'Composition actuelle du Sénat',
+      en: 'Current Senate Composition'
+    },
+    source: {
+      fr: 'Sources : NYT Poll Tracker, MIT Election Lab, Census Bureau',
+      en: 'Sources: NYT Poll Tracker, MIT Election Lab, Census Bureau'
+    },
+    mapSubtitle: {
+      fr: 'Projection course par course basée sur les résultats Sénat 2020, les sondages 2026 et une pondération par État.',
+      en: 'Race-by-race projection based on 2020 Senate results, 2026 polling and state-level weighting.'
+    },
+    baselineYear: 2020,
+    seatsTotal: 100,
+    byelections: false,
+    center: [39.8, -98.6],
+    zoom: 3.4,
+    parties: ['us_dem','us_rep','us_oth'],
+    currentCompositionParties: ['us_rep','us_dem']
   }
 }[jurisdiction];
 
@@ -807,12 +881,14 @@ const APP_CONFIG = {
 // ═══════════════════════════════════════════════════════
 const I18N = {
   fr: {
-    site_name       : 'Projection Canada',
+    site_name       : 'VoteScope',
     hero_title      : 'Projection',
     current_house   : 'Composition actuelle de la Chambre',
     seats_label     : 'SIÈGES — 343 TOTAL',
     majority_needed : '172 sièges pour une majorité',
     seat_projection : 'Projection des sièges',
+    us_ratings_title: 'Baromètre des courses',
+    us_ratings_subtitle: 'Classement des courses selon notre probabilité de victoire: solid, likely, lean et toss-up.',
     analysis        : 'Analyse',
     vote_trend      : 'Intentions de vote',
     scenario_probs  : 'Probabilités de scénarios',
@@ -836,6 +912,7 @@ const I18N = {
     mode_rich       : 'mode riche',
     mode_sparse     : 'mode sparse',
     mode_moderate   : 'mode intermédiaire',
+    mode_race_model_v1: 'modèle course par course',
     map_subtitle    : 'Projection par circonscription basée sur les résultats 2025, les sondages nationaux et les ajustements régionaux.',
     byel_leading    : 'Favori projeté',
     byel_reason_resignation    : 'Démission',
@@ -863,14 +940,18 @@ const I18N = {
     nav_federal     : 'Fédéral',
     nav_quebec      : 'Québec',
     nav_ontario     : 'Ontario',
+    nav_us_house    : 'Chambre US',
+    nav_us_senate   : 'Sénat US',
   },
   en: {
-    site_name       : 'Canada Projection',
+    site_name       : 'VoteScope',
     hero_title      : 'Projection',
     current_house   : 'Current House Composition',
     seats_label     : 'SEATS — 343 TOTAL',
     majority_needed : '172 seats for a majority',
     seat_projection : 'Seat Projection',
+    us_ratings_title: 'Race Barometer',
+    us_ratings_subtitle: 'Race ratings based on our win probabilities: solid, likely, lean and toss-up.',
     analysis        : 'Analysis',
     vote_trend      : 'Vote Intentions',
     scenario_probs  : 'Scenario Probabilities',
@@ -894,6 +975,7 @@ const I18N = {
     mode_rich       : 'rich mode',
     mode_sparse     : 'sparse mode',
     mode_moderate   : 'moderate mode',
+    mode_race_model_v1: 'race-by-race model',
     map_subtitle    : 'Riding projection based on 2025 results, national polling and regional adjustments.',
     byel_leading    : 'Projected leader',
     byel_reason_resignation    : 'Resignation',
@@ -921,6 +1003,8 @@ const I18N = {
     nav_federal     : 'Federal',
     nav_quebec      : 'Quebec',
     nav_ontario     : 'Ontario',
+    nav_us_house    : 'U.S. House',
+    nav_us_senate   : 'U.S. Senate',
   }
 };
 
@@ -931,11 +1015,12 @@ const PARTY_COLORS = {
   caq:'#12BBFF', plq:'#D90000', pq:'#0101CC',
   qs:'#FF5402', pcq:'#172853', qc_oth:'#6b7280', qc_ind:'#6b7280',
   on_pc:'#0202FF', on_ndp:'#FF5402', on_lib:'#D90000',
-  on_grn:'#269B26', on_oth:'#6b7280'
+  on_grn:'#269B26', on_oth:'#6b7280', on_ind:'#6b7280',
+  us_dem:'#1f77d0', us_rep:'#c62828', us_oth:'#6b7280', us_ind:'#6b7280'
 };
 const PARTY_LABELS = {
-  fr:{ lib:'Libéral', con:'Conservateur', ndp:'NPD', bq:'Bloc', grn:'Vert', ppc:'PPC', fed_oth:'Autre', vacant:'Vacant', caq:'CAQ', plq:'Libéral', pq:'PQ', qs:'QS', pcq:'PCQ', qc_oth:'Autre', qc_ind:'Indépendant', on_pc:'PC', on_ndp:'NPD', on_lib:'Libéral', on_grn:'Vert', on_oth:'Autre' },
-  en:{ lib:'Liberal', con:'Conservative', ndp:'NDP', bq:'Bloc', grn:'Green', ppc:'PPC', fed_oth:'Other', vacant:'Vacant', caq:'CAQ', plq:'Liberal', pq:'PQ', qs:'QS', pcq:'PCQ', qc_oth:'Other', qc_ind:'Independent', on_pc:'PC', on_ndp:'NDP', on_lib:'Liberal', on_grn:'Green', on_oth:'Other' }
+  fr:{ lib:'Libéral', con:'Conservateur', ndp:'NPD', bq:'Bloc', grn:'Vert', ppc:'PPC', fed_oth:'Autre', vacant:'Vacant', caq:'CAQ', plq:'Libéral', pq:'PQ', qs:'QS', pcq:'PCQ', qc_oth:'Autre', qc_ind:'Indépendant', on_pc:'PC', on_ndp:'NPD', on_lib:'Libéral', on_grn:'Vert', on_oth:'Autre', on_ind:'Indépendant', us_dem:'Démocrate', us_rep:'Républicain', us_oth:'Autre', us_ind:'Indépendant' },
+  en:{ lib:'Liberal', con:'Conservative', ndp:'NDP', bq:'Bloc', grn:'Green', ppc:'PPC', fed_oth:'Other', vacant:'Vacant', caq:'CAQ', plq:'Liberal', pq:'PQ', qs:'QS', pcq:'PCQ', qc_oth:'Other', qc_ind:'Independent', on_pc:'PC', on_ndp:'NDP', on_lib:'Liberal', on_grn:'Green', on_oth:'Other', on_ind:'Independent', us_dem:'Democrat', us_rep:'Republican', us_oth:'Other', us_ind:'Independent' }
 };
 
 // ═══════════════════════════════════════════════════════
@@ -961,12 +1046,12 @@ function setLang(l) {
     const key = el.getAttribute('data-i18n');
     if (I18N[lang][key]) el.innerHTML = I18N[lang][key];
   });
-  document.getElementById('ridingSearch').placeholder =
-    lang === 'fr' ? 'Rechercher une circonscription…' : 'Search a riding…';
+  document.getElementById('ridingSearch').placeholder = getSearchPlaceholder();
   renderJurisdictionUI();
   if (data) {
     renderComposition();
     renderSeatsGrid();
+    renderUSRatings();
     renderCharts();
     renderByelections();
     renderRidingsTable();
@@ -977,6 +1062,62 @@ function setLang(l) {
 }
 
 function t(key) { return I18N[lang][key] || key; }
+
+function isUsSenate() {
+  return jurisdiction === 'us-senate';
+}
+
+function isUsHouse() {
+  return jurisdiction === 'us-house';
+}
+
+function isUsJurisdiction() {
+  return isUsHouse() || isUsSenate();
+}
+
+function getRidingsSectionLabel() {
+  if (isUsSenate()) return lang === 'fr' ? 'Toutes les courses' : 'All races';
+  if (isUsHouse()) return lang === 'fr' ? 'Tous les districts' : 'All districts';
+  return t('all_ridings');
+}
+
+function getRidingColumnLabel() {
+  if (isUsSenate()) return lang === 'fr' ? 'Course' : 'Race';
+  if (isUsHouse()) return lang === 'fr' ? 'District' : 'District';
+  return t('col_riding');
+}
+
+function getProvinceColumnLabel() {
+  return isUsJurisdiction() ? (lang === 'fr' ? 'État' : 'State') : t('col_province');
+}
+
+function getProvinceFilterLabel() {
+  return isUsJurisdiction()
+    ? (lang === 'fr' ? 'Tous les États' : 'All states')
+    : (lang === 'fr' ? 'Toutes les provinces' : 'All provinces');
+}
+
+function getTurnoutColumnLabel() {
+  return isUsSenate()
+    ? (lang === 'fr' ? 'Sondages' : 'Polls')
+    : (lang === 'fr' ? `Participation ${APP_CONFIG.baselineYear}` : `${APP_CONFIG.baselineYear} turnout`);
+}
+
+function getTurnoutPopupLabel() {
+  return isUsSenate() ? (lang === 'fr' ? 'Sondages' : 'Polls') : t('popup_turnout');
+}
+
+function getPagerUnitLabel() {
+  if (isUsSenate()) return lang === 'fr' ? 'courses' : 'races';
+  if (isUsHouse()) return lang === 'fr' ? 'districts' : 'districts';
+  return t('ridings');
+}
+
+function getSearchPlaceholder() {
+  if (isUsSenate()) return lang === 'fr' ? 'Rechercher un État…' : 'Search a state…';
+  if (isUsHouse()) return lang === 'fr' ? 'Rechercher un district…' : 'Search a district…';
+  return lang === 'fr' ? 'Rechercher une circonscription…' : 'Search a riding…';
+}
 
 function getBaselineResult(riding) {
   return riding?.baseline_result || riding?.result_2025 || {};
@@ -991,6 +1132,7 @@ function getRidingMargin(riding) {
 }
 
 function getRidingTurnout(riding) {
+  if (isUsSenate()) return Number(riding?.poll_count || 0);
   return getBaselineResult(riding)?.turnout_pct ?? 0;
 }
 
@@ -1005,16 +1147,25 @@ function renderJurisdictionUI() {
     ? 'Projection Électorale Québec | Electoral Projection'
     : jurisdiction === 'ontario'
     ? 'Projection Électorale Ontario | Electoral Projection'
-    : 'Projection Électorale Canada | Electoral Projection';
+    : jurisdiction === 'us-house'
+      ? 'Projection Électorale US House | Electoral Projection'
+      : jurisdiction === 'us-senate'
+        ? 'Projection Électorale US Senate | Electoral Projection'
+      : 'Projection Électorale Canada | Electoral Projection';
   document.querySelector('[data-i18n="hero_title"]').innerHTML = APP_CONFIG.heroTitle[lang];
   document.getElementById('currentHouseTitle').textContent = APP_CONFIG.institution[lang];
   document.getElementById('mapSubtitle').textContent = APP_CONFIG.mapSubtitle[lang];
   document.getElementById('footerSource').textContent = APP_CONFIG.source[lang];
-  document.getElementById('turnoutHeader').textContent =
-    lang === 'fr' ? `Participation ${APP_CONFIG.baselineYear}` : `${APP_CONFIG.baselineYear} turnout`;
+  document.getElementById('ridingSearch').placeholder = getSearchPlaceholder();
+  document.getElementById('turnoutHeader').textContent = getTurnoutColumnLabel();
+  document.querySelector('[data-i18n="all_ridings"]').textContent = getRidingsSectionLabel();
+  document.querySelector('[data-i18n="col_riding"]').textContent = getRidingColumnLabel();
+  document.querySelector('[data-i18n="col_province"]').textContent = getProvinceColumnLabel();
   document.getElementById('navFederal').classList.toggle('active', jurisdiction === 'federal');
   document.getElementById('navQuebec').classList.toggle('active', jurisdiction === 'quebec');
   document.getElementById('navOntario').classList.toggle('active', jurisdiction === 'ontario');
+  document.getElementById('navUsHouse').classList.toggle('active', jurisdiction === 'us-house');
+  document.getElementById('navUsSenate').classList.toggle('active', jurisdiction === 'us-senate');
 
   const byelSection = document.getElementById('byelectionsSection');
   if (!APP_CONFIG.byelections) {
@@ -1040,7 +1191,7 @@ async function loadData() {
   } catch(e) {
     // Fallback : données de démo intégrées
     console.error('Load error, fallback to DEMO_DATA', e);
-    data = jurisdiction === 'quebec' ? DEMO_DATA_QC : jurisdiction === 'ontario' ? DEMO_DATA_ON : DEMO_DATA;
+    data = jurisdiction === 'quebec' ? DEMO_DATA_QC : jurisdiction === 'ontario' ? DEMO_DATA_ON : jurisdiction === 'us-house' ? DEMO_DATA_US : jurisdiction === 'us-senate' ? DEMO_DATA_US_SENATE : DEMO_DATA;
     render();
   }
 }
@@ -1065,6 +1216,7 @@ function render() {
   renderAlerts();
   renderComposition();
   renderSeatsGrid();
+  renderUSRatings();
   renderCharts();
   renderMap();
   renderByelections();
@@ -1168,6 +1320,51 @@ function renderSeatsGrid() {
   }).join('');
 }
 
+function renderUSRatings() {
+  const section = document.getElementById('usRatingsSection');
+  if (!['us-house', 'us-senate'].includes(jurisdiction)) {
+    section.style.display = 'none';
+    return;
+  }
+
+  const ratings = data.race_ratings || [];
+  if (!ratings.length) {
+    section.style.display = 'none';
+    return;
+  }
+
+  section.style.display = 'block';
+  const total = ratings.reduce((sum, row) => sum + (row.count || 0), 0) || 1;
+  const colorMap = {
+    solid_dem: '#0f4fb8',
+    likely_dem: '#2c7be5',
+    lean_dem: '#77b6ff',
+    tossup: '#b08d57',
+    lean_rep: '#f19a8b',
+    likely_rep: '#df5a49',
+    solid_rep: '#8d1f18'
+  };
+  const bar = document.getElementById('usRatingsBar');
+  const legend = document.getElementById('usRatingsLegend');
+
+  bar.innerHTML = ratings.map(r => {
+    const color = colorMap[r.code] || '#6b7280';
+    const label = lang === 'fr' ? r.label_fr : r.label_en;
+    return `<div style="flex:${r.count};background:${color};display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:15px"
+      title="${label}: ${r.count}">${r.count >= 10 ? r.count : ''}</div>`;
+  }).join('');
+
+  legend.innerHTML = ratings.map(r => {
+    const color = colorMap[r.code] || '#6b7280';
+    const label = lang === 'fr' ? r.label_fr : r.label_en;
+    const pct = ((r.count / total) * 100).toFixed(0);
+    return `<div class="comp-legend-item">
+      <span class="legend-dot" style="background:${color}"></span>
+      ${label} <span class="legend-count">${r.count}</span><span style="color:var(--muted);font-size:11px"> ${pct}%</span>
+    </div>`;
+  }).join('');
+}
+
 // ═══════════════════════════════════════════════════════
 // CHARTS
 // ═══════════════════════════════════════════════════════
@@ -1178,7 +1375,16 @@ function renderCharts() {
 
 function renderVoteTrend() {
   const polls = data.polls_history || [];
-  const parties_order = APP_CONFIG.parties.filter(p => !['fed_oth', 'qc_oth', 'on_oth'].includes(p)).slice(0, 5);
+  if (!polls.length) {
+    document.getElementById('chartVoteTrend').innerHTML =
+      `<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--muted);font-size:13px;text-align:center;padding:24px">
+        ${lang === 'fr'
+          ? 'Aucune série de sondages exploitable pour cette juridiction.'
+          : 'No usable polling history is available for this jurisdiction.'}
+      </div>`;
+    return;
+  }
+  const parties_order = APP_CONFIG.parties.filter(p => !['fed_oth', 'qc_oth', 'on_oth', 'us_oth'].includes(p)).slice(0, 5);
   const traces = parties_order.map(p => {
     const x = polls.map(d => d.date);
     const y = polls.map(d => d[p]);
@@ -1348,7 +1554,7 @@ function showRidingPopup(e, riding, layer) {
   const winLabel = PARTY_LABELS[lang][winner] || winner.toUpperCase();
 
   const votes = APP_CONFIG.parties
-    .filter(p => !['fed_oth', 'qc_oth', 'on_oth', 'vacant'].includes(p))
+    .filter(p => !['fed_oth', 'qc_oth', 'on_oth', 'us_oth', 'vacant'].includes(p))
     .map(p => {
     const pct = getRidingVotePct(riding, p);
     if (pct === undefined || pct === null) return '';
@@ -1361,6 +1567,8 @@ function showRidingPopup(e, riding, layer) {
 
   const pWinner = projection.p_winner != null ? `${(projection.p_winner * 100).toFixed(0)}%` : '—';
   const pClose = projection.p_close_race != null ? `${(projection.p_close_race * 100).toFixed(0)}%` : '—';
+  const rating = projection.rating || null;
+  const ratingLabel = rating ? (lang === 'fr' ? rating.label_fr : rating.label_en) : null;
   const baselineWinner = baseline.winner
     ? (PARTY_LABELS[lang][baseline.winner] || baseline.winner.toUpperCase())
     : '—';
@@ -1373,6 +1581,10 @@ function showRidingPopup(e, riding, layer) {
         ● ${winLabel}
       </span></div>
       <div style="font-size:11px;color:var(--muted);margin-bottom:8px">${t('map_projection')}</div>
+      ${ratingLabel ? `<div class="popup-row" style="margin-top:-2px">
+        <span class="popup-label">${lang === 'fr' ? 'Rating' : 'Rating'}</span>
+        <span class="popup-val">${ratingLabel}</span>
+      </div>` : ''}
       ${votes}
       <div class="popup-row" style="margin-top:6px">
         <span class="popup-label">${t('popup_p_winner')}</span>
@@ -1387,8 +1599,8 @@ function showRidingPopup(e, riding, layer) {
         <span class="popup-val">${getRidingMargin(riding).toFixed(1)}%</span>
       </div>
       <div class="popup-row">
-        <span class="popup-label">${t('popup_turnout')}</span>
-        <span class="popup-val">${getRidingTurnout(riding).toFixed(1)}%</span>
+        <span class="popup-label">${getTurnoutPopupLabel()}</span>
+        <span class="popup-val">${isUsSenate() ? Math.round(getRidingTurnout(riding)) : `${getRidingTurnout(riding).toFixed(1)}%`}</span>
       </div>
       <div style="font-size:11px;color:var(--muted);margin:8px 0 4px">${lang === 'fr' ? `Base ${APP_CONFIG.baselineYear}` : `${APP_CONFIG.baselineYear} baseline`}</div>
       <div class="popup-row">
@@ -1404,7 +1616,7 @@ function showRidingPopup(e, riding, layer) {
 }
 
 function renderMapLegend() {
-  const parties = APP_CONFIG.parties.filter(p => !['fed_oth', 'qc_oth', 'on_oth'].includes(p));
+  const parties = APP_CONFIG.parties.filter(p => !['fed_oth', 'qc_oth', 'on_oth', 'us_oth'].includes(p));
   document.getElementById('mapLegend').innerHTML =
     `<div class="map-legend-title">${t('map_projection')}</div>` +
     parties.map(p => `
@@ -1474,7 +1686,7 @@ function renderRidingsTable() {
 
   const allProvinceOption = document.createElement('option');
   allProvinceOption.value = '';
-  allProvinceOption.textContent = lang === 'fr' ? 'Toutes les provinces' : 'All provinces';
+  allProvinceOption.textContent = getProvinceFilterLabel();
   pflt.appendChild(allProvinceOption);
   provinces.forEach(p => {
     const o = document.createElement('option');
@@ -1555,12 +1767,12 @@ function renderRidingsPage() {
           <span style="color:var(--muted);font-size:12px">${margin.toFixed(1)}%</span>
         </div>
       </td>
-      <td style="color:var(--muted)">${turn.toFixed(1)}%</td>
+      <td style="color:var(--muted)">${isUsSenate() ? Math.round(turn) : `${turn.toFixed(1)}%`}</td>
     </tr>`;
   }).join('');
 
   document.getElementById('ridingsPager').textContent =
-    `${t('showing')} ${start+1}–${Math.min(start+PAGE_SIZE, filteredRidings.length)} ${t('of')} ${filteredRidings.length} ${t('ridings')}`;
+    `${t('showing')} ${start+1}–${Math.min(start+PAGE_SIZE, filteredRidings.length)} ${t('of')} ${filteredRidings.length} ${getPagerUnitLabel()}`;
 
   // Boutons pagination si besoin
   if (filteredRidings.length > PAGE_SIZE) {
@@ -1655,7 +1867,7 @@ const DEMO_DATA_QC = {
     { party:'qs', label_fr:'QS', label_en:'QS', vote_mean:9.0, seats_mean:8, seats_ci_low_80:6, seats_ci_high_80:10, seats_ci_low_95:6, seats_ci_high_95:10, p_majority:0, p_largest:0 },
     { party:'caq', label_fr:'CAQ', label_en:'CAQ', vote_mean:14.0, seats_mean:1, seats_ci_low_80:0, seats_ci_high_80:4, seats_ci_low_95:0, seats_ci_high_95:7, p_majority:0, p_largest:0 }
   ],
-  current_composition: { caq: 90, plq: 21, qs: 11, pq: 3 },
+  current_composition: { caq: 78, plq: 18, qs: 11, pq: 7, pcq: 1, qc_ind: 10 },
   polls_history: [],
   tipping_points: [],
   ridings: []
@@ -1671,6 +1883,49 @@ const DEMO_DATA_ON = {
     { party:'on_oth', label_fr:'Autre', label_en:'Other', vote_mean:3.7, seats_mean:1, seats_ci_low_80:1, seats_ci_high_80:1, seats_ci_low_95:1, seats_ci_high_95:1, p_majority:0, p_largest:0 }
   ],
   current_composition: { on_pc:80, on_ndp:27, on_lib:14, on_grn:2, on_oth:1 },
+  polls_history: [],
+  tipping_points: [],
+  ridings: []
+};
+
+const DEMO_DATA_US = {
+  meta: { run_date:'2026-03-24', election_cycle:'us_house_2026', n_polls:460, mode:'moderate', majority_threshold:218, n_simulations:10000, pipeline_version:'4.0', total_seats:435 },
+  parties: [
+    { party:'us_dem', label_fr:'Démocrate', label_en:'Democrat', vote_mean:46.2, seats_mean:227, seats_ci_low_80:218, seats_ci_high_80:234, seats_ci_low_95:213, seats_ci_high_95:236, p_majority:.909, p_largest:1 },
+    { party:'us_rep', label_fr:'Républicain', label_en:'Republican', vote_mean:42.7, seats_mean:208, seats_ci_low_80:201, seats_ci_high_80:217, seats_ci_low_95:199, seats_ci_high_95:222, p_majority:.091, p_largest:0 },
+    { party:'us_oth', label_fr:'Autre', label_en:'Other', vote_mean:1.1, seats_mean:0, seats_ci_low_80:0, seats_ci_high_80:1, seats_ci_low_95:0, seats_ci_high_95:1, p_majority:0, p_largest:0 }
+  ],
+  current_composition: { us_rep:218, us_dem:214, vacant:3 },
+  race_ratings: [
+    { code:'solid_dem', side:'dem', label_fr:'Démocrate solide', label_en:'Solid Democrat', count:185 },
+    { code:'likely_dem', side:'dem', label_fr:'Démocrate probable', label_en:'Likely Democrat', count:10 },
+    { code:'lean_dem', side:'dem', label_fr:'Avantage démocrate', label_en:'Lean Democrat', count:21 },
+    { code:'tossup', side:'tossup', label_fr:'Toss-up', label_en:'Toss Up', count:25 },
+    { code:'lean_rep', side:'rep', label_fr:'Avantage républicain', label_en:'Lean Republican', count:7 },
+    { code:'likely_rep', side:'rep', label_fr:'Républicain probable', label_en:'Likely Republican', count:12 },
+    { code:'solid_rep', side:'rep', label_fr:'Républicain solide', label_en:'Solid Republican', count:175 }
+  ],
+  polls_history: [],
+  tipping_points: [],
+  ridings: []
+};
+
+const DEMO_DATA_US_SENATE = {
+  meta: { run_date:'2026-03-24', election_cycle:'us_senate_2026', n_polls:246, mode:'race_model_v1', majority_threshold:51, n_simulations:20000, pipeline_version:'4.0', total_seats:100, contested_seats:35 },
+  parties: [
+    { party:'us_dem', label_fr:'Démocrate', label_en:'Democrat', vote_mean:0, seats_mean:51, seats_ci_low_80:49, seats_ci_high_80:53, seats_ci_low_95:48, seats_ci_high_95:54, p_majority:.67, p_largest:.67 },
+    { party:'us_rep', label_fr:'Républicain', label_en:'Republican', vote_mean:0, seats_mean:49, seats_ci_low_80:47, seats_ci_high_80:51, seats_ci_low_95:46, seats_ci_high_95:52, p_majority:.13, p_largest:.13 }
+  ],
+  current_composition: { us_rep:53, us_dem:47 },
+  race_ratings: [
+    { code:'solid_dem', side:'dem', label_fr:'Démocrate solide', label_en:'Solid Democrat', count:9 },
+    { code:'likely_dem', side:'dem', label_fr:'Démocrate probable', label_en:'Likely Democrat', count:4 },
+    { code:'lean_dem', side:'dem', label_fr:'Avantage démocrate', label_en:'Lean Democrat', count:2 },
+    { code:'tossup', side:'tossup', label_fr:'Toss-up', label_en:'Toss Up', count:5 },
+    { code:'lean_rep', side:'rep', label_fr:'Avantage républicain', label_en:'Lean Republican', count:2 },
+    { code:'likely_rep', side:'rep', label_fr:'Républicain probable', label_en:'Likely Republican', count:3 },
+    { code:'solid_rep', side:'rep', label_fr:'Républicain solide', label_en:'Solid Republican', count:10 }
+  ],
   polls_history: [],
   tipping_points: [],
   ridings: []
