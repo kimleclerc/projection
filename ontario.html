@@ -1,0 +1,1689 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Projection Électorale Canada | Electoral Projection</title>
+
+  <!-- Leaflet -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- Plotly -->
+  <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    /* ─── RESET & BASE ─── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0d0f14;
+      --surface:   #151820;
+      --surface2:  #1c2030;
+      --border:    #252a38;
+      --text:      #e8eaf0;
+      --muted:     #6b7280;
+      --accent:    #e8c96d;
+      --lib:       #D71920;
+      --con:       #1A4782;
+      --ndp:       #F58220;
+      --bq:        #33B2CC;
+      --grn:       #3D9B35;
+      --ppc:       #7C3AED;
+      --oth:       #6b7280;
+      --radius:    8px;
+      --shadow:    0 4px 24px rgba(0,0,0,.4);
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* ─── HEADER ─── */
+    header {
+      position: sticky; top: 0; z-index: 1000;
+      background: rgba(13,15,20,.92);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      height: 56px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+
+    .logo {
+      font-family: 'Instrument Serif', serif;
+      font-size: 18px;
+      letter-spacing: -0.02em;
+      color: var(--text);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .logo-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--accent); display: inline-block;
+      animation: pulse 2.4s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%,100% { opacity:1; transform:scale(1); }
+      50%      { opacity:.5; transform:scale(.85); }
+    }
+
+    .header-right { display: flex; align-items: center; gap: 16px; }
+    .header-left { display:flex; align-items:center; gap:18px; }
+    .top-nav {
+      display:flex; align-items:center; gap:8px;
+      padding:4px;
+      border-radius:999px;
+      background: rgba(28,32,48,.8);
+      border:1px solid var(--border);
+    }
+    .nav-link {
+      display:inline-flex; align-items:center;
+      padding:6px 12px;
+      border-radius:999px;
+      color:var(--muted);
+      text-decoration:none;
+      font-size:12px;
+      font-weight:600;
+      letter-spacing:.03em;
+      transition: all .2s ease;
+    }
+    .nav-link:hover { color:var(--text); background:rgba(255,255,255,.04); }
+    .nav-link.active {
+      background: var(--accent);
+      color: #0d0f14;
+    }
+
+    /* Lang switch */
+    .lang-switch {
+      display: flex;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 3px;
+      gap: 2px;
+    }
+    .lang-btn {
+      padding: 4px 12px;
+      border-radius: 16px;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .2s;
+      letter-spacing: .04em;
+    }
+    .lang-btn.active {
+      background: var(--accent);
+      color: #0d0f14;
+    }
+
+    /* Run date badge */
+    .run-badge {
+      font-size: 11px;
+      color: var(--muted);
+      display: flex; align-items: center; gap: 6px;
+    }
+    .run-badge::before {
+      content:'';
+      width:6px; height:6px; border-radius:50%;
+      background: #22c55e;
+      display:inline-block;
+    }
+
+    /* ─── LAYOUT ─── */
+    main { max-width: 1400px; margin: 0 auto; padding: 32px 24px 80px; }
+
+    /* ─── HERO ─── */
+    .hero {
+      margin-bottom: 40px;
+      display: flex; align-items: flex-end; justify-content: space-between;
+      flex-wrap: wrap; gap: 16px;
+    }
+    .hero h1 {
+      font-family: 'Instrument Serif', serif;
+      font-size: clamp(28px, 4vw, 48px);
+      line-height: 1.1;
+      letter-spacing: -.03em;
+      color: var(--text);
+    }
+    .hero h1 em { font-style: italic; color: var(--accent); }
+    .hero-meta { color: var(--muted); font-size: 13px; }
+    .hero-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(232, 201, 109, 0.22);
+      background: linear-gradient(180deg, rgba(232, 201, 109, 0.12), rgba(232, 201, 109, 0.04));
+      color: var(--text);
+      font-size: 11px;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+    .hero-badge strong {
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .hero-badge-subtle {
+      border-color: var(--border);
+      background: rgba(28, 32, 48, 0.8);
+      color: var(--muted);
+    }
+    .section-subtitle {
+      margin: -4px 0 14px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    /* ─── SECTION HEADERS ─── */
+    .section-title {
+      font-family: 'Instrument Serif', serif;
+      font-size: 20px;
+      color: var(--text);
+      margin-bottom: 16px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .section-title::after {
+      content:''; flex:1; height:1px; background:var(--border);
+    }
+
+    /* ─── COMPOSITION BAR ─── */
+    .composition-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      margin-bottom: 32px;
+    }
+    .comp-label {
+      font-size: 11px; letter-spacing:.08em; text-transform:uppercase;
+      color: var(--muted); margin-bottom: 12px;
+    }
+    .comp-bar {
+      display: flex; height: 36px; border-radius: 6px; overflow: hidden;
+      margin-bottom: 10px;
+    }
+    .comp-seg {
+      height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 600; color: #fff;
+      transition: flex .6s cubic-bezier(.4,0,.2,1);
+      position: relative; overflow: hidden;
+      cursor: default;
+    }
+    .comp-seg:hover { filter: brightness(1.15); }
+    .comp-majority-line {
+      position: relative; display: flex; align-items: center;
+      gap: 8px; margin-top: 6px;
+    }
+    .majority-marker {
+      position: absolute;
+      width: 2px; height: 20px;
+      background: var(--accent);
+      top: -52px;
+      pointer-events: none;
+    }
+    .comp-legend {
+      display: flex; flex-wrap: wrap; gap: 12px; margin-top: 14px;
+    }
+    .comp-legend-item {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 12px; color: var(--muted);
+    }
+    .legend-dot {
+      width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0;
+    }
+    .legend-count { color: var(--text); font-weight: 600; }
+
+    /* ─── SEATS GRID ─── */
+    .seats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+    .seat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px 18px;
+      position: relative; overflow: hidden;
+      transition: transform .2s, border-color .2s;
+    }
+    .seat-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(232,201,109,.3);
+    }
+    .seat-card::before {
+      content:''; position:absolute; top:0; left:0;
+      width:3px; height:100%;
+    }
+    .seat-card-party {
+      font-size: 11px; font-weight: 600; letter-spacing:.06em;
+      text-transform: uppercase; color: var(--muted); margin-bottom: 6px;
+    }
+    .seat-card-number {
+      font-family: 'Instrument Serif', serif;
+      font-size: 40px; line-height: 1;
+      color: var(--text); margin-bottom: 4px;
+    }
+    .seat-card-range {
+      font-size: 11px; color: var(--muted);
+    }
+    .seat-card-prob {
+      margin-top: 10px; padding-top: 10px;
+      border-top: 1px solid var(--border);
+      display: flex; justify-content: space-between;
+      font-size: 11px; color: var(--muted);
+    }
+    .prob-val { color: var(--text); font-weight: 600; }
+
+    /* ─── CHARTS ROW ─── */
+    .charts-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+    @media (max-width: 768px) { .charts-row { grid-template-columns: 1fr; } }
+
+    .chart-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+    }
+    .chart-title {
+      font-size: 12px; font-weight: 600;
+      letter-spacing: .06em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 16px;
+    }
+
+    /* ─── MAP ─── */
+    .map-section { margin-bottom: 32px; }
+    .map-container {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      position: relative;
+    }
+    #map { height: 520px; }
+
+    /* Leaflet dark overrides */
+    .leaflet-container { background: #1a1f2e !important; }
+    .leaflet-tile { filter: brightness(.7) saturate(.6); }
+
+    /* Map popup */
+    .leaflet-popup-content-wrapper {
+      background: var(--surface2) !important;
+      border: 1px solid var(--border) !important;
+      border-radius: var(--radius) !important;
+      box-shadow: var(--shadow) !important;
+      color: var(--text) !important;
+    }
+    .leaflet-popup-tip { background: var(--surface2) !important; }
+    .leaflet-popup-content { margin: 14px 18px !important; }
+    .popup-riding { font-family: 'Instrument Serif', serif; font-size:16px; margin-bottom:6px; }
+    .popup-winner {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 12px; font-weight: 600; padding: 3px 10px;
+      border-radius: 12px; margin-bottom: 10px;
+    }
+    .popup-row {
+      display: flex; justify-content: space-between;
+      font-size: 12px; padding: 3px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .popup-row:last-child { border: none; }
+    .popup-label { color: var(--muted); }
+    .popup-val { font-weight: 600; }
+
+    /* Map legend */
+    .map-legend {
+      position: absolute; bottom: 16px; right: 16px; z-index: 500;
+      background: rgba(13,15,20,.88);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px 14px;
+    }
+    .map-legend-title {
+      font-size: 10px; font-weight: 600;
+      letter-spacing: .08em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 8px;
+    }
+    .map-legend-item {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 12px; margin-bottom: 4px;
+    }
+    .map-legend-swatch {
+      width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0;
+    }
+
+    /* ─── BYELECTIONS ─── */
+    .byel-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+    .byel-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+    }
+    .byel-date {
+      font-size: 11px; letter-spacing:.06em; text-transform:uppercase;
+      color: var(--accent); margin-bottom: 8px;
+    }
+    .byel-name {
+      font-family: 'Instrument Serif', serif;
+      font-size: 18px; margin-bottom: 12px;
+    }
+    .byel-probs { display: flex; flex-direction: column; gap: 6px; }
+    .byel-prob-row {
+      display: flex; align-items: center; gap: 10px;
+    }
+    .byel-prob-label { font-size: 12px; color: var(--muted); width: 100px; }
+    .byel-prob-bar {
+      flex: 1; height: 6px; background: var(--border);
+      border-radius: 3px; overflow: hidden;
+    }
+    .byel-prob-fill { height: 100%; border-radius: 3px; transition: width .8s; }
+    .byel-prob-val { font-size: 12px; font-weight: 600; width: 36px; text-align: right; }
+
+    /* ─── RIDINGS TABLE ─── */
+    .ridings-section { margin-bottom: 32px; }
+    .table-controls {
+      display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap;
+    }
+    .table-search {
+      flex: 1; min-width: 180px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 8px 14px;
+      color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 13px;
+      outline: none;
+    }
+    .table-search:focus { border-color: var(--accent); }
+    .table-filter {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 8px 14px;
+      color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 13px;
+      outline: none; cursor: pointer;
+    }
+    .ridings-table-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    table { width: 100%; border-collapse: collapse; }
+    thead th {
+      padding: 10px 16px;
+      text-align: left;
+      font-size: 11px; font-weight: 600;
+      letter-spacing: .06em; text-transform: uppercase;
+      color: var(--muted);
+      background: var(--surface2);
+      border-bottom: 1px solid var(--border);
+      cursor: pointer; user-select: none;
+    }
+    thead th:hover { color: var(--text); }
+    tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background .15s;
+    }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: var(--surface2); }
+    tbody td { padding: 10px 16px; font-size: 13px; }
+    .party-pill {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 2px 9px; border-radius: 10px;
+      font-size: 11px; font-weight: 700;
+      color: #fff;
+    }
+    .margin-bar {
+      display: flex; align-items: center; gap: 6px;
+    }
+    .margin-track {
+      width: 60px; height: 4px;
+      background: var(--border); border-radius: 2px; overflow: hidden;
+    }
+    .margin-fill { height: 100%; border-radius: 2px; }
+
+    /* ─── FOOTER ─── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 24px;
+      text-align: center;
+      font-size: 12px; color: var(--muted);
+    }
+    footer a { color: var(--accent); text-decoration: none; }
+
+    /* ─── LOADING ─── */
+    #loading {
+      position: fixed; inset: 0; z-index: 9999;
+      background: var(--bg);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 16px;
+    }
+    .loading-logo {
+      font-family: 'Instrument Serif', serif;
+      font-size: 28px; letter-spacing: -.03em;
+      color: var(--text);
+    }
+    .loading-bar {
+      width: 200px; height: 2px;
+      background: var(--border); border-radius: 1px; overflow: hidden;
+    }
+    .loading-progress {
+      height: 100%; background: var(--accent);
+      border-radius: 1px;
+      animation: loadprog 1.4s ease-in-out infinite;
+    }
+    @keyframes loadprog {
+      0%   { width:0;    margin-left:0; }
+      50%  { width:60%;  margin-left:20%; }
+      100% { width:0;    margin-left:100%; }
+    }
+
+    /* ─── ALERTS ─── */
+    .alerts-row {
+      display: flex; gap: 10px; flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+    .alert-chip {
+      display: flex; align-items: center; gap: 7px;
+      padding: 5px 12px 5px 8px;
+      border-radius: 20px; font-size: 12px; font-weight: 600;
+      border: 1px solid;
+    }
+    .alert-chip.orange { background: rgba(249,115,22,.1); border-color: rgba(249,115,22,.3); color: #fb923c; }
+    .alert-chip.yellow { background: rgba(234,179,8,.1);  border-color: rgba(234,179,8,.3);  color: #fbbf24; }
+    .alert-chip.green  { background: rgba(34,197,94,.1);  border-color: rgba(34,197,94,.3);  color: #4ade80; }
+    .alert-chip.red    { background: rgba(239,68,68,.1);  border-color: rgba(239,68,68,.3);  color: #f87171; }
+    .alert-dot { width:7px; height:7px; border-radius:50%; background:currentColor; }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      header {
+        height: auto;
+        padding: 10px 14px;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        grid-template-areas:
+          "logo lang"
+          "nav nav";
+        row-gap: 8px;
+        align-items: center;
+      }
+      .header-left { display: contents; }
+      .logo {
+        grid-area: logo;
+        font-size: 16px;
+        gap: 8px;
+      }
+      .header-right {
+        grid-area: lang;
+        justify-self: end;
+        gap: 0;
+      }
+      .run-badge { display: none; }
+      .top-nav {
+        grid-area: nav;
+        width: 100%;
+        justify-content: space-between;
+        gap: 4px;
+        padding: 3px;
+      }
+      .nav-link {
+        flex: 1;
+        justify-content: center;
+        padding: 7px 8px;
+        font-size: 11px;
+        white-space: nowrap;
+      }
+      .lang-btn {
+        padding: 4px 10px;
+        font-size: 11px;
+      }
+      .hero { flex-direction: column; align-items: flex-start; }
+      .seats-grid { grid-template-columns: 1fr 1fr; }
+      .charts-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div id="loading">
+  <div class="loading-logo">Projection<em> Canada</em></div>
+  <div class="loading-bar"><div class="loading-progress"></div></div>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div class="header-left">
+    <div class="logo">
+      <span class="logo-dot"></span>
+      <span data-i18n="site_name">Projection Canada</span>
+    </div>
+    <nav class="top-nav">
+      <a class="nav-link" id="navFederal" href="index.html" data-i18n="nav_federal">Fédéral</a>
+      <a class="nav-link" id="navQuebec" href="quebec.html" data-i18n="nav_quebec">Québec</a>
+      <a class="nav-link" id="navOntario" href="ontario.html" data-i18n="nav_ontario">Ontario</a>
+    </nav>
+  </div>
+  <div class="header-right">
+    <div class="run-badge" id="runBadge"></div>
+    <div class="lang-switch">
+      <button class="lang-btn active" onclick="setLang('fr')">FR</button>
+      <button class="lang-btn" onclick="setLang('en')">EN</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- HERO -->
+  <section class="hero">
+    <div>
+      <h1 data-i18n="hero_title">Projection <em>fédérale</em></h1>
+      <div class="hero-meta" id="heroMeta"></div>
+      <div class="hero-badges">
+        <div class="hero-badge"><strong data-i18n="model_badge">Modèle v1</strong></div>
+        <div class="hero-badge hero-badge-subtle" id="cycleBadge">Cycle fed_46</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ALERTS -->
+  <div class="alerts-row" id="alertsRow"></div>
+
+  <!-- COMPOSITION ACTUELLE -->
+  <div class="section-title" id="currentHouseTitle" data-i18n="current_house">Composition actuelle de la Chambre</div>
+  <div class="composition-block">
+    <div class="comp-label" id="seatsLabel" data-i18n="seats_label">SIÈGES — 343 TOTAL</div>
+    <div class="comp-bar" id="compBar"></div>
+    <div class="comp-majority-line">
+      <div class="majority-marker" id="majorityMarker"></div>
+      <span style="font-size:11px;color:var(--muted)" id="majorityNeeded" data-i18n="majority_needed">172 sièges pour une majorité</span>
+    </div>
+    <div class="comp-legend" id="compLegend"></div>
+  </div>
+
+  <!-- PROJECTION SIÈGES -->
+  <div class="section-title" data-i18n="seat_projection">Projection des sièges</div>
+  <div class="seats-grid" id="seatsGrid"></div>
+
+  <!-- GRAPHIQUES -->
+  <div class="section-title" data-i18n="analysis">Analyse</div>
+  <div class="charts-row">
+    <div class="chart-card">
+      <div class="chart-title" data-i18n="vote_trend">Intentions de vote</div>
+      <div id="chartVoteTrend" style="height:260px"></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title" data-i18n="scenario_probs">Probabilités de scénarios</div>
+      <div id="chartScenarios" style="height:260px"></div>
+    </div>
+  </div>
+
+  <!-- CARTE -->
+  <div class="section-title" data-i18n="map_title">Carte des circonscriptions</div>
+  <div class="section-subtitle" id="mapSubtitle" data-i18n="map_subtitle">Projection par circonscription basée sur les résultats 2025, les sondages nationaux et les ajustements régionaux.</div>
+  <div class="map-section">
+    <div class="map-container">
+      <div id="map"></div>
+      <div class="map-legend" id="mapLegend"></div>
+    </div>
+  </div>
+
+  <!-- ÉLECTIONS PARTIELLES -->
+  <div id="byelectionsSection">
+    <div class="section-title" id="byelectionsTitle" data-i18n="byelections">Élections partielles</div>
+    <div class="byel-grid" id="byelGrid"></div>
+  </div>
+
+  <!-- TABLEAU CIRCONSCRIPTIONS -->
+  <div class="section-title" data-i18n="all_ridings">Toutes les circonscriptions</div>
+  <div class="ridings-section">
+    <div class="table-controls">
+      <input class="table-search" id="ridingSearch"
+             data-placeholder-fr="Rechercher une circonscription…"
+             data-placeholder-en="Search a riding…"
+             placeholder="Rechercher une circonscription…">
+      <select class="table-filter" id="provinceFilter">
+        <option value="" data-i18n-fr="Toutes les provinces" data-i18n-en="All provinces">Toutes les provinces</option>
+      </select>
+      <select class="table-filter" id="partyFilter">
+        <option value="" data-i18n-fr="Tous les partis" data-i18n-en="All parties">Tous les partis</option>
+      </select>
+    </div>
+    <div class="ridings-table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th data-sort="name" data-i18n="col_riding">Circonscription</th>
+            <th data-sort="province" data-i18n="col_province">Province</th>
+            <th data-sort="winner" data-i18n="col_winner">Gagnant 2025</th>
+            <th data-sort="margin" data-i18n="col_margin">Marge</th>
+            <th data-sort="turnout" id="turnoutHeader" data-i18n="col_turnout">Participation</th>
+          </tr>
+        </thead>
+        <tbody id="ridingsTableBody"></tbody>
+      </table>
+    </div>
+    <div id="ridingsPager" style="text-align:center;padding:16px;font-size:12px;color:var(--muted)"></div>
+  </div>
+</main>
+
+<footer>
+  <span data-i18n="footer_method">Modèle BSTS bayésien — Monte Carlo 10 000 simulations</span>
+  &nbsp;·&nbsp;
+  <span id="footerSource" data-i18n="footer_source">Sources : Élections Canada, firmes de sondage publiques</span>
+  &nbsp;·&nbsp;
+  <a href="methodologie.html" data-i18n="footer_method_link">Méthodologie</a>
+</footer>
+
+<script>
+const pageName = location.pathname.split('/').pop() || 'index.html';
+const jurisdiction =
+  pageName === 'quebec.html' ? 'quebec' :
+  pageName === 'ontario.html' ? 'ontario' :
+  'federal';
+const APP_CONFIG = {
+  federal: {
+    key: 'federal',
+    dataPath: 'web_data/federal/latest.json',
+    geoPath: 'web_data/federal/ridings.geojson',
+    heroTitle: {
+      fr: 'Projection <em>fédérale</em>',
+      en: 'Federal <em>Projection</em>'
+    },
+    institution: {
+      fr: 'Composition actuelle de la Chambre',
+      en: 'Current House Composition'
+    },
+    source: {
+      fr: 'Sources : Élections Canada, firmes de sondage publiques',
+      en: 'Sources: Elections Canada, public polling firms'
+    },
+    mapSubtitle: {
+      fr: 'Projection par circonscription basée sur les résultats 2025, les sondages nationaux et les ajustements régionaux.',
+      en: 'Riding projection based on 2025 results, national polling and regional adjustments.'
+    },
+    baselineYear: 2025,
+    seatsTotal: 343,
+    byelections: true,
+    center: [56, -96],
+    zoom: 4,
+    parties: ['lib','con','bq','ndp','grn','ppc','fed_oth']
+  },
+  quebec: {
+    key: 'quebec',
+    dataPath: 'web_data/quebec/latest.json',
+    geoPath: 'web_data/quebec/ridings.geojson',
+    heroTitle: {
+      fr: 'Projection <em>québécoise</em>',
+      en: 'Quebec <em>Projection</em>'
+    },
+    institution: {
+      fr: 'Composition actuelle de l’Assemblée nationale',
+      en: 'Current National Assembly Composition'
+    },
+    source: {
+      fr: 'Sources : Élections Québec, firmes de sondage publiques',
+      en: 'Sources: Elections Quebec, public polling firms'
+    },
+    mapSubtitle: {
+      fr: 'Projection par circonscription basée sur les résultats 2022, les sondages québécois et les ajustements régionaux.',
+      en: 'Riding projection based on 2022 results, Quebec polling and regional adjustments.'
+    },
+    baselineYear: 2022,
+    seatsTotal: 125,
+    byelections: false,
+    center: [46.8, -71.2],
+    zoom: 6.2,
+    parties: ['pq','plq','pcq','qs','caq','qc_oth'],
+    currentCompositionParties: ['caq','plq','qs','pq','qc_ind']
+  },
+  ontario: {
+    key: 'ontario',
+    dataPath: 'web_data/ontario/latest.json',
+    geoPath: 'web_data/ontario/ridings.geojson',
+    heroTitle: {
+      fr: 'Projection <em>ontarienne</em>',
+      en: 'Ontario <em>Projection</em>'
+    },
+    institution: {
+      fr: 'Composition actuelle de l’Assemblée législative',
+      en: 'Current Legislative Assembly Composition'
+    },
+    source: {
+      fr: 'Sources : Élections Ontario, firmes de sondage publiques',
+      en: 'Sources: Elections Ontario, public polling firms'
+    },
+    mapSubtitle: {
+      fr: 'Projection par circonscription basée sur les résultats 2025, les sondages ontariens et les ajustements régionaux.',
+      en: 'Riding projection based on 2025 results, Ontario polling and regional adjustments.'
+    },
+    baselineYear: 2025,
+    seatsTotal: 124,
+    byelections: false,
+    center: [49.2, -84.6],
+    zoom: 5.5,
+    parties: ['on_pc','on_ndp','on_lib','on_grn','on_oth']
+  }
+}[jurisdiction];
+
+// ═══════════════════════════════════════════════════════
+// TRADUCTIONS
+// ═══════════════════════════════════════════════════════
+const I18N = {
+  fr: {
+    site_name       : 'Projection Canada',
+    hero_title      : 'Projection',
+    current_house   : 'Composition actuelle de la Chambre',
+    seats_label     : 'SIÈGES — 343 TOTAL',
+    majority_needed : '172 sièges pour une majorité',
+    seat_projection : 'Projection des sièges',
+    analysis        : 'Analyse',
+    vote_trend      : 'Intentions de vote',
+    scenario_probs  : 'Probabilités de scénarios',
+    map_title       : 'Carte des circonscriptions',
+    byelections     : 'Élections partielles · 13 avril 2026',
+    all_ridings     : 'Toutes les circonscriptions',
+    col_riding      : 'Circonscription',
+    col_province    : 'Province',
+    col_winner      : 'Parti projeté',
+    col_margin      : 'Marge projetée',
+    col_turnout     : 'Participation 2025',
+    footer_method   : 'Modèle BSTS bayésien — Monte Carlo 10 000 simulations',
+    footer_source   : 'Sources : Élections Canada, firmes de sondage publiques',
+    footer_method_link : 'Méthodologie',
+    model_badge     : 'Modèle v1',
+    p_majority      : 'P(majorité)',
+    p_largest       : 'P(1er parti)',
+    seats_ci        : 'IC 80%',
+    updated         : 'Mis à jour',
+    polls_used      : 'sondages',
+    mode_rich       : 'mode riche',
+    mode_sparse     : 'mode sparse',
+    mode_moderate   : 'mode intermédiaire',
+    map_subtitle    : 'Projection par circonscription basée sur les résultats 2025, les sondages nationaux et les ajustements régionaux.',
+    byel_leading    : 'Favori projeté',
+    byel_reason_resignation    : 'Démission',
+    byel_reason_court_annulment: 'Annulation judiciaire',
+    byel_reason_death          : 'Décès',
+    vacant          : 'Vacant',
+    showing         : 'Affichage',
+    of              : 'sur',
+    ridings         : 'circonscriptions',
+    map_click       : 'Cliquer sur une circonscription pour les détails',
+    map_projection  : 'Projection courante',
+    map_result_2025 : 'Résultat 2025',
+    popup_margin    : 'Marge',
+    popup_turnout   : 'Participation',
+    popup_winner    : 'Gagnant',
+    popup_p_winner  : 'P(victoire)',
+    popup_close_race: 'Course serrée',
+    popup_baseline  : 'Base 2025',
+    alert_orange    : 'Alerte modérée',
+    alert_yellow    : 'Alerte légère',
+    alert_red       : 'Alerte élevée',
+    trend_up        : '↑',
+    trend_down      : '↓',
+    trend_flat      : '→',
+    nav_federal     : 'Fédéral',
+    nav_quebec      : 'Québec',
+    nav_ontario     : 'Ontario',
+  },
+  en: {
+    site_name       : 'Canada Projection',
+    hero_title      : 'Projection',
+    current_house   : 'Current House Composition',
+    seats_label     : 'SEATS — 343 TOTAL',
+    majority_needed : '172 seats for a majority',
+    seat_projection : 'Seat Projection',
+    analysis        : 'Analysis',
+    vote_trend      : 'Vote Intentions',
+    scenario_probs  : 'Scenario Probabilities',
+    map_title       : 'Riding Map',
+    byelections     : 'By-Elections · April 13, 2026',
+    all_ridings     : 'All Ridings',
+    col_riding      : 'Riding',
+    col_province    : 'Province',
+    col_winner      : 'Projected party',
+    col_margin      : 'Projected margin',
+    col_turnout     : '2025 turnout',
+    footer_method   : 'Bayesian BSTS model — 10,000 Monte Carlo simulations',
+    footer_source   : 'Sources: Elections Canada, public polling firms',
+    footer_method_link : 'Methodology',
+    model_badge     : 'Model v1',
+    p_majority      : 'P(majority)',
+    p_largest       : 'P(largest)',
+    seats_ci        : '80% CI',
+    updated         : 'Updated',
+    polls_used      : 'polls',
+    mode_rich       : 'rich mode',
+    mode_sparse     : 'sparse mode',
+    mode_moderate   : 'moderate mode',
+    map_subtitle    : 'Riding projection based on 2025 results, national polling and regional adjustments.',
+    byel_leading    : 'Projected leader',
+    byel_reason_resignation    : 'Resignation',
+    byel_reason_court_annulment: 'Court annulment',
+    byel_reason_death          : 'Death',
+    vacant          : 'Vacant',
+    showing         : 'Showing',
+    of              : 'of',
+    ridings         : 'ridings',
+    map_click       : 'Click a riding for details',
+    map_projection  : 'Current projection',
+    map_result_2025 : '2025 Result',
+    popup_margin    : 'Margin',
+    popup_turnout   : 'Turnout',
+    popup_winner    : 'Winner',
+    popup_p_winner  : 'P(win)',
+    popup_close_race: 'Close race',
+    popup_baseline  : '2025 baseline',
+    alert_orange    : 'Moderate alert',
+    alert_yellow    : 'Minor alert',
+    alert_red       : 'High alert',
+    trend_up        : '↑',
+    trend_down      : '↓',
+    trend_flat      : '→',
+    nav_federal     : 'Federal',
+    nav_quebec      : 'Quebec',
+    nav_ontario     : 'Ontario',
+  }
+};
+
+const PARTY_COLORS = {
+  lib:'#D71920', con:'#1A4782', ndp:'#F58220',
+  bq:'#33B2CC',  grn:'#3D9B35', ppc:'#7C3AED',
+  fed_oth:'#6b7280', oth:'#6b7280', vacant:'#374151',
+  caq:'#12BBFF', plq:'#D90000', pq:'#0101CC',
+  qs:'#FF5402', pcq:'#172853', qc_oth:'#6b7280', qc_ind:'#6b7280',
+  on_pc:'#0202FF', on_ndp:'#FF5402', on_lib:'#D90000',
+  on_grn:'#269B26', on_oth:'#6b7280'
+};
+const PARTY_LABELS = {
+  fr:{ lib:'Libéral', con:'Conservateur', ndp:'NPD', bq:'Bloc', grn:'Vert', ppc:'PPC', fed_oth:'Autre', vacant:'Vacant', caq:'CAQ', plq:'Libéral', pq:'PQ', qs:'QS', pcq:'PCQ', qc_oth:'Autre', qc_ind:'Indépendant', on_pc:'PC', on_ndp:'NPD', on_lib:'Libéral', on_grn:'Vert', on_oth:'Autre' },
+  en:{ lib:'Liberal', con:'Conservative', ndp:'NDP', bq:'Bloc', grn:'Green', ppc:'PPC', fed_oth:'Other', vacant:'Vacant', caq:'CAQ', plq:'Liberal', pq:'PQ', qs:'QS', pcq:'PCQ', qc_oth:'Other', qc_ind:'Independent', on_pc:'PC', on_ndp:'NDP', on_lib:'Liberal', on_grn:'Green', on_oth:'Other' }
+};
+
+// ═══════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════
+let lang = 'fr';
+let data = null;
+let map  = null;
+let ridingsPage = 0;
+const PAGE_SIZE = 50;
+let filteredRidings = [];
+let sortCol = 'margin', sortDir = -1;
+
+// ═══════════════════════════════════════════════════════
+// LANG
+// ═══════════════════════════════════════════════════════
+function setLang(l) {
+  lang = l;
+  document.querySelectorAll('.lang-btn').forEach(b => {
+    b.classList.toggle('active', b.textContent === l.toUpperCase());
+  });
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (I18N[lang][key]) el.innerHTML = I18N[lang][key];
+  });
+  document.getElementById('ridingSearch').placeholder =
+    lang === 'fr' ? 'Rechercher une circonscription…' : 'Search a riding…';
+  renderJurisdictionUI();
+  if (data) {
+    renderComposition();
+    renderSeatsGrid();
+    renderCharts();
+    renderByelections();
+    renderRidingsTable();
+    renderAlerts();
+    renderMeta();
+    renderMapLegend();
+  }
+}
+
+function t(key) { return I18N[lang][key] || key; }
+
+function getBaselineResult(riding) {
+  return riding?.baseline_result || riding?.result_2025 || {};
+}
+
+function getRidingWinner(riding) {
+  return riding?.projection?.winner || getBaselineResult(riding)?.winner || 'oth';
+}
+
+function getRidingMargin(riding) {
+  return riding?.projection?.mean_margin ?? getBaselineResult(riding)?.margin ?? 0;
+}
+
+function getRidingTurnout(riding) {
+  return getBaselineResult(riding)?.turnout_pct ?? 0;
+}
+
+function getRidingVotePct(riding, party) {
+  const projected = riding?.projection?.vote_mean?.[party];
+  if (projected !== undefined && projected !== null) return projected;
+  return getBaselineResult(riding)?.[party + '_pct'];
+}
+
+function renderJurisdictionUI() {
+  document.title = jurisdiction === 'quebec'
+    ? 'Projection Électorale Québec | Electoral Projection'
+    : jurisdiction === 'ontario'
+    ? 'Projection Électorale Ontario | Electoral Projection'
+    : 'Projection Électorale Canada | Electoral Projection';
+  document.querySelector('[data-i18n="hero_title"]').innerHTML = APP_CONFIG.heroTitle[lang];
+  document.getElementById('currentHouseTitle').textContent = APP_CONFIG.institution[lang];
+  document.getElementById('mapSubtitle').textContent = APP_CONFIG.mapSubtitle[lang];
+  document.getElementById('footerSource').textContent = APP_CONFIG.source[lang];
+  document.getElementById('turnoutHeader').textContent =
+    lang === 'fr' ? `Participation ${APP_CONFIG.baselineYear}` : `${APP_CONFIG.baselineYear} turnout`;
+  document.getElementById('navFederal').classList.toggle('active', jurisdiction === 'federal');
+  document.getElementById('navQuebec').classList.toggle('active', jurisdiction === 'quebec');
+  document.getElementById('navOntario').classList.toggle('active', jurisdiction === 'ontario');
+
+  const byelSection = document.getElementById('byelectionsSection');
+  if (!APP_CONFIG.byelections) {
+    byelSection.style.display = 'none';
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// LOAD DATA
+// ═══════════════════════════════════════════════════════
+async function loadData() {
+  try {
+    const res = await fetch(`${APP_CONFIG.dataPath}?t=${Date.now()}`, {
+      cache: 'no-store'
+    });
+    data = await res.json();
+    try {
+      render();
+    } catch (renderError) {
+      console.error('Render error with latest.json', renderError, data);
+      showLoadError(renderError);
+    }
+  } catch(e) {
+    // Fallback : données de démo intégrées
+    console.error('Load error, fallback to DEMO_DATA', e);
+    data = jurisdiction === 'quebec' ? DEMO_DATA_QC : jurisdiction === 'ontario' ? DEMO_DATA_ON : DEMO_DATA;
+    render();
+  }
+}
+
+function showLoadError(err) {
+  const body = document.body;
+  const msg = (err && err.message) ? err.message : String(err);
+  const existing = document.getElementById('debugErrorBox');
+  if (existing) existing.remove();
+  body.insertAdjacentHTML('afterbegin', `
+    <div id="debugErrorBox" style="position:sticky;top:0;z-index:4000;background:#3a1010;color:#ffd7d7;padding:12px 16px;border-bottom:1px solid #7f1d1d;font:12px/1.5 monospace">
+      Render error with latest.json: ${msg}
+    </div>
+  `);
+}
+
+
+function render() {
+  document.getElementById('loading').style.opacity = '0';
+  setTimeout(() => document.getElementById('loading').style.display = 'none', 400);
+  renderMeta();
+  renderAlerts();
+  renderComposition();
+  renderSeatsGrid();
+  renderCharts();
+  renderMap();
+  renderByelections();
+  renderRidingsTable();
+}
+
+// ═══════════════════════════════════════════════════════
+// META
+// ═══════════════════════════════════════════════════════
+function renderMeta() {
+  const m = data.meta;
+  document.getElementById('runBadge').innerHTML =
+    `${t('updated')} ${m.run_date} · ${m.n_polls} ${t('polls_used')} · ${t('mode_'+m.mode) || m.mode}`;
+  document.getElementById('heroMeta').innerHTML =
+    `${t('updated')} <strong>${m.run_date}</strong> · ${m.n_polls} ${t('polls_used')}`;
+  document.getElementById('cycleBadge').textContent =
+    `${m.election_cycle.toUpperCase()} · ${m.n_simulations.toLocaleString(lang === 'fr' ? 'fr-CA' : 'en-CA')} MC`;
+  const totalSeats = data?.meta?.total_seats || APP_CONFIG.seatsTotal || Object.values(data.current_composition || {}).reduce((a,b)=>a+(b||0),0);
+  const majority = data?.meta?.majority_threshold || Math.floor(totalSeats / 2) + 1;
+  document.getElementById('seatsLabel').textContent =
+    `${lang === 'fr' ? 'SIÈGES' : 'SEATS'} — ${totalSeats} ${lang === 'fr' ? 'TOTAL' : 'TOTAL'}`;
+  document.getElementById('majorityNeeded').textContent =
+    lang === 'fr' ? `${majority} sièges pour une majorité` : `${majority} seats for a majority`;
+}
+
+// ═══════════════════════════════════════════════════════
+// ALERTS
+// ═══════════════════════════════════════════════════════
+function renderAlerts() {
+  const alerts = (data.tipping_points || []).filter(a => a.alert_level !== 'green');
+  const row = document.getElementById('alertsRow');
+  row.innerHTML = alerts.map(a => {
+    const trend = a.trend_direction === 'up' ? t('trend_up') :
+                  a.trend_direction === 'down' ? t('trend_down') : t('trend_flat');
+    const party = PARTY_LABELS[lang][a.party] || a.party.toUpperCase();
+    return `<div class="alert-chip ${a.alert_level}">
+      <span class="alert-dot"></span>
+      ${party} ${trend} — ${t('alert_'+a.alert_level) || a.alert_level}
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════
+// COMPOSITION BAR
+// ═══════════════════════════════════════════════════════
+function renderComposition() {
+  const comp = data.current_composition;
+  const total = data?.meta?.total_seats || APP_CONFIG.seatsTotal || Object.values(comp || {}).reduce((a,b)=>a+(b||0),0);
+  const order = (APP_CONFIG.currentCompositionParties || APP_CONFIG.parties).concat(['vacant']).filter((v, i, arr) => arr.indexOf(v) === i);
+  const bar = document.getElementById('compBar');
+  const legend = document.getElementById('compLegend');
+
+  bar.innerHTML = order.map(p => {
+    const seats = comp[p] || 0;
+    if (!seats) return '';
+    const pct = (seats / total * 100).toFixed(1);
+    const color = PARTY_COLORS[p] || '#6b7280';
+    const label = seats > 12 ? seats : '';
+    return `<div class="comp-seg" style="flex:${seats};background:${color}"
+              title="${PARTY_LABELS[lang][p]||p}: ${seats}">${label}</div>`;
+  }).join('');
+
+  // Ligne majorité
+  const majority = data?.meta?.majority_threshold || Math.floor(total / 2) + 1;
+  const majPct = (majority / total * 100).toFixed(2);
+  document.getElementById('majorityMarker').style.left = `${majPct}%`;
+
+  legend.innerHTML = order.map(p => {
+    const seats = comp[p] || 0;
+    if (!seats) return '';
+    return `<div class="comp-legend-item">
+      <span class="legend-dot" style="background:${PARTY_COLORS[p]||'#888'}"></span>
+      ${PARTY_LABELS[lang][p]||p} <span class="legend-count">${seats}</span>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════
+// SEATS GRID
+// ═══════════════════════════════════════════════════════
+function renderSeatsGrid() {
+  const grid = document.getElementById('seatsGrid');
+  const parties = data.parties.filter(p => (p.seats_mean||0) > 0.5);
+  grid.innerHTML = parties.map(p => {
+    const color = PARTY_COLORS[p.party] || '#888';
+    const label = lang === 'fr' ? p.label_fr : p.label_en;
+    const pMaj  = ((p.p_majority||0)*100).toFixed(0);
+    const pLrg  = ((p.p_largest||0)*100).toFixed(0);
+    const ciLo  = Math.round(p.seats_ci_low_80||0);
+    const ciHi  = Math.round(p.seats_ci_high_80||0);
+    return `<div class="seat-card" style="--c:${color}">
+      <div style="position:absolute;top:0;left:0;width:3px;height:100%;background:${color};border-radius:3px 0 0 3px"></div>
+      <div class="seat-card-party" style="color:${color}">${label}</div>
+      <div class="seat-card-number">${Math.round(p.seats_mean||0)}</div>
+      <div class="seat-card-range">${t('seats_ci')} ${ciLo}–${ciHi}</div>
+      <div class="seat-card-prob">
+        <span>${t('p_majority')} <span class="prob-val">${pMaj}%</span></span>
+        <span>${t('p_largest')}  <span class="prob-val">${pLrg}%</span></span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════
+// CHARTS
+// ═══════════════════════════════════════════════════════
+function renderCharts() {
+  renderVoteTrend();
+  renderScenarios();
+}
+
+function renderVoteTrend() {
+  const polls = data.polls_history || [];
+  const parties_order = APP_CONFIG.parties.filter(p => !['fed_oth', 'qc_oth', 'on_oth'].includes(p)).slice(0, 5);
+  const traces = parties_order.map(p => {
+    const x = polls.map(d => d.date);
+    const y = polls.map(d => d[p]);
+    return {
+      x, y, mode:'markers', type:'scatter',
+      name: PARTY_LABELS[lang][p]||p,
+      marker:{ color:PARTY_COLORS[p], size:5, opacity:.6 },
+      showlegend: true
+    };
+  });
+
+  // Points estimés
+  data.parties.forEach(p => {
+    if (!parties_order.includes(p.party)) return;
+    const lastDate = polls.length ? polls[polls.length-1].date : '2025-04-27';
+    traces.push({
+      x:[lastDate], y:[p.vote_mean],
+      mode:'markers', type:'scatter',
+      name: PARTY_LABELS[lang][p.party],
+      marker:{ color:PARTY_COLORS[p.party], size:12, symbol:'diamond' },
+      error_y:{ type:'data', symmetric:false,
+        array:[p.vote_ci_high_95-p.vote_mean],
+        arrayminus:[p.vote_mean-p.vote_ci_low_95],
+        color:PARTY_COLORS[p.party] },
+      showlegend:false
+    });
+  });
+
+  Plotly.newPlot('chartVoteTrend', traces, {
+    paper_bgcolor:'transparent', plot_bgcolor:'transparent',
+    margin:{t:8,b:40,l:32,r:8},
+    xaxis:{ color:'#6b7280', gridcolor:'#252a38', zeroline:false },
+    yaxis:{ color:'#6b7280', gridcolor:'#252a38', zeroline:false, ticksuffix:'%' },
+    legend:{ orientation:'h', y:-0.15, font:{color:'#9ca3af',size:11} },
+    font:{ family:'DM Sans', color:'#9ca3af' },
+    hovermode:'x unified'
+  }, {responsive:true, displayModeBar:false});
+}
+
+function renderScenarios() {
+  const parties = data.parties.filter(p =>
+    (p.p_majority||0) > 0.01 || (p.p_largest||0) > 0.01
+  );
+  const labels  = parties.map(p => lang==='fr'?p.label_fr:p.label_en);
+  const colors  = parties.map(p => PARTY_COLORS[p.party]||'#888');
+
+  Plotly.newPlot('chartScenarios', [
+    {
+      x: parties.map(p => ((p.p_majority||0)*100).toFixed(1)),
+      y: labels, type:'bar', orientation:'h',
+      name: t('p_majority'),
+      marker:{ color:colors },
+      text: parties.map(p => `${((p.p_majority||0)*100).toFixed(0)}%`),
+      textposition:'outside', textfont:{color:'#9ca3af',size:11}
+    },
+    {
+      x: parties.map(p => ((p.p_largest||0)*100).toFixed(1)),
+      y: labels, type:'bar', orientation:'h',
+      name: t('p_largest'),
+      marker:{ color:colors, opacity:.4 },
+      text: parties.map(p => `${((p.p_largest||0)*100).toFixed(0)}%`),
+      textposition:'outside', textfont:{color:'#9ca3af',size:11}
+    }
+  ], {
+    paper_bgcolor:'transparent', plot_bgcolor:'transparent',
+    barmode:'group',
+    margin:{t:8,b:40,l:100,r:48},
+    xaxis:{ color:'#6b7280', gridcolor:'#252a38', ticksuffix:'%', range:[0,120] },
+    yaxis:{ color:'#6b7280', gridcolor:'rgba(0,0,0,0)' },
+    legend:{ orientation:'h', y:-0.15, font:{color:'#9ca3af',size:11} },
+    font:{ family:'DM Sans', color:'#9ca3af' }
+  }, {responsive:true, displayModeBar:false});
+}
+
+// ═══════════════════════════════════════════════════════
+// MAP
+// ═══════════════════════════════════════════════════════
+function renderMap() {
+  if (map) return; // déjà initialisé
+
+  map = L.map('map', {
+    center: APP_CONFIG.center, zoom: APP_CONFIG.zoom,
+    zoomControl:true,
+    attributionControl:false
+  });
+
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png', {
+    maxZoom:18, subdomains:'abcd'
+  }).addTo(map);
+
+  // Charger le GeoJSON des circonscriptions
+  fetch(`${APP_CONFIG.geoPath}?t=${Date.now()}`, {
+    cache: 'no-store'
+  })
+    .then(r => r.json())
+    .then(geojson => addRidingsLayer(geojson))
+    .catch(() => {
+      // Pas de GeoJSON disponible — afficher un message
+      document.getElementById('map').innerHTML =
+        `<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--muted);flex-direction:column;gap:10px">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6-10l6-3m0 13l5.447 2.724A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4"/>
+          </svg>
+          <span style="font-size:13px">${lang==='fr'?'Carte GeoJSON à générer':'GeoJSON map to generate'}</span>
+          <span style="font-size:11px;max-width:300px;text-align:center">
+            ${lang==='fr'
+              ? `Exécuter le script de conversion des shapefiles ${jurisdiction === 'quebec' ? 'Élections Québec' : jurisdiction === 'ontario' ? 'Élections Ontario' : 'Élections Canada'}`
+              : `Run ${jurisdiction === 'quebec' ? 'Elections Quebec' : jurisdiction === 'ontario' ? 'Elections Ontario' : 'Elections Canada'} shapefile conversion script`}
+          </span>
+        </div>`;
+    });
+
+  renderMapLegend();
+}
+
+function addRidingsLayer(geojson) {
+  // Créer un index des résultats par riding_id
+  const ridingIndex = {};
+  (data.ridings||[]).forEach(r => { ridingIndex[r.riding_id] = r; });
+
+  function getFeatureRidingId(feature) {
+    const props = feature?.properties || {};
+    const raw = props.FEDNUM ??
+                props.riding_id ??
+                props.FED_NUM ??
+                props.CO_CEP ??
+                props.CODE ??
+                props.riding_code;
+    if (raw === undefined || raw === null || raw === '') return null;
+    const num = String(raw).replace(/\D/g, '');
+    if (!num) return null;
+    return num.padStart(5, '0');
+  }
+
+  L.geoJSON(geojson, {
+    style: feature => {
+      const rid = getFeatureRidingId(feature);
+      const riding = ridingIndex[rid];
+      const winner = getRidingWinner(riding);
+      return {
+        fillColor: PARTY_COLORS[winner] || '#374151',
+        fillOpacity: .75,
+        color: '#0d0f14',
+        weight: .5
+      };
+    },
+    onEachFeature: (feature, layer) => {
+      const rid = getFeatureRidingId(feature);
+      const riding = ridingIndex[rid];
+      if (!riding) return;
+
+      layer.on({
+        mouseover: e => { e.target.setStyle({fillOpacity:.95, weight:1.5, color:'#e8c96d'}); },
+        mouseout:  e => { e.target.setStyle({fillOpacity:.75, weight:.5, color:'#0d0f14'}); },
+        click:     e => showRidingPopup(e, riding, layer)
+      });
+    }
+  }).addTo(map);
+}
+
+function showRidingPopup(e, riding, layer) {
+  const projection = riding.projection || {};
+  const baseline = getBaselineResult(riding);
+  const winner = getRidingWinner(riding);
+  const color  = PARTY_COLORS[winner] || '#888';
+  const name   = lang === 'fr' ? riding.name_fr : riding.name_en;
+  const winLabel = PARTY_LABELS[lang][winner] || winner.toUpperCase();
+
+  const votes = APP_CONFIG.parties
+    .filter(p => !['fed_oth', 'qc_oth', 'on_oth', 'vacant'].includes(p))
+    .map(p => {
+    const pct = getRidingVotePct(riding, p);
+    if (pct === undefined || pct === null) return '';
+    const label = PARTY_LABELS[lang][p] || p.toUpperCase();
+    return `<div class="popup-row">
+      <span class="popup-label" style="color:${PARTY_COLORS[p]}">${label}</span>
+      <span class="popup-val">${pct.toFixed(1)}%</span>
+    </div>`;
+  }).join('');
+
+  const pWinner = projection.p_winner != null ? `${(projection.p_winner * 100).toFixed(0)}%` : '—';
+  const pClose = projection.p_close_race != null ? `${(projection.p_close_race * 100).toFixed(0)}%` : '—';
+  const baselineWinner = baseline.winner
+    ? (PARTY_LABELS[lang][baseline.winner] || baseline.winner.toUpperCase())
+    : '—';
+
+  L.popup()
+    .setLatLng(e.latlng)
+    .setContent(`
+      <div class="popup-riding">${name}</div>
+      <div><span class="popup-winner" style="background:${color}22;color:${color};border:1px solid ${color}44">
+        ● ${winLabel}
+      </span></div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:8px">${t('map_projection')}</div>
+      ${votes}
+      <div class="popup-row" style="margin-top:6px">
+        <span class="popup-label">${t('popup_p_winner')}</span>
+        <span class="popup-val">${pWinner}</span>
+      </div>
+      <div class="popup-row">
+        <span class="popup-label">${t('popup_close_race')}</span>
+        <span class="popup-val">${pClose}</span>
+      </div>
+      <div class="popup-row">
+        <span class="popup-label">${t('popup_margin')}</span>
+        <span class="popup-val">${getRidingMargin(riding).toFixed(1)}%</span>
+      </div>
+      <div class="popup-row">
+        <span class="popup-label">${t('popup_turnout')}</span>
+        <span class="popup-val">${getRidingTurnout(riding).toFixed(1)}%</span>
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin:8px 0 4px">${lang === 'fr' ? `Base ${APP_CONFIG.baselineYear}` : `${APP_CONFIG.baselineYear} baseline`}</div>
+      <div class="popup-row">
+        <span class="popup-label">${t('popup_winner')}</span>
+        <span class="popup-val">${baselineWinner}</span>
+      </div>
+      <div class="popup-row">
+        <span class="popup-label">${t('popup_margin')}</span>
+        <span class="popup-val">${(baseline.margin||0).toFixed(1)}%</span>
+      </div>
+    `)
+    .openOn(map);
+}
+
+function renderMapLegend() {
+  const parties = APP_CONFIG.parties.filter(p => !['fed_oth', 'qc_oth', 'on_oth'].includes(p));
+  document.getElementById('mapLegend').innerHTML =
+    `<div class="map-legend-title">${t('map_projection')}</div>` +
+    parties.map(p => `
+      <div class="map-legend-item">
+        <div class="map-legend-swatch" style="background:${PARTY_COLORS[p]}"></div>
+        <span>${PARTY_LABELS[lang][p]||p}</span>
+      </div>
+    `).join('') +
+    `<div style="font-size:10px;color:var(--muted);margin-top:8px">${t('map_click')}</div>`;
+}
+
+// ═══════════════════════════════════════════════════════
+// BYELECTIONS
+// ═══════════════════════════════════════════════════════
+function renderByelections() {
+  const byel = data.byelections?.pending_byelections || [];
+  if (!APP_CONFIG.byelections || !byel.length) {
+    document.getElementById('byelectionsSection').style.display = 'none';
+    return;
+  }
+  const ridingIndex = {};
+  (data.ridings||[]).forEach(r => { ridingIndex[r.riding_id] = r; });
+
+  document.getElementById('byelGrid').innerHTML = byel.map(b => {
+    const riding = ridingIndex[b.riding_id] || {};
+    const name   = lang === 'fr' ? (riding.name_fr||b.riding_id) : (riding.name_en||b.riding_id);
+    const reason = t('byel_reason_'+b.reason) || b.reason;
+    const probs  = Object.entries(b.party_probs||{})
+      .sort((a,b) => b[1]-a[1]).slice(0,3);
+
+    return `<div class="byel-card">
+      <div class="byel-date">${b.election_date} · ${reason}</div>
+      <div class="byel-name">${name}</div>
+      <div class="byel-probs">
+        ${probs.map(([p,v]) => `
+          <div class="byel-prob-row">
+            <span class="byel-prob-label" style="color:${PARTY_COLORS[p]||'#888'}">
+              ${PARTY_LABELS[lang][p]||p.toUpperCase()}
+            </span>
+            <div class="byel-prob-bar">
+              <div class="byel-prob-fill" style="width:${(v*100).toFixed(0)}%;background:${PARTY_COLORS[p]||'#888'}"></div>
+            </div>
+            <span class="byel-prob-val">${(v*100).toFixed(0)}%</span>
+          </div>
+        `).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════
+// RIDINGS TABLE
+// ═══════════════════════════════════════════════════════
+function renderRidingsTable() {
+  const ridings = data.ridings || [];
+
+  // Peupler filtres province / parti
+  const provinces = [...new Set(ridings.map(r=>r.province))].sort();
+  const winners   = [...new Set(ridings.map(r=>getRidingWinner(r)).filter(Boolean))].sort();
+  const pflt = document.getElementById('provinceFilter');
+  const wflt = document.getElementById('partyFilter');
+  const selectedProvince = pflt.value;
+  const selectedParty = wflt.value;
+
+  pflt.innerHTML = '';
+  wflt.innerHTML = '';
+
+  const allProvinceOption = document.createElement('option');
+  allProvinceOption.value = '';
+  allProvinceOption.textContent = lang === 'fr' ? 'Toutes les provinces' : 'All provinces';
+  pflt.appendChild(allProvinceOption);
+  provinces.forEach(p => {
+    const o = document.createElement('option');
+    o.value = p;
+    o.textContent = p;
+    pflt.appendChild(o);
+  });
+
+  const allPartyOption = document.createElement('option');
+  allPartyOption.value = '';
+  allPartyOption.textContent = lang === 'fr' ? 'Tous les partis' : 'All parties';
+  wflt.appendChild(allPartyOption);
+  winners.forEach(w => {
+    const o = document.createElement('option');
+    o.value = w;
+    o.textContent = PARTY_LABELS[lang][w] || w.toUpperCase();
+    wflt.appendChild(o);
+  });
+
+  pflt.value = provinces.includes(selectedProvince) ? selectedProvince : '';
+  wflt.value = winners.includes(selectedParty) ? selectedParty : '';
+
+  applyFilters();
+}
+
+function applyFilters() {
+  const q     = document.getElementById('ridingSearch').value.toLowerCase();
+  const prov  = document.getElementById('provinceFilter').value;
+  const party = document.getElementById('partyFilter').value;
+  const ridings = data.ridings || [];
+
+  filteredRidings = ridings.filter(r => {
+    const name = (lang==='fr'?r.name_fr:r.name_en)||'';
+    if (q && !name.toLowerCase().includes(q)) return false;
+    if (prov && r.province !== prov) return false;
+    if (party && getRidingWinner(r) !== party) return false;
+    return true;
+  });
+
+  // Sort
+  filteredRidings.sort((a,b) => {
+    let va, vb;
+    if (sortCol==='name')     { va=lang==='fr'?a.name_fr:a.name_en; vb=lang==='fr'?b.name_fr:b.name_en; }
+    else if (sortCol==='province') { va=a.province; vb=b.province; }
+    else if (sortCol==='winner')   { va=getRidingWinner(a); vb=getRidingWinner(b); }
+    else if (sortCol==='margin')   { va=getRidingMargin(a); vb=getRidingMargin(b); return (vb-va)*sortDir; }
+    else if (sortCol==='turnout')  { va=getRidingTurnout(a); vb=getRidingTurnout(b); return (vb-va)*sortDir; }
+    if (va<vb) return -1*sortDir; if (va>vb) return 1*sortDir; return 0;
+  });
+
+  ridingsPage = 0;
+  renderRidingsPage();
+}
+
+function renderRidingsPage() {
+  const start = ridingsPage * PAGE_SIZE;
+  const page  = filteredRidings.slice(start, start + PAGE_SIZE);
+  const tbody = document.getElementById('ridingsTableBody');
+
+  tbody.innerHTML = page.map(r => {
+    const name   = (lang==='fr'?r.name_fr:r.name_en)||'';
+    const winner = getRidingWinner(r);
+    const color  = PARTY_COLORS[winner] || '#888';
+    const wLabel = PARTY_LABELS[lang][winner] || winner.toUpperCase();
+    const margin = getRidingMargin(r);
+    const turn   = getRidingTurnout(r);
+    const mPct   = Math.min(margin / 50 * 100, 100);
+
+    return `<tr>
+      <td>${name}</td>
+      <td style="color:var(--muted)">${r.province}</td>
+      <td><span class="party-pill" style="background:${color}22;color:${color}">${wLabel}</span></td>
+      <td>
+        <div class="margin-bar">
+          <div class="margin-track">
+            <div class="margin-fill" style="width:${mPct}%;background:${color}"></div>
+          </div>
+          <span style="color:var(--muted);font-size:12px">${margin.toFixed(1)}%</span>
+        </div>
+      </td>
+      <td style="color:var(--muted)">${turn.toFixed(1)}%</td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('ridingsPager').textContent =
+    `${t('showing')} ${start+1}–${Math.min(start+PAGE_SIZE, filteredRidings.length)} ${t('of')} ${filteredRidings.length} ${t('ridings')}`;
+
+  // Boutons pagination si besoin
+  if (filteredRidings.length > PAGE_SIZE) {
+    document.getElementById('ridingsPager').innerHTML +=
+      `&nbsp;&nbsp;` +
+      (ridingsPage > 0 ? `<button onclick="changePage(-1)" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:4px 12px;border-radius:4px;cursor:pointer;font-family:inherit">←</button>&nbsp;` : '') +
+      (start + PAGE_SIZE < filteredRidings.length ? `<button onclick="changePage(1)" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:4px 12px;border-radius:4px;cursor:pointer;font-family:inherit">→</button>` : '');
+  }
+}
+
+function changePage(dir) {
+  ridingsPage += dir;
+  renderRidingsPage();
+  document.querySelector('.ridings-section').scrollIntoView({behavior:'smooth'});
+}
+
+// Sort columns
+document.querySelectorAll('thead th[data-sort]').forEach(th => {
+  th.addEventListener('click', () => {
+    const col = th.getAttribute('data-sort');
+    if (sortCol === col) sortDir *= -1;
+    else { sortCol = col; sortDir = 1; }
+    applyFilters();
+  });
+});
+
+// Filtres
+document.getElementById('ridingSearch').addEventListener('input', applyFilters);
+document.getElementById('provinceFilter').addEventListener('change', applyFilters);
+document.getElementById('partyFilter').addEventListener('change', applyFilters);
+
+// ═══════════════════════════════════════════════════════
+// DONNÉES DE DÉMO (fallback si pas de latest.json)
+// ═══════════════════════════════════════════════════════
+const DEMO_DATA = {
+  meta: { run_date:'2026-03-22', election_cycle:'fed_2025', n_polls:41, mode:'rich', majority_threshold:172, n_simulations:10000, pipeline_version:'4.0' },
+  parties: [
+    { party:'lib', label_fr:'Libéral', label_en:'Liberal', color:'#D71920',
+      vote_mean:43.7, vote_sd:3.7, vote_ci_low_95:28.5, vote_ci_high_95:43.3,
+      trend_direction:'stable', trend_7d:0,
+      seats_mean:165, seats_median:165, seats_ci_low_80:119, seats_ci_high_80:220,
+      seats_ci_low_95:106, seats_ci_high_95:205, p_majority:.35, p_largest:.62 },
+    { party:'con', label_fr:'Conservateur', label_en:'Conservative', color:'#1A4782',
+      vote_mean:41.3, vote_sd:3.6, vote_ci_low_95:25.8, vote_ci_high_95:40.0,
+      trend_direction:'stable', trend_7d:0,
+      seats_mean:143, seats_median:143, seats_ci_low_80:97, seats_ci_high_80:184,
+      seats_ci_low_95:96, seats_ci_high_95:185, p_majority:.07, p_largest:.38 },
+    { party:'bq', label_fr:'Bloc', label_en:'Bloc', color:'#33B2CC',
+      vote_mean:6.3, vote_sd:0.9, vote_ci_low_95:2.9, vote_ci_high_95:6.6,
+      trend_direction:'stable', trend_7d:0,
+      seats_mean:24, seats_median:24, seats_ci_low_80:19, seats_ci_high_80:28,
+      seats_ci_low_95:19, seats_ci_high_95:28, p_majority:0, p_largest:0 },
+    { party:'ndp', label_fr:'NPD', label_en:'NDP', color:'#F58220',
+      vote_mean:6.3, vote_sd:1.3, vote_ci_low_95:3.3, vote_ci_high_95:8.5,
+      trend_direction:'stable', trend_7d:0,
+      seats_mean:6, seats_median:6, seats_ci_low_80:4, seats_ci_high_80:8,
+      seats_ci_low_95:4, seats_ci_high_95:8, p_majority:0, p_largest:0 },
+    { party:'grn', label_fr:'Vert', label_en:'Green', color:'#3D9B35',
+      vote_mean:1.2, vote_sd:0.6, vote_ci_low_95:0.3, vote_ci_high_95:2.7,
+      trend_direction:'stable', trend_7d:0,
+      seats_mean:1, seats_median:1, seats_ci_low_80:1, seats_ci_high_80:2,
+      seats_ci_low_95:1, seats_ci_high_95:2, p_majority:0, p_largest:0 },
+  ],
+  current_composition: { lib:169, con:144, bq:22, ndp:7, grn:1, vacant:3 },
+  polls_history: [],
+  tipping_points: [],
+  ridings: [],
+  byelections: {
+    pending_byelections: [
+      { riding_id:'35112', election_date:'2026-04-13', reason:'resignation',
+        leading_party:'lib', p_leading:1.0, party_probs:{lib:1.0},
+        vote_mean:{lib:55,con:30,ndp:8,grn:4},
+        notes:'Freeland stronghold' },
+      { riding_id:'35096', election_date:'2026-04-13', reason:'resignation',
+        leading_party:'lib', p_leading:1.0, party_probs:{lib:1.0,con:0},
+        vote_mean:{lib:52,con:32,ndp:10},
+        notes:'Blair stronghold' },
+      { riding_id:'24073', election_date:'2026-04-13', reason:'court_annulment',
+        leading_party:'bq', p_leading:.79, party_probs:{bq:.79,lib:.20,con:.01},
+        vote_mean:{lib:36,bq:40,con:18},
+        notes:'Rematch lib vs BQ' },
+    ]
+  }
+};
+
+const DEMO_DATA_QC = {
+  meta: { run_date:'2026-03-23', election_cycle:'qc_2026', n_polls:54, mode:'rich', majority_threshold:64, n_simulations:10000, pipeline_version:'4.0', total_seats:125 },
+  parties: [
+    { party:'pq', label_fr:'PQ', label_en:'PQ', vote_mean:31.0, seats_mean:67, seats_ci_low_80:58, seats_ci_high_80:75, seats_ci_low_95:55, seats_ci_high_95:77, p_majority:.79, p_largest:1 },
+    { party:'plq', label_fr:'Libéral', label_en:'Liberal', vote_mean:26.0, seats_mean:37, seats_ci_low_80:32, seats_ci_high_80:41, seats_ci_low_95:31, seats_ci_high_95:42, p_majority:0, p_largest:0 },
+    { party:'pcq', label_fr:'PCQ', label_en:'PCQ', vote_mean:16.0, seats_mean:12, seats_ci_low_80:9, seats_ci_high_80:15, seats_ci_low_95:9, seats_ci_high_95:15, p_majority:0, p_largest:0 },
+    { party:'qs', label_fr:'QS', label_en:'QS', vote_mean:9.0, seats_mean:8, seats_ci_low_80:6, seats_ci_high_80:10, seats_ci_low_95:6, seats_ci_high_95:10, p_majority:0, p_largest:0 },
+    { party:'caq', label_fr:'CAQ', label_en:'CAQ', vote_mean:14.0, seats_mean:1, seats_ci_low_80:0, seats_ci_high_80:4, seats_ci_low_95:0, seats_ci_high_95:7, p_majority:0, p_largest:0 }
+  ],
+  current_composition: { caq: 90, plq: 21, qs: 11, pq: 3 },
+  polls_history: [],
+  tipping_points: [],
+  ridings: []
+};
+
+const DEMO_DATA_ON = {
+  meta: { run_date:'2026-03-23', election_cycle:'on_2029', n_polls:25, mode:'rich', majority_threshold:63, n_simulations:10000, pipeline_version:'4.0', total_seats:124 },
+  parties: [
+    { party:'on_pc', label_fr:'PC', label_en:'PC', vote_mean:43.0, seats_mean:79, seats_ci_low_80:70, seats_ci_high_80:88, seats_ci_low_95:67, seats_ci_high_95:89, p_majority:.997, p_largest:1 },
+    { party:'on_ndp', label_fr:'NPD', label_en:'NDP', vote_mean:18.5, seats_mean:25, seats_ci_low_80:20, seats_ci_high_80:28, seats_ci_low_95:18, seats_ci_high_95:28, p_majority:0, p_largest:0 },
+    { party:'on_lib', label_fr:'Libéral', label_en:'Liberal', vote_mean:30.0, seats_mean:17, seats_ci_low_80:13, seats_ci_high_80:24, seats_ci_low_95:13, seats_ci_high_95:27, p_majority:0, p_largest:0 },
+    { party:'on_grn', label_fr:'Vert', label_en:'Green', vote_mean:4.8, seats_mean:2, seats_ci_low_80:2, seats_ci_high_80:2, seats_ci_low_95:2, seats_ci_high_95:2, p_majority:0, p_largest:0 },
+    { party:'on_oth', label_fr:'Autre', label_en:'Other', vote_mean:3.7, seats_mean:1, seats_ci_low_80:1, seats_ci_high_80:1, seats_ci_low_95:1, seats_ci_high_95:1, p_majority:0, p_largest:0 }
+  ],
+  current_composition: { on_pc:80, on_ndp:27, on_lib:14, on_grn:2, on_oth:1 },
+  polls_history: [],
+  tipping_points: [],
+  ridings: []
+};
+
+// ═══════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  renderJurisdictionUI();
+  loadData();
+  setLang('fr');
+});
+</script>
+</body>
+</html>
