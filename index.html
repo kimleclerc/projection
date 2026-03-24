@@ -1,83 +1,10 @@
 <!DOCTYPE html>
-<html lang="fr" id="html-root">
+<html lang="fr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Projection Électorale Canada 2026 | Electoral Projection</title>
+  <title>Projection Électorale Canada | Electoral Projection</title>
 
-  <!-- ─── SEO ─── -->
-  <meta name="description" content="Projection électorale fédérale Canada 2026 en temps réel : 343 circonscriptions, carte interactive, tendances sondages, probabilités de majorité (modèle bayésien BSTS, 10 000 simulations). Mis à jour le 22 mars 2026.">
-  <meta name="keywords" content="élection fédérale 2026, projection électorale Canada, carte circonscriptions, sièges parlement, sondages Canada, modèle bayésien, federal election 2026, Canada seat projection">
-  <meta name="author" content="Kim Leclerc">
-  <link rel="canonical" href="https://kimleclerc.ca/projection/">
-
-  <!-- ─── Open Graph / Facebook ─── -->
-  <meta property="og:title" content="Projection Électorale Canada 2026">
-  <meta property="og:description" content="Projection en direct des 343 circonscriptions fédérales. Sièges, carte interactive, tendances et probabilités de majorité.">
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://kimleclerc.ca/projection/">
-  <meta property="og:image" content="https://kimleclerc.ca/projection/og-image.jpg">
-  <meta property="og:image:width" content="1200">
-  <meta property="og:image:height" content="630">
-  <meta property="og:locale" content="fr_CA">
-  <meta property="og:locale:alternate" content="en_CA">
-  <meta property="og:site_name" content="Projection Canada — Kim Leclerc">
-
-  <!-- ─── Twitter / X Card ─── -->
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:site" content="@kimleclerc">
-  <meta name="twitter:creator" content="@kimleclerc">
-  <meta name="twitter:title" content="Projection Électorale Canada 2026">
-  <meta name="twitter:description" content="Projection en direct des résultats de la prochaine élection fédérale — 343 circonscriptions, modèle bayésien BSTS.">
-  <meta name="twitter:image" content="https://kimleclerc.ca/projection/og-image.jpg">
-
-  <!-- ─── Schema.org Structured Data ─── -->
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@graph": [
-      {
-        "@type": "Person",
-        "@id": "https://kimleclerc.ca/#person",
-        "name": "Kim Leclerc",
-        "url": "https://kimleclerc.ca",
-        "image": "https://kimleclerc.ca/profil.jpg",
-        "jobTitle": "Analyste politique & créateur d'outils électoraux",
-        "description": "Créateur de Projection Canada, modèle bayésien open-source pour les projections électorales fédérales canadiennes.",
-        "sameAs": ["https://x.com/kimleclerc"]
-      },
-      {
-        "@type": "WebPage",
-        "@id": "https://kimleclerc.ca/projection/#webpage",
-        "name": "Projection Électorale Canada 2026",
-        "url": "https://kimleclerc.ca/projection/",
-        "description": "Projection en temps réel des 343 circonscriptions fédérales avec carte interactive, tendances sondages et probabilités de majorité.",
-        "dateModified": "2026-03-22",
-        "inLanguage": ["fr-CA", "en-CA"],
-        "author": { "@id": "https://kimleclerc.ca/#person" },
-        "isPartOf": { "@type": "WebSite", "url": "https://kimleclerc.ca" }
-      },
-      {
-        "@type": "Dataset",
-        "@id": "https://kimleclerc.ca/projection/#dataset",
-        "name": "Projection fédérale Canada 2026",
-        "description": "10 000 simulations Monte Carlo avec modèle BSTS bayésien utilisant les résultats 2025 et les sondages publics agrégés.",
-        "creator": { "@id": "https://kimleclerc.ca/#person" },
-        "dateModified": "2026-03-22",
-        "license": "https://creativecommons.org/licenses/by/4.0/",
-        "spatialCoverage": "Canada",
-        "inLanguage": ["fr-CA", "en-CA"],
-        "distribution": {
-          "@type": "DataDownload",
-          "contentUrl": "https://kimleclerc.ca/projection/web_data/federal/latest.json",
-          "encodingFormat": "application/json"
-        }
-      }
-    ]
-  }
-  </script>
-
-  <!-- ─── External Libraries ─── -->
   <!-- Leaflet -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -151,6 +78,30 @@
     }
 
     .header-right { display: flex; align-items: center; gap: 16px; }
+    .header-left { display:flex; align-items:center; gap:18px; }
+    .top-nav {
+      display:flex; align-items:center; gap:8px;
+      padding:4px;
+      border-radius:999px;
+      background: rgba(28,32,48,.8);
+      border:1px solid var(--border);
+    }
+    .nav-link {
+      display:inline-flex; align-items:center;
+      padding:6px 12px;
+      border-radius:999px;
+      color:var(--muted);
+      text-decoration:none;
+      font-size:12px;
+      font-weight:600;
+      letter-spacing:.03em;
+      transition: all .2s ease;
+    }
+    .nav-link:hover { color:var(--text); background:rgba(255,255,255,.04); }
+    .nav-link.active {
+      background: var(--accent);
+      color: #0d0f14;
+    }
 
     /* Lang switch */
     .lang-switch {
@@ -597,9 +548,15 @@
 
 <!-- HEADER -->
 <header>
-  <div class="logo">
-    <span class="logo-dot"></span>
-    <span data-i18n="site_name">Projection Canada</span>
+  <div class="header-left">
+    <div class="logo">
+      <span class="logo-dot"></span>
+      <span data-i18n="site_name">Projection Canada</span>
+    </div>
+    <nav class="top-nav">
+      <a class="nav-link" id="navFederal" href="index.html" data-i18n="nav_federal">Fédéral</a>
+      <a class="nav-link" id="navQuebec" href="quebec.html" data-i18n="nav_quebec">Québec</a>
+    </nav>
   </div>
   <div class="header-right">
     <div class="run-badge" id="runBadge"></div>
@@ -627,13 +584,13 @@
   <div class="alerts-row" id="alertsRow"></div>
 
   <!-- COMPOSITION ACTUELLE -->
-  <div class="section-title" data-i18n="current_house">Composition actuelle de la Chambre</div>
+  <div class="section-title" id="currentHouseTitle" data-i18n="current_house">Composition actuelle de la Chambre</div>
   <div class="composition-block">
-    <div class="comp-label" data-i18n="seats_label">SIÈGES — 343 TOTAL</div>
+    <div class="comp-label" id="seatsLabel" data-i18n="seats_label">SIÈGES — 343 TOTAL</div>
     <div class="comp-bar" id="compBar"></div>
     <div class="comp-majority-line">
       <div class="majority-marker" id="majorityMarker"></div>
-      <span style="font-size:11px;color:var(--muted)" data-i18n="majority_needed">172 sièges pour une majorité</span>
+      <span style="font-size:11px;color:var(--muted)" id="majorityNeeded" data-i18n="majority_needed">172 sièges pour une majorité</span>
     </div>
     <div class="comp-legend" id="compLegend"></div>
   </div>
@@ -657,7 +614,7 @@
 
   <!-- CARTE -->
   <div class="section-title" data-i18n="map_title">Carte des circonscriptions</div>
-  <div class="section-subtitle" data-i18n="map_subtitle">Projection par circonscription basée sur les résultats 2025, les sondages nationaux et les ajustements régionaux.</div>
+  <div class="section-subtitle" id="mapSubtitle" data-i18n="map_subtitle">Projection par circonscription basée sur les résultats 2025, les sondages nationaux et les ajustements régionaux.</div>
   <div class="map-section">
     <div class="map-container">
       <div id="map"></div>
@@ -666,8 +623,10 @@
   </div>
 
   <!-- ÉLECTIONS PARTIELLES -->
-  <div class="section-title" data-i18n="byelections">Élections partielles</div>
-  <div class="byel-grid" id="byelGrid"></div>
+  <div id="byelectionsSection">
+    <div class="section-title" id="byelectionsTitle" data-i18n="byelections">Élections partielles</div>
+    <div class="byel-grid" id="byelGrid"></div>
+  </div>
 
   <!-- TABLEAU CIRCONSCRIPTIONS -->
   <div class="section-title" data-i18n="all_ridings">Toutes les circonscriptions</div>
@@ -692,7 +651,7 @@
             <th data-sort="province" data-i18n="col_province">Province</th>
             <th data-sort="winner" data-i18n="col_winner">Gagnant 2025</th>
             <th data-sort="margin" data-i18n="col_margin">Marge</th>
-            <th data-sort="turnout" data-i18n="col_turnout">Participation</th>
+            <th data-sort="turnout" id="turnoutHeader" data-i18n="col_turnout">Participation</th>
           </tr>
         </thead>
         <tbody id="ridingsTableBody"></tbody>
@@ -705,19 +664,78 @@
 <footer>
   <span data-i18n="footer_method">Modèle BSTS bayésien — Monte Carlo 10 000 simulations</span>
   &nbsp;·&nbsp;
-  <span data-i18n="footer_source">Sources : Élections Canada, firmes de sondage publiques</span>
+  <span id="footerSource" data-i18n="footer_source">Sources : Élections Canada, firmes de sondage publiques</span>
   &nbsp;·&nbsp;
   <a href="methodologie.html" data-i18n="footer_method_link">Méthodologie</a>
 </footer>
 
 <script>
+const pageName = location.pathname.split('/').pop() || 'index.html';
+const jurisdiction = pageName === 'quebec.html' ? 'quebec' : 'federal';
+const APP_CONFIG = {
+  federal: {
+    key: 'federal',
+    dataPath: 'web_data/federal/latest.json',
+    geoPath: 'web_data/federal/ridings.geojson',
+    heroTitle: {
+      fr: 'Projection <em>fédérale</em>',
+      en: 'Federal <em>Projection</em>'
+    },
+    institution: {
+      fr: 'Composition actuelle de la Chambre',
+      en: 'Current House Composition'
+    },
+    source: {
+      fr: 'Sources : Élections Canada, firmes de sondage publiques',
+      en: 'Sources: Elections Canada, public polling firms'
+    },
+    mapSubtitle: {
+      fr: 'Projection par circonscription basée sur les résultats 2025, les sondages nationaux et les ajustements régionaux.',
+      en: 'Riding projection based on 2025 results, national polling and regional adjustments.'
+    },
+    baselineYear: 2025,
+    seatsTotal: 343,
+    byelections: true,
+    center: [56, -96],
+    zoom: 4,
+    parties: ['lib','con','bq','ndp','grn','ppc','fed_oth']
+  },
+  quebec: {
+    key: 'quebec',
+    dataPath: 'web_data/quebec/latest.json',
+    geoPath: 'web_data/quebec/ridings.geojson',
+    heroTitle: {
+      fr: 'Projection <em>québécoise</em>',
+      en: 'Quebec <em>Projection</em>'
+    },
+    institution: {
+      fr: 'Composition actuelle de l’Assemblée nationale',
+      en: 'Current National Assembly Composition'
+    },
+    source: {
+      fr: 'Sources : Élections Québec, firmes de sondage publiques',
+      en: 'Sources: Elections Quebec, public polling firms'
+    },
+    mapSubtitle: {
+      fr: 'Projection par circonscription basée sur les résultats 2022, les sondages québécois et les ajustements régionaux.',
+      en: 'Riding projection based on 2022 results, Quebec polling and regional adjustments.'
+    },
+    baselineYear: 2022,
+    seatsTotal: 125,
+    byelections: false,
+    center: [46.8, -71.2],
+    zoom: 6.2,
+    parties: ['pq','plq','pcq','qs','caq','qc_oth']
+  }
+}[jurisdiction];
+
 // ═══════════════════════════════════════════════════════
 // TRADUCTIONS
 // ═══════════════════════════════════════════════════════
 const I18N = {
   fr: {
     site_name       : 'Projection Canada',
-    hero_title      : 'Projection <em>fédérale</em>',
+    hero_title      : 'Projection',
     current_house   : 'Composition actuelle de la Chambre',
     seats_label     : 'SIÈGES — 343 TOTAL',
     majority_needed : '172 sièges pour une majorité',
@@ -769,10 +787,12 @@ const I18N = {
     trend_up        : '↑',
     trend_down      : '↓',
     trend_flat      : '→',
+    nav_federal     : 'Fédéral',
+    nav_quebec      : 'Québec',
   },
   en: {
     site_name       : 'Canada Projection',
-    hero_title      : 'Federal <em>Projection</em>',
+    hero_title      : 'Projection',
     current_house   : 'Current House Composition',
     seats_label     : 'SEATS — 343 TOTAL',
     majority_needed : '172 seats for a majority',
@@ -824,17 +844,21 @@ const I18N = {
     trend_up        : '↑',
     trend_down      : '↓',
     trend_flat      : '→',
+    nav_federal     : 'Federal',
+    nav_quebec      : 'Quebec',
   }
 };
 
 const PARTY_COLORS = {
   lib:'#D71920', con:'#1A4782', ndp:'#F58220',
   bq:'#33B2CC',  grn:'#3D9B35', ppc:'#7C3AED',
-  fed_oth:'#6b7280', oth:'#6b7280', vacant:'#374151'
+  fed_oth:'#6b7280', oth:'#6b7280', vacant:'#374151',
+  caq:'#12BBFF', plq:'#D90000', pq:'#0101CC',
+  qs:'#FF5402', pcq:'#172853', qc_oth:'#6b7280'
 };
 const PARTY_LABELS = {
-  fr:{ lib:'Libéral', con:'Conservateur', ndp:'NPD', bq:'Bloc', grn:'Vert', ppc:'PPC', fed_oth:'Autre', vacant:'Vacant' },
-  en:{ lib:'Liberal', con:'Conservative', ndp:'NDP', bq:'Bloc', grn:'Green', ppc:'PPC', fed_oth:'Other', vacant:'Vacant' }
+  fr:{ lib:'Libéral', con:'Conservateur', ndp:'NPD', bq:'Bloc', grn:'Vert', ppc:'PPC', fed_oth:'Autre', vacant:'Vacant', caq:'CAQ', plq:'Libéral', pq:'PQ', qs:'QS', pcq:'PCQ', qc_oth:'Autre' },
+  en:{ lib:'Liberal', con:'Conservative', ndp:'NDP', bq:'Bloc', grn:'Green', ppc:'PPC', fed_oth:'Other', vacant:'Vacant', caq:'CAQ', plq:'Liberal', pq:'PQ', qs:'QS', pcq:'PCQ', qc_oth:'Other' }
 };
 
 // ═══════════════════════════════════════════════════════
@@ -853,27 +877,16 @@ let sortCol = 'margin', sortDir = -1;
 // ═══════════════════════════════════════════════════════
 function setLang(l) {
   lang = l;
-
-  // Persist choice & update <html lang>
-  try { localStorage.setItem('projection_lang', l); } catch(e) {}
-  document.getElementById('html-root').setAttribute('lang', l === 'fr' ? 'fr-CA' : 'en-CA');
-
-  // Update lang buttons
   document.querySelectorAll('.lang-btn').forEach(b => {
     b.classList.toggle('active', b.textContent === l.toUpperCase());
   });
-
-  // Update all i18n elements
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const key = el.getAttribute('data-i18n');
     if (I18N[lang][key]) el.innerHTML = I18N[lang][key];
   });
-
-  // Update search placeholder
   document.getElementById('ridingSearch').placeholder =
     lang === 'fr' ? 'Rechercher une circonscription…' : 'Search a riding…';
-
-  // Re-render dynamic content if data is loaded
+  renderJurisdictionUI();
   if (data) {
     renderComposition();
     renderSeatsGrid();
@@ -888,22 +901,45 @@ function setLang(l) {
 
 function t(key) { return I18N[lang][key] || key; }
 
+function getBaselineResult(riding) {
+  return riding?.baseline_result || riding?.result_2025 || {};
+}
+
 function getRidingWinner(riding) {
-  return riding?.projection?.winner || riding?.result_2025?.winner || 'oth';
+  return riding?.projection?.winner || getBaselineResult(riding)?.winner || 'oth';
 }
 
 function getRidingMargin(riding) {
-  return riding?.projection?.mean_margin ?? riding?.result_2025?.margin ?? 0;
+  return riding?.projection?.mean_margin ?? getBaselineResult(riding)?.margin ?? 0;
 }
 
 function getRidingTurnout(riding) {
-  return riding?.result_2025?.turnout_pct ?? 0;
+  return getBaselineResult(riding)?.turnout_pct ?? 0;
 }
 
 function getRidingVotePct(riding, party) {
   const projected = riding?.projection?.vote_mean?.[party];
   if (projected !== undefined && projected !== null) return projected;
-  return riding?.result_2025?.[party + '_pct'];
+  return getBaselineResult(riding)?.[party + '_pct'];
+}
+
+function renderJurisdictionUI() {
+  document.title = jurisdiction === 'quebec'
+    ? 'Projection Électorale Québec | Electoral Projection'
+    : 'Projection Électorale Canada | Electoral Projection';
+  document.querySelector('[data-i18n="hero_title"]').innerHTML = APP_CONFIG.heroTitle[lang];
+  document.getElementById('currentHouseTitle').textContent = APP_CONFIG.institution[lang];
+  document.getElementById('mapSubtitle').textContent = APP_CONFIG.mapSubtitle[lang];
+  document.getElementById('footerSource').textContent = APP_CONFIG.source[lang];
+  document.getElementById('turnoutHeader').textContent =
+    lang === 'fr' ? `Participation ${APP_CONFIG.baselineYear}` : `${APP_CONFIG.baselineYear} turnout`;
+  document.getElementById('navFederal').classList.toggle('active', jurisdiction === 'federal');
+  document.getElementById('navQuebec').classList.toggle('active', jurisdiction === 'quebec');
+
+  const byelSection = document.getElementById('byelectionsSection');
+  if (!APP_CONFIG.byelections) {
+    byelSection.style.display = 'none';
+  }
 }
 
 // ═══════════════════════════════════════════════════════
@@ -911,7 +947,7 @@ function getRidingVotePct(riding, party) {
 // ═══════════════════════════════════════════════════════
 async function loadData() {
   try {
-    const res = await fetch(`web_data/federal/latest.json?t=${Date.now()}`, {
+    const res = await fetch(`${APP_CONFIG.dataPath}?t=${Date.now()}`, {
       cache: 'no-store'
     });
     data = await res.json();
@@ -924,7 +960,7 @@ async function loadData() {
   } catch(e) {
     // Fallback : données de démo intégrées
     console.error('Load error, fallback to DEMO_DATA', e);
-    data = DEMO_DATA;
+    data = jurisdiction === 'quebec' ? DEMO_DATA_QC : DEMO_DATA;
     render();
   }
 }
@@ -966,6 +1002,12 @@ function renderMeta() {
     `${t('updated')} <strong>${m.run_date}</strong> · ${m.n_polls} ${t('polls_used')}`;
   document.getElementById('cycleBadge').textContent =
     `${m.election_cycle.toUpperCase()} · ${m.n_simulations.toLocaleString(lang === 'fr' ? 'fr-CA' : 'en-CA')} MC`;
+  const totalSeats = data?.meta?.total_seats || APP_CONFIG.seatsTotal || Object.values(data.current_composition || {}).reduce((a,b)=>a+(b||0),0);
+  const majority = data?.meta?.majority_threshold || Math.floor(totalSeats / 2) + 1;
+  document.getElementById('seatsLabel').textContent =
+    `${lang === 'fr' ? 'SIÈGES' : 'SEATS'} — ${totalSeats} ${lang === 'fr' ? 'TOTAL' : 'TOTAL'}`;
+  document.getElementById('majorityNeeded').textContent =
+    lang === 'fr' ? `${majority} sièges pour une majorité` : `${majority} seats for a majority`;
 }
 
 // ═══════════════════════════════════════════════════════
@@ -990,8 +1032,8 @@ function renderAlerts() {
 // ═══════════════════════════════════════════════════════
 function renderComposition() {
   const comp = data.current_composition;
-  const total = 343;
-  const order = ['lib','con','bq','ndp','grn','ppc','fed_oth','vacant'];
+  const total = data?.meta?.total_seats || APP_CONFIG.seatsTotal || Object.values(comp || {}).reduce((a,b)=>a+(b||0),0);
+  const order = APP_CONFIG.parties.concat(['vacant']).filter((v, i, arr) => arr.indexOf(v) === i);
   const bar = document.getElementById('compBar');
   const legend = document.getElementById('compLegend');
 
@@ -1006,7 +1048,8 @@ function renderComposition() {
   }).join('');
 
   // Ligne majorité
-  const majPct = (172 / total * 100).toFixed(2);
+  const majority = data?.meta?.majority_threshold || Math.floor(total / 2) + 1;
+  const majPct = (majority / total * 100).toFixed(2);
   document.getElementById('majorityMarker').style.left = `${majPct}%`;
 
   legend.innerHTML = order.map(p => {
@@ -1055,7 +1098,7 @@ function renderCharts() {
 
 function renderVoteTrend() {
   const polls = data.polls_history || [];
-  const parties_order = ['lib','con','ndp','bq','grn'];
+  const parties_order = APP_CONFIG.parties.filter(p => p !== 'fed_oth' && p !== 'qc_oth').slice(0, 5);
   const traces = parties_order.map(p => {
     const x = polls.map(d => d.date);
     const y = polls.map(d => d[p]);
@@ -1137,7 +1180,7 @@ function renderMap() {
   if (map) return; // déjà initialisé
 
   map = L.map('map', {
-    center:[56, -96], zoom:4,
+    center: APP_CONFIG.center, zoom: APP_CONFIG.zoom,
     zoomControl:true,
     attributionControl:false
   });
@@ -1147,7 +1190,7 @@ function renderMap() {
   }).addTo(map);
 
   // Charger le GeoJSON des circonscriptions
-  fetch(`web_data/federal/ridings.geojson?t=${Date.now()}`, {
+  fetch(`${APP_CONFIG.geoPath}?t=${Date.now()}`, {
     cache: 'no-store'
   })
     .then(r => r.json())
@@ -1161,7 +1204,9 @@ function renderMap() {
           </svg>
           <span style="font-size:13px">${lang==='fr'?'Carte GeoJSON à générer':'GeoJSON map to generate'}</span>
           <span style="font-size:11px;max-width:300px;text-align:center">
-            ${lang==='fr'?'Exécuter le script de conversion des shapefiles Elections Canada':'Run Elections Canada shapefile conversion script'}
+            ${lang==='fr'
+              ? `Exécuter le script de conversion des shapefiles ${jurisdiction === 'quebec' ? 'Élections Québec' : 'Élections Canada'}`
+              : `Run ${jurisdiction === 'quebec' ? 'Elections Quebec' : 'Elections Canada'} shapefile conversion script`}
           </span>
         </div>`;
     });
@@ -1174,11 +1219,23 @@ function addRidingsLayer(geojson) {
   const ridingIndex = {};
   (data.ridings||[]).forEach(r => { ridingIndex[r.riding_id] = r; });
 
+  function getFeatureRidingId(feature) {
+    const props = feature?.properties || {};
+    const raw = props.FEDNUM ??
+                props.riding_id ??
+                props.FED_NUM ??
+                props.CO_CEP ??
+                props.CODE ??
+                props.riding_code;
+    if (raw === undefined || raw === null || raw === '') return null;
+    const num = String(raw).replace(/\D/g, '');
+    if (!num) return null;
+    return num.padStart(5, '0');
+  }
+
   L.geoJSON(geojson, {
     style: feature => {
-      const rid = feature.properties.FEDNUM ||
-                  feature.properties.riding_id ||
-                  String(feature.properties.FED_NUM).padStart(5,'0');
+      const rid = getFeatureRidingId(feature);
       const riding = ridingIndex[rid];
       const winner = getRidingWinner(riding);
       return {
@@ -1189,9 +1246,7 @@ function addRidingsLayer(geojson) {
       };
     },
     onEachFeature: (feature, layer) => {
-      const rid = feature.properties.FEDNUM ||
-                  feature.properties.riding_id ||
-                  String(feature.properties.FED_NUM).padStart(5,'0');
+      const rid = getFeatureRidingId(feature);
       const riding = ridingIndex[rid];
       if (!riding) return;
 
@@ -1206,13 +1261,15 @@ function addRidingsLayer(geojson) {
 
 function showRidingPopup(e, riding, layer) {
   const projection = riding.projection || {};
-  const baseline = riding.result_2025 || {};
+  const baseline = getBaselineResult(riding);
   const winner = getRidingWinner(riding);
   const color  = PARTY_COLORS[winner] || '#888';
   const name   = lang === 'fr' ? riding.name_fr : riding.name_en;
   const winLabel = PARTY_LABELS[lang][winner] || winner.toUpperCase();
 
-  const votes = ['lib','con','ndp','bq','grn'].map(p => {
+  const votes = APP_CONFIG.parties
+    .filter(p => !['fed_oth', 'qc_oth', 'vacant'].includes(p))
+    .map(p => {
     const pct = getRidingVotePct(riding, p);
     if (pct === undefined || pct === null) return '';
     const label = PARTY_LABELS[lang][p] || p.toUpperCase();
@@ -1253,7 +1310,7 @@ function showRidingPopup(e, riding, layer) {
         <span class="popup-label">${t('popup_turnout')}</span>
         <span class="popup-val">${getRidingTurnout(riding).toFixed(1)}%</span>
       </div>
-      <div style="font-size:11px;color:var(--muted);margin:8px 0 4px">${t('popup_baseline')}</div>
+      <div style="font-size:11px;color:var(--muted);margin:8px 0 4px">${lang === 'fr' ? `Base ${APP_CONFIG.baselineYear}` : `${APP_CONFIG.baselineYear} baseline`}</div>
       <div class="popup-row">
         <span class="popup-label">${t('popup_winner')}</span>
         <span class="popup-val">${baselineWinner}</span>
@@ -1267,7 +1324,7 @@ function showRidingPopup(e, riding, layer) {
 }
 
 function renderMapLegend() {
-  const parties = ['lib','con','bq','ndp','grn'];
+  const parties = APP_CONFIG.parties.filter(p => p !== 'fed_oth' && p !== 'qc_oth');
   document.getElementById('mapLegend').innerHTML =
     `<div class="map-legend-title">${t('map_projection')}</div>` +
     parties.map(p => `
@@ -1284,6 +1341,10 @@ function renderMapLegend() {
 // ═══════════════════════════════════════════════════════
 function renderByelections() {
   const byel = data.byelections?.pending_byelections || [];
+  if (!APP_CONFIG.byelections || !byel.length) {
+    document.getElementById('byelectionsSection').style.display = 'none';
+    return;
+  }
   const ridingIndex = {};
   (data.ridings||[]).forEach(r => { ridingIndex[r.riding_id] = r; });
 
@@ -1505,24 +1566,28 @@ const DEMO_DATA = {
   }
 };
 
-// ═══════════════════════════════════════════════════════
-// INIT — détection automatique de la langue
-// ═══════════════════════════════════════════════════════
-function detectLang() {
-  // 1. Choix mémorisé de l'utilisateur
-  try {
-    const stored = localStorage.getItem('projection_lang');
-    if (stored === 'fr' || stored === 'en') return stored;
-  } catch(e) {}
+const DEMO_DATA_QC = {
+  meta: { run_date:'2026-03-23', election_cycle:'qc_2026', n_polls:54, mode:'rich', majority_threshold:64, n_simulations:10000, pipeline_version:'4.0', total_seats:125 },
+  parties: [
+    { party:'pq', label_fr:'PQ', label_en:'PQ', vote_mean:31.0, seats_mean:67, seats_ci_low_80:58, seats_ci_high_80:75, seats_ci_low_95:55, seats_ci_high_95:77, p_majority:.79, p_largest:1 },
+    { party:'plq', label_fr:'Libéral', label_en:'Liberal', vote_mean:26.0, seats_mean:37, seats_ci_low_80:32, seats_ci_high_80:41, seats_ci_low_95:31, seats_ci_high_95:42, p_majority:0, p_largest:0 },
+    { party:'pcq', label_fr:'PCQ', label_en:'PCQ', vote_mean:16.0, seats_mean:12, seats_ci_low_80:9, seats_ci_high_80:15, seats_ci_low_95:9, seats_ci_high_95:15, p_majority:0, p_largest:0 },
+    { party:'qs', label_fr:'QS', label_en:'QS', vote_mean:9.0, seats_mean:8, seats_ci_low_80:6, seats_ci_high_80:10, seats_ci_low_95:6, seats_ci_high_95:10, p_majority:0, p_largest:0 },
+    { party:'caq', label_fr:'CAQ', label_en:'CAQ', vote_mean:14.0, seats_mean:1, seats_ci_low_80:0, seats_ci_high_80:4, seats_ci_low_95:0, seats_ci_high_95:7, p_majority:0, p_largest:0 }
+  ],
+  current_composition: { caq: 90, plq: 21, qs: 11, pq: 3 },
+  polls_history: [],
+  tipping_points: [],
+  ridings: []
+};
 
-  // 2. Langue du navigateur
-  const nav = (navigator.language || navigator.userLanguage || 'fr').toLowerCase();
-  return nav.startsWith('fr') ? 'fr' : 'en';
-}
-
+// ═══════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════
 document.addEventListener('DOMContentLoaded', () => {
+  renderJurisdictionUI();
   loadData();
-  setLang(detectLang());
+  setLang('fr');
 });
 </script>
 </body>
