@@ -1033,12 +1033,44 @@ let ridingsPage = 0;
 const PAGE_SIZE = 50;
 let filteredRidings = [];
 let sortCol = 'margin', sortDir = -1;
+const LANG_STORAGE_KEY = 'votescope_lang';
 
 // ═══════════════════════════════════════════════════════
 // LANG
 // ═══════════════════════════════════════════════════════
+function getInitialLang() {
+  try {
+    const url = new URL(window.location.href);
+    const queryLang = url.searchParams.get('lang');
+    if (queryLang === 'fr' || queryLang === 'en') return queryLang;
+  } catch {}
+
+  try {
+    const savedLang = localStorage.getItem(LANG_STORAGE_KEY);
+    if (savedLang === 'fr' || savedLang === 'en') return savedLang;
+  } catch {}
+
+  return document.documentElement.lang === 'en' ? 'en' : 'fr';
+}
+
+function syncLocalizedLinks() {
+  document.querySelectorAll('a[href$=".html"], a[href*=".html?"]').forEach(link => {
+    const href = link.getAttribute('href');
+    if (!href || href.startsWith('http') || href.startsWith('#')) return;
+    try {
+      const url = new URL(href, window.location.href);
+      url.searchParams.set('lang', lang);
+      link.setAttribute('href', `${url.pathname.split('/').pop()}${url.search}`);
+    } catch {}
+  });
+}
+
 function setLang(l) {
   lang = l;
+  document.documentElement.lang = l;
+  try {
+    localStorage.setItem(LANG_STORAGE_KEY, l);
+  } catch {}
   document.querySelectorAll('.lang-btn').forEach(b => {
     b.classList.toggle('active', b.textContent === l.toUpperCase());
   });
@@ -1046,6 +1078,7 @@ function setLang(l) {
     const key = el.getAttribute('data-i18n');
     if (I18N[lang][key]) el.innerHTML = I18N[lang][key];
   });
+  syncLocalizedLinks();
   document.getElementById('ridingSearch').placeholder = getSearchPlaceholder();
   renderJurisdictionUI();
   if (data) {
@@ -1181,7 +1214,9 @@ async function loadData() {
     const res = await fetch(`${APP_CONFIG.dataPath}?t=${Date.now()}`, {
       cache: 'no-store'
     });
+    if (!res.ok) throw new Error(`HTTP ${res.status} on ${APP_CONFIG.dataPath}`);
     data = await res.json();
+    document.getElementById('debugErrorBox')?.remove();
     try {
       render();
     } catch (renderError) {
@@ -1771,6 +1806,12 @@ function renderRidingsPage() {
     </tr>`;
   }).join('');
 
+  if (!filteredRidings.length) {
+    document.getElementById('ridingsPager').textContent =
+      `${t('showing')} 0–0 ${t('of')} 0 ${getPagerUnitLabel()}`;
+    return;
+  }
+
   document.getElementById('ridingsPager').textContent =
     `${t('showing')} ${start+1}–${Math.min(start+PAGE_SIZE, filteredRidings.length)} ${t('of')} ${filteredRidings.length} ${getPagerUnitLabel()}`;
 
@@ -1935,9 +1976,9 @@ const DEMO_DATA_US_SENATE = {
 // INIT
 // ═══════════════════════════════════════════════════════
 document.addEventListener('DOMContentLoaded', () => {
-  renderJurisdictionUI();
+  const initialLang = getInitialLang();
+  setLang(initialLang);
   loadData();
-  setLang('fr');
 });
 </script>
 </body>
