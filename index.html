@@ -532,6 +532,47 @@
 
     /* Responsive */
     @media (max-width: 600px) {
+      header {
+        height: auto;
+        padding: 10px 14px;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        grid-template-areas:
+          "logo lang"
+          "nav nav";
+        row-gap: 8px;
+        align-items: center;
+      }
+      .header-left { display: contents; }
+      .logo {
+        grid-area: logo;
+        font-size: 16px;
+        gap: 8px;
+      }
+      .header-right {
+        grid-area: lang;
+        justify-self: end;
+        gap: 0;
+      }
+      .run-badge { display: none; }
+      .top-nav {
+        grid-area: nav;
+        width: 100%;
+        justify-content: space-between;
+        gap: 4px;
+        padding: 3px;
+      }
+      .nav-link {
+        flex: 1;
+        justify-content: center;
+        padding: 7px 8px;
+        font-size: 11px;
+        white-space: nowrap;
+      }
+      .lang-btn {
+        padding: 4px 10px;
+        font-size: 11px;
+      }
       .hero { flex-direction: column; align-items: flex-start; }
       .seats-grid { grid-template-columns: 1fr 1fr; }
       .charts-row { grid-template-columns: 1fr; }
@@ -556,6 +597,7 @@
     <nav class="top-nav">
       <a class="nav-link" id="navFederal" href="index.html" data-i18n="nav_federal">Fédéral</a>
       <a class="nav-link" id="navQuebec" href="quebec.html" data-i18n="nav_quebec">Québec</a>
+      <a class="nav-link" id="navOntario" href="ontario.html" data-i18n="nav_ontario">Ontario</a>
     </nav>
   </div>
   <div class="header-right">
@@ -671,7 +713,10 @@
 
 <script>
 const pageName = location.pathname.split('/').pop() || 'index.html';
-const jurisdiction = pageName === 'quebec.html' ? 'quebec' : 'federal';
+const jurisdiction =
+  pageName === 'quebec.html' ? 'quebec' :
+  pageName === 'ontario.html' ? 'ontario' :
+  'federal';
 const APP_CONFIG = {
   federal: {
     key: 'federal',
@@ -725,7 +770,35 @@ const APP_CONFIG = {
     byelections: false,
     center: [46.8, -71.2],
     zoom: 6.2,
-    parties: ['pq','plq','pcq','qs','caq','qc_oth']
+    parties: ['pq','plq','pcq','qs','caq','qc_oth'],
+    currentCompositionParties: ['caq','plq','qs','pq','qc_ind']
+  },
+  ontario: {
+    key: 'ontario',
+    dataPath: 'web_data/ontario/latest.json',
+    geoPath: 'web_data/ontario/ridings.geojson',
+    heroTitle: {
+      fr: 'Projection <em>ontarienne</em>',
+      en: 'Ontario <em>Projection</em>'
+    },
+    institution: {
+      fr: 'Composition actuelle de l’Assemblée législative',
+      en: 'Current Legislative Assembly Composition'
+    },
+    source: {
+      fr: 'Sources : Élections Ontario, firmes de sondage publiques',
+      en: 'Sources: Elections Ontario, public polling firms'
+    },
+    mapSubtitle: {
+      fr: 'Projection par circonscription basée sur les résultats 2025, les sondages ontariens et les ajustements régionaux.',
+      en: 'Riding projection based on 2025 results, Ontario polling and regional adjustments.'
+    },
+    baselineYear: 2025,
+    seatsTotal: 124,
+    byelections: false,
+    center: [49.2, -84.6],
+    zoom: 5.5,
+    parties: ['on_pc','on_ndp','on_lib','on_grn','on_oth']
   }
 }[jurisdiction];
 
@@ -789,6 +862,7 @@ const I18N = {
     trend_flat      : '→',
     nav_federal     : 'Fédéral',
     nav_quebec      : 'Québec',
+    nav_ontario     : 'Ontario',
   },
   en: {
     site_name       : 'Canada Projection',
@@ -846,6 +920,7 @@ const I18N = {
     trend_flat      : '→',
     nav_federal     : 'Federal',
     nav_quebec      : 'Quebec',
+    nav_ontario     : 'Ontario',
   }
 };
 
@@ -854,11 +929,13 @@ const PARTY_COLORS = {
   bq:'#33B2CC',  grn:'#3D9B35', ppc:'#7C3AED',
   fed_oth:'#6b7280', oth:'#6b7280', vacant:'#374151',
   caq:'#12BBFF', plq:'#D90000', pq:'#0101CC',
-  qs:'#FF5402', pcq:'#172853', qc_oth:'#6b7280'
+  qs:'#FF5402', pcq:'#172853', qc_oth:'#6b7280', qc_ind:'#6b7280',
+  on_pc:'#0202FF', on_ndp:'#FF5402', on_lib:'#D90000',
+  on_grn:'#269B26', on_oth:'#6b7280'
 };
 const PARTY_LABELS = {
-  fr:{ lib:'Libéral', con:'Conservateur', ndp:'NPD', bq:'Bloc', grn:'Vert', ppc:'PPC', fed_oth:'Autre', vacant:'Vacant', caq:'CAQ', plq:'Libéral', pq:'PQ', qs:'QS', pcq:'PCQ', qc_oth:'Autre' },
-  en:{ lib:'Liberal', con:'Conservative', ndp:'NDP', bq:'Bloc', grn:'Green', ppc:'PPC', fed_oth:'Other', vacant:'Vacant', caq:'CAQ', plq:'Liberal', pq:'PQ', qs:'QS', pcq:'PCQ', qc_oth:'Other' }
+  fr:{ lib:'Libéral', con:'Conservateur', ndp:'NPD', bq:'Bloc', grn:'Vert', ppc:'PPC', fed_oth:'Autre', vacant:'Vacant', caq:'CAQ', plq:'Libéral', pq:'PQ', qs:'QS', pcq:'PCQ', qc_oth:'Autre', qc_ind:'Indépendant', on_pc:'PC', on_ndp:'NPD', on_lib:'Libéral', on_grn:'Vert', on_oth:'Autre' },
+  en:{ lib:'Liberal', con:'Conservative', ndp:'NDP', bq:'Bloc', grn:'Green', ppc:'PPC', fed_oth:'Other', vacant:'Vacant', caq:'CAQ', plq:'Liberal', pq:'PQ', qs:'QS', pcq:'PCQ', qc_oth:'Other', qc_ind:'Independent', on_pc:'PC', on_ndp:'NDP', on_lib:'Liberal', on_grn:'Green', on_oth:'Other' }
 };
 
 // ═══════════════════════════════════════════════════════
@@ -926,6 +1003,8 @@ function getRidingVotePct(riding, party) {
 function renderJurisdictionUI() {
   document.title = jurisdiction === 'quebec'
     ? 'Projection Électorale Québec | Electoral Projection'
+    : jurisdiction === 'ontario'
+    ? 'Projection Électorale Ontario | Electoral Projection'
     : 'Projection Électorale Canada | Electoral Projection';
   document.querySelector('[data-i18n="hero_title"]').innerHTML = APP_CONFIG.heroTitle[lang];
   document.getElementById('currentHouseTitle').textContent = APP_CONFIG.institution[lang];
@@ -935,6 +1014,7 @@ function renderJurisdictionUI() {
     lang === 'fr' ? `Participation ${APP_CONFIG.baselineYear}` : `${APP_CONFIG.baselineYear} turnout`;
   document.getElementById('navFederal').classList.toggle('active', jurisdiction === 'federal');
   document.getElementById('navQuebec').classList.toggle('active', jurisdiction === 'quebec');
+  document.getElementById('navOntario').classList.toggle('active', jurisdiction === 'ontario');
 
   const byelSection = document.getElementById('byelectionsSection');
   if (!APP_CONFIG.byelections) {
@@ -960,7 +1040,7 @@ async function loadData() {
   } catch(e) {
     // Fallback : données de démo intégrées
     console.error('Load error, fallback to DEMO_DATA', e);
-    data = jurisdiction === 'quebec' ? DEMO_DATA_QC : DEMO_DATA;
+    data = jurisdiction === 'quebec' ? DEMO_DATA_QC : jurisdiction === 'ontario' ? DEMO_DATA_ON : DEMO_DATA;
     render();
   }
 }
@@ -1033,7 +1113,7 @@ function renderAlerts() {
 function renderComposition() {
   const comp = data.current_composition;
   const total = data?.meta?.total_seats || APP_CONFIG.seatsTotal || Object.values(comp || {}).reduce((a,b)=>a+(b||0),0);
-  const order = APP_CONFIG.parties.concat(['vacant']).filter((v, i, arr) => arr.indexOf(v) === i);
+  const order = (APP_CONFIG.currentCompositionParties || APP_CONFIG.parties).concat(['vacant']).filter((v, i, arr) => arr.indexOf(v) === i);
   const bar = document.getElementById('compBar');
   const legend = document.getElementById('compLegend');
 
@@ -1098,7 +1178,7 @@ function renderCharts() {
 
 function renderVoteTrend() {
   const polls = data.polls_history || [];
-  const parties_order = APP_CONFIG.parties.filter(p => p !== 'fed_oth' && p !== 'qc_oth').slice(0, 5);
+  const parties_order = APP_CONFIG.parties.filter(p => !['fed_oth', 'qc_oth', 'on_oth'].includes(p)).slice(0, 5);
   const traces = parties_order.map(p => {
     const x = polls.map(d => d.date);
     const y = polls.map(d => d[p]);
@@ -1205,8 +1285,8 @@ function renderMap() {
           <span style="font-size:13px">${lang==='fr'?'Carte GeoJSON à générer':'GeoJSON map to generate'}</span>
           <span style="font-size:11px;max-width:300px;text-align:center">
             ${lang==='fr'
-              ? `Exécuter le script de conversion des shapefiles ${jurisdiction === 'quebec' ? 'Élections Québec' : 'Élections Canada'}`
-              : `Run ${jurisdiction === 'quebec' ? 'Elections Quebec' : 'Elections Canada'} shapefile conversion script`}
+              ? `Exécuter le script de conversion des shapefiles ${jurisdiction === 'quebec' ? 'Élections Québec' : jurisdiction === 'ontario' ? 'Élections Ontario' : 'Élections Canada'}`
+              : `Run ${jurisdiction === 'quebec' ? 'Elections Quebec' : jurisdiction === 'ontario' ? 'Elections Ontario' : 'Elections Canada'} shapefile conversion script`}
           </span>
         </div>`;
     });
@@ -1268,7 +1348,7 @@ function showRidingPopup(e, riding, layer) {
   const winLabel = PARTY_LABELS[lang][winner] || winner.toUpperCase();
 
   const votes = APP_CONFIG.parties
-    .filter(p => !['fed_oth', 'qc_oth', 'vacant'].includes(p))
+    .filter(p => !['fed_oth', 'qc_oth', 'on_oth', 'vacant'].includes(p))
     .map(p => {
     const pct = getRidingVotePct(riding, p);
     if (pct === undefined || pct === null) return '';
@@ -1324,7 +1404,7 @@ function showRidingPopup(e, riding, layer) {
 }
 
 function renderMapLegend() {
-  const parties = APP_CONFIG.parties.filter(p => p !== 'fed_oth' && p !== 'qc_oth');
+  const parties = APP_CONFIG.parties.filter(p => !['fed_oth', 'qc_oth', 'on_oth'].includes(p));
   document.getElementById('mapLegend').innerHTML =
     `<div class="map-legend-title">${t('map_projection')}</div>` +
     parties.map(p => `
@@ -1576,6 +1656,21 @@ const DEMO_DATA_QC = {
     { party:'caq', label_fr:'CAQ', label_en:'CAQ', vote_mean:14.0, seats_mean:1, seats_ci_low_80:0, seats_ci_high_80:4, seats_ci_low_95:0, seats_ci_high_95:7, p_majority:0, p_largest:0 }
   ],
   current_composition: { caq: 90, plq: 21, qs: 11, pq: 3 },
+  polls_history: [],
+  tipping_points: [],
+  ridings: []
+};
+
+const DEMO_DATA_ON = {
+  meta: { run_date:'2026-03-23', election_cycle:'on_2029', n_polls:25, mode:'rich', majority_threshold:63, n_simulations:10000, pipeline_version:'4.0', total_seats:124 },
+  parties: [
+    { party:'on_pc', label_fr:'PC', label_en:'PC', vote_mean:43.0, seats_mean:79, seats_ci_low_80:70, seats_ci_high_80:88, seats_ci_low_95:67, seats_ci_high_95:89, p_majority:.997, p_largest:1 },
+    { party:'on_ndp', label_fr:'NPD', label_en:'NDP', vote_mean:18.5, seats_mean:25, seats_ci_low_80:20, seats_ci_high_80:28, seats_ci_low_95:18, seats_ci_high_95:28, p_majority:0, p_largest:0 },
+    { party:'on_lib', label_fr:'Libéral', label_en:'Liberal', vote_mean:30.0, seats_mean:17, seats_ci_low_80:13, seats_ci_high_80:24, seats_ci_low_95:13, seats_ci_high_95:27, p_majority:0, p_largest:0 },
+    { party:'on_grn', label_fr:'Vert', label_en:'Green', vote_mean:4.8, seats_mean:2, seats_ci_low_80:2, seats_ci_high_80:2, seats_ci_low_95:2, seats_ci_high_95:2, p_majority:0, p_largest:0 },
+    { party:'on_oth', label_fr:'Autre', label_en:'Other', vote_mean:3.7, seats_mean:1, seats_ci_low_80:1, seats_ci_high_80:1, seats_ci_low_95:1, seats_ci_high_95:1, p_majority:0, p_largest:0 }
+  ],
+  current_composition: { on_pc:80, on_ndp:27, on_lib:14, on_grn:2, on_oth:1 },
   polls_history: [],
   tipping_points: [],
   ridings: []
