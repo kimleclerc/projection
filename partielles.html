@@ -53,7 +53,7 @@
     }
     .lang-wrap { display:flex; gap:6px; }
     .lang-btn.active { background:var(--accent); color:#10131a; border-color:transparent; }
-    main { max-width: 1240px; margin:0 auto; padding:36px 24px 80px; }
+    main { max-width: 1380px; margin:0 auto; padding:36px 24px 80px; }
     .hero { margin-bottom: 24px; }
     .eyebrow {
       display:inline-flex; align-items:center; gap:8px;
@@ -76,6 +76,7 @@
       grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
       gap:16px;
       margin-top:24px;
+      align-items:start;
     }
     .race-card {
       background:rgba(21,24,32,.94);
@@ -128,6 +129,12 @@
       color:var(--muted); margin-bottom:6px;
     }
     .meta-value { font-size:18px; font-weight:700; }
+    .meta-note {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
     .section-kicker {
       color:var(--muted);
       font-size:11px; text-transform:uppercase; letter-spacing:.08em;
@@ -190,6 +197,11 @@
       .meta-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
       .chart-grid { grid-template-columns: 1fr; }
     }
+    @media (min-width: 1180px) {
+      .cards { grid-template-columns: repeat(2, minmax(0,1fr)); }
+      .race-card:last-child:nth-child(odd) { grid-column: span 2; }
+      .race-card.active { grid-column: span 2; }
+    }
     @media (max-width: 640px) {
       main { padding: 28px 16px 64px; }
       header { padding: 14px 16px; }
@@ -237,12 +249,13 @@
         eyebrow:'Suivi ciblé',
         title:'Partielles <em>fédérales</em>',
         copy:"Lecture rapide des trois courses partielles à partir du modèle général courant, d’une surcouche locale et d’un historique de campagne à chaque nouveau run. <strong>Terrebonne</strong> est le siège à surveiller en priorité.",
-        footer:'Page temporaire dédiée aux partielles fédérales. Plus tu relances le modèle, plus les courbes d’historique se remplissent.',
+        footer:"Lecture spécialisée des partielles fédérales, mise à jour à chaque nouveau run du modèle.",
         projected_leader:'Favori projeté',
         top_prob:'Chance de gain',
-        close_race:'Course serrée',
-        projected_margin:'Marge projetée',
-        baseline:'Base utilisée',
+        close_race:'Risque de photo-finish',
+        close_race_note:"Part des simulations où l'arrivée se joue de très près entre les deux premiers partis.",
+        projected_margin:'Écart projeté',
+        baseline:'Simulations',
         baseline_current_projection:'projection générale courante',
         baseline_last_result:'dernier résultat du siège',
         baseline_fallback_default:'base par défaut',
@@ -261,12 +274,13 @@
         eyebrow:'Focused tracking',
         title:'Federal <em>by-elections</em>',
         copy:"Quick read of the three federal by-election races using the current general model, a local adjustment layer and campaign history from each new run. <strong>Terrebonne</strong> is the key seat to watch.",
-        footer:'Temporary page dedicated to federal by-elections. The more often you rerun the model, the richer the historical curves become.',
+        footer:'Specialized by-election view, refreshed with each new model run.',
         projected_leader:'Projected leader',
         top_prob:'Win chance',
-        close_race:'Close race',
-        projected_margin:'Projected margin',
-        baseline:'Baseline used',
+        close_race:'Photo-finish risk',
+        close_race_note:'Share of simulations where the top two parties finish very close to one another.',
+        projected_margin:'Projected gap',
+        baseline:'Simulations',
         baseline_current_projection:'current general projection',
         baseline_last_result:'last riding result',
         baseline_fallback_default:'default baseline',
@@ -392,7 +406,7 @@
         const topVotes = Object.entries(b.vote_mean || {}).sort((a,b) => b[1] - a[1]).slice(0,3);
         const topTwo = Object.entries(b.party_probs || {}).sort((a,b) => b[1] - a[1]).slice(0,2);
         const leading = topTwo[0]?.[0] || b.leading_party;
-        const margin = b.mean_margin ?? (topVotes.length >= 2 ? topVotes[0][1] - topVotes[1][1] : 0);
+        const projectedGap = topVotes.length >= 2 ? Math.max(0, topVotes[0][1] - topVotes[1][1]) : (b.mean_margin ?? 0);
         const closeRace = b.p_close_race ?? null;
         const history = historyForRiding(b.riding_id, topVotes.map(v => v[0]));
         const activeClass = selected && String(selected) === String(b.riding_id) ? ' active' : '';
@@ -421,13 +435,14 @@
               </div>
               <div class="meta-box">
                 <div class="meta-label">${t('projected_margin')}</div>
-                <div class="meta-value">${margin.toFixed(1)}%</div>
+                <div class="meta-value">${projectedGap.toFixed(1)}%</div>
               </div>
               <div class="meta-box">
                 <div class="meta-label">${t('baseline')}</div>
-                <div class="meta-value" style="font-size:14px; line-height:1.35">${t(`baseline_${b.baseline_source || 'last_result'}`)}</div>
+                <div class="meta-value" style="font-size:14px; line-height:1.35">${Number(data?.meta?.n_simulations || 0).toLocaleString(lang === 'fr' ? 'fr-CA' : 'en-CA')}</div>
               </div>
             </div>
+            <div class="meta-note">${t('close_race_note')}</div>
 
             <div class="section-kicker">${t('projected_vote')}</div>
             <div class="vote-grid">
