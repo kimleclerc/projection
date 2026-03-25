@@ -518,20 +518,40 @@
 
     /* ─── ALERTS ─── */
     .alerts-row {
-      display: flex; gap: 10px; flex-wrap: wrap;
       margin-bottom: 24px;
     }
-    .alert-chip {
-      display: flex; align-items: center; gap: 7px;
-      padding: 5px 12px 5px 8px;
-      border-radius: 20px; font-size: 12px; font-weight: 600;
-      border: 1px solid;
+    .alerts-box {
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 14px 16px;
+      background: linear-gradient(180deg, rgba(22,27,38,.96), rgba(18,22,31,.96));
+      display: grid;
+      gap: 6px;
     }
-    .alert-chip.orange { background: rgba(249,115,22,.1); border-color: rgba(249,115,22,.3); color: #fb923c; }
-    .alert-chip.yellow { background: rgba(234,179,8,.1);  border-color: rgba(234,179,8,.3);  color: #fbbf24; }
-    .alert-chip.green  { background: rgba(34,197,94,.1);  border-color: rgba(34,197,94,.3);  color: #4ade80; }
-    .alert-chip.red    { background: rgba(239,68,68,.1);  border-color: rgba(239,68,68,.3);  color: #f87171; }
-    .alert-dot { width:7px; height:7px; border-radius:50%; background:currentColor; }
+    .alerts-box.green  { border-color: rgba(34,197,94,.26); box-shadow: inset 0 0 0 1px rgba(34,197,94,.06); }
+    .alerts-box.yellow { border-color: rgba(234,179,8,.26); box-shadow: inset 0 0 0 1px rgba(234,179,8,.06); }
+    .alerts-box.orange { border-color: rgba(249,115,22,.26); box-shadow: inset 0 0 0 1px rgba(249,115,22,.06); }
+    .alerts-box.red    { border-color: rgba(239,68,68,.26); box-shadow: inset 0 0 0 1px rgba(239,68,68,.06); }
+    .alerts-topline {
+      display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+      font-size:12px; font-weight:700; letter-spacing:.04em; text-transform:uppercase;
+    }
+    .alerts-topline.green { color:#4ade80; }
+    .alerts-topline.yellow { color:#fbbf24; }
+    .alerts-topline.orange { color:#fb923c; }
+    .alerts-topline.red { color:#f87171; }
+    .alert-dot { width:8px; height:8px; border-radius:50%; background:currentColor; }
+    .alerts-headline {
+      font-size:16px;
+      color: var(--text);
+      font-weight: 700;
+      line-height: 1.35;
+    }
+    .alerts-subline {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.45;
+    }
 
     /* Responsive */
     @media (max-width: 600px) {
@@ -932,9 +952,20 @@ const I18N = {
     popup_p_winner  : 'P(victoire)',
     popup_close_race: 'Course serrée',
     popup_baseline  : 'Base 2025',
-    alert_orange    : 'Alerte modérée',
-    alert_yellow    : 'Alerte légère',
-    alert_red       : 'Alerte élevée',
+    radar_title     : 'Radar Vote-Scope',
+    radar_green     : 'Signal faible',
+    radar_yellow    : 'Signal modéré',
+    radar_orange    : 'Signal soutenu',
+    radar_red       : 'Signal élevé',
+    radar_headline_green : 'Aucun mouvement inhabituel n’est détecté pour l’instant.',
+    radar_headline_yellow : 'Quelques signaux précoces de variation sont détectés sous la surface.',
+    radar_headline_orange : 'Le modèle détecte un mouvement inhabituel qui pourrait se confirmer.',
+    radar_headline_red : 'Le modèle détecte un signal fort de variation déjà en formation.',
+    radar_subline_green : 'L’évolution observée reste compatible avec une dynamique normale des sondages.',
+    radar_subline_yellow : 'Cet indicateur repère des tensions statistiques ou des débuts de variation qui ne sont pas encore pleinement visibles à l’œil nu.',
+    radar_subline_orange : 'Le signal est assez fort pour suggérer qu’un changement de tendance pourrait apparaître dans les prochains sondages.',
+    radar_subline_red : 'Le signal est suffisamment inhabituel pour suggérer une vraie rupture possible dans la dynamique récente des sondages.',
+    radar_watch      : 'Partis à surveiller',
     trend_up        : '↑',
     trend_down      : '↓',
     trend_flat      : '→',
@@ -995,9 +1026,20 @@ const I18N = {
     popup_p_winner  : 'P(win)',
     popup_close_race: 'Close race',
     popup_baseline  : '2025 baseline',
-    alert_orange    : 'Moderate alert',
-    alert_yellow    : 'Minor alert',
-    alert_red       : 'High alert',
+    radar_title     : 'Vote-Scope Radar',
+    radar_green     : 'Low signal',
+    radar_yellow    : 'Moderate signal',
+    radar_orange    : 'Elevated signal',
+    radar_red       : 'High signal',
+    radar_headline_green : 'No unusual movement is being detected right now.',
+    radar_headline_yellow : 'A few early signs of movement are being detected beneath the surface.',
+    radar_headline_orange : 'The model is detecting an unusual movement that could soon confirm itself.',
+    radar_headline_red : 'The model is detecting a strong signal of variation already taking shape.',
+    radar_subline_green : 'Observed changes remain consistent with a normal polling dynamic.',
+    radar_subline_yellow : 'This indicator highlights statistical tension or early variation that is not yet fully obvious to the naked eye.',
+    radar_subline_orange : 'The signal is strong enough to suggest a potential shift may show up in upcoming polls.',
+    radar_subline_red : 'The signal is unusual enough to suggest a genuine break may be emerging in the recent polling dynamic.',
+    radar_watch      : 'Parties to watch',
     trend_up        : '↑',
     trend_down      : '↓',
     trend_flat      : '→',
@@ -1282,17 +1324,31 @@ function renderMeta() {
 // ALERTS
 // ═══════════════════════════════════════════════════════
 function renderAlerts() {
-  const alerts = (data.tipping_points || []).filter(a => a.alert_level !== 'green');
+  const suppressParties = new Set(['fed_oth', 'qc_oth', 'on_oth', 'us_oth']);
+  const alerts = (data.tipping_points || []).filter(a => !suppressParties.has(a.party));
   const row = document.getElementById('alertsRow');
-  row.innerHTML = alerts.map(a => {
-    const trend = a.trend_direction === 'up' ? t('trend_up') :
-                  a.trend_direction === 'down' ? t('trend_down') : t('trend_flat');
-    const party = PARTY_LABELS[lang][a.party] || a.party.toUpperCase();
-    return `<div class="alert-chip ${a.alert_level}">
+  const severityRank = { green: 0, yellow: 1, orange: 2, red: 3 };
+  const highest = alerts.reduce((best, current) => {
+    return severityRank[current.alert_level] > severityRank[best] ? current.alert_level : best;
+  }, 'green');
+  const watchList = alerts
+    .filter(a => a.alert_level !== 'green')
+    .sort((a, b) => (b.score || 0) - (a.score || 0))
+    .slice(0, 3)
+    .map(a => PARTY_LABELS[lang][a.party] || a.party.toUpperCase());
+
+  const watchText = watchList.length
+    ? `${t('radar_watch')} : ${watchList.join(', ')}`
+    : '';
+
+  row.innerHTML = `<div class="alerts-box ${highest}" title="${t('radar_subline_'+highest)}">
+    <div class="alerts-topline ${highest}">
       <span class="alert-dot"></span>
-      ${party} ${trend} — ${t('alert_'+a.alert_level) || a.alert_level}
-    </div>`;
-  }).join('');
+      ${t('radar_title')} · ${t('radar_'+highest)}
+    </div>
+    <div class="alerts-headline">${t('radar_headline_'+highest)}</div>
+    <div class="alerts-subline">${t('radar_subline_'+highest)}${watchText ? `<br>${watchText}` : ''}</div>
+  </div>`;
 }
 
 // ═══════════════════════════════════════════════════════
