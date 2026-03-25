@@ -727,12 +727,13 @@
 </footer>
 
 <script>
-const pageName = location.pathname.split('/').pop() || 'index.html';
+const rawPageName = location.pathname.split('/').pop() || 'index.html';
+const pageName = rawPageName.toLowerCase().replace(/\.html$/, '');
 const jurisdiction =
-  pageName === 'quebec.html' ? 'quebec' :
-  pageName === 'ontario.html' ? 'ontario' :
-  pageName === 'us-house.html' ? 'us-house' :
-  pageName === 'us-senate.html' ? 'us-senate' :
+  pageName === 'quebec' ? 'quebec' :
+  pageName === 'ontario' ? 'ontario' :
+  pageName === 'us-house' ? 'us-house' :
+  pageName === 'us-senate' ? 'us-senate' :
   'federal';
 const APP_CONFIG = {
   federal: {
