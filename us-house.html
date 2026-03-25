@@ -396,6 +396,15 @@
       border: 1px solid var(--border);
       border-radius: var(--radius);
       padding: 18px 20px;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+      transition: transform .2s, border-color .2s, box-shadow .2s;
+    }
+    .byel-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(232,201,109,.3);
+      box-shadow: 0 14px 28px rgba(0,0,0,.18);
     }
     .byel-date {
       font-size: 11px; letter-spacing:.06em; text-transform:uppercase;
@@ -403,7 +412,67 @@
     }
     .byel-name {
       font-family: 'Instrument Serif', serif;
-      font-size: 18px; margin-bottom: 12px;
+      font-size: 22px; margin-bottom: 12px;
+    }
+    .byel-topline {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+    .byel-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(28,32,48,.65);
+      font-size: 11px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    .byel-chip strong { color: var(--text); }
+    .byel-meta {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .byel-stat {
+      background: rgba(28,32,48,.6);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+    }
+    .byel-stat-label {
+      font-size: 10px;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+    .byel-stat-value {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .byel-votes {
+      display: grid;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    .byel-vote-row {
+      display: grid;
+      grid-template-columns: minmax(88px, 104px) 1fr auto;
+      gap: 10px;
+      align-items: center;
+    }
+    .byel-vote-label {
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
     }
     .byel-probs { display: flex; flex-direction: column; gap: 6px; }
     .byel-prob-row {
@@ -416,6 +485,26 @@
     }
     .byel-prob-fill { height: 100%; border-radius: 3px; transition: width .8s; }
     .byel-prob-val { font-size: 12px; font-weight: 600; width: 36px; text-align: right; }
+    .byel-linkline {
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+      font-size: 12px;
+      color: var(--accent);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .section-link {
+      color: var(--accent);
+      font: 600 12px 'DM Sans', sans-serif;
+      text-decoration: none;
+      border: 1px solid rgba(232,201,109,.18);
+      background: rgba(232,201,109,.08);
+      border-radius: 999px;
+      padding: 8px 12px;
+    }
+    .section-link:hover { border-color: rgba(232,201,109,.35); }
 
     /* ─── RIDINGS TABLE ─── */
     .ridings-section { margin-bottom: 32px; }
@@ -702,6 +791,8 @@
   <!-- ÉLECTIONS PARTIELLES -->
   <div id="byelectionsSection">
     <div class="section-title" id="byelectionsTitle" data-i18n="byelections">Élections partielles</div>
+    <div class="section-subtitle" data-i18n="byelections_subtitle">Aperçu rapide des trois partielles fédérales avec vote projeté, probabilité de gain et accès au dossier complet.</div>
+    <a class="section-link" id="byelectionsLink" href="partielles.html">Voir la page des partielles</a>
     <div class="byel-grid" id="byelGrid"></div>
   </div>
 
@@ -936,6 +1027,13 @@ const I18N = {
     mode_race_model_v1: 'modèle course par course',
     map_subtitle    : 'Projection par circonscription basée sur les résultats 2025, les sondages nationaux et les ajustements régionaux.',
     byel_leading    : 'Favori projeté',
+    byelections_subtitle: 'Aperçu rapide des trois partielles fédérales avec vote projeté, probabilité de gain et accès au dossier complet.',
+    byelections_open_page: 'Voir la page des partielles',
+    byel_projected_vote: 'Vote projeté',
+    byel_top_prob: 'Chance de gain',
+    byel_close_race: 'Course serrée',
+    byel_margin: 'Marge projetée',
+    byel_open: 'Ouvrir le dossier',
     byel_reason_resignation    : 'Démission',
     byel_reason_court_annulment: 'Annulation judiciaire',
     byel_reason_death          : 'Décès',
@@ -1010,6 +1108,13 @@ const I18N = {
     mode_race_model_v1: 'race-by-race model',
     map_subtitle    : 'Riding projection based on 2025 results, national polling and regional adjustments.',
     byel_leading    : 'Projected leader',
+    byelections_subtitle: 'Quick view of the three federal by-elections with projected vote, win probability and access to the full race page.',
+    byelections_open_page: 'Open by-elections page',
+    byel_projected_vote: 'Projected vote',
+    byel_top_prob: 'Win chance',
+    byel_close_race: 'Close race',
+    byel_margin: 'Projected margin',
+    byel_open: 'Open race page',
     byel_reason_resignation    : 'Resignation',
     byel_reason_court_annulment: 'Court annulment',
     byel_reason_death          : 'Death',
@@ -1729,6 +1834,8 @@ function renderByelections() {
     document.getElementById('byelectionsSection').style.display = 'none';
     return;
   }
+  const pageLink = document.getElementById('byelectionsLink');
+  if (pageLink) pageLink.textContent = t('byelections_open_page');
   const ridingIndex = {};
   (data.ridings||[]).forEach(r => { ridingIndex[r.riding_id] = r; });
 
@@ -1736,14 +1843,52 @@ function renderByelections() {
     const riding = ridingIndex[b.riding_id] || {};
     const name   = lang === 'fr' ? (riding.name_fr||b.riding_id) : (riding.name_en||b.riding_id);
     const reason = t('byel_reason_'+b.reason) || b.reason;
-    const probs  = Object.entries(b.party_probs||{})
-      .sort((a,b) => b[1]-a[1]).slice(0,3);
+    const probs  = Object.entries(b.party_probs||{}).sort((a,b) => b[1]-a[1]);
+    const topTwoProbs = probs.slice(0,2);
+    const topVotes = Object.entries(b.vote_mean||{}).sort((a,b) => b[1]-a[1]).slice(0,3);
+    const closeRace = b.p_close_race ?? null;
+    const voteMargin = topVotes.length >= 2 ? (topVotes[0][1] - topVotes[1][1]) : 0;
+    const leadingParty = topTwoProbs[0]?.[0] || b.leading_party;
+    const href = `partielles.html?riding=${encodeURIComponent(b.riding_id)}`;
 
-    return `<div class="byel-card">
+    return `<a class="byel-card" href="${href}">
       <div class="byel-date">${b.election_date} · ${reason}</div>
-      <div class="byel-name">${name}</div>
+      <div class="byel-topline">
+        <div class="byel-name">${name}</div>
+        <div class="byel-chip"><span>${t('byel_leading')}</span><strong style="color:${PARTY_COLORS[leadingParty]||'#fff'}">${PARTY_LABELS[lang][leadingParty]||leadingParty.toUpperCase()}</strong></div>
+      </div>
+      <div class="byel-meta">
+        <div class="byel-stat">
+          <div class="byel-stat-label">${t('byel_top_prob')}</div>
+          <div class="byel-stat-value">${((topTwoProbs[0]?.[1]||0)*100).toFixed(0)}%</div>
+        </div>
+        <div class="byel-stat">
+          <div class="byel-stat-label">${t('byel_close_race')}</div>
+          <div class="byel-stat-value">${closeRace == null ? '—' : `${(closeRace*100).toFixed(0)}%`}</div>
+        </div>
+        <div class="byel-stat">
+          <div class="byel-stat-label">${t('byel_margin')}</div>
+          <div class="byel-stat-value">${(b.mean_margin ?? voteMargin).toFixed(1)}%</div>
+        </div>
+        <div class="byel-stat">
+          <div class="byel-stat-label">${t('popup_p_winner')}</div>
+          <div class="byel-stat-value">${(b.p_leading*100).toFixed(0)}%</div>
+        </div>
+      </div>
+      <div class="chart-title" style="margin-bottom:10px">${t('byel_projected_vote')}</div>
+      <div class="byel-votes">
+        ${topVotes.map(([p,v]) => `
+          <div class="byel-vote-row">
+            <span class="byel-vote-label" style="color:${PARTY_COLORS[p]||'#888'}">${PARTY_LABELS[lang][p]||p.toUpperCase()}</span>
+            <div class="byel-prob-bar">
+              <div class="byel-prob-fill" style="width:${Math.max(2, v)}%;background:${PARTY_COLORS[p]||'#888'}"></div>
+            </div>
+            <span class="byel-prob-val">${v.toFixed(1)}%</span>
+          </div>
+        `).join('')}
+      </div>
       <div class="byel-probs">
-        ${probs.map(([p,v]) => `
+        ${topTwoProbs.map(([p,v]) => `
           <div class="byel-prob-row">
             <span class="byel-prob-label" style="color:${PARTY_COLORS[p]||'#888'}">
               ${PARTY_LABELS[lang][p]||p.toUpperCase()}
@@ -1755,7 +1900,11 @@ function renderByelections() {
           </div>
         `).join('')}
       </div>
-    </div>`;
+      <div class="byel-linkline">
+        <span>${t('byel_open')}</span>
+        <span>→</span>
+      </div>
+    </a>`;
   }).join('');
 }
 

@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Partielles fédérales | VoteScope</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:#0d0f14;
+      --surface:#151820;
+      --surface2:#1c2030;
+      --border:#252a38;
+      --text:#e8eaf0;
+      --muted:#8b92a5;
+      --accent:#e8c96d;
+      --radius:14px;
+    }
+    body {
+      font-family:'DM Sans',sans-serif;
+      color:var(--text);
+      min-height:100vh;
+      background:
+        radial-gradient(circle at top left, rgba(232,201,109,.08), transparent 30%),
+        radial-gradient(circle at top right, rgba(51,178,204,.06), transparent 25%),
+        var(--bg);
+    }
+    a { color: var(--accent); text-decoration: none; }
+    header {
+      position: sticky; top:0; z-index:10;
+      display:flex; justify-content:space-between; align-items:center; gap:16px;
+      padding:16px 24px;
+      background:rgba(13,15,20,.92);
+      backdrop-filter: blur(14px);
+      border-bottom:1px solid var(--border);
+    }
+    .brand {
+      display:flex; align-items:center; gap:10px;
+      font-family:'Instrument Serif',serif; font-size:18px;
+    }
+    .brand-dot { width:8px; height:8px; border-radius:50%; background:var(--accent); }
+    .header-actions { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+    .pill-link, .lang-btn {
+      border:1px solid var(--border);
+      background:var(--surface);
+      color:var(--text);
+      border-radius:999px;
+      padding:8px 12px;
+      font:600 12px 'DM Sans',sans-serif;
+      cursor:pointer;
+    }
+    .lang-wrap { display:flex; gap:6px; }
+    .lang-btn.active { background:var(--accent); color:#10131a; border-color:transparent; }
+    main { max-width: 1240px; margin:0 auto; padding:36px 24px 80px; }
+    .hero { margin-bottom: 24px; }
+    .eyebrow {
+      display:inline-flex; align-items:center; gap:8px;
+      padding:6px 10px; border-radius:999px;
+      border:1px solid rgba(232,201,109,.18);
+      background:rgba(232,201,109,.08); color:var(--accent);
+      font-size:11px; text-transform:uppercase; letter-spacing:.08em;
+      margin-bottom:12px;
+    }
+    h1 {
+      font-family:'Instrument Serif',serif;
+      font-size:clamp(34px, 5vw, 62px);
+      line-height:1.02; letter-spacing:-.04em;
+      margin-bottom:12px;
+    }
+    .hero-copy { max-width: 840px; color:var(--muted); font-size:15px; line-height:1.65; }
+    .hero-copy strong { color: var(--text); }
+    .cards {
+      display:grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap:16px;
+      margin-top:24px;
+    }
+    .race-card {
+      background:rgba(21,24,32,.94);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      box-shadow:0 18px 40px rgba(0,0,0,.22);
+      padding:22px;
+      scroll-margin-top:100px;
+    }
+    .race-card.active {
+      border-color: rgba(232,201,109,.45);
+      box-shadow: 0 20px 48px rgba(232,201,109,.12);
+    }
+    .card-top {
+      display:flex; justify-content:space-between; gap:12px; align-items:flex-start;
+      margin-bottom:12px;
+    }
+    .card-date {
+      font-size:11px; text-transform:uppercase; letter-spacing:.08em;
+      color:var(--accent); margin-bottom:8px;
+    }
+    .card-name {
+      font-family:'Instrument Serif',serif;
+      font-size:30px; line-height:1.02; letter-spacing:-.03em;
+    }
+    .status-pill {
+      border-radius:999px;
+      padding:8px 10px;
+      border:1px solid var(--border);
+      background:rgba(28,32,48,.72);
+      color:var(--muted);
+      font-size:11px;
+      white-space:nowrap;
+    }
+    .status-pill strong { color: var(--text); }
+    .meta-grid {
+      display:grid;
+      grid-template-columns: repeat(4, minmax(0,1fr));
+      gap:10px;
+      margin-bottom:16px;
+    }
+    .meta-box {
+      background:rgba(28,32,48,.72);
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:12px;
+    }
+    .meta-label {
+      font-size:10px; text-transform:uppercase; letter-spacing:.08em;
+      color:var(--muted); margin-bottom:6px;
+    }
+    .meta-value { font-size:18px; font-weight:700; }
+    .section-kicker {
+      color:var(--muted);
+      font-size:11px; text-transform:uppercase; letter-spacing:.08em;
+      margin-bottom:10px;
+    }
+    .vote-grid {
+      display:grid; gap:8px; margin-bottom:18px;
+    }
+    .vote-row {
+      display:grid;
+      grid-template-columns: minmax(84px, 104px) 1fr auto auto;
+      gap:10px;
+      align-items:center;
+    }
+    .vote-label { font-size:13px; color:var(--muted); }
+    .bar {
+      height:10px; background:var(--border);
+      border-radius:999px; overflow:hidden;
+    }
+    .fill { height:100%; border-radius:999px; }
+    .vote-value, .vote-sd { font-size:12px; font-weight:600; }
+    .vote-sd { color:var(--muted); min-width:52px; text-align:right; }
+    .prob-grid {
+      display:grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap:10px;
+      margin-bottom:18px;
+    }
+    .chart-grid {
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
+    }
+    .chart-box {
+      border:1px solid var(--border);
+      background:rgba(18,21,30,.72);
+      border-radius:12px;
+      padding:12px;
+    }
+    .chart-title {
+      font-size:11px; letter-spacing:.08em; text-transform:uppercase;
+      color:var(--muted); margin-bottom:8px;
+    }
+    svg { width:100%; height:190px; display:block; }
+    .chart-empty {
+      height:190px; display:grid; place-items:center;
+      color:var(--muted); font-size:12px; text-align:center; padding:0 16px;
+    }
+    .legend {
+      display:flex; flex-wrap:wrap; gap:10px; margin-top:10px;
+    }
+    .legend-item {
+      display:flex; align-items:center; gap:6px; font-size:11px; color:var(--muted);
+    }
+    .legend-dot { width:10px; height:10px; border-radius:999px; }
+    footer {
+      padding:20px 24px 40px; text-align:center; color:var(--muted); font-size:12px;
+    }
+    @media (max-width: 920px) {
+      .meta-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+      .chart-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 640px) {
+      main { padding: 28px 16px 64px; }
+      header { padding: 14px 16px; }
+      .cards { grid-template-columns: 1fr; }
+      .vote-row { grid-template-columns: 74px 1fr auto; }
+      .vote-sd { display:none; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand"><span class="brand-dot"></span><span>VoteScope</span></div>
+    <div class="header-actions">
+      <a class="pill-link" id="backLink" href="index.html">Retour au fédéral</a>
+      <div class="lang-wrap">
+        <button class="lang-btn" id="frBtn" data-lang="fr">FR</button>
+        <button class="lang-btn" id="enBtn" data-lang="en">EN</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="eyebrow" id="eyebrow">Suivi ciblé</div>
+      <h1 id="heroTitle">Partielles <em>fédérales</em></h1>
+      <p class="hero-copy" id="heroCopy"></p>
+    </section>
+    <section class="cards" id="cards"></section>
+  </main>
+
+  <footer id="footerCopy"></footer>
+
+  <script>
+    const PARTY_COLORS = {
+      lib:'#D71920', con:'#1A4782', ndp:'#F58220', bq:'#33B2CC',
+      grn:'#3D9B35', ppc:'#7C3AED', fed_oth:'#6b7280', vacant:'#374151'
+    };
+    const PARTY_LABELS = {
+      fr: { lib:'Libéral', con:'Conservateur', ndp:'NPD', bq:'Bloc', grn:'Vert', ppc:'PPC', fed_oth:'Autre' },
+      en: { lib:'Liberal', con:'Conservative', ndp:'NDP', bq:'Bloc', grn:'Green', ppc:'PPC', fed_oth:'Other' }
+    };
+    const I18N = {
+      fr: {
+        back:'Retour au fédéral',
+        eyebrow:'Suivi ciblé',
+        title:'Partielles <em>fédérales</em>',
+        copy:"Lecture rapide des trois courses partielles à partir du modèle général courant, d’une surcouche locale et d’un historique de campagne à chaque nouveau run. <strong>Terrebonne</strong> est le siège à surveiller en priorité.",
+        footer:'Page temporaire dédiée aux partielles fédérales. Plus tu relances le modèle, plus les courbes d’historique se remplissent.',
+        projected_leader:'Favori projeté',
+        top_prob:'Chance de gain',
+        close_race:'Course serrée',
+        projected_margin:'Marge projetée',
+        baseline:'Base utilisée',
+        baseline_current_projection:'projection générale courante',
+        baseline_last_result:'dernier résultat du siège',
+        baseline_fallback_default:'base par défaut',
+        projected_vote:'Vote projeté',
+        vote_uncertainty:'Incertitude locale',
+        win_history:'Évolution des chances de gain',
+        vote_history:'Évolution du vote projeté',
+        no_history:"L’historique commencera à apparaître à mesure que tu relanceras les runs fédéraux.",
+        confidence_sd:'±écart-type',
+        reason_resignation:'Démission',
+        reason_court_annulment:'Annulation judiciaire',
+        reason_death:'Décès'
+      },
+      en: {
+        back:'Back to federal',
+        eyebrow:'Focused tracking',
+        title:'Federal <em>by-elections</em>',
+        copy:"Quick read of the three federal by-election races using the current general model, a local adjustment layer and campaign history from each new run. <strong>Terrebonne</strong> is the key seat to watch.",
+        footer:'Temporary page dedicated to federal by-elections. The more often you rerun the model, the richer the historical curves become.',
+        projected_leader:'Projected leader',
+        top_prob:'Win chance',
+        close_race:'Close race',
+        projected_margin:'Projected margin',
+        baseline:'Baseline used',
+        baseline_current_projection:'current general projection',
+        baseline_last_result:'last riding result',
+        baseline_fallback_default:'default baseline',
+        projected_vote:'Projected vote',
+        vote_uncertainty:'Local uncertainty',
+        win_history:'Win probability trend',
+        vote_history:'Projected vote trend',
+        no_history:'History will populate as you keep running federal updates.',
+        confidence_sd:'±standard deviation',
+        reason_resignation:'Resignation',
+        reason_court_annulment:'Court annulment',
+        reason_death:'Death'
+      }
+    };
+    const LANG_STORAGE_KEY = 'votescope_lang';
+    const query = new URL(window.location.href).searchParams;
+    let lang = query.get('lang') || localStorage.getItem(LANG_STORAGE_KEY) || 'fr';
+    if (!['fr','en'].includes(lang)) lang = 'fr';
+    let data = null;
+    let runHistory = [];
+
+    function t(key) { return I18N[lang][key] || key; }
+    function syncLang() {
+      document.documentElement.lang = lang;
+      document.getElementById('backLink').textContent = t('back');
+      document.getElementById('eyebrow').textContent = t('eyebrow');
+      document.getElementById('heroTitle').innerHTML = t('title');
+      document.getElementById('heroCopy').innerHTML = t('copy');
+      document.getElementById('footerCopy').textContent = t('footer');
+      document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.lang === lang);
+      });
+      const back = document.getElementById('backLink');
+      const url = new URL(back.getAttribute('href'), window.location.href);
+      url.searchParams.set('lang', lang);
+      back.setAttribute('href', `${url.pathname.split('/').pop()}?${url.searchParams.toString()}`);
+    }
+
+    function partyLabel(p) { return PARTY_LABELS[lang][p] || p.toUpperCase(); }
+
+    function formatPct(v, digits=1) {
+      return `${Number(v || 0).toFixed(digits)}%`;
+    }
+
+    function buildChartSVG(series, yMax, formatter) {
+      if (!series.length) return `<div class="chart-empty">${t('no_history')}</div>`;
+      const width = 360, height = 190, pad = 22;
+      const values = series.flatMap(s => s.points.map(p => p.value));
+      const minVal = Math.min(...values, 0);
+      const maxVal = Math.max(...values, yMax);
+      const range = Math.max(1, maxVal - minVal);
+      const x = idx => pad + ((width - pad * 2) * idx / Math.max(series[0].points.length - 1, 1));
+      const y = val => height - pad - ((val - minVal) / range) * (height - pad * 2);
+      const grid = [0, .25, .5, .75, 1].map(step => {
+        const gy = pad + (height - pad * 2) * step;
+        const val = maxVal - range * step;
+        return `<g><line x1="${pad}" y1="${gy}" x2="${width-pad}" y2="${gy}" stroke="rgba(139,146,165,.16)" stroke-width="1"/><text x="4" y="${gy+4}" fill="#8b92a5" font-size="10">${formatter(val)}</text></g>`;
+      }).join('');
+      const paths = series.map(s => {
+        const d = s.points.map((p, idx) => `${idx===0?'M':'L'} ${x(idx)} ${y(p.value)}`).join(' ');
+        const dots = s.points.map((p, idx) => `<circle cx="${x(idx)}" cy="${y(p.value)}" r="3" fill="${s.color}"><title>${p.label}: ${formatter(p.value)}</title></circle>`).join('');
+        return `<path d="${d}" fill="none" stroke="${s.color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>${dots}`;
+      }).join('');
+      const labels = (series[0].points || []).map((p, idx) => {
+        if (series[0].points.length > 5 && idx % 2 === 1 && idx !== series[0].points.length - 1) return '';
+        return `<text x="${x(idx)}" y="${height-6}" text-anchor="middle" fill="#8b92a5" font-size="10">${p.label.slice(5)}</text>`;
+      }).join('');
+      return `<svg viewBox="0 0 ${width} ${height}" aria-hidden="true">${grid}${paths}${labels}</svg>`;
+    }
+
+    async function loadRunHistory() {
+      try {
+        const index = await fetch('web_data/federal/runs/index.json').then(r => r.json());
+        const dates = index.slice(0, 14).map(r => r.run_date).reverse();
+        const runs = await Promise.all(dates.map(async date => {
+          try {
+            const payload = await fetch(`web_data/federal/runs/${date}.json`).then(r => r.json());
+            return { date, payload };
+          } catch {
+            return null;
+          }
+        }));
+        runHistory = runs.filter(Boolean);
+      } catch {
+        runHistory = [];
+      }
+    }
+
+    function historyForRiding(ridingId, currentTopParties) {
+      const winSeries = currentTopParties.slice(0,2).map(p => ({
+        party: p,
+        color: PARTY_COLORS[p] || '#888',
+        points: []
+      }));
+      const voteSeries = currentTopParties.slice(0,3).map(p => ({
+        party: p,
+        color: PARTY_COLORS[p] || '#888',
+        points: []
+      }));
+
+      runHistory.forEach(run => {
+        const entry = (run.payload?.byelections?.pending_byelections || []).find(b => String(b.riding_id) === String(ridingId));
+        if (!entry) return;
+        winSeries.forEach(s => s.points.push({ label: run.date, value: (entry.party_probs?.[s.party] || 0) * 100 }));
+        voteSeries.forEach(s => s.points.push({ label: run.date, value: entry.vote_mean?.[s.party] || 0 }));
+      });
+
+      return { winSeries, voteSeries };
+    }
+
+    function render() {
+      syncLang();
+      const selected = query.get('riding');
+      const cardsEl = document.getElementById('cards');
+      const byelections = data?.byelections?.pending_byelections || [];
+      const ridingsIndex = {};
+      (data?.ridings || []).forEach(r => { ridingsIndex[String(r.riding_id)] = r; });
+
+      cardsEl.innerHTML = byelections.map(b => {
+        const riding = ridingsIndex[String(b.riding_id)] || {};
+        const name = lang === 'fr' ? (riding.name_fr || b.riding_id) : (riding.name_en || b.riding_id);
+        const reason = t(`reason_${b.reason}`) || b.reason;
+        const topVotes = Object.entries(b.vote_mean || {}).sort((a,b) => b[1] - a[1]).slice(0,3);
+        const topTwo = Object.entries(b.party_probs || {}).sort((a,b) => b[1] - a[1]).slice(0,2);
+        const leading = topTwo[0]?.[0] || b.leading_party;
+        const margin = b.mean_margin ?? (topVotes.length >= 2 ? topVotes[0][1] - topVotes[1][1] : 0);
+        const closeRace = b.p_close_race ?? null;
+        const history = historyForRiding(b.riding_id, topVotes.map(v => v[0]));
+        const activeClass = selected && String(selected) === String(b.riding_id) ? ' active' : '';
+
+        const winChart = buildChartSVG(history.winSeries.filter(s => s.points.length), 100, v => `${Math.round(v)}%`);
+        const voteChart = buildChartSVG(history.voteSeries.filter(s => s.points.length), 60, v => `${Math.round(v)}%`);
+
+        return `
+          <article class="race-card${activeClass}" id="race-${b.riding_id}">
+            <div class="card-top">
+              <div>
+                <div class="card-date">${b.election_date} · ${reason}</div>
+                <div class="card-name">${name}</div>
+              </div>
+              <div class="status-pill">${t('projected_leader')}<br><strong style="color:${PARTY_COLORS[leading] || '#fff'}">${partyLabel(leading)}</strong></div>
+            </div>
+
+            <div class="meta-grid">
+              <div class="meta-box">
+                <div class="meta-label">${t('top_prob')}</div>
+                <div class="meta-value">${Math.round((topTwo[0]?.[1] || 0) * 100)}%</div>
+              </div>
+              <div class="meta-box">
+                <div class="meta-label">${t('close_race')}</div>
+                <div class="meta-value">${closeRace == null ? '—' : `${Math.round(closeRace * 100)}%`}</div>
+              </div>
+              <div class="meta-box">
+                <div class="meta-label">${t('projected_margin')}</div>
+                <div class="meta-value">${margin.toFixed(1)}%</div>
+              </div>
+              <div class="meta-box">
+                <div class="meta-label">${t('baseline')}</div>
+                <div class="meta-value" style="font-size:14px; line-height:1.35">${t(`baseline_${b.baseline_source || 'last_result'}`)}</div>
+              </div>
+            </div>
+
+            <div class="section-kicker">${t('projected_vote')}</div>
+            <div class="vote-grid">
+              ${topVotes.map(([party, value]) => `
+                <div class="vote-row">
+                  <div class="vote-label" style="color:${PARTY_COLORS[party] || '#8b92a5'}">${partyLabel(party)}</div>
+                  <div class="bar"><div class="fill" style="width:${Math.max(2, value)}%; background:${PARTY_COLORS[party] || '#888'}"></div></div>
+                  <div class="vote-value">${formatPct(value)}</div>
+                  <div class="vote-sd">${t('confidence_sd')} ${formatPct((b.vote_sd || {})[party] || 0)}</div>
+                </div>
+              `).join('')}
+            </div>
+
+            <div class="prob-grid">
+              ${topTwo.map(([party, prob]) => `
+                <div class="meta-box">
+                  <div class="meta-label">${partyLabel(party)}</div>
+                  <div class="meta-value" style="color:${PARTY_COLORS[party] || '#fff'}">${Math.round(prob * 100)}%</div>
+                </div>
+              `).join('')}
+            </div>
+
+            <div class="chart-grid">
+              <div class="chart-box">
+                <div class="chart-title">${t('win_history')}</div>
+                ${winChart}
+                <div class="legend">
+                  ${history.winSeries.filter(s => s.points.length).map(s => `
+                    <div class="legend-item"><span class="legend-dot" style="background:${s.color}"></span>${partyLabel(s.party)}</div>
+                  `).join('')}
+                </div>
+              </div>
+              <div class="chart-box">
+                <div class="chart-title">${t('vote_history')}</div>
+                ${voteChart}
+                <div class="legend">
+                  ${history.voteSeries.filter(s => s.points.length).map(s => `
+                    <div class="legend-item"><span class="legend-dot" style="background:${s.color}"></span>${partyLabel(s.party)}</div>
+                  `).join('')}
+                </div>
+              </div>
+            </div>
+          </article>
+        `;
+      }).join('');
+
+      if (selected) {
+        const node = document.getElementById(`race-${selected}`);
+        if (node) node.scrollIntoView({ block: 'start', behavior: 'smooth' });
+      }
+    }
+
+    async function init() {
+      document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          lang = btn.dataset.lang;
+          localStorage.setItem(LANG_STORAGE_KEY, lang);
+          const url = new URL(window.location.href);
+          url.searchParams.set('lang', lang);
+          history.replaceState({}, '', url);
+          render();
+        });
+      });
+      try {
+        [data] = await Promise.all([
+          fetch('web_data/federal/latest.json').then(r => r.json()),
+          loadRunHistory()
+        ]);
+        render();
+      } catch (err) {
+        document.getElementById('cards').innerHTML = `<div class="race-card"><div class="card-name">Erreur de chargement</div><p class="hero-copy" style="margin-top:12px">Impossible de charger les données des partielles.</p></div>`;
+      }
+    }
+
+    syncLang();
+    init();
+  </script>
+</body>
+</html>
