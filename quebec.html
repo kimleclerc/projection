@@ -1304,11 +1304,25 @@ function getBaselineResult(riding) {
   return riding?.baseline_result || riding?.result_2025 || {};
 }
 
+function getPendingByelectionProjection(ridingId) {
+  if (!APP_CONFIG.byelections) return null;
+  const byel = data?.byelections?.pending_byelections || [];
+  return byel.find(b => String(b.riding_id) === String(ridingId)) || null;
+}
+
 function getRidingWinner(riding) {
+  const byel = getPendingByelectionProjection(riding?.riding_id);
+  if (byel?.leading_party) return byel.leading_party;
   return riding?.projection?.winner || getBaselineResult(riding)?.winner || 'oth';
 }
 
 function getRidingMargin(riding) {
+  const byel = getPendingByelectionProjection(riding?.riding_id);
+  if (byel) {
+    const topVotes = Object.entries(byel.vote_mean || {}).sort((a,b) => b[1]-a[1]).slice(0,2);
+    if (topVotes.length >= 2) return Math.max(0, topVotes[0][1] - topVotes[1][1]);
+    return byel.mean_margin ?? 0;
+  }
   return riding?.projection?.mean_margin ?? getBaselineResult(riding)?.margin ?? 0;
 }
 
@@ -1318,6 +1332,10 @@ function getRidingTurnout(riding) {
 }
 
 function getRidingVotePct(riding, party) {
+  const byel = getPendingByelectionProjection(riding?.riding_id);
+  if (byel?.vote_mean?.[party] !== undefined && byel?.vote_mean?.[party] !== null) {
+    return byel.vote_mean[party];
+  }
   const projected = riding?.projection?.vote_mean?.[party];
   if (projected !== undefined && projected !== null) return projected;
   return getBaselineResult(riding)?.[party + '_pct'];
@@ -1743,7 +1761,14 @@ function addRidingsLayer(geojson) {
 }
 
 function showRidingPopup(e, riding, layer) {
-  const projection = riding.projection || {};
+  const byel = getPendingByelectionProjection(riding?.riding_id);
+  const projection = byel ? {
+    vote_mean: byel.vote_mean || {},
+    p_winner: byel.p_leading,
+    p_close_race: byel.p_close_race,
+    mean_margin: byel.mean_margin,
+    winner: byel.leading_party
+  } : (riding.projection || {});
   const baseline = getBaselineResult(riding);
   const winner = getRidingWinner(riding);
   const color  = PARTY_COLORS[winner] || '#888';
