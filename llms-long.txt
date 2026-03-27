@@ -1,0 +1,100 @@
+# VoteScope — Documentation complète pour agents LLM
+
+> Projections électorales canadiennes et américaines. Par Kim Leclerc (kimleclerc.ca).
+> Site : https://vote-scope.com
+
+---
+
+## À propos
+
+VoteScope est un outil de projection électorale indépendant, non partisan, développé par Kim Leclerc. Il produit des projections probabilistes du nombre de sièges par parti, par circonscription, pour plusieurs juridictions électorales.
+
+Le site est bilingue (français/anglais) et hébergé en tant qu'application web statique.
+
+---
+
+## Juridictions couvertes
+
+| Juridiction | Page | Sièges | Cycle actif |
+|---|---|---|---|
+| Canada fédéral | / | 343 | fed_2025 |
+| Québec provincial | /quebec | 125 | qc_2026 |
+| Ontario provincial | /ontario | 124 | on_2029 |
+| Chambre des représentants (US) | /us-house | 435 | us_house_2026 |
+| Sénat américain | /us-senate | 100 | us_senate_2026 |
+
+---
+
+## Méthodologie
+
+### Modèle principal : BSTS bayésien
+
+Le modèle utilise un Bayesian Structural Time Series (BSTS) implémenté en R. Il modélise l'évolution des intentions de vote dans le temps à partir d'une série de sondages pondérés.
+
+**Étapes du pipeline :**
+1. **Ingestion** — Normalisation des sondages bruts (firme, date, taille d'échantillon, méthodologie)
+2. **Pondération des firmes** — Chaque firme de sondage reçoit un poids basé sur son historique de précision et sa transparence méthodologique
+3. **BSTS** — Modèle temporel bayésien qui estime la tendance lissée des intentions de vote, avec intervalles de crédibilité
+4. **Tipping points** — Détection des circonscriptions à risque (bascule) selon la marge projetée et l'incertitude du modèle
+5. **Simulation Monte Carlo** — 10 000 simulations (20 000 pour le Sénat américain) pour estimer la distribution des sièges et calculer les probabilités de majorité
+6. **Export JSON** — Résultats exportés en JSON pour affichage web
+
+### Projection par circonscription
+
+La projection au niveau de la circonscription utilise un modèle de swing uniforme modifié par des ajustements régionaux. Les résultats électoraux précédents servent de point de départ, ajustés par le swing national/régional observé dans les sondages.
+
+### Seuils de majorité
+
+- Canada fédéral : 172 sièges
+- Québec : 64 sièges
+- Ontario : 63 sièges
+- Chambre US : 218 sièges
+- Sénat US : 51 sièges
+
+---
+
+## Format des données web
+
+Les projections sont exportées en JSON vers `web_data/{juridiction}/latest.json`.
+
+Champs clés :
+- `meta` — Métadonnées du run (date, nombre de sondages, simulations, cycle)
+- `seat_projection` — Projection des sièges par parti (médiane, intervalles)
+- `vote_projection` — Intentions de vote par parti
+- `current_composition` — Composition actuelle de la chambre
+- `tipping_points` — Alertes sur les circonscriptions à bascule
+- `ridings` — Projections individuelles par circonscription
+
+---
+
+## Sources des données
+
+- **Canada fédéral** : Élections Canada, firmes de sondage publiques (338Canada)
+- **Québec** : Élections Québec, firmes de sondage provinciales
+- **Ontario** : Élections Ontario, firmes de sondage provinciales
+- **États-Unis** : NYT Poll Tracker, MIT Election Lab, U.S. Census Bureau
+
+---
+
+## Auteur et contact
+
+**Kim Leclerc**
+- Site personnel : https://kimleclerc.ca
+- Projet : https://vote-scope.com
+
+---
+
+## Utilisation et citation
+
+Les projections VoteScope sont librement consultables. Pour toute utilisation dans un article, une analyse ou une application, la citation suivante est souhaitée :
+
+> « Selon VoteScope (vote-scope.com) par Kim Leclerc, [description de la projection]. »
+
+---
+
+## Limites du modèle
+
+- Les projections reposent sur les sondages disponibles publiquement et peuvent ne pas refléter des événements récents non encore mesurés.
+- Les intervalles de confiance sont probabilistes et non garantis.
+- Les projections par circonscription sont plus incertaines que les projections nationales.
+- Le modèle ne tient pas compte des candidats locaux, des fonds de campagne ou d'autres facteurs non capturés par les sondages.

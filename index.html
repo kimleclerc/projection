@@ -3,7 +3,43 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Projection Électorale Canada | Electoral Projection</title>
+  <title>Projection Électorale Canada | VoteScope</title>
+
+  <!-- Author & SEO -->
+  <meta name="author" content="Kim Leclerc">
+  <meta name="description" id="metaDesc" content="Projection électorale canadienne basée sur un modèle BSTS bayésien — agrégation de sondages et simulations Monte Carlo. Par Kim Leclerc.">
+  <link rel="canonical" id="metaCanonical" href="https://vote-scope.com/">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#0d0f14">
+
+  <!-- Open Graph -->
+  <meta property="og:site_name" content="VoteScope">
+  <meta property="og:type" content="website">
+  <meta property="og:url" id="ogUrl" content="https://vote-scope.com/">
+  <meta property="og:title" id="ogTitle" content="Projection Électorale Canada | VoteScope">
+  <meta property="og:description" id="ogDesc" content="Projection électorale canadienne basée sur un modèle BSTS bayésien — agrégation de sondages et simulations Monte Carlo.">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" id="twTitle" content="Projection Électorale Canada | VoteScope">
+  <meta name="twitter:description" id="twDesc" content="Projection électorale canadienne basée sur un modèle BSTS bayésien — agrégation de sondages et simulations Monte Carlo.">
+
+  <!-- Schema.org -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "VoteScope",
+    "url": "https://vote-scope.com",
+    "description": "Projections électorales canadiennes et américaines basées sur un modèle BSTS bayésien avec agrégation de sondages et simulations Monte Carlo.",
+    "author": {
+      "@type": "Person",
+      "name": "Kim Leclerc",
+      "url": "https://kimleclerc.ca"
+    },
+    "inLanguage": ["fr-CA", "en-CA"]
+  }
+  </script>
 
   <!-- Leaflet -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
@@ -577,6 +613,29 @@
       font-size: 12px; color: var(--muted);
     }
     footer a { color: var(--accent); text-decoration: none; }
+    .share-btn {
+      background: none; border: none; cursor: pointer;
+      color: var(--muted); padding: 2px 4px; margin-left: 6px;
+      vertical-align: middle; line-height: 1;
+      display: inline-flex; align-items: center;
+      transition: color 0.15s;
+    }
+    .share-btn:hover { color: var(--accent); }
+    .share-toast {
+      position: fixed; bottom: 32px; left: 50%;
+      transform: translateX(-50%);
+      background: var(--surface2); border: 1px solid var(--border);
+      color: var(--text); padding: 8px 20px;
+      border-radius: 999px; font-size: 13px;
+      z-index: 9999; pointer-events: none;
+      animation: toastAnim 2.6s ease forwards;
+    }
+    @keyframes toastAnim {
+      0%   { opacity:0; transform:translateX(-50%) translateY(8px); }
+      12%  { opacity:1; transform:translateX(-50%) translateY(0); }
+      80%  { opacity:1; }
+      100% { opacity:0; }
+    }
 
     /* ─── LOADING ─── */
     #loading {
@@ -835,6 +894,11 @@
   <span id="footerSource" data-i18n="footer_source">Sources : Élections Canada, firmes de sondage publiques</span>
   &nbsp;·&nbsp;
   <a href="methodologie.html" data-i18n="footer_method_link">Méthodologie</a>
+  &nbsp;·&nbsp;
+  <a href="https://kimleclerc.ca" target="_blank" rel="noopener" id="footerAuthor">Kim Leclerc</a>
+  <button class="share-btn" onclick="shareProjection()" id="shareBtn" aria-label="Partager">
+    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+  </button>
 </footer>
 
 <script>
@@ -872,7 +936,11 @@ const APP_CONFIG = {
     byelections: true,
     center: [56, -96],
     zoom: 4,
-    parties: ['lib','con','bq','ndp','grn','ppc','fed_oth']
+    parties: ['lib','con','bq','ndp','grn','ppc','fed_oth'],
+    seoDesc: {
+      fr: 'Projection électorale fédérale canadienne — modèle BSTS bayésien, agrégation de sondages, simulations Monte Carlo par circonscription. Par Kim Leclerc.',
+      en: 'Canadian federal electoral projection — Bayesian BSTS model, poll aggregation, Monte Carlo simulations by riding. By Kim Leclerc.'
+    }
   },
   quebec: {
     key: 'quebec',
@@ -900,7 +968,11 @@ const APP_CONFIG = {
     center: [46.8, -71.2],
     zoom: 6.2,
     parties: ['pq','plq','pcq','qs','caq','qc_oth'],
-    currentCompositionParties: ['caq','plq','qs','pq','pcq','qc_ind']
+    currentCompositionParties: ['caq','plq','qs','pq','pcq','qc_ind'],
+    seoDesc: {
+      fr: 'Projection électorale de l\'Assemblée nationale du Québec — modèle BSTS bayésien, sondages provinciaux, simulations Monte Carlo. Par Kim Leclerc.',
+      en: 'Quebec National Assembly electoral projection — Bayesian BSTS model, provincial polls, Monte Carlo simulations. By Kim Leclerc.'
+    }
   },
   ontario: {
     key: 'ontario',
@@ -928,7 +1000,11 @@ const APP_CONFIG = {
     center: [49.2, -84.6],
     zoom: 5.5,
     parties: ['on_pc','on_ndp','on_lib','on_grn','on_oth'],
-    currentCompositionParties: ['on_pc','on_ndp','on_lib','on_grn','on_ind']
+    currentCompositionParties: ['on_pc','on_ndp','on_lib','on_grn','on_ind'],
+    seoDesc: {
+      fr: 'Projection électorale de l\'Assemblée législative de l\'Ontario — modèle BSTS bayésien, sondages ontariens, simulations Monte Carlo. Par Kim Leclerc.',
+      en: 'Ontario Legislative Assembly electoral projection — Bayesian BSTS model, Ontario polls, Monte Carlo simulations. By Kim Leclerc.'
+    }
   },
   'us-house': {
     key: 'us-house',
@@ -956,7 +1032,11 @@ const APP_CONFIG = {
     center: [39.8, -98.6],
     zoom: 3.7,
     parties: ['us_dem','us_rep','us_oth'],
-    currentCompositionParties: ['us_rep','us_dem','us_ind']
+    currentCompositionParties: ['us_rep','us_dem','us_ind'],
+    seoDesc: {
+      fr: 'Projection de la Chambre des représentants américaine 2026 — modèle BSTS bayésien, agrégation de sondages, simulations Monte Carlo par district. Par Kim Leclerc.',
+      en: 'U.S. House of Representatives 2026 projection — Bayesian BSTS model, poll aggregation, Monte Carlo simulations by district. By Kim Leclerc.'
+    }
   },
   'us-senate': {
     key: 'us-senate',
@@ -984,7 +1064,11 @@ const APP_CONFIG = {
     center: [39.8, -98.6],
     zoom: 3.4,
     parties: ['us_dem','us_rep','us_oth'],
-    currentCompositionParties: ['us_rep','us_dem']
+    currentCompositionParties: ['us_rep','us_dem'],
+    seoDesc: {
+      fr: 'Projection du Sénat américain 2026 — modèle BSTS bayésien, agrégation de sondages par État, simulations Monte Carlo. Par Kim Leclerc.',
+      en: 'U.S. Senate 2026 projection — Bayesian BSTS model, state-level poll aggregation, Monte Carlo simulations. By Kim Leclerc.'
+    }
   }
 }[jurisdiction];
 
@@ -1341,16 +1425,47 @@ function getRidingVotePct(riding, party) {
   return getBaselineResult(riding)?.[party + '_pct'];
 }
 
+function fmtCount(n) {
+  if (n >= 1e6) return (n / 1e6 % 1 === 0 ? n / 1e6 : (n / 1e6).toFixed(1)) + '\u202fM';
+  if (n >= 1e3) return (n / 1e3 % 1 === 0 ? n / 1e3 : (n / 1e3).toFixed(1)) + 'k';
+  return String(n);
+}
+
+function shareProjection() {
+  const pageUrl = 'https://vote-scope.com' + (jurisdiction === 'federal' ? '/' : '/' + jurisdiction);
+  if (navigator.share) {
+    navigator.share({ title: document.title, url: pageUrl }).catch(() => {});
+  } else {
+    navigator.clipboard.writeText(pageUrl).then(() => {
+      const toast = document.createElement('div');
+      toast.className = 'share-toast';
+      toast.textContent = lang === 'fr' ? 'Lien copié\u00a0!' : 'Link copied!';
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 2700);
+    }).catch(() => {});
+  }
+}
+
 function renderJurisdictionUI() {
   document.title = jurisdiction === 'quebec'
-    ? 'Projection Électorale Québec | Electoral Projection'
+    ? 'Projection Électorale Québec | VoteScope'
     : jurisdiction === 'ontario'
-    ? 'Projection Électorale Ontario | Electoral Projection'
+    ? 'Projection Électorale Ontario | VoteScope'
     : jurisdiction === 'us-house'
-      ? 'Projection Électorale US House | Electoral Projection'
+      ? 'U.S. House Projection | VoteScope'
       : jurisdiction === 'us-senate'
-        ? 'Projection Électorale US Senate | Electoral Projection'
-      : 'Projection Électorale Canada | Electoral Projection';
+        ? 'U.S. Senate Projection | VoteScope'
+      : 'Projection Électorale Canada | VoteScope';
+  // Update canonical & OG meta dynamically
+  const pageUrl = 'https://vote-scope.com' + (jurisdiction === 'federal' ? '/' : '/' + jurisdiction);
+  document.getElementById('metaCanonical').href = pageUrl;
+  document.getElementById('ogUrl').content = pageUrl;
+  document.getElementById('ogTitle').content = document.title;
+  document.getElementById('twTitle').content = document.title;
+  const desc = APP_CONFIG.seoDesc?.[lang] || document.getElementById('metaDesc').content;
+  document.getElementById('metaDesc').content = desc;
+  document.getElementById('ogDesc').content = desc;
+  document.getElementById('twDesc').content = desc;
   document.querySelector('[data-i18n="hero_title"]').innerHTML = APP_CONFIG.heroTitle[lang];
   document.getElementById('currentHouseTitle').textContent = APP_CONFIG.institution[lang];
   document.getElementById('mapSubtitle').textContent = APP_CONFIG.mapSubtitle[lang];
@@ -1434,7 +1549,7 @@ function renderMeta() {
   document.getElementById('heroMeta').innerHTML =
     `${t('updated')} <strong>${m.run_date}</strong> · ${m.n_polls} ${t('polls_used')}`;
   document.getElementById('cycleBadge').textContent =
-    `${m.election_cycle.toUpperCase()} · ${m.n_simulations.toLocaleString(lang === 'fr' ? 'fr-CA' : 'en-CA')} MC`;
+    `${m.election_cycle.toUpperCase()} · ${fmtCount(m.n_simulations)} MC`;
   const totalSeats = data?.meta?.total_seats || APP_CONFIG.seatsTotal || Object.values(data.current_composition || {}).reduce((a,b)=>a+(b||0),0);
   const majority = data?.meta?.majority_threshold || Math.floor(totalSeats / 2) + 1;
   document.getElementById('seatsLabel').textContent =
