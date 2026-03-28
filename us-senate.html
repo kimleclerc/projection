@@ -3,7 +3,43 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Projection Électorale Canada | Electoral Projection</title>
+  <title>Projection Électorale Canada | VoteScope</title>
+
+  <!-- Author & SEO -->
+  <meta name="author" content="Kim Leclerc">
+  <meta name="description" id="metaDesc" content="Projection électorale canadienne basée sur un modèle BSTS bayésien — agrégation de sondages et simulations Monte Carlo. Par Kim Leclerc.">
+  <link rel="canonical" id="metaCanonical" href="https://vote-scope.com/">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#0d0f14">
+
+  <!-- Open Graph -->
+  <meta property="og:site_name" content="VoteScope">
+  <meta property="og:type" content="website">
+  <meta property="og:url" id="ogUrl" content="https://vote-scope.com/">
+  <meta property="og:title" id="ogTitle" content="Projection Électorale Canada | VoteScope">
+  <meta property="og:description" id="ogDesc" content="Projection électorale canadienne basée sur un modèle BSTS bayésien — agrégation de sondages et simulations Monte Carlo.">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" id="twTitle" content="Projection Électorale Canada | VoteScope">
+  <meta name="twitter:description" id="twDesc" content="Projection électorale canadienne basée sur un modèle BSTS bayésien — agrégation de sondages et simulations Monte Carlo.">
+
+  <!-- Schema.org -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "VoteScope",
+    "url": "https://vote-scope.com",
+    "description": "Projections électorales canadiennes et américaines basées sur un modèle BSTS bayésien avec agrégation de sondages et simulations Monte Carlo.",
+    "author": {
+      "@type": "Person",
+      "name": "Kim Leclerc",
+      "url": "https://kimleclerc.ca"
+    },
+    "inLanguage": ["fr-CA", "en-CA"]
+  }
+  </script>
 
   <!-- Leaflet -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
@@ -577,6 +613,29 @@
       font-size: 12px; color: var(--muted);
     }
     footer a { color: var(--accent); text-decoration: none; }
+    .share-btn {
+      background: none; border: none; cursor: pointer;
+      color: var(--muted); padding: 2px 4px; margin-left: 6px;
+      vertical-align: middle; line-height: 1;
+      display: inline-flex; align-items: center;
+      transition: color 0.15s;
+    }
+    .share-btn:hover { color: var(--accent); }
+    .share-toast {
+      position: fixed; bottom: 32px; left: 50%;
+      transform: translateX(-50%);
+      background: var(--surface2); border: 1px solid var(--border);
+      color: var(--text); padding: 8px 20px;
+      border-radius: 999px; font-size: 13px;
+      z-index: 9999; pointer-events: none;
+      animation: toastAnim 2.6s ease forwards;
+    }
+    @keyframes toastAnim {
+      0%   { opacity:0; transform:translateX(-50%) translateY(8px); }
+      12%  { opacity:1; transform:translateX(-50%) translateY(0); }
+      80%  { opacity:1; }
+      100% { opacity:0; }
+    }
 
     /* ─── LOADING ─── */
     #loading {
@@ -689,9 +748,127 @@
       .seats-grid { grid-template-columns: 1fr 1fr; }
       .charts-row { grid-template-columns: 1fr; }
     }
+    /* ─── POLL AVERAGE BAR ─── */
+    .poll-avg-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 20px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .poll-avg-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    .poll-avg-strip {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      flex-wrap: wrap;
+      flex: 1;
+    }
+    .poll-avg-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 4px 14px;
+    }
+    .poll-avg-name {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      margin-bottom: 2px;
+    }
+    .poll-avg-val {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.1;
+    }
+    .poll-avg-trend {
+      font-size: 11px;
+      font-weight: 600;
+      margin-top: 1px;
+    }
+    .poll-avg-sep {
+      color: var(--border);
+      font-size: 22px;
+      line-height: 1;
+      align-self: center;
+      padding: 0 2px;
+    }
+
+    /* ─── RECENT POLLS ─── */
+    .recent-polls-section { margin-bottom: 32px; }
+    #recentPollsWrap table td { font-size: 12px; padding: 7px 14px; }
+    #recentPollsWrap table th { font-size: 10px; }
+    .rpoll-firm { font-weight: 600; white-space: nowrap; }
+    .rpoll-date { white-space: nowrap; font-size: 11px !important; }
+    .rpoll-val  { text-align: right !important; font-variant-numeric: tabular-nums; }
+    .rpoll-weight-dots { font-size: 9px; letter-spacing: -1px; color: var(--muted); }
+    .recent-polls-toggle {
+      background: none; border: none; cursor: pointer;
+      color: var(--muted); font-size: 12px;
+      font-family: 'DM Sans', sans-serif;
+      padding: 4px 0;
+      display: flex; align-items: center; gap: 6px;
+      transition: color .15s;
+    }
+    .recent-polls-toggle:hover { color: var(--text); }
+
+    /* ─── TREND CHIPS ─── */
+    .trend-chips-row {
+      display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px;
+    }
+    .trend-chip { font-size: 12px; font-weight: 600; }
+
+    /* ── Accessibilité ──────────────────────────────────────────────── */
+    .skip-nav {
+      position: absolute;
+      top: -48px;
+      left: 12px;
+      background: var(--accent);
+      color: #000;
+      padding: 8px 18px;
+      font-weight: 700;
+      font-size: 14px;
+      text-decoration: none;
+      border-radius: 0 0 6px 6px;
+      z-index: 10000;
+      transition: top 0.15s;
+    }
+    .skip-nav:focus { top: 0; }
+    :focus-visible {
+      outline: 2px solid var(--accent) !important;
+      outline-offset: 3px !important;
+      border-radius: 3px;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+    .hero-tagline {
+      font-size: 13px;
+      color: var(--muted);
+      margin: 4px 0 0 0;
+      letter-spacing: 0.03em;
+    }
   </style>
 </head>
 <body>
+<a href="#main-content" class="skip-nav" lang="fr">Aller au contenu</a>
 
 <!-- LOADING -->
 <div id="loading">
@@ -723,11 +900,12 @@
   </div>
 </header>
 
-<main>
+<main id="main-content">
   <!-- HERO -->
   <section class="hero">
     <div>
       <h1 data-i18n="hero_title">Projection <em>fédérale</em></h1>
+      <p class="hero-tagline" id="heroTagline">Agrégation de sondages · Modèle BSTS · Simulations Monte Carlo</p>
       <div class="hero-meta" id="heroMeta"></div>
       <div class="hero-badges">
         <div class="hero-badge"><strong data-i18n="model_badge">Modèle v1</strong></div>
@@ -739,8 +917,12 @@
   <!-- ALERTS -->
   <div class="alerts-row" id="alertsRow"></div>
 
+  <!-- MOYENNE PONDÉRÉE DES SONDAGES -->
+  <div class="poll-avg-block" id="pollAvgBlock" style="display:none"></div>
+
+
   <!-- COMPOSITION ACTUELLE -->
-  <div class="section-title" id="currentHouseTitle" data-i18n="current_house">Composition actuelle de la Chambre</div>
+  <div class="section-title" role="heading" aria-level="2" id="currentHouseTitle" data-i18n="current_house">Composition actuelle de la Chambre</div>
   <div class="composition-block">
     <div class="comp-label" id="seatsLabel" data-i18n="seats_label">SIÈGES — 343 TOTAL</div>
     <div class="comp-bar" id="compBar"></div>
@@ -752,12 +934,12 @@
   </div>
 
   <!-- PROJECTION SIÈGES -->
-  <div class="section-title" data-i18n="seat_projection">Projection des sièges</div>
+  <div class="section-title" role="heading" aria-level="2" data-i18n="seat_projection">Projection des sièges</div>
   <div class="seats-grid" id="seatsGrid"></div>
 
   <!-- US HOUSE RATINGS -->
   <div id="usRatingsSection" style="display:none">
-    <div class="section-title" data-i18n="us_ratings_title">Baromètre des courses</div>
+    <div class="section-title" role="heading" aria-level="2" data-i18n="us_ratings_title">Baromètre des courses</div>
     <div class="section-subtitle" data-i18n="us_ratings_subtitle">Classement des courses selon notre probabilité de victoire: solid, likely, lean et toss-up.</div>
     <div class="composition-block" style="padding:18px 18px 14px">
       <div id="usRatingsBar" style="display:flex;height:54px;border-radius:16px;overflow:hidden;background:var(--surface2);border:1px solid var(--border)"></div>
@@ -766,48 +948,59 @@
   </div>
 
   <!-- GRAPHIQUES -->
-  <div class="section-title" data-i18n="analysis">Analyse</div>
+  <div class="section-title" role="heading" aria-level="2" data-i18n="analysis">Analyse</div>
   <div class="charts-row">
     <div class="chart-card">
       <div class="chart-title" data-i18n="vote_trend">Intentions de vote</div>
-      <div id="chartVoteTrend" style="height:260px"></div>
+      <div id="chartVoteTrend" role="img" aria-label="Graphique des intentions de vote pour le Sénat américain / US Senate vote intention trend chart" style="height:260px"></div>
     </div>
     <div class="chart-card">
       <div class="chart-title" data-i18n="scenario_probs">Probabilités de scénarios</div>
-      <div id="chartScenarios" style="height:260px"></div>
+      <div id="chartScenarios" role="img" aria-label="Graphique des probabilités de contrôle du Sénat américain / US Senate control probability chart" style="height:260px"></div>
     </div>
   </div>
 
+  <!-- SONDAGES RÉCENTS -->
+  <div class="recent-polls-section" id="recentPollsSection" style="display:none">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <div class="section-title" role="heading" aria-level="2" style="margin:0" data-i18n="recent_polls">Sondages récents</div>
+      <button class="recent-polls-toggle" id="recentPollsToggle" onclick="toggleRecentPolls()">
+        <span id="recentPollsToggleLabel">▼ 10 sondages</span>
+      </button>
+    </div>
+    <div id="recentPollsWrap"></div>
+  </div>
+
   <!-- CARTE -->
-  <div class="section-title" data-i18n="map_title">Carte des circonscriptions</div>
+  <div class="section-title" role="heading" aria-level="2" data-i18n="map_title">Carte des circonscriptions</div>
   <div class="section-subtitle" id="mapSubtitle" data-i18n="map_subtitle">Projection par circonscription basée sur les résultats 2025, les sondages nationaux et les ajustements régionaux.</div>
   <div class="map-section">
     <div class="map-container">
-      <div id="map"></div>
+      <div id="map" role="img" aria-label="Carte des États américains avec projection sénatoriale par parti / US Senate map showing projected winners by state"></div>
       <div class="map-legend" id="mapLegend"></div>
     </div>
   </div>
 
   <!-- ÉLECTIONS PARTIELLES -->
   <div id="byelectionsSection">
-    <div class="section-title" id="byelectionsTitle" data-i18n="byelections">Élections partielles</div>
+    <div class="section-title" role="heading" aria-level="2" id="byelectionsTitle" data-i18n="byelections">Élections partielles</div>
     <div class="section-subtitle" data-i18n="byelections_subtitle">Aperçu rapide des trois partielles fédérales avec vote projeté, probabilité de gain et accès au dossier complet.</div>
     <a class="section-link" id="byelectionsLink" href="partielles.html">Voir la page des partielles</a>
     <div class="byel-grid" id="byelGrid"></div>
   </div>
 
   <!-- TABLEAU CIRCONSCRIPTIONS -->
-  <div class="section-title" data-i18n="all_ridings">Toutes les circonscriptions</div>
+  <div class="section-title" role="heading" aria-level="2" data-i18n="all_ridings">Toutes les circonscriptions</div>
   <div class="ridings-section">
     <div class="table-controls">
-      <input class="table-search" id="ridingSearch"
+      <input class="table-search" id="ridingSearch" aria-label="Rechercher une circonscription / Search a riding"
              data-placeholder-fr="Rechercher une circonscription…"
              data-placeholder-en="Search a riding…"
              placeholder="Rechercher une circonscription…">
-      <select class="table-filter" id="provinceFilter">
+      <select class="table-filter" id="provinceFilter" aria-label="Filtrer par province / Filter by province">
         <option value="" data-i18n-fr="Toutes les provinces" data-i18n-en="All provinces">Toutes les provinces</option>
       </select>
-      <select class="table-filter" id="partyFilter">
+      <select class="table-filter" id="partyFilter" aria-label="Filtrer par parti / Filter by party">
         <option value="" data-i18n-fr="Tous les partis" data-i18n-en="All parties">Tous les partis</option>
       </select>
     </div>
@@ -815,11 +1008,12 @@
       <table>
         <thead>
           <tr>
-            <th data-sort="name" data-i18n="col_riding">Circonscription</th>
-            <th data-sort="province" data-i18n="col_province">Province</th>
-            <th data-sort="winner" data-i18n="col_winner">Gagnant 2025</th>
-            <th data-sort="margin" data-i18n="col_margin">Marge</th>
-            <th data-sort="turnout" id="turnoutHeader" data-i18n="col_turnout">Participation</th>
+            <th scope="col" data-sort="name" data-i18n="col_riding">Circonscription</th>
+            <th scope="col" data-sort="province" data-i18n="col_province">Province</th>
+            <th scope="col" data-sort="winner" data-i18n="col_winner">Projeté</th>
+            <th scope="col" data-sort="p_win" data-i18n="col_p_win">P(victoire)</th>
+            <th scope="col" data-sort="margin" data-i18n="col_margin">Marge proj.</th>
+            <th scope="col" data-sort="turnout" id="turnoutHeader" data-i18n="col_turnout">Participation</th>
           </tr>
         </thead>
         <tbody id="ridingsTableBody"></tbody>
@@ -835,6 +1029,11 @@
   <span id="footerSource" data-i18n="footer_source">Sources : Élections Canada, firmes de sondage publiques</span>
   &nbsp;·&nbsp;
   <a href="methodologie.html" data-i18n="footer_method_link">Méthodologie</a>
+  &nbsp;·&nbsp;
+  <a href="https://kimleclerc.ca" target="_blank" rel="noopener" id="footerAuthor">Kim Leclerc</a>
+  <button class="share-btn" onclick="shareProjection()" id="shareBtn" aria-label="Partager">
+    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+  </button>
 </footer>
 
 <script>
@@ -872,7 +1071,11 @@ const APP_CONFIG = {
     byelections: true,
     center: [56, -96],
     zoom: 4,
-    parties: ['lib','con','bq','ndp','grn','ppc','fed_oth']
+    parties: ['lib','con','bq','ndp','grn','ppc','fed_oth'],
+    seoDesc: {
+      fr: 'Projection électorale fédérale canadienne — modèle BSTS bayésien, agrégation de sondages, simulations Monte Carlo par circonscription. Par Kim Leclerc.',
+      en: 'Canadian federal electoral projection — Bayesian BSTS model, poll aggregation, Monte Carlo simulations by riding. By Kim Leclerc.'
+    }
   },
   quebec: {
     key: 'quebec',
@@ -900,7 +1103,11 @@ const APP_CONFIG = {
     center: [46.8, -71.2],
     zoom: 6.2,
     parties: ['pq','plq','pcq','qs','caq','qc_oth'],
-    currentCompositionParties: ['caq','plq','qs','pq','pcq','qc_ind']
+    currentCompositionParties: ['caq','plq','qs','pq','pcq','qc_ind'],
+    seoDesc: {
+      fr: 'Projection électorale de l\'Assemblée nationale du Québec — modèle BSTS bayésien, sondages provinciaux, simulations Monte Carlo. Par Kim Leclerc.',
+      en: 'Quebec National Assembly electoral projection — Bayesian BSTS model, provincial polls, Monte Carlo simulations. By Kim Leclerc.'
+    }
   },
   ontario: {
     key: 'ontario',
@@ -928,7 +1135,11 @@ const APP_CONFIG = {
     center: [49.2, -84.6],
     zoom: 5.5,
     parties: ['on_pc','on_ndp','on_lib','on_grn','on_oth'],
-    currentCompositionParties: ['on_pc','on_ndp','on_lib','on_grn','on_ind']
+    currentCompositionParties: ['on_pc','on_ndp','on_lib','on_grn','on_ind'],
+    seoDesc: {
+      fr: 'Projection électorale de l\'Assemblée législative de l\'Ontario — modèle BSTS bayésien, sondages ontariens, simulations Monte Carlo. Par Kim Leclerc.',
+      en: 'Ontario Legislative Assembly electoral projection — Bayesian BSTS model, Ontario polls, Monte Carlo simulations. By Kim Leclerc.'
+    }
   },
   'us-house': {
     key: 'us-house',
@@ -956,7 +1167,11 @@ const APP_CONFIG = {
     center: [39.8, -98.6],
     zoom: 3.7,
     parties: ['us_dem','us_rep','us_oth'],
-    currentCompositionParties: ['us_rep','us_dem','us_ind']
+    currentCompositionParties: ['us_rep','us_dem','us_ind'],
+    seoDesc: {
+      fr: 'Projection de la Chambre des représentants américaine 2026 — modèle BSTS bayésien, agrégation de sondages, simulations Monte Carlo par district. Par Kim Leclerc.',
+      en: 'U.S. House of Representatives 2026 projection — Bayesian BSTS model, poll aggregation, Monte Carlo simulations by district. By Kim Leclerc.'
+    }
   },
   'us-senate': {
     key: 'us-senate',
@@ -984,7 +1199,11 @@ const APP_CONFIG = {
     center: [39.8, -98.6],
     zoom: 3.4,
     parties: ['us_dem','us_rep','us_oth'],
-    currentCompositionParties: ['us_rep','us_dem']
+    currentCompositionParties: ['us_rep','us_dem'],
+    seoDesc: {
+      fr: 'Projection du Sénat américain 2026 — modèle BSTS bayésien, agrégation de sondages par État, simulations Monte Carlo. Par Kim Leclerc.',
+      en: 'U.S. Senate 2026 projection — Bayesian BSTS model, state-level poll aggregation, Monte Carlo simulations. By Kim Leclerc.'
+    }
   }
 }[jurisdiction];
 
@@ -1009,8 +1228,11 @@ const I18N = {
     all_ridings     : 'Toutes les circonscriptions',
     col_riding      : 'Circonscription',
     col_province    : 'Province',
-    col_winner      : 'Parti projeté',
-    col_margin      : 'Marge projetée',
+    col_winner      : 'Projeté',
+    col_margin      : 'Marge proj.',
+    col_p_win       : 'P(victoire)',
+    recent_polls    : 'Sondages récents',
+    poll_avg_label  : 'Moy. pondérée',
     col_turnout     : 'Participation 2025',
     footer_method   : 'Modèle BSTS bayésien — Monte Carlo 10 000 simulations',
     footer_source   : 'Sources : Élections Canada, firmes de sondage publiques',
@@ -1090,8 +1312,11 @@ const I18N = {
     all_ridings     : 'All Ridings',
     col_riding      : 'Riding',
     col_province    : 'Province',
-    col_winner      : 'Projected party',
-    col_margin      : 'Projected margin',
+    col_winner      : 'Projected',
+    col_margin      : 'Proj. margin',
+    col_p_win       : 'Win prob.',
+    recent_polls    : 'Recent polls',
+    poll_avg_label  : 'Wtd. avg.',
     col_turnout     : '2025 turnout',
     footer_method   : 'Bayesian BSTS model — 10,000 Monte Carlo simulations',
     footer_source   : 'Sources: Elections Canada, public polling firms',
@@ -1341,16 +1566,47 @@ function getRidingVotePct(riding, party) {
   return getBaselineResult(riding)?.[party + '_pct'];
 }
 
+function fmtCount(n) {
+  if (n >= 1e6) return (n / 1e6 % 1 === 0 ? n / 1e6 : (n / 1e6).toFixed(1)) + '\u202fM';
+  if (n >= 1e3) return (n / 1e3 % 1 === 0 ? n / 1e3 : (n / 1e3).toFixed(1)) + 'k';
+  return String(n);
+}
+
+function shareProjection() {
+  const pageUrl = 'https://vote-scope.com' + (jurisdiction === 'federal' ? '/' : '/' + jurisdiction);
+  if (navigator.share) {
+    navigator.share({ title: document.title, url: pageUrl }).catch(() => {});
+  } else {
+    navigator.clipboard.writeText(pageUrl).then(() => {
+      const toast = document.createElement('div');
+      toast.className = 'share-toast';
+      toast.textContent = lang === 'fr' ? 'Lien copié\u00a0!' : 'Link copied!';
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 2700);
+    }).catch(() => {});
+  }
+}
+
 function renderJurisdictionUI() {
   document.title = jurisdiction === 'quebec'
-    ? 'Projection Électorale Québec | Electoral Projection'
+    ? 'Projection Électorale Québec | VoteScope'
     : jurisdiction === 'ontario'
-    ? 'Projection Électorale Ontario | Electoral Projection'
+    ? 'Projection Électorale Ontario | VoteScope'
     : jurisdiction === 'us-house'
-      ? 'Projection Électorale US House | Electoral Projection'
+      ? 'U.S. House Projection | VoteScope'
       : jurisdiction === 'us-senate'
-        ? 'Projection Électorale US Senate | Electoral Projection'
-      : 'Projection Électorale Canada | Electoral Projection';
+        ? 'U.S. Senate Projection | VoteScope'
+      : 'Projection Électorale Canada | VoteScope';
+  // Update canonical & OG meta dynamically
+  const pageUrl = 'https://vote-scope.com' + (jurisdiction === 'federal' ? '/' : '/' + jurisdiction);
+  document.getElementById('metaCanonical').href = pageUrl;
+  document.getElementById('ogUrl').content = pageUrl;
+  document.getElementById('ogTitle').content = document.title;
+  document.getElementById('twTitle').content = document.title;
+  const desc = APP_CONFIG.seoDesc?.[lang] || document.getElementById('metaDesc').content;
+  document.getElementById('metaDesc').content = desc;
+  document.getElementById('ogDesc').content = desc;
+  document.getElementById('twDesc').content = desc;
   document.querySelector('[data-i18n="hero_title"]').innerHTML = APP_CONFIG.heroTitle[lang];
   document.getElementById('currentHouseTitle').textContent = APP_CONFIG.institution[lang];
   document.getElementById('mapSubtitle').textContent = APP_CONFIG.mapSubtitle[lang];
@@ -1421,6 +1677,8 @@ function render() {
   renderCharts();
   renderMap();
   renderByelections();
+  renderPollAverage();
+  renderRecentPolls();
   renderRidingsTable();
 }
 
@@ -1434,7 +1692,7 @@ function renderMeta() {
   document.getElementById('heroMeta').innerHTML =
     `${t('updated')} <strong>${m.run_date}</strong> · ${m.n_polls} ${t('polls_used')}`;
   document.getElementById('cycleBadge').textContent =
-    `${m.election_cycle.toUpperCase()} · ${m.n_simulations.toLocaleString(lang === 'fr' ? 'fr-CA' : 'en-CA')} MC`;
+    `${m.election_cycle.toUpperCase()} · ${fmtCount(m.n_simulations)} MC`;
   const totalSeats = data?.meta?.total_seats || APP_CONFIG.seatsTotal || Object.values(data.current_composition || {}).reduce((a,b)=>a+(b||0),0);
   const majority = data?.meta?.majority_threshold || Math.floor(totalSeats / 2) + 1;
   document.getElementById('seatsLabel').textContent =
@@ -1464,13 +1722,27 @@ function renderAlerts() {
     ? `${t('radar_watch')} : ${watchList.join(', ')}`
     : '';
 
-  row.innerHTML = `<div class="alerts-box ${highest}" title="${t('radar_subline_'+highest)}">
+  // Trend chips — Δ7j concrets par parti
+  const suppressOth2 = new Set(['fed_oth','qc_oth','on_oth','us_oth']);
+  const trendChipsHtml = (data.parties || [])
+    .filter(p => !suppressOth2.has(p.party) && p.trend_7d != null && Math.abs(p.trend_7d) >= 0.1)
+    .sort((a, b) => Math.abs(b.trend_7d || 0) - Math.abs(a.trend_7d || 0))
+    .slice(0, 6)
+    .map(p => {
+      const d = p.trend_7d;
+      const arrow = d > 0.25 ? '↑' : d < -0.25 ? '↓' : '→';
+      const sign  = d >= 0 ? '+' : '';
+      const col   = PARTY_COLORS[p.party] || '#888';
+      return `<span class="trend-chip" style="color:${col}">${PARTY_LABELS[lang][p.party]||p.party.toUpperCase()} ${arrow} ${sign}${d.toFixed(1)}pp</span>`;
+    }).join('<span style="color:var(--border);margin:0 4px">·</span>');
+
+  row.innerHTML = `<div class="alerts-box ${highest}">
     <div class="alerts-topline ${highest}">
       <span class="alert-dot"></span>
       ${t('radar_title')} · ${t('radar_'+highest)}
     </div>
-    <div class="alerts-headline">${t('radar_headline_'+highest)}</div>
-    <div class="alerts-subline">${t('radar_subline_'+highest)}${watchText ? `<br>${watchText}` : ''}</div>
+    ${trendChipsHtml ? `<div class="trend-chips-row">${trendChipsHtml}</div>` : ''}
+    <div class="alerts-subline" style="margin-top:${trendChipsHtml ? '4px' : '0'}">${t('radar_subline_'+highest)}${watchText ? ` · ${watchText}` : ''}</div>
   </div>`;
 }
 
@@ -1522,15 +1794,21 @@ function renderSeatsGrid() {
     const pLrg  = ((p.p_largest||0)*100).toFixed(0);
     const ciLo  = Math.round(p.seats_ci_low_80||0);
     const ciHi  = Math.round(p.seats_ci_high_80||0);
+    // N'afficher les probabilités que si au moins une > 1%
+    const showProbs = (p.p_majority||0) >= 0.01 || (p.p_largest||0) >= 0.01;
+    const voteStr = (p.vote_mean != null && p.vote_mean > 0)
+      ? `<div class="seat-card-vote" style="color:var(--muted);font-size:11px;margin-top:1px">${(p.vote_mean||0).toFixed(1)}%</div>`
+      : '';
     return `<div class="seat-card" style="--c:${color}">
       <div style="position:absolute;top:0;left:0;width:3px;height:100%;background:${color};border-radius:3px 0 0 3px"></div>
       <div class="seat-card-party" style="color:${color}">${label}</div>
       <div class="seat-card-number">${Math.round(p.seats_mean||0)}</div>
+      ${voteStr}
       <div class="seat-card-range">${t('seats_ci')} ${ciLo}–${ciHi}</div>
-      <div class="seat-card-prob">
+      ${showProbs ? `<div class="seat-card-prob">
         <span>${t('p_majority')} <span class="prob-val">${pMaj}%</span></span>
         <span>${t('p_largest')}  <span class="prob-val">${pLrg}%</span></span>
-      </div>
+      </div>` : ''}
     </div>`;
   }).join('');
 }
@@ -1934,6 +2212,146 @@ function renderByelections() {
 }
 
 // ═══════════════════════════════════════════════════════
+// MOYENNE PONDÉRÉE DES SONDAGES
+// ═══════════════════════════════════════════════════════
+function renderPollAverage() {
+  const polls   = data.polls_history || [];
+  const block   = document.getElementById('pollAvgBlock');
+  const parties = (APP_CONFIG.parties || [])
+    .filter(p => !['fed_oth','qc_oth','on_oth','us_oth'].includes(p));
+
+  if (!polls.length || !parties.length) { block.style.display = 'none'; return; }
+
+  // Moyenne pondérée sur les 30 derniers sondages disponibles
+  const recent = polls.slice(-30);
+  const sums = {}, wts = {};
+  parties.forEach(p => { sums[p] = 0; wts[p] = 0; });
+
+  recent.forEach(poll => {
+    const w = typeof poll.weight === 'number' ? poll.weight : 1;
+    parties.forEach(p => {
+      const v = poll[p];
+      if (v != null && !isNaN(v) && v > 0) {
+        sums[p] += v * w;
+        wts[p]  += w;
+      }
+    });
+  });
+
+  const partyObjs = data.parties || [];
+  const items = parties
+    .filter(p => wts[p] > 0)
+    .map(p => {
+      const avg   = sums[p] / wts[p];
+      const color = PARTY_COLORS[p] || '#888';
+      const label = PARTY_LABELS[lang][p] || p.toUpperCase();
+      const pObj  = partyObjs.find(x => x.party === p);
+      const trend = pObj?.trend_7d;
+      let trendHtml = '';
+      if (trend != null) {
+        const arrow = trend > 0.25 ? '↑' : trend < -0.25 ? '↓' : '→';
+        const sign  = trend >= 0 ? '+' : '';
+        const tcol  = trend > 0.25 ? '#4ade80' : trend < -0.25 ? '#f87171' : 'var(--muted)';
+        trendHtml   = `<span class="poll-avg-trend" style="color:${tcol}">${arrow}${sign}${trend.toFixed(1)}</span>`;
+      }
+      return { p, avg, color, label, trendHtml };
+    });
+
+  if (!items.length) { block.style.display = 'none'; return; }
+
+  block.style.display = 'flex';
+  const labelText = t('poll_avg_label') || (lang === 'fr' ? 'Moy. pondérée' : 'Wtd. avg.');
+  block.innerHTML = `
+    <span class="poll-avg-label">${labelText}</span>
+    <div class="poll-avg-strip">
+      ${items.map((it, idx) => `
+        ${idx > 0 ? '<span class="poll-avg-sep">|</span>' : ''}
+        <div class="poll-avg-item">
+          <span class="poll-avg-name" style="color:${it.color}">${it.label}</span>
+          <span class="poll-avg-val">${it.avg.toFixed(1)}%</span>
+          ${it.trendHtml}
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+// ═══════════════════════════════════════════════════════
+// SONDAGES RÉCENTS
+// ═══════════════════════════════════════════════════════
+let _recentPollsExpanded = false;
+
+function toggleRecentPolls() {
+  _recentPollsExpanded = !_recentPollsExpanded;
+  renderRecentPollsTable();
+}
+
+function renderRecentPolls() {
+  const polls   = data.polls_history || [];
+  const section = document.getElementById('recentPollsSection');
+  if (!polls.length) { section.style.display = 'none'; return; }
+  section.style.display = 'block';
+  renderRecentPollsTable();
+}
+
+function renderRecentPollsTable() {
+  const polls   = data.polls_history || [];
+  const parties = (APP_CONFIG.parties || [])
+    .filter(p => !['fed_oth','qc_oth','on_oth','us_oth'].includes(p));
+  const N       = _recentPollsExpanded ? 20 : 10;
+  const recent  = [...polls].reverse().slice(0, N);
+
+  const toggleLabel = document.getElementById('recentPollsToggleLabel');
+  if (toggleLabel) {
+    toggleLabel.textContent = _recentPollsExpanded
+      ? (lang === 'fr' ? '▲ Réduire' : '▲ Collapse')
+      : (lang === 'fr' ? `▼ ${Math.min(N, polls.length)} ${t('polls_used')}` : `▼ Show ${Math.min(N, polls.length)} polls`);
+  }
+
+  const ths = parties.map(p =>
+    `<th style="color:${PARTY_COLORS[p]||'#888'};text-align:right">${PARTY_LABELS[lang][p]||p.toUpperCase()}</th>`
+  ).join('');
+
+  const maxWeight = polls.reduce((m, pl) => Math.max(m, pl.weight || 0), 0) || 1;
+
+  const rows = recent.map(poll => {
+    const wNorm    = (poll.weight || 0) / maxWeight;
+    const dots     = wNorm > 0.65 ? '●●●' : wNorm > 0.35 ? '●●○' : '●○○';
+    const hasRegion = poll.region && poll.region !== '';
+    const regionTxt = hasRegion ? ` <span style="color:var(--muted);font-size:10px">(${poll.region})</span>` : '';
+    const nTxt     = poll.n ? fmtCount(poll.n) : '—';
+    const vals     = parties.map(p => {
+      const v = poll[p];
+      return `<td class="rpoll-val">${v != null && !isNaN(v) && v > 0 ? v.toFixed(1) + '%' : '<span style="color:var(--border)">—</span>'}</td>`;
+    }).join('');
+    return `<tr>
+      <td class="rpoll-firm">${poll.firm}${regionTxt}</td>
+      <td class="rpoll-date" style="color:var(--muted)">${poll.date}</td>
+      <td style="color:var(--muted);font-size:11px;text-align:right">${nTxt}</td>
+      ${vals}
+      <td class="rpoll-weight-dots" title="${((poll.weight||0)*100).toFixed(0)}%">${dots}</td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('recentPollsWrap').innerHTML = `
+    <div class="ridings-table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>${lang === 'fr' ? 'Firme' : 'Firm'}</th>
+            <th>${lang === 'fr' ? 'Date' : 'Date'}</th>
+            <th style="text-align:right">N</th>
+            ${ths}
+            <th title="${lang==='fr'?'Pondération':'Weight'}">${lang==='fr'?'Pond.':'Wgt'}</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+  `;
+}
+
+// ═══════════════════════════════════════════════════════
 // RIDINGS TABLE
 // ═══════════════════════════════════════════════════════
 function renderRidingsTable() {
@@ -1999,6 +2417,7 @@ function applyFilters() {
     else if (sortCol==='province') { va=a.province; vb=b.province; }
     else if (sortCol==='winner')   { va=getRidingWinner(a); vb=getRidingWinner(b); }
     else if (sortCol==='margin')   { va=getRidingMargin(a); vb=getRidingMargin(b); return (vb-va)*sortDir; }
+    else if (sortCol==='p_win')    { va=a?.projection?.p_winner??0; vb=b?.projection?.p_winner??0; return (vb-va)*sortDir; }
     else if (sortCol==='turnout')  { va=getRidingTurnout(a); vb=getRidingTurnout(b); return (vb-va)*sortDir; }
     if (va<vb) return -1*sortDir; if (va>vb) return 1*sortDir; return 0;
   });
@@ -2021,10 +2440,15 @@ function renderRidingsPage() {
     const turn   = getRidingTurnout(r);
     const mPct   = Math.min(margin / 50 * 100, 100);
 
+    const pWin     = r?.projection?.p_winner ?? null;
+    const pWinHtml = pWin != null
+      ? `<span style="color:${pWin >= 0.85 ? color : pWin >= 0.6 ? 'var(--text)' : 'var(--muted)'};font-weight:${pWin >= 0.85 ? 700 : 400}">${(pWin*100).toFixed(0)}%</span>`
+      : `<span style="color:var(--border)">—</span>`;
     return `<tr>
       <td>${name}</td>
       <td style="color:var(--muted)">${r.province}</td>
       <td><span class="party-pill" style="background:${color}22;color:${color}">${wLabel}</span></td>
+      <td>${pWinHtml}</td>
       <td>
         <div class="margin-bar">
           <div class="margin-track">
