@@ -239,9 +239,39 @@
       header { padding: 14px 18px; }
       main { padding: 28px 18px 64px; }
     }
+
+    /* ── Accessibilité ──────────────────────────────────────────────── */
+    .skip-nav {
+      position: absolute;
+      top: -48px;
+      left: 12px;
+      background: var(--accent);
+      color: #000;
+      padding: 8px 18px;
+      font-weight: 700;
+      font-size: 14px;
+      text-decoration: none;
+      border-radius: 0 0 6px 6px;
+      z-index: 10000;
+      transition: top 0.15s;
+    }
+    .skip-nav:focus { top: 0; }
+    :focus-visible {
+      outline: 2px solid var(--accent) !important;
+      outline-offset: 3px !important;
+      border-radius: 3px;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
   </style>
 </head>
 <body>
+<a href="#main-content" class="skip-nav" lang="fr">Aller au contenu</a>
   <header>
     <div class="brand">
       <span class="brand-dot"></span>
@@ -263,7 +293,7 @@
     </div>
   </header>
 
-  <main>
+  <main id="main-content">
     <section class="hero">
       <div class="eyebrow" data-i18n="eyebrow">Modèle v1 · Méthodologie</div>
       <h1 data-i18n="title">Comment la <em>projection</em> est produite</h1>
@@ -376,6 +406,13 @@
 
   <footer>
     <span data-i18n="footer">VoteScope · Modèle v1 · Publication statique prête pour GitHub Pages</span>
+  &nbsp;·&nbsp;
+  <a href="https://achecker.ca/scan/bbb76ea4-cebc-4a12-a87f-cae2cf315281"
+     target="_blank" rel="noopener"
+     aria-label="Accessibilité WCAG 2 vérifiée par AChecker">
+    <img src="https://achecker.ca/api/v1/scan/bbb76ea4-cebc-4a12-a87f-cae2cf315281/badge"
+         alt="WCAG 2 Checked" style="height:20px;vertical-align:middle" />
+  </a>
   </footer>
 
   <script>

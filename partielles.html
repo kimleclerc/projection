@@ -209,9 +209,39 @@
       .vote-row { grid-template-columns: 74px 1fr auto; }
       .vote-sd { display:none; }
     }
+
+    /* ── Accessibilité ──────────────────────────────────────────────── */
+    .skip-nav {
+      position: absolute;
+      top: -48px;
+      left: 12px;
+      background: var(--accent);
+      color: #000;
+      padding: 8px 18px;
+      font-weight: 700;
+      font-size: 14px;
+      text-decoration: none;
+      border-radius: 0 0 6px 6px;
+      z-index: 10000;
+      transition: top 0.15s;
+    }
+    .skip-nav:focus { top: 0; }
+    :focus-visible {
+      outline: 2px solid var(--accent) !important;
+      outline-offset: 3px !important;
+      border-radius: 3px;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
   </style>
 </head>
 <body>
+<a href="#main-content" class="skip-nav" lang="fr">Aller au contenu</a>
   <header>
     <div class="brand"><span class="brand-dot"></span><span>VoteScope</span></div>
     <div class="header-actions">
@@ -223,7 +253,7 @@
     </div>
   </header>
 
-  <main>
+  <main id="main-content">
     <section class="hero">
       <div class="eyebrow" id="eyebrow">Suivi ciblé</div>
       <h1 id="heroTitle">Partielles <em>fédérales</em></h1>
@@ -236,8 +266,8 @@
 
   <script>
     const PARTY_COLORS = {
-      lib:'#D71920', con:'#1A4782', ndp:'#F58220', bq:'#33B2CC',
-      grn:'#3D9B35', ppc:'#7C3AED', fed_oth:'#6b7280', vacant:'#374151'
+      lib:'#f26b6b', con:'#5b96d8', ndp:'#F58220', bq:'#33B2CC',
+      grn:'#3D9B35', ppc:'#a87ff0', fed_oth:'#9ca3af', vacant:'#374151'
     };
     const PARTY_LABELS = {
       fr: { lib:'Libéral', con:'Conservateur', ndp:'NPD', bq:'Bloc', grn:'Vert', ppc:'PPC', fed_oth:'Autre' },
@@ -309,7 +339,7 @@
       document.getElementById('eyebrow').textContent = t('eyebrow');
       document.getElementById('heroTitle').innerHTML = t('title');
       document.getElementById('heroCopy').innerHTML = t('copy');
-      document.getElementById('footerCopy').textContent = t('footer');
+      document.getElementById('footerCopy').innerHTML = t('footer') + ' &nbsp;·&nbsp; <a href="https://achecker.ca/scan/bbb76ea4-cebc-4a12-a87f-cae2cf315281" target="_blank" rel="noopener" aria-label="Accessibilité WCAG 2 vérifiée par AChecker"><img src="https://achecker.ca/api/v1/scan/bbb76ea4-cebc-4a12-a87f-cae2cf315281/badge" alt="WCAG 2 Checked" style="height:20px;vertical-align:middle" /></a>';
       document.querySelectorAll('.lang-btn').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.lang === lang);
       });
