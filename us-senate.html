@@ -62,15 +62,15 @@
       --surface2:  #1c2030;
       --border:    #252a38;
       --text:      #e8eaf0;
-      --muted:     #6b7280;
+      --muted:     #9ca3af;
       --accent:    #e8c96d;
-      --lib:       #D71920;
-      --con:       #1A4782;
+      --lib:       #f26b6b;
+      --con:       #5b96d8;
       --ndp:       #F58220;
       --bq:        #33B2CC;
       --grn:       #3D9B35;
-      --ppc:       #7C3AED;
-      --oth:       #6b7280;
+      --ppc:       #a87ff0;
+      --oth:       #9ca3af;
       --radius:    8px;
       --shadow:    0 4px 24px rgba(0,0,0,.4);
     }
@@ -612,7 +612,7 @@
       text-align: center;
       font-size: 12px; color: var(--muted);
     }
-    footer a { color: var(--accent); text-decoration: none; }
+    footer a { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
     .share-btn {
       background: none; border: none; cursor: pointer;
       color: var(--muted); padding: 2px 4px; margin-left: 6px;
@@ -1382,14 +1382,14 @@ const I18N = {
 };
 
 const PARTY_COLORS = {
-  lib:'#D71920', con:'#1A4782', ndp:'#F58220',
-  bq:'#33B2CC',  grn:'#3D9B35', ppc:'#7C3AED',
-  fed_oth:'#6b7280', oth:'#6b7280', vacant:'#374151',
-  caq:'#12BBFF', plq:'#D90000', pq:'#0101CC',
-  qs:'#FF5402', pcq:'#172853', qc_oth:'#6b7280', qc_ind:'#6b7280',
-  on_pc:'#0202FF', on_ndp:'#FF5402', on_lib:'#D90000',
-  on_grn:'#269B26', on_oth:'#6b7280', on_ind:'#6b7280',
-  us_dem:'#1f77d0', us_rep:'#c62828', us_oth:'#6b7280', us_ind:'#6b7280'
+  lib:'#f26b6b', con:'#5b96d8', ndp:'#F58220',
+  bq:'#33B2CC',  grn:'#3D9B35', ppc:'#a87ff0',
+  fed_oth:'#9ca3af', oth:'#9ca3af', vacant:'#374151',
+  caq:'#12BBFF', plq:'#f26b6b', pq:'#6688ee',
+  qs:'#FF5402', pcq:'#6090cc', qc_oth:'#9ca3af', qc_ind:'#9ca3af',
+  on_pc:'#7088ff', on_ndp:'#FF5402', on_lib:'#f26b6b',
+  on_grn:'#269B26', on_oth:'#9ca3af', on_ind:'#9ca3af',
+  us_dem:'#4a8fd9', us_rep:'#f26b6b', us_oth:'#9ca3af', us_ind:'#9ca3af'
 };
 const PARTY_LABELS = {
   fr:{ lib:'Libéral', con:'Conservateur', ndp:'NPD', bq:'Bloc', grn:'Vert', ppc:'PPC', fed_oth:'Autre', vacant:'Vacant', caq:'CAQ', plq:'Libéral', pq:'PQ', qs:'QS', pcq:'PCQ', qc_oth:'Autre', qc_ind:'Indépendant', on_pc:'PC', on_ndp:'NPD', on_lib:'Libéral', on_grn:'Vert', on_oth:'Autre', on_ind:'Indépendant', us_dem:'Démocrate', us_rep:'Républicain', us_oth:'Autre', us_ind:'Indépendant' },
@@ -1909,8 +1909,8 @@ function renderVoteTrend() {
   Plotly.newPlot('chartVoteTrend', traces, {
     paper_bgcolor:'transparent', plot_bgcolor:'transparent',
     margin:{t:8,b:40,l:32,r:8},
-    xaxis:{ color:'#6b7280', gridcolor:'#252a38', zeroline:false },
-    yaxis:{ color:'#6b7280', gridcolor:'#252a38', zeroline:false, ticksuffix:'%' },
+    xaxis:{ color:'#9ca3af', gridcolor:'#252a38', zeroline:false },
+    yaxis:{ color:'#9ca3af', gridcolor:'#252a38', zeroline:false, ticksuffix:'%' },
     legend:{ orientation:'h', y:-0.15, font:{color:'#9ca3af',size:11} },
     font:{ family:'DM Sans', color:'#9ca3af' },
     hovermode:'x unified'
@@ -1945,8 +1945,8 @@ function renderScenarios() {
     paper_bgcolor:'transparent', plot_bgcolor:'transparent',
     barmode:'group',
     margin:{t:8,b:40,l:100,r:48},
-    xaxis:{ color:'#6b7280', gridcolor:'#252a38', ticksuffix:'%', range:[0,120] },
-    yaxis:{ color:'#6b7280', gridcolor:'rgba(0,0,0,0)' },
+    xaxis:{ color:'#9ca3af', gridcolor:'#252a38', ticksuffix:'%', range:[0,120] },
+    yaxis:{ color:'#9ca3af', gridcolor:'rgba(0,0,0,0)' },
     legend:{ orientation:'h', y:-0.15, font:{color:'#9ca3af',size:11} },
     font:{ family:'DM Sans', color:'#9ca3af' }
   }, {responsive:true, displayModeBar:false});
@@ -2506,12 +2506,12 @@ document.getElementById('partyFilter').addEventListener('change', applyFilters);
 const DEMO_DATA = {
   meta: { run_date:'2026-03-22', election_cycle:'fed_2025', n_polls:41, mode:'rich', majority_threshold:172, n_simulations:10000, pipeline_version:'4.0' },
   parties: [
-    { party:'lib', label_fr:'Libéral', label_en:'Liberal', color:'#D71920',
+    { party:'lib', label_fr:'Libéral', label_en:'Liberal', color:'#f26b6b',
       vote_mean:43.7, vote_sd:3.7, vote_ci_low_95:28.5, vote_ci_high_95:43.3,
       trend_direction:'stable', trend_7d:0,
       seats_mean:165, seats_median:165, seats_ci_low_80:119, seats_ci_high_80:220,
       seats_ci_low_95:106, seats_ci_high_95:205, p_majority:.35, p_largest:.62 },
-    { party:'con', label_fr:'Conservateur', label_en:'Conservative', color:'#1A4782',
+    { party:'con', label_fr:'Conservateur', label_en:'Conservative', color:'#5b96d8',
       vote_mean:41.3, vote_sd:3.6, vote_ci_low_95:25.8, vote_ci_high_95:40.0,
       trend_direction:'stable', trend_7d:0,
       seats_mean:143, seats_median:143, seats_ci_low_80:97, seats_ci_high_80:184,
