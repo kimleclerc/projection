@@ -1,0 +1,276 @@
+---
+import EditorialLayout from '../../../layouts/EditorialLayout.astro';
+import EditorialHero from '../../../components/EditorialHero.astro';
+import MethodologyNote from '../../../components/MethodologyNote.astro';
+import KeepDigging from '../../../components/KeepDigging.astro';
+import AnimatedNumber from '../../../islands/AnimatedNumber';
+
+import fraserData from '../../../../web_data/on-fraser-interim/latest.json';
+
+const data = fraserData;
+const score = data.index.score;
+const labelEn = data.index.label_en;
+const asOf = data.meta.as_of_date;
+const nPolls = data.meta.n_polls;
+const periods = data.periods;
+---
+
+<EditorialLayout
+  title="Fraser Interim Index — Vote-Scope"
+  description="Tracks whether Ontario Liberals poll better under John Fraser's interim leadership than under permanent leaders. One score, five years of evidence, one editorial question."
+  canonical="https://vote-scope.com/en/indexes/fraser-interim/"
+  lang="en"
+  currentPage="indexes"
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={{ en: 'https://vote-scope.com/en/indexes/fraser-interim/', fr: 'https://vote-scope.com/fr/indexes/fraser-interim/' }}
+  jsonLd={[
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Dataset',
+      name: 'Fraser Interim Index',
+      description: 'Editorial indicator comparing Ontario Liberal polling under interim leader John Fraser vs permanent leaders.',
+      url: 'https://vote-scope.com/en/indexes/fraser-interim/',
+      inLanguage: 'en',
+      dateModified: data.meta.as_of_date,
+      creator: { '@type': 'Person', name: 'Kim Leclerc', url: 'https://kimleclerc.ca' },
+      publisher: { '@type': 'Organization', name: 'Vote-Scope', url: 'https://vote-scope.com' },
+      isAccessibleForFree: true,
+      distribution: { '@type': 'DataDownload', contentUrl: 'https://vote-scope.com/web_data/on-fraser-interim/latest.json', encodingFormat: 'application/json' },
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: 'https://vote-scope.com/en/' },
+        { '@type': 'ListItem', position: 2, name: 'Indexes', item: 'https://vote-scope.com/en/indexes/' },
+        { '@type': 'ListItem', position: 3, name: 'Fraser Interim Index', item: 'https://vote-scope.com/en/indexes/fraser-interim/' },
+      ],
+    },
+  ]}
+>
+  <EditorialHero
+    eyebrow="Editorial indicator · Ontario provincial"
+    title="Fraser Interim Index"
+    promise="Do Ontario Liberals poll better when John Fraser holds the interim leadership? A single score summarises five years of topline evidence."
+    question="Do the Liberals genuinely poll better under Fraser as interim leader, or is the effect noise?"
+    primaryHref="/en/canada/ontario/"
+    primaryLabel="Ontario projection"
+    secondaryHref="/en/indexes/"
+    secondaryLabel="All indexes"
+  />
+
+  <section class="content-band">
+    <div class="container">
+      <p class="eyebrow">Index score · as of {asOf}</p>
+      <div class="note-card" style="border-left:4px solid var(--blue-tint,#3b82f6);max-width:600px;margin-top:1rem;">
+        <h2 style="font-size:3.5rem;margin:0.25rem 0;color:var(--text);">
+          <AnimatedNumber client:visible value={score} decimals={1} />
+          <span style="font-size:1.1rem;font-weight:400;">/100</span>
+        </h2>
+        <p style="font-weight:700;font-size:1.15rem;margin-bottom:0.5rem;">{labelEn}</p>
+        <p style="font-family:var(--mono);font-size:0.8rem;color:var(--ink-3);">
+          {nPolls} polls · {data.meta.period_start} → {data.meta.period_end} · source: {data.meta.source}
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="content-band">
+    <div class="container">
+      <p class="eyebrow">Interpretation</p>
+      <div class="note-card" style="max-width:720px;border-left:4px solid var(--rule);">
+        <p style="font-size:1.1rem;line-height:1.65;">{data.interpretation.en}</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="content-band">
+    <div class="container">
+      <p class="eyebrow">Five leadership periods</p>
+      <div class="fraser-periods">
+        {periods.map((p: any) => {
+          const isInterim = p.leader_type === 'interim';
+          const accentColor = isInterim ? 'var(--duck-deep,#6b5b3e)' : '#c0392b';
+          return (
+            <div class="fraser-period-card" data-type={p.leader_type}>
+              <div class="fraser-period-header">
+                <span class="fraser-period-pill" style={`background:${accentColor};`}>
+                  {isInterim ? 'Interim' : 'Regular'}
+                </span>
+                <span class="fraser-period-dates">{p.first_poll} → {p.last_poll}</span>
+              </div>
+              <p class="fraser-period-leader">{p.leader_name}</p>
+              <div class="fraser-period-avg">
+                <AnimatedNumber client:visible value={p.avg_on_lib} decimals={1} />
+                <span>%</span>
+              </div>
+              <dl class="fraser-period-stats">
+                <div>
+                  <dt>vs PC</dt>
+                  <dd style={`color:${p.avg_lib_pc_margin >= 0 ? 'var(--green,#16a34a)' : '#c0392b'}`}>
+                    {p.avg_lib_pc_margin >= 0 ? '+' : ''}{p.avg_lib_pc_margin.toFixed(1)}%
+                  </dd>
+                </div>
+                <div>
+                  <dt>vs NDP</dt>
+                  <dd style={`color:${p.avg_lib_ndp_margin >= 0 ? 'var(--green,#16a34a)' : '#c0392b'}`}>
+                    {p.avg_lib_ndp_margin >= 0 ? '+' : ''}{p.avg_lib_ndp_margin.toFixed(1)}%
+                  </dd>
+                </div>
+                <div>
+                  <dt>Polls</dt>
+                  <dd>{p.n_polls}</dd>
+                </div>
+              </dl>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  </section>
+
+  <MethodologyNote
+    title="Comparing interim to permanent: a controlled editorial scan."
+    body="The Fraser Interim Index is not a projection input. It is an editorial indicator built to answer one question: do Ontario Liberals poll better under Fraser's interim stewardship than under permanent leaders, after controlling for basic sources of variation?"
+    bullets={[
+      `Editorial intent: the index compares polling averages across five leadership periods (2018–2026) — three Fraser interim stints and two permanent-leader periods (Del Duca, Crombie). It is a signal, not proof of causality.`,
+      `Data: 324 Ontario topline polls from June 2018 to April 2026, sourced from the Ontario Wikipedia sidecar archive. Each poll is tagged to the leadership period active at the date of fieldwork.`,
+      `Method: weighted ordinary least squares with firm, electoral cycle, and time-trend controls. The coefficient on the Fraser-interim indicator is mapped to a 0–100 index (50 = neutral, above 50 = interim periods poll relatively better).`,
+      `Reproducibility: the sidecar poll archive is preserved locally; the period tagging logic and OLS are documented in the analysis README. The index can be recomputed as new polls arrive.`,
+    ]}
+  />
+
+  <section class="content-band">
+    <div class="container">
+      <p class="eyebrow">Caveats</p>
+      <div class="note-card" style="max-width:720px;border-left:4px solid #e3b03a;">
+        <p style="line-height:1.65;">{data.caveat.en}</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="content-band">
+    <div class="container">
+      <p class="eyebrow">Source data</p>
+      <p>
+        Raw index data (score, periods, model summary) is available in machine-readable JSON:
+        <a href="/web_data/on-fraser-interim/latest.json" class="cta-link" style="font-family:var(--mono);font-size:0.85rem;">/web_data/on-fraser-interim/latest.json →</a>
+      </p>
+      <p style="font-family:var(--mono);font-size:0.75rem;color:var(--ink-3);margin-top:0.5rem;">
+        Version {data.meta.version} · Publication status: {data.meta.publication_status}
+      </p>
+    </div>
+  </section>
+
+  <div class="container" style="padding-bottom:3rem;">
+    <KeepDigging
+      eyebrow="Keep digging"
+      title="Where this fits in the Canada desk."
+      body="The Fraser Interim Index is an Ontario-scoped editorial instrument. The Canada desk covers federal, Quebec, and Ontario projections as its core outputs."
+      links={[
+        { href: '/en/canada/ontario/', label: 'Ontario projection', detail: 'Provincial · riding-level model' },
+        { href: '/en/canada/', label: 'Canada hub', detail: 'Federal · Quebec · Ontario · by-elections' },
+        { href: '/en/indexes/', label: 'All indexes', detail: 'Catalog of Vote-Scope instruments' },
+      ]}
+    />
+  </div>
+</EditorialLayout>
+
+<style>
+  .fraser-periods {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+    margin-top: 1.5rem;
+  }
+
+  .fraser-period-card {
+    border: 1px solid var(--rule, #ddd);
+    border-radius: 6px;
+    padding: 18px 16px;
+    background: var(--card, #f8f8f3);
+  }
+
+  .fraser-period-card[data-type="interim"] {
+    border-left: 4px solid var(--duck-deep, #6b5b3e);
+  }
+
+  .fraser-period-card[data-type="regular"] {
+    border-left: 4px solid #c0392b;
+  }
+
+  .fraser-period-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+  }
+
+  .fraser-period-pill {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-family: var(--mono, ui-monospace, monospace);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #fff;
+  }
+
+  .fraser-period-dates {
+    font-family: var(--mono, ui-monospace, monospace);
+    font-size: 10px;
+    color: var(--ink-3, #888);
+    white-space: nowrap;
+  }
+
+  .fraser-period-leader {
+    margin: 0 0 6px;
+    font-family: var(--serif, Georgia, serif);
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--ink, #1a1a1a);
+  }
+
+  .fraser-period-avg {
+    display: flex;
+    align-items: baseline;
+    gap: 2px;
+    font-family: var(--serif, Georgia, serif);
+    font-size: 2.5rem;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--ink, #1a1a1a);
+    margin-bottom: 12px;
+  }
+
+  .fraser-period-avg span {
+    font-size: 1.2rem;
+    font-weight: 400;
+    color: var(--ink-2, #555);
+  }
+
+  .fraser-period-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin: 0;
+  }
+
+  .fraser-period-stats dt {
+    font-family: var(--mono, ui-monospace, monospace);
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-3, #888);
+    margin-bottom: 3px;
+  }
+
+  .fraser-period-stats dd {
+    margin: 0;
+    font-family: var(--mono, ui-monospace, monospace);
+    font-size: 12px;
+    font-weight: 600;
+  }
+</style>

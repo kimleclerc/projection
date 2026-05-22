@@ -1,0 +1,17 @@
+---
+import SpecialElectionEngine from '../../../../components/SpecialElectionEngine.astro';
+import { specialElections } from '../../../../data/specialElections';
+
+export function getStaticPaths() {
+  return Object.values(specialElections)
+    .filter((config) => config.paths.es)
+    .map((config) => ({
+      params: { slug: config.slug },
+      props: { config },
+    }));
+}
+
+const { config } = Astro.props;
+---
+
+<SpecialElectionEngine lang="es" config={config} />

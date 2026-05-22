@@ -1,0 +1,343 @@
+---
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import Base from '../layouts/Base.astro';
+import SpecialElectionForecast from '../islands/SpecialElectionForecast.tsx';
+import ElectionCountdown from '../islands/ElectionCountdown.tsx';
+import KeepDigging from './KeepDigging.astro';
+import {
+  getSpecialElectionAlternates,
+  type SpecialElectionConfig,
+  type SpecialElectionLocale,
+} from '../data/specialElections';
+
+interface Props {
+  lang: SpecialElectionLocale;
+  config: SpecialElectionConfig;
+}
+
+const { lang, config } = Astro.props;
+const canonicalPath = config.paths[lang] ?? config.paths.en;
+if (!canonicalPath) {
+  throw new Error(`Missing canonical path for special election ${config.slug}`);
+}
+const canonical = `https://vote-scope.com${canonicalPath}`;
+const alternates = getSpecialElectionAlternates(config);
+const noindex = config.translated[lang] !== true;
+
+const dataFilePath = resolve(
+  process.cwd(),
+  'web_data',
+  config.dataPath,
+  'latest.json',
+);
+const rawData = JSON.parse(readFileSync(dataFilePath, 'utf-8'));
+
+// Normalize resolved / two-candidate races to the Island's expected schema.
+// The Island expects top_two_probability, likely_runoff_names, etc.
+// Direct-general or runoff elections don't have those fields — we backfill them.
+function normalizeSpecialElectionData(d: Record<string, unknown>): Record<string, unknown> {
+  const summary = (d.summary ?? {}) as Record<string, unknown>;
+  const candidates = (d.candidates ?? []) as Array<Record<string, unknown>>;
+  const benchmarks = (d.benchmarks ?? {}) as Record<string, unknown>;
+
+  // Normalize candidates: add top_two_probability and first_place_probability if missing
+  const normalizedCandidates = candidates.map((c) => ({
+    top_two_probability: c.win_probability ?? 0,
+    first_place_probability: c.win_probability ?? 0,
+    ...c,
+  }));
+
+  // Normalize summary: add runoff and top-two fields if missing
+  const normalizedSummary = {
+    runoff_probability: 0,
+    majority_outright_probability: summary.favorite_probability ?? 0,
+    likely_runoff_names: [] as string[],
+    likely_runoff_probability: 0,
+    if_likely_runoff_favorite: summary.favorite_name ?? '',
+    if_likely_runoff_favorite_probability: summary.favorite_probability ?? 0,
+    ...summary,
+  };
+
+  // Normalize benchmarks: add top_two_pairs if missing
+  const normalizedBenchmarks = {
+    top_two_pairs: [],
+    assumptions: [],
+    ...benchmarks,
+  };
+
+  return {
+    ...d,
+    candidates: normalizedCandidates,
+    summary: normalizedSummary,
+    benchmarks: normalizedBenchmarks,
+  };
+}
+
+const initialData = normalizeSpecialElectionData(rawData);
+
+const electionDate = (initialData.meta as Record<string, unknown>).election_date as string | undefined;
+
+// Other specials for KeepDigging cross-links (excluding current)
+const allSlugs = ['ca1', 'ca14', 'ga14', 'nj11'] as const;
+type SlugType = typeof allSlugs[number];
+const specialLabels: Record<SlugType, string> = {
+  ca1: 'CA-1 Special Primary · June 2026',
+  ca14: 'CA-14 Special Primary · June 2026',
+  ga14: 'GA-14 Runoff · April 2026',
+  nj11: 'NJ-11 Special · April 2026',
+};
+const otherSpecials = allSlugs
+  .filter((s) => s !== config.slug)
+  .slice(0, 2)
+  .map((s) => ({
+    href: `/${lang}/us/specials/${s}/`,
+    label: s.toUpperCase(),
+    detail: specialLabels[s],
+  }));
+
+const metaCopy = {
+  en: { updated: 'Updated', simulations: 'simulations' },
+  fr: { updated: 'Mis à jour', simulations: 'simulations' },
+  es: { updated: 'Actualizado', simulations: 'simulaciones' },
+};
+const mc = metaCopy[lang] ?? metaCopy.en;
+
+const keepDiggingCopy = {
+  en: {
+    eyebrow: 'Keep digging',
+    title: 'More from the U.S. Desk.',
+    body: 'Explore U.S. House and Senate projections, the Lame-Duck Index, and other special elections.',
+  },
+  fr: {
+    eyebrow: 'Continuer à creuser',
+    title: 'Plus du bureau américain.',
+    body: 'Explorez les projections de la Chambre et du Sénat, l\'Index canard boiteux et les autres élections spéciales.',
+  },
+  es: {
+    eyebrow: 'Seguir explorando',
+    title: 'Más del desk de EE. UU.',
+    body: 'Explora las proyecciones de la Cámara y el Senado, el Lame-Duck Index y otras elecciones especiales.',
+  },
+};
+const kd = keepDiggingCopy[lang] ?? keepDiggingCopy.en;
+
+const usHubPath = lang === 'fr' ? '/fr/us/' : lang === 'es' ? '/es/us/' : '/en/us/';
+const lameDuckPath = lang === 'fr' ? '/fr/us/indexes/lame-duck/' : lang === 'es' ? '/es/us/indexes/lame-duck/' : '/en/us/indexes/lame-duck/';
+
+const specialBreadcrumb = lang === 'fr'
+  ? [
+      { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: 'https://vote-scope.com/fr/' },
+      { '@type': 'ListItem', position: 2, name: 'États-Unis', item: 'https://vote-scope.com/fr/us/' },
+      { '@type': 'ListItem', position: 3, name: 'Partielles', item: 'https://vote-scope.com/fr/us/specials/' },
+      { '@type': 'ListItem', position: 4, name: config.slug.toUpperCase(), item: canonical },
+    ]
+  : lang === 'es'
+  ? [
+      { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: 'https://vote-scope.com/es/' },
+      { '@type': 'ListItem', position: 2, name: 'EE. UU.', item: 'https://vote-scope.com/es/us/' },
+      { '@type': 'ListItem', position: 3, name: 'Especiales', item: 'https://vote-scope.com/es/us/specials/' },
+      { '@type': 'ListItem', position: 4, name: config.slug.toUpperCase(), item: canonical },
+    ]
+  : [
+      { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: 'https://vote-scope.com/en/' },
+      { '@type': 'ListItem', position: 2, name: 'U.S.', item: 'https://vote-scope.com/en/us/' },
+      { '@type': 'ListItem', position: 3, name: 'Specials', item: 'https://vote-scope.com/en/us/specials/' },
+      { '@type': 'ListItem', position: 4, name: config.slug.toUpperCase(), item: canonical },
+    ];
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Dataset',
+    name: config.title.replace(' — Vote-Scope', '').replace(' | VoteScope', ''),
+    description: config.description,
+    creator: {
+      '@type': 'Person',
+      name: 'Kim Leclerc',
+      url: 'https://kimleclerc.ca',
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'Vote-Scope',
+      url: 'https://vote-scope.com',
+    },
+    temporalCoverage: `${initialData.meta.run_date}/${initialData.meta.election_date}`,
+    url: canonical,
+    isAccessibleForFree: true,
+    distribution: {
+      '@type': 'DataDownload',
+      contentUrl: `https://vote-scope.com/web_data/${config.dataPath}/latest.json`,
+      encodingFormat: 'application/json',
+    },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: specialBreadcrumb,
+  },
+];
+---
+
+<Base
+  title={config.title}
+  description={config.description}
+  canonical={canonical}
+  currentPage={config.currentPage}
+  lang={lang}
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={alternates}
+  jsonLd={jsonLd}
+  noindex={noindex}
+>
+  <article class="special-page">
+    {electionDate && (
+      <div class="special-countdown container">
+        <ElectionCountdown
+          targetDate={electionDate}
+          locale={lang}
+          kicker={lang === 'es' ? (config.kicker_es ?? config.kicker) : config.kicker}
+          title={config.countdownTitle}
+          client:visible
+        />
+      </div>
+    )}
+
+    <header class="special-hero container">
+      <p class="special-kicker">{lang === 'es' ? (config.kicker_es ?? config.kicker) : config.kicker}</p>
+      <h1>{lang === 'es' ? (config.headline_es ?? config.headline) : config.headline}</h1>
+      <p class="special-dek">
+        {lang === 'es' ? (config.dek_es ?? config.dek) : config.dek}
+      </p>
+      <div class="special-meta">
+        <span>{mc.updated} {initialData.meta.run_date}</span>
+        <span aria-hidden="true">·</span>
+        <span>{initialData.meta.n_simulations.toLocaleString('en-CA')} {mc.simulations}</span>
+        <span aria-hidden="true">·</span>
+        <span>{config.modelBadge}</span>
+      </div>
+    </header>
+
+    <SpecialElectionForecast
+      initialData={initialData}
+      locale={lang}
+      dataUrl={`/web_data/${config.dataPath}/latest.json`}
+      slug={config.slug}
+      client:load
+    />
+
+    {config.polymarketMarket && (
+      <div class="special-polymarket container">
+        <p class="special-polymarket-label">Prediction market</p>
+        <iframe
+          src={`https://embed.polymarket.com/event/${config.polymarketMarket}?features=volume&theme=light`}
+          title="Polymarket prediction market"
+          loading="lazy"
+          sandbox="allow-scripts allow-same-origin allow-popups"
+          width="100%"
+          height="340"
+          style="border:none;border-radius:6px;display:block;"
+        />
+        <p style="margin:6px 0 0;font-family:var(--mono);font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-3);text-align:right;">Live odds via Polymarket</p>
+      </div>
+    )}
+
+    <div class="special-keep-digging container">
+      <KeepDigging
+        eyebrow={kd.eyebrow}
+        title={kd.title}
+        body={kd.body}
+        links={[
+          {
+            href: usHubPath,
+            label: lang === 'fr' ? 'Bureau américain' : lang === 'es' ? 'Bureau de EE. UU.' : 'U.S. Desk',
+            detail: lang === 'fr' ? 'Chambre · Sénat · index' : lang === 'es' ? 'Cámara · Senado · índices' : 'House · Senate · indexes',
+          },
+          {
+            href: lameDuckPath,
+            label: 'Lame-Duck Index',
+            detail: lang === 'fr' ? 'Indice de pression pré-électorale' : lang === 'es' ? 'Índice de presión preelectoral' : 'Pre-election pressure index',
+          },
+          ...otherSpecials,
+        ]}
+      />
+    </div>
+  </article>
+</Base>
+
+<style>
+  .special-page {
+    padding-block: 64px 96px;
+  }
+
+  .special-hero {
+    max-width: 1080px;
+    padding-bottom: 48px;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .special-kicker {
+    margin: 0 0 16px;
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+
+  .special-hero h1 {
+    max-width: 850px;
+    margin: 0 0 18px;
+    font-family: var(--serif);
+    font-size: clamp(48px, 7vw, 84px);
+    font-weight: 420;
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+
+  .special-dek {
+    max-width: 680px;
+    margin: 0 0 24px;
+    color: var(--ink-2);
+    font-size: 17px;
+    line-height: 1.6;
+  }
+
+  .special-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 14px;
+    color: var(--ink-2);
+    font-family: var(--mono);
+    font-size: 12px;
+  }
+
+  .special-meta span[aria-hidden] {
+    color: var(--rule);
+  }
+
+  .special-countdown {
+    max-width: 1080px;
+    padding-top: 48px;
+    padding-bottom: 0;
+  }
+
+  .special-polymarket {
+    max-width: 1080px;
+    margin-top: 48px;
+  }
+
+  .special-polymarket-label {
+    margin: 0 0 12px;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+
+  .special-keep-digging {
+    max-width: 1080px;
+    margin-top: 64px;
+  }
+</style>

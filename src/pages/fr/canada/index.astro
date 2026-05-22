@@ -1,0 +1,174 @@
+---
+import EditorialLayout from '../../../layouts/EditorialLayout.astro';
+import EditorialHero from '../../../components/EditorialHero.astro';
+import MethodologyNote from '../../../components/MethodologyNote.astro';
+import AnimatedNumber from '../../../islands/AnimatedNumber';
+import PolymarketEmbed from '../../../components/PolymarketEmbed.astro';
+
+import federalData from '../../../../web_data/federal/latest.json';
+import quebecData from '../../../../web_data/quebec/latest.json';
+import ontarioData from '../../../../web_data/ontario/latest.json';
+import fraserData from '../../../../web_data/on-fraser-interim/latest.json';
+
+const meta = federalData.meta;
+const parties = federalData.parties as Array<{
+  party: string;
+  label_fr: string;
+  color: string;
+  seats_projected: number;
+  p_majority: number;
+  p_largest: number;
+}>;
+const lib = parties.find((p) => p.party === 'lib')!;
+const con = parties.find((p) => p.party === 'con')!;
+const pMajority = Math.round(lib.p_majority * 100);
+const pLargest = Math.round(lib.p_largest * 100);
+
+const qcParties = quebecData.parties as Array<{party:string;label_fr:string;color:string;seats_projected:number;p_majority:number}>;
+const qcTop = qcParties.reduce((a,b)=>a.seats_projected>b.seats_projected?a:b);
+const qcMaj = Math.round(qcTop.p_majority * 100);
+const onParties = ontarioData.parties as Array<{party:string;label_fr:string;color:string;seats_projected:number;p_majority:number}>;
+const onTop = onParties.reduce((a,b)=>a.seats_projected>b.seats_projected?a:b);
+const onMaj = Math.round(onTop.p_majority * 100);
+---
+
+<EditorialLayout
+  title="Canada — Vote-Scope"
+  description="Projections fédérales, québécoises et ontariennes plus les partielles réunies. Découvrez quelles circonscriptions sont acquises et lesquelles sont discrètement fragiles — Vote-Scope."
+  canonical="https://vote-scope.com/fr/canada/"
+  lang="fr"
+  currentPage="canada"
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={{ en: 'https://vote-scope.com/en/canada/', fr: 'https://vote-scope.com/fr/canada/' }}
+  jsonLd={[
+    {
+      '@context': 'https://schema.org',
+      '@type': 'CollectionPage',
+      name: 'Canada — Vote-Scope',
+      url: 'https://vote-scope.com/fr/canada/',
+      inLanguage: 'fr',
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: 'https://vote-scope.com/fr/' },
+        { '@type': 'ListItem', position: 2, name: 'Canada', item: 'https://vote-scope.com/fr/canada/' },
+      ],
+    },
+  ]}
+>
+  <EditorialHero
+    eyebrow="Desk Canada"
+    title="Où la carte canadienne est-elle solide, et où fait-elle seulement semblant?"
+    promise="Fédéral, Québec, Ontario et partielles doivent se lire comme de l'intelligence de course avant d'être de la mécanique de projection."
+    question="Quelles circonscriptions sont vraiment réglées, et lesquelles sont discrètement fragiles?"
+    primaryHref="/fr/indexes/"
+    primaryLabel="Voir les instruments"
+    secondaryHref="/fr/"
+    secondaryLabel="Tous les desks"
+  />
+
+  <section class="content-band">
+    <div class="container">
+      <p class="eyebrow">Dernier du desk Canada</p>
+      <h2>Projection fédérale — au {meta.run_date}</h2>
+      <p style="margin-bottom:1.5rem;">Basée sur {meta.n_polls} sondages · {meta.n_simulations.toLocaleString()} simulations</p>
+      <div class="content-grid-2" style="gap:1.5rem;margin-bottom:2rem;">
+        <div class="note-card" style={`border-left:4px solid ${lib.color};`}>
+          <p class="eyebrow">Libéral</p>
+          <h3 style="font-size:2.5rem;margin:0.25rem 0;">
+            <AnimatedNumber client:visible value={lib.seats_projected} />
+            <span style="font-size:1rem;font-weight:400;"> sièges projetés</span>
+          </h3>
+          <p>Probabilité de majorité: <strong>{pMajority}%</strong> · Plus grand parti: <strong>{pLargest}%</strong></p>
+        </div>
+        <div class="note-card" style={`border-left:4px solid ${con.color};`}>
+          <p class="eyebrow">Conservateur</p>
+          <h3 style="font-size:2.5rem;margin:0.25rem 0;">
+            <AnimatedNumber client:visible value={con.seats_projected} />
+            <span style="font-size:1rem;font-weight:400;"> sièges projetés</span>
+          </h3>
+          <p>Seuil de majorité: {meta.majority_threshold} / {meta.total_seats} sièges</p>
+        </div>
+      </div>
+      <p style="text-align:right;">
+        <a href="/fr/canada/federal/" class="cta-link">Projection fédérale complète →</a>
+      </p>
+    </div>
+  </section>
+
+  <section class="content-band">
+    <div class="container content-grid-2">
+      <div class="note-card" style={`border-left:4px solid ${lib.color};`}>
+        <p class="eyebrow">Projection f&#xe9;d&#xe9;rale</p>
+        <h3 style="font-family:var(--serif);font-size:1.4rem;margin:0.25rem 0;">{lib.label_fr}</h3>
+        <p style="font-size:2rem;font-weight:700;margin:0.25rem 0;">
+          <AnimatedNumber client:visible value={lib.seats_projected} />
+          <span style="font-size:1rem;font-weight:400;"> / {meta.total_seats} si&#xe8;ges</span>
+        </p>
+        <p style="font-family:var(--mono);font-size:0.8rem;color:var(--ink-3);">Probabilit&#xe9; de majorit&#xe9;: {pMajority}% &#xb7; Plus grand parti: {pLargest}%</p>
+        <p style="margin-top:1rem;"><a href="/fr/canada/federal/" class="cta-link" style="font-family:var(--mono);font-size:0.8rem;text-transform:uppercase;letter-spacing:.08em;">Projection f&#xe9;d&#xe9;rale compl&#xe8;te &#x2192;</a></p>
+      </div>
+      <div class="note-card" style={`border-left:4px solid ${qcTop.color};`}>
+        <p class="eyebrow">Provincial &#xb7; Qu&#xe9;bec</p>
+        <h3 style="font-family:var(--serif);font-size:1.4rem;margin:0.25rem 0;">{qcTop.label_fr}</h3>
+        <p style="font-size:2rem;font-weight:700;margin:0.25rem 0;">
+          <AnimatedNumber client:visible value={qcTop.seats_projected} />
+          <span style="font-size:1rem;font-weight:400;"> / {quebecData.meta.total_seats} si&#xe8;ges</span>
+        </p>
+        <p style="font-family:var(--mono);font-size:0.8rem;color:var(--ink-3);">Probabilit&#xe9; de majorit&#xe9;: {qcMaj}%</p>
+        <p style="margin-top:1rem;"><a href="/fr/canada/quebec/" class="cta-link" style="font-family:var(--mono);font-size:0.8rem;text-transform:uppercase;letter-spacing:.08em;">Ouvrir la projection Qu&#xe9;bec &#x2192;</a></p>
+      </div>
+      <div class="note-card" style={`border-left:4px solid ${onTop.color};`}>
+        <p class="eyebrow">Provincial &#xb7; Ontario</p>
+        <h3 style="font-family:var(--serif);font-size:1.4rem;margin:0.25rem 0;">{onTop.label_fr}</h3>
+        <p style="font-size:2rem;font-weight:700;margin:0.25rem 0;">
+          <AnimatedNumber client:visible value={onTop.seats_projected} />
+          <span style="font-size:1rem;font-weight:400;"> / {ontarioData.meta.total_seats} si&#xe8;ges</span>
+        </p>
+        <p style="font-family:var(--mono);font-size:0.8rem;color:var(--ink-3);">Probabilit&#xe9; de majorit&#xe9;: {onMaj}%</p>
+        <p style="margin-top:1rem;"><a href="/fr/canada/ontario/" class="cta-link" style="font-family:var(--mono);font-size:0.8rem;text-transform:uppercase;letter-spacing:.08em;">Ouvrir la projection Ontario &#x2192;</a></p>
+      </div>
+      <div class="note-card">
+        <p class="eyebrow">Partielles</p>
+        <h3><a href="/fr/canada/byelections/">Derni&#xe8;res partielles &#x2192;</a></h3>
+        <p>Desks de partielles individuels avec projections fondamentales, r&#xe9;sultats historiques et archives de courses r&#xe9;solues.</p>
+      </div>
+      <div class="note-card" style="border-left:4px solid var(--blue-tint,#3b82f6);">
+        <p class="eyebrow">Indicateur éditorial</p>
+        <h3 style="font-family:var(--serif);font-size:1.4rem;margin:0.25rem 0;">Indice Fraser intérimaire</h3>
+        <p style="font-size:2rem;font-weight:700;margin:0.25rem 0;">
+          <AnimatedNumber client:visible value={fraserData.index.score} decimals={1} />
+          <span style="font-size:1rem;font-weight:400;">/100</span>
+        </p>
+        <p style="font-family:var(--mono);font-size:0.8rem;color:var(--ink-3);">{fraserData.index.label_fr}</p>
+        <p style="margin-top:1rem;"><a href="/fr/indexes/fraser-interim/" class="cta-link" style="font-family:var(--mono);font-size:0.8rem;text-transform:uppercase;letter-spacing:.08em;">Ouvrir l'indice Fraser →</a></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="content-band">
+    <div class="container">
+      <PolymarketEmbed slug="quebec-general-election-winner" title="Élection générale du Québec" />
+      <PolymarketEmbed
+        slug="doug-ford-out-as-pc-party-leader-by-december-31"
+        title="Leadership PC Ontario d'ici le 31 décembre"
+        subtitle="Marché à faible liquidité — interpréter avec prudence"
+      />
+      <!-- TODO: when Federal Canada Polymarket emerges, set slug here -->
+      <PolymarketEmbed slug={null} />
+    </div>
+  </section>
+
+  <MethodologyNote
+    title="Trois juridictions. Un seul standard de projection."
+    body="Les projections f&#xe9;d&#xe9;rale, qu&#xe9;b&#xe9;coise et ontarienne partagent un pipeline BSTS bay&#xe9;sien commun&#xa0;: les sondages sont agr&#xe9;g&#xe9;s avec des ajustements r&#xe9;gionaux, puis soumis &#xe0; 50&#xa0;000 simulations Monte Carlo pour produire des distributions de si&#xe8;ges et des probabilit&#xe9;s par circonscription."
+    bullets={[
+      "Les sondages proviennent de firmes enregistr&#xe9;es aupr&#xe8;s d&#x27;&#xc9;lections Canada et sont pond&#xe9;r&#xe9;s selon la r&#xe9;cence, la taille de l&#x27;&#xe9;chantillon et le bilan de chaque firme.",
+      "Les probabilit&#xe9;s par circonscription sont conditionn&#xe9;es aux mouvements nationaux et r&#xe9;gionaux, puis r&#xe9;agr&#xe9;g&#xe9;es en distributions totales de si&#xe8;ges.",
+      "Les seuils de majorit&#xe9; sont mod&#xe9;lis&#xe9;s explicitement&#xa0;: f&#xe9;d&#xe9;ral &#xe0; 172/338, Qu&#xe9;bec &#xe0; 63/125, Ontario &#xe0; 63/124.",
+      "Les projections de partielles utilisent un mod&#xe8;le de fondamentaux &#x2014; titularit&#xe9;, marge historique, donn&#xe9;es d&#xe9;mographiques &#x2014; mis &#xe0; jour au fil de la campagne.",
+    ]}
+  />
+</EditorialLayout>

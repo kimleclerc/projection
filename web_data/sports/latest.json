@@ -1,0 +1,2912 @@
+{
+  "contract": {
+    "contract_version": "2026-04-v1",
+    "source_of_truth": "output/stanley_cup_latest.json",
+    "derived_outputs": [
+      "output/newsletter_latest.json",
+      "web_data/sports/latest.json",
+      "sports/nhl/data/newsletter_latest.json"
+    ],
+    "compatibility_policy": "additive_only",
+    "notes": "Existing consumer keys remain stable. New modules are optional and must be ignored gracefully when absent."
+  },
+  "data_tiers": {
+    "core": [
+      "meta",
+      "teams",
+      "series",
+      "bracket",
+      "timestamps",
+      "team_strength"
+    ],
+    "enrichment": [
+      "goalie_context",
+      "injury_summary",
+      "market_snapshot",
+      "live_scores",
+      "update_summary"
+    ],
+    "experimental": [
+      "game_probabilities",
+      "detailed_lineups",
+      "advanced_momentum"
+    ]
+  },
+  "source_inventory": [
+    {
+      "id": "stanley_cup_latest",
+      "kind": "file",
+      "source": "output/stanley_cup_latest.json",
+      "cadence": "nightly / on-demand",
+      "official": false,
+      "mode": "required",
+      "reliability": "high",
+      "downstream": [
+        "output/newsletter_latest.json",
+        "web_data/sports/latest.json"
+      ],
+      "fallback": "Abort derived export generation; this is the source of truth."
+    },
+    {
+      "id": "team_gamelogs_nst",
+      "kind": "file",
+      "source": "data/team_gamelogs_nst.csv",
+      "cadence": "nightly",
+      "official": false,
+      "mode": "required",
+      "reliability": "medium",
+      "downstream": [
+        "output/team_strength_posterior.csv",
+        "output/stanley_cup_latest.json"
+      ],
+      "fallback": "Keep last good posterior or rerun with existing file only."
+    },
+    {
+      "id": "goalie_profiles",
+      "kind": "file",
+      "source": "data/goalie_profiles.csv",
+      "cadence": "nightly",
+      "official": false,
+      "mode": "best_effort",
+      "reliability": "medium",
+      "downstream": [
+        "playoff_simulator",
+        "output/newsletter_latest.json",
+        "web_data/sports/latest.json"
+      ],
+      "fallback": "Retain previous goalie_profiles.csv if upstream refresh fails."
+    },
+    {
+      "id": "series_flags",
+      "kind": "file",
+      "source": "data/series_flags.csv",
+      "cadence": "per series update",
+      "official": false,
+      "mode": "required",
+      "reliability": "high",
+      "downstream": [
+        "playoff_simulator",
+        "output/newsletter_latest.json",
+        "web_data/sports/latest.json"
+      ],
+      "fallback": "Use neutral flags (0 injury/rest, original home ice)."
+    },
+    {
+      "id": "bracket",
+      "kind": "file",
+      "source": "data/bracket.json",
+      "cadence": "per playoff round",
+      "official": false,
+      "mode": "required",
+      "reliability": "high",
+      "downstream": [
+        "playoff_simulator",
+        "web_data/sports/latest.json"
+      ],
+      "fallback": "Use the last published bracket until structure changes."
+    },
+    {
+      "id": "playoff_pbp",
+      "kind": "file",
+      "source": "data/playoff_pbp.csv",
+      "cadence": "after playoff games",
+      "official": true,
+      "mode": "best_effort",
+      "reliability": "high",
+      "downstream": [
+        "data/goalie_playoff_stats.csv",
+        "future game context"
+      ],
+      "fallback": "Keep empty schema or previous extracted playoff goalie stats."
+    },
+    {
+      "id": "injuries",
+      "kind": "file",
+      "source": "data/injuries.csv",
+      "cadence": "nightly",
+      "official": true,
+      "mode": "best_effort",
+      "reliability": "medium",
+      "downstream": [
+        "output/newsletter_latest.json",
+        "web_data/sports/latest.json"
+      ],
+      "fallback": "Publish with empty injury summary."
+    },
+    {
+      "id": "odds_consensus",
+      "kind": "file",
+      "source": "data/odds_consensus.csv",
+      "cadence": "nightly / market refresh",
+      "official": false,
+      "mode": "best_effort",
+      "reliability": "medium",
+      "downstream": [
+        "blend_market_signal",
+        "output/newsletter_latest.json",
+        "web_data/sports/latest.json"
+      ],
+      "fallback": "BSTS-only probabilities; market fields remain null."
+    },
+    {
+      "id": "nhl_scoreboard_live",
+      "kind": "api",
+      "source": "https://api-web.nhle.com/v1/scoreboard/now",
+      "cadence": "client-side live",
+      "official": true,
+      "mode": "display_only",
+      "reliability": "high",
+      "downstream": [
+        "sports/sports-scope.js"
+      ],
+      "fallback": "Hide live cards and keep static page stable."
+    },
+    {
+      "id": "espn_scoreboard_live",
+      "kind": "api",
+      "source": "https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/scoreboard",
+      "cadence": "client-side every minute",
+      "official": false,
+      "mode": "display_only",
+      "reliability": "medium",
+      "downstream": [
+        "sports/nhl/js/app.js"
+      ],
+      "fallback": "Hide scores section silently."
+    }
+  ],
+  "generated_at": "2026-05-22T20:26:09.362531+00:00",
+  "site": "vote-scope.com",
+  "hero": {
+    "favorite_label_fr": "Avalanche du Colorado",
+    "favorite_label_en": "Colorado Avalanche",
+    "favorite_prob": 53.5,
+    "runner_up_label_fr": "Hurricanes de la Caroline",
+    "runner_up_label_en": "Carolina Hurricanes",
+    "runner_up_prob": 26.46,
+    "riser_label_fr": "Hurricanes de la Caroline",
+    "riser_label_en": "Carolina Hurricanes",
+    "riser_trend": 3.74
+  },
+  "board_meta": {
+    "run_date": "2026-05-22",
+    "source_export": "newsletter_latest.json",
+    "model": "EWMA game-log + GoalieLayer HDSV% + playoff form recalibration",
+    "n_sims": 10000,
+    "version": "1.1"
+  },
+  "board": [
+    {
+      "team": "col",
+      "label_fr": "Avalanche du Colorado",
+      "label_en": "Colorado Avalanche",
+      "emoji": "🏔️",
+      "conference": "west",
+      "division": "central",
+      "color": "#6F263D",
+      "p_cup_win": 53.5,
+      "p_cup_final": 76.41,
+      "p_conf_final": 100.0,
+      "p_second_round": 100.0,
+      "strength_mean": 56.54,
+      "trend_7d": -0.78,
+      "trend_direction": "stable",
+      "p_cup_bsts": 60.16,
+      "p_cup_market": 24.26,
+      "market_books": 2,
+      "market_confidence": 0.899,
+      "goalie": {
+        "player_name": "Scott Wedgewood",
+        "team": "COL",
+        "probable_starter": true,
+        "injury_status": "healthy",
+        "games_played": 44,
+        "sv_pct": 0.9197,
+        "hd_sv_pct": 0.838,
+        "goalie_strength": null,
+        "last_updated": "2026-04-16"
+      },
+      "injury_summary": {
+        "count": 0,
+        "goalies": 0,
+        "impact_sum": 0.0,
+        "players": []
+      },
+      "market_snapshot": {
+        "p_cup_market": 0.24257,
+        "n_books": 2,
+        "market_confidence": 0.8992,
+        "timestamp": "2026-05-22T16:25:40.540225"
+      }
+    },
+    {
+      "team": "car",
+      "label_fr": "Hurricanes de la Caroline",
+      "label_en": "Carolina Hurricanes",
+      "emoji": "🌀",
+      "conference": "east",
+      "division": "metro",
+      "color": "#CC0000",
+      "p_cup_win": 26.46,
+      "p_cup_final": 70.42,
+      "p_conf_final": 100.0,
+      "p_second_round": 100.0,
+      "strength_mean": 59.25,
+      "trend_7d": 3.74,
+      "trend_direction": "up",
+      "p_cup_bsts": 26.09,
+      "p_cup_market": 22.12,
+      "market_books": 2,
+      "market_confidence": 0.943,
+      "goalie": {
+        "player_name": "Brandon Bussi",
+        "team": "CAR",
+        "probable_starter": true,
+        "injury_status": "healthy",
+        "games_played": 39,
+        "sv_pct": 0.89473,
+        "hd_sv_pct": 0.816,
+        "goalie_strength": null,
+        "last_updated": "2026-04-16"
+      },
+      "injury_summary": {
+        "count": 0,
+        "goalies": 0,
+        "impact_sum": 0.0,
+        "players": []
+      },
+      "market_snapshot": {
+        "p_cup_market": 0.22115,
+        "n_books": 2,
+        "market_confidence": 0.9432,
+        "timestamp": "2026-05-22T16:25:40.540225"
+      }
+    },
+    {
+      "team": "vgk",
+      "label_fr": "Golden Knights de Vegas",
+      "label_en": "Vegas Golden Knights",
+      "emoji": "⚔️",
+      "conference": "west",
+      "division": "pacific",
+      "color": "#B4975A",
+      "p_cup_win": 12.43,
+      "p_cup_final": 23.59,
+      "p_conf_final": 100.0,
+      "p_second_round": 100.0,
+      "strength_mean": 51.86,
+      "trend_7d": 0.55,
+      "trend_direction": "stable",
+      "p_cup_bsts": 9.71,
+      "p_cup_market": 16.84,
+      "market_books": 2,
+      "market_confidence": 0.944,
+      "goalie": {
+        "player_name": "Akira Schmid",
+        "team": "VGK",
+        "probable_starter": true,
+        "injury_status": "healthy",
+        "games_played": 34,
+        "sv_pct": 0.89254,
+        "hd_sv_pct": 0.795,
+        "goalie_strength": null,
+        "last_updated": "2026-04-16"
+      },
+      "injury_summary": {
+        "count": 0,
+        "goalies": 0,
+        "impact_sum": 0.0,
+        "players": []
+      },
+      "market_snapshot": {
+        "p_cup_market": 0.16842,
+        "n_books": 2,
+        "market_confidence": 0.9436,
+        "timestamp": "2026-05-22T16:25:40.540225"
+      }
+    },
+    {
+      "team": "mtl",
+      "label_fr": "Canadiens de Montréal",
+      "label_en": "Montréal Canadiens",
+      "emoji": "🔴",
+      "conference": "east",
+      "division": "atlantic",
+      "color": "#AF1E2D",
+      "p_cup_win": 7.6,
+      "p_cup_final": 29.58,
+      "p_conf_final": 100.0,
+      "p_second_round": 100.0,
+      "strength_mean": 48.57,
+      "trend_7d": 0.01,
+      "trend_direction": "stable",
+      "p_cup_bsts": 4.04,
+      "p_cup_market": 14.72,
+      "market_books": 2,
+      "market_confidence": 0.977,
+      "goalie": {
+        "player_name": "Jakub Dobes",
+        "team": "MTL",
+        "probable_starter": true,
+        "injury_status": "healthy",
+        "games_played": 43,
+        "sv_pct": 0.90143,
+        "hd_sv_pct": 0.821,
+        "goalie_strength": null,
+        "last_updated": "2026-04-16"
+      },
+      "injury_summary": {
+        "count": 0,
+        "goalies": 0,
+        "impact_sum": 0.0,
+        "players": []
+      },
+      "market_snapshot": {
+        "p_cup_market": 0.14718,
+        "n_books": 2,
+        "market_confidence": 0.9765,
+        "timestamp": "2026-05-22T16:25:40.540225"
+      }
+    },
+    {
+      "team": "ana",
+      "label_fr": "Ducks d'Anaheim",
+      "label_en": "Anaheim Ducks",
+      "emoji": "🦆",
+      "conference": "west",
+      "division": "pacific",
+      "color": "#F47A38",
+      "p_cup_win": 0.0,
+      "p_cup_final": 0.0,
+      "p_conf_final": 0.0,
+      "p_second_round": 0.0,
+      "strength_mean": 51.9,
+      "trend_7d": -3.65,
+      "trend_direction": "down",
+      "p_cup_bsts": 0.0,
+      "p_cup_market": 0.0,
+      "market_books": 0,
+      "market_confidence": 0.0,
+      "goalie": {
+        "player_name": "Lukas Dostal",
+        "team": "ANA",
+        "probable_starter": true,
+        "injury_status": "healthy",
+        "games_played": 56,
+        "sv_pct": 0.8883,
+        "hd_sv_pct": 0.821,
+        "goalie_strength": null,
+        "last_updated": "2026-04-16"
+      },
+      "injury_summary": {
+        "count": 0,
+        "goalies": 0,
+        "impact_sum": 0.0,
+        "players": []
+      },
+      "market_snapshot": {
+        "p_cup_market": 0.01454,
+        "n_books": 2,
+        "market_confidence": 0.8838,
+        "timestamp": "2026-05-14T11:45:39.995234"
+      }
+    },
+    {
+      "team": "bos",
+      "label_fr": "Bruins de Boston",
+      "label_en": "Boston Bruins",
+      "emoji": "🐻",
+      "conference": "east",
+      "division": "atlantic",
+      "color": "#FFB81C",
+      "p_cup_win": 0.0,
+      "p_cup_final": 0.0,
+      "p_conf_final": 0.0,
+      "p_second_round": 0.0,
+      "strength_mean": 44.27,
+      "trend_7d": -2.94,
+      "trend_direction": "down",
+      "p_cup_bsts": 0.0,
+      "p_cup_market": 0.0,
+      "market_books": 0,
+      "market_confidence": 0.0,
+      "goalie": {
+        "player_name": "Jeremy Swayman",
+        "team": "BOS",
+        "probable_starter": true,
+        "injury_status": "healthy",
+        "games_played": 55,
+        "sv_pct": 0.9077,
+        "hd_sv_pct": 0.838,
+        "goalie_strength": null,
+        "last_updated": "2026-04-16"
+      },
+      "injury_summary": {
+        "count": 0,
+        "goalies": 0,
+        "impact_sum": 0.0,
+        "players": []
+      },
+      "market_snapshot": {
+        "p_cup_market": 0.00234,
+        "n_books": 2,
+        "market_confidence": 0.3,
+        "timestamp": "2026-05-01T23:36:14.012671"
+      }
+    },
+    {
+      "team": "buf",
+      "label_fr": "Sabres de Buffalo",
+      "label_en": "Buffalo Sabres",
+      "emoji": "🦬",
+      "conference": "east",
+      "division": "atlantic",
+      "color": "#003087",
+      "p_cup_win": 0.0,
+      "p_cup_final": 0.0,
+      "p_conf_final": 0.0,
+      "p_second_round": 0.0,
+      "strength_mean": 52.62,
+      "trend_7d": -1.89,
+      "trend_direction": "down",
+      "p_cup_bsts": 0.0,
+      "p_cup_market": 0.0,
+      "market_books": 0,
+      "market_confidence": 0.0,
+      "goalie": {
+        "player_name": "Alex Lyon",
+        "team": "BUF",
+        "probable_starter": true,
+        "injury_status": "healthy",
+        "games_played": 36,
+        "sv_pct": 0.90704,
+        "hd_sv_pct": 0.817,
+        "goalie_strength": null,
+        "last_updated": "2026-04-16"
+      },
+      "injury_summary": {
+        "count": 0,
+        "goalies": 0,
+        "impact_sum": 0.0,
+        "players": []
+      },
+      "market_snapshot": {
+        "p_cup_market": 0.04912,
+        "n_books": 2,
+        "market_confidence": 0.9141,
+        "timestamp": "2026-05-14T11:45:39.995234"
+      }
+    },
+    {
+      "team": "dal",
+      "label_fr": "Stars de Dallas",
+      "label_en": "Dallas Stars",
+      "emoji": "⭐",
+      "conference": "west",
+      "division": "central",
+      "color": "#006847",
+      "p_cup_win": 0.0,
+      "p_cup_final": 0.0,
+      "p_conf_final": 0.0,
+      "p_second_round": 0.0,
+      "strength_mean": 49.5,
+      "trend_7d": -0.24,
+      "trend_direction": "stable",
+      "p_cup_bsts": 0.0,
+      "p_cup_market": 0.0,
+      "market_books": 0,
+      "market_confidence": 0.0,
+      "goalie": {
+        "player_name": "Jake Oettinger",
+        "team": "DAL",
+        "probable_starter": true,
+        "injury_status": "healthy",
+        "games_played": 54,
+        "sv_pct": 0.89941,
+        "hd_sv_pct": 0.825,
+        "goalie_strength": null,
+        "last_updated": "2026-04-16"
+      },
+      "injury_summary": {
+        "count": 0,
+        "goalies": 0,
+        "impact_sum": 0.0,
+        "players": []
+      },
+      "market_snapshot": {
+        "p_cup_market": 0.00915,
+        "n_books": 2,
+        "market_confidence": 0.3,
+        "timestamp": "2026-05-01T00:55:17.021170"
+      }
+    },
+    {
+      "team": "edm",
+      "label_fr": "Oilers d'Edmonton",
+      "label_en": "Edmonton Oilers",
+      "emoji": "🛢️",
+      "conference": "west",
+      "division": "pacific",
+      "color": "#041E42",
+      "p_cup_win": 0.0,
+      "p_cup_final": 0.0,
+      "p_conf_final": 0.0,
+      "p_second_round": 0.0,
+      "strength_mean": 46.53,
+      "trend_7d": -3.35,
+      "trend_direction": "down",
+      "p_cup_bsts": 0.0,
+      "p_cup_market": 0.0,
+      "market_books": 0,
+      "market_confidence": 0.0,
+      "goalie": {
+        "player_name": "Stuart Skinner",
+        "team": "EDM",
+        "probable_starter": true,
+        "injury_status": "healthy",
+        "games_played": 50,
+        "sv_pct": 0.88792,
+        "hd_sv_pct": 0.798,
+        "goalie_strength": null,
+        "last_updated": "2026-04-16"
+      },
+      "injury_summary": {
+        "count": 0,
+        "goalies": 0,
+        "impact_sum": 0.0,
+        "players": []
+      },
+      "market_snapshot": {
+        "p_cup_market": 0.0059,
+        "n_books": 2,
+        "market_confidence": 0.3,
+        "timestamp": "2026-05-01T00:55:17.021170"
+      }
+    },
+    {
+      "team": "lak",
+      "label_fr": "Kings de Los Angeles",
+      "label_en": "Los Angeles Kings",
+      "emoji": "👑",
+      "conference": "west",
+      "division": "pacific",
+      "color": "#111111",
+      "p_cup_win": 0.0,
+      "p_cup_final": 0.0,
+      "p_conf_final": 0.0,
+      "p_second_round": 0.0,
+      "strength_mean": 47.92,
+      "trend_7d": -1.95,
+      "trend_direction": "down",
+      "p_cup_bsts": 0.0,
+      "p_cup_market": 0.0,
+      "market_books": 0,
+      "market_confidence": 0.0,
+      "goalie": {
+        "player_name": "Darcy Kuemper",
+        "team": "LAK",
+        "probable_starter": true,
+        "injury_status": "healthy",
+        "games_played": 50,
+        "sv_pct": 0.89141,
+        "hd_sv_pct": 0.822,
+        "goalie_strength": null,
+        "last_updated": "2026-04-16"
+      },
+      "injury_summary": {
+        "count": 0,
+        "goalies": 0,
+        "impact_sum": 0.0,
+        "players": []
+      },
+      "market_snapshot": {
+        "p_cup_market": 0.00125,
+        "n_books": 2,
+        "market_confidence": 0.9591,
+        "timestamp": "2026-04-26T12:54:40.029435"
+      }
+    },
+    {
+      "team": "min",
+      "label_fr": "Wild du Minnesota",
+      "label_en": "Minnesota Wild",
+      "emoji": "🌲",
+      "conference": "west",
+      "division": "central",
+      "color": "#154734",
+      "p_cup_win": 0.0,
+      "p_cup_final": 0.0,
+      "p_conf_final": 0.0,
+      "p_second_round": 0.0,
+      "strength_mean": 47.44,
+      "trend_7d": -3.22,
+      "trend_direction": "down",
+      "p_cup_bsts": 0.0,
+      "p_cup_market": 0.0,
+      "market_books": 0,
+      "market_confidence": 0.0,
+      "goalie": {
+        "player_name": "Filip Gustavsson",
+        "team": "MIN",
+        "probable_starter": true,
+        "injury_status": "healthy",
+        "games_played": 50,
+        "sv_pct": 0.90413,
+        "hd_sv_pct": 0.81,
+        "goalie_strength": null,
+        "last_updated": "2026-04-16"
+      },
+      "injury_summary": {
+        "count": 0,
+        "goalies": 0,
+        "impact_sum": 0.0,
+        "players": []
+      },
+      "market_snapshot": {
+        "p_cup_market": 0.01355,
+        "n_books": 2,
+        "market_confidence": 0.8545,
+        "timestamp": "2026-05-13T15:38:11.728583"
+      }
+    },
+    {
+      "team": "ott",
+      "label_fr": "Sénateurs d'Ottawa",
+      "label_en": "Ottawa Senators",
+      "emoji": "🏛️",
+      "conference": "east",
+      "division": "atlantic",
+      "color": "#C52032",
+      "p_cup_win": 0.0,
+      "p_cup_final": 0.0,
+      "p_conf_final": 0.0,
+      "p_second_round": 0.0,
+      "strength_mean": 47.34,
+      "trend_7d": -1.61,
+      "trend_direction": "down",
+      "p_cup_bsts": 0.0,
+      "p_cup_market": 0.0,
+      "market_books": 0,
+      "market_confidence": 0.0,
+      "goalie": {
+        "player_name": "Linus Ullmark",
+        "team": "OTT",
+        "probable_starter": true,
+        "injury_status": "healthy",
+        "games_played": 49,
+        "sv_pct": 0.89065,
+        "hd_sv_pct": 0.772,
+        "goalie_strength": null,
+        "last_updated": "2026-04-16"
+      },
+      "injury_summary": {
+        "count": 0,
+        "goalies": 0,
+        "impact_sum": 0.0,
+        "players": []
+      },
+      "market_snapshot": {
+        "p_cup_market": 0.0173,
+        "n_books": 2,
+        "market_confidence": 0.8582,
+        "timestamp": "2026-04-23T11:14:32.687274"
+      }
+    },
+    {
+      "team": "phi",
+      "label_fr": "Flyers de Philadelphie",
+      "label_en": "Philadelphia Flyers",
+      "emoji": "🟠",
+      "conference": "east",
+      "division": "metro",
+      "color": "#F74902",
+      "p_cup_win": 0.0,
+      "p_cup_final": 0.0,
+      "p_conf_final": 0.0,
+      "p_second_round": 0.0,
+      "strength_mean": 43.37,
+      "trend_7d": -6.37,
+      "trend_direction": "down",
+      "p_cup_bsts": 0.0,
+      "p_cup_market": 0.0,
+      "market_books": 0,
+      "market_confidence": 0.0,
+      "goalie": {
+        "player_name": "Dan Vladar",
+        "team": "PHI",
+        "probable_starter": true,
+        "injury_status": "healthy",
+        "games_played": 52,
+        "sv_pct": 0.90568,
+        "hd_sv_pct": 0.832,
+        "goalie_strength": null,
+        "last_updated": "2026-04-16"
+      },
+      "injury_summary": {
+        "count": 0,
+        "goalies": 0,
+        "impact_sum": 0.0,
+        "players": []
+      },
+      "market_snapshot": {
+        "p_cup_market": 0.01751,
+        "n_books": 2,
+        "market_confidence": 0.9228,
+        "timestamp": "2026-05-03T13:10:04.043730"
+      }
+    },
+    {
+      "team": "pit",
+      "label_fr": "Penguins de Pittsburgh",
+      "label_en": "Pittsburgh Penguins",
+      "emoji": "🐧",
+      "conference": "east",
+      "division": "metro",
+      "color": "#CFC493",
+      "p_cup_win": 0.0,
+      "p_cup_final": 0.0,
+      "p_conf_final": 0.0,
+      "p_second_round": 0.0,
+      "strength_mean": 50.57,
+      "trend_7d": 2.03,
+      "trend_direction": "up",
+      "p_cup_bsts": 0.0,
+      "p_cup_market": 0.0,
+      "market_books": 0,
+      "market_confidence": 0.0,
+      "goalie": {
+        "player_name": "Arturs Silovs",
+        "team": "PIT",
+        "probable_starter": true,
+        "injury_status": "healthy",
+        "games_played": 39,
+        "sv_pct": 0.88823,
+        "hd_sv_pct": 0.775,
+        "goalie_strength": null,
+        "last_updated": "2026-04-16"
+      },
+      "injury_summary": {
+        "count": 0,
+        "goalies": 0,
+        "impact_sum": 0.0,
+        "players": []
+      },
+      "market_snapshot": {
+        "p_cup_market": 0.00684,
+        "n_books": 2,
+        "market_confidence": 0.6978,
+        "timestamp": "2026-04-29T14:13:35.461565"
+      }
+    },
+    {
+      "team": "tbl",
+      "label_fr": "Lightning de Tampa Bay",
+      "label_en": "Tampa Bay Lightning",
+      "emoji": "⚡",
+      "conference": "east",
+      "division": "atlantic",
+      "color": "#002868",
+      "p_cup_win": 0.0,
+      "p_cup_final": 0.0,
+      "p_conf_final": 0.0,
+      "p_second_round": 0.0,
+      "strength_mean": 52.57,
+      "trend_7d": 2.39,
+      "trend_direction": "up",
+      "p_cup_bsts": 0.0,
+      "p_cup_market": 0.0,
+      "market_books": 0,
+      "market_confidence": 0.0,
+      "goalie": {
+        "player_name": "Andrei Vasilevskiy",
+        "team": "TBL",
+        "probable_starter": true,
+        "injury_status": "healthy",
+        "games_played": 58,
+        "sv_pct": 0.91233,
+        "hd_sv_pct": 0.848,
+        "goalie_strength": null,
+        "last_updated": "2026-04-16"
+      },
+      "injury_summary": {
+        "count": 0,
+        "goalies": 0,
+        "impact_sum": 0.0,
+        "players": []
+      },
+      "market_snapshot": {
+        "p_cup_market": 0.06767,
+        "n_books": 2,
+        "market_confidence": 0.8948,
+        "timestamp": "2026-05-03T13:10:04.043730"
+      }
+    },
+    {
+      "team": "uta",
+      "label_fr": "Mammoth de l'Utah",
+      "label_en": "Utah Mammoth",
+      "emoji": "🦣",
+      "conference": "west",
+      "division": "central",
+      "color": "#71B2C9",
+      "p_cup_win": 0.0,
+      "p_cup_final": 0.0,
+      "p_conf_final": 0.0,
+      "p_second_round": 0.0,
+      "strength_mean": 47.4,
+      "trend_7d": -1.16,
+      "trend_direction": "down",
+      "p_cup_bsts": 0.0,
+      "p_cup_market": 0.0,
+      "market_books": 0,
+      "market_confidence": 0.0,
+      "goalie": {
+        "player_name": "Karel Vejmelka",
+        "team": "UTA",
+        "probable_starter": true,
+        "injury_status": "healthy",
+        "games_played": 63,
+        "sv_pct": 0.89738,
+        "hd_sv_pct": 0.8,
+        "goalie_strength": null,
+        "last_updated": "2026-04-16"
+      },
+      "injury_summary": {
+        "count": 0,
+        "goalies": 0,
+        "impact_sum": 0.0,
+        "players": []
+      },
+      "market_snapshot": {
+        "p_cup_market": 0.00772,
+        "n_books": 2,
+        "market_confidence": 0.3353,
+        "timestamp": "2026-05-01T23:36:14.012671"
+      }
+    }
+  ],
+  "bracket": {
+    "status": {
+      "current_round": "conf_final",
+      "series_started": true,
+      "last_updated": "2026-05-21"
+    },
+    "east": {
+      "note": "Conférence Est — 8 équipes",
+      "first_round": [
+        {
+          "series_id": "E1",
+          "team_a": "car",
+          "team_b": "ott",
+          "seed_a": 1,
+          "seed_b": 8,
+          "home_team": "car",
+          "type": "champion_vs_wildcard",
+          "note": "CAR (Metro 1) vs OTT (WC2) — série officielle confirmée 18 avril",
+          "round": "first_round",
+          "team_a_label_fr": "Hurricanes de la Caroline",
+          "team_a_label_en": "Carolina Hurricanes",
+          "team_a_color": "#CC0000",
+          "team_b_label_fr": "Sénateurs d'Ottawa",
+          "team_b_label_en": "Ottawa Senators",
+          "team_b_color": "#C52032",
+          "home_team_label_fr": "Hurricanes de la Caroline",
+          "home_team_label_en": "Carolina Hurricanes",
+          "home_team_color": "#CC0000",
+          "home_wins": 0,
+          "away_wins": 0,
+          "games_played": 0,
+          "series_winner": null
+        },
+        {
+          "series_id": "E2",
+          "team_a": "buf",
+          "team_b": "bos",
+          "seed_a": 2,
+          "seed_b": 7,
+          "home_team": "buf",
+          "type": "champion_vs_wildcard",
+          "note": "BUF (Atlantic 1) vs BOS (WC1) — série officielle confirmée 19 avril",
+          "round": "first_round",
+          "team_a_label_fr": "Sabres de Buffalo",
+          "team_a_label_en": "Buffalo Sabres",
+          "team_a_color": "#003087",
+          "team_b_label_fr": "Bruins de Boston",
+          "team_b_label_en": "Boston Bruins",
+          "team_b_color": "#FFB81C",
+          "home_team_label_fr": "Sabres de Buffalo",
+          "home_team_label_en": "Buffalo Sabres",
+          "home_team_color": "#003087",
+          "home_wins": 0,
+          "away_wins": 0,
+          "games_played": 0,
+          "series_winner": null
+        },
+        {
+          "series_id": "E3",
+          "team_a": "tbl",
+          "team_b": "mtl",
+          "seed_a": 3,
+          "seed_b": 4,
+          "home_team": "tbl",
+          "type": "intra_division",
+          "note": "TBL (Atlantic 2) vs MTL (Canadiens) — 19 avril 17h45 HE",
+          "round": "first_round",
+          "team_a_label_fr": "Lightning de Tampa Bay",
+          "team_a_label_en": "Tampa Bay Lightning",
+          "team_a_color": "#002868",
+          "team_b_label_fr": "Canadiens de Montréal",
+          "team_b_label_en": "Montréal Canadiens",
+          "team_b_color": "#AF1E2D",
+          "home_team_label_fr": "Lightning de Tampa Bay",
+          "home_team_label_en": "Tampa Bay Lightning",
+          "home_team_color": "#002868",
+          "home_wins": 3,
+          "away_wins": 4,
+          "games_played": 7,
+          "series_winner": "mtl"
+        },
+        {
+          "series_id": "E4",
+          "team_a": "pit",
+          "team_b": "phi",
+          "seed_a": 5,
+          "seed_b": 6,
+          "home_team": "pit",
+          "type": "intra_division",
+          "note": "PIT (Metro 2) vs PHI (Metro 3) — 18 avril 20h HE",
+          "round": "first_round",
+          "team_a_label_fr": "Penguins de Pittsburgh",
+          "team_a_label_en": "Pittsburgh Penguins",
+          "team_a_color": "#CFC493",
+          "team_b_label_fr": "Flyers de Philadelphie",
+          "team_b_label_en": "Philadelphia Flyers",
+          "team_b_color": "#F74902",
+          "home_team_label_fr": "Penguins de Pittsburgh",
+          "home_team_label_en": "Pittsburgh Penguins",
+          "home_team_color": "#CFC493",
+          "home_wins": 2,
+          "away_wins": 4,
+          "games_played": 6,
+          "series_winner": "phi"
+        }
+      ],
+      "second_round": [
+        {
+          "series_id": "E5",
+          "team_a": "car",
+          "team_b": "phi",
+          "source_a": "E1",
+          "source_b": "E4",
+          "home_team": "car",
+          "note": "CAR vs PHI — demi-finale de conférence déjà lancée",
+          "round": "second_round",
+          "team_a_label_fr": "Hurricanes de la Caroline",
+          "team_a_label_en": "Carolina Hurricanes",
+          "team_a_color": "#CC0000",
+          "team_b_label_fr": "Flyers de Philadelphie",
+          "team_b_label_en": "Philadelphia Flyers",
+          "team_b_color": "#F74902",
+          "home_team_label_fr": "Hurricanes de la Caroline",
+          "home_team_label_en": "Carolina Hurricanes",
+          "home_team_color": "#CC0000",
+          "home_wins": 0,
+          "away_wins": 0,
+          "games_played": 0,
+          "series_winner": null
+        },
+        {
+          "series_id": "E6",
+          "team_a": "buf",
+          "team_b": "mtl",
+          "source_a": "E2",
+          "source_b": "E3",
+          "home_team": "buf",
+          "note": "BUF vs MTL — demi-finale de conférence déjà lancée",
+          "round": "second_round",
+          "team_a_label_fr": "Sabres de Buffalo",
+          "team_a_label_en": "Buffalo Sabres",
+          "team_a_color": "#003087",
+          "team_b_label_fr": "Canadiens de Montréal",
+          "team_b_label_en": "Montréal Canadiens",
+          "team_b_color": "#AF1E2D",
+          "home_team_label_fr": "Sabres de Buffalo",
+          "home_team_label_en": "Buffalo Sabres",
+          "home_team_color": "#003087",
+          "home_wins": 3,
+          "away_wins": 4,
+          "games_played": 7,
+          "series_winner": "mtl"
+        }
+      ],
+      "conf_final": [
+        {
+          "series_id": "ECF",
+          "team_a": "car",
+          "team_b": "mtl",
+          "source_a": "E5",
+          "source_b": "E6",
+          "home_team": "car",
+          "note": "Finale de conférence Est — CAR vs MTL",
+          "round": "conf_final",
+          "team_a_label_fr": "Hurricanes de la Caroline",
+          "team_a_label_en": "Carolina Hurricanes",
+          "team_a_color": "#CC0000",
+          "team_b_label_fr": "Canadiens de Montréal",
+          "team_b_label_en": "Montréal Canadiens",
+          "team_b_color": "#AF1E2D",
+          "home_team_label_fr": "Hurricanes de la Caroline",
+          "home_team_label_en": "Carolina Hurricanes",
+          "home_team_color": "#CC0000",
+          "home_wins": 0,
+          "away_wins": 1,
+          "games_played": 1,
+          "series_winner": null
+        }
+      ],
+      "cup_final": [
+        {
+          "series_id": "SCF",
+          "team_a": "tbd_ecf",
+          "team_b": "tbd_wcf",
+          "source_a": "ECF",
+          "source_b": "WCF",
+          "note": "Finale de la Coupe Stanley",
+          "round": "cup_final",
+          "team_a_label_fr": "À déterminer",
+          "team_a_label_en": "TBD",
+          "team_a_color": "#888",
+          "team_b_label_fr": "À déterminer",
+          "team_b_label_en": "TBD",
+          "team_b_color": "#888",
+          "home_team_label_fr": "À déterminer",
+          "home_team_label_en": "TBD",
+          "home_team_color": "#888",
+          "home_wins": 0,
+          "away_wins": 0,
+          "games_played": 0,
+          "series_winner": null
+        }
+      ]
+    },
+    "west": {
+      "note": "Conférence Ouest — 8 équipes",
+      "first_round": [
+        {
+          "series_id": "W1",
+          "team_a": "col",
+          "team_b": "lak",
+          "seed_a": 1,
+          "seed_b": 8,
+          "home_team": "col",
+          "type": "champion_vs_wildcard",
+          "note": "COL (Central 1) vs LAK (WC2, Pacific) — divisions différentes",
+          "round": "first_round",
+          "team_a_label_fr": "Avalanche du Colorado",
+          "team_a_label_en": "Colorado Avalanche",
+          "team_a_color": "#6F263D",
+          "team_b_label_fr": "Kings de Los Angeles",
+          "team_b_label_en": "Los Angeles Kings",
+          "team_b_color": "#111111",
+          "home_team_label_fr": "Avalanche du Colorado",
+          "home_team_label_en": "Colorado Avalanche",
+          "home_team_color": "#6F263D",
+          "home_wins": 0,
+          "away_wins": 0,
+          "games_played": 0,
+          "series_winner": null
+        },
+        {
+          "series_id": "W2",
+          "team_a": "vgk",
+          "team_b": "uta",
+          "seed_a": 2,
+          "seed_b": 5,
+          "home_team": "vgk",
+          "type": "champion_vs_wildcard",
+          "note": "VGK (Pacific 1) vs UTA (WC1, Central) — divisions différentes",
+          "round": "first_round",
+          "team_a_label_fr": "Golden Knights de Vegas",
+          "team_a_label_en": "Vegas Golden Knights",
+          "team_a_color": "#B4975A",
+          "team_b_label_fr": "Mammoth de l'Utah",
+          "team_b_label_en": "Utah Mammoth",
+          "team_b_color": "#71B2C9",
+          "home_team_label_fr": "Golden Knights de Vegas",
+          "home_team_label_en": "Vegas Golden Knights",
+          "home_team_color": "#B4975A",
+          "home_wins": 0,
+          "away_wins": 0,
+          "games_played": 0,
+          "series_winner": null
+        },
+        {
+          "series_id": "W3",
+          "team_a": "dal",
+          "team_b": "min",
+          "seed_a": 3,
+          "seed_b": 4,
+          "home_team": "dal",
+          "type": "intra_division",
+          "note": "DAL (Central 2, 112pts) vs MIN (Central 3, 104pts)",
+          "round": "first_round",
+          "team_a_label_fr": "Stars de Dallas",
+          "team_a_label_en": "Dallas Stars",
+          "team_a_color": "#006847",
+          "team_b_label_fr": "Wild du Minnesota",
+          "team_b_label_en": "Minnesota Wild",
+          "team_b_color": "#154734",
+          "home_team_label_fr": "Stars de Dallas",
+          "home_team_label_en": "Dallas Stars",
+          "home_team_color": "#006847",
+          "home_wins": 2,
+          "away_wins": 4,
+          "games_played": 6,
+          "series_winner": "min"
+        },
+        {
+          "series_id": "W4",
+          "team_a": "edm",
+          "team_b": "ana",
+          "seed_a": 6,
+          "seed_b": 7,
+          "home_team": "edm",
+          "type": "intra_division",
+          "note": "EDM (Pacific 2, 91pts) vs ANA (Pacific 3, 90pts)",
+          "round": "first_round",
+          "team_a_label_fr": "Oilers d'Edmonton",
+          "team_a_label_en": "Edmonton Oilers",
+          "team_a_color": "#041E42",
+          "team_b_label_fr": "Ducks d'Anaheim",
+          "team_b_label_en": "Anaheim Ducks",
+          "team_b_color": "#F47A38",
+          "home_team_label_fr": "Oilers d'Edmonton",
+          "home_team_label_en": "Edmonton Oilers",
+          "home_team_color": "#041E42",
+          "home_wins": 2,
+          "away_wins": 4,
+          "games_played": 6,
+          "series_winner": "ana"
+        }
+      ],
+      "second_round": [
+        {
+          "series_id": "W5",
+          "team_a": "col",
+          "team_b": "min",
+          "source_a": "W1",
+          "source_b": "W3",
+          "home_team": "col",
+          "note": "COL vs MIN — demi-finale de conférence déjà lancée",
+          "round": "second_round",
+          "team_a_label_fr": "Avalanche du Colorado",
+          "team_a_label_en": "Colorado Avalanche",
+          "team_a_color": "#6F263D",
+          "team_b_label_fr": "Wild du Minnesota",
+          "team_b_label_en": "Minnesota Wild",
+          "team_b_color": "#154734",
+          "home_team_label_fr": "Avalanche du Colorado",
+          "home_team_label_en": "Colorado Avalanche",
+          "home_team_color": "#6F263D",
+          "home_wins": 0,
+          "away_wins": 0,
+          "games_played": 0,
+          "series_winner": null
+        },
+        {
+          "series_id": "W6",
+          "team_a": "vgk",
+          "team_b": "ana",
+          "source_a": "W2",
+          "source_b": "W4",
+          "home_team": "vgk",
+          "note": "VGK vs ANA",
+          "round": "second_round",
+          "team_a_label_fr": "Golden Knights de Vegas",
+          "team_a_label_en": "Vegas Golden Knights",
+          "team_a_color": "#B4975A",
+          "team_b_label_fr": "Ducks d'Anaheim",
+          "team_b_label_en": "Anaheim Ducks",
+          "team_b_color": "#F47A38",
+          "home_team_label_fr": "Golden Knights de Vegas",
+          "home_team_label_en": "Vegas Golden Knights",
+          "home_team_color": "#B4975A",
+          "home_wins": 0,
+          "away_wins": 0,
+          "games_played": 0,
+          "series_winner": null
+        }
+      ],
+      "conf_final": [
+        {
+          "series_id": "WCF",
+          "team_a": "col",
+          "team_b": "vgk",
+          "source_a": "W5",
+          "source_b": "W6",
+          "home_team": "col",
+          "note": "Finale de conférence Ouest — COL vs VGK",
+          "round": "conf_final",
+          "team_a_label_fr": "Avalanche du Colorado",
+          "team_a_label_en": "Colorado Avalanche",
+          "team_a_color": "#6F263D",
+          "team_b_label_fr": "Golden Knights de Vegas",
+          "team_b_label_en": "Vegas Golden Knights",
+          "team_b_color": "#B4975A",
+          "home_team_label_fr": "Avalanche du Colorado",
+          "home_team_label_en": "Colorado Avalanche",
+          "home_team_color": "#6F263D",
+          "home_wins": 1,
+          "away_wins": 0,
+          "games_played": 1,
+          "series_winner": null
+        }
+      ],
+      "cup_final": [
+        {
+          "series_id": "SCF",
+          "team_a": "tbd_ecf",
+          "team_b": "tbd_wcf",
+          "source_a": "ECF",
+          "source_b": "WCF",
+          "note": "Finale de la Coupe Stanley",
+          "round": "cup_final",
+          "team_a_label_fr": "À déterminer",
+          "team_a_label_en": "TBD",
+          "team_a_color": "#888",
+          "team_b_label_fr": "À déterminer",
+          "team_b_label_en": "TBD",
+          "team_b_color": "#888",
+          "home_team_label_fr": "À déterminer",
+          "home_team_label_en": "TBD",
+          "home_team_color": "#888",
+          "home_wins": 0,
+          "away_wins": 0,
+          "games_played": 0,
+          "series_winner": null
+        }
+      ]
+    }
+  },
+  "goalie_context": {
+    "available": true,
+    "teams": {
+      "car": {
+        "player_name": "Brandon Bussi",
+        "team": "CAR",
+        "probable_starter": true,
+        "injury_status": "healthy",
+        "games_played": 39,
+        "sv_pct": 0.89473,
+        "hd_sv_pct": 0.816,
+        "goalie_strength": null,
+        "last_updated": "2026-04-16"
+      },
+      "bos": {
+        "player_name": "Jeremy Swayman",
+        "team": "BOS",
+        "probable_starter": true,
+        "injury_status": "healthy",
+        "games_played": 55,
+        "sv_pct": 0.9077,
+        "hd_sv_pct": 0.838,
+        "goalie_strength": null,
+        "last_updated": "2026-04-16"
+      },
+      "buf": {
+        "player_name": "Alex Lyon",
+        "team": "BUF",
+        "probable_starter": true,
+        "injury_status": "healthy",
+        "games_played": 36,
+        "sv_pct": 0.90704,
+        "hd_sv_pct": 0.817,
+        "goalie_strength": null,
+        "last_updated": "2026-04-16"
+      },
+      "ott": {
+        "player_name": "Linus Ullmark",
+        "team": "OTT",
+        "probable_starter": true,
+        "injury_status": "healthy",
+        "games_played": 49,
+        "sv_pct": 0.89065,
+        "hd_sv_pct": 0.772,
+        "goalie_strength": null,
+        "last_updated": "2026-04-16"
+      },
+      "tbl": {
+        "player_name": "Andrei Vasilevskiy",
+        "team": "TBL",
+        "probable_starter": true,
+        "injury_status": "healthy",
+        "games_played": 58,
+        "sv_pct": 0.91233,
+        "hd_sv_pct": 0.848,
+        "goalie_strength": null,
+        "last_updated": "2026-04-16"
+      },
+      "mtl": {
+        "player_name": "Jakub Dobes",
+        "team": "MTL",
+        "probable_starter": true,
+        "injury_status": "healthy",
+        "games_played": 43,
+        "sv_pct": 0.90143,
+        "hd_sv_pct": 0.821,
+        "goalie_strength": null,
+        "last_updated": "2026-04-16"
+      },
+      "phi": {
+        "player_name": "Dan Vladar",
+        "team": "PHI",
+        "probable_starter": true,
+        "injury_status": "healthy",
+        "games_played": 52,
+        "sv_pct": 0.90568,
+        "hd_sv_pct": 0.832,
+        "goalie_strength": null,
+        "last_updated": "2026-04-16"
+      },
+      "pit": {
+        "player_name": "Arturs Silovs",
+        "team": "PIT",
+        "probable_starter": true,
+        "injury_status": "healthy",
+        "games_played": 39,
+        "sv_pct": 0.88823,
+        "hd_sv_pct": 0.775,
+        "goalie_strength": null,
+        "last_updated": "2026-04-16"
+      },
+      "col": {
+        "player_name": "Scott Wedgewood",
+        "team": "COL",
+        "probable_starter": true,
+        "injury_status": "healthy",
+        "games_played": 44,
+        "sv_pct": 0.9197,
+        "hd_sv_pct": 0.838,
+        "goalie_strength": null,
+        "last_updated": "2026-04-16"
+      },
+      "lak": {
+        "player_name": "Darcy Kuemper",
+        "team": "LAK",
+        "probable_starter": true,
+        "injury_status": "healthy",
+        "games_played": 50,
+        "sv_pct": 0.89141,
+        "hd_sv_pct": 0.822,
+        "goalie_strength": null,
+        "last_updated": "2026-04-16"
+      },
+      "vgk": {
+        "player_name": "Akira Schmid",
+        "team": "VGK",
+        "probable_starter": true,
+        "injury_status": "healthy",
+        "games_played": 34,
+        "sv_pct": 0.89254,
+        "hd_sv_pct": 0.795,
+        "goalie_strength": null,
+        "last_updated": "2026-04-16"
+      },
+      "uta": {
+        "player_name": "Karel Vejmelka",
+        "team": "UTA",
+        "probable_starter": true,
+        "injury_status": "healthy",
+        "games_played": 63,
+        "sv_pct": 0.89738,
+        "hd_sv_pct": 0.8,
+        "goalie_strength": null,
+        "last_updated": "2026-04-16"
+      },
+      "dal": {
+        "player_name": "Jake Oettinger",
+        "team": "DAL",
+        "probable_starter": true,
+        "injury_status": "healthy",
+        "games_played": 54,
+        "sv_pct": 0.89941,
+        "hd_sv_pct": 0.825,
+        "goalie_strength": null,
+        "last_updated": "2026-04-16"
+      },
+      "min": {
+        "player_name": "Filip Gustavsson",
+        "team": "MIN",
+        "probable_starter": true,
+        "injury_status": "healthy",
+        "games_played": 50,
+        "sv_pct": 0.90413,
+        "hd_sv_pct": 0.81,
+        "goalie_strength": null,
+        "last_updated": "2026-04-16"
+      },
+      "edm": {
+        "player_name": "Stuart Skinner",
+        "team": "EDM",
+        "probable_starter": true,
+        "injury_status": "healthy",
+        "games_played": 50,
+        "sv_pct": 0.88792,
+        "hd_sv_pct": 0.798,
+        "goalie_strength": null,
+        "last_updated": "2026-04-16"
+      },
+      "ana": {
+        "player_name": "Lukas Dostal",
+        "team": "ANA",
+        "probable_starter": true,
+        "injury_status": "healthy",
+        "games_played": 56,
+        "sv_pct": 0.8883,
+        "hd_sv_pct": 0.821,
+        "goalie_strength": null,
+        "last_updated": "2026-04-16"
+      }
+    }
+  },
+  "injury_summary": {
+    "available": false,
+    "teams": {
+      "BOS": {
+        "count": 0,
+        "goalies": 0,
+        "impact_sum": 0.0,
+        "players": []
+      },
+      "LAK": {
+        "count": 0,
+        "goalies": 0,
+        "impact_sum": 0.0,
+        "players": []
+      },
+      "DAL": {
+        "count": 0,
+        "goalies": 0,
+        "impact_sum": 0.0,
+        "players": []
+      },
+      "OTT": {
+        "count": 0,
+        "goalies": 0,
+        "impact_sum": 0.0,
+        "players": []
+      },
+      "ANA": {
+        "count": 0,
+        "goalies": 0,
+        "impact_sum": 0.0,
+        "players": []
+      },
+      "MTL": {
+        "count": 0,
+        "goalies": 0,
+        "impact_sum": 0.0,
+        "players": []
+      },
+      "COL": {
+        "count": 0,
+        "goalies": 0,
+        "impact_sum": 0.0,
+        "players": []
+      },
+      "PHI": {
+        "count": 0,
+        "goalies": 0,
+        "impact_sum": 0.0,
+        "players": []
+      },
+      "CAR": {
+        "count": 0,
+        "goalies": 0,
+        "impact_sum": 0.0,
+        "players": []
+      },
+      "TBL": {
+        "count": 0,
+        "goalies": 0,
+        "impact_sum": 0.0,
+        "players": []
+      },
+      "VGK": {
+        "count": 0,
+        "goalies": 0,
+        "impact_sum": 0.0,
+        "players": []
+      },
+      "BUF": {
+        "count": 0,
+        "goalies": 0,
+        "impact_sum": 0.0,
+        "players": []
+      },
+      "UTA": {
+        "count": 0,
+        "goalies": 0,
+        "impact_sum": 0.0,
+        "players": []
+      },
+      "PIT": {
+        "count": 0,
+        "goalies": 0,
+        "impact_sum": 0.0,
+        "players": []
+      },
+      "EDM": {
+        "count": 0,
+        "goalies": 0,
+        "impact_sum": 0.0,
+        "players": []
+      },
+      "MIN": {
+        "count": 0,
+        "goalies": 0,
+        "impact_sum": 0.0,
+        "players": []
+      }
+    }
+  },
+  "market_snapshot": {
+    "available": true,
+    "timestamp": "2026-05-22T16:25:40.540225",
+    "teams": {
+      "COL": {
+        "p_cup_market": 0.24257,
+        "n_books": 2,
+        "market_confidence": 0.8992,
+        "timestamp": "2026-05-22T16:25:40.540225"
+      },
+      "CAR": {
+        "p_cup_market": 0.22115,
+        "n_books": 2,
+        "market_confidence": 0.9432,
+        "timestamp": "2026-05-22T16:25:40.540225"
+      },
+      "VGK": {
+        "p_cup_market": 0.16842,
+        "n_books": 2,
+        "market_confidence": 0.9436,
+        "timestamp": "2026-05-22T16:25:40.540225"
+      },
+      "MTL": {
+        "p_cup_market": 0.14718,
+        "n_books": 2,
+        "market_confidence": 0.9765,
+        "timestamp": "2026-05-22T16:25:40.540225"
+      },
+      "TBL": {
+        "p_cup_market": 0.06767,
+        "n_books": 2,
+        "market_confidence": 0.8948,
+        "timestamp": "2026-05-03T13:10:04.043730"
+      },
+      "BUF": {
+        "p_cup_market": 0.04912,
+        "n_books": 2,
+        "market_confidence": 0.9141,
+        "timestamp": "2026-05-14T11:45:39.995234"
+      },
+      "PHI": {
+        "p_cup_market": 0.01751,
+        "n_books": 2,
+        "market_confidence": 0.9228,
+        "timestamp": "2026-05-03T13:10:04.043730"
+      },
+      "OTT": {
+        "p_cup_market": 0.0173,
+        "n_books": 2,
+        "market_confidence": 0.8582,
+        "timestamp": "2026-04-23T11:14:32.687274"
+      },
+      "ANA": {
+        "p_cup_market": 0.01454,
+        "n_books": 2,
+        "market_confidence": 0.8838,
+        "timestamp": "2026-05-14T11:45:39.995234"
+      },
+      "MIN": {
+        "p_cup_market": 0.01355,
+        "n_books": 2,
+        "market_confidence": 0.8545,
+        "timestamp": "2026-05-13T15:38:11.728583"
+      },
+      "DAL": {
+        "p_cup_market": 0.00915,
+        "n_books": 2,
+        "market_confidence": 0.3,
+        "timestamp": "2026-05-01T00:55:17.021170"
+      },
+      "UTA": {
+        "p_cup_market": 0.00772,
+        "n_books": 2,
+        "market_confidence": 0.3353,
+        "timestamp": "2026-05-01T23:36:14.012671"
+      },
+      "PIT": {
+        "p_cup_market": 0.00684,
+        "n_books": 2,
+        "market_confidence": 0.6978,
+        "timestamp": "2026-04-29T14:13:35.461565"
+      },
+      "EDM": {
+        "p_cup_market": 0.0059,
+        "n_books": 2,
+        "market_confidence": 0.3,
+        "timestamp": "2026-05-01T00:55:17.021170"
+      },
+      "BOS": {
+        "p_cup_market": 0.00234,
+        "n_books": 2,
+        "market_confidence": 0.3,
+        "timestamp": "2026-05-01T23:36:14.012671"
+      },
+      "LAK": {
+        "p_cup_market": 0.00125,
+        "n_books": 2,
+        "market_confidence": 0.9591,
+        "timestamp": "2026-04-26T12:54:40.029435"
+      }
+    }
+  },
+  "series_context": {
+    "available": true,
+    "series": [
+      {
+        "series_id": "ECF",
+        "updated_at": "2026-05-22",
+        "teams": {
+          "CAR": {
+            "opponent": "MTL",
+            "home_ice": true,
+            "rest_advantage_days": 0.0,
+            "injury_impact": 0.0,
+            "series_wins": 0,
+            "series_losses": 1
+          },
+          "MTL": {
+            "opponent": "CAR",
+            "home_ice": false,
+            "rest_advantage_days": 0.0,
+            "injury_impact": 0.0,
+            "series_wins": 1,
+            "series_losses": 0
+          }
+        }
+      },
+      {
+        "series_id": "E1",
+        "updated_at": "2026-04-27",
+        "teams": {
+          "OTT": {
+            "opponent": "CAR",
+            "home_ice": false,
+            "rest_advantage_days": 0.0,
+            "injury_impact": 0.0,
+            "series_wins": 0,
+            "series_losses": 4
+          }
+        }
+      },
+      {
+        "series_id": "E6",
+        "updated_at": "2026-05-22",
+        "teams": {
+          "BUF": {
+            "opponent": "MTL",
+            "home_ice": true,
+            "rest_advantage_days": 0.0,
+            "injury_impact": 0.0,
+            "series_wins": 3,
+            "series_losses": 4
+          }
+        }
+      },
+      {
+        "series_id": "E2",
+        "updated_at": "2026-05-03",
+        "teams": {
+          "BOS": {
+            "opponent": "BUF",
+            "home_ice": false,
+            "rest_advantage_days": 0.0,
+            "injury_impact": 0.0,
+            "series_wins": 2,
+            "series_losses": 4
+          }
+        }
+      },
+      {
+        "series_id": "E3",
+        "updated_at": "2026-05-12",
+        "teams": {
+          "TBL": {
+            "opponent": "MTL",
+            "home_ice": true,
+            "rest_advantage_days": 0.0,
+            "injury_impact": 0.0,
+            "series_wins": 3,
+            "series_losses": 4
+          }
+        }
+      },
+      {
+        "series_id": "E4",
+        "updated_at": "2026-05-02",
+        "teams": {
+          "PIT": {
+            "opponent": "PHI",
+            "home_ice": true,
+            "rest_advantage_days": 0.0,
+            "injury_impact": 0.0,
+            "series_wins": 2,
+            "series_losses": 4
+          }
+        }
+      },
+      {
+        "series_id": "E5",
+        "updated_at": "2026-05-12",
+        "teams": {
+          "PHI": {
+            "opponent": "CAR",
+            "home_ice": false,
+            "rest_advantage_days": 0.0,
+            "injury_impact": 0.0,
+            "series_wins": 0,
+            "series_losses": 4
+          }
+        }
+      },
+      {
+        "series_id": "WCF",
+        "updated_at": "2026-05-22",
+        "teams": {
+          "COL": {
+            "opponent": "VGK",
+            "home_ice": true,
+            "rest_advantage_days": 0.0,
+            "injury_impact": 0.0,
+            "series_wins": 0,
+            "series_losses": 1
+          },
+          "VGK": {
+            "opponent": "COL",
+            "home_ice": true,
+            "rest_advantage_days": 0.0,
+            "injury_impact": 0.0,
+            "series_wins": 1,
+            "series_losses": 0
+          }
+        }
+      },
+      {
+        "series_id": "W1",
+        "updated_at": "2026-04-30",
+        "teams": {
+          "LAK": {
+            "opponent": "COL",
+            "home_ice": false,
+            "rest_advantage_days": 0.0,
+            "injury_impact": 0.0,
+            "series_wins": 0,
+            "series_losses": 4
+          }
+        }
+      },
+      {
+        "series_id": "W2",
+        "updated_at": "2026-05-03",
+        "teams": {
+          "UTA": {
+            "opponent": "VGK",
+            "home_ice": false,
+            "rest_advantage_days": 0.0,
+            "injury_impact": 0.0,
+            "series_wins": 2,
+            "series_losses": 4
+          }
+        }
+      },
+      {
+        "series_id": "W3",
+        "updated_at": "2026-05-03",
+        "teams": {
+          "DAL": {
+            "opponent": "MIN",
+            "home_ice": true,
+            "rest_advantage_days": 0.0,
+            "injury_impact": 0.0,
+            "series_wins": 2,
+            "series_losses": 4
+          }
+        }
+      },
+      {
+        "series_id": "W5",
+        "updated_at": "2026-05-14",
+        "teams": {
+          "MIN": {
+            "opponent": "COL",
+            "home_ice": false,
+            "rest_advantage_days": 0.0,
+            "injury_impact": 0.0,
+            "series_wins": 1,
+            "series_losses": 4
+          }
+        }
+      },
+      {
+        "series_id": "W4",
+        "updated_at": "2026-05-03",
+        "teams": {
+          "EDM": {
+            "opponent": "ANA",
+            "home_ice": true,
+            "rest_advantage_days": 0.0,
+            "injury_impact": 0.0,
+            "series_wins": 2,
+            "series_losses": 4
+          }
+        }
+      },
+      {
+        "series_id": "W6",
+        "updated_at": "2026-05-21",
+        "teams": {
+          "ANA": {
+            "opponent": "VGK",
+            "home_ice": false,
+            "rest_advantage_days": 0.0,
+            "injury_impact": 0.0,
+            "series_wins": 2,
+            "series_losses": 4
+          }
+        }
+      }
+    ]
+  },
+  "game_probabilities": {
+    "contract": {
+      "contract_version": "2026-04-v1",
+      "source_of_truth": "output/stanley_cup_latest.json",
+      "derived_outputs": [
+        "output/newsletter_latest.json",
+        "web_data/sports/latest.json",
+        "sports/nhl/data/newsletter_latest.json"
+      ],
+      "compatibility_policy": "additive_only",
+      "notes": "Existing consumer keys remain stable. New modules are optional and must be ignored gracefully when absent."
+    },
+    "data_tiers": {
+      "core": [
+        "meta",
+        "teams",
+        "series",
+        "bracket",
+        "timestamps",
+        "team_strength"
+      ],
+      "enrichment": [
+        "goalie_context",
+        "injury_summary",
+        "market_snapshot",
+        "live_scores",
+        "update_summary"
+      ],
+      "experimental": [
+        "game_probabilities",
+        "detailed_lineups",
+        "advanced_momentum"
+      ]
+    },
+    "source_inventory": [
+      {
+        "id": "stanley_cup_latest",
+        "kind": "file",
+        "source": "output/stanley_cup_latest.json",
+        "cadence": "nightly / on-demand",
+        "official": false,
+        "mode": "required",
+        "reliability": "high",
+        "downstream": [
+          "output/newsletter_latest.json",
+          "web_data/sports/latest.json"
+        ],
+        "fallback": "Abort derived export generation; this is the source of truth."
+      },
+      {
+        "id": "team_gamelogs_nst",
+        "kind": "file",
+        "source": "data/team_gamelogs_nst.csv",
+        "cadence": "nightly",
+        "official": false,
+        "mode": "required",
+        "reliability": "medium",
+        "downstream": [
+          "output/team_strength_posterior.csv",
+          "output/stanley_cup_latest.json"
+        ],
+        "fallback": "Keep last good posterior or rerun with existing file only."
+      },
+      {
+        "id": "goalie_profiles",
+        "kind": "file",
+        "source": "data/goalie_profiles.csv",
+        "cadence": "nightly",
+        "official": false,
+        "mode": "best_effort",
+        "reliability": "medium",
+        "downstream": [
+          "playoff_simulator",
+          "output/newsletter_latest.json",
+          "web_data/sports/latest.json"
+        ],
+        "fallback": "Retain previous goalie_profiles.csv if upstream refresh fails."
+      },
+      {
+        "id": "series_flags",
+        "kind": "file",
+        "source": "data/series_flags.csv",
+        "cadence": "per series update",
+        "official": false,
+        "mode": "required",
+        "reliability": "high",
+        "downstream": [
+          "playoff_simulator",
+          "output/newsletter_latest.json",
+          "web_data/sports/latest.json"
+        ],
+        "fallback": "Use neutral flags (0 injury/rest, original home ice)."
+      },
+      {
+        "id": "bracket",
+        "kind": "file",
+        "source": "data/bracket.json",
+        "cadence": "per playoff round",
+        "official": false,
+        "mode": "required",
+        "reliability": "high",
+        "downstream": [
+          "playoff_simulator",
+          "web_data/sports/latest.json"
+        ],
+        "fallback": "Use the last published bracket until structure changes."
+      },
+      {
+        "id": "playoff_pbp",
+        "kind": "file",
+        "source": "data/playoff_pbp.csv",
+        "cadence": "after playoff games",
+        "official": true,
+        "mode": "best_effort",
+        "reliability": "high",
+        "downstream": [
+          "data/goalie_playoff_stats.csv",
+          "future game context"
+        ],
+        "fallback": "Keep empty schema or previous extracted playoff goalie stats."
+      },
+      {
+        "id": "injuries",
+        "kind": "file",
+        "source": "data/injuries.csv",
+        "cadence": "nightly",
+        "official": true,
+        "mode": "best_effort",
+        "reliability": "medium",
+        "downstream": [
+          "output/newsletter_latest.json",
+          "web_data/sports/latest.json"
+        ],
+        "fallback": "Publish with empty injury summary."
+      },
+      {
+        "id": "odds_consensus",
+        "kind": "file",
+        "source": "data/odds_consensus.csv",
+        "cadence": "nightly / market refresh",
+        "official": false,
+        "mode": "best_effort",
+        "reliability": "medium",
+        "downstream": [
+          "blend_market_signal",
+          "output/newsletter_latest.json",
+          "web_data/sports/latest.json"
+        ],
+        "fallback": "BSTS-only probabilities; market fields remain null."
+      },
+      {
+        "id": "nhl_scoreboard_live",
+        "kind": "api",
+        "source": "https://api-web.nhle.com/v1/scoreboard/now",
+        "cadence": "client-side live",
+        "official": true,
+        "mode": "display_only",
+        "reliability": "high",
+        "downstream": [
+          "sports/sports-scope.js"
+        ],
+        "fallback": "Hide live cards and keep static page stable."
+      },
+      {
+        "id": "espn_scoreboard_live",
+        "kind": "api",
+        "source": "https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/scoreboard",
+        "cadence": "client-side every minute",
+        "official": false,
+        "mode": "display_only",
+        "reliability": "medium",
+        "downstream": [
+          "sports/nhl/js/app.js"
+        ],
+        "fallback": "Hide scores section silently."
+      }
+    ],
+    "meta": {
+      "generated_at": "2026-05-22T20:25:57.687230+00:00",
+      "model": "posterior + goalie blend + context adjustments + poisson score layer",
+      "version": "0.1.0",
+      "source_mode": "official_scoreboard",
+      "scoreboard_url": "https://api-web.nhle.com/v1/scoreboard/now"
+    },
+    "games": [
+      {
+        "game_id": 2025030322,
+        "series_id": "WCF",
+        "start_time_utc": "2026-05-23T00:00:00Z",
+        "game_state": "FUT",
+        "date": "2026-05-22",
+        "home_team": "COL",
+        "away_team": "VGK",
+        "home_team_name": "COL",
+        "home_win_prob": 0.7391,
+        "away_win_prob": 0.2609,
+        "expected_goals_home": 3.76,
+        "expected_goals_away": 1.77,
+        "expected_total_goals": 5.53,
+        "overtime_prob": 0.1246,
+        "win_breakdown": {
+          "home_regulation": 0.7222,
+          "home_overtime": 0.0921,
+          "away_regulation": 0.1381,
+          "away_overtime": 0.0325
+        },
+        "context": {
+          "home_ice_team": "COL",
+          "home_context_adjustment": 2.5,
+          "away_context_adjustment": 2.5,
+          "sept_e_joueur_applied": false,
+          "home_goalie": {
+            "goalie_name": "Scott Wedgewood",
+            "goalie_strength": 58.0,
+            "goalie_sd": 0.8,
+            "sv_pct": 0.9197,
+            "gsaa": 25.76,
+            "injury_status": "healthy",
+            "blend": 0.5
+          },
+          "away_goalie": {
+            "goalie_name": "Akira Schmid",
+            "goalie_strength": 47.8,
+            "goalie_sd": 1.3,
+            "sv_pct": 0.89254,
+            "gsaa": -2.1,
+            "injury_status": "healthy",
+            "blend": 0.5
+          },
+          "home_team_strength": 56.54,
+          "away_team_strength": 51.86,
+          "home_effective_strength": 59.77,
+          "away_effective_strength": 52.33,
+          "series_game_number": 2,
+          "top_seed_team": "COL",
+          "top_seed_wins": 0,
+          "bottom_seed_team": "VGK",
+          "bottom_seed_wins": 1
+        },
+        "series_impact": {
+          "series_prob_home_now": 0.7641,
+          "series_prob_away_now": 0.2359,
+          "series_prob_home_if_home_wins": 0.8334,
+          "series_prob_away_if_home_wins": 0.1666,
+          "series_prob_home_if_away_wins": 0.5068,
+          "series_prob_away_if_away_wins": 0.4932,
+          "top_seed_team": "COL",
+          "bottom_seed_team": "VGK",
+          "top_seed_host_win_prob": 0.8008,
+          "top_seed_road_win_prob": 0.6662
+        },
+        "score_distribution": [
+          {
+            "home_goals": 3,
+            "away_goals": 2,
+            "probability": 0.08746
+          },
+          {
+            "home_goals": 2,
+            "away_goals": 1,
+            "probability": 0.069073
+          },
+          {
+            "home_goals": 3,
+            "away_goals": 1,
+            "probability": 0.062172
+          },
+          {
+            "home_goals": 4,
+            "away_goals": 1,
+            "probability": 0.058464
+          },
+          {
+            "home_goals": 4,
+            "away_goals": 3,
+            "probability": 0.054524
+          },
+          {
+            "home_goals": 4,
+            "away_goals": 2,
+            "probability": 0.051743
+          },
+          {
+            "home_goals": 5,
+            "away_goals": 1,
+            "probability": 0.043982
+          },
+          {
+            "home_goals": 5,
+            "away_goals": 2,
+            "probability": 0.038925
+          }
+        ],
+        "charts": {
+          "home_goal_pmf": [
+            {
+              "goals": 0,
+              "probability": 0.023251
+            },
+            {
+              "goals": 1,
+              "probability": 0.087456
+            },
+            {
+              "goals": 2,
+              "probability": 0.164479
+            },
+            {
+              "goals": 3,
+              "probability": 0.206225
+            },
+            {
+              "goals": 4,
+              "probability": 0.193924
+            },
+            {
+              "goals": 5,
+              "probability": 0.145886
+            },
+            {
+              "goals": 6,
+              "probability": 0.091456
+            },
+            {
+              "goals": 7,
+              "probability": 0.049144
+            },
+            {
+              "goals": 8,
+              "probability": 0.023106
+            }
+          ],
+          "away_goal_pmf": [
+            {
+              "goals": 0,
+              "probability": 0.17032
+            },
+            {
+              "goals": 1,
+              "probability": 0.301479
+            },
+            {
+              "goals": 2,
+              "probability": 0.266821
+            },
+            {
+              "goals": 3,
+              "probability": 0.157431
+            },
+            {
+              "goals": 4,
+              "probability": 0.069666
+            },
+            {
+              "goals": 5,
+              "probability": 0.024663
+            },
+            {
+              "goals": 6,
+              "probability": 0.007276
+            },
+            {
+              "goals": 7,
+              "probability": 0.00184
+            },
+            {
+              "goals": 8,
+              "probability": 0.000407
+            }
+          ]
+        },
+        "source_mode": "official_scoreboard",
+        "game_center_link": "/gamecenter/vgk-vs-col/2026/05/22/2025030322",
+        "venue": "Ball Arena",
+        "network": [
+          "ESPN",
+          "CBC",
+          "SN",
+          "TVAS"
+        ]
+      },
+      {
+        "game_id": 2025030312,
+        "series_id": "ECF",
+        "start_time_utc": "2026-05-23T23:00:00Z",
+        "game_state": "FUT",
+        "date": "2026-05-23",
+        "home_team": "CAR",
+        "away_team": "MTL",
+        "home_team_name": "CAR",
+        "home_win_prob": 0.7141,
+        "away_win_prob": 0.2859,
+        "expected_goals_home": 3.68,
+        "expected_goals_away": 1.77,
+        "expected_total_goals": 5.45,
+        "overtime_prob": 0.1284,
+        "win_breakdown": {
+          "home_regulation": 0.7142,
+          "home_overtime": 0.0917,
+          "away_regulation": 0.1441,
+          "away_overtime": 0.0367
+        },
+        "context": {
+          "home_ice_team": "CAR",
+          "home_context_adjustment": 2.5,
+          "away_context_adjustment": 0.0,
+          "sept_e_joueur_applied": false,
+          "home_goalie": {
+            "goalie_name": "Brandon Bussi",
+            "goalie_strength": 48.7,
+            "goalie_sd": 1.05,
+            "sv_pct": 0.89473,
+            "gsaa": -1.76,
+            "injury_status": "healthy",
+            "blend": 0.5
+          },
+          "away_goalie": {
+            "goalie_name": "Jakub Dobes",
+            "goalie_strength": 51.3,
+            "goalie_sd": 0.85,
+            "sv_pct": 0.90143,
+            "gsaa": 6.99,
+            "injury_status": "healthy",
+            "blend": 0.5
+          },
+          "home_team_strength": 59.25,
+          "away_team_strength": 48.57,
+          "home_effective_strength": 56.48,
+          "away_effective_strength": 49.94,
+          "series_game_number": 2,
+          "top_seed_team": "CAR",
+          "top_seed_wins": 0,
+          "bottom_seed_team": "MTL",
+          "bottom_seed_wins": 1
+        },
+        "series_impact": {
+          "series_prob_home_now": 0.7042,
+          "series_prob_away_now": 0.2958,
+          "series_prob_home_if_home_wins": 0.7891,
+          "series_prob_away_if_home_wins": 0.2109,
+          "series_prob_home_if_away_wins": 0.4613,
+          "series_prob_away_if_away_wins": 0.5387,
+          "top_seed_team": "CAR",
+          "bottom_seed_team": "MTL",
+          "top_seed_host_win_prob": 0.7141,
+          "top_seed_road_win_prob": 0.5537
+        },
+        "score_distribution": [
+          {
+            "home_goals": 3,
+            "away_goals": 2,
+            "probability": 0.088419
+          },
+          {
+            "home_goals": 2,
+            "away_goals": 1,
+            "probability": 0.071598
+          },
+          {
+            "home_goals": 3,
+            "away_goals": 1,
+            "probability": 0.063258
+          },
+          {
+            "home_goals": 4,
+            "away_goals": 1,
+            "probability": 0.058189
+          },
+          {
+            "home_goals": 4,
+            "away_goals": 3,
+            "probability": 0.053774
+          },
+          {
+            "home_goals": 4,
+            "away_goals": 2,
+            "probability": 0.051403
+          },
+          {
+            "home_goals": 5,
+            "away_goals": 1,
+            "probability": 0.042821
+          },
+          {
+            "home_goals": 2,
+            "away_goals": 3,
+            "probability": 0.039856
+          }
+        ],
+        "charts": {
+          "home_goal_pmf": [
+            {
+              "goals": 0,
+              "probability": 0.025237
+            },
+            {
+              "goals": 1,
+              "probability": 0.092858
+            },
+            {
+              "goals": 2,
+              "probability": 0.170833
+            },
+            {
+              "goals": 3,
+              "probability": 0.209524
+            },
+            {
+              "goals": 4,
+              "probability": 0.192733
+            },
+            {
+              "goals": 5,
+              "probability": 0.14183
+            },
+            {
+              "goals": 6,
+              "probability": 0.086976
+            },
+            {
+              "goals": 7,
+              "probability": 0.045717
+            },
+            {
+              "goals": 8,
+              "probability": 0.021027
+            }
+          ],
+          "away_goal_pmf": [
+            {
+              "goals": 0,
+              "probability": 0.170887
+            },
+            {
+              "goals": 1,
+              "probability": 0.301915
+            },
+            {
+              "goals": 2,
+              "probability": 0.266705
+            },
+            {
+              "goals": 3,
+              "probability": 0.157067
+            },
+            {
+              "goals": 4,
+              "probability": 0.069375
+            },
+            {
+              "goals": 5,
+              "probability": 0.024514
+            },
+            {
+              "goals": 6,
+              "probability": 0.007218
+            },
+            {
+              "goals": 7,
+              "probability": 0.001822
+            },
+            {
+              "goals": 8,
+              "probability": 0.000402
+            }
+          ]
+        },
+        "source_mode": "official_scoreboard",
+        "game_center_link": "/gamecenter/mtl-vs-car/2026/05/23/2025030312",
+        "venue": "Lenovo Center",
+        "network": [
+          "TNT",
+          "truTV",
+          "HBO MAX",
+          "CBC",
+          "SN",
+          "TVAS"
+        ]
+      },
+      {
+        "game_id": 2025030323,
+        "series_id": "WCF",
+        "start_time_utc": "2026-05-25T00:00:00Z",
+        "game_state": "FUT",
+        "date": "2026-05-24",
+        "home_team": "VGK",
+        "away_team": "COL",
+        "home_team_name": "VGK",
+        "home_win_prob": 0.2609,
+        "away_win_prob": 0.7391,
+        "expected_goals_home": 1.77,
+        "expected_goals_away": 3.76,
+        "expected_total_goals": 5.53,
+        "overtime_prob": 0.1246,
+        "win_breakdown": {
+          "home_regulation": 0.1381,
+          "home_overtime": 0.0325,
+          "away_regulation": 0.7222,
+          "away_overtime": 0.0921
+        },
+        "context": {
+          "home_ice_team": "COL",
+          "home_context_adjustment": 2.5,
+          "away_context_adjustment": 2.5,
+          "sept_e_joueur_applied": false,
+          "home_goalie": {
+            "goalie_name": "Akira Schmid",
+            "goalie_strength": 47.8,
+            "goalie_sd": 1.3,
+            "sv_pct": 0.89254,
+            "gsaa": -2.1,
+            "injury_status": "healthy",
+            "blend": 0.5
+          },
+          "away_goalie": {
+            "goalie_name": "Scott Wedgewood",
+            "goalie_strength": 58.0,
+            "goalie_sd": 0.8,
+            "sv_pct": 0.9197,
+            "gsaa": 25.76,
+            "injury_status": "healthy",
+            "blend": 0.5
+          },
+          "home_team_strength": 51.86,
+          "away_team_strength": 56.54,
+          "home_effective_strength": 52.33,
+          "away_effective_strength": 59.77,
+          "series_game_number": 3,
+          "top_seed_team": "COL",
+          "top_seed_wins": 0,
+          "bottom_seed_team": "VGK",
+          "bottom_seed_wins": 1
+        },
+        "series_impact": {
+          "series_prob_home_now": 0.2359,
+          "series_prob_away_now": 0.7641,
+          "series_prob_home_if_home_wins": 0.506,
+          "series_prob_away_if_home_wins": 0.494,
+          "series_prob_home_if_away_wins": 0.1418,
+          "series_prob_away_if_away_wins": 0.8582,
+          "top_seed_team": "COL",
+          "bottom_seed_team": "VGK",
+          "top_seed_host_win_prob": 0.8008,
+          "top_seed_road_win_prob": 0.6662
+        },
+        "score_distribution": [
+          {
+            "home_goals": 2,
+            "away_goals": 3,
+            "probability": 0.08746
+          },
+          {
+            "home_goals": 1,
+            "away_goals": 2,
+            "probability": 0.069073
+          },
+          {
+            "home_goals": 1,
+            "away_goals": 3,
+            "probability": 0.062172
+          },
+          {
+            "home_goals": 1,
+            "away_goals": 4,
+            "probability": 0.058464
+          },
+          {
+            "home_goals": 3,
+            "away_goals": 4,
+            "probability": 0.054524
+          },
+          {
+            "home_goals": 2,
+            "away_goals": 4,
+            "probability": 0.051743
+          },
+          {
+            "home_goals": 1,
+            "away_goals": 5,
+            "probability": 0.043982
+          },
+          {
+            "home_goals": 2,
+            "away_goals": 5,
+            "probability": 0.038925
+          }
+        ],
+        "charts": {
+          "home_goal_pmf": [
+            {
+              "goals": 0,
+              "probability": 0.17032
+            },
+            {
+              "goals": 1,
+              "probability": 0.301479
+            },
+            {
+              "goals": 2,
+              "probability": 0.266821
+            },
+            {
+              "goals": 3,
+              "probability": 0.157431
+            },
+            {
+              "goals": 4,
+              "probability": 0.069666
+            },
+            {
+              "goals": 5,
+              "probability": 0.024663
+            },
+            {
+              "goals": 6,
+              "probability": 0.007276
+            },
+            {
+              "goals": 7,
+              "probability": 0.00184
+            },
+            {
+              "goals": 8,
+              "probability": 0.000407
+            }
+          ],
+          "away_goal_pmf": [
+            {
+              "goals": 0,
+              "probability": 0.023251
+            },
+            {
+              "goals": 1,
+              "probability": 0.087456
+            },
+            {
+              "goals": 2,
+              "probability": 0.164479
+            },
+            {
+              "goals": 3,
+              "probability": 0.206225
+            },
+            {
+              "goals": 4,
+              "probability": 0.193924
+            },
+            {
+              "goals": 5,
+              "probability": 0.145886
+            },
+            {
+              "goals": 6,
+              "probability": 0.091456
+            },
+            {
+              "goals": 7,
+              "probability": 0.049144
+            },
+            {
+              "goals": 8,
+              "probability": 0.023106
+            }
+          ]
+        },
+        "source_mode": "official_scoreboard",
+        "game_center_link": "/gamecenter/col-vs-vgk/2026/05/24/2025030323",
+        "venue": "T-Mobile Arena",
+        "network": [
+          "ESPN",
+          "CBC",
+          "SN",
+          "TVAS"
+        ]
+      },
+      {
+        "game_id": 2025030313,
+        "series_id": "ECF",
+        "start_time_utc": "2026-05-26T00:00:00Z",
+        "game_state": "FUT",
+        "date": "2026-05-25",
+        "home_team": "MTL",
+        "away_team": "CAR",
+        "home_team_name": "MTL",
+        "home_win_prob": 0.2964,
+        "away_win_prob": 0.7036,
+        "expected_goals_home": 1.82,
+        "expected_goals_away": 3.64,
+        "expected_total_goals": 5.45,
+        "overtime_prob": 0.1323,
+        "win_breakdown": {
+          "home_regulation": 0.154,
+          "home_overtime": 0.0392,
+          "away_regulation": 0.7012,
+          "away_overtime": 0.0931
+        },
+        "context": {
+          "home_ice_team": "CAR",
+          "home_context_adjustment": 0.36,
+          "away_context_adjustment": 2.5,
+          "sept_e_joueur_applied": true,
+          "home_goalie": {
+            "goalie_name": "Jakub Dobes",
+            "goalie_strength": 51.3,
+            "goalie_sd": 0.85,
+            "sv_pct": 0.90143,
+            "gsaa": 6.99,
+            "injury_status": "healthy",
+            "blend": 0.5
+          },
+          "away_goalie": {
+            "goalie_name": "Brandon Bussi",
+            "goalie_strength": 48.7,
+            "goalie_sd": 1.05,
+            "sv_pct": 0.89473,
+            "gsaa": -1.76,
+            "injury_status": "healthy",
+            "blend": 0.5
+          },
+          "home_team_strength": 48.57,
+          "away_team_strength": 59.25,
+          "home_effective_strength": 50.3,
+          "away_effective_strength": 56.48,
+          "series_game_number": 3,
+          "top_seed_team": "CAR",
+          "top_seed_wins": 0,
+          "bottom_seed_team": "MTL",
+          "bottom_seed_wins": 1
+        },
+        "series_impact": {
+          "series_prob_home_now": 0.2958,
+          "series_prob_away_now": 0.7042,
+          "series_prob_home_if_home_wins": 0.5659,
+          "series_prob_away_if_home_wins": 0.4341,
+          "series_prob_home_if_away_wins": 0.1744,
+          "series_prob_away_if_away_wins": 0.8256,
+          "top_seed_team": "CAR",
+          "bottom_seed_team": "MTL",
+          "top_seed_host_win_prob": 0.7141,
+          "top_seed_road_win_prob": 0.5537
+        },
+        "score_distribution": [
+          {
+            "home_goals": 2,
+            "away_goals": 3,
+            "probability": 0.089523
+          },
+          {
+            "home_goals": 1,
+            "away_goals": 2,
+            "probability": 0.071401
+          },
+          {
+            "home_goals": 1,
+            "away_goals": 3,
+            "probability": 0.062392
+          },
+          {
+            "home_goals": 1,
+            "away_goals": 4,
+            "probability": 0.056714
+          },
+          {
+            "home_goals": 3,
+            "away_goals": 4,
+            "probability": 0.055281
+          },
+          {
+            "home_goals": 2,
+            "away_goals": 4,
+            "probability": 0.051487
+          },
+          {
+            "home_goals": 3,
+            "away_goals": 2,
+            "probability": 0.042136
+          },
+          {
+            "home_goals": 1,
+            "away_goals": 5,
+            "probability": 0.041243
+          }
+        ],
+        "charts": {
+          "home_goal_pmf": [
+            {
+              "goals": 0,
+              "probability": 0.162729
+            },
+            {
+              "goals": 1,
+              "probability": 0.295462
+            },
+            {
+              "goals": 2,
+              "probability": 0.268231
+            },
+            {
+              "goals": 3,
+              "probability": 0.162339
+            },
+            {
+              "goals": 4,
+              "probability": 0.073689
+            },
+            {
+              "goals": 5,
+              "probability": 0.026759
+            },
+            {
+              "goals": 6,
+              "probability": 0.008098
+            },
+            {
+              "goals": 7,
+              "probability": 0.0021
+            },
+            {
+              "goals": 8,
+              "probability": 0.000477
+            }
+          ],
+          "away_goal_pmf": [
+            {
+              "goals": 0,
+              "probability": 0.026358
+            },
+            {
+              "goals": 1,
+              "probability": 0.095836
+            },
+            {
+              "goals": 2,
+              "probability": 0.17423
+            },
+            {
+              "goals": 3,
+              "probability": 0.211167
+            },
+            {
+              "goals": 4,
+              "probability": 0.191951
+            },
+            {
+              "goals": 5,
+              "probability": 0.139587
+            },
+            {
+              "goals": 6,
+              "probability": 0.08459
+            },
+            {
+              "goals": 7,
+              "probability": 0.043938
+            },
+            {
+              "goals": 8,
+              "probability": 0.01997
+            }
+          ]
+        },
+        "source_mode": "official_scoreboard",
+        "game_center_link": "/gamecenter/car-vs-mtl/2026/05/25/2025030313",
+        "venue": "Centre Bell",
+        "network": [
+          "TNT",
+          "truTV",
+          "HBO MAX",
+          "CBC",
+          "SN",
+          "TVAS"
+        ]
+      }
+    ]
+  },
+  "update_summary": {
+    "teams_published": 16,
+    "series_published": 8,
+    "modules": {
+      "goalie_context": "ready",
+      "injury_summary": "empty",
+      "market_snapshot": "ready",
+      "series_context": "ready"
+    },
+    "publication_policy": "Exports stay descriptive and additive. Missing enrichment modules do not block publication."
+  },
+  "market_embeds": [
+    {
+      "label_fr": "Polymarket — Champion de la Coupe Stanley",
+      "label_en": "Polymarket — Stanley Cup Champion",
+      "note_fr": "Marché de prédiction · Coupe Stanley 2026 · ~2.5M$ de liquidité",
+      "note_en": "Prediction market · 2026 Stanley Cup · ~$2.5M liquidity",
+      "embed_url": "https://embed.polymarket.com/market?event=2026-nhl-stanley-cup-champion&theme=dark&liveactivity=true",
+      "url": "https://polymarket.com/event/2026-nhl-stanley-cup-champion"
+    },
+    {
+      "label_fr": "Polymarket — Champion de l'Est",
+      "label_en": "Polymarket — Eastern Conference Champion",
+      "note_fr": "Qui gagne la Conférence Est ?",
+      "note_en": "Who wins the Eastern Conference?",
+      "embed_url": "https://embed.polymarket.com/market?event=nhl-eastern-conference-champion-198&theme=dark&liveactivity=true",
+      "url": "https://polymarket.com/search?q=nhl+eastern+conference+champion+2026"
+    },
+    {
+      "label_fr": "Polymarket — Champion de l'Ouest",
+      "label_en": "Polymarket — Western Conference Champion",
+      "note_fr": "Qui gagne la Conférence Ouest ?",
+      "note_en": "Who wins the Western Conference?",
+      "embed_url": "https://embed.polymarket.com/market?event=nhl-western-conference-champion-865&theme=dark&liveactivity=true",
+      "url": "https://polymarket.com/search?q=nhl+western+conference+champion+2026"
+    }
+  ],
+  "live": {
+    "scoreboard_url": "https://api-web.nhle.com/v1/scoreboard/now"
+  },
+  "live_scores": {
+    "provider": "NHL API",
+    "mode": "display_only",
+    "scoreboard_url": "https://api-web.nhle.com/v1/scoreboard/now"
+  }
+}

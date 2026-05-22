@@ -1,0 +1,867 @@
+.lame-duck-page {
+  padding-block: 64px 96px;
+}
+
+.lame-duck-hero {
+  max-width: 1080px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.02fr) minmax(340px, 0.78fr);
+  gap: clamp(32px, 6vw, 72px);
+  align-items: start;
+  padding-bottom: 56px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.lame-duck-kicker {
+  margin: 0 0 16px;
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.lame-duck-title {
+  max-width: 780px;
+  margin: 0 0 18px;
+  font-family: var(--serif);
+  font-size: clamp(48px, 7vw, 84px);
+  font-weight: 420;
+  letter-spacing: -0.02em;
+  line-height: 0.98;
+}
+
+.lame-duck-title em {
+  color: var(--duck-deep);
+  font-style: italic;
+}
+
+.lame-duck-dek {
+  max-width: 650px;
+  margin: 0 0 24px;
+  color: var(--ink-2);
+  font-size: 17px;
+  line-height: 1.6;
+}
+
+.lame-duck-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  margin-bottom: 24px;
+  color: var(--ink-2);
+  font-family: var(--mono);
+  font-size: 12px;
+}
+
+.lame-duck-meta span[aria-hidden] {
+  color: var(--rule);
+}
+
+.lame-duck-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.lame-duck-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: 34px;
+  padding-top: 24px;
+  border-top: 1px solid var(--rule);
+}
+
+.lame-duck-stats article {
+  min-width: 0;
+}
+
+.lame-duck-stats p {
+  margin: 0 0 8px;
+  color: var(--ink-3);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.lame-duck-stats strong {
+  display: block;
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: 36px;
+  font-weight: 430;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.lame-duck-stats strong span {
+  color: var(--ink-3);
+  font-size: 18px;
+}
+
+.lame-duck-stats strong.is-red {
+  color: var(--red);
+}
+
+.lame-duck-stats em {
+  display: block;
+  margin-top: 6px;
+  color: var(--ink-3);
+  font-family: var(--mono);
+  font-size: 12px;
+  font-style: normal;
+}
+
+.lame-duck-stats em.is-up {
+  color: var(--red);
+}
+
+.lame-duck-stats em.is-down {
+  color: var(--blue);
+}
+
+.lame-duck-meter-card {
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  background:
+    radial-gradient(ellipse 85% 60% at 85% 10%, oklch(0.95 0.06 90 / 0.55), transparent 62%),
+    var(--card);
+  box-shadow: 0 1px 0 var(--rule-2), 0 24px 48px -28px rgba(40, 30, 20, 0.18);
+  padding: clamp(20px, 3vw, 28px);
+}
+
+.lame-duck-ticker {
+  overflow: hidden;
+  border-bottom: 1px solid var(--rule);
+  background: var(--ink);
+  color: var(--paper-3);
+}
+
+.lame-duck-ticker-track {
+  display: flex;
+  width: max-content;
+  animation: lameDuckTickerScroll 60s linear infinite;
+}
+
+.lame-duck-ticker:hover .lame-duck-ticker-track,
+.lame-duck-ticker:focus-within .lame-duck-ticker-track {
+  animation-play-state: paused;
+}
+
+.lame-duck-ticker-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  padding-inline: 20px;
+  color: inherit;
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.lame-duck-ticker-item time {
+  color: var(--ink-4);
+}
+
+.lame-duck-ticker-tag {
+  border-radius: 3px;
+  padding: 3px 7px;
+  background: var(--paper-3);
+  color: var(--ink);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+.lame-duck-ticker-tag.is-red {
+  background: var(--red);
+  color: var(--paper-3);
+}
+
+.lame-duck-ticker-tag.is-blue {
+  background: var(--blue);
+  color: var(--paper-3);
+}
+
+.lame-duck-ticker-tag.is-duck {
+  background: var(--duck);
+  color: var(--ink);
+}
+
+.lame-duck-components {
+  position: relative;
+  margin-top: 34px;
+}
+
+.lame-duck-component-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border-top: 1px solid var(--rule);
+  border-left: 1px solid var(--rule);
+}
+
+.lame-duck-component-card {
+  position: relative;
+  min-height: 260px;
+  border-right: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  background: var(--card);
+  cursor: default;
+  padding: 24px;
+  transition: background 0.15s ease;
+}
+
+.lame-duck-component-card:hover,
+.lame-duck-component-card:focus {
+  background: var(--paper-3);
+  outline: none;
+}
+
+.lame-duck-quality {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  border-radius: 2px;
+  padding: 3px 6px;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.lame-duck-quality.is-real {
+  background: oklch(0.92 0.05 145);
+  color: oklch(0.35 0.1 145);
+}
+
+.lame-duck-quality.is-estimate {
+  background: oklch(0.95 0.06 90);
+  color: oklch(0.4 0.12 70);
+}
+
+.lame-duck-quality.is-mixed {
+  background: var(--paper-2);
+  color: var(--ink-3);
+}
+
+.lame-duck-component-weight,
+.lame-duck-component-card footer {
+  margin: 0;
+  color: var(--ink-3);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.lame-duck-component-card h3 {
+  margin: 24px 0 12px;
+  font-family: var(--serif);
+  font-size: 24px;
+  font-weight: 430;
+  letter-spacing: -0.01em;
+  line-height: 1.05;
+}
+
+.lame-duck-component-card strong {
+  display: block;
+  font-family: var(--serif);
+  font-size: 42px;
+  font-weight: 430;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.lame-duck-component-card em {
+  display: block;
+  margin-top: 8px;
+  color: var(--ink-3);
+  font-family: var(--mono);
+  font-size: 11px;
+  font-style: normal;
+}
+
+.lame-duck-component-card em.is-strong {
+  color: var(--red);
+}
+
+.lame-duck-component-card em.is-moderate {
+  color: var(--duck-deep);
+}
+
+.lame-duck-component-card em.is-supportive {
+  color: oklch(0.55 0.12 150);
+}
+
+.lame-duck-component-bar {
+  height: 4px;
+  margin-top: 16px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--paper-2);
+}
+
+.lame-duck-component-bar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+}
+
+.lame-duck-component-card footer {
+  margin-top: 12px;
+}
+
+.lame-duck-component-tip {
+  max-width: 520px;
+  margin-top: 14px;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  background: var(--ink);
+  color: var(--paper-3);
+  padding: 14px 16px;
+}
+
+.lame-duck-component-tip span {
+  color: var(--ink-4);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.lame-duck-component-tip p {
+  margin: 5px 0 0;
+  color: var(--paper-3);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.lame-duck-history {
+  margin-top: 34px;
+}
+
+.lame-duck-history-chart {
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  background: var(--card);
+  padding: clamp(18px, 3vw, 30px);
+}
+
+.lame-duck-history-chart header {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  align-items: end;
+  margin-bottom: 18px;
+}
+
+.lame-duck-history-chart h3 {
+  margin: 4px 0 0;
+  font-family: var(--serif);
+  font-size: 30px;
+  font-weight: 430;
+  letter-spacing: -0.01em;
+}
+
+.lame-duck-history-chart dl,
+.lame-duck-modal dl {
+  display: flex;
+  gap: 22px;
+  margin: 0;
+}
+
+.lame-duck-history-chart dt,
+.lame-duck-modal dt {
+  color: var(--ink-3);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.lame-duck-history-chart dd,
+.lame-duck-modal dd {
+  margin: 4px 0 0;
+  font-family: var(--serif);
+  font-size: 28px;
+  line-height: 1;
+}
+
+.lame-duck-history-chart svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.lame-duck-history-chart line {
+  stroke: var(--rule-2);
+  stroke-dasharray: 2 3;
+}
+
+.lame-duck-history-chart text {
+  fill: var(--ink-3);
+  font-family: var(--mono);
+  font-size: 10px;
+}
+
+.lame-duck-history-chart path {
+  fill: none;
+  stroke-linejoin: round;
+}
+
+.lame-duck-history-chart .ldi-line {
+  stroke: var(--duck-deep);
+  stroke-width: 3;
+}
+
+.lame-duck-history-chart .approval-line {
+  stroke: var(--blue);
+  stroke-width: 2;
+  opacity: 0.75;
+}
+
+.lame-duck-history-chart .marker-line {
+  stroke: var(--ink);
+  stroke-dasharray: none;
+}
+
+.lame-duck-history-chart .marker-dot {
+  fill: var(--duck);
+  stroke: var(--ink);
+  stroke-width: 1.5;
+}
+
+.lame-duck-history-chart input {
+  width: 100%;
+  margin-top: 18px;
+  accent-color: var(--ink);
+}
+
+.lame-duck-president-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border-top: 1px solid var(--rule);
+  border-left: 1px solid var(--rule);
+  margin-top: 22px;
+}
+
+.lame-duck-president-card {
+  min-height: 170px;
+  border: 0;
+  border-right: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  background: var(--card);
+  color: var(--ink);
+  cursor: pointer;
+  padding: 18px;
+  text-align: left;
+}
+
+.lame-duck-president-card.is-current {
+  cursor: default;
+  background: oklch(0.95 0.05 90 / 0.45);
+  border-left: 3px solid var(--duck-deep);
+}
+
+.lame-duck-president-card span,
+.lame-duck-president-card small {
+  display: block;
+  color: var(--ink-3);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.lame-duck-president-card strong {
+  display: block;
+  margin-top: 8px;
+  font-family: var(--serif);
+  font-size: 20px;
+  font-weight: 430;
+}
+
+.lame-duck-president-card svg {
+  display: block;
+  width: 100%;
+  height: 42px;
+  margin: 12px 0 8px;
+}
+
+.lame-duck-president-card path,
+.lame-duck-modal path {
+  fill: none;
+  stroke-width: 2;
+}
+
+.lame-duck-president-card em {
+  display: block;
+  font-family: var(--serif);
+  font-size: 28px;
+  font-style: normal;
+  line-height: 1;
+}
+
+.lame-duck-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  background: rgba(26, 24, 20, 0.62);
+  padding: 20px;
+}
+
+.lame-duck-modal-panel {
+  position: relative;
+  width: min(640px, 100%);
+  border-radius: 6px;
+  background: var(--card);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.3);
+  padding: 30px;
+}
+
+.lame-duck-modal-panel > button {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  background: transparent;
+  color: var(--ink-3);
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: 11px;
+  padding: 7px 10px;
+  text-transform: uppercase;
+}
+
+.lame-duck-modal h3 {
+  margin: 6px 0 18px;
+  font-family: var(--serif);
+  font-size: 34px;
+  font-weight: 430;
+}
+
+.lame-duck-modal svg {
+  display: block;
+  width: 100%;
+  height: 180px;
+  margin-bottom: 18px;
+}
+
+.lame-duck-midterms {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(260px, 0.6fr);
+  gap: 24px;
+  margin-top: 34px;
+}
+
+.lame-duck-midterm-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.lame-duck-midterm-card,
+.lame-duck-rabbit {
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  background: var(--card);
+  padding: 24px;
+}
+
+.lame-duck-midterm-card header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: baseline;
+}
+
+.lame-duck-midterm-card h3 {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: 26px;
+  font-weight: 430;
+  letter-spacing: -0.01em;
+}
+
+.lame-duck-midterm-card header span,
+.lame-duck-midterm-card p,
+.lame-duck-midterm-card footer {
+  color: var(--ink-3);
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.lame-duck-midterm-card strong {
+  display: block;
+  margin-top: 18px;
+  font-family: var(--serif);
+  font-size: 52px;
+  font-weight: 430;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.lame-duck-seatbar {
+  display: flex;
+  height: 32px;
+  overflow: hidden;
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  margin: 18px 0;
+}
+
+.lame-duck-seatbar .is-dem {
+  background: var(--blue);
+}
+
+.lame-duck-seatbar .is-gop {
+  background: var(--red);
+}
+
+.lame-duck-midterm-card dl {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin: 0;
+  padding-top: 16px;
+  border-top: 1px solid var(--rule-2);
+}
+
+.lame-duck-midterm-card dt {
+  color: var(--ink-3);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.lame-duck-midterm-card dd {
+  margin: 4px 0 0;
+  font-family: var(--serif);
+  font-size: 34px;
+  line-height: 1;
+}
+
+.lame-duck-midterm-card footer {
+  margin-top: 14px;
+}
+
+.lame-duck-rabbit {
+  align-self: stretch;
+}
+
+.lame-duck-rabbit a {
+  display: block;
+  border-top: 1px solid var(--rule-2);
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: 24px;
+  line-height: 1.05;
+  padding: 16px 0;
+}
+
+.lame-duck-rabbit a:first-of-type {
+  margin-top: 8px;
+}
+
+@keyframes lameDuckTickerScroll {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.lame-duck-meter-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 18px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--rule-2);
+}
+
+.lame-duck-meter-head h2 {
+  margin: 0 0 5px;
+  font-family: var(--serif);
+  font-size: 24px;
+  font-weight: 430;
+  letter-spacing: -0.01em;
+  line-height: 1.05;
+}
+
+.lame-duck-meter-head p {
+  margin: 0;
+  color: var(--ink-3);
+  font-size: 12px;
+}
+
+.lame-duck-meter-head > span {
+  flex: 0 0 auto;
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  background: var(--paper-3);
+  color: var(--ink-2);
+  padding: 5px 8px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.meter-foot {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--rule-2);
+  color: var(--ink-3);
+  font-family: var(--mono);
+  font-size: 12px;
+}
+
+.meter-switch {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 16px;
+}
+
+.meter-switch button {
+  min-height: 32px;
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  background: transparent;
+  color: var(--ink-2);
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  padding: 6px 11px;
+  text-transform: uppercase;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.meter-switch button.active,
+.meter-switch button[aria-selected='true'] {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--paper-3);
+}
+
+.meter-readout {
+  position: relative;
+  text-align: center;
+}
+
+.meter-readout .score {
+  font-family: var(--serif);
+  font-size: 54px;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.meter-readout .label {
+  margin-top: 6px;
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.duck-bob {
+  animation: duckBob 3.2s ease-in-out infinite;
+}
+
+@keyframes duckBob {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-2deg);
+  }
+
+  50% {
+    transform: translateY(-5px) rotate(2deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .duck-bob,
+  .lame-duck-ticker-track {
+    animation: none;
+  }
+}
+
+@media (max-width: 900px) {
+  .lame-duck-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .lame-duck-meter-card {
+    max-width: 560px;
+  }
+
+  .lame-duck-component-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .lame-duck-president-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .lame-duck-midterms,
+  .lame-duck-midterm-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 620px) {
+  .lame-duck-page {
+    padding-block: 44px 72px;
+  }
+
+  .lame-duck-title {
+    font-size: clamp(42px, 15vw, 62px);
+  }
+
+  .lame-duck-meter-head,
+  .meter-foot {
+    flex-direction: column;
+  }
+
+  .lame-duck-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .lame-duck-component-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .lame-duck-history-chart header,
+  .lame-duck-history-chart dl,
+  .lame-duck-modal dl {
+    flex-direction: column;
+    align-items: start;
+  }
+
+  .lame-duck-president-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .meter-switch {
+    flex-wrap: wrap;
+  }
+}

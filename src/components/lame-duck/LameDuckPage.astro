@@ -1,0 +1,299 @@
+---
+import EditorialLayout from '../../layouts/EditorialLayout.astro';
+import DuckMeter from '../../islands/DuckMeter.tsx';
+import HeroStats from '../../islands/HeroStats.tsx';
+import LiveTicker from '../../islands/LiveTicker.tsx';
+import ComponentBreakdown from '../../islands/ComponentBreakdown.tsx';
+import LameDuckHistory from '../../islands/LameDuckHistory.tsx';
+import MidtermsEngagement from '../../islands/MidtermsEngagement.tsx';
+import type { LameDuckData, LameDuckLocale } from '../../data/lameDuck';
+import '../../styles/lame-duck.css';
+
+interface Props {
+  data: LameDuckData;
+  locale: LameDuckLocale;
+  canonicalPath: string;
+}
+
+const { data, locale, canonicalPath } = Astro.props;
+
+const copy = {
+  en: {
+    title: 'Lame-Duck Index — Vote-Scope',
+    description:
+      'Tracks how lame-duck Trump has become — updated daily. Four public signals: net approval, generic ballot, congressional control, and economic sentiment combined into one 0–100 score.',
+    eyebrow: 'Vote-Scope USA · Live instrument',
+    headline: 'The Trump Drag & Lame-Duck Index.',
+    dek:
+      'A daily composite score measuring how much a president can still get done. Four weighted components, 70 years of back-data, zero opinion. The duck rises as the presidency floats out.',
+    updated: 'Updated',
+    methodology: 'How it works',
+    history: 'View history',
+    meterTitle: 'The Lame-Duck Meter',
+    meterSub: 'Composite · Updated daily · 06:00 ET',
+    live: 'Live',
+    methodTitle: 'How we measure the quack.',
+    methodBody:
+      'The Index is a composite score, not an opinion. Four components, all based on publicly available polling and economic data — the same sources available for presidents back to Truman. Higher means lamer.',
+    methodEyebrow: 'Methodology',
+    breakdownEyebrow: 'Component Breakdown',
+    breakdownTitle: 'Four signals, one number.',
+    breakdownBody:
+      'Each component is public, weighted, and visible. The page should feel like an instrument you can inspect, not a blog paragraph asking for trust.',
+    historyEyebrow: 'Historical Series',
+    historyTitle: 'Since inauguration.',
+    historyBody:
+      'Scrub through the series, then compare the current trajectory with past second-term presidents using the same instrument language.',
+    midtermsEyebrow: 'Midterms 2026',
+    midtermsTitle: 'What the quack means for November.',
+    midtermsBody:
+      'The LDI is not isolated from the rest of Vote-Scope. Congressional control feeds the index, and the index should pull readers deeper into the House, Senate, and U.S. desk instruments.',
+  },
+  fr: {
+    title: 'Indice canard boiteux — Vote-Scope',
+    description:
+      'Mesure chaque jour à quel point Trump est devenu un canard boiteux. Quatre signaux publics combinés en un score de 0 à 100 : approbation nette, bulletin générique, contrôle du Congrès, humeur économique.',
+    eyebrow: 'Vote-Scope USA · Instrument live',
+    headline: 'Le Poids Trump & l’Indice canard boiteux.',
+    dek:
+      'Un score composite quotidien mesurant à quel point un président peut encore accomplir ses objectifs. Quatre composantes pondérées, 70 ans de données historiques, zéro opinion.',
+    updated: 'Mis à jour',
+    methodology: 'Méthodologie',
+    history: 'Voir l’historique',
+    meterTitle: 'Le Mètre canard boiteux',
+    meterSub: 'Composite · Mis à jour quotidiennement · 06:00 ET',
+    live: 'Live',
+    methodTitle: 'Comment on mesure le canard.',
+    methodBody:
+      'L’indice est un score composite, pas une opinion. Quatre composantes, toutes basées sur des données publiques disponibles pour les présidents depuis Truman. Plus le score est élevé, plus le canard est boiteux.',
+    methodEyebrow: 'Méthodologie',
+    breakdownEyebrow: 'Détail des composantes',
+    breakdownTitle: 'Quatre signaux, un seul nombre.',
+    breakdownBody:
+      'Chaque composante est publique, pondérée et visible. La page doit se lire comme un instrument qu’on peut inspecter, pas comme un paragraphe qui demande de faire confiance.',
+    historyEyebrow: 'Série historique',
+    historyTitle: 'Depuis l’investiture.',
+    historyBody:
+      'Parcourez la série, puis comparez la trajectoire actuelle aux présidents passés avec le même langage d’instrument.',
+    midtermsEyebrow: 'Mi-mandat 2026',
+    midtermsTitle: 'Ce que le canard annonce pour novembre.',
+    midtermsBody:
+      'L’ICB n’est pas isolé du reste de Vote-Scope. Le contrôle du Congrès nourrit l’indice, et l’indice doit pousser les lecteurs vers les instruments Chambre, Sénat et desk U.S.',
+  },
+  es: {
+    title: 'Lame-Duck Index — Vote-Scope',
+    description:
+      'Mide cada día qué tan "pato cojo" se ha vuelto Trump. Cuatro señales públicas combinadas en un puntaje de 0 a 100: aprobación neta, boleta genérica, control del Congreso y sentimiento económico.',
+    eyebrow: 'Vote-Scope EE. UU. · Instrumento en vivo',
+    headline: 'El Trump Drag & Lame-Duck Index.',
+    dek:
+      'Un puntaje compuesto diario que mide cuánto puede lograr todavía un presidente. Cuatro componentes ponderados, 70 años de datos históricos, cero opinión. El pato sube a medida que la presidencia se aleja del poder.',
+    updated: 'Actualizado',
+    methodology: 'Metodología',
+    history: 'Ver historial',
+    meterTitle: 'El medidor Lame-Duck',
+    meterSub: 'Compuesto · Actualizado diariamente · 06:00 ET',
+    live: 'En vivo',
+    methodTitle: 'Cómo medimos el quack.',
+    methodBody:
+      'El índice es un puntaje compuesto, no una opinión. Cuatro componentes, todos basados en datos públicos disponibles para presidentes desde Truman. Cuanto más alto el puntaje, más cojo el pato.',
+    methodEyebrow: 'Metodología',
+    breakdownEyebrow: 'Desglose de componentes',
+    breakdownTitle: 'Cuatro señales, un número.',
+    breakdownBody:
+      'Cada componente es público, ponderado y visible. La página debe funcionar como un instrumento que se puede inspeccionar, no como un párrafo que pide confianza.',
+    historyEyebrow: 'Serie histórica',
+    historyTitle: 'Desde la investidura.',
+    historyBody:
+      'Recorre la serie y compara la trayectoria actual con presidentes de segundo mandato usando el mismo lenguaje instrumental.',
+    midtermsEyebrow: 'Elecciones intermedias 2026',
+    midtermsTitle: 'Qué significa el quack para noviembre.',
+    midtermsBody:
+      'El LDI no está aislado del resto de Vote-Scope. El control del Congreso alimenta el índice, y el índice debe llevar a los lectores hacia los instrumentos de la Cámara, el Senado y el desk de Estados Unidos.',
+  },
+} as const;
+
+const t = copy[locale] ?? copy.en;
+const canonical = `https://vote-scope.com${canonicalPath}`;
+const approvalComponent = data.components.find((component) => component.id === 'net_approval');
+const alternates = {
+  en: 'https://vote-scope.com/en/us/indexes/lame-duck/',
+  fr: 'https://vote-scope.com/fr/us/indexes/lame-duck/',
+  es: 'https://vote-scope.com/es/us/indexes/lame-duck/',
+};
+
+const breadcrumbItems = locale === 'fr'
+  ? [
+      { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: 'https://vote-scope.com/fr/' },
+      { '@type': 'ListItem', position: 2, name: 'États-Unis', item: 'https://vote-scope.com/fr/us/' },
+      { '@type': 'ListItem', position: 3, name: 'Lame-Duck Index', item: canonical },
+    ]
+  : locale === 'es'
+  ? [
+      { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: 'https://vote-scope.com/es/' },
+      { '@type': 'ListItem', position: 2, name: 'EE. UU.', item: 'https://vote-scope.com/es/us/' },
+      { '@type': 'ListItem', position: 3, name: 'Lame-Duck Index', item: canonical },
+    ]
+  : [
+      { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: 'https://vote-scope.com/en/' },
+      { '@type': 'ListItem', position: 2, name: 'U.S.', item: 'https://vote-scope.com/en/us/' },
+      { '@type': 'ListItem', position: 3, name: 'Lame-Duck Index', item: canonical },
+    ];
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Dataset',
+    name: 'Trump Lame-Duck Index (LDI)',
+    description: t.description,
+    creator: {
+      '@type': 'Person',
+      name: 'Kim Leclerc',
+      url: 'https://kimleclerc.ca',
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'Vote-Scope',
+      url: 'https://vote-scope.com',
+    },
+    temporalCoverage: `${data.meta.term_start ?? '2025-01-20'}/..`,
+    url: canonical,
+    isAccessibleForFree: true,
+    distribution: {
+      '@type': 'DataDownload',
+      contentUrl: 'https://vote-scope.com/web_data/us-lame-duck/latest.json',
+      encodingFormat: 'application/json',
+    },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: breadcrumbItems,
+  },
+];
+---
+
+<EditorialLayout
+  title={t.title}
+  description={t.description}
+  canonical={canonical}
+  lang={locale}
+  currentPage="indexes"
+  ogImage="https://vote-scope.com/og/lame-duck.png"
+  alternates={alternates}
+  jsonLd={jsonLd}
+>
+  <article class="lame-duck-page">
+    <header class="lame-duck-hero container">
+      <div class="lame-duck-hero-copy">
+        <p class="lame-duck-kicker">{t.eyebrow}</p>
+        <h1 class="lame-duck-title">{t.headline}</h1>
+        <p class="lame-duck-dek">{t.dek}</p>
+        <div class="lame-duck-meta">
+          <span>{t.updated} {data.computed.asOfLabel}</span>
+          <span aria-hidden="true">·</span>
+          <span>LDI v{data.meta.version ?? '1.0'}</span>
+          <span aria-hidden="true">·</span>
+          <span>{data.computed.dataQualityLabel[locale] ?? data.computed.dataQualityLabel.en}</span>
+        </div>
+        <div class="lame-duck-actions">
+          <a class="btn-primary" href="#methodology">{t.methodology}</a>
+          <a class="btn-outline" href="#history">{t.history}</a>
+        </div>
+        <HeroStats
+          score={data.ldi.score}
+          delta7d={data.ldi.delta_7d}
+          approvalLabel={approvalComponent?.raw_label}
+          electionDate={data.meta.midterm_date}
+          initialDaysToElection={data.computed.daysToMidterms}
+          locale={locale}
+          client:idle
+        />
+      </div>
+
+      <aside class="lame-duck-meter-card" aria-label={t.meterTitle}>
+        <div class="lame-duck-meter-head">
+          <div>
+            <h2>{t.meterTitle}</h2>
+            <p>{t.meterSub}</p>
+          </div>
+          <span>{t.live}</span>
+        </div>
+        <DuckMeter
+          score={data.ldi.score}
+          locale={locale}
+          zones={data.zones}
+          qualityNote={data.computed.dataQualityLabel[locale] ?? data.computed.dataQualityLabel.en}
+          client:visible
+        />
+      </aside>
+    </header>
+
+    <LiveTicker items={data.ticker} client:idle />
+
+    <section class="content-band" id="methodology">
+      <div class="container">
+        <p class="eyebrow">{t.methodEyebrow}</p>
+        <div class="content-grid-2">
+          <div>
+            <h2>{t.methodTitle}</h2>
+          </div>
+          <div>
+            <p>{t.methodBody}</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="content-band" id="breakdown">
+      <div class="container">
+        <p class="eyebrow">{t.breakdownEyebrow}</p>
+        <div class="content-grid-2">
+          <div>
+            <h2>{t.breakdownTitle}</h2>
+          </div>
+          <div>
+            <p>{t.breakdownBody}</p>
+          </div>
+        </div>
+        <ComponentBreakdown components={data.components} locale={locale} client:visible />
+      </div>
+    </section>
+
+    <section class="content-band" id="history">
+      <div class="container">
+        <p class="eyebrow">{t.historyEyebrow}</p>
+        <div class="content-grid-2">
+          <div>
+            <h2>{t.historyTitle}</h2>
+          </div>
+          <div>
+            <p>{t.historyBody}</p>
+          </div>
+        </div>
+        <LameDuckHistory
+          history={data.history}
+          presidents={data.historical_presidents}
+          currentScore={data.ldi.score}
+          locale={locale}
+          client:visible
+        />
+      </div>
+    </section>
+
+    <section class="content-band" id="midterms">
+      <div class="container">
+        <p class="eyebrow">{t.midtermsEyebrow}</p>
+        <div class="content-grid-2">
+          <div>
+            <h2>{t.midtermsTitle}</h2>
+          </div>
+          <div>
+            <p>{t.midtermsBody}</p>
+          </div>
+        </div>
+        <MidtermsEngagement midterms={data.midterms} locale={locale} client:visible />
+      </div>
+    </section>
+  </article>
+</EditorialLayout>

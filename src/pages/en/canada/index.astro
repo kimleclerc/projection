@@ -1,0 +1,175 @@
+---
+import EditorialLayout from '../../../layouts/EditorialLayout.astro';
+import EditorialHero from '../../../components/EditorialHero.astro';
+import MethodologyNote from '../../../components/MethodologyNote.astro';
+import AnimatedNumber from '../../../islands/AnimatedNumber';
+import PolymarketEmbed from '../../../components/PolymarketEmbed.astro';
+
+import federalData from '../../../../web_data/federal/latest.json';
+import quebecData from '../../../../web_data/quebec/latest.json';
+import ontarioData from '../../../../web_data/ontario/latest.json';
+import fraserData from '../../../../web_data/on-fraser-interim/latest.json';
+
+const meta = federalData.meta;
+const parties = federalData.parties as Array<{
+  party: string;
+  label_en: string;
+  color: string;
+  seats_projected: number;
+  p_majority: number;
+  p_largest: number;
+}>;
+const lib = parties.find((p) => p.party === 'lib')!;
+const con = parties.find((p) => p.party === 'con')!;
+const pMajority = Math.round(lib.p_majority * 100);
+const pLargest = Math.round(lib.p_largest * 100);
+
+const qcParties = quebecData.parties as Array<{ party: string; label_en: string; color: string; seats_projected: number; p_majority: number; p_largest: number }>;
+const qcTop = qcParties.reduce((a, b) => a.seats_projected > b.seats_projected ? a : b);
+const qcMaj = Math.round(qcTop.p_majority * 100);
+
+const onParties = ontarioData.parties as Array<{ party: string; label_en: string; color: string; seats_projected: number; p_majority: number; p_largest: number }>;
+const onTop = onParties.reduce((a, b) => a.seats_projected > b.seats_projected ? a : b);
+const onMaj = Math.round(onTop.p_majority * 100);
+---
+
+<EditorialLayout
+  title="Canada — Vote-Scope"
+  description="Federal, Quebec, and Ontario projections plus by-elections in one desk. Find out which ridings are settled and which are quietly fragile — Vote-Scope."
+  canonical="https://vote-scope.com/en/canada/"
+  lang="en"
+  currentPage="canada"
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={{ en: 'https://vote-scope.com/en/canada/', fr: 'https://vote-scope.com/fr/canada/' }}
+  jsonLd={[
+    {
+      '@context': 'https://schema.org',
+      '@type': 'CollectionPage',
+      name: 'Canada — Vote-Scope',
+      url: 'https://vote-scope.com/en/canada/',
+      inLanguage: 'en',
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: 'https://vote-scope.com/en/' },
+        { '@type': 'ListItem', position: 2, name: 'Canada', item: 'https://vote-scope.com/en/canada/' },
+      ],
+    },
+  ]}
+>
+  <EditorialHero
+    eyebrow="Canada Desk"
+    title="Where is the Canadian map stable, and where is it only pretending?"
+    promise="Federal, Quebec, Ontario, and by-elections should read as race intelligence first, projection machinery second."
+    question="Which ridings are genuinely settled, and which are quietly fragile?"
+    primaryHref="/en/indexes/"
+    primaryLabel="View instruments"
+    secondaryHref="/en/"
+    secondaryLabel="All desks"
+  />
+
+  <section class="content-band">
+    <div class="container">
+      <p class="eyebrow">Latest from the Canada desk</p>
+      <h2>Federal projection — as of {meta.run_date}</h2>
+      <p style="margin-bottom:1.5rem;">Based on {meta.n_polls} polls · {meta.n_simulations.toLocaleString()} simulations</p>
+      <div class="content-grid-2" style="gap:1.5rem;margin-bottom:2rem;">
+        <div class="note-card" style={`border-left:4px solid ${lib.color};`}>
+          <p class="eyebrow">Liberal</p>
+          <h3 style="font-size:2.5rem;margin:0.25rem 0;">
+            <AnimatedNumber client:visible value={lib.seats_projected} />
+            <span style="font-size:1rem;font-weight:400;"> seats projected</span>
+          </h3>
+          <p>Majority probability: <strong>{pMajority}%</strong> · Largest party: <strong>{pLargest}%</strong></p>
+        </div>
+        <div class="note-card" style={`border-left:4px solid ${con.color};`}>
+          <p class="eyebrow">Conservative</p>
+          <h3 style="font-size:2.5rem;margin:0.25rem 0;">
+            <AnimatedNumber client:visible value={con.seats_projected} />
+            <span style="font-size:1rem;font-weight:400;"> seats projected</span>
+          </h3>
+          <p>Majority threshold: {meta.majority_threshold} / {meta.total_seats} seats</p>
+        </div>
+      </div>
+      <p style="text-align:right;">
+        <a href="/en/canada/federal/" class="cta-link">Full federal projection →</a>
+      </p>
+    </div>
+  </section>
+
+  <section class="content-band">
+    <div class="container content-grid-2">
+      <div class="note-card" style={`border-left:4px solid ${lib.color};`}>
+        <p class="eyebrow">Federal projection</p>
+        <h3 style="font-family:var(--serif);font-size:1.4rem;margin:0.25rem 0;">{lib.label_en}</h3>
+        <p style="font-size:2rem;font-weight:700;margin:0.25rem 0;">
+          <AnimatedNumber client:visible value={lib.seats_projected} />
+          <span style="font-size:1rem;font-weight:400;"> / {meta.total_seats} seats</span>
+        </p>
+        <p style="font-family:var(--mono);font-size:0.8rem;color:var(--ink-3);">Majority probability: {pMajority}% · Largest party: {pLargest}%</p>
+        <p style="margin-top:1rem;"><a href="/en/canada/federal/" class="cta-link" style="font-family:var(--mono);font-size:0.8rem;text-transform:uppercase;letter-spacing:.08em;">Open federal projection →</a></p>
+      </div>
+      <div class="note-card" style={`border-left:4px solid ${qcTop.color};`}>
+        <p class="eyebrow">Provincial · Québec</p>
+        <h3 style="font-family:var(--serif);font-size:1.4rem;margin:0.25rem 0;">{qcTop.label_en}</h3>
+        <p style="font-size:2rem;font-weight:700;margin:0.25rem 0;">
+          <AnimatedNumber client:visible value={qcTop.seats_projected} />
+          <span style="font-size:1rem;font-weight:400;"> / {quebecData.meta.total_seats} seats</span>
+        </p>
+        <p style="font-family:var(--mono);font-size:0.8rem;color:var(--ink-3);">Majority probability: {qcMaj}%</p>
+        <p style="margin-top:1rem;"><a href="/en/canada/quebec/" class="cta-link" style="font-family:var(--mono);font-size:0.8rem;text-transform:uppercase;letter-spacing:.08em;">Open Quebec projection →</a></p>
+      </div>
+      <div class="note-card" style={`border-left:4px solid ${onTop.color};`}>
+        <p class="eyebrow">Provincial · Ontario</p>
+        <h3 style="font-family:var(--serif);font-size:1.4rem;margin:0.25rem 0;">{onTop.label_en}</h3>
+        <p style="font-size:2rem;font-weight:700;margin:0.25rem 0;">
+          <AnimatedNumber client:visible value={onTop.seats_projected} />
+          <span style="font-size:1rem;font-weight:400;"> / {ontarioData.meta.total_seats} seats</span>
+        </p>
+        <p style="font-family:var(--mono);font-size:0.8rem;color:var(--ink-3);">Majority probability: {onMaj}%</p>
+        <p style="margin-top:1rem;"><a href="/en/canada/ontario/" class="cta-link" style="font-family:var(--mono);font-size:0.8rem;text-transform:uppercase;letter-spacing:.08em;">Open Ontario projection →</a></p>
+      </div>
+      <div class="note-card">
+        <p class="eyebrow">By-elections</p>
+        <h3><a href="/en/canada/byelections/">Latest by-elections →</a></h3>
+        <p>Individual by-election desks with fundamentals-based projections, historical results, and resolved race archives.</p>
+      </div>
+      <div class="note-card" style="border-left:4px solid var(--blue-tint,#3b82f6);">
+        <p class="eyebrow">Editorial indicator</p>
+        <h3 style="font-family:var(--serif);font-size:1.4rem;margin:0.25rem 0;">Fraser Interim Index</h3>
+        <p style="font-size:2rem;font-weight:700;margin:0.25rem 0;">
+          <AnimatedNumber client:visible value={fraserData.index.score} decimals={1} />
+          <span style="font-size:1rem;font-weight:400;">/100</span>
+        </p>
+        <p style="font-family:var(--mono);font-size:0.8rem;color:var(--ink-3);">{fraserData.index.label_en}</p>
+        <p style="margin-top:1rem;"><a href="/en/indexes/fraser-interim/" class="cta-link" style="font-family:var(--mono);font-size:0.8rem;text-transform:uppercase;letter-spacing:.08em;">Open Fraser Interim Index →</a></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="content-band">
+    <div class="container">
+      <PolymarketEmbed slug="quebec-general-election-winner" title="Quebec General Election" />
+      <PolymarketEmbed
+        slug="doug-ford-out-as-pc-party-leader-by-december-31"
+        title="Ontario PC leadership by Dec 31"
+        subtitle="Low-liquidity market — interpret with caution"
+      />
+      <!-- TODO: when Federal Canada Polymarket emerges, set slug here -->
+      <PolymarketEmbed slug={null} />
+    </div>
+  </section>
+
+  <MethodologyNote
+    title="Three jurisdictions. One projection standard."
+    body="Federal, Quebec, and Ontario projections share a common Bayesian BSTS pipeline: polls are aggregated with regional adjustments, then run through 50,000 Monte Carlo simulations to produce seat distributions and win probabilities at the riding level."
+    bullets={[
+      'Polls are sourced from Elections Canada-registered firms and weighted by recency, sample size, and firm track record.',
+      'Riding-level probabilities are conditioned on national and regional swings, then re-aggregated to total seat distributions.',
+      'Majority thresholds are modeled explicitly: federal at 172/338, Quebec at 63/125, Ontario at 63/124.',
+      'By-election projections use a fundamentals model — incumbency, margin history, demographics — updated as campaign data arrives.',
+    ]}
+  />
+</EditorialLayout>

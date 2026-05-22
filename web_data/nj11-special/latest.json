@@ -1,0 +1,302 @@
+{
+  "meta": {
+    "run_date": "2026-04-21",
+    "race_id": "nj11_special_2026_04_16",
+    "title": "New Jersey's 11th Congressional District Special Election",
+    "election_date": "2026-04-16",
+    "n_simulations": 50000,
+    "model_type": "fundamentals_special_v1",
+    "pipeline_version": "1.0",
+    "language": "en"
+  },
+  "district": {
+    "state": "New Jersey",
+    "district": "11th Congressional District",
+    "vacancy_reason": "Special election to fill the NJ-11 House vacancy after Gov. Mikie Sherrill left Congress.",
+    "presidential_2024_context": {
+      "democratic_share": 53.0,
+      "republican_share": 45.0,
+      "note": "District-level presidential context used as a prior in a fundamentals-only special election model."
+    },
+    "house_2024_context": {
+      "democratic_share": 56.5,
+      "republican_share": 43.5,
+      "note": "Anchored to the district's recent House baseline, then widened for special-election uncertainty."
+    },
+    "current_house_projection_context": {
+      "democratic_share": 60.2,
+      "republican_share": 39.8,
+      "note": "Current district projection from the U.S. House model used as the main anchor unless district polling appears."
+    }
+  },
+  "candidates": [
+    {
+      "id": "mejia_d",
+      "name": "Analilia Mejia",
+      "party": "Democrat",
+      "color": "#2563eb",
+      "projected_vote_mean": 58.41,
+      "win_probability": 0.9999,
+      "vote_quantiles": {
+        "q05": 54.65,
+        "q10": 55.48,
+        "q25": 56.87,
+        "q50": 58.42,
+        "q75": 59.97,
+        "q90": 61.33,
+        "q95": 62.16
+      }
+    },
+    {
+      "id": "hathaway_r",
+      "name": "Joe Hathaway",
+      "party": "Republican",
+      "color": "#cf2d2d",
+      "projected_vote_mean": 41.59,
+      "win_probability": 0.0001,
+      "vote_quantiles": {
+        "q05": 37.84,
+        "q10": 38.67,
+        "q25": 40.03,
+        "q50": 41.58,
+        "q75": 43.13,
+        "q90": 44.52,
+        "q95": 45.35
+      }
+    }
+  ],
+  "summary": {
+    "favorite_id": "mejia_d",
+    "favorite_name": "Analilia Mejia",
+    "favorite_probability": 0.9999,
+    "projected_margin_mean": 16.82,
+    "projected_margin_quantiles": {
+      "q05": 9.3,
+      "q10": 10.97,
+      "q25": 13.74,
+      "q50": 16.83,
+      "q75": 19.93,
+      "q90": 22.66,
+      "q95": 24.33
+    },
+    "upset_probability": 0.0001
+  },
+  "benchmarks": {
+    "assumptions": [
+      {
+        "label": "District Democratic baseline",
+        "note": "NJ-11 is still a Democratic-leaning district in recent federal results, even after allowing for a lower-turnout special."
+      },
+      {
+        "label": "Current House anchor",
+        "note": "The special starts from the current district-level House projection rather than a neutral 50-50 environment."
+      },
+      {
+        "label": "Special-election turnout risk",
+        "note": "The model still leaves room for a modest Republican turnout edge, but no longer treats that edge as large enough to erase the district's Democratic lean."
+      },
+      {
+        "label": "Candidate fit uncertainty",
+        "note": "Specials can still punish weak partisan fit or local mismatches, but candidate-specific noise is narrower than before because the previous setup overstated upset risk."
+      },
+      {
+        "label": "No public district polling average",
+        "note": "This page is fundamentals-only unless a public district poll is added later."
+      }
+    ]
+  },
+  "distribution": {
+    "favorite_vote_histogram": [
+      {
+        "bin_start": 35,
+        "bin_end": 36,
+        "probability": 0.0
+      },
+      {
+        "bin_start": 36,
+        "bin_end": 37,
+        "probability": 0.0
+      },
+      {
+        "bin_start": 37,
+        "bin_end": 38,
+        "probability": 0.0
+      },
+      {
+        "bin_start": 38,
+        "bin_end": 39,
+        "probability": 0.0
+      },
+      {
+        "bin_start": 39,
+        "bin_end": 40,
+        "probability": 0.0
+      },
+      {
+        "bin_start": 40,
+        "bin_end": 41,
+        "probability": 0.0
+      },
+      {
+        "bin_start": 41,
+        "bin_end": 42,
+        "probability": 0.0
+      },
+      {
+        "bin_start": 42,
+        "bin_end": 43,
+        "probability": 0.0
+      },
+      {
+        "bin_start": 43,
+        "bin_end": 44,
+        "probability": 0.0
+      },
+      {
+        "bin_start": 44,
+        "bin_end": 45,
+        "probability": 0.0
+      },
+      {
+        "bin_start": 45,
+        "bin_end": 46,
+        "probability": 0.0
+      },
+      {
+        "bin_start": 46,
+        "bin_end": 47,
+        "probability": 0.0
+      },
+      {
+        "bin_start": 47,
+        "bin_end": 48,
+        "probability": 0.0
+      },
+      {
+        "bin_start": 48,
+        "bin_end": 49,
+        "probability": 4e-05
+      },
+      {
+        "bin_start": 49,
+        "bin_end": 50,
+        "probability": 8e-05
+      },
+      {
+        "bin_start": 50,
+        "bin_end": 51,
+        "probability": 0.0004
+      },
+      {
+        "bin_start": 51,
+        "bin_end": 52,
+        "probability": 0.00224
+      },
+      {
+        "bin_start": 52,
+        "bin_end": 53,
+        "probability": 0.0069
+      },
+      {
+        "bin_start": 53,
+        "bin_end": 54,
+        "probability": 0.01724
+      },
+      {
+        "bin_start": 54,
+        "bin_end": 55,
+        "probability": 0.04068
+      },
+      {
+        "bin_start": 55,
+        "bin_end": 56,
+        "probability": 0.07718
+      },
+      {
+        "bin_start": 56,
+        "bin_end": 57,
+        "probability": 0.12432
+      },
+      {
+        "bin_start": 57,
+        "bin_end": 58,
+        "probability": 0.15892
+      },
+      {
+        "bin_start": 58,
+        "bin_end": 59,
+        "probability": 0.16988
+      },
+      {
+        "bin_start": 59,
+        "bin_end": 60,
+        "probability": 0.15706
+      },
+      {
+        "bin_start": 60,
+        "bin_end": 61,
+        "probability": 0.1176
+      },
+      {
+        "bin_start": 61,
+        "bin_end": 62,
+        "probability": 0.06926
+      },
+      {
+        "bin_start": 62,
+        "bin_end": 63,
+        "probability": 0.03696
+      },
+      {
+        "bin_start": 63,
+        "bin_end": 64,
+        "probability": 0.01416
+      },
+      {
+        "bin_start": 64,
+        "bin_end": 65,
+        "probability": 0.0054
+      },
+      {
+        "bin_start": 65,
+        "bin_end": 66,
+        "probability": 0.00136
+      },
+      {
+        "bin_start": 66,
+        "bin_end": 67,
+        "probability": 0.00032
+      },
+      {
+        "bin_start": 67,
+        "bin_end": 68,
+        "probability": 0.0
+      },
+      {
+        "bin_start": 68,
+        "bin_end": 69,
+        "probability": 0.0
+      },
+      {
+        "bin_start": 69,
+        "bin_end": 70,
+        "probability": 0.0
+      }
+    ]
+  },
+  "sources": [
+    {
+      "label": "Ballotpedia special election overview",
+      "url": "https://ballotpedia.org/New_Jersey%27s_11th_Congressional_District_special_election,_2026"
+    },
+    {
+      "label": "New Jersey Division of Elections",
+      "url": "https://nj.gov/state/elections/"
+    },
+    {
+      "label": "Wikipedia tracking page for the special election",
+      "url": "https://en.wikipedia.org/wiki/2026_New_Jersey%27s_11th_congressional_district_special_election"
+    }
+  ],
+  "method_note": "No public district polling average is used here. This is a fundamentals-only special-election projection built from district partisanship, recent House results, special-election turnout assumptions and 50,000 Monte Carlo simulations."
+}

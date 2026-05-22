@@ -1,0 +1,245 @@
+---
+import EditorialLayout from '../../../layouts/EditorialLayout.astro';
+import EditorialHero from '../../../components/EditorialHero.astro';
+import MethodologyNote from '../../../components/MethodologyNote.astro';
+import PolymarketEmbed from '../../../components/PolymarketEmbed.astro';
+import AnimatedNumber from '../../../islands/AnimatedNumber';
+import wcData from '../../../../web_data/sports/worldcup2026_latest.json';
+
+const board = wcData.board as Array<{
+  team: string;
+  labels: { en: string; fr: string; es: string };
+  group: string;
+  confederation: string;
+  is_host: boolean;
+  p_champion: number;
+  p_final: number;
+  p_semifinal: number;
+  p_quarterfinal: number;
+  p_round16: number;
+  p_knockout_stage: number;
+  strength_mean: number;
+  trend_direction: string;
+  blend_alpha: number;
+  market_books: number;
+}>;
+
+const hero = wcData.hero;
+const meta = wcData.board_meta;
+
+const topTeams = board.slice(0, 10);
+const topThree = board.slice(0, 3);
+
+const byConf: Record<string, typeof board> = {};
+for (const t of topTeams) {
+  if (!byConf[t.confederation]) byConf[t.confederation] = [];
+  byConf[t.confederation].push(t);
+}
+const confOrder = ['UEFA', 'CONMEBOL', 'CONCACAF', 'AFC', 'CAF', 'OFC'];
+const sortedConfs = confOrder.filter((c) => byConf[c]);
+
+const hostTeams = board.filter((t) => t.is_host).slice(0, 3);
+---
+
+<EditorialLayout
+  title="Pronostic WC2026 — Vote-Scope"
+  description="Projette le chemin de chaque équipe à travers le tournoi international de football 2026 — de la phase de groupes à la finale. 50 000 simulations — Vote-Scope."
+  canonical="https://vote-scope.com/fr/sports/wc2026/"
+  lang="fr"
+  currentPage="sports"
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={{ en: 'https://vote-scope.com/en/sports/wc2026/', fr: 'https://vote-scope.com/fr/sports/wc2026/' }}
+  jsonLd={[
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Dataset',
+      name: 'Pronostic WC2026',
+      description: 'Pronostic à 48 équipes pour le tournoi international de football 2026. 50 000 simulations avec mélange de force par confédération.',
+      url: 'https://vote-scope.com/fr/sports/wc2026/',
+      dateModified: meta.run_date ?? '',
+      creator: { '@type': 'Person', name: 'Kim Leclerc', url: 'https://kimleclerc.ca' },
+      publisher: { '@type': 'Organization', name: 'Vote-Scope', url: 'https://vote-scope.com' },
+      isAccessibleForFree: true,
+      distribution: { '@type': 'DataDownload', contentUrl: 'https://vote-scope.com/web_data/sports/worldcup2026_latest.json', encodingFormat: 'application/json' },
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: 'https://vote-scope.com/fr/' },
+        { '@type': 'ListItem', position: 2, name: 'Sports Scope', item: 'https://vote-scope.com/fr/sports/' },
+        { '@type': 'ListItem', position: 3, name: 'WC2026', item: 'https://vote-scope.com/fr/sports/wc2026/' },
+      ],
+    },
+  ]}
+>
+  <EditorialHero
+    eyebrow="Tournoi international 2026"
+    title="Qui remporte le tournoi intercontinental 2026?"
+    promise="48 nations. 50 000 simulations. Probabilités de passage par tour — de la phase de groupes à la finale."
+    question="Le favori domine-t-il vraiment, ou est-ce un avantage mince dans un tableau à 48 équipes?"
+    primaryHref="/fr/sports/"
+    primaryLabel="Hub sport"
+    secondaryHref="/fr/sports/nhl/"
+    secondaryLabel="Desk NHL"
+  />
+
+  <!-- Hero stats -->
+  <section class="content-band">
+    <div class="container">
+      <p class="eyebrow">Grands favoris — modèle au {meta.run_date}</p>
+      <div class="content-grid-2" style="gap:1.5rem;margin-top:1rem;">
+        {topThree.map((team, i) => (
+          <div class="note-card" style="border-left:4px solid var(--accent);">
+            <p class="eyebrow">
+              {i === 0 ? 'Favori du tournoi' : i === 1 ? 'Dauphin' : 'Troisième'}
+              · {team.confederation} · Groupe {team.group}
+              {team.is_host ? ' · Hôte' : ''}
+            </p>
+            <h3 style="font-size:1.75rem;margin:0.25rem 0;">{team.labels.fr}</h3>
+            <p style="font-size:2rem;font-weight:700;color:var(--accent);">
+              <AnimatedNumber client:visible value={team.p_champion} decimals={2} suffix="%" />
+            </p>
+            <p style="font-size:0.9rem;">
+              Finale: <strong>{team.p_final}%</strong> ·
+              Demi: <strong>{team.p_semifinal}%</strong> ·
+              QF: <strong>{team.p_quarterfinal}%</strong>
+            </p>
+            <p style="font-size:0.85rem;margin-top:0.25rem;color:var(--text-muted);">
+              16e: {team.p_round16}% · Phase finale: {team.p_knockout_stage}%
+            </p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Full top-10 board -->
+  <section class="content-band">
+    <div class="container">
+      <p class="eyebrow">Top 10 — probabilités de championnat</p>
+      <h2>Board complet du tournoi</h2>
+      <p style="margin-bottom:1.5rem;font-size:0.9rem;">
+        Phase: {meta.tournament_phase.replace(/_/g, ' ')} ·
+        {meta.n_sims.toLocaleString()} simulations ·
+        {meta.n_teams} équipes · {meta.n_groups} groupes
+      </p>
+      <div style="overflow-x:auto;">
+        <table style="width:100%;border-collapse:collapse;font-size:0.9rem;">
+          <thead>
+            <tr style="border-bottom:2px solid var(--rule,#ddd);text-align:left;">
+              <th style="padding:8px 12px;">#</th>
+              <th style="padding:8px 12px;">Pays</th>
+              <th style="padding:8px 12px;">Conf.</th>
+              <th style="padding:8px 12px;">Grp</th>
+              <th style="padding:8px 12px;text-align:right;">Champion%</th>
+              <th style="padding:8px 12px;text-align:right;">Finale%</th>
+              <th style="padding:8px 12px;text-align:right;">Demi%</th>
+              <th style="padding:8px 12px;text-align:right;">QF%</th>
+              <th style="padding:8px 12px;text-align:right;">16e%</th>
+            </tr>
+          </thead>
+          <tbody>
+            {topTeams.map((team, i) => (
+              <tr style={`border-bottom:1px solid var(--rule,#eee);${i % 2 === 0 ? 'background:var(--surface-alt,#fafafa);' : ''}`}>
+                <td style="padding:8px 12px;color:var(--ink-3);">{i + 1}</td>
+                <td style="padding:8px 12px;font-weight:600;">
+                  {team.labels.fr}
+                  {team.is_host ? <span style="font-size:0.75rem;color:var(--accent);margin-left:4px;">(hôte)</span> : null}
+                </td>
+                <td style="padding:8px 12px;font-size:0.85rem;color:var(--ink-3);">{team.confederation}</td>
+                <td style="padding:8px 12px;font-size:0.85rem;">{team.group}</td>
+                <td style="padding:8px 12px;text-align:right;font-weight:700;">{team.p_champion}%</td>
+                <td style="padding:8px 12px;text-align:right;">{team.p_final}%</td>
+                <td style="padding:8px 12px;text-align:right;">{team.p_semifinal}%</td>
+                <td style="padding:8px 12px;text-align:right;">{team.p_quarterfinal}%</td>
+                <td style="padding:8px 12px;text-align:right;">{team.p_round16}%</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- Confederation breakdown -->
+  <section class="content-band">
+    <div class="container">
+      <p class="eyebrow">Par confédération — meilleurs favoris</p>
+      <h2>Où se concentre la force du tournoi.</h2>
+      <div class="content-grid-2" style="gap:1rem;margin-top:1rem;">
+        {sortedConfs.map((conf) => (
+          <div class="note-card">
+            <p class="eyebrow">{conf}</p>
+            {byConf[conf].map((t) => (
+              <p style="margin:0.25rem 0;">
+                <strong>{t.labels.fr}</strong>
+                {t.is_host ? ' (hôte)' : ''} —
+                {t.p_champion}% champion · {t.p_knockout_stage}% phase finale
+              </p>
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Host nations -->
+  {hostTeams.length > 0 && (
+    <section class="content-band">
+      <div class="container">
+        <p class="eyebrow">Nations hôtes</p>
+        <h2>Comment les hôtes sont positionnés.</h2>
+        <div class="content-grid-2" style="gap:1rem;margin-top:1rem;">
+          {hostTeams.map((team) => (
+            <div class="note-card" style="border-left:4px solid var(--accent);">
+              <p class="eyebrow">Hôte · {team.confederation} · Groupe {team.group}</p>
+              <h3 style="margin:0.25rem 0;">{team.labels.fr}</h3>
+              <p>Champion: <strong>{team.p_champion}%</strong> · Phase finale: <strong>{team.p_knockout_stage}%</strong></p>
+              <p style="font-size:0.85rem;margin-top:0.25rem;">Finale: {team.p_final}% · Demi: {team.p_semifinal}%</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <section class="content-band">
+    <div class="container">
+      <PolymarketEmbed slug="2026-nhl-stanley-cup-champion" title="Connexe — Champion Coupe Stanley NHL 2026" />
+    </div>
+  </section>
+
+  <MethodologyNote
+    title="50 000 simulations. De la phase de groupes au tableau final."
+    body="Le modèle du tournoi international 2026 utilise une approche ELO-blend: force d'équipe ajustée par confédération, combinée à un facteur de pondération calibré sur les marchés (α=0,65). Chacune des 50 000 simulations parcourt le tableau complet à 48 équipes de la phase de groupes à la finale."
+    bullets={[
+      '48 équipes en 12 groupes de 4 — top 2 par groupe + 8 meilleurs troisièmes passent.',
+      'Force calculée sur résultats internationaux récents pondérés par qualité adverse.',
+      'Facteur de blend α=0,65 calibré sur les marchés de paris de tournoi.',
+      'Phase de groupes: les probabilités se mettent à jour au fil des matchs.',
+    ]}
+  />
+
+  <!-- Legal disclaimer — mandatory -->
+  <section class="content-band" style="background:var(--surface-alt,#f8f8f8);padding-block:32px;">
+    <div class="container">
+      <p style="font-size:0.82rem;color:var(--ink-3);max-width:760px;line-height:1.6;">
+        <strong>Avertissement :</strong> Vote-Scope n'est pas affilié à la FIFA ni à aucun détenteur officiel des droits du tournoi.
+        Les noms de pays sont utilisés à des fins purement descriptives et informatives.
+        Cette page présente uniquement les résultats d'un modèle statistique et ne revendique aucun statut officiel ni parrainage lié au tournoi.
+      </p>
+    </div>
+  </section>
+</EditorialLayout>
+
+<style>
+  table th {
+    font-family: var(--mono, monospace);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-3, #666);
+    font-weight: 400;
+  }
+</style>

@@ -1,0 +1,145 @@
+---
+import EditorialLayout from '../../../layouts/EditorialLayout.astro';
+import EditorialHero from '../../../components/EditorialHero.astro';
+import MarketCheck from '../../../components/MarketCheck.astro';
+import MethodologyNote from '../../../components/MethodologyNote.astro';
+import AnimatedNumber from '../../../islands/AnimatedNumber';
+import PolymarketEmbed from '../../../components/PolymarketEmbed.astro';
+import { specialElections } from '../../../data/specialElections';
+
+import ldiData from '../../../../web_data/us-lame-duck/latest.json';
+import houseData from '../../../../web_data/us-house/latest.json';
+import senateData from '../../../../web_data/us-senate/latest.json';
+
+const ldi = ldiData.ldi;
+const houseDem = (houseData.parties as Array<{party:string;seats_projected:number;p_majority:number;label_en:string;color:string}>).find((p) => p.party === 'us_dem')!;
+const houseRep = (houseData.parties as Array<{party:string;seats_projected:number;p_majority:number;label_en:string;color:string}>).find((p) => p.party === 'us_rep')!;
+const senateDem = (senateData.parties as Array<{party:string;seats_mean:number;p_majority:number;label_en:string;color:string}>).find((p) => p.party === 'us_dem')!;
+const senateRep = (senateData.parties as Array<{party:string;seats_mean:number;p_majority:number;label_en:string;color:string}>).find((p) => p.party === 'us_rep')!;
+
+const specials = Object.values(specialElections);
+const deltaSign = ldi.delta_7d >= 0 ? '+' : '';
+---
+
+<EditorialLayout
+  title="Política de EE. UU. — Vote-Scope"
+  description="Control de la Cámara, fragilidad del Senado, elecciones especiales y el Lame-Duck Index en un solo lugar. Proyecciones en vivo actualizadas con cada encuesta — Vote-Scope."
+  canonical="https://vote-scope.com/es/us/"
+  lang="es"
+  currentPage="usa-hub"
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={{ en: 'https://vote-scope.com/en/us/', fr: 'https://vote-scope.com/fr/us/', es: 'https://vote-scope.com/es/us/' }}
+  jsonLd={[
+    {
+      '@context': 'https://schema.org',
+      '@type': 'CollectionPage',
+      name: 'Política de EE. UU. — Vote-Scope',
+      url: 'https://vote-scope.com/es/us/',
+      inLanguage: 'es',
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: 'https://vote-scope.com/es/' },
+        { '@type': 'ListItem', position: 2, name: 'EE. UU.', item: 'https://vote-scope.com/es/us/' },
+      ],
+    },
+  ]}
+>
+  <EditorialHero
+    eyebrow="Desk Estados Unidos"
+    title="¿Quién controla Washington cuando el mapa deja de ser teórico?"
+    promise="Cámara, Senado, elecciones especiales, peso presidencial y desfases de mercado organizados como instrumentos, no como tableros aislados."
+    question="¿El mapa de EE. UU. es estable, frágil o mal leído por el mercado?"
+    primaryHref="/es/us/indexes/lame-duck/"
+    primaryLabel="Abrir Lame-Duck"
+    secondaryHref="/en/indexes/"
+    secondaryLabel="Todos los índices"
+  />
+
+  <section class="content-band">
+    <div class="container">
+      <p class="eyebrow">Instrumento en vivo</p>
+      <div class="content-grid-2" style="gap:1.5rem;align-items:start;">
+        <div class="note-card" style={`border-left:4px solid ${ldi.zone_color};`}>
+          <p class="eyebrow">Lame-Duck Index</p>
+          <h2 style="font-size:3rem;margin:0.25rem 0;color:var(--text);">
+            <AnimatedNumber client:visible value={ldi.score} decimals={1} />
+            <span style="font-size:1.1rem;font-weight:400;">/100</span>
+          </h2>
+          <p style={`font-weight:700;color:${ldi.zone_color};font-size:1.1rem;`}>{ldi.label_en}</p>
+          <p>Delta 7 días: <strong>{deltaSign}{ldi.delta_7d}</strong></p>
+          <p style="margin-top:1rem;">
+            <a href="/es/us/indexes/lame-duck/" class="cta-link">Índice completo →</a>
+          </p>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:1rem;">
+          <div class="note-card" style={`border-left:4px solid ${houseDem.color};`}>
+            <p class="eyebrow">Cámara 2026</p>
+            <p>
+              Dem <strong><AnimatedNumber client:visible value={houseDem.seats_projected} /></strong> ·
+              Rep <strong><AnimatedNumber client:visible value={houseRep.seats_projected} /></strong>
+              <span style="font-size:0.85rem;"> / 435</span>
+            </p>
+            <p>Probabilidad de mayoría D: <strong>{Math.round(houseDem.p_majority * 100)}%</strong></p>
+            <a href="/es/us/house/" class="cta-link" style="font-size:0.85rem;">Proyección Cámara →</a>
+          </div>
+          <div class="note-card" style={`border-left:4px solid ${senateDem.color};`}>
+            <p class="eyebrow">Senado 2026</p>
+            <p>
+              Dem ~<strong><AnimatedNumber client:visible value={Math.round(senateDem.seats_mean)} /></strong> ·
+              Rep ~<strong><AnimatedNumber client:visible value={Math.round(senateRep.seats_mean)} /></strong>
+              <span style="font-size:0.85rem;"> / 100</span>
+            </p>
+            <p>Probabilidad de mayoría D: <strong>{Math.round(senateDem.p_majority * 100)}%</strong></p>
+            <a href="/es/us/senate/" class="cta-link" style="font-size:0.85rem;">Proyección Senado →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="content-band">
+    <div class="container">
+      <p class="eyebrow">Elecciones especiales</p>
+      <h2>Especiales activas y recientes</h2>
+      <div class="content-grid-2" style="gap:1rem;margin-top:1rem;">
+        {specials.map((s) => (
+          <a class="note-card" href={s.paths.es ?? s.paths.en ?? '#'} style="text-decoration:none;color:inherit;">
+            <p class="eyebrow">{s.kicker}</p>
+            <h3 style="margin:0.25rem 0;">{s.headline.replace(/\n/g, ' ')}</h3>
+            <p style="font-size:0.9rem;">{s.dek.slice(0, 100)}…</p>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="content-band">
+    <div class="container">
+      <PolymarketEmbed slug="balance-of-power-2026-midterms" title="Elecciones intermedias 2026 — equilibrio de poder" />
+      <PolymarketEmbed slug="presidential-election-winner-2028" title="Elección presidencial 2028" />
+    </div>
+  </section>
+
+  <MarketCheck
+    kicker="Modelo vs. mercado"
+    title="El desk de EE. UU. es donde la capa de mercado debe sentirse nativa."
+    body="Los mercados de predicción pertenecen junto al modelo como detector de desacuerdos: probabilidades de control, confianza por carrera, movimientos de pánico y desfases que merecen un artículo o una tarjeta en redes."
+    modelLabel="Modelo Vote-Scope"
+    marketLabel="Polymarket / cuotas"
+    note="Para v1, el JSON público permanece estable. Para v2, se prevé una API versionada con historial enriquecido y posible acceso premium."
+  />
+
+  <MethodologyNote
+    title="El algoritmo es el recibo, no el titular."
+    body="El desk de EE. UU. parte del control, la fragilidad y el desacuerdo con el mercado. BSTS, Monte Carlo y encuestas son transparentes y públicos, pero la pregunta editorial siempre va primero."
+    bullets={[
+      'Las encuestas de Cámara y Senado se agregan con un modelo BSTS bayesiano y se someten a 435 y 100 simulaciones por distrito respectivamente.',
+      'El Lame-Duck Index (LDI) combina aprobación presidencial, indicadores económicos, márgenes de distrito y cuotas de mercados de predicción en un puntaje de 0 a 100.',
+      'Las elecciones especiales usan un modelo de fundamentos: incumbencia, margen histórico, perfil de candidatos y encuestas locales disponibles.',
+      'Los benchmarks de mercados de predicción (Polymarket) se muestran junto al modelo como señal de desacuerdo independiente, actualizada diariamente.',
+    ]}
+  />
+</EditorialLayout>

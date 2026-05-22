@@ -1,0 +1,53 @@
+---
+import EditorialLayout from '../../../layouts/EditorialLayout.astro';
+import ProjectionEngine from '../../../components/ProjectionEngine.astro';
+import PolymarketEmbed from '../../../components/PolymarketEmbed.astro';
+import { jurisdictions } from '../../../data/jurisdictions';
+import houseMeta from '../../../../web_data/us-house/latest.json';
+
+const j = jurisdictions.usHouse;
+const canonical = 'https://vote-scope.com/fr/us/chambre';
+const alternates = {
+  en: 'https://vote-scope.com/en/us/house',
+  fr: canonical,
+};
+---
+
+<EditorialLayout
+  title={j.pageTitle.fr}
+  description={j.metaDescription.fr}
+  canonical={canonical}
+  lang="fr"
+  currentPage={j.currentPage}
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={alternates}
+  jsonLd={[
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Dataset',
+      name: 'Projection Chambre des représentants 2026',
+      description: j.metaDescription.fr,
+      url: canonical,
+      dateModified: houseMeta.meta.run_date,
+      creator: { '@type': 'Person', name: 'Kim Leclerc', url: 'https://kimleclerc.ca' },
+      publisher: { '@type': 'Organization', name: 'Vote-Scope', url: 'https://vote-scope.com' },
+      license: 'https://vote-scope.com/fr/conditions/',
+      isAccessibleForFree: true,
+      distribution: { '@type': 'DataDownload', contentUrl: 'https://vote-scope.com/web_data/us-house/latest.json', encodingFormat: 'application/json' },
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: 'https://vote-scope.com/fr/' },
+        { '@type': 'ListItem', position: 2, name: 'États-Unis', item: 'https://vote-scope.com/fr/us/' },
+        { '@type': 'ListItem', position: 3, name: 'Chambre des représentants', item: canonical },
+      ],
+    },
+  ]}
+>
+  <ProjectionEngine jurisdiction={j} locale="fr" />
+  <div class="container" style="max-width:1080px;margin-inline:auto;padding-inline:1.5rem;">
+    <PolymarketEmbed slug="which-party-will-win-the-house-in-2026" title="Chambre 2026 — contrôle du parti" />
+  </div>
+</EditorialLayout>

@@ -1,0 +1,1000 @@
+---
+import type { Jurisdiction, Locale, ProjectionData } from '../data/jurisdictions';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import ScenariosChart from '../islands/ScenariosChart.tsx';
+import VoteTrendChart from '../islands/VoteTrendChart.tsx';
+import RidingsMap from '../islands/RidingsMap.tsx';
+import RidingTable from '../islands/RidingTable.tsx';
+import ElectionCountdown from '../islands/ElectionCountdown.tsx';
+import KeepDigging from './KeepDigging.astro';
+
+interface Props {
+  jurisdiction: Jurisdiction;
+  locale: Locale;
+}
+
+const { jurisdiction, locale } = Astro.props;
+
+// Build-time read of latest.json from the project data contract. The files are
+// copied to dist/web_data after Astro renders the static HTML.
+const dataFilePath = resolve(
+  process.cwd(),
+  'web_data',
+  jurisdiction.dataPath,
+  'latest.json',
+);
+const data: ProjectionData = JSON.parse(readFileSync(dataFilePath, 'utf-8'));
+
+const { meta, parties, current_composition } = data;
+
+const currentCompositionByKey: Record<string, number> = Array.isArray(current_composition)
+  ? Object.fromEntries(
+      current_composition.map((entry: any) => [
+        entry.party,
+        Number(entry.seats ?? 0),
+      ]),
+    )
+  : current_composition;
+
+// Sort parties by jurisdiction.parties order (drop unknown, append leftovers).
+const partyOrder = jurisdiction.parties;
+const orderedParties = [...parties].sort((a, b) => {
+  const ai = partyOrder.indexOf(a.party);
+  const bi = partyOrder.indexOf(b.party);
+  return (ai === -1 ? 999 : ai) - (bi === -1 ? 999 : bi);
+});
+
+const totalSeats = meta.total_seats ?? jurisdiction.seatsTotal;
+const majorityThreshold = meta.majority_threshold ?? Math.floor(totalSeats / 2) + 1;
+
+// Build composition bar segments
+const compositionOrder = [...partyOrder, 'vacant'].filter(
+  (v, i, arr) => arr.indexOf(v) === i,
+);
+const fallbackPartyLabel = (key: string, targetLocale: Locale) => {
+  const labels: Record<string, { en: string; fr: string }> = {
+    vacant: { en: 'Vacant', fr: 'Vacants' },
+    qc_ind: { en: 'Independent', fr: 'Indépendants' },
+  };
+  return labels[key]?.[targetLocale] ?? key;
+};
+const compositionSegments = compositionOrder
+  .map((key) => {
+    const seats = currentCompositionByKey[key] ?? 0;
+    if (seats === 0) return null;
+    const partyMeta = parties.find((p) => p.party === key);
+    return {
+      key,
+      seats,
+      label_en: partyMeta?.label_en ?? fallbackPartyLabel(key, 'en'),
+      label_fr: partyMeta?.label_fr ?? fallbackPartyLabel(key, 'fr'),
+      color: partyMeta?.color ?? '#999',
+      pct: (seats / totalSeats) * 100,
+    };
+  })
+  .filter((s): s is NonNullable<typeof s> => s !== null);
+
+// Build seat-projection bar segments
+const projectedSeatsFor = (p: any) =>
+  p.seats_projected ?? p.seats_median ?? Math.round(p.seats_mean ?? 0);
+const projectionTotal = orderedParties.reduce(
+  (sum, p) => sum + projectedSeatsFor(p),
+  0,
+);
+const projectionSegments = orderedParties
+  .map((p) => ({ party: p, seats: projectedSeatsFor(p) }))
+  .filter(({ seats }) => seats > 0)
+  .map(({ party: p, seats }) => ({
+    key: p.party,
+    label_en: p.label_en,
+    label_fr: p.label_fr,
+    color: p.color,
+    seats,
+    pct: projectionTotal > 0 ? (seats / projectionTotal) * 100 : 0,
+    p_majority: p.p_majority ?? 0,
+    p_largest: p.p_largest ?? 0,
+    vote_mean: p.vote_mean,
+    trend_direction: p.trend_direction ?? 'flat',
+    trend_7d: p.trend_7d,
+  }));
+
+const majorityMarkerPct = (majorityThreshold / totalSeats) * 100;
+
+// Localized strings
+const isFr = locale === "fr";
+const isEs = locale === "es";
+const t = {
+  heroTagline: isFr
+    ? "Agrégation de sondages · Modèle BSTS · Simulations Monte Carlo"
+    : isEs
+    ? "Agregación de encuestas · Modelo BSTS · Simulaciones Monte Carlo"
+    : "Poll aggregation · BSTS model · Monte Carlo simulations",
+  modelBadge: isFr ? "Modèle v1" : isEs ? "Modelo v1" : "Model v1",
+  runDate: isFr
+    ? `Dernier run : ${meta.run_date}`
+    : isEs
+    ? `Última ejecución: ${meta.run_date}`
+    : `Latest run: ${meta.run_date}`,
+  pollsCount: isFr
+    ? `${meta.n_polls} sondages agrégés`
+    : isEs
+    ? `${meta.n_polls} encuestas agregadas`
+    : `${meta.n_polls} polls aggregated`,
+  simulations: isFr
+    ? `${meta.n_simulations.toLocaleString("fr-CA")} simulations`
+    : isEs
+    ? `${meta.n_simulations.toLocaleString("en-CA")} simulaciones`
+    : `${meta.n_simulations.toLocaleString("en-CA")} simulations`,
+  composition: jurisdiction.institution[locale] ?? jurisdiction.institution.en,
+  seatsLabel: isFr
+    ? `Sièges — ${totalSeats} total`
+    : isEs
+    ? `Escaños — ${totalSeats} total`
+    : `Seats — ${totalSeats} total`,
+  majorityNeeded: isFr
+    ? `${majorityThreshold} sièges pour une majorité`
+    : isEs
+    ? `${majorityThreshold} escaños para la mayoría`
+    : `${majorityThreshold} seats for a majority`,
+  seatProjection: isFr ? "Projection des sièges" : isEs ? "Proyección de escaños" : "Seat projection",
+  pMajority: isFr ? "P(majorité)" : isEs ? "P(mayoría)" : "P(majority)",
+  pLargest: isFr ? "P(plus grand)" : isEs ? "P(más grande)" : "P(largest)",
+  voteShare: "Vote",
+  analysis: isFr ? "Analyse" : isEs ? "Análisis" : "Analysis",
+  scenarioChartTitle: isFr ? "Probabilités de scénarios" : isEs ? "Probabilidades de escenarios" : "Scenario probabilities",
+  scenarioChartHelp: isFr
+    ? "Probabilité de remporter une majorité ou de finir au premier rang seul, selon les 50 000 simulations Monte Carlo."
+    : isEs
+    ? "Probabilidad de obtener mayoría o quedar estrictamente en primer lugar, según las 50,000 simulaciones Monte Carlo."
+    : "Probability of winning a majority or finishing strictly first, across the 50,000 Monte Carlo simulations.",
+  voteTrendTitle: isFr ? "Intentions de vote" : isEs ? "Intención de voto" : "Vote intention",
+  voteTrendHelp: isFr
+    ? "Sondages bruts (points) et estimation du modèle (losanges) avec intervalle de confiance à 95 %."
+    : isEs
+    ? "Encuestas brutas (puntos) y estimación del modelo (diamantes) con intervalo de confianza al 95 %."
+    : "Raw polls (dots) and model estimate (diamonds) with 95% confidence interval.",
+  tableTitle: isFr ? "Toutes les circonscriptions" : isEs ? "Todos los distritos" : "All ridings",
+  tableHelp: isFr
+    ? `Triez et filtrez les ${totalSeats.toLocaleString("fr-CA")} circonscriptions par parti gagnant projeté, marge et probabilité.`
+    : isEs
+    ? `Ordena y filtra los ${totalSeats.toLocaleString("en-CA")} distritos por partido proyectado ganador, margen y probabilidad.`
+    : `Sort and filter the ${totalSeats.toLocaleString("en-CA")} ridings by projected winning party, margin and probability.`,
+  mapTitle: isFr ? "Carte des circonscriptions" : isEs ? "Mapa de distritos" : "Riding map",
+  mapHelp: isFr
+    ? "Couleur = parti projeté en tête. Survolez une circonscription pour voir les détails."
+    : isEs
+    ? "Color = partido proyectado en primer lugar. Pasa el cursor sobre un distrito para ver los detalles."
+    : "Color = projected leading party. Hover a riding for details.",
+  keepDiggingEyebrow: isFr ? "Continuer à creuser" : isEs ? "Seguir explorando" : "Keep digging",
+  keepDiggingTitle: isFr
+    ? "La projection continue ailleurs."
+    : isEs
+    ? "La proyección continúa."
+    : "The projection keeps going.",
+  keepDiggingBody: isFr
+    ? "Passez d’un modèle à l’autre pour comparer les chambres, les provinces et les instruments qui alimentent le reste du site."
+    : isEs
+    ? "Navega de un modelo al siguiente para comparar cámaras, estados y los instrumentos que alimentan el resto del sitio."
+    : "Move from one model to the next to compare chambers, provinces, and the instruments feeding the rest of the site.",
+};
+
+// Trim party data passed to the islands (Plotly does not need every CI field).
+const scenarioParties = parties.map((p) => ({
+  party: p.party,
+  label_en: p.label_en,
+  label_fr: p.label_fr,
+  color: p.color,
+  p_majority: p.p_majority,
+  p_largest: p.p_largest,
+  p_strict_largest: (p as any).p_strict_largest,
+  p_tied_largest: (p as any).p_tied_largest,
+}));
+
+const trendParties = parties.map((p) => ({
+  party: p.party,
+  label_en: p.label_en,
+  label_fr: p.label_fr,
+  color: p.color,
+  vote_mean: p.vote_mean,
+  vote_ci_low_95: (p as any).vote_ci_low_95,
+  vote_ci_high_95: (p as any).vote_ci_high_95,
+}));
+
+const mapRidings = ((data as any).ridings ?? []).map((r: any) => ({
+  riding_id: String(r.riding_id),
+  name_en: r.name_en,
+  name_fr: r.name_fr,
+  province: r.province ?? r.nation ?? null,
+  projection: {
+    winner: r.projection?.winner ?? r.winner ?? 'tossup',
+    p_winner: r.projection?.p_winner ?? r.p_leading ?? 0,
+    mean_margin: r.projection?.mean_margin ?? r.mean_margin ?? 0,
+    p_close_race: r.projection?.p_close_race ?? r.p_close_race ?? 0,
+    vote_mean: r.projection?.vote_mean ?? {},
+    win_prob: r.projection?.win_prob ?? {},
+  },
+  baseline: r.baseline_result
+    ? {
+        winner: r.baseline_result.winner ?? null,
+        margin: r.baseline_result.margin ?? null,
+        turnout_pct: r.baseline_result.turnout_pct ?? null,
+      }
+    : null,
+}));
+const mapParties = parties.map((p) => ({
+  key: p.party,
+  label_en: p.label_en,
+  label_fr: p.label_fr,
+  color: p.color,
+}));
+const geoUrl = `/web_data/${jurisdiction.dataPath}/ridings.geojson`;
+
+// Top 5 mainstream parties (drop the catch-all "_oth" buckets).
+const trendOrder = jurisdiction.parties
+  .filter((k) => !/_oth$/.test(k))
+  .slice(0, 5);
+
+const pollsHistory = ((data.polls_history ?? []) as any[]).map((poll) => ({
+  ...poll,
+  date: poll.date ?? poll.field_end ?? poll.release_date,
+  n: poll.n ?? poll.sample_size,
+  weight: poll.weight ?? poll.weight_firm ?? poll.time_weight,
+}));
+
+const fmtPct = (v: number) => `${(v * 100).toFixed(0)}%`;
+const fmtSign = (v: number) =>
+  v > 0 ? `+${v.toFixed(1)}` : v.toFixed(1);
+const trendArrow = (dir: 'up' | 'down' | 'flat') =>
+  dir === 'up' ? '▲' : dir === 'down' ? '▼' : '▬';
+
+const keepDiggingLinks = (() => {
+  const prefix = locale === 'fr' ? '/fr' : locale === 'es' ? '/es' : '/en';
+  const enPrefix = locale === 'fr' ? '/fr' : '/en'; // Canada/UK only have en/fr
+  const common = {
+    indexes: {
+      href: `${enPrefix}/indexes/`,
+      label: locale === 'fr' ? 'Tous les instruments Vote-Scope' : locale === 'es' ? 'Todos los instrumentos Vote-Scope' : 'All Vote-Scope instruments',
+      detail: locale === 'fr' ? 'Indices, projections, cartes' : locale === 'es' ? 'Índices, proyecciones, mapas' : 'Indexes, projections, maps',
+    },
+  };
+
+  if (jurisdiction.currentPage === 'canada') {
+    return [
+      {
+        href: `${enPrefix}/canada/federal/`,
+        label: locale === 'fr' ? 'Projection fédérale' : 'Federal projection',
+        detail: locale === 'fr' ? 'Canada · Chambre des communes' : 'Canada · House of Commons',
+      },
+      {
+        href: `${enPrefix}/canada/ontario/`,
+        label: locale === 'fr' ? 'Projection Ontario' : 'Ontario projection',
+        detail: locale === 'fr' ? 'ON · Assemblée législative' : 'ON · Legislative Assembly',
+      },
+      {
+        href: `${enPrefix}/canada/quebec/`,
+        label: locale === 'fr' ? 'Projection Québec' : 'Quebec projection',
+        detail: locale === 'fr' ? 'QC · Assemblée nationale' : 'QC · National Assembly',
+      },
+      common.indexes,
+    ];
+  }
+
+  if (jurisdiction.id === 'us-house' || jurisdiction.id === 'us-senate') {
+    return [
+      {
+        href: `${prefix}/us/house/`,
+        label: locale === 'fr' ? 'Projection Chambre' : locale === 'es' ? 'Proyección Cámara' : 'House projection',
+        detail: locale === 'fr' ? 'Districts · majorité' : locale === 'es' ? 'Distritos · mayoría' : 'Districts · majority',
+      },
+      {
+        href: locale === 'fr' ? '/fr/us/senat/' : `${prefix}/us/senate/`,
+        label: locale === 'fr' ? 'Projection Sénat' : locale === 'es' ? 'Proyección Senado' : 'Senate projection',
+        detail: locale === 'fr' ? 'États · sièges en jeu' : locale === 'es' ? 'Estados · escaños en disputa' : 'States · seats up',
+      },
+      {
+        href: `${prefix}/us/indexes/lame-duck/`,
+        label: locale === 'fr' ? 'Indice canard boiteux' : 'Lame-Duck Index',
+        detail: 'Trump drag · midterms',
+      },
+      {
+        href: `${prefix}/us/`,
+        label: locale === 'fr' ? 'Desk U.S.' : locale === 'es' ? 'Desk EE. UU.' : 'U.S. desk',
+        detail: locale === 'fr' ? 'Toutes les pages américaines' : locale === 'es' ? 'Todas las páginas de EE. UU.' : 'All U.S. pages',
+      },
+    ];
+  }
+
+  return [
+    {
+      href: `${enPrefix}/uk/`,
+      label: locale === 'fr' ? 'Projection britannique' : 'U.K. projection',
+      detail: locale === 'fr' ? '650 circonscriptions' : '650 constituencies',
+    },
+    {
+      href: `${enPrefix}/canada/federal/`,
+      label: locale === 'fr' ? 'Comparer avec le Canada' : 'Compare with Canada',
+      detail: locale === 'fr' ? 'Modèle fédéral' : 'Federal model',
+    },
+    {
+      href: `${prefix}/us/house/`,
+      label: locale === 'fr' ? 'Comparer avec la Chambre U.S.' : locale === 'es' ? 'Comparar con la Cámara' : 'Compare with U.S. House',
+      detail: locale === 'fr' ? 'Districts américains' : locale === 'es' ? 'Distritos de EE. UU.' : 'U.S. districts',
+    },
+    common.indexes,
+  ];
+})();
+---
+
+<article class="projection-engine">
+  <!-- HERO -->
+  <header class="pe-hero container">
+    <h1 class="pe-title" set:html={jurisdiction.heroTitle[locale]} />
+    <p class="pe-tagline">{t.heroTagline}</p>
+    <div class="pe-meta">
+      <span>{t.runDate}</span>
+      <span aria-hidden="true">·</span>
+      <span>{t.pollsCount}</span>
+      <span aria-hidden="true">·</span>
+      <span>{t.simulations}</span>
+    </div>
+    <div class="pe-badges">
+      <span class="pe-badge pe-badge-strong">{t.modelBadge}</span>
+      <span class="pe-badge">{meta.election_cycle}</span>
+    </div>
+  </header>
+
+  {jurisdiction.electionDate && (
+    <section
+      class="pe-section container"
+      aria-label={locale === 'fr' ? 'Compte à rebours électoral' : 'Election countdown'}
+    >
+      <ElectionCountdown
+        targetDate={jurisdiction.electionDate}
+        locale={locale}
+        title={
+          locale === 'fr'
+            ? 'Le Québec vote le 5 octobre.'
+            : 'Quebec votes on October 5.'
+        }
+        kicker={locale === 'fr' ? 'Compte à rebours Québec 2026' : 'Quebec 2026 countdown'}
+        client:load
+      />
+    </section>
+  )}
+
+  <!-- CURRENT COMPOSITION -->
+  <section class="pe-section container" aria-labelledby="pe-composition-title">
+    <h2 id="pe-composition-title" class="pe-section-title">{t.composition}</h2>
+    <p class="pe-section-label">{t.seatsLabel}</p>
+    <div class="pe-bar" role="img" aria-label={t.composition}>
+      {compositionSegments.map((s) => (
+        <div
+          class="pe-bar-segment"
+          style={`width:${s.pct}%; background:${s.color};`}
+          title={`${locale === 'fr' ? s.label_fr : s.label_en} — ${s.seats}`}
+        >
+          <span class="pe-bar-segment-label">{s.seats}</span>
+        </div>
+      ))}
+    </div>
+    <div class="pe-bar-majority">
+      <div class="pe-bar-majority-marker" style={`left:${majorityMarkerPct}%`} />
+      <span class="pe-bar-majority-label">{t.majorityNeeded}</span>
+    </div>
+    <ul class="pe-legend">
+      {compositionSegments.map((s) => (
+        <li>
+          <span class="pe-legend-swatch" style={`background:${s.color}`} />
+          <span class="pe-legend-name">
+            {locale === 'fr' ? s.label_fr : s.label_en}
+          </span>
+          <span class="pe-legend-value">{s.seats}</span>
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  <!-- SEAT PROJECTION -->
+  <section class="pe-section container" aria-labelledby="pe-projection-title">
+    <h2 id="pe-projection-title" class="pe-section-title">{t.seatProjection}</h2>
+    <div class="pe-bar" role="img" aria-label={t.seatProjection}>
+      {projectionSegments.map((s) => (
+        <div
+          class="pe-bar-segment"
+          style={`width:${s.pct}%; background:${s.color};`}
+          title={`${locale === 'fr' ? s.label_fr : s.label_en} — ${s.seats}`}
+        >
+          <span class="pe-bar-segment-label">{s.seats}</span>
+        </div>
+      ))}
+    </div>
+    <div class="pe-bar-majority">
+      <div class="pe-bar-majority-marker" style={`left:${majorityMarkerPct}%`} />
+      <span class="pe-bar-majority-label">{t.majorityNeeded}</span>
+    </div>
+    <div class="pe-projection-grid">
+      {projectionSegments.map((s) => (
+        <div class="pe-projection-card">
+          <header>
+            <span
+              class="pe-projection-swatch"
+              style={`background:${s.color}`}
+            />
+            <span class="pe-projection-name">
+              {locale === 'fr' ? s.label_fr : s.label_en}
+            </span>
+            {typeof s.trend_7d === 'number' && (
+              <span
+                class={`pe-projection-trend pe-projection-trend--${s.trend_direction}`}
+                aria-label={`${s.trend_direction} ${s.trend_7d}`}
+              >
+                {trendArrow(s.trend_direction)}{' '}
+                {fmtSign(s.trend_7d)}
+              </span>
+            )}
+          </header>
+          <div class="pe-projection-seats">{s.seats}</div>
+          <dl class="pe-projection-stats">
+            <div>
+              <dt>{t.voteShare}</dt>
+              {/* Defensive clamp: upstream pipeline can occasionally produce >100% values for uncontested races; cap at 100 for display. */}
+              <dd>{typeof s.vote_mean === 'number' ? `${Math.max(0, Math.min(100, s.vote_mean)).toFixed(1)}%` : '—'}</dd>
+            </div>
+            <div>
+              <dt>{t.pMajority}</dt>
+              <dd>{fmtPct(s.p_majority)}</dd>
+            </div>
+            <div>
+              <dt>{t.pLargest}</dt>
+              <dd>{fmtPct(s.p_largest)}</dd>
+            </div>
+          </dl>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- ANALYSIS — charts -->
+  <section class="pe-section container" aria-labelledby="pe-analysis-title">
+    <h2 id="pe-analysis-title" class="pe-section-title">{t.analysis}</h2>
+    <div class="pe-charts-grid">
+      <article class="pe-chart-card">
+        <header class="pe-chart-header">
+          <h3>{t.voteTrendTitle}</h3>
+          <p>{t.voteTrendHelp}</p>
+        </header>
+        <VoteTrendChart
+          polls={pollsHistory}
+          parties={trendParties}
+          partiesOrder={trendOrder}
+          locale={locale}
+          client:only="preact"
+        />
+      </article>
+      <article class="pe-chart-card">
+        <header class="pe-chart-header">
+          <h3>{t.scenarioChartTitle}</h3>
+          <p>{t.scenarioChartHelp}</p>
+        </header>
+        <ScenariosChart
+          parties={scenarioParties}
+          locale={locale}
+          client:only="preact"
+        />
+      </article>
+    </div>
+  </section>
+
+  <!-- MAP -->
+  <section class="pe-section container" aria-labelledby="pe-map-title">
+    <h2 id="pe-map-title" class="pe-section-title">{t.mapTitle}</h2>
+    <p class="pe-section-label">{t.mapHelp}</p>
+    <article class="pe-chart-card">
+      <RidingsMap
+        geoUrl={geoUrl}
+        ridings={mapRidings}
+        parties={mapParties}
+        locale={locale}
+        center={jurisdiction.mapCenter}
+        zoom={jurisdiction.mapZoom}
+        idProp={jurisdiction.idProp}
+        baselineYear={jurisdiction.baselineYear}
+        client:only="preact"
+      />
+    </article>
+  </section>
+
+  <!-- RIDING TABLE -->
+  <section class="pe-section container" aria-labelledby="pe-table-title">
+    <h2 id="pe-table-title" class="pe-section-title">{t.tableTitle}</h2>
+    <p class="pe-section-label">{t.tableHelp}</p>
+    <article class="pe-chart-card">
+      <RidingTable
+        ridings={mapRidings}
+        parties={mapParties}
+        locale={locale}
+        baselineYear={jurisdiction.baselineYear}
+        client:visible
+      />
+    </article>
+  </section>
+
+  <section class="pe-section container" aria-labelledby="keep-digging-title">
+    <KeepDigging
+      eyebrow={t.keepDiggingEyebrow}
+      title={t.keepDiggingTitle}
+      body={t.keepDiggingBody}
+      links={keepDiggingLinks}
+    />
+  </section>
+</article>
+
+<style>
+  .projection-engine {
+    padding-block: 64px 96px;
+  }
+
+  /* HERO */
+  .pe-hero {
+    max-width: 1080px;
+    padding-bottom: 48px;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .pe-title {
+    font-family: var(--serif);
+    font-size: clamp(48px, 7vw, 84px);
+    font-weight: 420;
+    letter-spacing: -0.02em;
+    line-height: 1;
+    margin: 0 0 16px;
+  }
+
+  .pe-title :global(em) {
+    font-style: italic;
+    color: var(--ink-2);
+  }
+
+  .pe-tagline {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    margin: 0 0 24px;
+  }
+
+  .pe-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 14px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--ink-2);
+    margin-bottom: 22px;
+  }
+
+  .pe-meta span[aria-hidden] {
+    color: var(--rule);
+  }
+
+  .pe-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .pe-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 11px;
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+    background: var(--card);
+  }
+
+  .pe-badge-strong {
+    background: var(--ink);
+    color: var(--paper-3);
+    border-color: var(--ink);
+  }
+
+  /* SECTIONS */
+  .pe-section {
+    max-width: 1080px;
+    margin-top: 64px;
+  }
+
+  .pe-section-title {
+    font-family: var(--serif);
+    font-size: clamp(28px, 3vw, 40px);
+    font-weight: 430;
+    letter-spacing: -0.01em;
+    line-height: 1.05;
+    margin: 0 0 16px;
+  }
+
+  .pe-section-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    margin: 0 0 12px;
+  }
+
+  /* COUNTDOWN */
+  .election-countdown {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(360px, 1.1fr);
+    gap: 24px;
+    align-items: stretch;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    background:
+      linear-gradient(135deg, color-mix(in oklab, var(--card) 88%, #003da5 12%), var(--card));
+    padding: 24px;
+  }
+
+  .election-countdown-copy {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 0;
+  }
+
+  .election-countdown-copy p,
+  .election-countdown-copy span {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.11em;
+    line-height: 1.5;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    margin: 0;
+  }
+
+  .election-countdown-copy h2 {
+    font-family: var(--serif);
+    font-size: clamp(30px, 4vw, 54px);
+    font-weight: 430;
+    letter-spacing: -0.01em;
+    line-height: 1;
+    margin: 10px 0 16px;
+  }
+
+  .election-countdown-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .election-countdown-cell {
+    min-width: 0;
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    background: color-mix(in oklab, var(--paper) 78%, white 22%);
+    padding: 16px 12px;
+    text-align: center;
+  }
+
+  .election-countdown-cell strong {
+    display: block;
+    font-family: var(--serif);
+    font-size: clamp(30px, 5vw, 56px);
+    font-weight: 430;
+    line-height: 0.95;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .election-countdown-cell span {
+    display: block;
+    margin-top: 9px;
+    color: var(--ink-3);
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  @media (max-width: 780px) {
+    .election-countdown {
+      grid-template-columns: 1fr;
+      padding: 18px;
+    }
+
+    .election-countdown-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  /* BARS */
+  .pe-bar {
+    display: flex;
+    height: 56px;
+    border-radius: 6px;
+    overflow: hidden;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+    margin-top: 8px;
+  }
+
+  .pe-bar-segment {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.94);
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    overflow: hidden;
+    transition: filter 0.15s ease;
+  }
+
+  .pe-bar-segment:hover {
+    filter: brightness(1.08);
+  }
+
+  .pe-bar-segment-label {
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.25);
+  }
+
+  .pe-bar-majority {
+    position: relative;
+    height: 22px;
+    margin-top: 6px;
+  }
+
+  .pe-bar-majority-marker {
+    position: absolute;
+    top: -10px;
+    width: 1px;
+    height: 18px;
+    background: var(--ink);
+  }
+
+  .pe-bar-majority-marker::after {
+    content: '';
+    position: absolute;
+    top: -3px;
+    left: -2px;
+    width: 5px;
+    height: 5px;
+    background: var(--ink);
+    border-radius: 50%;
+  }
+
+  .pe-bar-majority-label {
+    position: absolute;
+    top: 4px;
+    transform: translateX(-50%);
+    left: 50%;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ink-3);
+  }
+
+  /* LEGEND */
+  .pe-legend {
+    list-style: none;
+    padding: 0;
+    margin: 28px 0 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px 22px;
+  }
+
+  .pe-legend li {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--mono);
+    font-size: 12px;
+  }
+
+  .pe-legend-swatch {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+  }
+
+  .pe-legend-name {
+    color: var(--ink-2);
+  }
+
+  .pe-legend-value {
+    color: var(--ink-3);
+    margin-left: 4px;
+  }
+
+  /* PROJECTION CARDS */
+  .pe-projection-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 14px;
+    margin-top: 36px;
+  }
+
+  .pe-projection-card {
+    border: 1px solid var(--rule);
+    background: var(--card);
+    border-radius: 4px;
+    padding: 18px 20px 20px;
+  }
+
+  .pe-projection-card header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .pe-projection-swatch {
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+  }
+
+  .pe-projection-name {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+    flex: 1 1 auto;
+  }
+
+  .pe-projection-trend {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.04em;
+  }
+
+  .pe-projection-trend--up {
+    color: #2c8a3f;
+  }
+
+  .pe-projection-trend--down {
+    color: #b03030;
+  }
+
+  .pe-projection-trend--flat {
+    color: var(--ink-3);
+  }
+
+  .pe-projection-seats {
+    font-family: var(--serif);
+    font-size: 44px;
+    font-weight: 430;
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+
+  .pe-projection-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin: 16px 0 0;
+  }
+
+  .pe-projection-stats > div {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .pe-projection-stats dt {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+
+  .pe-projection-stats dd {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--ink-2);
+    margin: 0;
+  }
+
+  /* CHARTS */
+  .pe-charts-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 24px;
+    margin-top: 24px;
+  }
+
+  @media (min-width: 960px) {
+    .pe-charts-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  .pe-chart-card {
+    border: 1px solid var(--rule);
+    background: var(--card);
+    border-radius: 4px;
+    padding: 22px 22px 18px;
+  }
+
+  .pe-chart-header {
+    margin-bottom: 12px;
+  }
+
+  .pe-chart-header h3 {
+    font-family: var(--serif);
+    font-size: 22px;
+    font-weight: 430;
+    letter-spacing: -0.005em;
+    line-height: 1.15;
+    margin: 0 0 6px;
+  }
+
+  .pe-chart-header p {
+    font-family: var(--mono);
+    font-size: 11px;
+    line-height: 1.5;
+    color: var(--ink-3);
+    margin: 0;
+  }
+
+  .pe-chart-wrap {
+    position: relative;
+    min-height: 280px;
+  }
+
+  .pe-chart {
+    width: 100%;
+    height: 320px;
+  }
+
+  .pe-chart-loading,
+  .pe-chart-error {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    padding: 16px 20px;
+    text-align: center;
+    color: var(--ink-3);
+    font-family: var(--mono);
+    font-size: 12px;
+  }
+
+  .pe-chart-error {
+    color: var(--ink-2);
+  }
+
+  .pe-map {
+    height: 480px;
+    width: 100%;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  :global(.leaflet-container) {
+    background: var(--paper-3);
+    font-family: var(--mono);
+    font-size: 12px;
+  }
+
+  :global(.leaflet-tooltip) {
+    background: var(--card);
+    border: 1px solid var(--rule);
+    color: var(--ink);
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 6px 9px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  }
+</style>

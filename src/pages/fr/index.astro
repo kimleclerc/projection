@@ -1,0 +1,135 @@
+---
+import EditorialLayout from '../../layouts/EditorialLayout.astro';
+import EditorialHero from '../../components/EditorialHero.astro';
+import InstrumentGrid from '../../components/InstrumentGrid.astro';
+import MarketCheck from '../../components/MarketCheck.astro';
+import MethodologyNote from '../../components/MethodologyNote.astro';
+import SignalTicker from '../../islands/SignalTicker';
+import AnimatedNumber from '../../islands/AnimatedNumber';
+import { desks, editorialPhilosophy, instruments } from '../../data/editorial';
+
+import ldiData from '../../../web_data/us-lame-duck/latest.json';
+
+const philosophy = editorialPhilosophy.fr;
+const ldi = ldiData.ldi;
+const deltaSign = ldi.delta_7d >= 0 ? '+' : '';
+
+const signals = [
+  { label: 'Posture éditoriale', value: "Bureau d’intelligence électorale et sportive", href: '/fr/indexes/' },
+  { label: 'Règle', value: 'Une page, une question', href: '/fr/indexes/' },
+  { label: 'Instrument live', value: 'Lame-Duck Index', href: '/fr/us/indexes/lame-duck/' },
+  { label: 'Prochaine couche sport', value: 'Cup Path + Goalie Volatility', href: '/fr/sports/' },
+];
+---
+
+<EditorialLayout
+  title="Vote-Scope — Intelligence électorale et sportive"
+  description="Projections électorales et sportives en direct, signaux des marchés de prédiction et instruments éditoriaux. Des réponses claires sur qui mène, ce qui est fragile et ce que le marché ne voit pas."
+  canonical="https://vote-scope.com/fr/"
+  lang="fr"
+  currentPage="intl"
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={{ en: "https://vote-scope.com/en/", fr: "https://vote-scope.com/fr/" }}
+  jsonLd={[
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      name: "Vote-Scope",
+      url: "https://vote-scope.com/",
+      inLanguage: "fr",
+      description: philosophy.position,
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      name: "Vote-Scope",
+      url: "https://vote-scope.com/",
+      logo: "https://vote-scope.com/favicon.svg",
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Vote-Scope", item: "https://vote-scope.com/fr/" },
+      ],
+    },
+  ]}
+>
+  <EditorialHero
+    eyebrow="Virage éditorial Vote-Scope"
+    title="Un bureau d’intelligence électorale et sportive."
+    promise="Pas juste qui mène. Ce qui bouge, ce qui est fragile, et ce que le marché ne voit pas encore."
+    question="Quel instrument le lecteur doit-il utiliser pour comprendre cette course, ce desk ou ce chemin de séries?"
+    primaryHref="/fr/indexes/"
+    primaryLabel="Voir les instruments"
+    secondaryHref="/fr/us/"
+    secondaryLabel="Ouvrir le desk US"
+  />
+
+  <section class="content-band" style="background:var(--surface-alt,#f9f7f2);padding:2rem 0;">
+    <div class="container" style="display:flex;align-items:center;gap:2rem;flex-wrap:wrap;">
+      <div>
+        <p class="eyebrow" style="margin-bottom:0.25rem;">Chiffre du jour</p>
+        <div style={`font-size:3.5rem;font-weight:800;color:${ldi.zone_color};line-height:1;`}>
+          <AnimatedNumber client:visible value={ldi.score} decimals={1} />
+          <span style="font-size:1.25rem;font-weight:400;color:var(--text);"> /100</span>
+        </div>
+        <p style={`font-weight:700;font-size:1.1rem;color:${ldi.zone_color};margin-top:0.25rem;`}>{ldi.label_fr}</p>
+        <p style="font-size:0.9rem;color:var(--text-muted);margin-top:0.25rem;">
+          Lame-Duck Index · 7j: <strong>{deltaSign}{ldi.delta_7d}</strong> · au {ldiData.meta.as_of_date}
+        </p>
+      </div>
+      <div style="flex:1;min-width:200px;">
+        <p>L'instrument phare Vote-Scope mesure le poids présidentiel avant les mi-mandats 2026. Plus élevé = plus boiteux. Actuellement en zone <strong style={`color:${ldi.zone_color};`}>{ldi.label_fr}</strong>.</p>
+        <p style="margin-top:0.75rem;">
+          <a href="/fr/us/indexes/lame-duck/" class="cta-link">Index complet →</a>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <SignalTicker client:idle signals={signals} />
+
+  <section class="content-band">
+    <div class="container">
+      <p class="eyebrow">Desks</p>
+      <div class="desk-grid">
+        {desks.fr.map((desk) => (
+          <a class="desk-card" href={desk.href}>
+            <p class="eyebrow">{desk.eyebrow}</p>
+            <h2>{desk.name}</h2>
+            <strong>{desk.question}</strong>
+            <p>{desk.description}</p>
+            <footer>{desk.signal}</footer>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <InstrumentGrid
+    instruments={instruments.fr.slice(0, 6)}
+    title="Les chiffres sont publics. Le signal est à nous."
+    intro="Les pages Vote-Scope doivent devenir des instruments consultables, pas seulement des sorties de modèle. Chaque index nommé porte une question, une mesure, une méthode et un usage de distribution."
+  />
+
+  <MarketCheck
+    kicker="Couche marché"
+    title="Les marchés deviennent une couche de lecture, pas le produit."
+    body="Polymarket et les cotes doivent accompagner le modèle comme repère: où les traders confirment, où ils paniquent, et où Vote-Scope voit un écart."
+    modelLabel="Sortie modèle"
+    marketLabel="Repère"
+    note="Le futur travail API doit garder le JSON public stable tout en préparant une surface /api versionnée pour l'historique, les données riches et les accès premium."
+  />
+
+  <MethodologyNote
+    title="La méthode passe après le signal."
+    body={philosophy.proof}
+    bullets={[
+      'Toutes les projections agrègent des sondages publics via un modèle BSTS bayésien et produisent 50 000 simulations Monte Carlo par publication.',
+      'Les données de marchés de prédiction (Polymarket) accompagnent le modèle comme détecteur de désaccord, et non comme substitut.',
+      'Les probabilités par circonscription sont conditionnées aux mouvements nationaux et régionaux, puis réagrégées en distributions de sièges.',
+      'Les données sources, les notes méthodologiques et les résultats du modèle sont publics à chaque desk. Mis à jour en continu à la réception de nouveaux sondages.',
+    ]}
+  />
+</EditorialLayout>

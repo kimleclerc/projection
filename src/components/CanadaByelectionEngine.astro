@@ -1,0 +1,491 @@
+---
+import Base from '../layouts/Base.astro';
+import ElectionCountdown from '../islands/ElectionCountdown.tsx';
+import KeepDigging from './KeepDigging.astro';
+import {
+  getByelectionAlternates,
+  type CanadaByelectionConfig,
+  type ByelectionLocale,
+} from '../data/canadaByelections';
+
+interface Props {
+  lang: ByelectionLocale;
+  config: CanadaByelectionConfig;
+}
+
+const { lang, config } = Astro.props;
+const canonicalPath = config.paths[lang] ?? config.paths.en;
+if (!canonicalPath) {
+  throw new Error(`Missing canonical path for byelection ${config.slug}`);
+}
+const canonical = `https://vote-scope.com${canonicalPath}`;
+const alternates = getByelectionAlternates(config);
+const noindex = config.translated[lang] !== true;
+
+const isArchive = !!config.result && !config.dataPath;
+
+const byelectionBreadcrumb = lang === 'fr'
+  ? [
+      { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: 'https://vote-scope.com/fr/' },
+      { '@type': 'ListItem', position: 2, name: 'Canada', item: 'https://vote-scope.com/fr/canada/' },
+      { '@type': 'ListItem', position: 3, name: 'Partielles', item: 'https://vote-scope.com/fr/canada/byelections/' },
+      { '@type': 'ListItem', position: 4, name: config.slug, item: canonical },
+    ]
+  : [
+      { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: 'https://vote-scope.com/en/' },
+      { '@type': 'ListItem', position: 2, name: 'Canada', item: 'https://vote-scope.com/en/canada/' },
+      { '@type': 'ListItem', position: 3, name: 'By-Elections', item: 'https://vote-scope.com/en/canada/byelections/' },
+      { '@type': 'ListItem', position: 4, name: config.slug, item: canonical },
+    ];
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    name: config.title.replace(' — Vote-Scope', '').replace(' | VoteScope', ''),
+    description: config.description,
+    headline: config.headline,
+    author: {
+      '@type': 'Person',
+      name: 'Kim Leclerc',
+      url: 'https://kimleclerc.ca',
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'Vote-Scope',
+      url: 'https://vote-scope.com',
+    },
+    url: canonical,
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: byelectionBreadcrumb,
+  },
+];
+
+const copy = {
+  en: {
+    result: 'Result',
+    resolved: 'This by-election has been resolved.',
+    modelNote:
+      'This page documents VoteScope\'s pre-election projection and the confirmed result. No live model data is available for resolved by-elections.',
+    winner: 'Winner',
+    voteBreakdown: 'Vote breakdown',
+    turnout: 'Turnout',
+    margin: 'Margin',
+    keepDiggingEyebrow: 'Keep digging',
+    keepDiggingTitle: 'More from the Canada Desk.',
+    keepDiggingBody:
+      'Explore other by-election pages, the federal projection, and our suite of electoral instruments.',
+  },
+  fr: {
+    result: 'Résultat',
+    resolved: 'Cette élection partielle est résolue.',
+    modelNote:
+      'Cette page documente la projection VoteScope avant le scrutin et le résultat confirmé. Aucune donnée de modèle en direct n\'est disponible pour les partielles résolues.',
+    winner: 'Gagnant',
+    voteBreakdown: 'Répartition des votes',
+    turnout: 'Participation',
+    margin: 'Marge',
+    keepDiggingEyebrow: 'Continuer à creuser',
+    keepDiggingTitle: 'Plus du bureau Canada.',
+    keepDiggingBody:
+      'Explorez d\'autres pages de partielles, la projection fédérale et nos instruments électoraux.',
+  },
+};
+
+const t = copy[lang];
+
+const otherByelections = [
+  { slug: 'scarborough-southwest', label: 'Scarborough Southwest', detail: 'Federal · April 13, 2026' },
+  { slug: 'terrebonne', label: 'Terrebonne', detail: 'Fédérale · 13 avril 2026' },
+  { slug: 'university-rosedale', label: 'University—Rosedale', detail: 'Federal · April 13, 2026' },
+].filter((b) => b.slug !== config.slug);
+
+// Compute margin from result candidates
+const result = config.result;
+let winnerCandidate = result?.candidates.find((c) => c.is_winner);
+let marginPct = 0;
+if (result && result.candidates.length >= 2) {
+  const sorted = [...result.candidates].sort((a, b) => b.pct - a.pct);
+  marginPct = +(sorted[0].pct - sorted[1].pct).toFixed(1);
+}
+---
+
+<Base
+  title={config.title}
+  description={config.description}
+  canonical={canonical}
+  currentPage={config.currentPage}
+  lang={lang}
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={alternates}
+  jsonLd={jsonLd}
+  noindex={noindex}
+>
+  <article class="byelection-page">
+    {!isArchive && (
+      <div class="byelection-countdown container">
+        <ElectionCountdown
+          targetDate={config.electionDate}
+          locale={lang}
+          kicker={config.kicker}
+          title={config.countdownTitle}
+          client:visible
+        />
+      </div>
+    )}
+
+    <header class="byelection-hero container">
+      <p class="byelection-kicker">{config.kicker}</p>
+      <h1>{config.headline}</h1>
+      <p class="byelection-dek">{config.dek}</p>
+    </header>
+
+    {isArchive && result ? (
+      <section class="byelection-archive container" aria-labelledby="byelection-archive-title">
+        <p class="byelection-section-label" id="byelection-archive-title">{t.result}</p>
+
+        {/* Winner pill */}
+        {winnerCandidate && (
+          <div class="byelection-winner-pill" style={`--party-color: ${winnerCandidate.color}`}>
+            <span class="byelection-winner-label">{t.winner}</span>
+            <strong class="byelection-winner-name">
+              {lang === 'fr' ? winnerCandidate.party_label_fr : winnerCandidate.party_label_en}
+              {winnerCandidate.name && winnerCandidate.name !== `${lang === 'fr' ? winnerCandidate.party_label_fr : winnerCandidate.party_label_en} candidate`
+                ? ` · ${winnerCandidate.name}`
+                : ''}
+            </strong>
+            <span class="byelection-winner-pct">{winnerCandidate.pct.toFixed(1)}%</span>
+          </div>
+        )}
+
+        {/* Vote breakdown bar */}
+        <div class="byelection-breakdown-bar" aria-label={t.voteBreakdown}>
+          {result.candidates.map((c) => (
+            <div
+              class="byelection-breakdown-segment"
+              style={`width: ${c.pct}%; background: ${c.color};`}
+              title={`${lang === 'fr' ? c.party_label_fr : c.party_label_en}: ${c.pct.toFixed(1)}%`}
+            />
+          ))}
+        </div>
+
+        {/* Candidate rows */}
+        <div class="byelection-vote-grid">
+          {result.candidates.map((c) => (
+            <div class={`byelection-vote-row${c.is_winner ? ' byelection-vote-row--winner' : ''}`}>
+              <div class="byelection-vote-dot" style={`background: ${c.color}`} />
+              <span class="byelection-vote-party">
+                {lang === 'fr' ? c.party_label_fr : c.party_label_en}
+                {c.name && c.name !== `${lang === 'fr' ? c.party_label_fr : c.party_label_en} candidate`
+                  ? ` — ${c.name}`
+                  : ''}
+              </span>
+              <strong class="byelection-vote-pct">{c.pct.toFixed(1)}%</strong>
+              {c.is_winner && <span class="byelection-checkmark">✓</span>}
+            </div>
+          ))}
+        </div>
+
+        {/* Stats row */}
+        <div class="byelection-stats-row">
+          {result.turnout_pct != null && (
+            <div class="byelection-stat">
+              <span>{t.turnout}</span>
+              <strong>{result.turnout_pct.toFixed(1)}%</strong>
+            </div>
+          )}
+          <div class="byelection-stat">
+            <span>{t.margin}</span>
+            <strong>+{marginPct.toFixed(1)} pts</strong>
+          </div>
+        </div>
+
+        {/* Optional blurb */}
+        {(lang === 'fr' ? result.blurb_fr : result.blurb_en) && (
+          <p class="byelection-blurb">
+            {lang === 'fr' ? result.blurb_fr : result.blurb_en}
+          </p>
+        )}
+      </section>
+    ) : (
+      <section class="byelection-body container">
+        <div class="byelection-resolved-card">
+          <p class="byelection-resolved-label">{t.result}</p>
+          <p class="byelection-resolved-status">{t.resolved}</p>
+          <p class="byelection-model-note">{t.modelNote}</p>
+        </div>
+      </section>
+    )}
+
+    <div class="byelection-keep-digging container">
+      <KeepDigging
+        eyebrow={t.keepDiggingEyebrow}
+        title={t.keepDiggingTitle}
+        body={t.keepDiggingBody}
+        links={[
+          {
+            href: lang === 'fr' ? '/fr/canada/' : '/en/canada/',
+            label: lang === 'fr' ? 'Canada fédéral' : 'Canada Federal',
+            detail: lang === 'fr' ? 'Projection fédérale' : 'Federal projection',
+          },
+          {
+            href: lang === 'fr' ? '/fr/canada/byelections/' : '/en/canada/byelections/',
+            label: lang === 'fr' ? 'Toutes les partielles' : 'All by-elections',
+            detail: lang === 'fr' ? '3 partielles · Avril 2026' : '3 by-elections · April 2026',
+          },
+          ...otherByelections.map((b) => ({
+            href: `/${lang}/canada/byelections/${b.slug}/`,
+            label: b.label,
+            detail: b.detail,
+          })),
+        ]}
+      />
+    </div>
+  </article>
+</Base>
+
+<style>
+  .byelection-page {
+    padding-block: 48px 96px;
+  }
+
+  .byelection-countdown {
+    max-width: 1080px;
+    padding-bottom: 0;
+    margin-bottom: 32px;
+  }
+
+  .byelection-hero {
+    max-width: 1080px;
+    padding-bottom: 48px;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .byelection-kicker {
+    margin: 0 0 16px;
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+
+  .byelection-hero h1 {
+    max-width: 850px;
+    margin: 0 0 18px;
+    font-family: var(--serif);
+    font-size: clamp(48px, 7vw, 84px);
+    font-weight: 420;
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+
+  .byelection-dek {
+    max-width: 680px;
+    margin: 0;
+    color: var(--ink-2);
+    font-size: 17px;
+    line-height: 1.6;
+  }
+
+  .byelection-body {
+    max-width: 1080px;
+    margin-top: 48px;
+  }
+
+  .byelection-resolved-card {
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    background: var(--card);
+    padding: 28px 32px;
+    max-width: 680px;
+  }
+
+  .byelection-resolved-label {
+    margin: 0 0 8px;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+
+  .byelection-resolved-status {
+    margin: 0 0 16px;
+    font-family: var(--serif);
+    font-size: clamp(22px, 3vw, 32px);
+    font-weight: 420;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+  }
+
+  .byelection-model-note {
+    margin: 0;
+    color: var(--ink-2);
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  /* Archive result card */
+  .byelection-archive {
+    max-width: 1080px;
+    margin-top: 48px;
+  }
+
+  .byelection-section-label {
+    margin: 0 0 20px;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 10px;
+  }
+
+  .byelection-winner-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    border-radius: 4px;
+    background: color-mix(in oklab, var(--party-color, #d71920) 12%, var(--card));
+    border: 1px solid color-mix(in oklab, var(--party-color, #d71920) 30%, var(--rule));
+    margin-bottom: 20px;
+  }
+
+  .byelection-winner-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+
+  .byelection-winner-name {
+    font-family: var(--serif);
+    font-size: 20px;
+    font-weight: 430;
+    letter-spacing: -0.01em;
+    color: var(--party-color, var(--ink));
+  }
+
+  .byelection-winner-pct {
+    font-family: var(--mono);
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--party-color, var(--ink));
+  }
+
+  /* Breakdown bar */
+  .byelection-breakdown-bar {
+    display: flex;
+    height: 14px;
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 20px;
+    gap: 2px;
+  }
+
+  .byelection-breakdown-segment {
+    height: 100%;
+    min-width: 2px;
+    border-radius: 2px;
+  }
+
+  /* Vote rows */
+  .byelection-vote-grid {
+    display: grid;
+    gap: 8px;
+    margin-bottom: 24px;
+    max-width: 560px;
+  }
+
+  .byelection-vote-row {
+    display: grid;
+    grid-template-columns: 14px 1fr 60px 20px;
+    gap: 10px;
+    align-items: center;
+    padding: 10px 14px;
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    background: var(--card);
+  }
+
+  .byelection-vote-row--winner {
+    border-color: var(--ink-3);
+  }
+
+  .byelection-vote-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    flex-shrink: 0;
+  }
+
+  .byelection-vote-party {
+    font-size: 14px;
+    color: var(--ink);
+  }
+
+  .byelection-vote-pct {
+    font-family: var(--serif);
+    font-size: 18px;
+    font-weight: 430;
+    letter-spacing: -0.01em;
+    text-align: right;
+  }
+
+  .byelection-checkmark {
+    font-size: 12px;
+    color: oklch(0.52 0.14 160);
+    text-align: center;
+  }
+
+  /* Stats row */
+  .byelection-stats-row {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 20px;
+  }
+
+  .byelection-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .byelection-stat span {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+
+  .byelection-stat strong {
+    font-family: var(--serif);
+    font-size: 24px;
+    font-weight: 430;
+    letter-spacing: -0.01em;
+  }
+
+  .byelection-blurb {
+    max-width: 600px;
+    margin: 0;
+    color: var(--ink-2);
+    font-size: 15px;
+    line-height: 1.65;
+    font-style: italic;
+    border-left: 2px solid var(--rule);
+    padding-left: 16px;
+  }
+
+  .byelection-keep-digging {
+    max-width: 1080px;
+    margin-top: 64px;
+  }
+</style>

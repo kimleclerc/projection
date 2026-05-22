@@ -1,0 +1,248 @@
+---
+import EditorialLayout from '../../../layouts/EditorialLayout.astro';
+import EditorialHero from '../../../components/EditorialHero.astro';
+import MethodologyNote from '../../../components/MethodologyNote.astro';
+import PolymarketEmbed from '../../../components/PolymarketEmbed.astro';
+import AnimatedNumber from '../../../islands/AnimatedNumber';
+import sportsData from '../../../../web_data/sports/latest.json';
+
+const board = sportsData.board as Array<{
+  team: string;
+  label_en: string;
+  emoji: string;
+  conference: string;
+  color: string;
+  p_cup_win: number;
+  p_cup_final: number;
+  p_conf_final: number;
+  p_second_round: number;
+  strength_mean: number;
+  trend_7d: number;
+  trend_direction: string;
+  p_cup_bsts: number;
+  p_cup_market: number;
+  market_books: number;
+  goalie: { player_name: string; sv_pct: number; hd_sv_pct: number; injury_status: string } | null;
+  injury_summary: { count: number; impact_sum: number };
+}>;
+
+const hero = sportsData.hero;
+const boardMeta = sportsData.board_meta;
+
+const topTeams = board.slice(0, 8);
+const topThree = board.slice(0, 3);
+
+const gaps = board
+  .slice(0, 8)
+  .map((t) => ({ ...t, gap: Math.abs(t.p_cup_bsts - t.p_cup_market) }))
+  .sort((a, b) => b.gap - a.gap)
+  .slice(0, 3);
+
+const trendUp = board.filter((t) => t.trend_direction === 'up').slice(0, 3);
+---
+
+<EditorialLayout
+  title="Playoffs NHL 2026 — Vote-Scope"
+  description="Proyecta el camino de cada equipo hacia la Copa Stanley: volatilidad de portero, diferencias modelo-mercado y tendencias. 10.000 simulaciones diarias — Vote-Scope."
+  canonical="https://vote-scope.com/es/sports/nhl/"
+  lang="es"
+  currentPage="sports"
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={{ en: 'https://vote-scope.com/en/sports/nhl/', fr: 'https://vote-scope.com/fr/sports/nhl/', es: 'https://vote-scope.com/es/sports/nhl/' }}
+  jsonLd={[
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Dataset',
+      name: 'Proyección playoffs NHL 2026',
+      description: 'Modelo de probabilidad Copa Stanley: 10.000 simulaciones por actualización, capa de volatilidad de portero, detección de brecha modelo-mercado.',
+      url: 'https://vote-scope.com/es/sports/nhl/',
+      dateModified: boardMeta.run_date ?? '',
+      creator: { '@type': 'Person', name: 'Kim Leclerc', url: 'https://kimleclerc.ca' },
+      publisher: { '@type': 'Organization', name: 'Vote-Scope', url: 'https://vote-scope.com' },
+      isAccessibleForFree: true,
+      distribution: { '@type': 'DataDownload', contentUrl: 'https://vote-scope.com/web_data/sports/latest.json', encodingFormat: 'application/json' },
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: 'https://vote-scope.com/es/' },
+        { '@type': 'ListItem', position: 2, name: 'Sports Scope', item: 'https://vote-scope.com/es/sports/' },
+        { '@type': 'ListItem', position: 3, name: 'NHL', item: 'https://vote-scope.com/es/sports/nhl/' },
+      ],
+    },
+  ]}
+>
+  <EditorialHero
+    eyebrow="Desk NHL"
+    title="¿Quién tiene el camino más despejado hacia la Copa?"
+    promise="10,000 simulaciones Monte Carlo. Capa de volatilidad del portero. Detector de brechas de mercado. Análisis de tendencias de equipos."
+    question="¿El favorito está realmente construido para la siguiente ronda, o el mercado se equivoca?"
+    primaryHref="/es/sports/"
+    primaryLabel="Hub deportivo"
+    secondaryHref="/en/indexes/"
+    secondaryLabel="Todos los instrumentos"
+  />
+
+  <!-- Favoritos actuales -->
+  <section class="content-band">
+    <div class="container">
+      <p class="eyebrow">Favoritos actuales — al {boardMeta.run_date}</p>
+      <div class="content-grid-2" style="gap:1.5rem;margin-top:1rem;">
+        {topThree.map((team, i) => (
+          <div class="note-card" style={`border-left:4px solid ${team.color};`}>
+            <p class="eyebrow">{i === 0 ? 'Favorito Copa' : i === 1 ? 'Segundo' : 'Tercero'} · {team.conference.toUpperCase()}</p>
+            <h3 style="font-size:1.6rem;margin:0.25rem 0;">
+              {team.emoji} {team.label_en}
+            </h3>
+            <p style="font-size:2rem;font-weight:700;color:var(--accent);">
+              <AnimatedNumber client:visible value={team.p_cup_win} decimals={1} suffix="%" />
+            </p>
+            <p style="font-size:0.9rem;">
+              Final: <strong>{team.p_cup_final}%</strong> ·
+              Conf: <strong>{team.p_conf_final}%</strong>
+            </p>
+            <p style="font-size:0.85rem;margin-top:0.5rem;">
+              Modelo: {team.p_cup_bsts}% · Mercado: {team.p_cup_market}%
+              {team.trend_direction === 'up'
+                ? ` · ↑ +${team.trend_7d} pts (7d)`
+                : team.trend_direction === 'down'
+                ? ` · ↓ ${team.trend_7d} pts (7d)`
+                : ` · → estable`}
+            </p>
+            {team.goalie && (
+              <p style="font-size:0.85rem;margin-top:0.5rem;color:var(--text-muted);">
+                P: {team.goalie.player_name} · SV% {(team.goalie.sv_pct * 100).toFixed(1)} · HD SV% {(team.goalie.hd_sv_pct * 100).toFixed(1)}
+                {team.goalie.injury_status !== 'healthy' && <span style="color:#c0392b;"> · {team.goalie.injury_status}</span>}
+              </p>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Board completo top 8 -->
+  <section class="content-band">
+    <div class="container">
+      <p class="eyebrow">Board Copa completo — top {topTeams.length} equipos</p>
+      <h2>Campo clasificado por probabilidad de campeonato</h2>
+      <p style="margin-bottom:1.5rem;font-size:0.9rem;">Modelo: {boardMeta.model} · {boardMeta.n_sims.toLocaleString()} simulaciones</p>
+      <div style="overflow-x:auto;">
+        <table style="width:100%;border-collapse:collapse;font-size:0.9rem;">
+          <thead>
+            <tr style="border-bottom:2px solid var(--rule,#ddd);text-align:left;">
+              <th style="padding:8px 12px;">Equipo</th>
+              <th style="padding:8px 12px;text-align:right;">Copa%</th>
+              <th style="padding:8px 12px;text-align:right;">Final%</th>
+              <th style="padding:8px 12px;text-align:right;">Conf%</th>
+              <th style="padding:8px 12px;text-align:right;">Mercado%</th>
+              <th style="padding:8px 12px;text-align:right;">7d</th>
+              <th style="padding:8px 12px;">Portero</th>
+            </tr>
+          </thead>
+          <tbody>
+            {topTeams.map((team, i) => (
+              <tr style={`border-bottom:1px solid var(--rule,#eee);${i % 2 === 0 ? 'background:var(--surface-alt,#fafafa);' : ''}`}>
+                <td style="padding:8px 12px;font-weight:600;">
+                  <span style={`display:inline-block;width:4px;height:1em;background:${team.color};margin-right:8px;vertical-align:middle;border-radius:2px;`}></span>
+                  {team.emoji} {team.label_en}
+                </td>
+                <td style="padding:8px 12px;text-align:right;font-weight:700;">{team.p_cup_win}%</td>
+                <td style="padding:8px 12px;text-align:right;">{team.p_cup_final}%</td>
+                <td style="padding:8px 12px;text-align:right;">{team.p_conf_final}%</td>
+                <td style="padding:8px 12px;text-align:right;">{team.p_cup_market}%</td>
+                <td style={`padding:8px 12px;text-align:right;color:${team.trend_direction === 'up' ? '#27ae60' : team.trend_direction === 'down' ? '#c0392b' : 'inherit'};`}>
+                  {team.trend_direction === 'up' ? '+' : ''}{team.trend_7d}
+                </td>
+                <td style="padding:8px 12px;font-size:0.82rem;color:var(--text-muted);">
+                  {team.goalie ? `${team.goalie.player_name} · SV% ${(team.goalie.sv_pct * 100).toFixed(1)}` : '—'}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- Diferencia modelo vs. mercado -->
+  <section class="content-band">
+    <div class="container">
+      <p class="eyebrow">Modelo vs. mercado — detector de desacuerdos</p>
+      <h2>Donde el modelo y el mercado divergen más.</h2>
+      <div class="content-grid-2" style="gap:1rem;margin-top:1rem;">
+        {gaps.map((team) => {
+          const modelHigher = team.p_cup_bsts > team.p_cup_market;
+          return (
+            <div class="note-card" style={`border-left:4px solid ${modelHigher ? '#27ae60' : '#e74c3c'};`}>
+              <p class="eyebrow">{modelHigher ? 'Modelo sobre el mercado' : 'Mercado sobre el modelo'}</p>
+              <h3 style="margin:0.25rem 0;">{team.emoji} {team.label_en}</h3>
+              <p>
+                Modelo: <strong>{team.p_cup_bsts}%</strong> vs Mercado: <strong>{team.p_cup_market}%</strong>
+              </p>
+              <p style="font-size:0.9rem;margin-top:0.25rem;">
+                Diferencia: <strong style={`color:${modelHigher ? '#27ae60' : '#e74c3c'};`}>{modelHigher ? '+' : ''}{(team.p_cup_bsts - team.p_cup_market).toFixed(1)} pts</strong>
+                {modelHigher
+                  ? ' — BSTS ve más potencial que los libros'
+                  : ' — El mercado incorpora algo que el modelo no detecta'}
+              </p>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  </section>
+
+  <!-- En alza -->
+  {trendUp.length > 0 && (
+    <section class="content-band">
+      <div class="container">
+        <p class="eyebrow">En alza en 7 días</p>
+        <h2>Equipos ganando terreno esta semana.</h2>
+        <div class="content-grid-2" style="gap:1rem;margin-top:1rem;">
+          {trendUp.map((team) => (
+            <div class="note-card">
+              <p class="eyebrow">En alza · {team.conference.toUpperCase()}</p>
+              <h3 style="margin:0.25rem 0;">{team.emoji} {team.label_en}</h3>
+              <p>Copa: <strong>{team.p_cup_win}%</strong> · Movimiento 7d: <strong style="color:#27ae60;">+{team.trend_7d} pts</strong></p>
+              {team.goalie && (
+                <p style="font-size:0.85rem;margin-top:0.25rem;color:var(--text-muted);">
+                  P: {team.goalie.player_name} · HD SV% {(team.goalie.hd_sv_pct * 100).toFixed(1)}
+                </p>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <section class="content-band">
+    <div class="container">
+      <PolymarketEmbed slug="2026-nhl-stanley-cup-champion" title="Campeón de la Stanley Cup NHL 2026" />
+    </div>
+  </section>
+
+  <MethodologyNote
+    title="El modelo combina EWMA game-log con la capa de portero HDSV%."
+    body="El desk NHL corre 10,000 simulaciones Monte Carlo cada noche. La fortaleza de los equipos usa un promedio móvil exponencialmente ponderado sobre los datos de registro de partidos de Natural Stat Trick. La capa de portero ajusta cada resultado de serie usando el porcentaje de paradas en tiros de alta peligrosidad (HD SV%) del titular probable."
+    bullets={[
+      'El EWMA da más peso a las actuaciones recientes en temporada regular y playoffs.',
+      'Capa de portero CORR ~0.55 con resultados de series: relevante pero no decisivo.',
+      'Blend de mercado a α=0.65 se inclina hacia BSTS cuando la confianza del mercado es alta.',
+      'Todas las diferencias entre modelo y mercado se presentan como señales de desacuerdo, no como pronósticos directos.',
+    ]}
+  />
+</EditorialLayout>
+
+<style>
+  table th {
+    font-family: var(--mono, monospace);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-3, #666);
+    font-weight: 400;
+  }
+</style>

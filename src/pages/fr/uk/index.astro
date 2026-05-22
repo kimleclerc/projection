@@ -1,0 +1,72 @@
+---
+import EditorialLayout from '../../../layouts/EditorialLayout.astro';
+import EditorialHero from '../../../components/EditorialHero.astro';
+import MethodologyNote from '../../../components/MethodologyNote.astro';
+---
+
+<EditorialLayout
+  title="Politique britannique — Vote-Scope"
+  description="Projette l'élection générale britannique circonscription par circonscription. Compare les signaux de sondages et décèle les marginals que le marché sous-estime — Vote-Scope."
+  canonical="https://vote-scope.com/fr/uk/"
+  lang="fr"
+  currentPage="uk"
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={{ en: 'https://vote-scope.com/en/uk/', fr: 'https://vote-scope.com/fr/uk/' }}
+  jsonLd={[
+    {
+      '@context': 'https://schema.org',
+      '@type': 'CollectionPage',
+      name: 'Politique britannique — Vote-Scope',
+      url: 'https://vote-scope.com/fr/uk/',
+      inLanguage: 'fr',
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: 'https://vote-scope.com/fr/' },
+        { '@type': 'ListItem', position: 2, name: 'R.-U.', item: 'https://vote-scope.com/fr/uk/' },
+      ],
+    },
+  ]}
+>
+  <EditorialHero
+    eyebrow="Desk Royaume-Uni"
+    title="Où la carte britannique est-elle vraiment stable, et où est-elle discrètement fragile?"
+    promise="Projections par circonscription, agrégation de sondages et simulations Monte Carlo — construits comme des instruments, pas comme des tableaux isolés."
+    question="Quels sièges sont sûrs, lesquels sont des marginals qui se font passer pour sûrs, et que dit le modèle que le marché rate?"
+    primaryHref="/fr/uk/general-election/"
+    primaryLabel="Ouvrir la projection"
+    secondaryHref="/fr/indexes/"
+    secondaryLabel="Tous les index"
+  />
+
+  <section class="content-band">
+    <div class="container content-grid-2">
+      <a class="note-card" href="/fr/uk/general-election/" style="text-decoration:none;color:inherit;">
+        <p class="eyebrow">Projection élection générale</p>
+        <h3>Élection générale britannique</h3>
+        <p>Projection à 650 sièges. Agrégation bayésienne de sondages, 50 000 simulations Monte Carlo, probabilités par circonscription et graphique de composition.</p>
+        <footer style="margin-top:1rem;">
+          <span class="cta-link">Ouvrir la projection →</span>
+        </footer>
+      </a>
+      <div class="note-card">
+        <p class="eyebrow">À venir</p>
+        <h3>Profils de circonscriptions et partielles</h3>
+        <p>Pages individuelles par circonscription, suivi des marginals et desk partielles sont prévus pour le prochain sprint après la stabilisation des pages d'élection générale.</p>
+      </div>
+    </div>
+  </section>
+
+  <MethodologyNote
+    title="Le desk Royaume-Uni est construit pour la profondeur, pas juste pour une projection titre."
+    body="La carte électorale britannique récompense la granularité: vote tactique, tendances régionales et dynamiques de tiers partis décalent des sièges individuels d'une façon que les sondages nationaux ne peuvent pas prédire. La surface de projection est le point de départ."
+    bullets={[
+      "L'agrégation de sondages utilise un modèle BSTS bayésien avec ajustements régionaux.",
+      "50 000 simulations Monte Carlo produisent des distributions de sièges et des probabilités de victoire.",
+      "Les profils de circonscriptions et le suivi des marginals suivront une fois le shell de base stable.",
+      "Les élections partielles sont suivies séparément comme desks de course live quand les données sont disponibles.",
+    ]}
+  />
+</EditorialLayout>

@@ -1,0 +1,207 @@
+---
+import EditorialLayout from '../../../layouts/EditorialLayout.astro';
+import EditorialHero from '../../../components/EditorialHero.astro';
+import KeepDigging from '../../../components/KeepDigging.astro';
+import AnimatedNumber from '../../../islands/AnimatedNumber.tsx';
+
+import sportsData from '../../../../web_data/sports/latest.json';
+
+const meta = sportsData.board_meta;
+const board = sportsData.board as Array<{ p_cup_win: number; label_fr: string }>;
+const nTeams = board.length;
+---
+
+<EditorialLayout
+  title="Historique Sports Scope — Vote-Scope"
+  description="Chaque appel Sports Scope publié, suivi et vérifié : performances du modèle NHL éliminatoires Coupe Stanley, simulations et précision — Vote-Scope."
+  canonical="https://vote-scope.com/fr/sports/track-record/"
+  lang="fr"
+  currentPage="sports"
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={{ en: 'https://vote-scope.com/en/sports/track-record/', fr: 'https://vote-scope.com/fr/sports/track-record/' }}
+  jsonLd={[
+    {
+      '@context': 'https://schema.org',
+      '@type': 'WebPage',
+      name: 'Historique Sports Scope — Vote-Scope',
+      url: 'https://vote-scope.com/fr/sports/track-record/',
+      inLanguage: 'fr',
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: 'https://vote-scope.com/fr/' },
+        { '@type': 'ListItem', position: 2, name: 'Sports Scope', item: 'https://vote-scope.com/fr/sports/' },
+        { '@type': 'ListItem', position: 3, name: 'Historique', item: 'https://vote-scope.com/fr/sports/track-record/' },
+      ],
+    },
+  ]}
+>
+  <EditorialHero
+    eyebrow="Sports Scope · Historique"
+    title="Le modèle, sur le dossier."
+    promise="Historique Sports Scope — éliminatoires NHL Coupe Stanley. Chaque simulation lancée, chaque appel publié, archivé."
+    question="Le modèle choisit-il vraiment les gagnants?"
+    primaryHref="/fr/sports/nhl/"
+    primaryLabel="Desk NHL"
+    secondaryHref="/fr/sports/"
+    secondaryLabel="Hub sports"
+  />
+
+  <section class="content-band">
+    <div class="container">
+      <p class="section-label">Activité du modèle</p>
+      <div class="content-grid-3">
+        <div class="note-card note-card--stat">
+          <p class="eyebrow">Simulations lancées</p>
+          <strong class="stat-value">
+            <AnimatedNumber value={meta.n_sims} format="thousands" client:visible />
+          </strong>
+          <p>par cycle, BSTS + couche gardien</p>
+        </div>
+        <div class="note-card note-card--stat">
+          <p class="eyebrow">Équipes suivies</p>
+          <strong class="stat-value">
+            <AnimatedNumber value={nTeams} client:visible />
+          </strong>
+          <p>équipes dans le tableau actuel</p>
+        </div>
+        <div class="note-card note-card--stat">
+          <p class="eyebrow">Version du modèle</p>
+          <strong class="stat-value stat-value--mono">{meta.version}</strong>
+          <p>Dernière exécution : {meta.run_date}</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="content-band">
+    <div class="container">
+      <p class="section-label">Ce que Sports Scope couvre</p>
+      <div class="content-grid-2">
+        <div class="note-card">
+          <p class="eyebrow">Éliminatoires NHL Coupe Stanley</p>
+          <h3>Probabilités de chemin vers la Coupe.</h3>
+          <p>
+            Un modèle bayésien à série chronologique structurelle (BSTS) combiné à une couche de volatilité des gardiens (HDSV%) et 10 000 simulations Monte Carlo. Le modèle suit le chemin de chaque équipe vers la Coupe Stanley avec des probabilités par ronde mises à jour après chaque résultat de série.
+          </p>
+        </div>
+        <div class="note-card">
+          <p class="eyebrow">Méthodologie</p>
+          <h3>BSTS + couche gardien.</h3>
+          <p>
+            Le modèle combine des estimations de force d'équipe EWMA issues des journaux de jeu avec un modificateur gardien basé sur le pourcentage d'arrêts en zones dangereuses. Les signaux de marché de 2 livres sont intégrés lorsqu'ils sont disponibles. Aucune boîte noire — chaque poids est documenté.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="content-band">
+    <div class="container">
+      <p class="section-label">À venir</p>
+      <div class="coming-soon-box">
+        <h2>Les appels de séries résolus apparaîtront ici.</h2>
+        <p>
+          Au fil de l'avancement des éliminatoires NHL 2026, chaque appel de série — le choix du gagnant avant la série et le résultat réel — sera archivé ici. Le format reprend celui de l'historique politique : une ligne par appel, confiance affichée, résultat marqué correct ou raté.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <div class="container" style="max-width: 1080px; margin-bottom: 80px;">
+    <KeepDigging
+      eyebrow="Continuer à creuser"
+      title="Retour à Sports Scope."
+      body="Le desk NHL a des probabilités Coupe en direct, la volatilité des gardiens et les signaux de marché mis à jour après chaque ronde."
+      links={[
+        {
+          href: '/fr/sports/nhl/',
+          label: 'Desk NHL',
+          detail: 'Chemin Coupe · Volatilité gardien · Marchés',
+        },
+        {
+          href: '/fr/sports/',
+          label: 'Hub sports',
+          detail: 'Tous les instruments sport',
+        },
+        {
+          href: '/fr/track-record/',
+          label: 'Historique politique',
+          detail: '6 sur 6 · Appels vérifiés',
+        },
+      ]}
+    />
+  </div>
+</EditorialLayout>
+
+<style>
+  .section-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+  }
+
+  .content-grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+  }
+
+  .note-card--stat {
+    padding: 24px;
+  }
+
+  .stat-value {
+    display: block;
+    font-family: var(--serif);
+    font-size: clamp(32px, 5vw, 52px);
+    font-weight: 420;
+    letter-spacing: -0.02em;
+    line-height: 1;
+    color: var(--ink);
+    margin: 14px 0 10px;
+  }
+
+  .stat-value--mono {
+    font-family: var(--mono);
+    font-size: 32px;
+    letter-spacing: 0;
+  }
+
+  .coming-soon-box {
+    border: 1px solid color-mix(in oklab, var(--duck) 30%, var(--rule));
+    border-radius: 6px;
+    background: color-mix(in oklab, var(--duck) 6%, var(--card));
+    padding: 28px 32px;
+    max-width: 680px;
+  }
+
+  .coming-soon-box h2 {
+    margin: 0 0 12px;
+    font-family: var(--serif);
+    font-size: 24px;
+    font-weight: 430;
+    color: var(--duck-deep);
+    letter-spacing: -0.01em;
+  }
+
+  .coming-soon-box p {
+    margin: 0;
+    color: var(--ink-2);
+    font-size: 15px;
+    line-height: 1.65;
+  }
+
+  @media (max-width: 860px) {
+    .content-grid-3 {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

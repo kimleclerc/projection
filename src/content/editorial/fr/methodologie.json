@@ -1,0 +1,72 @@
+{
+  "locale": "fr",
+  "slug": "methodologie",
+  "title": "Méthodologie — Vote-Scope",
+  "description": "Explique comment Vote-Scope projette les sièges : sondages agrégés quotidiennement, modèle bayésien, 10 000 simulations par circonscription. Transparent, indépendant, mis à jour en continu.",
+  "eyebrow": "Méthodologie · VoteScope",
+  "h1Html": "Comment on calcule<br><em>qui va gagner</em>",
+  "intro": "VoteScope ne se contente pas d'afficher des sondages. On les agrège, on les pondère, on corrige les biais et on simule des milliers de scénarios pour produire une projection réaliste — pas un simple instantané d'un seul sondage.",
+  "sections": [
+    {
+      "number": "01",
+      "title": "On collecte tous les sondages",
+      "bodyHtml": "<p>Chaque sondage publié par les grandes firmes (Léger, Abacus, Nanos, Mainstreet, EKOS, Angus Reid…) est intégré avec sa date, sa taille d'échantillon et la firme qui l'a produit. Les sondages récents comptent plus — le modèle applique une décroissance temporelle.</p><p>Pour le fédéral canadien : plus de 190 sondages agrégés. Pour le Québec : 55+ sondages provinciaux.</p>"
+    },
+    {
+      "number": "02",
+      "title": "On corrige les biais des firmes",
+      "bodyHtml": "<p>Certaines firmes surestiment systématiquement un parti, d'autres le sous-estiment. On calcule ces biais (<em>house effects</em>) à partir des résultats électoraux passés et on les corrige automatiquement. Le résultat : une estimation du vrai appui électoral, pas du biais d'une firme particulière.</p>"
+    },
+    {
+      "number": "03",
+      "title": "On estime les intentions de vote",
+      "bodyHtml": "<p>Le cœur du modèle est un BSTS bayésien (<em>Bayesian Structural Time Series</em>) — un modèle statistique qui suit l'évolution des intentions de vote dans le temps en tenant compte de l'incertitude. Il génère une distribution de probabilités pour chaque parti, pas juste un chiffre unique.</p><p>En clair : le modèle dit « les libéraux ont probablement entre 44 % et 50 % des voix » — pas seulement « 47 % ».</p>"
+    },
+    {
+      "number": "04",
+      "title": "On simule 10 000 scénarios de sièges",
+      "bodyHtml": "<p>Pour chaque simulation, on tire aléatoirement un résultat national plausible et on l'applique à chacune des 343 circonscriptions fédérales (ou 125 comtés québécois, 124 circonscriptions ontariennes…). On tient compte du vote de 2025 dans chaque circonscription, de la dynamique régionale et d'un facteur d'aléa local.</p><p>Résultat : une distribution réaliste de sièges — pas un chiffre magique, mais une fourchette avec une probabilité associée pour chaque scénario.</p>"
+    },
+    {
+      "number": "05",
+      "title": "On publie et on recommence demain",
+      "bodyHtml": "<p>Les résultats sont exportés en JSON statique et mis à jour à chaque nouveau run. La page affiche la date du dernier run. Plus on approche du jour de l'élection, plus les sondages récents pèsent lourd — et plus la fourchette se resserre.</p>"
+    }
+  ],
+  "callout": "<strong>À retenir :</strong> Les sièges affichés sont des <em>moyennes de simulations</em>, pas une prédiction garantie. Un parti projeté à 218 sièges pourrait en obtenir 195 ou 240 — la distribution montre cette incertitude. Une probabilité de majorité de 90 % signifie que dans 9 simulations sur 10, ce parti obtient une majorité — pas que c'est certain.",
+  "cards": [
+    {
+      "kicker": "Sources de données",
+      "title": "D'où viennent les chiffres",
+      "itemsHtml": [
+        "Sondages publics (Léger, Abacus, Nanos, Mainstreet, EKOS, Angus Reid, Pallas, Forum, Innovative…)",
+        "Résultats officiels 2025 — Élections Canada",
+        "Résultats officiels 2022 — Élections Québec",
+        "Résultats 2024 — MIT Election Lab (US)",
+        "Cartes géographiques — Élections Canada, Census Bureau",
+        "Partielles, traversées de parquet et changements de siège tenus à jour manuellement"
+      ]
+    },
+    {
+      "kicker": "Limites du modèle",
+      "title": "Ce qu'on ne capture pas bien",
+      "itemsHtml": [
+        "Le vote stratégique — difficile à anticiper mécaniquement",
+        "Les candidatures vedettes locales qui surperforment leur parti",
+        "Les événements de campagne de dernière minute",
+        "Les comtés très serrés — la marge d'erreur y est la plus grande",
+        "Les contextes sociolinguistiques très locaux (certains comtés bilingues, autochtones, etc.)"
+      ]
+    },
+    {
+      "kicker": "Indépendance",
+      "title": "Aucune affiliation partisane",
+      "bodyHtml": "<p>VoteScope est un projet personnel de <a href=\"https://kimleclerc.ca\" target=\"_blank\" rel=\"noopener\">Kim Leclerc</a>, journaliste et analyste de données. Le modèle n'est affilié à aucun parti, aucune firme de sondage et aucun média. Il s'appuie uniquement sur des données publiques et une méthodologie statistique transparente.</p><p>Les choix méthodologiques sont documentés ici. Si vous repérez une erreur ou souhaitez discuter de la méthode, contactez-moi via <a href=\"https://kimleclerc.ca\" target=\"_blank\" rel=\"noopener\">kimleclerc.ca</a>.</p>"
+    }
+  ],
+  "canonicalSlug": "/fr/methodologie",
+  "alternates": {
+    "en": "https://vote-scope.com/en/methodology",
+    "fr": "https://vote-scope.com/fr/methodologie"
+  }
+}

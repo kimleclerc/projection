@@ -1,0 +1,149 @@
+---
+import type { Instrument } from '../data/editorial';
+
+interface Props {
+  instruments: Instrument[];
+  title: string;
+  intro: string;
+}
+
+const { instruments, title, intro } = Astro.props;
+---
+
+<section class="instrument-section">
+  <div class="container">
+    <div class="section-head">
+      <p class="eyebrow">Vote-Scope instruments</p>
+      <div>
+        <h2>{title}</h2>
+        <p>{intro}</p>
+      </div>
+    </div>
+
+    <div class="instrument-grid">
+      {instruments.map((instrument) => (
+        <a class="instrument-card" href={instrument.href} data-status={instrument.status}>
+          <span class="instrument-family">{instrument.family}</span>
+          <h3>{instrument.name}</h3>
+          <strong>{instrument.question}</strong>
+          <p>{instrument.description}</p>
+          <footer>
+            <span>{instrument.cadence}</span>
+            <span>{instrument.status}</span>
+          </footer>
+        </a>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .instrument-section {
+    padding: 72px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .section-head {
+    display: grid;
+    grid-template-columns: .55fr 1fr;
+    gap: 40px;
+    align-items: baseline;
+    margin-bottom: 32px;
+  }
+
+  h2 {
+    max-width: 760px;
+    font-family: var(--serif);
+    font-size: clamp(34px, 4vw, 58px);
+    font-weight: 420;
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+
+  .section-head p:not(.eyebrow) {
+    max-width: 680px;
+    margin-top: 14px;
+    color: var(--ink-2);
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+  .instrument-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    border-top: 1px solid var(--rule);
+    border-left: 1px solid var(--rule);
+  }
+
+  .instrument-card {
+    min-height: 290px;
+    padding: 24px;
+    border-right: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    background: var(--card);
+    transition: background .16s ease, transform .16s ease;
+  }
+
+  .instrument-card:hover {
+    background: var(--paper-3);
+    transform: translateY(-2px);
+  }
+
+  .instrument-family {
+    display: inline-block;
+    margin-bottom: 20px;
+    color: var(--ink-3);
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+  }
+
+  h3 {
+    margin: 0 0 12px;
+    font-family: var(--serif);
+    font-size: 28px;
+    font-weight: 430;
+    letter-spacing: -0.015em;
+    line-height: 1.02;
+  }
+
+  .instrument-card strong {
+    display: block;
+    color: var(--ink);
+    font-size: 16px;
+    line-height: 1.35;
+  }
+
+  .instrument-card p {
+    margin-top: 14px;
+    color: var(--ink-2);
+    font-size: 15px;
+    line-height: 1.55;
+  }
+
+  footer {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 28px;
+    padding-top: 16px;
+    border-top: 1px solid var(--rule-2);
+    color: var(--ink-3);
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+  }
+
+  [data-status='live'] footer span:last-child {
+    color: var(--red);
+  }
+
+  @media (max-width: 920px) {
+    .section-head,
+    .instrument-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

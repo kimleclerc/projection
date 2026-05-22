@@ -1,0 +1,17 @@
+---
+import CanadaByelectionEngine from '../../../../components/CanadaByelectionEngine.astro';
+import { canadaByelections } from '../../../../data/canadaByelections';
+
+export function getStaticPaths() {
+  return Object.values(canadaByelections)
+    .filter((config) => config.paths.fr)
+    .map((config) => ({
+      params: { slug: config.slug },
+      props: { config },
+    }));
+}
+
+const { config } = Astro.props;
+---
+
+<CanadaByelectionEngine lang="fr" config={config} />

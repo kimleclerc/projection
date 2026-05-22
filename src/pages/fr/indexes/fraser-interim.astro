@@ -1,0 +1,276 @@
+---
+import EditorialLayout from '../../../layouts/EditorialLayout.astro';
+import EditorialHero from '../../../components/EditorialHero.astro';
+import MethodologyNote from '../../../components/MethodologyNote.astro';
+import KeepDigging from '../../../components/KeepDigging.astro';
+import AnimatedNumber from '../../../islands/AnimatedNumber';
+
+import fraserData from '../../../../web_data/on-fraser-interim/latest.json';
+
+const data = fraserData;
+const score = data.index.score;
+const labelFr = data.index.label_fr;
+const asOf = data.meta.as_of_date;
+const nPolls = data.meta.n_polls;
+const periods = data.periods;
+---
+
+<EditorialLayout
+  title="Indice Fraser intérimaire — Vote-Scope"
+  description="Mesure si les libéraux ontariens sondent mieux sous la direction intérimaire de John Fraser que sous les chefs permanents. Un score, cinq ans de preuves, une question éditoriale."
+  canonical="https://vote-scope.com/fr/indexes/fraser-interim/"
+  lang="fr"
+  currentPage="indexes"
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={{ en: 'https://vote-scope.com/en/indexes/fraser-interim/', fr: 'https://vote-scope.com/fr/indexes/fraser-interim/' }}
+  jsonLd={[
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Dataset',
+      name: 'Indice Fraser intérimaire',
+      description: 'Indicateur éditorial comparant les sondages des libéraux ontariens sous le chef intérimaire John Fraser vs les chefs permanents.',
+      url: 'https://vote-scope.com/fr/indexes/fraser-interim/',
+      inLanguage: 'fr',
+      dateModified: data.meta.as_of_date,
+      creator: { '@type': 'Person', name: 'Kim Leclerc', url: 'https://kimleclerc.ca' },
+      publisher: { '@type': 'Organization', name: 'Vote-Scope', url: 'https://vote-scope.com' },
+      isAccessibleForFree: true,
+      distribution: { '@type': 'DataDownload', contentUrl: 'https://vote-scope.com/web_data/on-fraser-interim/latest.json', encodingFormat: 'application/json' },
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: 'https://vote-scope.com/fr/' },
+        { '@type': 'ListItem', position: 2, name: 'Index', item: 'https://vote-scope.com/fr/indexes/' },
+        { '@type': 'ListItem', position: 3, name: 'Indice Fraser intérimaire', item: 'https://vote-scope.com/fr/indexes/fraser-interim/' },
+      ],
+    },
+  ]}
+>
+  <EditorialHero
+    eyebrow="Indicateur éditorial · Provincial Ontario"
+    title="Indice Fraser intérimaire"
+    promise="Les libéraux ontariens sondent-ils mieux quand John Fraser occupe le leadership intérimaire? Un seul score résume cinq ans de données topline."
+    question="Le parti bénéficie-t-il de Fraser comme intérimaire, ou l'effet est-il du bruit?"
+    primaryHref="/fr/canada/ontario/"
+    primaryLabel="Projection Ontario"
+    secondaryHref="/fr/indexes/"
+    secondaryLabel="Tous les index"
+  />
+
+  <section class="content-band">
+    <div class="container">
+      <p class="eyebrow">Score de l'indice · au {asOf}</p>
+      <div class="note-card" style="border-left:4px solid var(--blue-tint,#3b82f6);max-width:600px;margin-top:1rem;">
+        <h2 style="font-size:3.5rem;margin:0.25rem 0;color:var(--text);">
+          <AnimatedNumber client:visible value={score} decimals={1} />
+          <span style="font-size:1.1rem;font-weight:400;">/100</span>
+        </h2>
+        <p style="font-weight:700;font-size:1.15rem;margin-bottom:0.5rem;">{labelFr}</p>
+        <p style="font-family:var(--mono);font-size:0.8rem;color:var(--ink-3);">
+          {nPolls} sondages · {data.meta.period_start} → {data.meta.period_end} · source : {data.meta.source}
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="content-band">
+    <div class="container">
+      <p class="eyebrow">Interprétation</p>
+      <div class="note-card" style="max-width:720px;border-left:4px solid var(--rule);">
+        <p style="font-size:1.1rem;line-height:1.65;">{data.interpretation.fr}</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="content-band">
+    <div class="container">
+      <p class="eyebrow">Cinq périodes de leadership</p>
+      <div class="fraser-periods">
+        {periods.map((p: any) => {
+          const isInterim = p.leader_type === 'interim';
+          const accentColor = isInterim ? 'var(--duck-deep,#6b5b3e)' : '#c0392b';
+          return (
+            <div class="fraser-period-card" data-type={p.leader_type}>
+              <div class="fraser-period-header">
+                <span class="fraser-period-pill" style={`background:${accentColor};`}>
+                  {isInterim ? 'Intérimaire' : 'Permanent'}
+                </span>
+                <span class="fraser-period-dates">{p.first_poll} → {p.last_poll}</span>
+              </div>
+              <p class="fraser-period-leader">{p.leader_name}</p>
+              <div class="fraser-period-avg">
+                <AnimatedNumber client:visible value={p.avg_on_lib} decimals={1} />
+                <span>%</span>
+              </div>
+              <dl class="fraser-period-stats">
+                <div>
+                  <dt>vs PC</dt>
+                  <dd style={`color:${p.avg_lib_pc_margin >= 0 ? 'var(--green,#16a34a)' : '#c0392b'}`}>
+                    {p.avg_lib_pc_margin >= 0 ? '+' : ''}{p.avg_lib_pc_margin.toFixed(1)}%
+                  </dd>
+                </div>
+                <div>
+                  <dt>vs NPD</dt>
+                  <dd style={`color:${p.avg_lib_ndp_margin >= 0 ? 'var(--green,#16a34a)' : '#c0392b'}`}>
+                    {p.avg_lib_ndp_margin >= 0 ? '+' : ''}{p.avg_lib_ndp_margin.toFixed(1)}%
+                  </dd>
+                </div>
+                <div>
+                  <dt>Sondages</dt>
+                  <dd>{p.n_polls}</dd>
+                </div>
+              </dl>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  </section>
+
+  <MethodologyNote
+    title="Comparer intérimaire et permanent : un balayage éditorial contrôlé."
+    body="L'Indice Fraser intérimaire n'est pas un intrant de projection. C'est un indicateur éditorial conçu pour répondre à une question : les libéraux ontariens sondent-ils mieux sous la gérance intérimaire de Fraser que sous des chefs permanents, après contrôle des sources de variation élémentaires?"
+    bullets={[
+      "Intention éditoriale : l'indice compare les moyennes de sondage sur cinq périodes de leadership (2018–2026) — trois périodes intérimaires Fraser et deux périodes de chef permanent (Del Duca, Crombie). C'est un signal, pas une preuve de causalité.",
+      "Données : 324 sondages topline ontariens de juin 2018 à avril 2026, tirés des archives sidecar Wikipedia Ontario. Chaque sondage est tagué selon la période de leadership active à la date du terrain.",
+      "Méthode : moindres carrés ordinaires pondérés avec contrôles de firme, de cycle électoral et de tendance temporelle. Le coefficient sur l'indicateur Fraser-intérimaire est converti en indice 0–100 (50 = neutre, au-dessus de 50 = périodes intérimaires relativement meilleures).",
+      "Reproductibilité : l'archive de sondages sidecar est préservée localement ; la logique de taguage et les MCO sont documentés dans le README de l'analyse. L'indice peut être recalculé à l'arrivée de nouveaux sondages.",
+    ]}
+  />
+
+  <section class="content-band">
+    <div class="container">
+      <p class="eyebrow">Mises en garde</p>
+      <div class="note-card" style="max-width:720px;border-left:4px solid #e3b03a;">
+        <p style="line-height:1.65;">{data.caveat.fr}</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="content-band">
+    <div class="container">
+      <p class="eyebrow">Données source</p>
+      <p>
+        Les données brutes de l'indice (score, périodes, résumé du modèle) sont disponibles en JSON lisible par machine :
+        <a href="/web_data/on-fraser-interim/latest.json" class="cta-link" style="font-family:var(--mono);font-size:0.85rem;">/web_data/on-fraser-interim/latest.json →</a>
+      </p>
+      <p style="font-family:var(--mono);font-size:0.75rem;color:var(--ink-3);margin-top:0.5rem;">
+        Version {data.meta.version} · Statut de publication : {data.meta.publication_status}
+      </p>
+    </div>
+  </section>
+
+  <div class="container" style="padding-bottom:3rem;">
+    <KeepDigging
+      eyebrow="Creuser davantage"
+      title="Où cela s'inscrit dans le desk Canada."
+      body="L'Indice Fraser intérimaire est un instrument éditorial à portée ontarienne. Le desk Canada couvre les projections fédérale, québécoise et ontarienne comme sorties principales."
+      links={[
+        { href: '/fr/canada/ontario/', label: 'Projection Ontario', detail: 'Provincial · modèle par circonscription' },
+        { href: '/fr/canada/', label: 'Desk Canada', detail: 'Fédéral · Québec · Ontario · partielles' },
+        { href: '/fr/indexes/', label: 'Tous les index', detail: 'Catalogue des instruments Vote-Scope' },
+      ]}
+    />
+  </div>
+</EditorialLayout>
+
+<style>
+  .fraser-periods {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+    margin-top: 1.5rem;
+  }
+
+  .fraser-period-card {
+    border: 1px solid var(--rule, #ddd);
+    border-radius: 6px;
+    padding: 18px 16px;
+    background: var(--card, #f8f8f3);
+  }
+
+  .fraser-period-card[data-type="interim"] {
+    border-left: 4px solid var(--duck-deep, #6b5b3e);
+  }
+
+  .fraser-period-card[data-type="regular"] {
+    border-left: 4px solid #c0392b;
+  }
+
+  .fraser-period-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+  }
+
+  .fraser-period-pill {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-family: var(--mono, ui-monospace, monospace);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #fff;
+  }
+
+  .fraser-period-dates {
+    font-family: var(--mono, ui-monospace, monospace);
+    font-size: 10px;
+    color: var(--ink-3, #888);
+    white-space: nowrap;
+  }
+
+  .fraser-period-leader {
+    margin: 0 0 6px;
+    font-family: var(--serif, Georgia, serif);
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--ink, #1a1a1a);
+  }
+
+  .fraser-period-avg {
+    display: flex;
+    align-items: baseline;
+    gap: 2px;
+    font-family: var(--serif, Georgia, serif);
+    font-size: 2.5rem;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--ink, #1a1a1a);
+    margin-bottom: 12px;
+  }
+
+  .fraser-period-avg span {
+    font-size: 1.2rem;
+    font-weight: 400;
+    color: var(--ink-2, #555);
+  }
+
+  .fraser-period-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin: 0;
+  }
+
+  .fraser-period-stats dt {
+    font-family: var(--mono, ui-monospace, monospace);
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-3, #888);
+    margin-bottom: 3px;
+  }
+
+  .fraser-period-stats dd {
+    margin: 0;
+    font-family: var(--mono, ui-monospace, monospace);
+    font-size: 12px;
+    font-weight: 600;
+  }
+</style>

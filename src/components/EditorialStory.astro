@@ -1,0 +1,235 @@
+---
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  entry: CollectionEntry<'editorial'>;
+}
+
+const { entry } = Astro.props;
+const d = entry.data;
+---
+
+<article class="editorial-story">
+  <header class="story-hero container">
+    {d.eyebrow && <p class="eyebrow">{d.eyebrow}</p>}
+    <h1 class="story-title" set:html={d.h1Html} />
+    {d.intro && <p class="story-intro">{d.intro}</p>}
+  </header>
+
+  {d.sections.length > 0 && (
+    <section class="story-sections container">
+      <ol class="story-section-list">
+        {d.sections.map((s) => (
+          <li class="story-section">
+            {s.number && <span class="story-section-number">{s.number}</span>}
+            <div class="story-section-body">
+              <h2>{s.title}</h2>
+              <div set:html={s.bodyHtml} />
+            </div>
+          </li>
+        ))}
+      </ol>
+    </section>
+  )}
+
+  {d.callout && (
+    <aside class="story-callout container">
+      <div class="story-callout-inner" set:html={d.callout} />
+    </aside>
+  )}
+
+  {d.cards.length > 0 && (
+    <section class="story-cards container">
+      <div class="story-cards-grid">
+        {d.cards.map((c) => (
+          <article class="story-card">
+            <p class="story-card-kicker">{c.kicker}</p>
+            <h2>{c.title}</h2>
+            {c.itemsHtml && (
+              <ul>
+                {c.itemsHtml.map((item) => (
+                  <li set:html={item} />
+                ))}
+              </ul>
+            )}
+            {c.bodyHtml && <div set:html={c.bodyHtml} />}
+          </article>
+        ))}
+      </div>
+    </section>
+  )}
+</article>
+
+<style>
+  .editorial-story {
+    padding-block: 80px 96px;
+  }
+
+  .story-hero {
+    max-width: 880px;
+    padding-bottom: 56px;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .story-title {
+    font-family: var(--serif);
+    font-size: clamp(40px, 6vw, 76px);
+    font-weight: 420;
+    letter-spacing: -0.02em;
+    line-height: 1.02;
+    margin: 12px 0 24px;
+  }
+
+  .story-title :global(em) {
+    font-style: italic;
+    color: var(--ink-2);
+  }
+
+  .story-intro {
+    font-family: var(--serif);
+    font-size: clamp(20px, 1.5vw, 24px);
+    line-height: 1.45;
+    color: var(--ink-2);
+    max-width: 64ch;
+  }
+
+  .story-sections {
+    margin-top: 64px;
+    max-width: 880px;
+  }
+
+  .story-section-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 56px;
+  }
+
+  .story-section {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    gap: 24px;
+    align-items: start;
+  }
+
+  .story-section-number {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    color: var(--ink-3);
+    padding-top: 12px;
+  }
+
+  .story-section-body :global(h2),
+  .story-section-body > h2 {
+    font-family: var(--serif);
+    font-size: clamp(28px, 3vw, 38px);
+    font-weight: 430;
+    letter-spacing: -0.01em;
+    line-height: 1.08;
+    margin: 0 0 16px;
+  }
+
+  .story-section-body :global(p) {
+    color: var(--ink-2);
+    line-height: 1.65;
+    margin: 0 0 14px;
+  }
+
+  .story-section-body :global(em) {
+    font-style: italic;
+    color: var(--ink);
+  }
+
+  .story-callout {
+    margin-top: 80px;
+    max-width: 880px;
+  }
+
+  .story-callout-inner {
+    background: var(--card);
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--ink);
+    padding: 28px 32px;
+    border-radius: 4px;
+    color: var(--ink-2);
+    line-height: 1.6;
+  }
+
+  .story-callout-inner :global(strong) {
+    font-family: var(--serif);
+    font-weight: 500;
+    color: var(--ink);
+    margin-right: 6px;
+  }
+
+  .story-cards {
+    margin-top: 80px;
+  }
+
+  .story-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+  }
+
+  .story-card {
+    border: 1px solid var(--rule);
+    background: var(--card);
+    border-radius: 4px;
+    padding: 28px 28px 32px;
+  }
+
+  .story-card-kicker {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    margin: 0 0 10px;
+  }
+
+  .story-card h2 {
+    font-family: var(--serif);
+    font-size: 24px;
+    font-weight: 430;
+    letter-spacing: -0.01em;
+    line-height: 1.1;
+    margin: 0 0 18px;
+  }
+
+  .story-card ul {
+    padding-left: 18px;
+    margin: 0;
+    color: var(--ink-2);
+    line-height: 1.6;
+  }
+
+  .story-card ul li + li {
+    margin-top: 8px;
+  }
+
+  .story-card :global(p) {
+    color: var(--ink-2);
+    line-height: 1.6;
+    margin: 0 0 14px;
+  }
+
+  .story-card :global(a) {
+    color: var(--ink);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    text-decoration-thickness: 1px;
+  }
+
+  @media (max-width: 720px) {
+    .story-section {
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+    .story-section-number {
+      padding-top: 0;
+    }
+  }
+</style>

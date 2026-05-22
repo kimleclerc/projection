@@ -1,0 +1,184 @@
+{
+  "meta": {
+    "run_date": "2026-05-19",
+    "race_id": "ca1_special_primary_2026_06_02",
+    "title": "California's 1st Congressional District Special Election",
+    "election_date": "2026-06-02",
+    "possible_runoff_date": "2026-08-04",
+    "n_simulations": 50000,
+    "model_type": "fundamentals_special_primary_v1",
+    "pipeline_version": "1.0",
+    "language": "en"
+  },
+  "district": {
+    "state": "California",
+    "district": "1st Congressional District",
+    "vacancy_reason": "Special election to fill the CA-1 House vacancy after Rep. Doug LaMalfa left Congress.",
+    "district_context": {
+      "house_2024_republican_share": 61.0,
+      "house_2024_democratic_share": 39.0,
+      "note": "The district remains structurally Republican-leaning, but the June 2 special is a crowded all-party primary."
+    }
+  },
+  "candidates": [
+    {
+      "id": "gallagher_r",
+      "name": "James Gallagher",
+      "party": "Republican",
+      "color": "#cf2d2d",
+      "projected_vote_mean": 41.3,
+      "top_two_probability": 1.0,
+      "first_place_probability": 0.9569,
+      "vote_quantiles": {
+        "q05": 34.81,
+        "q10": 36.21,
+        "q25": 38.6,
+        "q50": 41.27,
+        "q75": 43.95,
+        "q90": 46.44,
+        "q95": 47.92
+      }
+    },
+    {
+      "id": "mcguire_d",
+      "name": "Mike McGuire",
+      "party": "Democrat",
+      "color": "#2563eb",
+      "projected_vote_mean": 29.63,
+      "top_two_probability": 0.9957,
+      "first_place_probability": 0.0431,
+      "vote_quantiles": {
+        "q05": 23.74,
+        "q10": 24.98,
+        "q25": 27.07,
+        "q50": 29.55,
+        "q75": 32.09,
+        "q90": 34.44,
+        "q95": 35.82
+      }
+    },
+    {
+      "id": "denney_d",
+      "name": "Chris Denney",
+      "party": "Democrat",
+      "color": "#5aa0ff",
+      "projected_vote_mean": 15.52,
+      "top_two_probability": 0.0043,
+      "first_place_probability": 0.0,
+      "vote_quantiles": {
+        "q05": 11.02,
+        "q10": 11.89,
+        "q25": 13.48,
+        "q50": 15.36,
+        "q75": 17.41,
+        "q90": 19.35,
+        "q95": 20.56
+      }
+    },
+    {
+      "id": "thiara_r",
+      "name": "Jot Thiara",
+      "party": "Republican",
+      "color": "#f06b6b",
+      "projected_vote_mean": 7.81,
+      "top_two_probability": 0.0,
+      "first_place_probability": 0.0,
+      "vote_quantiles": {
+        "q05": 4.61,
+        "q10": 5.21,
+        "q25": 6.28,
+        "q50": 7.63,
+        "q75": 9.15,
+        "q90": 10.66,
+        "q95": 11.6
+      }
+    },
+    {
+      "id": "montgomery_npp",
+      "name": "Richard Montgomery",
+      "party": "No party preference",
+      "color": "#a7abaf",
+      "projected_vote_mean": 5.74,
+      "top_two_probability": 0.0,
+      "first_place_probability": 0.0,
+      "vote_quantiles": {
+        "q05": 3.02,
+        "q10": 3.5,
+        "q25": 4.39,
+        "q50": 5.55,
+        "q75": 6.89,
+        "q90": 8.23,
+        "q95": 9.09
+      }
+    }
+  ],
+  "summary": {
+    "favorite_id": "gallagher_r",
+    "favorite_name": "James Gallagher",
+    "favorite_probability": 0.9569,
+    "runoff_probability": 0.985,
+    "majority_outright_probability": 0.015,
+    "likely_runoff_pair": [
+      "gallagher_r",
+      "mcguire_d"
+    ],
+    "likely_runoff_names": [
+      "James Gallagher",
+      "Mike McGuire"
+    ],
+    "likely_runoff_probability": 0.9957,
+    "if_likely_runoff_favorite": "James Gallagher",
+    "if_likely_runoff_favorite_probability": 0.5685
+  },
+  "benchmarks": {
+    "assumptions": [
+      {
+        "label": "Republican district baseline",
+        "note": "Recent federal results make a Republican first-place finish the default unless the Democratic field consolidates unusually well."
+      },
+      {
+        "label": "Certified five-candidate all-party primary",
+        "note": "The official ballot has two Democrats, two Republicans and one no-party-preference candidate. The main uncertainty is whether Gallagher can clear 50% or faces a top-two runoff."
+      },
+      {
+        "label": "Runoff conditional outlook",
+        "note": "If the expected Gallagher-McGuire pairing materializes, the August runoff still starts from a Republican-leaning district prior."
+      },
+      {
+        "label": "No public district polling average",
+        "note": "This page is fundamentals-only unless public district polling appears before June 2."
+      }
+    ],
+    "top_two_pairs": [
+      {
+        "pair": [
+          "gallagher_r",
+          "mcguire_d"
+        ],
+        "probability": 0.9957
+      },
+      {
+        "pair": [
+          "denney_d",
+          "gallagher_r"
+        ],
+        "probability": 0.0043
+      }
+    ]
+  },
+  "sources": [
+    {
+      "label": "California Secretary of State certified candidate list for CD-1",
+      "url": "https://elections.cdn.sos.ca.gov/special-elections/2026-cd1/cert-list-primary.pdf"
+    },
+    {
+      "label": "Ballotpedia special election overview",
+      "url": "https://ballotpedia.org/California%27s_1st_Congressional_District_special_election,_2026"
+    },
+    {
+      "label": "Wikipedia tracking page for the special election",
+      "url": "https://en.wikipedia.org/wiki/2026_California%27s_1st_congressional_district_special_election"
+    }
+  ],
+  "method_note": "No public district polling average is used here. This is a fundamentals-only special-primary projection built from district baseline, candidate-field structure and 50,000 Monte Carlo simulations."
+}

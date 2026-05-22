@@ -1,0 +1,49 @@
+---
+import EditorialLayout from '../../../layouts/EditorialLayout.astro';
+import ProjectionEngine from '../../../components/ProjectionEngine.astro';
+import { jurisdictions } from '../../../data/jurisdictions';
+import quebecMeta from '../../../../web_data/quebec/latest.json';
+
+const j = jurisdictions.quebec;
+const canonical = 'https://vote-scope.com/fr/canada/quebec';
+const alternates = {
+  en: 'https://vote-scope.com/en/canada/quebec',
+  fr: canonical,
+};
+---
+
+<EditorialLayout
+  title={j.pageTitle.fr}
+  description={j.metaDescription.fr}
+  canonical={canonical}
+  lang="fr"
+  currentPage={j.currentPage}
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={alternates}
+  jsonLd={[
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Dataset',
+      name: 'Projection Québec 2026',
+      description: j.metaDescription.fr,
+      url: canonical,
+      dateModified: quebecMeta.meta.run_date,
+      creator: { '@type': 'Person', name: 'Kim Leclerc', url: 'https://kimleclerc.ca' },
+      publisher: { '@type': 'Organization', name: 'Vote-Scope', url: 'https://vote-scope.com' },
+      license: 'https://vote-scope.com/fr/conditions/',
+      isAccessibleForFree: true,
+      distribution: { '@type': 'DataDownload', contentUrl: 'https://vote-scope.com/web_data/quebec/latest.json', encodingFormat: 'application/json' },
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: 'https://vote-scope.com/fr/' },
+        { '@type': 'ListItem', position: 2, name: 'Canada', item: 'https://vote-scope.com/fr/canada/' },
+        { '@type': 'ListItem', position: 3, name: 'Projection Québec', item: canonical },
+      ],
+    },
+  ]}
+>
+  <ProjectionEngine jurisdiction={j} locale="fr" />
+</EditorialLayout>

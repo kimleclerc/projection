@@ -1,0 +1,128 @@
+---
+import EditorialLayout from '../../../layouts/EditorialLayout.astro';
+import EditorialHero from '../../../components/EditorialHero.astro';
+import MarketCheck from '../../../components/MarketCheck.astro';
+import MethodologyNote from '../../../components/MethodologyNote.astro';
+import AnimatedNumber from '../../../islands/AnimatedNumber';
+import PolymarketEmbed from '../../../components/PolymarketEmbed.astro';
+
+import sportsData from '../../../../web_data/sports/latest.json';
+import wcData from '../../../../web_data/sports/worldcup2026_latest.json';
+
+const hero = sportsData.hero;
+const boardMeta = sportsData.board_meta;
+const wcHero = wcData.hero;
+const wcMeta = wcData.board_meta;
+---
+
+<EditorialLayout
+  title="Sports Scope — Vote-Scope"
+  description="Projette les chemins de Coupe NHL, suit la volatilité des gardiens et compare les écarts modèle-marché à chaque ronde. Mis à jour quotidiennement — Vote-Scope."
+  canonical="https://vote-scope.com/fr/sports/"
+  lang="fr"
+  currentPage="sports"
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={{ en: 'https://vote-scope.com/en/sports/', fr: 'https://vote-scope.com/fr/sports/' }}
+  jsonLd={[
+    {
+      '@context': 'https://schema.org',
+      '@type': 'CollectionPage',
+      name: 'Sports Scope — Vote-Scope',
+      url: 'https://vote-scope.com/fr/sports/',
+      inLanguage: 'fr',
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: 'https://vote-scope.com/fr/' },
+        { '@type': 'ListItem', position: 2, name: 'Sports Scope', item: 'https://vote-scope.com/fr/sports/' },
+      ],
+    },
+  ]}
+>
+  <EditorialHero
+    eyebrow="Sports Scope"
+    title="Qui a le chemin le plus propre, et qui vit sur une séquence fragile?"
+    promise="Une verticale plus sportive pour chemins de séries, volatilité des gardiens, scores live, marchés et chaos de tournoi."
+    question="Le favori est-il vraiment construit pour la prochaine ronde?"
+    primaryHref="/fr/sports/nhl/"
+    primaryLabel="Desk NHL"
+    secondaryHref="/fr/indexes/"
+    secondaryLabel="Tous les instruments"
+  />
+
+  <section class="content-band">
+    <div class="container">
+      <p class="eyebrow">Éliminatoires NHL</p>
+      <h2>Favori actuel de la Coupe</h2>
+      <div class="content-grid-2" style="gap:1.5rem;margin-top:1rem;">
+        <div class="note-card">
+          <p class="eyebrow">Cup Path Index — premier favori</p>
+          <h3 style="font-size:1.75rem;margin:0.25rem 0;">{hero.favorite_label_fr}</h3>
+          <p style="font-size:2rem;font-weight:700;color:var(--accent);">
+            <AnimatedNumber client:visible value={hero.favorite_prob} decimals={1} suffix="%" />
+          </p>
+          <p>Probabilité de championnat · {boardMeta.n_sims.toLocaleString()} simulations</p>
+          <p style="margin-top:0.5rem;font-size:0.9rem;">Modèle: {boardMeta.model}</p>
+          <p style="margin-top:1rem;">
+            <a href="/fr/sports/nhl/" class="cta-link">Desk NHL complet →</a>
+          </p>
+        </div>
+        <div class="note-card">
+          <p class="eyebrow">Riser watch</p>
+          <h3>{hero.riser_label_fr}</h3>
+          <p>Mouvement 7 jours: <strong>+{hero.riser_trend} pts</strong></p>
+          <p style="margin-top:0.5rem;">Deuxième: {hero.runner_up_label_fr} à {hero.runner_up_prob}%</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="content-band">
+    <div class="container content-grid-2">
+      <div class="note-card">
+        <p class="eyebrow">Historique sport</p>
+        <h3><a href="/fr/sports/track-record/">Historique du modèle.</a></h3>
+        <p>Simulations éliminatoires NHL et appels de séries — chaque cycle de modèle, chaque prédiction publiée, archivée.</p>
+        <p style="margin-top:1rem;">
+          <a href="/fr/sports/track-record/" class="cta-link">Voir l'historique →</a>
+        </p>
+      </div>
+      <a class="note-card" href="/fr/sports/wc2026/" style="text-decoration:none;color:inherit;">
+        <p class="eyebrow">Tournoi international de football 2026</p>
+        <h3>{wcHero.favorite_labels.fr} en tête — {wcHero.favorite_prob}%</h3>
+        <p>48 équipes · {wcMeta.n_sims.toLocaleString()} simulations · modèle de phase de groupes. Deuxième: {wcHero.runner_up_team.toUpperCase()}.</p>
+        <footer style="margin-top:1rem;">
+          <span class="cta-link">Ouvrir le desk tournoi →</span>
+        </footer>
+      </a>
+    </div>
+  </section>
+
+  <section class="content-band">
+    <div class="container">
+      <PolymarketEmbed slug="2026-nhl-stanley-cup-champion" title="Champion de la Coupe Stanley NHL 2026" />
+    </div>
+  </section>
+
+  <MarketCheck
+    kicker="Pouls du marché sport"
+    title="Le marché voit le même match. Le modèle voit le chemin."
+    body="Les cotes Polymarket sur la Coupe Stanley accompagnent le modèle Cup Path comme repère indépendant. Là où ils convergent, le signal est fort. Là où ils divergent, c'est la story."
+    modelLabel="Modèle Coupe"
+    marketLabel="Pouls marché"
+    note="Les données de marchés de prédiction sont affichées comme repère uniquement. Le modèle et le marché sont mis à jour selon des cadences indépendantes."
+  />
+
+  <MethodologyNote
+    title="Deux instruments sport. Un seul standard."
+    body="Cup Path et Goalie Volatility partagent le même pipeline Monte Carlo: les résultats de séries sont simulés 50 000 fois par cycle, avec la performance des gardiens comme multiplicateur de volatilité sur la probabilité de victoire de chaque équipe."
+    bullets={[
+      "NHL Cup Path: 50 000 simulations par ronde éliminatoire, mis à jour après chaque résultat de série. La couche volatilité des gardiens est conditionnée sur le taux d'arrêts récent et le statut des blessures.",
+      "Modèle de phase de groupes WC2026: simulation de 48 équipes avec 50 000 runs, en utilisant le classement FIFA, la forme récente et l'avantage du terrain.",
+      "Le bilan est public: chaque cycle de modèle publié et chaque appel de série sont archivés et vérifiables.",
+      "Les sorties du modèle sont disponibles en JSON public à chaque desk, mis à jour en continu.",
+    ]}
+  />
+</EditorialLayout>

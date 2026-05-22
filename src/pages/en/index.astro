@@ -1,0 +1,135 @@
+---
+import EditorialLayout from '../../layouts/EditorialLayout.astro';
+import EditorialHero from '../../components/EditorialHero.astro';
+import InstrumentGrid from '../../components/InstrumentGrid.astro';
+import MarketCheck from '../../components/MarketCheck.astro';
+import MethodologyNote from '../../components/MethodologyNote.astro';
+import SignalTicker from '../../islands/SignalTicker';
+import AnimatedNumber from '../../islands/AnimatedNumber';
+import { desks, editorialPhilosophy, instruments } from '../../data/editorial';
+
+import ldiData from '../../../web_data/us-lame-duck/latest.json';
+
+const philosophy = editorialPhilosophy.en;
+const ldi = ldiData.ldi;
+const deltaSign = ldi.delta_7d >= 0 ? '+' : '';
+
+const signals = [
+  { label: 'Editorial posture', value: 'Bureau of electoral and sports intelligence', href: '/en/indexes/' },
+  { label: 'Rule', value: 'One page, one question', href: '/en/indexes/' },
+  { label: 'Live instrument', value: 'Lame-Duck Index', href: '/en/us/indexes/lame-duck/' },
+  { label: 'Next sports layer', value: 'Cup Path + Goalie Volatility', href: '/en/sports/' },
+];
+---
+
+<EditorialLayout
+  title="Vote-Scope — Election & Sports Intelligence"
+  description="Live electoral and sports projections, prediction-market signals, and editorial instruments. Clear answers on who's leading, what's fragile, and what the market is missing."
+  canonical="https://vote-scope.com/en/"
+  lang="en"
+  currentPage="intl"
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={{ en: 'https://vote-scope.com/en/', fr: 'https://vote-scope.com/fr/' }}
+  jsonLd={[
+    {
+      '@context': 'https://schema.org',
+      '@type': 'WebSite',
+      name: 'Vote-Scope',
+      url: 'https://vote-scope.com/',
+      inLanguage: 'en',
+      description: philosophy.position,
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Organization',
+      name: 'Vote-Scope',
+      url: 'https://vote-scope.com/',
+      logo: 'https://vote-scope.com/favicon.svg',
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: 'https://vote-scope.com/en/' },
+      ],
+    },
+  ]}
+>
+  <EditorialHero
+    eyebrow="Vote-Scope editorial shift"
+    title="A bureau of electoral and sports intelligence."
+    promise="Not just who’s ahead. What’s moving, what’s fragile, and what the market is missing."
+    question="What instrument should the reader use to understand this race, desk, or playoff path?"
+    primaryHref="/en/indexes/"
+    primaryLabel="View instruments"
+    secondaryHref="/en/us/"
+    secondaryLabel="Open U.S. desk"
+  />
+
+  <section class="content-band" style="background:var(--surface-alt,#f9f7f2);padding:2rem 0;">
+    <div class="container" style="display:flex;align-items:center;gap:2rem;flex-wrap:wrap;">
+      <div>
+        <p class="eyebrow" style="margin-bottom:0.25rem;">Today's headline number</p>
+        <div style={`font-size:3.5rem;font-weight:800;color:${ldi.zone_color};line-height:1;`}>
+          <AnimatedNumber client:visible value={ldi.score} decimals={1} />
+          <span style="font-size:1.25rem;font-weight:400;color:var(--text);"> /100</span>
+        </div>
+        <p style={`font-weight:700;font-size:1.1rem;color:${ldi.zone_color};margin-top:0.25rem;`}>{ldi.label_en}</p>
+        <p style="font-size:0.9rem;color:var(--text-muted);margin-top:0.25rem;">
+          Lame-Duck Index · 7d: <strong>{deltaSign}{ldi.delta_7d}</strong> · as of {ldiData.meta.as_of_date}
+        </p>
+      </div>
+      <div style="flex:1;min-width:200px;">
+        <p>The flagship Vote-Scope instrument measures presidential drag ahead of the 2026 midterms. Higher = more lame duck. Currently in the <strong style={`color:${ldi.zone_color};`}>{ldi.label_en}</strong> zone.</p>
+        <p style="margin-top:0.75rem;">
+          <a href="/en/us/indexes/lame-duck/" class="cta-link">Open full index →</a>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <SignalTicker client:idle signals={signals} />
+
+  <section class="content-band">
+    <div class="container">
+      <p class="eyebrow">Desks</p>
+      <div class="desk-grid">
+        {desks.en.map((desk) => (
+          <a class="desk-card" href={desk.href}>
+            <p class="eyebrow">{desk.eyebrow}</p>
+            <h2>{desk.name}</h2>
+            <strong>{desk.question}</strong>
+            <p>{desk.description}</p>
+            <footer>{desk.signal}</footer>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <InstrumentGrid
+    instruments={instruments.en.slice(0, 6)}
+    title="The numbers are public. The signal is ours."
+    intro="Vote-Scope pages should feel like instruments the reader can return to, not static model dumps. Each named index carries one question, one metric, one methodology, and one distribution loop."
+  />
+
+  <MarketCheck
+    kicker="Market layer"
+    title="Markets become a reading layer, not the product."
+    body="Polymarket and odds data should sit beside the model as a benchmark: where traders agree, where they panic, and where Vote-Scope sees a gap."
+    modelLabel="Model output"
+    marketLabel="Benchmark"
+    note="Future API work should keep public JSON stable while reserving a versioned API surface for richer access, history, and premium endpoints."
+  />
+
+  <MethodologyNote
+    title="Methodology moves below the hook."
+    body={philosophy.proof}
+    bullets={[
+      'All projections aggregate public polls with a Bayesian BSTS model and run 50,000 Monte Carlo simulations per release.',
+      'Prediction-market data (Polymarket) sits beside the model as a disagreement detector, not a substitute.',
+      'Riding and constituency probabilities are conditioned on national and regional swings, then re-aggregated to seat distributions.',
+      'Source data, methodology notes, and model outputs are public at each desk. Updated on a rolling basis as new polls arrive.',
+    ]}
+  />
+</EditorialLayout>

@@ -1,0 +1,128 @@
+---
+import EditorialLayout from '../../../layouts/EditorialLayout.astro';
+import EditorialHero from '../../../components/EditorialHero.astro';
+import MarketCheck from '../../../components/MarketCheck.astro';
+import MethodologyNote from '../../../components/MethodologyNote.astro';
+import AnimatedNumber from '../../../islands/AnimatedNumber';
+import PolymarketEmbed from '../../../components/PolymarketEmbed.astro';
+
+import sportsData from '../../../../web_data/sports/latest.json';
+import wcData from '../../../../web_data/sports/worldcup2026_latest.json';
+
+const hero = sportsData.hero;
+const boardMeta = sportsData.board_meta;
+const wcHero = wcData.hero;
+const wcMeta = wcData.board_meta;
+---
+
+<EditorialLayout
+  title="Sports Scope — Vote-Scope"
+  description="Projects NHL Cup paths, tracks goalie volatility, and compares model vs market gaps for every playoff round. Updated daily — Vote-Scope."
+  canonical="https://vote-scope.com/en/sports/"
+  lang="en"
+  currentPage="sports"
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={{ en: 'https://vote-scope.com/en/sports/', fr: 'https://vote-scope.com/fr/sports/' }}
+  jsonLd={[
+    {
+      '@context': 'https://schema.org',
+      '@type': 'CollectionPage',
+      name: 'Sports Scope — Vote-Scope',
+      url: 'https://vote-scope.com/en/sports/',
+      inLanguage: 'en',
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: 'https://vote-scope.com/en/' },
+        { '@type': 'ListItem', position: 2, name: 'Sports Scope', item: 'https://vote-scope.com/en/sports/' },
+      ],
+    },
+  ]}
+>
+  <EditorialHero
+    eyebrow="Sports Scope"
+    title="Who has the cleanest path, and who is riding a fragile streak?"
+    promise="A sportier desk for playoff paths, goalie volatility, live scores, market checks, and tournament chaos."
+    question="Is the favorite actually built for the next round?"
+    primaryHref="/en/sports/nhl/"
+    primaryLabel="NHL desk"
+    secondaryHref="/en/indexes/"
+    secondaryLabel="All instruments"
+  />
+
+  <section class="content-band">
+    <div class="container">
+      <p class="eyebrow">NHL playoffs</p>
+      <h2>Current Cup favorite</h2>
+      <div class="content-grid-2" style="gap:1.5rem;margin-top:1rem;">
+        <div class="note-card">
+          <p class="eyebrow">Cup Path Index — top contender</p>
+          <h3 style="font-size:1.75rem;margin:0.25rem 0;">{hero.favorite_label_en}</h3>
+          <p style="font-size:2rem;font-weight:700;color:var(--accent);">
+            <AnimatedNumber client:visible value={hero.favorite_prob} decimals={1} suffix="%" />
+          </p>
+          <p>Championship probability · {boardMeta.n_sims.toLocaleString()} simulations</p>
+          <p style="margin-top:0.5rem;font-size:0.9rem;">Model: {boardMeta.model}</p>
+          <p style="margin-top:1rem;">
+            <a href="/en/sports/nhl/" class="cta-link">Full NHL desk →</a>
+          </p>
+        </div>
+        <div class="note-card">
+          <p class="eyebrow">Riser watch</p>
+          <h3>{hero.riser_label_en}</h3>
+          <p>7-day move: <strong>+{hero.riser_trend} pts</strong></p>
+          <p style="margin-top:0.5rem;">Runner-up: {hero.runner_up_label_en} at {hero.runner_up_prob}%</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="content-band">
+    <div class="container content-grid-2">
+      <div class="note-card">
+        <p class="eyebrow">Sports track record</p>
+        <h3><a href="/en/sports/track-record/">Model history.</a></h3>
+        <p>NHL playoff simulations and series calls — every model run, every published prediction, tracked.</p>
+        <p style="margin-top:1rem;">
+          <a href="/en/sports/track-record/" class="cta-link">View track record →</a>
+        </p>
+      </div>
+      <a class="note-card" href="/en/sports/wc2026/" style="text-decoration:none;color:inherit;">
+        <p class="eyebrow">2026 international football tournament</p>
+        <h3>{wcHero.favorite_labels.en} lead — {wcHero.favorite_prob}%</h3>
+        <p>48 teams · {wcMeta.n_sims.toLocaleString()} simulations · group stage model. Runner-up: {wcHero.runner_up_team.toUpperCase()}.</p>
+        <footer style="margin-top:1rem;">
+          <span class="cta-link">Open tournament desk →</span>
+        </footer>
+      </a>
+    </div>
+  </section>
+
+  <section class="content-band">
+    <div class="container">
+      <PolymarketEmbed slug="2026-nhl-stanley-cup-champion" title="2026 NHL Stanley Cup champion" />
+    </div>
+  </section>
+
+  <MarketCheck
+    kicker="Sports market pulse"
+    title="The market sees the same game. The model sees the path."
+    body="Polymarket odds on Stanley Cup outcomes run alongside the Cup Path model as an independent benchmark. Where they agree, the signal is strong. Where they diverge, that gap is the story."
+    modelLabel="Cup model"
+    marketLabel="Market pulse"
+    note="Prediction-market data is shown as a benchmark only. Model and market are updated on independent cadences."
+  />
+
+  <MethodologyNote
+    title="Two sports instruments. One standard."
+    body="Cup Path and Goalie Volatility share the same Monte Carlo pipeline: series outcomes are simulated 50,000 times per run, with goalie performance factored in as a volatility multiplier on each team's win probability."
+    bullets={[
+      'NHL Cup Path: 50,000 simulations per playoff round, updated after each series result. Goalie volatility layer conditions on recent save percentage and injury status.',
+      'WC2026 group-stage model: 48-team simulation with 50,000 runs, using FIFA rankings, recent form, and home advantage as inputs.',
+      'Track record is public: every published model run and series call is archived and verifiable.',
+      'Model outputs are available as public JSON at each desk, updated on a rolling basis.',
+    ]}
+  />
+</EditorialLayout>

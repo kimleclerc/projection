@@ -1,0 +1,72 @@
+{
+  "locale": "en",
+  "slug": "methodology",
+  "title": "Methodology — Vote-Scope",
+  "description": "Explains how Vote-Scope projects seats: polls aggregated daily, Bayesian model, 10,000 simulations per riding. Transparent, independent, and continuously updated.",
+  "eyebrow": "Methodology · VoteScope",
+  "h1Html": "How we calculate<br><em>who's going to win</em>",
+  "intro": "VoteScope doesn't just display polls. It aggregates them, weights them, corrects for bias and simulates thousands of scenarios to produce a realistic projection — not a simple snapshot of a single poll.",
+  "sections": [
+    {
+      "number": "01",
+      "title": "We collect every poll",
+      "bodyHtml": "<p>Every poll published by major firms (Léger, Abacus, Nanos, Mainstreet, EKOS, Angus Reid…) is entered with its date, sample size and polling firm. Recent polls count more — the model applies time decay.</p><p>For federal Canada: 190+ polls aggregated. For Quebec: 55+ provincial polls.</p>"
+    },
+    {
+      "number": "02",
+      "title": "We correct for firm biases",
+      "bodyHtml": "<p>Some firms systematically overestimate a party, others underestimate it. We calculate these biases (<em>house effects</em>) from past election results and correct them automatically. The result: an estimate of true electoral support, not any one firm's bias.</p>"
+    },
+    {
+      "number": "03",
+      "title": "We estimate vote intention",
+      "bodyHtml": "<p>The model's core is a Bayesian Structural Time Series (BSTS) — a statistical model that tracks vote intention over time while accounting for uncertainty. It generates a probability distribution for each party, not just a single number.</p><p>In plain terms: the model says “Liberals probably have between 44% and 50%” — not just “47%”.</p>"
+    },
+    {
+      "number": "04",
+      "title": "We simulate 10,000 seat scenarios",
+      "bodyHtml": "<p>For each simulation, we draw a plausible national result at random and apply it to each of the 343 federal ridings (or 125 Quebec constituencies, 124 Ontario ridings…). We account for the 2025 vote in each riding, regional dynamics and a local randomness factor.</p><p>The result: a realistic seat distribution — not a magic number, but a range with associated probabilities for each scenario.</p>"
+    },
+    {
+      "number": "05",
+      "title": "We publish and repeat tomorrow",
+      "bodyHtml": "<p>Results are exported as static JSON and updated with each new run. The page shows the date of the last run. As election day approaches, recent polls carry more weight — and the range narrows.</p>"
+    }
+  ],
+  "callout": "<strong>Key takeaway:</strong> Displayed seats are <em>simulation averages</em>, not a guaranteed prediction. A party projected at 218 seats could win 195 or 240 — the distribution shows this uncertainty. A 90% majority probability means in 9 out of 10 simulations that party gets a majority — not that it's certain.",
+  "cards": [
+    {
+      "kicker": "Data sources",
+      "title": "Where the numbers come from",
+      "itemsHtml": [
+        "Public polls (Léger, Abacus, Nanos, Mainstreet, EKOS, Angus Reid, Pallas, Forum, Innovative…)",
+        "Official 2025 results — Elections Canada",
+        "Official 2022 results — Elections Quebec",
+        "2024 results — MIT Election Lab (US)",
+        "Geographic maps — Elections Canada, Census Bureau",
+        "By-elections, floor crossings and seat changes tracked manually"
+      ]
+    },
+    {
+      "kicker": "Model limits",
+      "title": "What we don't capture well",
+      "itemsHtml": [
+        "Strategic voting — hard to anticipate mechanically",
+        "Local star candidates who outperform their party",
+        "Last-minute campaign events",
+        "Very tight ridings — where the margin of error is greatest",
+        "Highly local sociolinguistic contexts (some bilingual, Indigenous ridings, etc.)"
+      ]
+    },
+    {
+      "kicker": "Independence",
+      "title": "No partisan affiliation",
+      "bodyHtml": "<p>VoteScope is a personal project by <a href=\"https://kimleclerc.ca\" target=\"_blank\" rel=\"noopener\">Kim Leclerc</a>, journalist and data analyst. The model is not affiliated with any party, polling firm or media organization. It relies solely on public data and a transparent statistical methodology.</p><p>Methodological choices are documented here. If you spot an error or want to discuss the method, reach out via <a href=\"https://kimleclerc.ca\" target=\"_blank\" rel=\"noopener\">kimleclerc.ca</a>.</p>"
+    }
+  ],
+  "canonicalSlug": "/en/methodology",
+  "alternates": {
+    "en": "https://vote-scope.com/en/methodology",
+    "fr": "https://vote-scope.com/fr/methodologie"
+  }
+}

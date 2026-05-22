@@ -1,0 +1,159 @@
+# VoteScope — Documentation complète pour agents LLM
+
+> Projections électorales canadiennes, américaines, françaises et britanniques. Par Kim Leclerc (kimleclerc.ca).
+> Site : https://vote-scope.com
+
+---
+
+## À propos
+
+VoteScope est un outil de projection électorale indépendant, non partisan, développé par Kim Leclerc. Il produit des projections probabilistes du nombre de sièges par parti, par circonscription, pour plusieurs juridictions électorales.
+
+Le site est bilingue (français/anglais) et hébergé en tant qu'application web statique sur Cloudflare Pages.
+
+En plus du noyau électoral, le domaine héberge une verticale sport distincte : `Sports Scope`, accessible sous `/sports/` avec un desk NHL dédié sous `/sports/nhl/`. Cette verticale reste un produit d'analyse et de divertissement, plus léger éditorialement, et ne doit pas être décrite comme un service de conseil ou de recommandation de paris.
+
+---
+
+## Juridictions couvertes
+
+| Juridiction | Page | Sièges | Cycle actif |
+|---|---|---|---|
+| Canada fédéral | /canada | 343 | fed_46 |
+| Québec provincial | /quebec | 125 | qc_2026 |
+| Ontario provincial | /ontario | 124 | on_2029 |
+| Chambre des représentants (US) | /us-house | 435 | us_house_2026 |
+| Sénat américain | /us-senate | 100 | us_senate_2026 |
+| CA-1 special primary | /ca1-special | 1 | ca1_special_primary_2026_06_02 |
+| CA-14 special primary | /ca14-special | 1 | ca14_special_primary_2026_06_16 |
+| GA-14 special runoff archive | /ga14-runoff | 1 | ga14_runoff_2026 |
+| France présidentielle | /france-presidentielle | — | fr_pres_2027 |
+| Royaume-Uni | /uk | 650 | uk_2029 |
+
+---
+
+## Pages hub et navigation
+
+| Page | URL | Description |
+|---|---|---|
+| Hub Canada | /canada-hub | Vue d'ensemble : fédéral, Québec, Ontario, partielles + Polymarket |
+| Hub USA | /usa-hub | Vue d'ensemble : Chambre, Sénat, gouverneurs + Polymarket |
+| Hub France | /france-hub | Vue d'ensemble : législatives, présidentielle 2027 |
+| Partielles | /partielles | Suivi ciblé des partielles fédérales du 13 avril 2026 |
+| Track Record | /track-record | Historique public des calls VoteScope et du volume net de marchés validés |
+| Sports Scope | /sports/ | Hub sport — board maison, modules live, repères de marché |
+| Sports Scope NHL | /sports/nhl/ | Desk Coupe Stanley 2025-26 — séries, scores, probabilités complètes |
+| Sports Scope Methodology | /sports/methodology.html | Note méthodologique publique de la verticale sport |
+| Sports Scope Newsletter | /sports/newsletter.html | Point d'entrée newsletter/Substack pour la verticale sport |
+| Sports Scope Terms | /sports/terms.html | Conditions d'utilisation et disclaimers sport |
+
+---
+
+## Méthodologie
+
+### Modèle principal : BSTS bayésien
+
+Le modèle utilise un Bayesian Structural Time Series (BSTS) implémenté en R. Il modélise l'évolution des intentions de vote dans le temps à partir d'une série de sondages pondérés.
+
+**Étapes du pipeline :**
+1. **Ingestion** — Normalisation des sondages bruts (firme, date, taille d'échantillon, méthodologie)
+2. **Pondération des firmes** — Chaque firme de sondage reçoit un poids basé sur son historique de précision et sa transparence méthodologique
+3. **BSTS** — Modèle temporel bayésien qui estime la tendance lissée des intentions de vote, avec intervalles de crédibilité
+4. **Tipping points** — Détection des circonscriptions à risque (bascule) selon la marge projetée et l'incertitude du modèle
+5. **Simulation Monte Carlo** — 10 000 simulations (20 000 pour le Sénat américain) pour estimer la distribution des sièges et calculer les probabilités de majorité
+6. **Export JSON** — Résultats exportés en JSON statique pour affichage web
+
+### Projection par circonscription
+
+La projection au niveau de la circonscription utilise un modèle de swing uniforme modifié par des ajustements régionaux. Les résultats électoraux précédents servent de point de départ, ajustés par le swing national/régional observé dans les sondages.
+
+### Présidentielle française
+
+La présidentielle utilise un modèle de scénarios de second tour : qualification au premier tour, probabilités de duels et robustesse des combinaisons. Les données proviennent de sondages publics français agrégés.
+
+### Verticale sport : Sports Scope / NHL
+
+La verticale sport est structurellement plus simple que le noyau électoral : pages statiques, exports JSON, couches live alimentées côté client, et présentation visuelle plus éditoriale.
+
+Pour la page `/sports/nhl/`, les éléments publics importants sont :
+- probabilités de Coupe Stanley et de progression par ronde
+- podium / top teams
+- cartes de séries au premier tour
+- scores du soir / modules live
+- note méthodologique publique
+
+Le discours public doit rester prudent :
+- analyse et divertissement seulement
+- pas de conseil, pas de recommandation de pari
+- les marchés prédictifs sont présentés comme benchmark externe, pas comme vérité prescriptive
+
+### Seuils de majorité
+
+- Canada fédéral : 172 sièges
+- Québec : 63 sièges
+- Ontario : 63 sièges
+- Chambre US : 218 sièges
+- Sénat US : 51 sièges
+- Royaume-Uni : 326 sièges
+
+---
+
+## Format des données web
+
+Les projections sont exportées en JSON vers `web_data/{juridiction}/latest.json`.
+
+Champs clés :
+- `meta` — Métadonnées du run (date, nombre de sondages, simulations, cycle électoral)
+- `parties` — Projection des sièges et intentions de vote par parti (médiane, intervalles)
+- `current_composition` — Composition actuelle de la chambre
+- `tipping_points` — Alertes sur les circonscriptions à bascule
+- `ridings` — Projections individuelles par circonscription
+
+Pour `Sports Scope`, les exports publics principaux sont regroupés sous `web_data/sports/latest.json`. La page `/sports/nhl/` lit aussi un JSON dédié côté client pour le rendu du board, des séries et des métadonnées de run.
+
+---
+
+## Sources des données
+
+- **Canada fédéral** : Élections Canada, 338Canada, firmes de sondage publiques (Léger, Abacus, Nanos, Mainstreet, EKOS, Angus Reid)
+- **Québec** : Élections Québec, firmes de sondage provinciales
+- **Ontario** : Élections Ontario, 338Canada Ontario, firmes de sondage provinciales
+- **États-Unis** : MIT Election Lab, U.S. Census Bureau, Polymarket
+- **France** : Sondages publics agrégés (IFOP, Harris Interactive, Ipsos, OpinionWay, BVA)
+- **Royaume-Uni** : Sondages publics agrégés, données électorales 2024
+
+---
+
+## Intégration Polymarket
+
+Les hubs Canada et USA affichent des données de marchés de prédiction en temps réel depuis l'API Gamma de Polymarket, à titre comparatif avec les projections du modèle.
+
+## Track record public
+
+VoteScope expose une page publique `/track-record` qui comptabilise les appels résolus, leur exactitude et le volume net de marchés de prédiction validés par ces appels. Au 8 avril 2026, le tableau affiche 1 appel résolu, 1 bon call, et 3,787,366 USD de volume net validé sur Kalshi et Polymarket grâce au call correct sur le runoff spécial GA-14.
+
+---
+
+## Auteur et contact
+
+**Kim Leclerc**
+- Site personnel : https://kimleclerc.ca
+- Projet : https://vote-scope.com
+
+---
+
+## Utilisation et citation
+
+Les projections VoteScope sont librement consultables. Pour toute utilisation dans un article, une analyse ou une application, la citation suivante est souhaitée :
+
+> « Selon VoteScope (vote-scope.com) par Kim Leclerc, [description de la projection]. »
+
+---
+
+## Limites du modèle
+
+- Les projections reposent sur les sondages disponibles publiquement et peuvent ne pas refléter des événements récents non encore mesurés.
+- Les intervalles de confiance sont probabilistes et non garantis.
+- Les projections par circonscription sont plus incertaines que les projections nationales.
+- Le modèle ne tient pas compte des candidats locaux, des fonds de campagne ou d'autres facteurs non capturés par les sondages.
+- La présidentielle française est soumise à une forte incertitude liée aux dynamiques de second tour.

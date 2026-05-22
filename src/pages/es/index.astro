@@ -1,0 +1,135 @@
+---
+import EditorialLayout from '../../layouts/EditorialLayout.astro';
+import EditorialHero from '../../components/EditorialHero.astro';
+import InstrumentGrid from '../../components/InstrumentGrid.astro';
+import MarketCheck from '../../components/MarketCheck.astro';
+import MethodologyNote from '../../components/MethodologyNote.astro';
+import SignalTicker from '../../islands/SignalTicker';
+import AnimatedNumber from '../../islands/AnimatedNumber';
+import { desks, editorialPhilosophy, instruments } from '../../data/editorial';
+
+import ldiData from '../../../web_data/us-lame-duck/latest.json';
+
+const philosophy = editorialPhilosophy.es;
+const ldi = ldiData.ldi;
+const deltaSign = ldi.delta_7d >= 0 ? '+' : '';
+
+const signals = [
+  { label: 'Postura editorial', value: 'Oficina de inteligencia electoral y deportiva', href: '/es/indexes/' },
+  { label: 'Regla', value: 'Una página, una pregunta', href: '/es/indexes/' },
+  { label: 'Instrumento en vivo', value: 'Lame-Duck Index', href: '/es/us/indexes/lame-duck/' },
+  { label: 'Próxima capa deportiva', value: 'Cup Path + Goalie Volatility', href: '/es/sports/' },
+];
+---
+
+<EditorialLayout
+  title="Vote-Scope — Inteligencia Electoral y Deportiva"
+  description="Proyecciones electorales y deportivas en vivo, señales de mercados de predicción e instrumentos editoriales. Respuestas claras sobre quién va adelante, qué es frágil y qué pierde el mercado."
+  canonical="https://vote-scope.com/es/"
+  lang="es"
+  currentPage="intl"
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={{ en: 'https://vote-scope.com/en/', fr: 'https://vote-scope.com/fr/', es: 'https://vote-scope.com/es/' }}
+  jsonLd={[
+    {
+      '@context': 'https://schema.org',
+      '@type': 'WebSite',
+      name: 'Vote-Scope',
+      url: 'https://vote-scope.com/',
+      inLanguage: 'es',
+      description: philosophy.position,
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Organization',
+      name: 'Vote-Scope',
+      url: 'https://vote-scope.com/',
+      logo: 'https://vote-scope.com/favicon.svg',
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: 'https://vote-scope.com/es/' },
+      ],
+    },
+  ]}
+>
+  <EditorialHero
+    eyebrow="Giro editorial Vote-Scope"
+    title="Una oficina de inteligencia electoral y deportiva."
+    promise="No solo quién va adelante. Qué se está moviendo, qué es frágil y qué está perdiendo el mercado."
+    question="¿Qué instrumento debe usar el lector para entender esta carrera, este desk o esta ruta de playoffs?"
+    primaryHref="/es/indexes/"
+    primaryLabel="Ver instrumentos"
+    secondaryHref="/es/us/"
+    secondaryLabel="Abrir desk EE. UU."
+  />
+
+  <section class="content-band" style="background:var(--surface-alt,#f9f7f2);padding:2rem 0;">
+    <div class="container" style="display:flex;align-items:center;gap:2rem;flex-wrap:wrap;">
+      <div>
+        <p class="eyebrow" style="margin-bottom:0.25rem;">Cifra del día</p>
+        <div style={`font-size:3.5rem;font-weight:800;color:${ldi.zone_color};line-height:1;`}>
+          <AnimatedNumber client:visible value={ldi.score} decimals={1} />
+          <span style="font-size:1.25rem;font-weight:400;color:var(--text);"> /100</span>
+        </div>
+        <p style={`font-weight:700;font-size:1.1rem;color:${ldi.zone_color};margin-top:0.25rem;`}>{ldi.label_en}</p>
+        <p style="font-size:0.9rem;color:var(--text-muted);margin-top:0.25rem;">
+          Lame-Duck Index · 7d: <strong>{deltaSign}{ldi.delta_7d}</strong> · al {ldiData.meta.as_of_date}
+        </p>
+      </div>
+      <div style="flex:1;min-width:200px;">
+        <p>El instrumento insignia de Vote-Scope mide el peso presidencial antes de las elecciones de medio término 2026. Más alto = más "pato cojo". Actualmente en zona <strong style={`color:${ldi.zone_color};`}>{ldi.label_en}</strong>.</p>
+        <p style="margin-top:0.75rem;">
+          <a href="/es/us/indexes/lame-duck/" class="cta-link">Abrir índice completo →</a>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <SignalTicker client:idle signals={signals} />
+
+  <section class="content-band">
+    <div class="container">
+      <p class="eyebrow">Desks</p>
+      <div class="desk-grid">
+        {desks.es.map((desk) => (
+          <a class="desk-card" href={desk.href}>
+            <p class="eyebrow">{desk.eyebrow}</p>
+            <h2>{desk.name}</h2>
+            <strong>{desk.question}</strong>
+            <p>{desk.description}</p>
+            <footer>{desk.signal}</footer>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <InstrumentGrid
+    instruments={instruments.es.slice(0, 6)}
+    title="Los números son públicos. La señal es nuestra."
+    intro="Las páginas de Vote-Scope deben funcionar como instrumentos a los que el lector puede volver, no como simples salidas de modelo. Cada índice con nombre lleva una pregunta, una métrica, una metodología y un ciclo de distribución."
+  />
+
+  <MarketCheck
+    kicker="Capa de mercado"
+    title="Los mercados se convierten en una capa de lectura, no en el producto."
+    body="Los datos de Polymarket y las cuotas deben acompañar al modelo como referencia: dónde los traders coinciden, dónde entran en pánico y dónde Vote-Scope detecta una brecha."
+    modelLabel="Salida del modelo"
+    marketLabel="Referencia"
+    note="El futuro trabajo de API debe mantener el JSON público estable y reservar una superficie /api versionada para acceso enriquecido, histórico y endpoints premium."
+  />
+
+  <MethodologyNote
+    title="La metodología se mueve por debajo del gancho."
+    body={philosophy.proof}
+    bullets={[
+      'Todas las proyecciones agregan encuestas públicas con un modelo BSTS bayesiano y ejecutan 50 000 simulaciones Monte Carlo por publicación.',
+      'Los datos de mercados de predicción (Polymarket) acompañan al modelo como detector de desacuerdo, no como sustituto.',
+      'Las probabilidades por circunscripción se condicionan a los movimientos nacionales y regionales, y luego se reagrupan en distribuciones de escaños.',
+      'Los datos fuente, las notas metodológicas y los resultados del modelo son públicos en cada desk. Se actualizan de forma continua a medida que llegan nuevas encuestas.',
+    ]}
+  />
+</EditorialLayout>

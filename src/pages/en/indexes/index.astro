@@ -1,0 +1,101 @@
+---
+import EditorialLayout from '../../../layouts/EditorialLayout.astro';
+import EditorialHero from '../../../components/EditorialHero.astro';
+import MethodologyNote from '../../../components/MethodologyNote.astro';
+import InstrumentFilter from '../../../islands/InstrumentFilter';
+import AnimatedNumber from '../../../islands/AnimatedNumber';
+import PolymarketEmbed from '../../../components/PolymarketEmbed.astro';
+import { instruments } from '../../../data/editorial';
+
+import ldiData from '../../../../web_data/us-lame-duck/latest.json';
+
+const ldi = ldiData.ldi;
+const deltaSign = ldi.delta_7d >= 0 ? '+' : '';
+---
+
+<EditorialLayout
+  title="Indexes & Instruments — Vote-Scope"
+  description="Named indexes that answer one live question each: Lame-Duck, Fraser Interim, Cup Path, and more. Each instrument explains the tension numbers alone cannot — Vote-Scope."
+  canonical="https://vote-scope.com/en/indexes/"
+  lang="en"
+  currentPage="indexes"
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={{ en: 'https://vote-scope.com/en/indexes/', fr: 'https://vote-scope.com/fr/indexes/' }}
+  jsonLd={[
+    {
+      '@context': 'https://schema.org',
+      '@type': 'CollectionPage',
+      name: 'Indexes & Instruments — Vote-Scope',
+      url: 'https://vote-scope.com/en/indexes/',
+      inLanguage: 'en',
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: 'https://vote-scope.com/en/' },
+        { '@type': 'ListItem', position: 2, name: 'Indexes', item: 'https://vote-scope.com/en/indexes/' },
+      ],
+    },
+  ]}
+>
+  <EditorialHero
+    eyebrow="Indexes"
+    title="The instruments are the product."
+    promise="Each Vote-Scope index exists to answer one live question with a named signal, a transparent method, and a distribution format."
+    question="Which proprietary instrument explains the tension best?"
+    primaryHref="/en/us/indexes/lame-duck/"
+    primaryLabel="Open live index"
+    secondaryHref="/en/"
+    secondaryLabel="Back to desks"
+  />
+
+  <section class="content-band">
+    <div class="container">
+      <p class="eyebrow">Featured instrument</p>
+      <h2>Lame-Duck Index — live now</h2>
+      <div class="note-card" style={`border-left:4px solid ${ldi.zone_color};max-width:640px;margin-top:1rem;`}>
+        <p class="eyebrow">Lame-Duck Index · {ldiData.meta.president}</p>
+        <h3 style="font-size:3rem;margin:0.25rem 0;color:var(--text);">
+          <AnimatedNumber client:visible value={ldi.score} decimals={1} />
+          <span style="font-size:1.1rem;font-weight:400;">/100</span>
+        </h3>
+        <p style={`font-weight:700;color:${ldi.zone_color};font-size:1.1rem;margin-bottom:0.5rem;`}>{ldi.label_en}</p>
+        <p>7-day delta: <strong>{deltaSign}{ldi.delta_7d}</strong> · {ldi.n_components} components · as of {ldiData.meta.as_of_date}</p>
+        <p style="margin-top:1rem;">
+          <a href="/en/us/indexes/lame-duck/" class="cta-link">Open full index →</a>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="content-band">
+    <div class="container">
+      <p class="eyebrow">Interactive catalog</p>
+      <h2>Filter by what is live, next, or planned.</h2>
+      <p>Each instrument carries a live status: active instruments update on a rolling cadence; upcoming instruments are listed for transparency before they launch.</p>
+      <InstrumentFilter
+        client:visible
+        instruments={instruments.en}
+        labels={{ all: 'All', live: 'Live', next: 'Next', planned: 'Planned', open: 'Open' }}
+      />
+    </div>
+  </section>
+
+  <section class="content-band">
+    <div class="container">
+      <PolymarketEmbed slug="balance-of-power-2026-midterms" title="U.S. Midterms 2026 — balance of power" />
+    </div>
+  </section>
+
+  <MethodologyNote
+    title="Each index answers one question with one number."
+    body="Vote-Scope indexes are named instruments, not dashboards. Each carries a single question, a transparent methodology, a live score updated on a documented cadence, and a historical record."
+    bullets={[
+      'The Lame-Duck Index (LDI) is a 0–100 composite of presidential approval, economic drag, congressional margin distribution, and prediction-market odds — 4 components, updated daily.',
+      'All index scores are produced from public source data: BLS, Federal Reserve, polling aggregators, and Polymarket. Sources are documented at each instrument page.',
+      'Index methodology pages are public and versioned. When the model changes, the changelog is published alongside the updated score.',
+      'Historical scores are archived in the public JSON at each desk. No scores are revised retroactively without a documented correction notice.',
+    ]}
+  />
+</EditorialLayout>

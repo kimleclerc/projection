@@ -1,0 +1,763 @@
+{
+  "meta": {
+    "generated_at": "2026-05-19T16:37:34.831022+00:00",
+    "as_of_date": "2026-05-19",
+    "president": "Donald Trump",
+    "term_start": "2025-01-20",
+    "term_end": "2029-01-20",
+    "midterm_date": "2026-11-03",
+    "days_to_midterms": 168,
+    "version": "1.0",
+    "methodology_url": "https://vote-scope.com/lame-duck#methodology"
+  },
+  "ldi": {
+    "score": 72.9,
+    "label_en": "Quacking",
+    "label_fr": "Canard qui coasse",
+    "zone_color": "#c8a030",
+    "delta_7d": -1.4,
+    "data_quality": "real",
+    "n_components": 4
+  },
+  "components": [
+    {
+      "id": "net_approval",
+      "name_en": "Net Approval",
+      "name_fr": "Approbation nette",
+      "weight": 0.4,
+      "score": 74.0,
+      "raw_value": -19.6,
+      "raw_label": "-19.6pp",
+      "delta_30d": 7.9,
+      "trend": "up",
+      "data_quality": "real",
+      "last_updated": "2026-05-19",
+      "tooltip_en": "30-day weighted average of reliable pollsters (Gallup, YouGov, AP-NORC, Reuters/Ipsos). Higher = more lame.",
+      "tooltip_fr": "Moyenne pondérée 30 jours des sondeurs fiables. Élevé = plus boiteux."
+    },
+    {
+      "id": "generic_ballot",
+      "name_en": "Generic Ballot Climate",
+      "name_fr": "Baromètre vote générique",
+      "weight": 0.25,
+      "score": 70.1,
+      "raw_value": 4.0,
+      "raw_label": "D+4.0pp",
+      "delta_30d": -0.8,
+      "trend": "down",
+      "data_quality": "real",
+      "last_updated": "2026-05-18",
+      "tooltip_en": "30-day smoothed D-R generic congressional ballot. For a Republican president, higher D advantage = higher lame duck score.",
+      "tooltip_fr": "Baromètre vote générique D-R lissé 30 jours. Pour un président républicain, avantage D élevé = score plus élevé.",
+      "n_polls": 47
+    },
+    {
+      "id": "congressional_ctrl",
+      "name_en": "Congressional Control Risk",
+      "name_fr": "Risque de perte du Congrès",
+      "weight": 0.2,
+      "score": 80.4,
+      "raw_value": {
+        "p_house": 99.5,
+        "p_senate": 51.6
+      },
+      "raw_label": "House 100% / Senate 52%",
+      "delta_30d": null,
+      "trend": "flat",
+      "data_quality": "real",
+      "last_updated": "2026-05-19",
+      "tooltip_en": "VoteScope model: probability of opposition controlling House (60% weight) and Senate (40% weight). Directly from our midterms model.",
+      "tooltip_fr": "Modèle VoteScope: probabilité que l'opposition contrôle la Chambre (60%) et le Sénat (40%). Directement de notre modèle midterms.",
+      "p_house": 99.5,
+      "p_senate": 51.6,
+      "h_seats_dem": 235,
+      "s_seats_dem": 51
+    },
+    {
+      "id": "economic_sentiment",
+      "name_en": "Economic Sentiment",
+      "name_fr": "Sentiment économique",
+      "weight": 0.15,
+      "score": 64.8,
+      "raw_value": 48.2,
+      "raw_label": "UMCSENT 48",
+      "delta_30d": 6.4,
+      "trend": "up",
+      "data_quality": "real",
+      "last_updated": "2026-05-01",
+      "tooltip_en": "University of Michigan Consumer Sentiment (UMCSENT). Lower consumer confidence = higher lame duck score. Source: FRED.",
+      "tooltip_fr": "Indice de confiance des consommateurs (UMCSENT, Univ. du Michigan). Faible confiance = score élevé. Source: FRED."
+    }
+  ],
+  "midterms": {
+    "house_dem_prob": 0.9954,
+    "senate_dem_prob": 0.5158,
+    "house_seats_dem": 235,
+    "senate_seats_dem": 51,
+    "house_majority": 218,
+    "senate_majority": 51
+  },
+  "history": [
+    {
+      "date": "2025-01-20",
+      "ldi": 30.3,
+      "net_approval": null,
+      "gb_spread": -4.5,
+      "umcsent": 71.7
+    },
+    {
+      "date": "2025-01-27",
+      "ldi": 31.3,
+      "net_approval": null,
+      "gb_spread": -4.2,
+      "umcsent": 71.7
+    },
+    {
+      "date": "2025-02-03",
+      "ldi": 20.1,
+      "net_approval": 7.4,
+      "gb_spread": -4.5,
+      "umcsent": 64.7
+    },
+    {
+      "date": "2025-02-10",
+      "ldi": 20.1,
+      "net_approval": 7.4,
+      "gb_spread": -4.5,
+      "umcsent": 64.7
+    },
+    {
+      "date": "2025-02-17",
+      "ldi": 22.4,
+      "net_approval": 7.4,
+      "gb_spread": -3.0,
+      "umcsent": 64.7
+    },
+    {
+      "date": "2025-02-24",
+      "ldi": 22.7,
+      "net_approval": 7.4,
+      "gb_spread": -2.8,
+      "umcsent": 64.7
+    },
+    {
+      "date": "2025-03-03",
+      "ldi": 29.6,
+      "net_approval": 4.0,
+      "gb_spread": -2.3,
+      "umcsent": 57.0
+    },
+    {
+      "date": "2025-03-10",
+      "ldi": 29.6,
+      "net_approval": 4.0,
+      "gb_spread": -2.3,
+      "umcsent": 57.0
+    },
+    {
+      "date": "2025-03-17",
+      "ldi": 31.6,
+      "net_approval": 4.0,
+      "gb_spread": -1.0,
+      "umcsent": 57.0
+    },
+    {
+      "date": "2025-03-24",
+      "ldi": 31.4,
+      "net_approval": 4.0,
+      "gb_spread": -1.1,
+      "umcsent": 57.0
+    },
+    {
+      "date": "2025-03-31",
+      "ldi": 37.6,
+      "net_approval": -0.8,
+      "gb_spread": -1.0,
+      "umcsent": 57.0
+    },
+    {
+      "date": "2025-04-07",
+      "ldi": 39.5,
+      "net_approval": -0.8,
+      "gb_spread": -0.5,
+      "umcsent": 52.2
+    },
+    {
+      "date": "2025-04-14",
+      "ldi": 40.6,
+      "net_approval": -0.8,
+      "gb_spread": 0.2,
+      "umcsent": 52.2
+    },
+    {
+      "date": "2025-04-21",
+      "ldi": 40.9,
+      "net_approval": -0.8,
+      "gb_spread": 0.4,
+      "umcsent": 52.2
+    },
+    {
+      "date": "2025-04-28",
+      "ldi": 42.4,
+      "net_approval": -0.8,
+      "gb_spread": 1.3,
+      "umcsent": 52.2
+    },
+    {
+      "date": "2025-05-05",
+      "ldi": 48.8,
+      "net_approval": -5.8,
+      "gb_spread": 1.5,
+      "umcsent": 52.2
+    },
+    {
+      "date": "2025-05-12",
+      "ldi": 48.3,
+      "net_approval": -5.8,
+      "gb_spread": 1.1,
+      "umcsent": 52.2
+    },
+    {
+      "date": "2025-05-19",
+      "ldi": 48.8,
+      "net_approval": -5.8,
+      "gb_spread": 1.4,
+      "umcsent": 52.2
+    },
+    {
+      "date": "2025-05-26",
+      "ldi": 48.0,
+      "net_approval": -5.8,
+      "gb_spread": 0.9,
+      "umcsent": 52.2
+    },
+    {
+      "date": "2025-06-02",
+      "ldi": 56.7,
+      "net_approval": -6.9,
+      "gb_spread": 1.3,
+      "umcsent": 60.7
+    },
+    {
+      "date": "2025-06-09",
+      "ldi": 57.2,
+      "net_approval": -6.9,
+      "gb_spread": 1.6,
+      "umcsent": 60.7
+    },
+    {
+      "date": "2025-06-16",
+      "ldi": 57.9,
+      "net_approval": -6.9,
+      "gb_spread": 2.2,
+      "umcsent": 60.7
+    },
+    {
+      "date": "2025-06-23",
+      "ldi": 56.9,
+      "net_approval": -6.9,
+      "gb_spread": 1.4,
+      "umcsent": 60.7
+    },
+    {
+      "date": "2025-06-30",
+      "ldi": 57.5,
+      "net_approval": -7.1,
+      "gb_spread": 1.7,
+      "umcsent": 60.7
+    },
+    {
+      "date": "2025-07-07",
+      "ldi": 57.0,
+      "net_approval": -7.1,
+      "gb_spread": 1.5,
+      "umcsent": 61.7
+    },
+    {
+      "date": "2025-07-14",
+      "ldi": 58.2,
+      "net_approval": -7.1,
+      "gb_spread": 2.4,
+      "umcsent": 61.7
+    },
+    {
+      "date": "2025-07-21",
+      "ldi": 58.5,
+      "net_approval": -7.1,
+      "gb_spread": 2.7,
+      "umcsent": 61.7
+    },
+    {
+      "date": "2025-07-28",
+      "ldi": 58.1,
+      "net_approval": -7.1,
+      "gb_spread": 2.3,
+      "umcsent": 61.7
+    },
+    {
+      "date": "2025-08-04",
+      "ldi": 60.0,
+      "net_approval": -8.3,
+      "gb_spread": 2.4,
+      "umcsent": 58.2
+    },
+    {
+      "date": "2025-08-11",
+      "ldi": 62.0,
+      "net_approval": -8.3,
+      "gb_spread": 4.1,
+      "umcsent": 58.2
+    },
+    {
+      "date": "2025-08-18",
+      "ldi": 61.5,
+      "net_approval": -8.3,
+      "gb_spread": 3.6,
+      "umcsent": 58.2
+    },
+    {
+      "date": "2025-08-25",
+      "ldi": 61.8,
+      "net_approval": -8.3,
+      "gb_spread": 3.9,
+      "umcsent": 58.2
+    },
+    {
+      "date": "2025-09-01",
+      "ldi": 62.2,
+      "net_approval": -8.9,
+      "gb_spread": 3.2,
+      "umcsent": 55.1
+    },
+    {
+      "date": "2025-09-08",
+      "ldi": 62.6,
+      "net_approval": -8.9,
+      "gb_spread": 3.5,
+      "umcsent": 55.1
+    },
+    {
+      "date": "2025-09-15",
+      "ldi": 62.3,
+      "net_approval": -8.9,
+      "gb_spread": 3.3,
+      "umcsent": 55.1
+    },
+    {
+      "date": "2025-09-22",
+      "ldi": 62.0,
+      "net_approval": -8.9,
+      "gb_spread": 3.1,
+      "umcsent": 55.1
+    },
+    {
+      "date": "2025-09-29",
+      "ldi": 62.4,
+      "net_approval": -8.9,
+      "gb_spread": 3.4,
+      "umcsent": 55.1
+    },
+    {
+      "date": "2025-10-06",
+      "ldi": 60.7,
+      "net_approval": -9.6,
+      "gb_spread": 1.2,
+      "umcsent": 53.6
+    },
+    {
+      "date": "2025-10-13",
+      "ldi": 59.9,
+      "net_approval": -9.6,
+      "gb_spread": 0.6,
+      "umcsent": 53.6
+    },
+    {
+      "date": "2025-10-20",
+      "ldi": 61.9,
+      "net_approval": -9.6,
+      "gb_spread": 2.3,
+      "umcsent": 53.6
+    },
+    {
+      "date": "2025-10-27",
+      "ldi": 63.1,
+      "net_approval": -9.6,
+      "gb_spread": 3.2,
+      "umcsent": 53.6
+    },
+    {
+      "date": "2025-11-03",
+      "ldi": 64.5,
+      "net_approval": -10.7,
+      "gb_spread": 3.0,
+      "umcsent": 51.0
+    },
+    {
+      "date": "2025-11-10",
+      "ldi": 64.4,
+      "net_approval": -10.7,
+      "gb_spread": 3.0,
+      "umcsent": 51.0
+    },
+    {
+      "date": "2025-11-17",
+      "ldi": 65.1,
+      "net_approval": -10.7,
+      "gb_spread": 3.5,
+      "umcsent": 51.0
+    },
+    {
+      "date": "2025-11-24",
+      "ldi": 66.1,
+      "net_approval": -10.7,
+      "gb_spread": 4.3,
+      "umcsent": 51.0
+    },
+    {
+      "date": "2025-12-01",
+      "ldi": 70.5,
+      "net_approval": -13.6,
+      "gb_spread": 5.7,
+      "umcsent": 52.9
+    },
+    {
+      "date": "2025-12-08",
+      "ldi": 67.9,
+      "net_approval": -13.6,
+      "gb_spread": 3.7,
+      "umcsent": 52.9
+    },
+    {
+      "date": "2025-12-15",
+      "ldi": 67.1,
+      "net_approval": -13.6,
+      "gb_spread": 3.1,
+      "umcsent": 52.9
+    },
+    {
+      "date": "2025-12-22",
+      "ldi": 65.8,
+      "net_approval": -13.6,
+      "gb_spread": 2.0,
+      "umcsent": 52.9
+    },
+    {
+      "date": "2025-12-29",
+      "ldi": 66.4,
+      "net_approval": -13.6,
+      "gb_spread": 2.5,
+      "umcsent": 52.9
+    },
+    {
+      "date": "2026-01-05",
+      "ldi": 66.0,
+      "net_approval": -12.5,
+      "gb_spread": 3.6,
+      "umcsent": 56.4
+    },
+    {
+      "date": "2026-01-12",
+      "ldi": 67.2,
+      "net_approval": -12.5,
+      "gb_spread": 4.5,
+      "umcsent": 56.4
+    },
+    {
+      "date": "2026-01-19",
+      "ldi": 65.9,
+      "net_approval": -12.5,
+      "gb_spread": 3.5,
+      "umcsent": 56.4
+    },
+    {
+      "date": "2026-01-26",
+      "ldi": 67.7,
+      "net_approval": -12.5,
+      "gb_spread": 4.9,
+      "umcsent": 56.4
+    },
+    {
+      "date": "2026-02-02",
+      "ldi": 67.5,
+      "net_approval": -12.9,
+      "gb_spread": 4.5,
+      "umcsent": 56.6
+    },
+    {
+      "date": "2026-02-09",
+      "ldi": 67.2,
+      "net_approval": -12.9,
+      "gb_spread": 4.3,
+      "umcsent": 56.6
+    },
+    {
+      "date": "2026-02-16",
+      "ldi": 66.8,
+      "net_approval": -12.9,
+      "gb_spread": 3.9,
+      "umcsent": 56.6
+    },
+    {
+      "date": "2026-02-23",
+      "ldi": 67.7,
+      "net_approval": -12.9,
+      "gb_spread": 4.7,
+      "umcsent": 56.6
+    },
+    {
+      "date": "2026-03-02",
+      "ldi": 69.8,
+      "net_approval": -15.0,
+      "gb_spread": 4.2,
+      "umcsent": 53.3
+    },
+    {
+      "date": "2026-03-09",
+      "ldi": 69.4,
+      "net_approval": -15.0,
+      "gb_spread": 3.8,
+      "umcsent": 53.3
+    },
+    {
+      "date": "2026-03-16",
+      "ldi": 70.1,
+      "net_approval": -15.0,
+      "gb_spread": 4.4,
+      "umcsent": 53.3
+    },
+    {
+      "date": "2026-03-23",
+      "ldi": 69.7,
+      "net_approval": -15.0,
+      "gb_spread": 4.1,
+      "umcsent": 53.3
+    },
+    {
+      "date": "2026-03-30",
+      "ldi": 71.6,
+      "net_approval": -15.0,
+      "gb_spread": 5.6,
+      "umcsent": 53.3
+    },
+    {
+      "date": "2026-04-06",
+      "ldi": 71.8,
+      "net_approval": -15.2,
+      "gb_spread": 5.6,
+      "umcsent": 53.3
+    },
+    {
+      "date": "2026-04-13",
+      "ldi": 70.4,
+      "net_approval": -15.2,
+      "gb_spread": 4.4,
+      "umcsent": 53.3
+    },
+    {
+      "date": "2026-04-20",
+      "ldi": 69.7,
+      "net_approval": -15.2,
+      "gb_spread": 3.9,
+      "umcsent": 53.3
+    },
+    {
+      "date": "2026-04-27",
+      "ldi": 71.8,
+      "net_approval": -15.2,
+      "gb_spread": 5.6,
+      "umcsent": 53.3
+    },
+    {
+      "date": "2026-05-12",
+      "ldi": 74.3,
+      "net_approval": -18.7,
+      "gb_spread": 4.3,
+      "umcsent": 48.2
+    },
+    {
+      "date": "2026-05-19",
+      "ldi": 72.9,
+      "net_approval": -19.6,
+      "gb_spread": 4.0,
+      "umcsent": 48.2
+    }
+  ],
+  "historical_presidents": [
+    {
+      "name": "Truman",
+      "term": "1949–53",
+      "party": "D",
+      "final_ldi": 52.2,
+      "sparkline": [
+        18.9,
+        10.0,
+        17.4,
+        23.6,
+        42.1,
+        62.5,
+        65.4,
+        64.5,
+        52.2
+      ],
+      "quality": "real"
+    },
+    {
+      "name": "Eisenhower",
+      "term": "1957–61",
+      "party": "R",
+      "final_ldi": 41.0,
+      "sparkline": [
+        63.6,
+        39.5,
+        46.2,
+        46.7,
+        42.8,
+        41.9,
+        40.3,
+        40.4,
+        41.0
+      ],
+      "quality": "real"
+    },
+    {
+      "name": "Nixon",
+      "term": "1973–74",
+      "party": "R",
+      "final_ldi": 91.5,
+      "sparkline": [
+        76.9,
+        47.8,
+        50.0,
+        71.0,
+        83.4,
+        89.2,
+        92.0,
+        90.0,
+        91.5
+      ],
+      "quality": "real"
+    },
+    {
+      "name": "Reagan",
+      "term": "1985–89",
+      "party": "R",
+      "final_ldi": 34.8,
+      "sparkline": [
+        40.1,
+        24.4,
+        28.5,
+        28.1,
+        38.7,
+        40.7,
+        37.1,
+        35.6,
+        34.8
+      ],
+      "quality": "real"
+    },
+    {
+      "name": "Clinton",
+      "term": "1997–01",
+      "party": "D",
+      "final_ldi": 34.8,
+      "sparkline": [
+        63.1,
+        37.4,
+        35.5,
+        35.5,
+        36.7,
+        36.7,
+        33.8,
+        33.8,
+        34.8
+      ],
+      "quality": "real"
+    },
+    {
+      "name": "G.W. Bush",
+      "term": "2005–09",
+      "party": "R",
+      "final_ldi": 91.7,
+      "sparkline": [
+        36.4,
+        35.0,
+        51.8,
+        61.1,
+        78.6,
+        86.2,
+        87.1,
+        91.7,
+        91.7
+      ],
+      "quality": "real"
+    },
+    {
+      "name": "Obama",
+      "term": "2013–17",
+      "party": "D",
+      "final_ldi": 25.3,
+      "sparkline": [
+        38.7,
+        29.3,
+        43.7,
+        42.0,
+        43.1,
+        38.0,
+        40.6,
+        31.0,
+        25.3
+      ],
+      "quality": "real"
+    }
+  ],
+  "market_signals": [
+    {
+      "id": "gop-house-2026",
+      "label_en": "Republicans keep House majority 2026",
+      "label_fr": "Républicains gardent la Chambre 2026",
+      "embed_url": "https://embed.polymarket.com/market?event=gop-wins-house-majority-2026&theme=light",
+      "market_url": "https://polymarket.com/event/gop-wins-house-majority-2026",
+      "note_en": "External market signal — not integrated in LDI calculation.",
+      "note_fr": "Signal de marché externe — non intégré au calcul du LDI."
+    },
+    {
+      "id": "gop-senate-2026",
+      "label_en": "Republicans keep Senate majority 2026",
+      "label_fr": "Républicains gardent le Sénat 2026",
+      "embed_url": "https://embed.polymarket.com/market?event=gop-keeps-senate-2026&theme=light",
+      "market_url": "https://polymarket.com/event/gop-keeps-senate-2026",
+      "note_en": "External market signal — not integrated in LDI calculation.",
+      "note_fr": "Signal de marché externe — non intégré au calcul du LDI."
+    }
+  ],
+  "zones": [
+    {
+      "min": 0,
+      "max": 25,
+      "label_en": "Full Power",
+      "label_fr": "Plein pouvoir",
+      "color": "#4a7fbf"
+    },
+    {
+      "min": 25,
+      "max": 50,
+      "label_en": "Waning",
+      "label_fr": "Influence qui s'effrite",
+      "color": "#5aaa8a"
+    },
+    {
+      "min": 50,
+      "max": 75,
+      "label_en": "Quacking",
+      "label_fr": "Canard qui coasse",
+      "color": "#c8a030"
+    },
+    {
+      "min": 75,
+      "max": 100,
+      "label_en": "Fully Lame",
+      "label_fr": "Canard boiteux",
+      "color": "#c94040"
+    }
+  ]
+}
