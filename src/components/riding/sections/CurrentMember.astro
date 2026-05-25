@@ -1,0 +1,178 @@
+---
+import type { RidingData } from '../../../lib/riding-adapters/types';
+import { partyMeta } from '../../../lib/riding-adapters/parties';
+
+interface Props {
+  data: RidingData;
+  lang: 'en' | 'fr';
+}
+
+const { data, lang } = Astro.props;
+if (!data.member) return null;
+const m = data.member;
+
+const currentMeta = partyMeta(data.jurisdiction, m.party_current);
+const electedMeta = m.party_elected ? partyMeta(data.jurisdiction, m.party_elected) : null;
+const currentLabel = lang === 'fr' ? currentMeta.label_fr : currentMeta.label_en;
+const electedLabel = electedMeta ? (lang === 'fr' ? electedMeta.label_fr : electedMeta.label_en) : null;
+const hasCrossed = !!(m.party_elected && m.party_current !== m.party_elected);
+
+const T = {
+  en: {
+    eyebrow: 'Sitting member',
+    sits_with: 'Sits with',
+    elected_as: 'Elected as',
+    crossed: 'Floor-crossed',
+    on_date: 'on',
+    since: 'Since',
+    vacant: 'Vacant seat',
+    change_byelection_win: 'Byelection win',
+    change_floor_cross: 'Floor crossing',
+  },
+  fr: {
+    eyebrow: 'Député·e en exercice',
+    sits_with: 'Siège avec',
+    elected_as: 'Élu·e sous',
+    crossed: 'Traversée de plancher',
+    on_date: 'le',
+    since: 'Depuis',
+    vacant: 'Siège vacant',
+    change_byelection_win: 'Élection partielle',
+    change_floor_cross: 'Traversée de plancher',
+  },
+}[lang];
+
+const changeLabel =
+  m.change_type === 'floor_cross' ? T.change_floor_cross
+  : m.change_type === 'byelection_win' ? T.change_byelection_win
+  : m.change_type;
+---
+
+<section class="current-member">
+  <div class="container">
+    <p class="eyebrow">{T.eyebrow}</p>
+    <div class="row">
+      <div class="name-block">
+        <h2>{m.mp_name}</h2>
+        <p class="party" style={`--accent:${currentMeta.color}`}>
+          <span class="dot" aria-hidden="true"></span>
+          <span class="label">{T.sits_with}</span> <strong>{currentLabel}</strong>
+        </p>
+        {hasCrossed && electedLabel && (
+          <p class="crossed">
+            <span class="badge" style={`--accent:${electedMeta!.color}`}>
+              <span class="dot-sm" aria-hidden="true"></span>{T.elected_as} {electedLabel}
+            </span>
+            {m.change_date && <> · {changeLabel} {T.on_date} {m.change_date}</>}
+          </p>
+        )}
+      </div>
+      <dl class="meta">
+        {m.member_start_date && (
+          <div><dt>{T.since}</dt><dd>{m.member_start_date}</dd></div>
+        )}
+        {m.parliament !== undefined && (
+          <div><dt>Parlement</dt><dd>{m.parliament}<sup>e</sup></dd></div>
+        )}
+      </dl>
+    </div>
+  </div>
+</section>
+
+<style>
+  .current-member {
+    padding: 48px 0;
+    border-bottom: 1px solid var(--rule);
+    background: var(--paper);
+  }
+  .row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 40px;
+    align-items: start;
+    margin-top: 8px;
+  }
+  h2 {
+    margin: 4px 0 12px;
+    font-family: var(--serif);
+    font-size: clamp(32px, 4.5vw, 48px);
+    font-weight: 420;
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+  }
+  .party {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--mono);
+    font-size: 13px;
+    letter-spacing: .04em;
+  }
+  .party .label {
+    color: var(--ink-2);
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: .1em;
+  }
+  .party strong {
+    font-family: var(--serif);
+    font-weight: 460;
+    font-size: 18px;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+  .dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--accent);
+    display: inline-block;
+  }
+  .crossed {
+    margin-top: 10px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--ink-2);
+  }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    background: var(--card);
+  }
+  .dot-sm {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+  .meta {
+    display: grid;
+    gap: 12px;
+    margin: 0;
+  }
+  .meta > div {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .meta dt {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+  }
+  .meta dd {
+    margin: 0;
+    font-family: var(--mono);
+    font-size: 14px;
+  }
+  @media (max-width: 820px) {
+    .row { grid-template-columns: 1fr; }
+  }
+</style>

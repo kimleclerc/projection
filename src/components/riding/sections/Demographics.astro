@@ -1,0 +1,206 @@
+---
+import type { RidingData } from '../../../lib/riding-adapters/types';
+
+interface Props {
+  data: RidingData;
+  lang: 'en' | 'fr';
+}
+
+const { data, lang } = Astro.props;
+if (!data.demographics) return null;
+const d = data.demographics;
+
+const T = {
+  en: {
+    eyebrow: 'Demographics',
+    title: 'Who lives here',
+    linguistic: 'Linguistic profile',
+    franco: 'Francophone',
+    anglo: 'Anglophone',
+    other: 'Non-francophone (other)',
+    population: 'Population',
+    median_age: 'Median age',
+    employment: 'Employment rate',
+    unemployment: 'Unemployment rate',
+    source: 'Data source',
+    official_note: 'Official census profile (Statistics Canada) to be linked in next pass.',
+  },
+  fr: {
+    eyebrow: 'Démographie',
+    title: 'Qui habite ici',
+    linguistic: 'Profil linguistique',
+    franco: 'Francophones',
+    anglo: 'Anglophones',
+    other: 'Non-francophones (autres)',
+    population: 'Population',
+    median_age: 'Âge médian',
+    employment: 'Taux d\'emploi',
+    unemployment: 'Taux de chômage',
+    source: 'Source des données',
+    official_note: 'Profil officiel du recensement (Statistique Canada) à brancher au prochain passage.',
+  },
+}[lang];
+
+const hasLinguistic =
+  d.francophone_pct !== undefined ||
+  d.anglophone_pct !== undefined ||
+  d.nonfrancophone_pct !== undefined;
+
+/** Public-facing labels for internal data-source codes. Keep all third-party
+ *  vendor names out of the UI — only official agencies are surfaced. */
+const SOURCE_LABELS: Record<string, { en: string; fr: string }> = {
+  qc125_canada_2021_census: {
+    en: 'Statistics Canada — 2021 Census',
+    fr: 'Statistique Canada — Recensement de 2021',
+  },
+  qc125_2021_census_projected_from_qc2022: {
+    en: 'Statistics Canada — 2021 Census (projected to current boundaries)',
+    fr: 'Statistique Canada — Recensement de 2021 (projeté sur les limites actuelles)',
+  },
+  ons_mid_2022_pcon2025: {
+    en: 'Office for National Statistics — mid-2022 estimates',
+    fr: 'Office for National Statistics — estimations mi-2022',
+  },
+};
+const sourceLabel = d.source
+  ? (SOURCE_LABELS[d.source]?.[lang] ?? d.source.replace(/_/g, ' '))
+  : null;
+---
+
+<section class="demographics">
+  <div class="container">
+    <p class="eyebrow">{T.eyebrow}</p>
+    <h2>{T.title}</h2>
+
+    {hasLinguistic && (
+      <div class="block">
+        <h3>{T.linguistic}</h3>
+        <div class="ling-bar" role="img" aria-label={T.linguistic}>
+          {d.francophone_pct !== undefined && (
+            <div class="seg franco" style={`width:${d.francophone_pct}%`} title={`${T.franco} — ${d.francophone_pct.toFixed(1)}%`}></div>
+          )}
+          {d.anglophone_pct !== undefined && (
+            <div class="seg anglo" style={`width:${d.anglophone_pct}%`} title={`${T.anglo} — ${d.anglophone_pct.toFixed(1)}%`}></div>
+          )}
+          {d.nonfrancophone_pct !== undefined && (
+            <div class="seg other" style={`width:${d.nonfrancophone_pct}%`} title={`${T.other} — ${d.nonfrancophone_pct.toFixed(1)}%`}></div>
+          )}
+        </div>
+        <ul class="ling-legend">
+          {d.francophone_pct !== undefined && <li><span class="key franco"></span>{T.franco} <strong>{d.francophone_pct.toFixed(1)}%</strong></li>}
+          {d.anglophone_pct !== undefined && <li><span class="key anglo"></span>{T.anglo} <strong>{d.anglophone_pct.toFixed(1)}%</strong></li>}
+          {d.nonfrancophone_pct !== undefined && <li><span class="key other"></span>{T.other} <strong>{d.nonfrancophone_pct.toFixed(1)}%</strong></li>}
+        </ul>
+      </div>
+    )}
+
+    {(d.population_total || d.median_age || d.employment_rate || d.unemployment_rate) && (
+      <div class="block stats-grid">
+        {d.population_total !== undefined && (
+          <div><dt>{T.population}</dt><dd>{d.population_total.toLocaleString(lang === 'fr' ? 'fr-CA' : 'en-CA')}</dd></div>
+        )}
+        {d.median_age !== undefined && (
+          <div><dt>{T.median_age}</dt><dd>{d.median_age}</dd></div>
+        )}
+        {d.employment_rate !== undefined && (
+          <div><dt>{T.employment}</dt><dd>{d.employment_rate.toFixed(1)}%</dd></div>
+        )}
+        {d.unemployment_rate !== undefined && (
+          <div><dt>{T.unemployment}</dt><dd>{d.unemployment_rate.toFixed(1)}%</dd></div>
+        )}
+      </div>
+    )}
+
+    <p class="meta">
+      {sourceLabel && <>{T.source} : {sourceLabel}</>}
+    </p>
+  </div>
+</section>
+
+<style>
+  .demographics {
+    padding: 56px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  h2 {
+    margin: 8px 0 24px;
+    font-family: var(--serif);
+    font-size: clamp(28px, 3.4vw, 40px);
+    font-weight: 420;
+    letter-spacing: -0.01em;
+  }
+  h3 {
+    margin: 0 0 12px;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+  }
+  .block { margin-bottom: 32px; }
+  .ling-bar {
+    display: flex;
+    height: 24px;
+    border-radius: 3px;
+    overflow: hidden;
+    border: 1px solid var(--rule);
+  }
+  .seg { height: 100%; }
+  .seg.franco { background: oklch(0.55 0.18 30); }
+  .seg.anglo  { background: oklch(0.45 0.12 250); }
+  .seg.other  { background: oklch(0.62 0.08 90); }
+  .ling-legend {
+    list-style: none;
+    padding: 0;
+    margin: 14px 0 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    font-family: var(--mono);
+    font-size: 12px;
+  }
+  .key {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    margin-right: 6px;
+    vertical-align: middle;
+  }
+  .key.franco { background: oklch(0.55 0.18 30); }
+  .key.anglo  { background: oklch(0.45 0.12 250); }
+  .key.other  { background: oklch(0.62 0.08 90); }
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0;
+    border-top: 1px solid var(--rule);
+    border-left: 1px solid var(--rule);
+  }
+  .stats-grid > div {
+    padding: 16px 20px;
+    border-right: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+  }
+  dt {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+    margin-bottom: 6px;
+  }
+  dd {
+    margin: 0;
+    font-family: var(--serif);
+    font-size: 24px;
+  }
+  .meta {
+    margin-top: 16px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--ink-2);
+  }
+  .meta a { color: var(--ink); text-decoration: underline; }
+  code { font-size: 11px; }
+</style>

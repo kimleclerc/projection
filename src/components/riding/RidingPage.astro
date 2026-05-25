@@ -1,0 +1,51 @@
+---
+/**
+ * Universal riding page — used by every jurisdiction (CA federal, QC, ON, US, UK, FR).
+ * Sections render conditionally based on data presence, so as new fields land in
+ * adapters (candidates, polls, demographics, byelection flag…) they light up across
+ * all ~600 pages automatically. Edit this file → every riding page rebuilds.
+ */
+import type { RidingData } from '../../lib/riding-adapters/types';
+import Hero from './sections/Hero.astro';
+import ProjectionPanel from './sections/ProjectionPanel.astro';
+import VoteBars from './sections/VoteBars.astro';
+import HistoryTimeline from './sections/HistoryTimeline.astro';
+import Demographics from './sections/Demographics.astro';
+import EditorialBlurb from './sections/EditorialBlurb.astro';
+import DataFreshness from './sections/DataFreshness.astro';
+import CurrentMember from './sections/CurrentMember.astro';
+import CandidatesTable from './sections/CandidatesTable.astro';
+
+interface Props {
+  data: RidingData;
+  lang: 'en' | 'fr';
+}
+
+const { data, lang } = Astro.props;
+---
+
+<Hero data={data} lang={lang} />
+<EditorialBlurb data={data} lang={lang} />
+{data.member && <CurrentMember data={data} lang={lang} />}
+<ProjectionPanel data={data} lang={lang} />
+<VoteBars data={data} lang={lang} />
+
+{data.baseline && <HistoryTimeline data={data} lang={lang} />}
+{data.candidates && data.candidates.length > 0 && <CandidatesTable data={data} lang={lang} />}
+{data.demographics && <Demographics data={data} lang={lang} />}
+{data.runDate && <DataFreshness data={data} lang={lang} />}
+
+{/* Future slots — light up automatically when adapter populates them. */}
+{data.polls && data.polls.length > 0 && (
+  <section class="slot-polls"><div class="container">
+    <p class="eyebrow">{lang === 'fr' ? 'Sondages locaux' : 'Local polls'}</p>
+    <p>{data.polls.length} {lang === 'fr' ? 'sondages disponibles' : 'polls available'}</p>
+  </div></section>
+)}
+
+{data.isByelection && data.marketSlug && (
+  <section class="slot-market"><div class="container">
+    <p class="eyebrow">{lang === 'fr' ? 'Marché de prédiction' : 'Prediction market'}</p>
+    {/* PolymarketEmbed island would hook here */}
+  </div></section>
+)}

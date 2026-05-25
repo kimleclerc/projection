@@ -1,0 +1,145 @@
+---
+import type { RidingData } from '../../../lib/riding-adapters/types';
+
+interface Props {
+  data: RidingData;
+  lang: 'en' | 'fr';
+}
+
+const { data, lang } = Astro.props;
+const parties = data.parties.filter((p) => p.vote_mean_pct >= 0.5);
+const maxPct = Math.max(...parties.map((p) => p.vote_mean_pct), 1);
+
+const T = {
+  en: {
+    eyebrow: 'Projected vote share',
+    title: 'Projection by party',
+    baseline_label: (cycle: string) => `${cycle.replace('_', ' ')} result`,
+  },
+  fr: {
+    eyebrow: 'Part de voix projetée',
+    title: 'Projection par parti',
+    baseline_label: (cycle: string) => `Résultat ${cycle.replace('_', ' ')}`,
+  },
+}[lang];
+---
+
+<section class="vote-bars">
+  <div class="container">
+    <p class="eyebrow">{T.eyebrow}</p>
+    <h2>{T.title}</h2>
+
+    <ul class="bars">
+      {parties.map((p) => {
+        const label = lang === 'fr' ? p.label_fr : p.label_en;
+        const baseline = data.baseline?.party_pcts[p.code];
+        const widthPct = (p.vote_mean_pct / maxPct) * 100;
+        return (
+          <li>
+            <div class="row">
+              <span class="party-label" style={`--accent:${p.color}`}>
+                <span class="swatch" aria-hidden="true"></span>{label}
+              </span>
+              <span class="pct">{p.vote_mean_pct.toFixed(1)}%</span>
+            </div>
+            <div class="track">
+              <div class="fill" style={`width:${widthPct}%;background:${p.color}`}></div>
+              {baseline !== undefined && (
+                <div
+                  class="baseline-tick"
+                  style={`left:${(baseline / maxPct) * 100}%`}
+                  title={T.baseline_label(data.baseline!.cycle) + ` — ${baseline.toFixed(1)}%`}
+                ></div>
+              )}
+            </div>
+          </li>
+        );
+      })}
+    </ul>
+    {data.baseline && (
+      <p class="legend">
+        <span class="tick-demo" aria-hidden="true"></span>
+        {T.baseline_label(data.baseline.cycle)}
+      </p>
+    )}
+  </div>
+</section>
+
+<style>
+  .vote-bars {
+    padding: 56px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  h2 {
+    margin: 8px 0 24px;
+    font-family: var(--serif);
+    font-size: clamp(28px, 3.4vw, 40px);
+    font-weight: 420;
+    letter-spacing: -0.01em;
+  }
+  .bars { list-style: none; padding: 0; margin: 0; display: grid; gap: 18px; }
+  .row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 6px;
+  }
+  .party-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+  .swatch {
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    background: var(--accent);
+  }
+  .pct {
+    font-family: var(--serif);
+    font-size: 20px;
+    font-weight: 430;
+  }
+  .track {
+    position: relative;
+    height: 10px;
+    background: color-mix(in oklab, var(--ink) 8%, transparent);
+    border-radius: 2px;
+    overflow: visible;
+  }
+  .fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width .3s ease;
+  }
+  .baseline-tick {
+    position: absolute;
+    top: -3px;
+    bottom: -3px;
+    width: 2px;
+    background: var(--ink);
+    opacity: .55;
+  }
+  .legend {
+    margin-top: 18px;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .tick-demo {
+    display: inline-block;
+    width: 2px;
+    height: 14px;
+    background: var(--ink);
+    opacity: .55;
+  }
+</style>

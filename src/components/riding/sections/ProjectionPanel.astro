@@ -1,0 +1,143 @@
+---
+import type { RidingData } from '../../../lib/riding-adapters/types';
+import { partyMeta } from '../../../lib/riding-adapters/parties';
+
+interface Props {
+  data: RidingData;
+  lang: 'en' | 'fr';
+}
+
+const { data, lang } = Astro.props;
+const winnerMeta = partyMeta(data.jurisdiction, data.projection.winner);
+const winnerLabel = lang === 'fr' ? winnerMeta.label_fr : winnerMeta.label_en;
+const pWinnerPct = Math.round(data.projection.p_winner * 100);
+const margin = data.projection.mean_margin.toFixed(1);
+const closeRacePct = (data.projection.p_close_race * 100).toFixed(0);
+
+const T = {
+  en: {
+    eyebrow: 'Current projection',
+    leader_in: 'Projected winner',
+    confidence: 'Probability',
+    margin: 'Mean margin (pts)',
+    close: 'P(close race)',
+    safe: 'Safe',
+    competitive: 'Competitive',
+    toss_up: 'Toss-up',
+  },
+  fr: {
+    eyebrow: 'Projection actuelle',
+    leader_in: 'Vainqueur projeté',
+    confidence: 'Probabilité',
+    margin: 'Marge moyenne (pts)',
+    close: 'P(course serrée)',
+    safe: 'Sûr',
+    competitive: 'Compétitif',
+    toss_up: 'Indécis',
+  },
+}[lang];
+
+const competitiveness =
+  data.projection.p_close_race >= 0.35
+    ? T.toss_up
+    : data.projection.p_close_race >= 0.15
+    ? T.competitive
+    : T.safe;
+---
+
+<section class="projection-panel">
+  <div class="container panel-inner">
+    <div>
+      <p class="eyebrow">{T.eyebrow}</p>
+      <h2 style={`--accent:${winnerMeta.color}`}>
+        <span class="dot" aria-hidden="true"></span>
+        {winnerLabel}
+      </h2>
+      <p class="competitiveness">{competitiveness}</p>
+    </div>
+    <dl class="stats">
+      <div>
+        <dt>{T.confidence}</dt>
+        <dd>{pWinnerPct}%</dd>
+      </div>
+      <div>
+        <dt>{T.margin}</dt>
+        <dd>{margin}</dd>
+      </div>
+      <div>
+        <dt>{T.close}</dt>
+        <dd>{closeRacePct}%</dd>
+      </div>
+    </dl>
+  </div>
+</section>
+
+<style>
+  .projection-panel {
+    padding: 48px 0;
+    background: var(--card);
+    border-bottom: 1px solid var(--rule);
+  }
+  .panel-inner {
+    display: grid;
+    grid-template-columns: 1fr .9fr;
+    gap: 32px;
+    align-items: center;
+  }
+  h2 {
+    margin: 8px 0 4px;
+    font-family: var(--serif);
+    font-size: clamp(36px, 5vw, 56px);
+    font-weight: 420;
+    letter-spacing: -0.02em;
+    line-height: 1.02;
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+  }
+  .dot {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--accent);
+    display: inline-block;
+    flex-shrink: 0;
+  }
+  .competitiveness {
+    margin-top: 8px;
+    color: var(--ink-2);
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+    border-top: 1px solid var(--rule);
+    border-left: 1px solid var(--rule);
+  }
+  .stats > div {
+    padding: 20px;
+    border-right: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+  }
+  dt {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+    margin-bottom: 8px;
+  }
+  dd {
+    margin: 0;
+    font-family: var(--serif);
+    font-size: 32px;
+    font-weight: 430;
+  }
+  @media (max-width: 820px) {
+    .panel-inner { grid-template-columns: 1fr; }
+  }
+</style>

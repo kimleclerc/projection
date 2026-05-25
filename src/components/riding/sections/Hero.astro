@@ -1,0 +1,62 @@
+---
+import type { RidingData } from '../../../lib/riding-adapters/types';
+
+interface Props {
+  data: RidingData;
+  lang: 'en' | 'fr';
+}
+
+const { data, lang } = Astro.props;
+const name = lang === 'fr' ? data.name.fr : data.name.en;
+
+const T = {
+  en: {
+    eyebrow: data.isByelection ? 'Byelection' : 'Riding profile',
+    province_prefix: 'Federal riding —',
+    urban: { urban: 'Urban', rural: 'Rural', mixed: 'Mixed', suburban: 'Suburban' } as Record<string, string>,
+  },
+  fr: {
+    eyebrow: data.isByelection ? 'Élection partielle' : 'Profil de circonscription',
+    province_prefix: 'Circonscription fédérale —',
+    urban: { urban: 'Urbaine', rural: 'Rurale', mixed: 'Mixte', suburban: 'Banlieue' } as Record<string, string>,
+  },
+}[lang];
+
+const urbanLabel = data.urban_rural ? (T.urban[data.urban_rural] ?? data.urban_rural) : null;
+---
+
+<section class="riding-hero">
+  <div class="container">
+    <p class="eyebrow">{T.eyebrow}</p>
+    <h1>{name}</h1>
+    <p class="meta">
+      {T.province_prefix} <strong>{data.province}</strong>
+      {urbanLabel && <> · {urbanLabel}</>}
+      {data.region && <> · <span class="region">{data.region.replace(/_/g, ' ')}</span></>}
+    </p>
+  </div>
+</section>
+
+<style>
+  .riding-hero {
+    padding: 64px 0 32px;
+    border-bottom: 1px solid var(--rule);
+    background: var(--paper);
+  }
+  h1 {
+    margin: 8px 0 12px;
+    font-family: var(--serif);
+    font-size: clamp(40px, 6vw, 72px);
+    font-weight: 420;
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+  .meta {
+    color: var(--ink-2);
+    font-family: var(--mono);
+    font-size: 13px;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+  }
+  .region { text-transform: capitalize; }
+</style>
