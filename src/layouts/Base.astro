@@ -58,6 +58,7 @@ const localeCopy: Record<Locale, {
   indexesLabel: string;
   sportsLabel: string;
   subscribeLabel: string;
+  subscribeUrl: string;
   footerDescription: string;
   unitedStatesLabel: string;
   houseLabel: string;
@@ -95,6 +96,7 @@ const localeCopy: Record<Locale, {
     indexesLabel: 'Indexes',
     sportsLabel: 'Sports',
     subscribeLabel: 'Subscribe',
+    subscribeUrl: 'https://leclercswarroom.substack.com/',
     footerDescription: 'Independent election projection. Published from Paris, Montréal, and Washington since 2021.',
     unitedStatesLabel: 'United States',
     houseLabel: 'House',
@@ -132,6 +134,7 @@ const localeCopy: Record<Locale, {
     indexesLabel: 'Index',
     sportsLabel: 'Sports',
     subscribeLabel: "S'abonner",
+    subscribeUrl: 'https://kimleclerc.substack.com/',
     footerDescription: 'Projection électorale indépendante. Publié depuis Paris, Montréal et Washington depuis 2021.',
     unitedStatesLabel: 'États-Unis',
     houseLabel: 'Chambre',
@@ -169,6 +172,7 @@ const localeCopy: Record<Locale, {
     indexesLabel: 'Índices',
     sportsLabel: 'Deportes',
     subscribeLabel: 'Suscribirse',
+    subscribeUrl: 'https://leclercswarroom.substack.com/',
     footerDescription: 'Proyección electoral independiente. Publicada desde París, Montreal y Washington desde 2021.',
     unitedStatesLabel: 'Estados Unidos',
     houseLabel: 'Cámara',
@@ -449,7 +453,7 @@ const languageLinks = alternates
         <!-- Sun (show in dark mode) -->
         <svg class="icon-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
       </button>
-      <a class="nav-cta" href="#newsletter">{copy.subscribeLabel}</a>
+      <a class="nav-cta" href={copy.subscribeUrl} target="_blank" rel="noopener">{copy.subscribeLabel}</a>
     </div>
   </div>
 </nav>

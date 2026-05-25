@@ -26,13 +26,14 @@ const { slug, title, subtitle, theme = 'light', height = 500 } = Astro.props;
     {title && <p class="pm-label">{title}</p>}
     {subtitle && <p class="pm-subtitle">{subtitle}</p>}
     <iframe
-      src={`https://embed.polymarket.com/event/${slug}?features=volume&theme=${theme}`}
+      src={`https://embed.polymarket.com/market?market=https://polymarket.com/event/${slug}${theme === 'dark' ? '&theme=dark' : ''}`}
       title={title ?? 'Polymarket prediction market'}
       loading="lazy"
       sandbox="allow-scripts allow-same-origin allow-popups"
       width="100%"
       height={height}
       style="border:none;border-radius:6px;display:block;"
+      allowtransparency="true"
     />
     <p class="pm-attribution">Live odds via Polymarket</p>
   </section>
