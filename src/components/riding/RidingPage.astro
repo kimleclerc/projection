@@ -15,6 +15,7 @@ import EditorialBlurb from './sections/EditorialBlurb.astro';
 import DataFreshness from './sections/DataFreshness.astro';
 import CurrentMember from './sections/CurrentMember.astro';
 import CandidatesTable from './sections/CandidatesTable.astro';
+import ProjectionHistory from './sections/ProjectionHistory.astro';
 
 interface Props {
   data: RidingData;
@@ -29,6 +30,7 @@ const { data, lang } = Astro.props;
 {data.member && <CurrentMember data={data} lang={lang} />}
 <ProjectionPanel data={data} lang={lang} />
 <VoteBars data={data} lang={lang} />
+{data.hasProjectionHistory && <ProjectionHistory data={data} lang={lang} />}
 
 {data.baseline && <HistoryTimeline data={data} lang={lang} />}
 {data.candidates && data.candidates.length > 0 && <CandidatesTable data={data} lang={lang} />}

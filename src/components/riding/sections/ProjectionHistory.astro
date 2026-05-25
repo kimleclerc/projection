@@ -1,0 +1,119 @@
+---
+import type { RidingData } from '../../../lib/riding-adapters/types';
+import ProjectionHistoryChart from '../../../islands/ProjectionHistoryChart.tsx';
+
+interface Props {
+  data: RidingData;
+  lang: 'en' | 'fr';
+}
+
+const { data, lang } = Astro.props;
+if (!data.hasProjectionHistory) return null;
+
+/** Map jurisdiction key → web_data folder name. Add other juridictions here
+ *  as their adapters start writing history files. */
+const JURISDICTION_FOLDER: Record<string, string> = {
+  'federal-ca': 'federal',
+  'quebec': 'quebec',
+  'ontario': 'ontario',
+  'us-house': 'us-house',
+  'uk': 'uk',
+};
+const folder = JURISDICTION_FOLDER[data.jurisdiction] ?? data.jurisdiction;
+const historyUrl = `/web_data/${folder}/history/${data.id}.json`;
+
+// Lite party meta passed to the island (no need to import the full palette client-side)
+const partiesLite = data.parties.map((p) => ({
+  code: p.code,
+  label_en: p.label_en,
+  label_fr: p.label_fr,
+  color: p.color,
+}));
+
+const T = {
+  en: { eyebrow: 'Projection track', title: 'How the projection has moved' },
+  fr: { eyebrow: 'Trajectoire de la projection', title: 'Évolution de la projection' },
+}[lang];
+---
+
+<section class="proj-history">
+  <div class="container">
+    <p class="eyebrow">{T.eyebrow}</p>
+    <h2>{T.title}</h2>
+    <ProjectionHistoryChart
+      client:visible
+      historyUrl={historyUrl}
+      parties={partiesLite}
+      lang={lang}
+    />
+  </div>
+</section>
+
+<style>
+  .proj-history {
+    padding: 56px 0;
+    border-bottom: 1px solid var(--rule);
+    background: var(--paper);
+  }
+  h2 {
+    margin: 8px 0 24px;
+    font-family: var(--serif);
+    font-size: clamp(28px, 3.4vw, 40px);
+    font-weight: 420;
+    letter-spacing: -0.01em;
+  }
+  /* Styles for the island — applied via scoped CSS using :global because the
+     island markup lives below a Preact component, outside Astro's scope hash. */
+  :global(.proj-history .ph-chart) {
+    margin-top: 8px;
+  }
+  :global(.proj-history .ph-skel) {
+    height: 320px;
+    background: linear-gradient(90deg, var(--paper-2), var(--card), var(--paper-2));
+    background-size: 200% 100%;
+    animation: ph-shimmer 1.4s linear infinite;
+    border-radius: 4px;
+  }
+  @keyframes ph-shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+  :global(.proj-history .ph-tooltip) {
+    min-height: 64px;
+    margin-top: 12px;
+    padding: 12px 14px;
+    border: 1px solid var(--rule);
+    background: var(--card);
+    border-radius: 4px;
+    font-family: var(--mono);
+    font-size: 12px;
+  }
+  :global(.proj-history .ph-date) {
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: var(--ink-2);
+    margin-bottom: 6px;
+  }
+  :global(.proj-history .ph-tooltip ul) {
+    list-style: none; padding: 0; margin: 0;
+    display: flex; flex-wrap: wrap; gap: 14px;
+  }
+  :global(.proj-history .ph-tooltip li) {
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  :global(.proj-history .ph-key) {
+    width: 10px; height: 10px; border-radius: 2px; display: inline-block;
+  }
+  :global(.proj-history .ph-pname) {
+    color: var(--ink-2);
+  }
+  :global(.proj-history .ph-tooltip strong) {
+    font-family: var(--serif); font-size: 14px; font-weight: 460;
+  }
+  :global(.proj-history .ph-hint) {
+    margin: 0; color: var(--ink-2); font-style: italic;
+  }
+  :global(.proj-history .ph-error) {
+    padding: 20px; color: var(--ink-2); font-style: italic;
+  }
+</style>

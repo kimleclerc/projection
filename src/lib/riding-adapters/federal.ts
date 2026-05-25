@@ -9,6 +9,7 @@ import ridingsSource from '../../../web_data/federal/ridings.json';
 import geoSource from '../../../web_data/federal/geo.json';
 import membersSource from '../../../web_data/federal/members.json';
 import candidatesSource from '../../../web_data/federal/candidates_2025.json';
+import historyIndex from '../../../web_data/federal/history/index.json';
 
 type RawRiding = {
   riding_id: string;
@@ -51,6 +52,7 @@ const META = (ridingsSource as { meta: { run_date: string } }).meta;
 const geo = geoSource as RawGeo;
 const members = membersSource as Record<string, RidingMember | undefined>;
 const candidatesByRiding = candidatesSource as Record<string, RidingCandidate[] | undefined>;
+const RIDINGS_WITH_HISTORY = new Set((historyIndex as { ridings_with_history: string[] }).ridings_with_history);
 
 /** Historical / former names for SEO alternateName.
  *  Keep small and curated — expand as we audit other ridings. */
@@ -125,6 +127,7 @@ function adaptOne(raw: RawRiding): RidingData {
     candidates: candidatesByRiding[raw.riding_id],
     runDate: META.run_date,
     alternateNames: ALTERNATE_NAMES[raw.riding_id],
+    hasProjectionHistory: RIDINGS_WITH_HISTORY.has(raw.riding_id),
   };
 }
 

@@ -122,6 +122,10 @@ export interface RidingData {
   // Provenance + SEO
   runDate?: string;             // ISO date of the projection run that produced this snapshot
   alternateNames?: string[];    // historical / former names — fed into SEO schema.org
+
+  // Historical projection track — when true, the page fetches per-riding history
+  // JSON at /web_data/<jurisdiction>/history/<id>.json and renders a chart island.
+  hasProjectionHistory?: boolean;
 }
 
 /** Build a URL-safe slug from id + name. */
