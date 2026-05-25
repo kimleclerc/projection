@@ -26,7 +26,7 @@ const { slug, title, subtitle, theme = 'light', height = 500 } = Astro.props;
     {title && <p class="pm-label">{title}</p>}
     {subtitle && <p class="pm-subtitle">{subtitle}</p>}
     <iframe
-      src={`https://embed.polymarket.com/market?market=https://polymarket.com/event/${slug}${theme === 'dark' ? '&theme=dark' : ''}`}
+      src={`https://embed.polymarket.com/market?market=${slug}&height=${height}${theme === 'dark' ? '&theme=dark' : ''}`}
       title={title ?? 'Polymarket prediction market'}
       loading="lazy"
       sandbox="allow-scripts allow-same-origin allow-popups"
