@@ -1,0 +1,143 @@
+---
+import type { RidingData } from '../../../lib/riding-adapters/types';
+import { partyMeta } from '../../../lib/riding-adapters/parties';
+
+interface Props {
+  data: RidingData;
+  lang: 'en' | 'fr';
+}
+
+const { data, lang } = Astro.props;
+if (!data.neighbors || data.neighbors.length === 0) return null;
+
+const TONE_LABEL = {
+  en: { safe: 'Safe seat', leaning: 'Party favoured', competitive: 'Competitive', tossup: 'Toss-up', vacant: 'Vacant' },
+  fr: { safe: 'Siège sûr',   leaning: 'Parti favorisé',  competitive: 'Compétitif', tossup: 'Course serrée', vacant: 'Vacant' },
+}[lang];
+
+const T = {
+  en: {
+    eyebrow: 'Around the region',
+    title: 'Nearby ridings',
+    cta: 'Open',
+    hint: "Tone only — pick a riding to see the numbers.",
+  },
+  fr: {
+    eyebrow: 'Autour de la région',
+    title: 'Circonscriptions voisines',
+    cta: 'Ouvrir',
+    hint: 'Ton éditorial seulement — choisissez une circonscription pour voir les chiffres.',
+  },
+}[lang];
+---
+
+<section class="neighbors">
+  <div class="container">
+    <p class="eyebrow">{T.eyebrow}</p>
+    <h2>{T.title}</h2>
+    <p class="hint">{T.hint}</p>
+
+    <ul class="cards">
+      {data.neighbors.map((n) => {
+        const meta = n.tone_party ? partyMeta(data.jurisdiction, n.tone_party) : null;
+        const partyLabel = meta ? (lang === 'fr' ? meta.label_fr : meta.label_en) : null;
+        const toneLabel = n.tone ? TONE_LABEL[n.tone] : null;
+        const name = lang === 'fr' ? n.name_fr : n.name_en;
+        const href = lang === 'fr' ? n.href_fr : n.href_en;
+        return (
+          <li>
+            <a href={href} class="card" style={meta ? `--accent:${meta.color}` : ''}>
+              <div class="top">
+                <span class="dot" aria-hidden="true"></span>
+                <span class="name">{name}</span>
+              </div>
+              <div class="bottom">
+                {partyLabel && <span class="party-tone">{partyLabel}</span>}
+                {toneLabel && <span class="tone">{toneLabel}</span>}
+              </div>
+              <span class="cta">{T.cta} →</span>
+            </a>
+          </li>
+        );
+      })}
+    </ul>
+  </div>
+</section>
+
+<style>
+  .neighbors {
+    padding: 56px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  h2 {
+    margin: 8px 0 6px;
+    font-family: var(--serif);
+    font-size: clamp(28px, 3.4vw, 40px);
+    font-weight: 420;
+    letter-spacing: -0.01em;
+  }
+  .hint {
+    margin-bottom: 24px;
+    color: var(--ink-2);
+    font-family: var(--mono);
+    font-size: 12px;
+    font-style: italic;
+  }
+  .cards {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 16px;
+  }
+  .card {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 18px 20px;
+    background: var(--card);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    text-decoration: none;
+    color: inherit;
+    transition: transform .15s ease, border-color .15s ease;
+    position: relative;
+    min-height: 120px;
+  }
+  .card:hover {
+    transform: translateY(-2px);
+    border-color: var(--accent, var(--ink));
+  }
+  .top { display: flex; align-items: center; gap: 10px; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent, var(--ink-2)); }
+  .name { font-family: var(--serif); font-size: 18px; font-weight: 460; }
+  .bottom {
+    margin-top: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .party-tone {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--accent, var(--ink-2));
+  }
+  .tone {
+    font-family: var(--serif);
+    font-size: 14px;
+    color: var(--ink-2);
+    font-style: italic;
+  }
+  .cta {
+    align-self: flex-end;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+  }
+  .card:hover .cta { color: var(--ink); }
+</style>

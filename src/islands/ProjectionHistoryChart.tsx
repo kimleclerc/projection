@@ -32,10 +32,9 @@ const W = 720;
 const H = 320;
 
 function formatDate(iso: string, lang: 'en' | 'fr'): string {
-  const d = new Date(iso + 'T00:00:00Z');
-  return d.toLocaleDateString(lang === 'fr' ? 'fr-CA' : 'en-CA', {
-    month: 'short', day: 'numeric',
-  });
+  return new Intl.DateTimeFormat(lang === 'fr' ? 'fr-CA' : 'en-CA', {
+    month: 'short', day: 'numeric', timeZone: 'UTC',
+  }).format(new Date(iso + 'T00:00:00Z'));
 }
 
 export default function ProjectionHistoryChart({ historyUrl, parties, lang }: Props) {

@@ -9,11 +9,10 @@ interface Props {
 const { data, lang } = Astro.props;
 if (!data.runDate) return null;
 
-const date = new Date(data.runDate);
-const formatted = date.toLocaleDateString(
+const formatted = new Intl.DateTimeFormat(
   lang === 'fr' ? 'fr-CA' : 'en-CA',
-  { year: 'numeric', month: 'long', day: 'numeric' }
-);
+  { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' }
+).format(new Date(data.runDate));
 
 const T = {
   en: { label: 'Last model run', cycle: 'Cycle' },

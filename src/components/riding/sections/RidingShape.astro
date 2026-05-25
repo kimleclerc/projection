@@ -1,0 +1,59 @@
+---
+import type { RidingData } from '../../../lib/riding-adapters/types';
+import { partyMeta } from '../../../lib/riding-adapters/parties';
+
+interface Props {
+  data: RidingData;
+  lang: 'en' | 'fr';
+}
+
+const { data, lang } = Astro.props;
+if (!data.shapePath) return null;
+
+const winnerMeta = partyMeta(data.jurisdiction, data.projection.winner);
+const ridingName = lang === 'fr' ? data.name.fr : data.name.en;
+const label = lang === 'fr'
+  ? `Silhouette de ${ridingName}`
+  : `Silhouette of ${ridingName}`;
+---
+
+<aside class="riding-shape" aria-label={label}>
+  <span class="eyebrow">{ridingName}</span>
+  <svg viewBox={data.shapeViewBox ?? '0 0 1000 1000'} role="img" aria-label={label}>
+    <path d={data.shapePath} fill={winnerMeta.color} fill-opacity="0.18"
+          stroke={winnerMeta.color} stroke-width="3" stroke-linejoin="round" />
+    <text x="985" y="990" text-anchor="end" class="watermark">vote-scope.com</text>
+  </svg>
+</aside>
+
+<style>
+  .riding-shape {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 14px;
+    background: var(--card);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+  }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+  }
+  svg {
+    width: 160px;
+    height: 160px;
+    display: block;
+  }
+  .watermark {
+    font-family: var(--mono);
+    font-size: 38px;
+    fill: var(--ink);
+    fill-opacity: 0.35;
+    letter-spacing: 0.04em;
+  }
+</style>

@@ -90,6 +90,17 @@ export interface RidingNeighbor {
   name_fr: string;
   href_en: string;
   href_fr: string;
+  /** Editorial "tone" of the projection — no raw numbers, by design. Invites click. */
+  tone?: 'safe' | 'leaning' | 'competitive' | 'tossup' | 'vacant';
+  /** Winner party code for color cue. */
+  tone_party?: string;
+}
+
+export interface RegionalContext {
+  /** Vote-mean averaged across all ridings in the riding's province. */
+  province: Record<string, number>;
+  /** National vote_mean from `latest.json` -> `parties[].vote_mean`. */
+  national: Record<string, number>;
 }
 
 export interface RidingData {
@@ -113,6 +124,7 @@ export interface RidingData {
   candidates?: RidingCandidate[];  // candidates from the most recent general election (baseline cycle)
   polls?: unknown[];         // shape TBD when riding-level polls become available
   neighbors?: RidingNeighbor[];
+  regionalContext?: RegionalContext;
 
   // Byelection enrichments (riding becomes a partial)
   isByelection?: boolean;
@@ -126,6 +138,11 @@ export interface RidingData {
   // Historical projection track — when true, the page fetches per-riding history
   // JSON at /web_data/<jurisdiction>/history/<id>.json and renders a chart island.
   hasProjectionHistory?: boolean;
+
+  // Riding silhouette — SVG path string in a 1000×1000 viewBox. Inlined in the
+  // page HTML (only the current riding's path; ~500–2000 chars typically).
+  shapePath?: string;
+  shapeViewBox?: string;
 }
 
 /** Build a URL-safe slug from id + name. */

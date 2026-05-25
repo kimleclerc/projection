@@ -1,0 +1,181 @@
+---
+import type { RidingData } from '../../../lib/riding-adapters/types';
+import { partyMeta } from '../../../lib/riding-adapters/parties';
+
+interface Props {
+  data: RidingData;
+  lang: 'en' | 'fr';
+}
+
+const { data, lang } = Astro.props;
+const ctx = data.regionalContext;
+if (!ctx) return null;
+
+const PROVINCE_FR: Record<string, string> = {
+  NL: 'Terre-Neuve-et-Labrador', PE: 'Île-du-Prince-Édouard', NS: 'Nouvelle-Écosse',
+  NB: 'Nouveau-Brunswick', QC: 'Québec', ON: 'Ontario',
+  MB: 'Manitoba', SK: 'Saskatchewan', AB: 'Alberta',
+  BC: 'Colombie-Britannique', YT: 'Yukon', NT: 'Territoires du Nord-Ouest', NU: 'Nunavut',
+};
+const PROVINCE_EN: Record<string, string> = {
+  NL: 'Newfoundland and Labrador', PE: 'Prince Edward Island', NS: 'Nova Scotia',
+  NB: 'New Brunswick', QC: 'Quebec', ON: 'Ontario',
+  MB: 'Manitoba', SK: 'Saskatchewan', AB: 'Alberta',
+  BC: 'British Columbia', YT: 'Yukon', NT: 'Northwest Territories', NU: 'Nunavut',
+};
+const provLabel = (lang === 'fr' ? PROVINCE_FR : PROVINCE_EN)[data.province ?? ''] ?? data.province;
+
+// Take top 4 parties by riding vote_mean to keep the comparison legible.
+const topParties = data.parties.slice(0, 4);
+const ridingName = lang === 'fr' ? data.name.fr : data.name.en;
+
+const T = {
+  en: { eyebrow: 'In context', title: 'How this riding stacks up', here: 'Here', province: provLabel, national: 'Canada' },
+  fr: { eyebrow: 'En contexte', title: 'Cette circonscription dans le tableau', here: 'Ici', province: provLabel, national: 'Canada' },
+}[lang];
+
+function delta(here: number, ref: number): { sign: string; val: number; cls: string } {
+  const d = here - ref;
+  return {
+    sign: d >= 0.05 ? '+' : (d <= -0.05 ? '−' : ''),
+    val: Math.abs(d),
+    cls: d >= 0.5 ? 'pos' : (d <= -0.5 ? 'neg' : 'flat'),
+  };
+}
+---
+
+<section class="regional-ctx">
+  <div class="container">
+    <p class="eyebrow">{T.eyebrow}</p>
+    <h2>{T.title}</h2>
+
+    <table>
+      <thead>
+        <tr>
+          <th></th>
+          {topParties.map((p) => {
+            const label = lang === 'fr' ? p.label_fr : p.label_en;
+            return (
+              <th>
+                <span class="party" style={`--accent:${p.color}`}>
+                  <span class="swatch" aria-hidden="true"></span>{label}
+                </span>
+              </th>
+            );
+          })}
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="here">
+          <th scope="row"><span class="loc">{T.here}</span><span class="riding-name">{ridingName}</span></th>
+          {topParties.map((p) => (<td class="num">{p.vote_mean_pct.toFixed(1)}%</td>))}
+        </tr>
+        <tr>
+          <th scope="row"><span class="loc">{lang === 'fr' ? 'Moyenne provinciale' : 'Provincial average'}</span><span class="riding-name">{T.province}</span></th>
+          {topParties.map((p) => {
+            const v = ctx.province[p.code];
+            const d = v != null ? delta(p.vote_mean_pct, v) : null;
+            return (
+              <td class="num">
+                {v != null ? <>{v.toFixed(1)}% {d && d.sign && <em class={d.cls}>{d.sign}{d.val.toFixed(1)}</em>}</> : '—'}
+              </td>
+            );
+          })}
+        </tr>
+        <tr>
+          <th scope="row"><span class="loc">{lang === 'fr' ? 'Moyenne nationale' : 'National average'}</span><span class="riding-name">{T.national}</span></th>
+          {topParties.map((p) => {
+            const v = ctx.national[p.code];
+            const d = v != null ? delta(p.vote_mean_pct, v) : null;
+            return (
+              <td class="num">
+                {v != null ? <>{v.toFixed(1)}% {d && d.sign && <em class={d.cls}>{d.sign}{d.val.toFixed(1)}</em>}</> : '—'}
+              </td>
+            );
+          })}
+        </tr>
+      </tbody>
+    </table>
+    <p class="note">{lang === 'fr' ? 'Moyennes provinciales calculées à partir des 343 circonscriptions (moyenne brute, non pondérée).' : 'Provincial averages computed across the 343 riding-level projections (unweighted mean).'}</p>
+  </div>
+</section>
+
+<style>
+  .regional-ctx {
+    padding: 56px 0;
+    border-bottom: 1px solid var(--rule);
+    background: var(--paper-2);
+  }
+  h2 {
+    margin: 8px 0 24px;
+    font-family: var(--serif);
+    font-size: clamp(28px, 3.4vw, 40px);
+    font-weight: 420;
+    letter-spacing: -0.01em;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  th, td {
+    padding: 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--rule);
+  }
+  thead th {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+    font-weight: 500;
+    background: var(--card);
+  }
+  td.num, th:not(:first-child) { text-align: right; font-variant-numeric: tabular-nums; }
+  tbody th {
+    font-weight: 460;
+    background: var(--card);
+  }
+  tbody th .loc {
+    display: block;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+    margin-bottom: 2px;
+  }
+  tbody th .riding-name {
+    font-family: var(--serif);
+    font-size: 16px;
+  }
+  tr.here {
+    background: color-mix(in oklab, var(--ink) 5%, transparent);
+  }
+  tr.here td { font-family: var(--serif); font-size: 18px; }
+  .party {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .swatch {
+    width: 8px; height: 8px; border-radius: 2px; background: var(--accent);
+  }
+  em {
+    font-style: normal;
+    margin-left: 6px;
+    font-family: var(--mono);
+    font-size: 11px;
+  }
+  em.pos { color: oklch(0.5 0.14 145); }
+  em.neg { color: oklch(0.5 0.16 30); }
+  em.flat { color: var(--ink-2); }
+  .note {
+    margin-top: 14px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ink-2);
+    font-style: italic;
+  }
+</style>

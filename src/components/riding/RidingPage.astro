@@ -16,6 +16,8 @@ import DataFreshness from './sections/DataFreshness.astro';
 import CurrentMember from './sections/CurrentMember.astro';
 import CandidatesTable from './sections/CandidatesTable.astro';
 import ProjectionHistory from './sections/ProjectionHistory.astro';
+import RegionalContext from './sections/RegionalContext.astro';
+import NeighborRidings from './sections/NeighborRidings.astro';
 
 interface Props {
   data: RidingData;
@@ -30,11 +32,13 @@ const { data, lang } = Astro.props;
 {data.member && <CurrentMember data={data} lang={lang} />}
 <ProjectionPanel data={data} lang={lang} />
 <VoteBars data={data} lang={lang} />
+{data.regionalContext && <RegionalContext data={data} lang={lang} />}
 {data.hasProjectionHistory && <ProjectionHistory data={data} lang={lang} />}
 
 {data.baseline && <HistoryTimeline data={data} lang={lang} />}
 {data.candidates && data.candidates.length > 0 && <CandidatesTable data={data} lang={lang} />}
 {data.demographics && <Demographics data={data} lang={lang} />}
+{data.neighbors && data.neighbors.length > 0 && <NeighborRidings data={data} lang={lang} />}
 {data.runDate && <DataFreshness data={data} lang={lang} />}
 
 {/* Future slots — light up automatically when adapter populates them. */}
