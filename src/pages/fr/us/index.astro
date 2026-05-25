@@ -109,7 +109,7 @@ const deltaSign = ldi.delta_7d >= 0 ? '+' : '';
           <a class="note-card" href={s.paths.fr ?? s.paths.en ?? '#'} style="text-decoration:none;color:inherit;">
             <p class="eyebrow">{s.kicker}</p>
             <h3 style="margin:0.25rem 0;">{s.headline.replace(/\n/g, ' ')}</h3>
-            <p style="font-size:0.9rem;">{s.dek.slice(0, 100)}…</p>
+            <p style="font-size:0.9rem;">{s.dek.slice(0, 180)}…</p>
           </a>
         ))}
       </div>
@@ -118,6 +118,8 @@ const deltaSign = ldi.delta_7d >= 0 ? '+' : '';
 
   <section class="content-band">
     <div class="container">
+      <p class="eyebrow">Marchés de prédiction</p>
+      <h2>Ce que les marchés disent en parallèle du modèle</h2>
       <PolymarketEmbed slug="2026-balance-of-power-d-senate-d-house-949" title="Mi-mandat américain 2026 — équilibre des pouvoirs" />
       <PolymarketEmbed slug="will-gavin-newsom-win-the-2028-us-presidential-election" title="Présidentielle américaine 2028" />
     </div>
@@ -127,13 +129,13 @@ const deltaSign = ldi.delta_7d >= 0 ? '+' : '';
     kicker="Modèle vs marché"
     title="Le desk US est l'endroit où la couche marché doit devenir native."
     body="Les marchés de prédiction doivent accompagner le modèle comme détecteur de désaccord: contrôle des chambres, confiance par course, mouvements de panique et écarts qui méritent un article ou une carte sociale."
-    modelLabel="Modèle Vote-Scope"
-    marketLabel="Polymarket / cotes"
-    note="En v1, on garde le JSON public stable. En v2, on prépare une API versionnée avec historique riche et accès premium possible."
+    modelLabel="Modèle"
+    marketLabel="Marché"
+    note="Les marchés de prédiction sont publiés à côté du modèle comme signal de désaccord indépendant. Le JSON public reste stable et versionné."
   />
 
   <MethodologyNote
-    title="L'algorithme est le reçu, pas le titre."
+    title="Avant la manchette, le modèle. Avant l'opinion, les chiffres."
     body="Le desk US part du contrôle, de la fragilité et du désaccord marché. BSTS, Monte Carlo et sondages sont transparents et publics — mais la question éditoriale passe en premier."
     bullets={[
       'Les sondages Chambre et Sénat sont agrégés avec un modèle BSTS bayésien et soumis à des simulations district par district (435 et 100 respectivement).',

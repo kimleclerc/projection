@@ -3,15 +3,25 @@ interface Props {
   title: string;
   body: string;
   bullets: string[];
+  eyebrow?: string;
 }
 
-const { title, body, bullets } = Astro.props;
+const EYEBROW_BY_LOCALE: Record<string, string> = {
+  en: 'Methodology after the signal',
+  fr: 'La méthode derrière le signal',
+  es: 'La metodología detrás de la señal',
+};
+
+const pathLocale = Astro.url.pathname.split('/')[1];
+const locale = EYEBROW_BY_LOCALE[pathLocale] ? pathLocale : 'en';
+
+const { title, body, bullets, eyebrow = EYEBROW_BY_LOCALE[locale] } = Astro.props;
 ---
 
 <section class="method-note">
   <div class="container method-inner">
     <div>
-      <p class="eyebrow">Methodology after the signal</p>
+      <p class="eyebrow">{eyebrow}</p>
       <h2>{title}</h2>
       <p>{body}</p>
     </div>
