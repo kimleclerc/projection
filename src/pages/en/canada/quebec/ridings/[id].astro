@@ -1,0 +1,52 @@
+---
+import EditorialLayout from '../../../../../layouts/EditorialLayout.astro';
+import RidingPage from '../../../../../components/riding/RidingPage.astro';
+import RidingOrigin from '../../../../../components/riding/sections/RidingOrigin.astro';
+import { getAllQuebecRidings, getQuebecOrigin } from '../../../../../lib/riding-adapters/quebec';
+
+export function getStaticPaths() {
+  return getAllQuebecRidings().map((data) => ({
+    params: { id: data.slug },
+    props: { data, origin: getQuebecOrigin(data.id) },
+  }));
+}
+
+const { data, origin } = Astro.props;
+const canonical = `https://vote-scope.com/en/canada/quebec/ridings/${data.slug}/`;
+const alternateFr = `https://vote-scope.com/fr/canada/quebec/circonscriptions/${data.slug}/`;
+const title = `${data.name.en || data.name.fr} — Quebec riding projection — Vote-Scope`;
+const description = `Vote-Scope projection for ${data.name.en || data.name.fr} (Quebec): vote share, win probability, sitting MNA and 2022 candidates.`;
+---
+
+<EditorialLayout
+  title={title}
+  description={description}
+  canonical={canonical}
+  lang="en"
+  currentPage="canada"
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={{ en: canonical, fr: alternateFr }}
+  jsonLd={[
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Place',
+      name: data.name.en || data.name.fr,
+      containedInPlace: { '@type': 'AdministrativeArea', name: 'Quebec' },
+      url: canonical,
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: 'https://vote-scope.com/en/' },
+        { '@type': 'ListItem', position: 2, name: 'Canada',     item: 'https://vote-scope.com/en/canada/' },
+        { '@type': 'ListItem', position: 3, name: 'Quebec',     item: 'https://vote-scope.com/en/canada/quebec/' },
+        { '@type': 'ListItem', position: 4, name: 'Ridings',    item: 'https://vote-scope.com/en/canada/quebec/ridings/' },
+        { '@type': 'ListItem', position: 5, name: data.name.en || data.name.fr, item: canonical },
+      ],
+    },
+  ]}
+>
+  <RidingPage data={data} lang="en" />
+  <RidingOrigin origin={origin} lang="en" newRidingNameFr={data.name.fr || data.name.en} />
+</EditorialLayout>

@@ -20,7 +20,22 @@ export const CA_FEDERAL_PARTIES: Record<string, PartyMeta> = {
   fed_oth: { label_en: 'Other',        label_fr: 'Autre',         color: '#999999' },
 };
 
+export const QC_PARTIES: Record<string, PartyMeta> = {
+  caq:    { label_en: 'CAQ',          label_fr: 'CAQ',           color: '#03A9F4' },
+  plq:    { label_en: 'Liberal (QC)', label_fr: 'Libéral (PLQ)', color: '#D71920' },
+  pq:     { label_en: 'PQ',           label_fr: 'PQ',            color: '#004C9D' },
+  qs:     { label_en: 'QS',           label_fr: 'QS',            color: '#F47C24' },
+  pcq:    { label_en: 'Conservative (QC)', label_fr: 'Conservateur (PCQ)', color: '#1F3864' },
+  qc_ind: { label_en: 'Independent',  label_fr: 'Indépendant·e', color: '#888888' },
+  qc_oth: { label_en: 'Other',        label_fr: 'Autre',         color: '#999999' },
+};
+
+const PALETTES: Record<string, Record<string, PartyMeta>> = {
+  'federal-ca': CA_FEDERAL_PARTIES,
+  'quebec': QC_PARTIES,
+};
+
 export function partyMeta(jurisdiction: string, code: string): PartyMeta {
-  const palette = jurisdiction === 'federal-ca' ? CA_FEDERAL_PARTIES : CA_FEDERAL_PARTIES;
+  const palette = PALETTES[jurisdiction] ?? CA_FEDERAL_PARTIES;
   return palette[code] ?? { label_en: code.toUpperCase(), label_fr: code.toUpperCase(), color: '#999' };
 }
