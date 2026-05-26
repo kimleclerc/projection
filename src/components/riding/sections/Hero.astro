@@ -10,15 +10,31 @@ interface Props {
 const { data, lang } = Astro.props;
 const name = lang === 'fr' ? data.name.fr : data.name.en;
 
+const PROVINCE_PREFIX_EN: Record<string, string> = {
+  'federal-ca': 'Federal riding —',
+  'quebec':     'Provincial riding —',
+  'ontario':    'Provincial riding —',
+  'uk':         'UK constituency —',
+  'us-house':   'US House district —',
+  'france':     'Circonscription française —',
+};
+const PROVINCE_PREFIX_FR: Record<string, string> = {
+  'federal-ca': 'Circonscription fédérale —',
+  'quebec':     'Circonscription provinciale —',
+  'ontario':    'Circonscription provinciale —',
+  'uk':         'Circonscription britannique —',
+  'us-house':   'District US (House) —',
+  'france':     'Circonscription française —',
+};
 const T = {
   en: {
     eyebrow: data.isByelection ? 'Byelection' : 'Riding profile',
-    province_prefix: 'Federal riding —',
+    province_prefix: PROVINCE_PREFIX_EN[data.jurisdiction] ?? 'Federal riding —',
     urban: { urban: 'Urban', rural: 'Rural', mixed: 'Mixed', suburban: 'Suburban' } as Record<string, string>,
   },
   fr: {
     eyebrow: data.isByelection ? 'Élection partielle' : 'Profil de circonscription',
-    province_prefix: 'Circonscription fédérale —',
+    province_prefix: PROVINCE_PREFIX_FR[data.jurisdiction] ?? 'Circonscription fédérale —',
     urban: { urban: 'Urbaine', rural: 'Rurale', mixed: 'Mixte', suburban: 'Banlieue' } as Record<string, string>,
   },
 }[lang];

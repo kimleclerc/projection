@@ -11,10 +11,21 @@ const { data, lang } = Astro.props;
 const ctx = data.regionalContext;
 if (!ctx) return null;
 
-/** Hide the national row entirely when the adapter didn't supply national
- *  vote_mean (e.g. provincial-only jurisdictions like Quebec). */
+/** Hide rows when the adapter didn't supply the corresponding vote_mean
+ *  (e.g. provincial-only jurisdictions skip national; UK skips provincial). */
 const showNational = Object.keys(ctx.national ?? {}).length > 0;
+const showProvince = Object.keys(ctx.province ?? {}).length > 0;
 const totalSeats = ctx.totalSeats ?? 343;
+
+/** Country / jurisdiction label for the national-average row. */
+const NATIONAL_LABEL_EN: Record<string, string> = {
+  'federal-ca': 'Canada', 'quebec': 'Québec', 'ontario': 'Ontario',
+  'uk': 'United Kingdom', 'us-house': 'United States', 'france': 'France',
+};
+const NATIONAL_LABEL_FR: Record<string, string> = {
+  'federal-ca': 'Canada', 'quebec': 'Québec', 'ontario': 'Ontario',
+  'uk': 'Royaume-Uni', 'us-house': 'États-Unis', 'france': 'France',
+};
 
 const PROVINCE_FR: Record<string, string> = {
   NL: 'Terre-Neuve-et-Labrador', PE: 'Île-du-Prince-Édouard', NS: 'Nouvelle-Écosse',
@@ -35,8 +46,8 @@ const topParties = data.parties.slice(0, 4);
 const ridingName = lang === 'fr' ? data.name.fr : data.name.en;
 
 const T = {
-  en: { eyebrow: 'In context', title: 'How this riding stacks up', here: 'Here', province: provLabel, national: 'Canada' },
-  fr: { eyebrow: 'En contexte', title: 'Cette circonscription dans le tableau', here: 'Ici', province: provLabel, national: 'Canada' },
+  en: { eyebrow: 'In context', title: 'How this riding stacks up', here: 'Here', province: provLabel, national: NATIONAL_LABEL_EN[data.jurisdiction] ?? 'Canada' },
+  fr: { eyebrow: 'En contexte', title: 'Cette circonscription dans le tableau', here: 'Ici', province: provLabel, national: NATIONAL_LABEL_FR[data.jurisdiction] ?? 'Canada' },
 }[lang];
 
 function delta(here: number, ref: number): { sign: string; val: number; cls: string } {
@@ -75,18 +86,20 @@ function delta(here: number, ref: number): { sign: string; val: number; cls: str
           <th scope="row"><span class="loc">{T.here}</span><span class="riding-name">{ridingName}</span></th>
           {topParties.map((p) => (<td class="num">{p.vote_mean_pct.toFixed(1)}%</td>))}
         </tr>
-        <tr>
-          <th scope="row"><span class="loc">{lang === 'fr' ? 'Moyenne provinciale' : 'Provincial average'}</span><span class="riding-name">{T.province}</span></th>
-          {topParties.map((p) => {
-            const v = ctx.province[p.code];
-            const d = v != null ? delta(p.vote_mean_pct, v) : null;
-            return (
-              <td class="num">
-                {v != null ? <>{v.toFixed(1)}% {d && d.sign && <em class={d.cls}>{d.sign}{d.val.toFixed(1)}</em>}</> : '—'}
-              </td>
-            );
-          })}
-        </tr>
+        {showProvince && (
+          <tr>
+            <th scope="row"><span class="loc">{lang === 'fr' ? 'Moyenne provinciale' : 'Provincial average'}</span><span class="riding-name">{T.province}</span></th>
+            {topParties.map((p) => {
+              const v = ctx.province[p.code];
+              const d = v != null ? delta(p.vote_mean_pct, v) : null;
+              return (
+                <td class="num">
+                  {v != null ? <>{v.toFixed(1)}% {d && d.sign && <em class={d.cls}>{d.sign}{d.val.toFixed(1)}</em>}</> : '—'}
+                </td>
+              );
+            })}
+          </tr>
+        )}
         {showNational && (
           <tr>
             <th scope="row"><span class="loc">{lang === 'fr' ? 'Moyenne nationale' : 'National average'}</span><span class="riding-name">{T.national}</span></th>
@@ -103,7 +116,13 @@ function delta(here: number, ref: number): { sign: string; val: number; cls: str
         )}
       </tbody>
     </table>
-    <p class="note">{lang === 'fr' ? `Moyennes provinciales calculées à partir des ${totalSeats} circonscriptions (moyenne brute, non pondérée).` : `Provincial averages computed across the ${totalSeats} riding-level projections (unweighted mean).`}</p>
+    <p class="note">{lang === 'fr'
+      ? (showProvince
+          ? `Moyennes provinciales calculées à partir des ${totalSeats} circonscriptions (moyenne brute, non pondérée).`
+          : `Moyennes nationales calculées à partir des ${totalSeats} circonscriptions (moyenne brute, non pondérée).`)
+      : (showProvince
+          ? `Provincial averages computed across the ${totalSeats} riding-level projections (unweighted mean).`
+          : `Nationwide averages computed across the ${totalSeats} riding-level projections (unweighted mean).`)}</p>
   </div>
 </section>
 

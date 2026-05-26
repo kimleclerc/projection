@@ -45,19 +45,29 @@ const urbanFR = URBAN_LABEL_FR[urban] ?? urban;
 const urbanEN = URBAN_LABEL_EN[urban] ?? urban;
 
 const PROVINCE_FR: Record<string, string> = {
+  // Canadian provinces
   NL: 'de Terre-Neuve-et-Labrador', PE: 'de l\'Île-du-Prince-Édouard', NS: 'de la Nouvelle-Écosse',
   NB: 'du Nouveau-Brunswick', QC: 'du Québec', ON: 'de l\'Ontario',
   MB: 'du Manitoba', SK: 'de la Saskatchewan', AB: 'de l\'Alberta',
   BC: 'de la Colombie-Britannique', YT: 'du Yukon', NT: 'des Territoires du Nord-Ouest', NU: 'du Nunavut',
+  // UK nations (set via adapter from `raw.nation`)
+  England: 'd\'Angleterre', Scotland: 'd\'Écosse', Wales: 'du Pays de Galles', 'Northern Ireland': 'd\'Irlande du Nord',
 };
 const PROVINCE_EN: Record<string, string> = {
+  // Canadian provinces
   NL: 'Newfoundland and Labrador', PE: 'Prince Edward Island', NS: 'Nova Scotia',
   NB: 'New Brunswick', QC: 'Quebec', ON: 'Ontario',
   MB: 'Manitoba', SK: 'Saskatchewan', AB: 'Alberta',
   BC: 'British Columbia', YT: 'Yukon', NT: 'Northwest Territories', NU: 'Nunavut',
+  // UK nations
+  England: 'England', Scotland: 'Scotland', Wales: 'Wales', 'Northern Ireland': 'Northern Ireland',
 };
 const provinceFR = PROVINCE_FR[provinceCode] ?? provinceCode;
 const provinceEN = PROVINCE_EN[provinceCode] ?? provinceCode;
+
+const isUK = data.jurisdiction === 'uk';
+const ridingWordFR = isUK ? 'circonscription' : 'circonscription';
+const ridingWordEN = isUK ? 'constituency' : 'riding';
 
 const competitivenessFR =
   data.projection.p_close_race >= 0.35
@@ -96,7 +106,7 @@ function originSentence(l: 'en' | 'fr'): string | null {
 }
 
 const blurbFR = [
-  `${name}, circonscription ${urbanFR} ${provinceFR}, ${baselineMentionFr ? `a élu un·e député·e ${baselineMentionFr} lors du scrutin précédent avec une marge de ${data.baseline!.margin.toFixed(0)} points` : 'arrive sans baseline directe pour le cycle courant'}.`,
+  `${name}, ${ridingWordFR} ${urbanFR} ${provinceFR}, ${baselineMentionFr ? `a élu un·e député·e ${baselineMentionFr} lors du scrutin précédent avec une marge de ${data.baseline!.margin.toFixed(0)} points` : 'arrive sans baseline directe pour le cycle courant'}.`,
   `Le modèle Vote-Scope projette ${winnerMentionFr} en tête avec ${top?.vote_mean_pct.toFixed(0)} % d'intentions de vote, contre ${second?.vote_mean_pct.toFixed(0)} % pour ${secondMentionFr}, et ${competitivenessFR}.`,
   data.demographics?.francophone_pct !== undefined
     ? `Profil linguistique : ${data.demographics.francophone_pct.toFixed(0)} % francophones, ${data.demographics.anglophone_pct?.toFixed(0) ?? '—'} % anglophones.`
@@ -105,7 +115,7 @@ const blurbFR = [
 ].filter(Boolean).join(' ');
 
 const blurbEN = [
-  `${name}, an ${urbanEN} riding in ${provinceEN}, ${baselineMentionEn ? `elected a member with ${baselineMentionEn} in the previous cycle, with a ${data.baseline!.margin.toFixed(0)}-point margin` : 'has no direct baseline for the current cycle'}.`,
+  `${name}, ${'aeiou'.includes(urbanEN[0]) ? 'an' : 'a'} ${urbanEN} ${ridingWordEN} in ${provinceEN}, ${baselineMentionEn ? `elected a member with ${baselineMentionEn} in the previous cycle, with a ${data.baseline!.margin.toFixed(0)}-point margin` : 'has no direct baseline for the current cycle'}.`,
   `The Vote-Scope model projects ${winnerMentionEn} ahead at ${top?.vote_mean_pct.toFixed(0)}% vote share, against ${second?.vote_mean_pct.toFixed(0)}% for ${secondMentionEn}, and ${competitivenessEN}.`,
   data.demographics?.francophone_pct !== undefined
     ? `Linguistic profile: ${data.demographics.francophone_pct.toFixed(0)}% francophone, ${data.demographics.anglophone_pct?.toFixed(0) ?? '—'}% anglophone.`

@@ -1,0 +1,50 @@
+---
+import EditorialLayout from '../../../../layouts/EditorialLayout.astro';
+import RidingPage from '../../../../components/riding/RidingPage.astro';
+import { getAllUKRidings } from '../../../../lib/riding-adapters/uk';
+
+export function getStaticPaths() {
+  return getAllUKRidings().map((data) => ({
+    params: { id: data.slug },
+    props: { data },
+  }));
+}
+
+const { data } = Astro.props;
+const canonical = `https://vote-scope.com/en/uk/constituencies/${data.slug}/`;
+const alternateFr = `https://vote-scope.com/fr/uk/circonscriptions/${data.slug}/`;
+const title = `${data.name.en || data.name.fr} — UK general election projection — Vote-Scope`;
+const description = `Vote-Scope projection for ${data.name.en || data.name.fr} (${data.province || 'United Kingdom'}): party vote share, sitting MP and 2024 candidates.`;
+---
+
+<EditorialLayout
+  title={title}
+  description={description}
+  canonical={canonical}
+  lang="en"
+  currentPage="uk"
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={{ en: canonical, fr: alternateFr }}
+  jsonLd={[
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Place',
+      name: data.name.en || data.name.fr,
+      containedInPlace: { '@type': 'AdministrativeArea', name: data.province || 'United Kingdom' },
+      url: canonical,
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Vote-Scope',       item: 'https://vote-scope.com/en/' },
+        { '@type': 'ListItem', position: 2, name: 'United Kingdom',   item: 'https://vote-scope.com/en/uk/' },
+        { '@type': 'ListItem', position: 3, name: 'General election', item: 'https://vote-scope.com/en/uk/general-election/' },
+        { '@type': 'ListItem', position: 4, name: 'Constituencies',   item: 'https://vote-scope.com/en/uk/constituencies/' },
+        { '@type': 'ListItem', position: 5, name: data.name.en || data.name.fr, item: canonical },
+      ],
+    },
+  ]}
+>
+  <RidingPage data={data} lang="en" />
+</EditorialLayout>

@@ -48,10 +48,40 @@ export const QC_PARTIES: Record<string, PartyMeta> = {
   qc_oth: { label_en: 'Other',        label_fr: 'Autre',         color: '#999999', mention_fr: "d'un autre parti", mention_en: 'another party' },
 };
 
+/**
+ * UK Westminster palette. Mainland projection buckets (uk_con/lab/ld/ref/grn/
+ * snp/pc/oth) come straight from the model, plus uk_ind / uk_spk for the
+ * member table. Northern Ireland is bucketed into uk_oth by the projection
+ * model, but the export remaps party_current_raw / party_name_raw to ni_*
+ * slugs so the sitting MP and 2024 candidates list keep their real identity.
+ */
+export const UK_PARTIES: Record<string, PartyMeta> = {
+  // Britain mainland
+  uk_lab: { label_en: 'Labour',       label_fr: 'Travailliste',         color: '#E4003B', mention_fr: 'des Travaillistes',        mention_en: 'Labour' },
+  uk_con: { label_en: 'Conservative', label_fr: 'Conservateur',         color: '#0087DC', mention_fr: 'des Conservateurs',        mention_en: 'the Conservatives' },
+  uk_ld:  { label_en: 'Lib Dems',     label_fr: 'Libéraux-démocrates',  color: '#FAA61A', mention_fr: 'des Libéraux-démocrates',  mention_en: 'the Lib Dems' },
+  uk_ref: { label_en: 'Reform UK',    label_fr: 'Reform UK',            color: '#12B6CF', mention_fr: 'de Reform UK',             mention_en: 'Reform UK' },
+  uk_grn: { label_en: 'Green',        label_fr: 'Vert·e·s',             color: '#6AB023', mention_fr: 'des Vert·e·s',             mention_en: 'the Green Party' },
+  uk_snp: { label_en: 'SNP',          label_fr: 'SNP',                  color: '#FFF95D', mention_fr: 'du SNP',                   mention_en: 'the SNP' },
+  uk_pc:  { label_en: 'Plaid Cymru',  label_fr: 'Plaid Cymru',          color: '#005B54', mention_fr: 'du Plaid Cymru',           mention_en: 'Plaid Cymru' },
+  uk_ind: { label_en: 'Independent',  label_fr: 'Indépendant·e',        color: '#888888', mention_fr: 'indépendant·e',            mention_en: 'an independent' },
+  uk_spk: { label_en: 'Speaker',      label_fr: 'Speaker',              color: '#444444', mention_fr: 'du président de la Chambre', mention_en: 'the Speaker' },
+  uk_oth: { label_en: 'Other',        label_fr: 'Autre',                color: '#999999', mention_fr: "d'un autre parti",         mention_en: 'another party' },
+  // Northern Ireland (remapped from uk_oth via party_raw)
+  ni_dup:   { label_en: 'DUP',         label_fr: 'DUP',                 color: '#D46A4C', mention_fr: 'du DUP',                   mention_en: 'the DUP' },
+  ni_sf:    { label_en: 'Sinn Féin',   label_fr: 'Sinn Féin',           color: '#326760', mention_fr: 'du Sinn Féin',             mention_en: 'Sinn Féin' },
+  ni_sdlp:  { label_en: 'SDLP',        label_fr: 'SDLP',                color: '#2AA82C', mention_fr: 'du SDLP',                  mention_en: 'the SDLP' },
+  ni_apni:  { label_en: 'Alliance',    label_fr: 'Alliance',            color: '#F6CB2F', mention_fr: 'de l’Alliance',            mention_en: 'the Alliance Party' },
+  ni_uup:   { label_en: 'UUP',         label_fr: 'UUP',                 color: '#48A5EE', mention_fr: 'de l’UUP',                 mention_en: 'the UUP' },
+  ni_tuv:   { label_en: 'TUV',         label_fr: 'TUV',                 color: '#0095B6', mention_fr: 'du TUV',                   mention_en: 'TUV' },
+  ni_aontu: { label_en: 'Aontú',       label_fr: 'Aontú',               color: '#44532A', mention_fr: 'd’Aontú',                  mention_en: 'Aontú' },
+};
+
 const PALETTES: Record<string, Record<string, PartyMeta>> = {
   'federal-ca': CA_FEDERAL_PARTIES,
   'quebec': QC_PARTIES,
   'ontario': ON_PARTIES,
+  'uk': UK_PARTIES,
 };
 
 export function partyMeta(jurisdiction: string, code: string): PartyMeta {
