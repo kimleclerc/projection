@@ -28,6 +28,7 @@ import membersSource from '../../../web_data/us-house/members.json';
 import candidatesSource from '../../../web_data/us-house/candidates_2026.json';
 import primariesSource from '../../../web_data/us-house/primaries.json';
 import redistrictingSource from '../../../web_data/us-house/redistricting.json';
+import historyIndex from '../../../web_data/us-house/history/index.json';
 
 type RawRiding = {
   riding_id: string;
@@ -60,6 +61,7 @@ const members = membersSource as Record<string, RidingMember | undefined>;
 const candidatesByRiding = candidatesSource as Record<string, Array<{ name: string; party_code: string; party_raw: string; ici_status: string; filing_status: string; fec_id: string }>>;
 const primariesByRiding = primariesSource as Record<string, RidingData['primaries']>;
 const redistrictingByRiding = redistrictingSource as Record<string, RidingData['redistrictingImpact']>;
+const RIDINGS_WITH_HISTORY = new Set((historyIndex as { ridings_with_history: string[] }).ridings_with_history);
 
 /** National vote_mean by party (unweighted mean across 435 districts). */
 const NATIONAL_VOTE_MEAN: Record<string, number> = (() => {
@@ -188,7 +190,7 @@ function adaptOne(raw: RawRiding): RidingData {
     primaries: primariesByRiding[raw.riding_id],
     redistrictingImpact: redistrictingByRiding[raw.riding_id],
     runDate: META.run_date,
-    hasProjectionHistory: false,  // pipeline doesn't archive per-date snapshots yet
+    hasProjectionHistory: RIDINGS_WITH_HISTORY.has(raw.riding_id),
     neighbors: buildNeighbors(raw.riding_id, raw.province),
     regionalContext: {
       province: {},   // state-level rollup TBD
