@@ -56,12 +56,8 @@ const T = {
         );
       })}
     </ul>
-    {data.baseline && (
-      <p class="legend">
-        <span class="tick-demo" aria-hidden="true"></span>
-        {T.baseline_label(data.baseline.cycle)}
-      </p>
-    )}
+    {/* Baseline cycle is communicated in EditorialBlurb prose and via the
+        tick mark's title hover; the bottom legend was redundant noise. */}
   </div>
 </section>
 

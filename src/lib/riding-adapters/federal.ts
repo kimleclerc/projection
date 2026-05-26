@@ -206,6 +206,7 @@ function adaptOne(raw: RawRiding): RidingData {
     regionalContext: {
       province: PROVINCE_VOTE_MEAN[raw.province] ?? {},
       national: NATIONAL_VOTE_MEAN,
+      totalSeats: 343,
     },
     shapePath: SHAPES[raw.riding_id]?.path,
     shapeViewBox: SHAPES[raw.riding_id]?.viewBox,

@@ -99,8 +99,12 @@ export interface RidingNeighbor {
 export interface RegionalContext {
   /** Vote-mean averaged across all ridings in the riding's province. */
   province: Record<string, number>;
-  /** National vote_mean from `latest.json` -> `parties[].vote_mean`. */
+  /** National vote_mean from `latest.json` -> `parties[].vote_mean`.
+   *  Leave empty {} when not applicable (e.g. provincial-only jurisdictions). */
   national: Record<string, number>;
+  /** Total seats used for the comparison (343 federal, 125 QC, …). Drives
+   *  the foot-of-table note copy. */
+  totalSeats?: number;
 }
 
 export interface RidingData {
