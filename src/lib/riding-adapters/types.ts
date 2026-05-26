@@ -135,6 +135,22 @@ export interface RidingData {
   byelectionDate?: string;
   marketSlug?: string;
 
+  /** US House primary status — Dem and/or Rep primary leader from latest poll. */
+  primaries?: {
+    dem?: { leader_name: string; leader_pct: number; field_end: string; firm: string; n_candidates_polled: number; source_url?: string };
+    rep?: { leader_name: string; leader_pct: number; field_end: string; firm: string; n_candidates_polled: number; source_url?: string };
+  };
+
+  /** US House redistricting impact — old districts that contribute ≥5% of the
+   *  new map. Editorial threshold: surface only when fragmented (multiple
+   *  contributors or non-identity single contributor). */
+  redistrictingImpact?: Array<{
+    old_riding_id: string;
+    old_name_en: string;
+    old_name_fr: string;
+    overlap_pct: number;
+  }>;
+
   /** Redistricting provenance — when the map was redrawn since the last
    *  election cycle, this lists the >=20% predecessor ridings. Surfaced
    *  in editorial prose. */

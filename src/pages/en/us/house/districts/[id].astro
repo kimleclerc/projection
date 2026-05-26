@@ -1,0 +1,50 @@
+---
+import EditorialLayout from '../../../../../layouts/EditorialLayout.astro';
+import RidingPage from '../../../../../components/riding/RidingPage.astro';
+import { getAllUSHouseRidings } from '../../../../../lib/riding-adapters/us-house';
+
+export function getStaticPaths() {
+  return getAllUSHouseRidings().map((data) => ({
+    params: { id: data.slug },
+    props: { data },
+  }));
+}
+
+const { data } = Astro.props;
+const canonical = `https://vote-scope.com/en/us/house/districts/${data.slug}/`;
+const alternateFr = `https://vote-scope.com/fr/us/chambre/districts/${data.slug}/`;
+const title = `${data.name.en || data.name.fr} — US House projection — Vote-Scope`;
+const description = `Vote-Scope projection for ${data.name.en || data.name.fr} (${data.province || 'US'}): party vote share, sitting representative, 2026 candidates, primary race status.`;
+---
+
+<EditorialLayout
+  title={title}
+  description={description}
+  canonical={canonical}
+  lang="en"
+  currentPage="us"
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={{ en: canonical, fr: alternateFr }}
+  jsonLd={[
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Place',
+      name: data.name.en || data.name.fr,
+      containedInPlace: { '@type': 'AdministrativeArea', name: data.province || 'United States' },
+      url: canonical,
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Vote-Scope',    item: 'https://vote-scope.com/en/' },
+        { '@type': 'ListItem', position: 2, name: 'United States', item: 'https://vote-scope.com/en/us/' },
+        { '@type': 'ListItem', position: 3, name: 'House',         item: 'https://vote-scope.com/en/us/house/' },
+        { '@type': 'ListItem', position: 4, name: 'Districts',     item: 'https://vote-scope.com/en/us/house/districts/' },
+        { '@type': 'ListItem', position: 5, name: data.name.en || data.name.fr, item: canonical },
+      ],
+    },
+  ]}
+>
+  <RidingPage data={data} lang="en" />
+</EditorialLayout>

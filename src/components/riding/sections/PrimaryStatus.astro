@@ -1,0 +1,162 @@
+---
+/**
+ * US House primary status — surfaces the latest poll leader in each
+ * party's primary, when data is available. Slot stays hidden when the
+ * adapter doesn't populate `data.primaries`. Currently only ~48 of 435
+ * districts have NYT-tracked primary polls.
+ */
+import type { RidingData } from '../../../lib/riding-adapters/types';
+import { partyMeta } from '../../../lib/riding-adapters/parties';
+
+interface Props {
+  data: RidingData;
+  lang: 'en' | 'fr';
+}
+
+const { data, lang } = Astro.props;
+if (!data.primaries) return null;
+const { dem, rep } = data.primaries;
+if (!dem && !rep) return null;
+
+const demMeta = partyMeta(data.jurisdiction, 'us_dem');
+const repMeta = partyMeta(data.jurisdiction, 'us_rep');
+
+const T = {
+  en: {
+    eyebrow: 'Primary race',
+    title: 'Who leads in the primary',
+    leads: 'leads',
+    of: 'of',
+    polledCandidates: (n: number) => `${n} ${n === 1 ? 'candidate' : 'candidates'} polled`,
+    asOf: 'Latest poll',
+    by: 'by',
+    noPrimary: 'No primary poll available',
+  },
+  fr: {
+    eyebrow: 'Course primaire',
+    title: 'Qui mène en primaire',
+    leads: 'mène',
+    of: 'de',
+    polledCandidates: (n: number) => `${n} ${n === 1 ? 'candidat·e sondé·e' : 'candidat·e·s sondé·e·s'}`,
+    asOf: 'Dernier sondage',
+    by: 'par',
+    noPrimary: 'Aucun sondage primaire disponible',
+  },
+}[lang];
+
+function formatDate(iso: string): string {
+  if (!iso) return '';
+  try {
+    return new Intl.DateTimeFormat(lang === 'fr' ? 'fr-CA' : 'en-CA', {
+      month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC',
+    }).format(new Date(iso + 'T00:00:00Z'));
+  } catch {
+    return iso;
+  }
+}
+---
+
+<section class="primary-status">
+  <div class="container">
+    <p class="eyebrow">{T.eyebrow}</p>
+    <h2>{T.title}</h2>
+
+    <div class="primary-grid">
+      {dem && (
+        <article class="party-card" style={`--accent:${demMeta.color}`}>
+          <header>
+            <span class="party-label">{lang === 'fr' ? demMeta.label_fr : demMeta.label_en}</span>
+            <span class="party-dot" aria-hidden="true"></span>
+          </header>
+          <p class="leader">
+            <strong>{dem.leader_name}</strong> <span class="lead-pct">{dem.leader_pct}%</span>
+          </p>
+          <p class="meta">
+            {T.polledCandidates(dem.n_candidates_polled)} · {T.asOf} {formatDate(dem.field_end)}{dem.firm && <> · {T.by} {dem.firm}</>}
+          </p>
+        </article>
+      )}
+      {rep && (
+        <article class="party-card" style={`--accent:${repMeta.color}`}>
+          <header>
+            <span class="party-label">{lang === 'fr' ? repMeta.label_fr : repMeta.label_en}</span>
+            <span class="party-dot" aria-hidden="true"></span>
+          </header>
+          <p class="leader">
+            <strong>{rep.leader_name}</strong> <span class="lead-pct">{rep.leader_pct}%</span>
+          </p>
+          <p class="meta">
+            {T.polledCandidates(rep.n_candidates_polled)} · {T.asOf} {formatDate(rep.field_end)}{rep.firm && <> · {T.by} {rep.firm}</>}
+          </p>
+        </article>
+      )}
+    </div>
+  </div>
+</section>
+
+<style>
+  .primary-status {
+    padding: 48px 0;
+    border-bottom: 1px solid var(--rule);
+    background: var(--paper);
+  }
+  h2 {
+    margin: 8px 0 24px;
+    font-family: var(--serif);
+    font-size: clamp(26px, 3vw, 36px);
+    font-weight: 420;
+    letter-spacing: -0.01em;
+  }
+  .primary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 0;
+    border-top: 1px solid var(--rule);
+    border-left: 1px solid var(--rule);
+  }
+  .party-card {
+    padding: 20px 22px;
+    border-right: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    background: var(--card);
+  }
+  .party-card header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .party-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+  }
+  .party-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--accent);
+    margin-left: auto;
+  }
+  .leader {
+    margin: 0;
+    font-family: var(--serif);
+    font-size: clamp(22px, 2.6vw, 28px);
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+  }
+  .leader strong { font-weight: 460; }
+  .lead-pct {
+    font-family: var(--mono);
+    font-size: 18px;
+    color: var(--accent);
+  }
+  .meta {
+    margin: 10px 0 0;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ink-2);
+  }
+</style>

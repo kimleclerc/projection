@@ -1,0 +1,50 @@
+---
+import EditorialLayout from '../../../../../layouts/EditorialLayout.astro';
+import RidingPage from '../../../../../components/riding/RidingPage.astro';
+import { getAllUSHouseRidings } from '../../../../../lib/riding-adapters/us-house';
+
+export function getStaticPaths() {
+  return getAllUSHouseRidings().map((data) => ({
+    params: { id: data.slug },
+    props: { data },
+  }));
+}
+
+const { data } = Astro.props;
+const canonical = `https://vote-scope.com/fr/us/chambre/districts/${data.slug}/`;
+const alternateEn = `https://vote-scope.com/en/us/house/districts/${data.slug}/`;
+const title = `${data.name.fr || data.name.en} — Projection Chambre des représentants — Vote-Scope`;
+const description = `Projection Vote-Scope pour ${data.name.fr || data.name.en} (${data.province || 'États-Unis'}) : parts de voix par parti, représentant·e en fonction, candidat·e·s 2026, course primaire.`;
+---
+
+<EditorialLayout
+  title={title}
+  description={description}
+  canonical={canonical}
+  lang="fr"
+  currentPage="us"
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={{ en: alternateEn, fr: canonical }}
+  jsonLd={[
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Place',
+      name: data.name.fr || data.name.en,
+      containedInPlace: { '@type': 'AdministrativeArea', name: data.province || 'États-Unis' },
+      url: canonical,
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Vote-Scope',  item: 'https://vote-scope.com/fr/' },
+        { '@type': 'ListItem', position: 2, name: 'États-Unis',  item: 'https://vote-scope.com/fr/us/' },
+        { '@type': 'ListItem', position: 3, name: 'Chambre',     item: 'https://vote-scope.com/fr/us/chambre/' },
+        { '@type': 'ListItem', position: 4, name: 'Districts',   item: 'https://vote-scope.com/fr/us/chambre/districts/' },
+        { '@type': 'ListItem', position: 5, name: data.name.fr || data.name.en, item: canonical },
+      ],
+    },
+  ]}
+>
+  <RidingPage data={data} lang="fr" />
+</EditorialLayout>

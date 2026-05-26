@@ -1,0 +1,119 @@
+---
+/**
+ * US House redistricting impact — for the 8 states that mid-decade
+ * redrew their congressional maps in 2025-2026 (CA, FL, MO, NC, OH, TN,
+ * TX, UT). Surfaces the old districts that contributed ≥5% to the new
+ * district, with overlap %. Slot stays hidden when adapter doesn't
+ * populate `data.redistrictingImpact` (i.e., for non-redistricted seats
+ * and all other jurisdictions).
+ */
+import type { RidingData } from '../../../lib/riding-adapters/types';
+
+interface Props {
+  data: RidingData;
+  lang: 'en' | 'fr';
+}
+
+const { data, lang } = Astro.props;
+const impact = data.redistrictingImpact;
+if (!impact || impact.length === 0) return null;
+
+const T = {
+  en: {
+    eyebrow: 'Redistricting impact',
+    title: 'Where these voters came from',
+    intro: 'This district was redrawn under the 2025-2026 mid-decade redistricting. Composition by inherited old-district share:',
+  },
+  fr: {
+    eyebrow: 'Impact du redécoupage',
+    title: "D'où viennent ces électeur·ice·s",
+    intro: 'Ce district a été redécoupé dans la vague 2025-2026. Composition par ancien district contributeur :',
+  },
+}[lang];
+---
+
+<section class="redistricting-impact">
+  <div class="container">
+    <p class="eyebrow">{T.eyebrow}</p>
+    <h2>{T.title}</h2>
+    <p class="intro">{T.intro}</p>
+
+    <ul class="frag-list">
+      {impact.map((frag) => {
+        const oldName = lang === 'fr' ? (frag.old_name_fr || frag.old_name_en) : frag.old_name_en;
+        const pct = Math.round(frag.overlap_pct * 100);
+        return (
+          <li>
+            <div class="frag-bar" style={`--pct:${pct}%`}>
+              <span class="frag-fill" aria-hidden="true"></span>
+            </div>
+            <div class="frag-text">
+              <span class="frag-name">{oldName} <code>({frag.old_riding_id})</code></span>
+              <span class="frag-pct">{pct}%</span>
+            </div>
+          </li>
+        );
+      })}
+    </ul>
+  </div>
+</section>
+
+<style>
+  .redistricting-impact {
+    padding: 48px 0;
+    border-bottom: 1px solid var(--rule);
+    background: var(--paper-2);
+  }
+  h2 {
+    margin: 8px 0 12px;
+    font-family: var(--serif);
+    font-size: clamp(26px, 3vw, 36px);
+    font-weight: 420;
+    letter-spacing: -0.01em;
+  }
+  .intro {
+    margin: 0 0 24px;
+    max-width: 760px;
+    color: var(--ink-2);
+    font-family: var(--serif);
+    font-size: 16px;
+    line-height: 1.55;
+  }
+  .frag-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .frag-bar {
+    height: 8px;
+    border-radius: 2px;
+    background: color-mix(in oklab, var(--ink) 8%, transparent);
+    overflow: hidden;
+  }
+  .frag-fill {
+    display: block;
+    height: 100%;
+    width: var(--pct);
+    background: var(--ink);
+  }
+  .frag-text {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-top: 6px;
+    font-family: var(--mono);
+    font-size: 13px;
+  }
+  .frag-name code {
+    font-size: 11px;
+    color: var(--ink-2);
+    margin-left: 4px;
+  }
+  .frag-pct {
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+  }
+</style>

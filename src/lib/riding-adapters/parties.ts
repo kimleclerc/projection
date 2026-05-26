@@ -77,11 +77,26 @@ export const UK_PARTIES: Record<string, PartyMeta> = {
   ni_aontu: { label_en: 'Aontú',       label_fr: 'Aontú',               color: '#44532A', mention_fr: 'd’Aontú',                  mention_en: 'Aontú' },
 };
 
+/**
+ * US House palette. Projection model uses us_dem / us_rep / us_oth.
+ * Editorial display preserves raw FEC party codes (GRE, LIB, IND, …) so
+ * minor-party candidates keep their identity in the candidates table.
+ */
+export const US_HOUSE_PARTIES: Record<string, PartyMeta> = {
+  us_dem: { label_en: 'Democrat',    label_fr: 'Démocrate',     color: '#1375B7', mention_fr: 'des Démocrates',    mention_en: 'the Democrats' },
+  us_rep: { label_en: 'Republican',  label_fr: 'Républicain',   color: '#D2222D', mention_fr: 'des Républicains',  mention_en: 'the Republicans' },
+  us_ind: { label_en: 'Independent', label_fr: 'Indépendant·e', color: '#888888', mention_fr: 'indépendant·e',     mention_en: 'an independent' },
+  us_grn: { label_en: 'Green',       label_fr: 'Vert·e·s',      color: '#3D9B35', mention_fr: 'des Vert·e·s',      mention_en: 'the Greens' },
+  us_lib: { label_en: 'Libertarian', label_fr: 'Libertarien',   color: '#FED105', mention_fr: 'des Libertariens',  mention_en: 'the Libertarians' },
+  us_oth: { label_en: 'Other',       label_fr: 'Autre',         color: '#999999', mention_fr: "d'un autre parti",  mention_en: 'another party' },
+};
+
 const PALETTES: Record<string, Record<string, PartyMeta>> = {
   'federal-ca': CA_FEDERAL_PARTIES,
   'quebec': QC_PARTIES,
   'ontario': ON_PARTIES,
   'uk': UK_PARTIES,
+  'us-house': US_HOUSE_PARTIES,
 };
 
 export function partyMeta(jurisdiction: string, code: string): PartyMeta {
