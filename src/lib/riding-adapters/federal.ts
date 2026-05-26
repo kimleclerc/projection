@@ -223,7 +223,7 @@ export function getFederalRiding(id: string): RidingData | undefined {
   return raw ? adaptOne(raw) : undefined;
 }
 
-/** Subset used during MVP rollout — Orléans + Ottawa-region neighbors so
- *  cross-linking demo actually navigates. Drop the filter (or expand the list)
- *  when ready to scale to all 343 federal ridings. */
-export const FEDERAL_MVP_IDS = ['35077', '35020', '35043', '35051', '35052', '35067', '35079'];
+/** Subset gating retired — all 343 federal ridings now build statically.
+ *  Kept exported as `null` for back-compat with the two [id].astro pages
+ *  which check it to decide whether to filter getStaticPaths. */
+export const FEDERAL_MVP_IDS: string[] | null = null;

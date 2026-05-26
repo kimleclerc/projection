@@ -5,8 +5,8 @@ import { getAllFederalRidings, FEDERAL_MVP_IDS } from '../../../../../lib/riding
 
 export function getStaticPaths() {
   const all = getAllFederalRidings();
-  const mvp = all.filter((r) => FEDERAL_MVP_IDS.includes(r.id));
-  return mvp.map((data) => ({
+  const set = FEDERAL_MVP_IDS ? all.filter((r) => FEDERAL_MVP_IDS.includes(r.id)) : all;
+  return set.map((data) => ({
     params: { id: data.slug },
     props: { data },
   }));
