@@ -1,0 +1,51 @@
+---
+import EditorialLayout from '../../../../../layouts/EditorialLayout.astro';
+import RidingPage from '../../../../../components/riding/RidingPage.astro';
+import { getAllUSSenateRaces } from '../../../../../lib/riding-adapters/us-senate';
+
+export function getStaticPaths() {
+  return getAllUSSenateRaces().map((data) => ({
+    params: { id: data.slug },
+    props: { data },
+  }));
+}
+
+const { data } = Astro.props;
+const canonical = `https://vote-scope.com/es/us/senate/escanos/${data.slug}/`;
+const alternateEn = `https://vote-scope.com/en/us/senate/seats/${data.slug}/`;
+const alternateFr = `https://vote-scope.com/fr/us/senat/sieges/${data.slug}/`;
+const title = `${data.name.en} — Proyección Senado US — Vote-Scope`;
+const description = `Proyección Vote-Scope para la carrera al Senado de ${data.name.en} (${data.province}): cuota de voto, probabilidad de victoria, resultado de referencia.`;
+---
+
+<EditorialLayout
+  title={title}
+  description={description}
+  canonical={canonical}
+  lang="es"
+  currentPage="us"
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={{ en: alternateEn, fr: alternateFr, es: canonical }}
+  jsonLd={[
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Place',
+      name: data.name.en,
+      containedInPlace: { '@type': 'AdministrativeArea', name: data.province || 'Estados Unidos' },
+      url: canonical,
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Vote-Scope',    item: 'https://vote-scope.com/es/' },
+        { '@type': 'ListItem', position: 2, name: 'Estados Unidos', item: 'https://vote-scope.com/es/us/' },
+        { '@type': 'ListItem', position: 3, name: 'Senado',        item: 'https://vote-scope.com/es/us/senate/' },
+        { '@type': 'ListItem', position: 4, name: 'Escaños',       item: 'https://vote-scope.com/es/us/senate/escanos/' },
+        { '@type': 'ListItem', position: 5, name: data.name.en, item: canonical },
+      ],
+    },
+  ]}
+>
+  <RidingPage data={data} lang="es" />
+</EditorialLayout>

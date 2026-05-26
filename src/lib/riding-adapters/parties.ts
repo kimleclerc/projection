@@ -97,6 +97,7 @@ const PALETTES: Record<string, Record<string, PartyMeta>> = {
   'ontario': ON_PARTIES,
   'uk': UK_PARTIES,
   'us-house': US_HOUSE_PARTIES,
+  'us-senate': US_HOUSE_PARTIES,  // same Dem/Rep palette
 };
 
 export function partyMeta(jurisdiction: string, code: string): PartyMeta {

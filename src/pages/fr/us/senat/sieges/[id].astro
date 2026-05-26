@@ -1,0 +1,51 @@
+---
+import EditorialLayout from '../../../../../layouts/EditorialLayout.astro';
+import RidingPage from '../../../../../components/riding/RidingPage.astro';
+import { getAllUSSenateRaces } from '../../../../../lib/riding-adapters/us-senate';
+
+export function getStaticPaths() {
+  return getAllUSSenateRaces().map((data) => ({
+    params: { id: data.slug },
+    props: { data },
+  }));
+}
+
+const { data } = Astro.props;
+const canonical = `https://vote-scope.com/fr/us/senat/sieges/${data.slug}/`;
+const alternateEn = `https://vote-scope.com/en/us/senate/seats/${data.slug}/`;
+const alternateEs = `https://vote-scope.com/es/us/senate/escanos/${data.slug}/`;
+const title = `${data.name.en} — Projection Sénat US — Vote-Scope`;
+const description = `Projection Vote-Scope pour la course au Sénat de ${data.name.en} (${data.province}) : parts de voix, probabilité de victoire, résultat de référence.`;
+---
+
+<EditorialLayout
+  title={title}
+  description={description}
+  canonical={canonical}
+  lang="fr"
+  currentPage="us"
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={{ en: alternateEn, fr: canonical, es: alternateEs }}
+  jsonLd={[
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Place',
+      name: data.name.en,
+      containedInPlace: { '@type': 'AdministrativeArea', name: data.province || 'États-Unis' },
+      url: canonical,
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Vote-Scope',  item: 'https://vote-scope.com/fr/' },
+        { '@type': 'ListItem', position: 2, name: 'États-Unis',  item: 'https://vote-scope.com/fr/us/' },
+        { '@type': 'ListItem', position: 3, name: 'Sénat',       item: 'https://vote-scope.com/fr/us/senat/' },
+        { '@type': 'ListItem', position: 4, name: 'Sièges',      item: 'https://vote-scope.com/fr/us/senat/sieges/' },
+        { '@type': 'ListItem', position: 5, name: data.name.en, item: canonical },
+      ],
+    },
+  ]}
+>
+  <RidingPage data={data} lang="fr" />
+</EditorialLayout>
