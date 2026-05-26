@@ -7,6 +7,7 @@
  */
 import type { RidingData } from '../../lib/riding-adapters/types';
 import Hero from './sections/Hero.astro';
+import RidingQuestion from './sections/RidingQuestion.astro';
 import ProjectionPanel from './sections/ProjectionPanel.astro';
 import VoteBars from './sections/VoteBars.astro';
 import HistoryTimeline from './sections/HistoryTimeline.astro';
@@ -28,6 +29,7 @@ const { data, lang } = Astro.props;
 ---
 
 <Hero data={data} lang={lang} />
+<RidingQuestion data={data} lang={lang} />
 <EditorialBlurb data={data} lang={lang} />
 {data.member && <CurrentMember data={data} lang={lang} />}
 <ProjectionPanel data={data} lang={lang} />

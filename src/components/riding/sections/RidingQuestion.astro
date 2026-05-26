@@ -1,0 +1,112 @@
+---
+/**
+ * Editorial question framing the page — VoteScope's "one page, one question"
+ * promise applied to riding pages. Sits between Hero and EditorialBlurb.
+ *
+ * The question is derived from data: vacancy + byelection date, projection
+ * winner vs baseline winner, p_close_race, p_winner. Falls back gracefully
+ * across jurisdictions because it only uses fields every adapter provides.
+ *
+ * Question selection (in order):
+ *   1. Vacant + byelection date → "Who succeeds X in this open seat?"
+ *   2. Vacant (no date)        → "Who wins this open seat?"
+ *   3. p_close_race ≥ 0.35     → "Who wins this toss-up?"
+ *   4. winner ≠ baseline.winner → "Will [old] lose [seat] to [new]?"
+ *   5. p_winner ≥ 0.85         → "How safely does [winner] hold [seat]?"
+ *   6. otherwise (leaning)     → "Can [winner] hold [seat]?"
+ *
+ * Mention forms use partyMeta.mention_en / mention_fr ("the Conservatives",
+ * "Sinn Féin", "du PQ", "de la CAQ"). Stay laconic — one short question.
+ */
+import type { RidingData } from '../../../lib/riding-adapters/types';
+import { partyMeta } from '../../../lib/riding-adapters/parties';
+
+interface Props {
+  data: RidingData;
+  lang: 'en' | 'fr';
+}
+
+const { data, lang } = Astro.props;
+const name = lang === 'fr' ? data.name.fr : data.name.en;
+
+const winnerMeta = partyMeta(data.jurisdiction, data.projection.winner);
+const baselineMeta = data.baseline ? partyMeta(data.jurisdiction, data.baseline.winner) : null;
+
+/** Naked party label, used in subject position. */
+function naked(meta: ReturnType<typeof partyMeta>, l: 'en' | 'fr'): string {
+  return l === 'fr' ? meta.label_fr : meta.label_en;
+}
+/** Genitive / referential mention, used after "lose/hold/replace". */
+function mention(meta: ReturnType<typeof partyMeta>, l: 'en' | 'fr'): string {
+  if (l === 'fr') return meta.mention_fr ?? `du Parti ${meta.label_fr}`;
+  return meta.mention_en ?? `the ${meta.label_en} Party`;
+}
+
+const winnerLabel = naked(winnerMeta, lang);
+const baselineLabel = baselineMeta ? naked(baselineMeta, lang) : null;
+
+const isVacant = data.member?.seat_status === 'vacant' || (!data.member && !!data.isByelection);
+const isByelection = !!data.isByelection;
+const isFlip = baselineMeta && data.projection.winner !== data.baseline?.winner;
+const isTossup = data.projection.p_close_race >= 0.35;
+const isSafe = data.projection.p_winner >= 0.85;
+
+let questionEn = '';
+let questionFr = '';
+
+if (isVacant && isByelection && data.byelectionDate) {
+  // Byelection with a known date — the previous member name lives in member,
+  // but we lean on baseline as the most reliable label.
+  if (baselineLabel) {
+    questionEn = `Who replaces ${mention(baselineMeta!, 'en')} in ${name}?`;
+    questionFr = `Qui succède ${mention(baselineMeta!, 'fr')} dans ${name} ?`;
+  } else {
+    questionEn = `Who wins the ${name} byelection?`;
+    questionFr = `Qui remporte la partielle de ${name} ?`;
+  }
+} else if (isVacant) {
+  questionEn = `Who wins this open seat in ${name}?`;
+  questionFr = `Qui remporte ce siège vacant dans ${name} ?`;
+} else if (isTossup) {
+  questionEn = `Who wins this toss-up in ${name}?`;
+  questionFr = `Qui l'emporte dans ${name}, course incertaine ?`;
+} else if (isFlip && baselineMeta) {
+  questionEn = `Will ${baselineLabel} lose ${name} to ${winnerLabel}?`;
+  questionFr = `${baselineLabel} perd-il ${name} au profit ${mention(winnerMeta, 'fr')} ?`;
+} else if (isSafe) {
+  questionEn = `Is ${name} safe for ${mention(winnerMeta, 'en')}?`;
+  questionFr = `${name} reste-t-il un siège sûr ${mention(winnerMeta, 'fr')} ?`;
+} else {
+  // Leaning — competitive but a clear favourite.
+  questionEn = `Can ${mention(winnerMeta, 'en')} hold ${name}?`;
+  questionFr = `${mention(winnerMeta, 'fr')[0].toUpperCase()}${mention(winnerMeta, 'fr').slice(1)} conserve-t-il ${name} ?`;
+}
+
+const question = lang === 'fr' ? questionFr : questionEn;
+const eyebrow = lang === 'fr' ? 'La question' : 'The question';
+---
+
+<section class="riding-question">
+  <div class="container">
+    <p class="eyebrow">{eyebrow}</p>
+    <h2>{question}</h2>
+  </div>
+</section>
+
+<style>
+  .riding-question {
+    padding: 32px 0 16px;
+    border-bottom: 1px solid var(--rule);
+    background: var(--paper);
+  }
+  h2 {
+    margin: 6px 0 0;
+    font-family: var(--serif);
+    font-size: clamp(26px, 3.2vw, 38px);
+    font-weight: 420;
+    letter-spacing: -0.01em;
+    line-height: 1.15;
+    max-width: 900px;
+    color: var(--ink);
+  }
+</style>
