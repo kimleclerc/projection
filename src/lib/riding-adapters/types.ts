@@ -131,6 +131,15 @@ export interface RidingData {
   byelectionDate?: string;
   marketSlug?: string;
 
+  /** Redistricting provenance — when the map was redrawn since the last
+   *  election cycle, this lists the >=20% predecessor ridings. Surfaced
+   *  in editorial prose. */
+  redistrictingOrigin?: Array<{
+    old_name_fr: string;
+    old_name_en: string;
+    overlap_pct: number;
+  }>;
+
   // Provenance + SEO
   runDate?: string;             // ISO date of the projection run that produced this snapshot
   alternateNames?: string[];    // historical / former names — fed into SEO schema.org

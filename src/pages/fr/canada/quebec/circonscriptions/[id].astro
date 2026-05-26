@@ -1,17 +1,16 @@
 ---
 import EditorialLayout from '../../../../../layouts/EditorialLayout.astro';
 import RidingPage from '../../../../../components/riding/RidingPage.astro';
-import RidingOrigin from '../../../../../components/riding/sections/RidingOrigin.astro';
-import { getAllQuebecRidings, getQuebecOrigin } from '../../../../../lib/riding-adapters/quebec';
+import { getAllQuebecRidings } from '../../../../../lib/riding-adapters/quebec';
 
 export function getStaticPaths() {
   return getAllQuebecRidings().map((data) => ({
     params: { id: data.slug },
-    props: { data, origin: getQuebecOrigin(data.id) },
+    props: { data },
   }));
 }
 
-const { data, origin } = Astro.props;
+const { data } = Astro.props;
 const canonical = `https://vote-scope.com/fr/canada/quebec/circonscriptions/${data.slug}/`;
 const alternateEn = `https://vote-scope.com/en/canada/quebec/ridings/${data.slug}/`;
 const title = `${data.name.fr} — Projection provinciale (Québec) — Vote-Scope`;
@@ -48,5 +47,4 @@ const description = `Projection Vote-Scope pour ${data.name.fr} (Québec) : part
   ]}
 >
   <RidingPage data={data} lang="fr" />
-  <RidingOrigin origin={origin} lang="fr" newRidingNameFr={data.name.fr} />
 </EditorialLayout>

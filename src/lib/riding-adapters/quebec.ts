@@ -20,6 +20,7 @@ import candidatesSource from '../../../web_data/quebec/candidates_2022.json';
 import originSource from '../../../web_data/quebec/origin.json';
 import shapesSource from '../../../web_data/quebec/shapes.json';
 import historyIndex from '../../../web_data/quebec/history/index.json';
+import centroidsSource from '../../../web_data/quebec/centroids.json';
 
 type RawRiding = {
   riding_id: string;
@@ -60,6 +61,7 @@ const members = membersSource as Record<string, RidingMember | undefined>;
 const candidatesByRiding = candidatesSource as Record<string, RidingCandidate[] | undefined>;
 const ORIGIN = originSource as Record<string, RidingOriginEntry[] | undefined>;
 const SHAPES = shapesSource as Record<string, { path: string; viewBox: string } | undefined>;
+const CENTROIDS = centroidsSource as Record<string, { lon: number; lat: number } | undefined>;
 const RIDINGS_WITH_HISTORY = new Set((historyIndex as { ridings_with_history: string[] }).ridings_with_history);
 
 const PROVINCE_VOTE_MEAN: Record<string, number> = (() => {
@@ -85,10 +87,20 @@ function projectionTone(p: { p_winner: number; p_close_race: number }): RidingNe
 }
 
 function buildNeighbors(rid: string): RidingNeighbor[] {
-  const self = ridings.find((r) => r.riding_id === rid);
-  if (!self) return [];
-  const sameRegion = ridings.filter((r) => r.riding_id !== rid && r.region === self.region);
-  return sameRegion.slice(0, 6).map((r) => {
+  const selfCent = CENTROIDS[rid];
+  if (!selfCent) return [];
+  // Rank by centroid distance (great-circle approximation via planar deg).
+  const scored = ridings
+    .filter((r) => r.riding_id !== rid && CENTROIDS[r.riding_id])
+    .map((r) => {
+      const c = CENTROIDS[r.riding_id]!;
+      const dx = c.lon - selfCent.lon;
+      const dy = c.lat - selfCent.lat;
+      return { r, d2: dx * dx + dy * dy };
+    })
+    .sort((a, b) => a.d2 - b.d2)
+    .slice(0, 6);
+  return scored.map(({ r }) => {
     const slug = ridingSlug(r.riding_id, r.name_fr || r.name_en);
     return {
       id: r.riding_id,
@@ -175,7 +187,21 @@ function adaptOne(raw: RawRiding): RidingData {
     },
     shapePath: SHAPES[raw.riding_id]?.path,
     shapeViewBox: SHAPES[raw.riding_id]?.viewBox,
+    redistrictingOrigin: buildRedistrictingOrigin(raw.riding_id),
   };
+}
+
+/** Surface origin entries only when there's actual fragmentation:
+ *  skip when a single source covers ≥95% (functionally a rename). */
+function buildRedistrictingOrigin(rid: string) {
+  const entries = ORIGIN[rid];
+  if (!entries || entries.length === 0) return undefined;
+  if (entries.length === 1 && entries[0].overlap_pct >= 0.95) return undefined;
+  return entries.map((e) => ({
+    old_name_fr: e.old_name_fr,
+    old_name_en: e.old_name_en || e.old_name_fr,
+    overlap_pct: e.overlap_pct,
+  }));
 }
 
 export function getAllQuebecRidings(): RidingData[] {

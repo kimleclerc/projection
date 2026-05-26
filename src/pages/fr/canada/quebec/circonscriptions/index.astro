@@ -3,29 +3,16 @@ import EditorialLayout from '../../../../../layouts/EditorialLayout.astro';
 import { getAllQuebecRidings } from '../../../../../lib/riding-adapters/quebec';
 import { partyMeta } from '../../../../../lib/riding-adapters/parties';
 
-const all = getAllQuebecRidings();
-const byRegion: Record<string, typeof all> = {};
-for (const r of all) {
-  const reg = r.region || 'other';
-  (byRegion[reg] ??= []).push(r);
-}
-for (const k of Object.keys(byRegion)) {
-  byRegion[k].sort((a, b) => a.name.fr.localeCompare(b.name.fr, 'fr'));
-}
-const REGION_ORDER = Object.keys(byRegion).sort();
-const REGION_LABEL: Record<string, string> = {
-  montreal: 'Montréal',
-  quebec_city: 'Québec (capitale)',
-  rest: 'Reste du Québec',
-  other: 'Autre',
-};
+const all = getAllQuebecRidings()
+  .slice()
+  .sort((a, b) => a.name.fr.localeCompare(b.name.fr, 'fr'));
 
 const canonical = 'https://vote-scope.com/fr/canada/quebec/circonscriptions/';
 ---
 
 <EditorialLayout
   title="Circonscriptions provinciales du Québec — Vote-Scope"
-  description="Les 125 circonscriptions provinciales du Québec (qc_2026), projection Vote-Scope par parti, député·e en fonction. À parcourir par région."
+  description="Les 125 circonscriptions provinciales du Québec (qc_2026), projection Vote-Scope par parti, député·e en fonction. Index alphabétique."
   canonical={canonical}
   lang="fr"
   currentPage="canada"
@@ -46,31 +33,26 @@ const canonical = 'https://vote-scope.com/fr/canada/quebec/circonscriptions/';
     <div class="container">
       <p class="eyebrow">Index des circonscriptions · Québec</p>
       <h1>Les 125 circonscriptions du Québec, redessinées pour 2026.</h1>
-      <p class="lede">Projection, député·e en fonction, candidats 2022. La carte 2026 a redécoupé les limites — chaque page indique aussi d'où vient la nouvelle circonscription.</p>
+      <p class="lede">Projection, député·e en fonction, candidats 2022, trajectoire des projections. La carte 2026 a redécoupé les limites — chaque page indique aussi d'où vient la nouvelle circonscription quand pertinent.</p>
     </div>
   </section>
 
   <section class="ridings-index">
     <div class="container">
-      {REGION_ORDER.map((reg) => (
-        <div class="prov-block">
-          <h2 id={reg}>{REGION_LABEL[reg] ?? reg} <span class="count">{byRegion[reg].length}</span></h2>
-          <ul class="riding-list">
-            {byRegion[reg].map((r) => {
-              const meta = partyMeta(r.jurisdiction, r.projection.winner);
-              return (
-                <li>
-                  <a href={`/fr/canada/quebec/circonscriptions/${r.slug}/`} style={`--accent:${meta.color}`}>
-                    <span class="dot" aria-hidden="true"></span>
-                    <span class="name">{r.name.fr}</span>
-                    <span class="party">{meta.label_fr}</span>
-                  </a>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-      ))}
+      <ul class="riding-list">
+        {all.map((r) => {
+          const meta = partyMeta(r.jurisdiction, r.projection.winner);
+          return (
+            <li>
+              <a href={`/fr/canada/quebec/circonscriptions/${r.slug}/`} style={`--accent:${meta.color}`}>
+                <span class="dot" aria-hidden="true"></span>
+                <span class="name">{r.name.fr}</span>
+                <span class="party">{meta.label_fr}</span>
+              </a>
+            </li>
+          );
+        })}
+      </ul>
     </div>
   </section>
 </EditorialLayout>
@@ -80,9 +62,6 @@ const canonical = 'https://vote-scope.com/fr/canada/quebec/circonscriptions/';
   .ridings-index-hero h1 { margin: 8px 0 16px; font-family: var(--serif); font-size: clamp(40px, 5vw, 64px); font-weight: 420; letter-spacing: -0.02em; line-height: 1.02; max-width: 900px; }
   .ridings-index-hero .lede { max-width: 760px; font-family: var(--serif); font-size: clamp(17px, 1.8vw, 20px); line-height: 1.55; color: var(--ink-2); }
   .ridings-index { padding: 48px 0; background: var(--paper-2); }
-  .prov-block { margin-bottom: 48px; }
-  .prov-block h2 { margin: 0 0 18px; font-family: var(--serif); font-size: clamp(24px, 2.6vw, 32px); font-weight: 420; letter-spacing: -0.01em; }
-  .prov-block .count { font-family: var(--mono); font-size: 13px; color: var(--ink-2); margin-left: 10px; }
   .riding-list { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 0; border-top: 1px solid var(--rule); border-left: 1px solid var(--rule); }
   .riding-list a { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule); background: var(--card); text-decoration: none; color: inherit; transition: background .15s ease; }
   .riding-list a:hover { background: color-mix(in oklab, var(--accent) 12%, var(--card)); }

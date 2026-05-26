@@ -10,13 +10,31 @@ interface Props {
 const { data, lang } = Astro.props;
 const name = lang === 'fr' ? data.name.fr : data.name.en;
 const winnerMeta = partyMeta(data.jurisdiction, data.projection.winner);
-const winnerLabel = lang === 'fr' ? winnerMeta.label_fr : winnerMeta.label_en;
 const baselineMeta = data.baseline ? partyMeta(data.jurisdiction, data.baseline.winner) : null;
-const baselineLabel = baselineMeta ? (lang === 'fr' ? baselineMeta.label_fr : baselineMeta.label_en) : null;
 const top = data.parties[0];
 const second = data.parties[1];
-const topLabel = top ? (lang === 'fr' ? top.label_fr : top.label_en) : '';
-const secondLabel = second ? (lang === 'fr' ? second.label_fr : second.label_en) : '';
+const topMeta = top ? partyMeta(data.jurisdiction, top.code) : null;
+const secondMeta = second ? partyMeta(data.jurisdiction, second.code) : null;
+
+/** Editorial reference: prefer the per-party `mention_*` field; fall back
+ *  to a generic "Parti X" / "X Party" pattern using the label. */
+function mention(meta: ReturnType<typeof partyMeta> | null, l: 'en' | 'fr', fallbackLabel: string): string {
+  if (!meta) return '';
+  if (l === 'fr') return meta.mention_fr ?? `du Parti ${fallbackLabel.toLowerCase()}`;
+  return meta.mention_en ?? `the ${fallbackLabel} Party`;
+}
+function naked(meta: ReturnType<typeof partyMeta> | null, l: 'en' | 'fr'): string {
+  if (!meta) return '';
+  return l === 'fr' ? meta.label_fr : meta.label_en;
+}
+const winnerMentionFr = mention(winnerMeta, 'fr', winnerMeta.label_fr);
+const winnerMentionEn = mention(winnerMeta, 'en', winnerMeta.label_en);
+const baselineMentionFr = baselineMeta ? mention(baselineMeta, 'fr', baselineMeta.label_fr) : null;
+const baselineMentionEn = baselineMeta ? mention(baselineMeta, 'en', baselineMeta.label_en) : null;
+const topMentionFr = topMeta ? mention(topMeta, 'fr', topMeta.label_fr) : '';
+const topMentionEn = topMeta ? mention(topMeta, 'en', topMeta.label_en) : '';
+const secondMentionFr = secondMeta ? mention(secondMeta, 'fr', secondMeta.label_fr) : '';
+const secondMentionEn = secondMeta ? mention(secondMeta, 'en', secondMeta.label_en) : '';
 
 const urban = data.urban_rural ?? 'mixed';
 const provinceCode = data.province ?? '';
@@ -54,20 +72,45 @@ const competitivenessEN =
     ? 'the riding remains competitive'
     : 'the probability of a close race is negligible';
 
+/** Redistricting tail: "Cette circonscription est composée des anciennes
+ *  Granby (100 %) et Brome-Missisquoi (24 %)." Surfaced only when origin
+ *  is fragmented (adapter strips ≥95% single-source cases). */
+const origin = data.redistrictingOrigin;
+function originSentence(l: 'en' | 'fr'): string | null {
+  if (!origin || origin.length === 0) return null;
+  const pieces = origin.map((o) => {
+    const n = l === 'fr' ? o.old_name_fr : (o.old_name_en || o.old_name_fr);
+    const p = Math.round(o.overlap_pct * 100);
+    return `${n} (${p} %)`;
+  });
+  if (l === 'fr') {
+    const list = pieces.length === 1
+      ? pieces[0]
+      : pieces.slice(0, -1).join(', ') + ' et ' + pieces[pieces.length - 1];
+    return `Cette circonscription est composée des anciennes ${list}.`;
+  }
+  const list = pieces.length === 1
+    ? pieces[0]
+    : pieces.slice(0, -1).join(', ') + ' and ' + pieces[pieces.length - 1];
+  return `This riding is composed of fragments of the former ${list}.`;
+}
+
 const blurbFR = [
-  `${name}, circonscription ${urbanFR} ${provinceFR}, ${baselineLabel ? `a élu un·e député·e du Parti ${baselineLabel.toLowerCase()} lors du scrutin précédent avec une marge de ${data.baseline!.margin.toFixed(0)} points` : 'arrive sans baseline directe pour le cycle courant'}.`,
-  `Le modèle Vote-Scope projette le Parti ${winnerLabel.toLowerCase()} en tête avec ${top?.vote_mean_pct.toFixed(0)} % d'intentions de vote, contre ${second?.vote_mean_pct.toFixed(0)} % pour le Parti ${secondLabel.toLowerCase()}, et ${competitivenessFR}.`,
+  `${name}, circonscription ${urbanFR} ${provinceFR}, ${baselineMentionFr ? `a élu un·e député·e ${baselineMentionFr} lors du scrutin précédent avec une marge de ${data.baseline!.margin.toFixed(0)} points` : 'arrive sans baseline directe pour le cycle courant'}.`,
+  `Le modèle Vote-Scope projette ${winnerMentionFr} en tête avec ${top?.vote_mean_pct.toFixed(0)} % d'intentions de vote, contre ${second?.vote_mean_pct.toFixed(0)} % pour ${secondMentionFr}, et ${competitivenessFR}.`,
   data.demographics?.francophone_pct !== undefined
     ? `Profil linguistique : ${data.demographics.francophone_pct.toFixed(0)} % francophones, ${data.demographics.anglophone_pct?.toFixed(0) ?? '—'} % anglophones.`
     : null,
+  originSentence('fr'),
 ].filter(Boolean).join(' ');
 
 const blurbEN = [
-  `${name}, an ${urbanEN} riding in ${provinceEN}, ${baselineLabel ? `elected a ${baselineLabel} member in the previous cycle with a ${data.baseline!.margin.toFixed(0)}-point margin` : 'has no direct baseline for the current cycle'}.`,
-  `The Vote-Scope model projects the ${winnerLabel} Party ahead at ${top?.vote_mean_pct.toFixed(0)}% vote share, against ${second?.vote_mean_pct.toFixed(0)}% for the ${secondLabel} Party, and ${competitivenessEN}.`,
+  `${name}, an ${urbanEN} riding in ${provinceEN}, ${baselineMentionEn ? `elected a member with ${baselineMentionEn} in the previous cycle, with a ${data.baseline!.margin.toFixed(0)}-point margin` : 'has no direct baseline for the current cycle'}.`,
+  `The Vote-Scope model projects ${winnerMentionEn} ahead at ${top?.vote_mean_pct.toFixed(0)}% vote share, against ${second?.vote_mean_pct.toFixed(0)}% for ${secondMentionEn}, and ${competitivenessEN}.`,
   data.demographics?.francophone_pct !== undefined
     ? `Linguistic profile: ${data.demographics.francophone_pct.toFixed(0)}% francophone, ${data.demographics.anglophone_pct?.toFixed(0) ?? '—'}% anglophone.`
     : null,
+  originSentence('en'),
 ].filter(Boolean).join(' ');
 
 const blurb = lang === 'fr' ? blurbFR : blurbEN;
