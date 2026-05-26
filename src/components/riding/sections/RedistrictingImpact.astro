@@ -11,7 +11,7 @@ import type { RidingData } from '../../../lib/riding-adapters/types';
 
 interface Props {
   data: RidingData;
-  lang: 'en' | 'fr';
+  lang: 'en' | 'fr' | 'es';
 }
 
 const { data, lang } = Astro.props;
@@ -28,6 +28,11 @@ const T = {
     eyebrow: 'Impact du redécoupage',
     title: "D'où viennent ces électeur·ice·s",
     intro: 'Ce district a été redécoupé dans la vague 2025-2026. Composition par ancien district contributeur :',
+  },
+  es: {
+    eyebrow: 'Impacto del redistritado',
+    title: 'De dónde provienen estos votantes',
+    intro: 'Este distrito fue redibujado en la ola de redistritado 2025-2026. Composición por antiguo distrito contribuyente:',
   },
 }[lang];
 ---

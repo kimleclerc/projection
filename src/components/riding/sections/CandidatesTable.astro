@@ -4,7 +4,7 @@ import { partyMeta } from '../../../lib/riding-adapters/parties';
 
 interface Props {
   data: RidingData;
-  lang: 'en' | 'fr';
+  lang: 'en' | 'fr' | 'es';
 }
 
 const { data, lang } = Astro.props;
@@ -32,9 +32,20 @@ const T = {
     role: 'Profession',
     elected: 'Élu·e',
   },
+  es: {
+    eyebrow: `Resultado detallado · ${cycleLabel}`,
+    title: 'Candidatos y votos',
+    candidate: 'Candidato·a',
+    party: 'Partido',
+    votes: 'Votos',
+    pct: '%',
+    role: 'Profesión',
+    elected: 'Electo·a',
+  },
 }[lang];
 
-const numberFmt = new Intl.NumberFormat(lang === 'fr' ? 'fr-CA' : 'en-CA');
+const LOCALE = { en: 'en-CA', fr: 'fr-CA', es: 'es-ES' }[lang];
+const numberFmt = new Intl.NumberFormat(LOCALE);
 ---
 
 <section class="candidates">

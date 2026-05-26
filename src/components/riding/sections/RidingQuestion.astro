@@ -23,7 +23,7 @@ import { partyMeta } from '../../../lib/riding-adapters/parties';
 
 interface Props {
   data: RidingData;
-  lang: 'en' | 'fr';
+  lang: 'en' | 'fr' | 'es';
 }
 
 const { data, lang } = Astro.props;
@@ -33,11 +33,12 @@ const winnerMeta = partyMeta(data.jurisdiction, data.projection.winner);
 const baselineMeta = data.baseline ? partyMeta(data.jurisdiction, data.baseline.winner) : null;
 
 /** Naked party label, used in subject position. */
-function naked(meta: ReturnType<typeof partyMeta>, l: 'en' | 'fr'): string {
+function naked(meta: ReturnType<typeof partyMeta>, l: 'en' | 'fr' | 'es'): string {
   return l === 'fr' ? meta.label_fr : meta.label_en;
 }
-/** Genitive / referential mention, used after "lose/hold/replace". */
-function mention(meta: ReturnType<typeof partyMeta>, l: 'en' | 'fr'): string {
+/** Genitive / referential mention, used after "lose/hold/replace". ES
+ *  falls back to English mention until per-party Spanish forms ship. */
+function mention(meta: ReturnType<typeof partyMeta>, l: 'en' | 'fr' | 'es'): string {
   if (l === 'fr') return meta.mention_fr ?? `du Parti ${meta.label_fr}`;
   return meta.mention_en ?? `the ${meta.label_en} Party`;
 }
@@ -53,6 +54,7 @@ const isSafe = data.projection.p_winner >= 0.85;
 
 let questionEn = '';
 let questionFr = '';
+let questionEs = '';
 
 if (isVacant && isByelection && data.byelectionDate) {
   // Byelection with a known date — the previous member name lives in member,
@@ -60,30 +62,37 @@ if (isVacant && isByelection && data.byelectionDate) {
   if (baselineLabel) {
     questionEn = `Who replaces ${mention(baselineMeta!, 'en')} in ${name}?`;
     questionFr = `Qui succède ${mention(baselineMeta!, 'fr')} dans ${name} ?`;
+    questionEs = `¿Quién sucede a ${mention(baselineMeta!, 'es')} en ${name}?`;
   } else {
     questionEn = `Who wins the ${name} byelection?`;
     questionFr = `Qui remporte la partielle de ${name} ?`;
+    questionEs = `¿Quién gana la elección extraordinaria de ${name}?`;
   }
 } else if (isVacant) {
   questionEn = `Who wins this open seat in ${name}?`;
   questionFr = `Qui remporte ce siège vacant dans ${name} ?`;
+  questionEs = `¿Quién gana este escaño vacante en ${name}?`;
 } else if (isTossup) {
   questionEn = `Who wins this toss-up in ${name}?`;
   questionFr = `Qui l'emporte dans ${name}, course incertaine ?`;
+  questionEs = `¿Quién gana esta carrera reñida en ${name}?`;
 } else if (isFlip && baselineMeta) {
   questionEn = `Will ${baselineLabel} lose ${name} to ${winnerLabel}?`;
   questionFr = `${baselineLabel} perd-il ${name} au profit ${mention(winnerMeta, 'fr')} ?`;
+  questionEs = `¿${baselineLabel} perderá ${name} frente a ${winnerLabel}?`;
 } else if (isSafe) {
   questionEn = `Is ${name} safe for ${mention(winnerMeta, 'en')}?`;
   questionFr = `${name} reste-t-il un siège sûr ${mention(winnerMeta, 'fr')} ?`;
+  questionEs = `¿${name} sigue siendo un escaño seguro para ${mention(winnerMeta, 'es')}?`;
 } else {
   // Leaning — competitive but a clear favourite.
   questionEn = `Can ${mention(winnerMeta, 'en')} hold ${name}?`;
   questionFr = `${mention(winnerMeta, 'fr')[0].toUpperCase()}${mention(winnerMeta, 'fr').slice(1)} conserve-t-il ${name} ?`;
+  questionEs = `¿Podrá ${mention(winnerMeta, 'es')} conservar ${name}?`;
 }
 
-const question = lang === 'fr' ? questionFr : questionEn;
-const eyebrow = lang === 'fr' ? 'La question' : 'The question';
+const question = { en: questionEn, fr: questionFr, es: questionEs }[lang];
+const eyebrow = { en: 'The question', fr: 'La question', es: 'La pregunta' }[lang];
 ---
 
 <section class="riding-question">

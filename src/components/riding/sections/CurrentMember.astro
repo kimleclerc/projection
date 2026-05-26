@@ -4,7 +4,7 @@ import { partyMeta } from '../../../lib/riding-adapters/parties';
 
 interface Props {
   data: RidingData;
-  lang: 'en' | 'fr';
+  lang: 'en' | 'fr' | 'es';
 }
 
 const { data, lang } = Astro.props;
@@ -26,6 +26,7 @@ const T = {
     on_date: 'on',
     since: 'Since',
     vacant: 'Vacant seat',
+    parliament_label: 'Parliament',
     change_byelection_win: 'Byelection win',
     change_floor_cross: 'Floor crossing',
   },
@@ -37,8 +38,21 @@ const T = {
     on_date: 'le',
     since: 'Depuis',
     vacant: 'Siège vacant',
+    parliament_label: 'Parlement',
     change_byelection_win: 'Élection partielle',
     change_floor_cross: 'Traversée de plancher',
+  },
+  es: {
+    eyebrow: 'Representante en funciones',
+    sits_with: 'Vota con',
+    elected_as: 'Electo bajo',
+    crossed: 'Cambio de partido',
+    on_date: 'el',
+    since: 'Desde',
+    vacant: 'Escaño vacante',
+    parliament_label: 'Congreso',
+    change_byelection_win: 'Elección extraordinaria',
+    change_floor_cross: 'Cambio de partido',
   },
 }[lang];
 
@@ -72,7 +86,7 @@ const changeLabel =
           <div><dt>{T.since}</dt><dd>{m.member_start_date}</dd></div>
         )}
         {m.parliament !== undefined && (
-          <div><dt>Parlement</dt><dd>{m.parliament}<sup>e</sup></dd></div>
+          <div><dt>{T.parliament_label}</dt><dd>{m.parliament}<sup>{lang === 'en' ? 'th' : (lang === 'es' ? '°' : 'e')}</sup></dd></div>
         )}
       </dl>
     </div>

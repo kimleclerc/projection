@@ -3,7 +3,7 @@ import type { RidingData } from '../../../lib/riding-adapters/types';
 
 interface Props {
   data: RidingData;
-  lang: 'en' | 'fr';
+  lang: 'en' | 'fr' | 'es';
 }
 
 const { data, lang } = Astro.props;
@@ -39,6 +39,20 @@ const T = {
     source: 'Source des données',
     official_note: 'Profil officiel du recensement (Statistique Canada) à brancher au prochain passage.',
   },
+  es: {
+    eyebrow: 'Demografía',
+    title: 'Quién vive aquí',
+    linguistic: 'Perfil lingüístico',
+    franco: 'Francófonos',
+    anglo: 'Anglófonos',
+    other: 'No-francófonos (otros)',
+    population: 'Población',
+    median_age: 'Edad mediana',
+    employment: 'Tasa de empleo',
+    unemployment: 'Tasa de desempleo',
+    source: 'Fuente de datos',
+    official_note: 'Perfil oficial del censo (Statistics Canada) por enlazar.',
+  },
 }[lang];
 
 const hasLinguistic =
@@ -48,18 +62,21 @@ const hasLinguistic =
 
 /** Public-facing labels for internal data-source codes. Keep all third-party
  *  vendor names out of the UI — only official agencies are surfaced. */
-const SOURCE_LABELS: Record<string, { en: string; fr: string }> = {
+const SOURCE_LABELS: Record<string, { en: string; fr: string; es: string }> = {
   qc125_canada_2021_census: {
     en: 'Statistics Canada — 2021 Census',
     fr: 'Statistique Canada — Recensement de 2021',
+    es: 'Statistics Canada — Censo 2021',
   },
   qc125_2021_census_projected_from_qc2022: {
     en: 'Statistics Canada — 2021 Census (projected to current boundaries)',
     fr: 'Statistique Canada — Recensement de 2021 (projeté sur les limites actuelles)',
+    es: 'Statistics Canada — Censo 2021 (proyectado sobre los límites actuales)',
   },
   ons_mid_2022_pcon2025: {
     en: 'Office for National Statistics — mid-2022 estimates',
     fr: 'Office for National Statistics — estimations mi-2022',
+    es: 'Office for National Statistics — estimaciones mediados de 2022',
   },
 };
 const sourceLabel = d.source

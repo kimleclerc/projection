@@ -24,7 +24,7 @@ import NeighborRidings from './sections/NeighborRidings.astro';
 
 interface Props {
   data: RidingData;
-  lang: 'en' | 'fr';
+  lang: 'en' | 'fr' | 'es';
 }
 
 const { data, lang } = Astro.props;
@@ -50,14 +50,14 @@ const { data, lang } = Astro.props;
 {/* Future slots — light up automatically when adapter populates them. */}
 {data.polls && data.polls.length > 0 && (
   <section class="slot-polls"><div class="container">
-    <p class="eyebrow">{lang === 'fr' ? 'Sondages locaux' : 'Local polls'}</p>
-    <p>{data.polls.length} {lang === 'fr' ? 'sondages disponibles' : 'polls available'}</p>
+    <p class="eyebrow">{{ en: 'Local polls', fr: 'Sondages locaux', es: 'Sondeos locales' }[lang]}</p>
+    <p>{data.polls.length} {{ en: 'polls available', fr: 'sondages disponibles', es: 'sondeos disponibles' }[lang]}</p>
   </div></section>
 )}
 
 {data.isByelection && data.marketSlug && (
   <section class="slot-market"><div class="container">
-    <p class="eyebrow">{lang === 'fr' ? 'Marché de prédiction' : 'Prediction market'}</p>
+    <p class="eyebrow">{{ en: 'Prediction market', fr: 'Marché de prédiction', es: 'Mercado de predicción' }[lang]}</p>
     {/* PolymarketEmbed island would hook here */}
   </div></section>
 )}

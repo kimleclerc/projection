@@ -3,7 +3,7 @@ import type { RidingData } from '../../../lib/riding-adapters/types';
 
 interface Props {
   data: RidingData;
-  lang: 'en' | 'fr';
+  lang: 'en' | 'fr' | 'es';
 }
 
 const { data, lang } = Astro.props;
@@ -20,6 +20,11 @@ const T = {
     eyebrow: 'Part de voix projetée',
     title: 'Projection par parti',
     baseline_label: (cycle: string) => `Résultat ${cycle.replace('_', ' ')}`,
+  },
+  es: {
+    eyebrow: 'Cuota de voto proyectada',
+    title: 'Proyección por partido',
+    baseline_label: (cycle: string) => `Resultado ${cycle.replace('_', ' ')}`,
   },
 }[lang];
 ---

@@ -3,20 +3,22 @@ import type { RidingData } from '../../../lib/riding-adapters/types';
 
 interface Props {
   data: RidingData;
-  lang: 'en' | 'fr';
+  lang: 'en' | 'fr' | 'es';
 }
 
 const { data, lang } = Astro.props;
 if (!data.runDate) return null;
 
+const LOCALE = { en: 'en-CA', fr: 'fr-CA', es: 'es-ES' }[lang];
 const formatted = new Intl.DateTimeFormat(
-  lang === 'fr' ? 'fr-CA' : 'en-CA',
+  LOCALE,
   { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' }
 ).format(new Date(data.runDate));
 
 const T = {
   en: { label: 'Last model run', cycle: 'Cycle' },
   fr: { label: 'Dernière exécution du modèle', cycle: 'Cycle' },
+  es: { label: 'Última ejecución del modelo', cycle: 'Ciclo' },
 }[lang];
 ---
 

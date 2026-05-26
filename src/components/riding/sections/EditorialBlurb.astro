@@ -4,7 +4,7 @@ import { partyMeta } from '../../../lib/riding-adapters/parties';
 
 interface Props {
   data: RidingData;
-  lang: 'en' | 'fr';
+  lang: 'en' | 'fr' | 'es';
 }
 
 const { data, lang } = Astro.props;
@@ -17,13 +17,17 @@ const topMeta = top ? partyMeta(data.jurisdiction, top.code) : null;
 const secondMeta = second ? partyMeta(data.jurisdiction, second.code) : null;
 
 /** Editorial reference: prefer the per-party `mention_*` field; fall back
- *  to a generic "Parti X" / "X Party" pattern using the label. */
-function mention(meta: ReturnType<typeof partyMeta> | null, l: 'en' | 'fr', fallbackLabel: string): string {
+ *  to a generic "Parti X" / "X Party" pattern using the label. Spanish
+ *  falls back to English mention because party-name forms map cleanly
+ *  ("the Conservatives" → "los Conservadores" requires per-party data
+ *  we don't yet store; defer to the universal English form). */
+function mention(meta: ReturnType<typeof partyMeta> | null, l: 'en' | 'fr' | 'es', fallbackLabel: string): string {
   if (!meta) return '';
   if (l === 'fr') return meta.mention_fr ?? `du Parti ${fallbackLabel.toLowerCase()}`;
+  // ES fallback to EN until we ship mention_es on PartyMeta.
   return meta.mention_en ?? `the ${fallbackLabel} Party`;
 }
-function naked(meta: ReturnType<typeof partyMeta> | null, l: 'en' | 'fr'): string {
+function naked(meta: ReturnType<typeof partyMeta> | null, l: 'en' | 'fr' | 'es'): string {
   if (!meta) return '';
   return l === 'fr' ? meta.label_fr : meta.label_en;
 }
@@ -35,14 +39,20 @@ const topMentionFr = topMeta ? mention(topMeta, 'fr', topMeta.label_fr) : '';
 const topMentionEn = topMeta ? mention(topMeta, 'en', topMeta.label_en) : '';
 const secondMentionFr = secondMeta ? mention(secondMeta, 'fr', secondMeta.label_fr) : '';
 const secondMentionEn = secondMeta ? mention(secondMeta, 'en', secondMeta.label_en) : '';
+const winnerMentionEs = mention(winnerMeta, 'es', winnerMeta.label_en);
+const baselineMentionEs = baselineMeta ? mention(baselineMeta, 'es', baselineMeta.label_en) : null;
+const topMentionEs = topMeta ? mention(topMeta, 'es', topMeta.label_en) : '';
+const secondMentionEs = secondMeta ? mention(secondMeta, 'es', secondMeta.label_en) : '';
 
 const urban = data.urban_rural ?? 'mixed';
 const provinceCode = data.province ?? '';
 
 const URBAN_LABEL_FR: Record<string, string> = { urban: 'urbaine', rural: 'rurale', mixed: 'mixte', suburban: 'de banlieue' };
 const URBAN_LABEL_EN: Record<string, string> = { urban: 'urban', rural: 'rural', mixed: 'mixed', suburban: 'suburban' };
+const URBAN_LABEL_ES: Record<string, string> = { urban: 'urbano', rural: 'rural', mixed: 'mixto', suburban: 'suburbano' };
 const urbanFR = URBAN_LABEL_FR[urban] ?? urban;
 const urbanEN = URBAN_LABEL_EN[urban] ?? urban;
+const urbanES = URBAN_LABEL_ES[urban] ?? urban;
 
 const PROVINCE_FR: Record<string, string> = {
   // Canadian provinces
@@ -62,12 +72,23 @@ const PROVINCE_EN: Record<string, string> = {
   // UK nations
   England: 'England', Scotland: 'Scotland', Wales: 'Wales', 'Northern Ireland': 'Northern Ireland',
 };
+const PROVINCE_ES: Record<string, string> = {
+  // Canadian provinces (genitive: "de Quebec", "de Ontario", "del Yukón"…)
+  NL: 'de Terranova y Labrador', PE: 'de la Isla del Príncipe Eduardo', NS: 'de Nueva Escocia',
+  NB: 'de Nuevo Brunswick', QC: 'de Quebec', ON: 'de Ontario',
+  MB: 'de Manitoba', SK: 'de Saskatchewan', AB: 'de Alberta',
+  BC: 'de la Columbia Británica', YT: 'del Yukón', NT: 'de los Territorios del Noroeste', NU: 'de Nunavut',
+  // UK nations
+  England: 'de Inglaterra', Scotland: 'de Escocia', Wales: 'del País de Gales', 'Northern Ireland': 'de Irlanda del Norte',
+};
 const provinceFR = PROVINCE_FR[provinceCode] ?? provinceCode;
 const provinceEN = PROVINCE_EN[provinceCode] ?? provinceCode;
+const provinceES = PROVINCE_ES[provinceCode] ?? provinceCode;
 
 const isUK = data.jurisdiction === 'uk';
 const ridingWordFR = isUK ? 'circonscription' : 'circonscription';
 const ridingWordEN = isUK ? 'constituency' : 'riding';
+const ridingWordES = isUK ? 'circunscripción' : 'distrito';
 
 const competitivenessFR =
   data.projection.p_close_race >= 0.35
@@ -81,12 +102,18 @@ const competitivenessEN =
     : data.projection.p_close_race >= 0.15
     ? 'the riding remains competitive'
     : 'the probability of a close race is negligible';
+const competitivenessES =
+  data.projection.p_close_race >= 0.35
+    ? 'la carrera podría dar la vuelta'
+    : data.projection.p_close_race >= 0.15
+    ? 'el distrito sigue competitivo'
+    : 'la probabilidad de una carrera reñida es nula';
 
 /** Redistricting tail: "Cette circonscription est composée des anciennes
  *  Granby (100 %) et Brome-Missisquoi (24 %)." Surfaced only when origin
  *  is fragmented (adapter strips ≥95% single-source cases). */
 const origin = data.redistrictingOrigin;
-function originSentence(l: 'en' | 'fr'): string | null {
+function originSentence(l: 'en' | 'fr' | 'es'): string | null {
   if (!origin || origin.length === 0) return null;
   const pieces = origin.map((o) => {
     const n = l === 'fr' ? o.old_name_fr : (o.old_name_en || o.old_name_fr);
@@ -98,6 +125,12 @@ function originSentence(l: 'en' | 'fr'): string | null {
       ? pieces[0]
       : pieces.slice(0, -1).join(', ') + ' et ' + pieces[pieces.length - 1];
     return `Cette circonscription est composée des anciennes ${list}.`;
+  }
+  if (l === 'es') {
+    const list = pieces.length === 1
+      ? pieces[0]
+      : pieces.slice(0, -1).join(', ') + ' y ' + pieces[pieces.length - 1];
+    return `Este distrito está compuesto por fragmentos de los antiguos ${list}.`;
   }
   const list = pieces.length === 1
     ? pieces[0]
@@ -123,8 +156,17 @@ const blurbEN = [
   originSentence('en'),
 ].filter(Boolean).join(' ');
 
-const blurb = lang === 'fr' ? blurbFR : blurbEN;
-const eyebrow = lang === 'fr' ? 'Lecture éditoriale' : 'Editorial read';
+const blurbES = [
+  `${name}, ${ridingWordES} ${urbanES} ${provinceES}, ${baselineMentionEs ? `eligió a un representante con ${baselineMentionEs} en el ciclo anterior, con un margen de ${data.baseline!.margin.toFixed(0)} puntos` : 'no tiene una baseline directa para el ciclo actual'}.`,
+  `El modelo Vote-Scope proyecta a ${winnerMentionEs} a la cabeza con ${top?.vote_mean_pct.toFixed(0)} % de intención de voto, frente al ${second?.vote_mean_pct.toFixed(0)} % de ${secondMentionEs}, y ${competitivenessES}.`,
+  data.demographics?.francophone_pct !== undefined
+    ? `Perfil lingüístico: ${data.demographics.francophone_pct.toFixed(0)} % francófonos, ${data.demographics.anglophone_pct?.toFixed(0) ?? '—'} % anglófonos.`
+    : null,
+  originSentence('es'),
+].filter(Boolean).join(' ');
+
+const blurb = { en: blurbEN, fr: blurbFR, es: blurbES }[lang];
+const eyebrow = { en: 'Editorial read', fr: 'Lecture éditoriale', es: 'Lectura editorial' }[lang];
 ---
 
 <section class="blurb">

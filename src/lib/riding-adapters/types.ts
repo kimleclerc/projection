@@ -12,8 +12,14 @@ export type JurisdictionKey =
   | 'quebec'
   | 'ontario'
   | 'us-house'
+  | 'us-senate'
   | 'uk'
   | 'france';
+
+/** Languages supported across all riding components. Adding a new locale
+ *  here surfaces a TS error in every T-block that doesn't translate yet —
+ *  intentional. */
+export type Lang = 'en' | 'fr' | 'es';
 
 export interface RidingParty {
   code: string;          // 'lib', 'con', 'ndp', 'bq', 'grn', 'ppc', 'dem', 'rep', ...
@@ -90,6 +96,9 @@ export interface RidingNeighbor {
   name_fr: string;
   href_en: string;
   href_fr: string;
+  /** Optional Spanish href. Adapters populate when /es/ pages exist for the
+   *  jurisdiction; NeighborRidings falls back to href_en otherwise. */
+  href_es?: string;
   /** Editorial "tone" of the projection — no raw numbers, by design. Invites click. */
   tone?: 'safe' | 'leaning' | 'competitive' | 'tossup' | 'vacant';
   /** Winner party code for color cue. */

@@ -10,7 +10,7 @@ import { partyMeta } from '../../../lib/riding-adapters/parties';
 
 interface Props {
   data: RidingData;
-  lang: 'en' | 'fr';
+  lang: 'en' | 'fr' | 'es';
 }
 
 const { data, lang } = Astro.props;
@@ -42,12 +42,23 @@ const T = {
     by: 'par',
     noPrimary: 'Aucun sondage primaire disponible',
   },
+  es: {
+    eyebrow: 'Primarias',
+    title: 'Quién lidera la primaria',
+    leads: 'lidera',
+    of: 'de',
+    polledCandidates: (n: number) => `${n} ${n === 1 ? 'candidato·a sondeado·a' : 'candidatos sondeados'}`,
+    asOf: 'Último sondeo',
+    by: 'por',
+    noPrimary: 'No hay sondeo de primaria disponible',
+  },
 }[lang];
 
 function formatDate(iso: string): string {
   if (!iso) return '';
   try {
-    return new Intl.DateTimeFormat(lang === 'fr' ? 'fr-CA' : 'en-CA', {
+    const LOCALE = { en: 'en-CA', fr: 'fr-CA', es: 'es-ES' }[lang];
+    return new Intl.DateTimeFormat(LOCALE, {
       month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC',
     }).format(new Date(iso + 'T00:00:00Z'));
   } catch {

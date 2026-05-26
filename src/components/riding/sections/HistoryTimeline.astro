@@ -4,7 +4,7 @@ import { partyMeta } from '../../../lib/riding-adapters/parties';
 
 interface Props {
   data: RidingData;
-  lang: 'en' | 'fr';
+  lang: 'en' | 'fr' | 'es';
 }
 
 const { data, lang } = Astro.props;
@@ -32,6 +32,15 @@ const T = {
     margin: 'Marge',
     turnout: 'Participation',
     swing: 'Variation de marge vs projection actuelle',
+    pts: 'pts',
+  },
+  es: {
+    eyebrow: 'Elección anterior',
+    cycle: data.baseline.cycle.replace('_', ' ').toUpperCase(),
+    won_by: 'Ganador',
+    margin: 'Margen',
+    turnout: 'Participación',
+    swing: 'Variación de margen vs proyección actual',
     pts: 'pts',
   },
 }[lang];

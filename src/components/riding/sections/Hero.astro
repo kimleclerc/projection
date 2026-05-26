@@ -4,7 +4,7 @@ import RidingShape from './RidingShape.astro';
 
 interface Props {
   data: RidingData;
-  lang: 'en' | 'fr';
+  lang: 'en' | 'fr' | 'es';
 }
 
 const { data, lang } = Astro.props;
@@ -16,6 +16,7 @@ const PROVINCE_PREFIX_EN: Record<string, string> = {
   'ontario':    'Provincial riding —',
   'uk':         'UK constituency —',
   'us-house':   'US House district —',
+  'us-senate':  'US Senate seat —',
   'france':     'Circonscription française —',
 };
 const PROVINCE_PREFIX_FR: Record<string, string> = {
@@ -23,9 +24,20 @@ const PROVINCE_PREFIX_FR: Record<string, string> = {
   'quebec':     'Circonscription provinciale —',
   'ontario':    'Circonscription provinciale —',
   'uk':         'Circonscription britannique —',
-  'us-house':   'District US (House) —',
+  'us-house':   'District US (Chambre) —',
+  'us-senate':  'Siège US (Sénat) —',
   'france':     'Circonscription française —',
 };
+const PROVINCE_PREFIX_ES: Record<string, string> = {
+  'federal-ca': 'Distrito federal —',
+  'quebec':     'Distrito provincial —',
+  'ontario':    'Distrito provincial —',
+  'uk':         'Circunscripción británica —',
+  'us-house':   'Distrito US (Cámara) —',
+  'us-senate':  'Escaño US (Senado) —',
+  'france':     'Circunscripción francesa —',
+};
+const PROVINCE_PREFIX_BY_LANG = { en: PROVINCE_PREFIX_EN, fr: PROVINCE_PREFIX_FR, es: PROVINCE_PREFIX_ES };
 const T = {
   en: {
     eyebrow: data.isByelection ? 'Byelection' : 'Riding profile',
@@ -36,6 +48,11 @@ const T = {
     eyebrow: data.isByelection ? 'Élection partielle' : 'Profil de circonscription',
     province_prefix: PROVINCE_PREFIX_FR[data.jurisdiction] ?? 'Circonscription fédérale —',
     urban: { urban: 'Urbaine', rural: 'Rurale', mixed: 'Mixte', suburban: 'Banlieue' } as Record<string, string>,
+  },
+  es: {
+    eyebrow: data.isByelection ? 'Elección extraordinaria' : 'Perfil del distrito',
+    province_prefix: PROVINCE_PREFIX_ES[data.jurisdiction] ?? 'Distrito federal —',
+    urban: { urban: 'Urbano', rural: 'Rural', mixed: 'Mixto', suburban: 'Suburbano' } as Record<string, string>,
   },
 }[lang];
 

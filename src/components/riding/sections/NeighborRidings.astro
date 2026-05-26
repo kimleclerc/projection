@@ -4,7 +4,7 @@ import { partyMeta } from '../../../lib/riding-adapters/parties';
 
 interface Props {
   data: RidingData;
-  lang: 'en' | 'fr';
+  lang: 'en' | 'fr' | 'es';
 }
 
 const { data, lang } = Astro.props;
@@ -13,6 +13,7 @@ if (!data.neighbors || data.neighbors.length === 0) return null;
 const TONE_LABEL = {
   en: { safe: 'Safe seat', leaning: 'Party favoured', competitive: 'Competitive', tossup: 'Toss-up', vacant: 'Vacant' },
   fr: { safe: 'Siège sûr',   leaning: 'Parti favorisé',  competitive: 'Compétitif', tossup: 'Course serrée', vacant: 'Vacant' },
+  es: { safe: 'Escaño seguro', leaning: 'Partido favorito', competitive: 'Competitivo', tossup: 'Carrera reñida', vacant: 'Vacante' },
 }[lang];
 
 const T = {
@@ -27,6 +28,12 @@ const T = {
     title: 'Circonscriptions voisines',
     cta: 'Ouvrir',
     hint: 'Ton éditorial seulement — choisissez une circonscription pour voir les chiffres.',
+  },
+  es: {
+    eyebrow: 'En la región',
+    title: 'Distritos cercanos',
+    cta: 'Abrir',
+    hint: 'Solo tono editorial — abre un distrito para ver los números.',
   },
 }[lang];
 ---
@@ -43,7 +50,11 @@ const T = {
         const partyLabel = meta ? (lang === 'fr' ? meta.label_fr : meta.label_en) : null;
         const toneLabel = n.tone ? TONE_LABEL[n.tone] : null;
         const name = lang === 'fr' ? n.name_fr : n.name_en;
-        const href = lang === 'fr' ? n.href_fr : n.href_en;
+        // For ES we use the Spanish href when adapters populate it; otherwise
+        // fall back to EN. Defaults aim to keep clicks inside the same locale.
+        const href = lang === 'fr' ? n.href_fr
+                   : (lang === 'es' && n.href_es) ? n.href_es
+                   : n.href_en;
         return (
           <li>
             <a href={href} class="card" style={meta ? `--accent:${meta.color}` : ''}>

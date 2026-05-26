@@ -4,7 +4,7 @@ import { partyMeta } from '../../../lib/riding-adapters/parties';
 
 interface Props {
   data: RidingData;
-  lang: 'en' | 'fr';
+  lang: 'en' | 'fr' | 'es';
 }
 
 const { data, lang } = Astro.props;
@@ -12,9 +12,11 @@ if (!data.shapePath) return null;
 
 const winnerMeta = partyMeta(data.jurisdiction, data.projection.winner);
 const ridingName = lang === 'fr' ? data.name.fr : data.name.en;
-const label = lang === 'fr'
-  ? `Silhouette de ${ridingName}`
-  : `Silhouette of ${ridingName}`;
+const label = {
+  en: `Silhouette of ${ridingName}`,
+  fr: `Silhouette de ${ridingName}`,
+  es: `Silueta de ${ridingName}`,
+}[lang];
 ---
 
 <aside class="riding-shape" aria-label={label}>

@@ -1,0 +1,51 @@
+---
+import EditorialLayout from '../../../../../layouts/EditorialLayout.astro';
+import RidingPage from '../../../../../components/riding/RidingPage.astro';
+import { getAllUSHouseRidings } from '../../../../../lib/riding-adapters/us-house';
+
+export function getStaticPaths() {
+  return getAllUSHouseRidings().map((data) => ({
+    params: { id: data.slug },
+    props: { data },
+  }));
+}
+
+const { data } = Astro.props;
+const canonical = `https://vote-scope.com/es/us/house/distritos/${data.slug}/`;
+const alternateEn = `https://vote-scope.com/en/us/house/districts/${data.slug}/`;
+const alternateFr = `https://vote-scope.com/fr/us/chambre/districts/${data.slug}/`;
+const title = `${data.name.en || data.name.fr} — Proyección Cámara de Representantes — Vote-Scope`;
+const description = `Proyección Vote-Scope para ${data.name.en || data.name.fr} (${data.province || 'EE. UU.'}): cuota de voto por partido, representante en funciones, candidatos 2026, carrera primaria.`;
+---
+
+<EditorialLayout
+  title={title}
+  description={description}
+  canonical={canonical}
+  lang="es"
+  currentPage="us"
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={{ en: alternateEn, fr: alternateFr, es: canonical }}
+  jsonLd={[
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Place',
+      name: data.name.en || data.name.fr,
+      containedInPlace: { '@type': 'AdministrativeArea', name: data.province || 'Estados Unidos' },
+      url: canonical,
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Vote-Scope',    item: 'https://vote-scope.com/es/' },
+        { '@type': 'ListItem', position: 2, name: 'Estados Unidos', item: 'https://vote-scope.com/es/us/' },
+        { '@type': 'ListItem', position: 3, name: 'Cámara',        item: 'https://vote-scope.com/es/us/house/' },
+        { '@type': 'ListItem', position: 4, name: 'Distritos',     item: 'https://vote-scope.com/es/us/house/distritos/' },
+        { '@type': 'ListItem', position: 5, name: data.name.en || data.name.fr, item: canonical },
+      ],
+    },
+  ]}
+>
+  <RidingPage data={data} lang="es" />
+</EditorialLayout>

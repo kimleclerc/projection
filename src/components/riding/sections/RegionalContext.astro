@@ -4,7 +4,7 @@ import { partyMeta } from '../../../lib/riding-adapters/parties';
 
 interface Props {
   data: RidingData;
-  lang: 'en' | 'fr';
+  lang: 'en' | 'fr' | 'es';
 }
 
 const { data, lang } = Astro.props;
@@ -20,12 +20,17 @@ const totalSeats = ctx.totalSeats ?? 343;
 /** Country / jurisdiction label for the national-average row. */
 const NATIONAL_LABEL_EN: Record<string, string> = {
   'federal-ca': 'Canada', 'quebec': 'Québec', 'ontario': 'Ontario',
-  'uk': 'United Kingdom', 'us-house': 'United States', 'france': 'France',
+  'uk': 'United Kingdom', 'us-house': 'United States', 'us-senate': 'United States', 'france': 'France',
 };
 const NATIONAL_LABEL_FR: Record<string, string> = {
   'federal-ca': 'Canada', 'quebec': 'Québec', 'ontario': 'Ontario',
-  'uk': 'Royaume-Uni', 'us-house': 'États-Unis', 'france': 'France',
+  'uk': 'Royaume-Uni', 'us-house': 'États-Unis', 'us-senate': 'États-Unis', 'france': 'France',
 };
+const NATIONAL_LABEL_ES: Record<string, string> = {
+  'federal-ca': 'Canadá', 'quebec': 'Quebec', 'ontario': 'Ontario',
+  'uk': 'Reino Unido', 'us-house': 'Estados Unidos', 'us-senate': 'Estados Unidos', 'france': 'Francia',
+};
+const NATIONAL_BY_LANG = { en: NATIONAL_LABEL_EN, fr: NATIONAL_LABEL_FR, es: NATIONAL_LABEL_ES }[lang];
 
 const PROVINCE_FR: Record<string, string> = {
   NL: 'Terre-Neuve-et-Labrador', PE: 'Île-du-Prince-Édouard', NS: 'Nouvelle-Écosse',
@@ -39,15 +44,23 @@ const PROVINCE_EN: Record<string, string> = {
   MB: 'Manitoba', SK: 'Saskatchewan', AB: 'Alberta',
   BC: 'British Columbia', YT: 'Yukon', NT: 'Northwest Territories', NU: 'Nunavut',
 };
-const provLabel = (lang === 'fr' ? PROVINCE_FR : PROVINCE_EN)[data.province ?? ''] ?? data.province;
+const PROVINCE_ES: Record<string, string> = {
+  NL: 'Terranova y Labrador', PE: 'Isla del Príncipe Eduardo', NS: 'Nueva Escocia',
+  NB: 'Nuevo Brunswick', QC: 'Quebec', ON: 'Ontario',
+  MB: 'Manitoba', SK: 'Saskatchewan', AB: 'Alberta',
+  BC: 'Columbia Británica', YT: 'Yukón', NT: 'Territorios del Noroeste', NU: 'Nunavut',
+};
+const PROVINCE_BY_LANG = { en: PROVINCE_EN, fr: PROVINCE_FR, es: PROVINCE_ES }[lang];
+const provLabel = PROVINCE_BY_LANG[data.province ?? ''] ?? data.province;
 
 // Take top 4 parties by riding vote_mean to keep the comparison legible.
 const topParties = data.parties.slice(0, 4);
 const ridingName = lang === 'fr' ? data.name.fr : data.name.en;
 
 const T = {
-  en: { eyebrow: 'In context', title: 'How this riding stacks up', here: 'Here', province: provLabel, national: NATIONAL_LABEL_EN[data.jurisdiction] ?? 'Canada' },
-  fr: { eyebrow: 'En contexte', title: 'Cette circonscription dans le tableau', here: 'Ici', province: provLabel, national: NATIONAL_LABEL_FR[data.jurisdiction] ?? 'Canada' },
+  en: { eyebrow: 'In context', title: 'How this riding stacks up', here: 'Here', province: provLabel, national: NATIONAL_BY_LANG[data.jurisdiction] ?? 'Canada', prov_avg: 'Provincial average', nat_avg: 'National average' },
+  fr: { eyebrow: 'En contexte', title: 'Cette circonscription dans le tableau', here: 'Ici', province: provLabel, national: NATIONAL_BY_LANG[data.jurisdiction] ?? 'Canada', prov_avg: 'Moyenne provinciale', nat_avg: 'Moyenne nationale' },
+  es: { eyebrow: 'En contexto', title: 'Cómo se sitúa este distrito', here: 'Aquí', province: provLabel, national: NATIONAL_BY_LANG[data.jurisdiction] ?? 'Canadá', prov_avg: 'Media provincial', nat_avg: 'Media nacional' },
 }[lang];
 
 function delta(here: number, ref: number): { sign: string; val: number; cls: string } {
@@ -88,7 +101,7 @@ function delta(here: number, ref: number): { sign: string; val: number; cls: str
         </tr>
         {showProvince && (
           <tr>
-            <th scope="row"><span class="loc">{lang === 'fr' ? 'Moyenne provinciale' : 'Provincial average'}</span><span class="riding-name">{T.province}</span></th>
+            <th scope="row"><span class="loc">{T.prov_avg}</span><span class="riding-name">{T.province}</span></th>
             {topParties.map((p) => {
               const v = ctx.province[p.code];
               const d = v != null ? delta(p.vote_mean_pct, v) : null;
@@ -102,7 +115,7 @@ function delta(here: number, ref: number): { sign: string; val: number; cls: str
         )}
         {showNational && (
           <tr>
-            <th scope="row"><span class="loc">{lang === 'fr' ? 'Moyenne nationale' : 'National average'}</span><span class="riding-name">{T.national}</span></th>
+            <th scope="row"><span class="loc">{T.nat_avg}</span><span class="riding-name">{T.national}</span></th>
             {topParties.map((p) => {
               const v = ctx.national[p.code];
               const d = v != null ? delta(p.vote_mean_pct, v) : null;
@@ -116,13 +129,20 @@ function delta(here: number, ref: number): { sign: string; val: number; cls: str
         )}
       </tbody>
     </table>
-    <p class="note">{lang === 'fr'
-      ? (showProvince
-          ? `Moyennes provinciales calculées à partir des ${totalSeats} circonscriptions (moyenne brute, non pondérée).`
-          : `Moyennes nationales calculées à partir des ${totalSeats} circonscriptions (moyenne brute, non pondérée).`)
-      : (showProvince
+    <p class="note">{(() => {
+      const NOTE = {
+        en: showProvince
           ? `Provincial averages computed across the ${totalSeats} riding-level projections (unweighted mean).`
-          : `Nationwide averages computed across the ${totalSeats} riding-level projections (unweighted mean).`)}</p>
+          : `Nationwide averages computed across the ${totalSeats} riding-level projections (unweighted mean).`,
+        fr: showProvince
+          ? `Moyennes provinciales calculées à partir des ${totalSeats} circonscriptions (moyenne brute, non pondérée).`
+          : `Moyennes nationales calculées à partir des ${totalSeats} circonscriptions (moyenne brute, non pondérée).`,
+        es: showProvince
+          ? `Medias provinciales calculadas a partir de los ${totalSeats} distritos (media bruta, no ponderada).`
+          : `Medias nacionales calculadas a partir de los ${totalSeats} distritos (media bruta, no ponderada).`,
+      };
+      return NOTE[lang];
+    })()}</p>
   </div>
 </section>
 

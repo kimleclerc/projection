@@ -4,7 +4,7 @@ import ProjectionHistoryChart from '../../../islands/ProjectionHistoryChart.tsx'
 
 interface Props {
   data: RidingData;
-  lang: 'en' | 'fr';
+  lang: 'en' | 'fr' | 'es';
 }
 
 const { data, lang } = Astro.props;
@@ -33,6 +33,7 @@ const partiesLite = data.parties.map((p) => ({
 const T = {
   en: { eyebrow: 'Projection track', title: 'How the projection has moved' },
   fr: { eyebrow: 'Trajectoire de la projection', title: 'Évolution de la projection' },
+  es: { eyebrow: 'Trayectoria de la proyección', title: 'Evolución de la proyección' },
 }[lang];
 ---
 

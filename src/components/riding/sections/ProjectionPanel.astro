@@ -4,7 +4,7 @@ import { partyMeta } from '../../../lib/riding-adapters/parties';
 
 interface Props {
   data: RidingData;
-  lang: 'en' | 'fr';
+  lang: 'en' | 'fr' | 'es';
 }
 
 const { data, lang } = Astro.props;
@@ -34,6 +34,16 @@ const T = {
     safe: 'Sûr',
     competitive: 'Compétitif',
     toss_up: 'Indécis',
+  },
+  es: {
+    eyebrow: 'Proyección actual',
+    leader_in: 'Ganador proyectado',
+    confidence: 'Probabilidad',
+    margin: 'Margen medio (pts)',
+    close: 'P(carrera reñida)',
+    safe: 'Seguro',
+    competitive: 'Competitivo',
+    toss_up: 'Indeciso',
   },
 }[lang];
 
