@@ -166,7 +166,11 @@ function adaptOne(raw: RawRiding): RidingData {
     member: members[raw.riding_id],
     candidates: candidatesByRiding[raw.riding_id],
     runDate: META.run_date,
-    hasProjectionHistory: RIDINGS_WITH_HISTORY.has(raw.riding_id),
+    // UK history snapshots (web_data/uk/runs/<date>.json) only carry winner
+    // + p_leading + mean_margin per riding — no per-party vote_mean — so the
+    // ProjectionHistory chart can't render lines. Hide until the pipeline
+    // archives riding_projection.csv per date.
+    hasProjectionHistory: false,
     neighbors: buildNeighbors(raw.riding_id),
     regionalContext: {
       province: {},
