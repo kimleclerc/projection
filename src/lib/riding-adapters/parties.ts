@@ -28,6 +28,16 @@ export const CA_FEDERAL_PARTIES: Record<string, PartyMeta> = {
   fed_oth: { label_en: 'Other',        label_fr: 'Autre',         color: '#999999', mention_fr: "d'un autre parti",      mention_en: 'another party' },
 };
 
+export const ON_PARTIES: Record<string, PartyMeta> = {
+  on_pc:  { label_en: 'PC',  label_fr: 'PC',  color: '#0F4C81', mention_fr: 'du PC',              mention_en: 'the PC Party' },
+  on_olp: { label_en: 'OLP', label_fr: 'OLP', color: '#ED1C24', mention_fr: 'du PLO',             mention_en: 'the Ontario Liberals' },
+  on_lib: { label_en: 'OLP', label_fr: 'OLP', color: '#ED1C24', mention_fr: 'du PLO',             mention_en: 'the Ontario Liberals' },
+  on_ndp: { label_en: 'NDP', label_fr: 'NPD', color: '#F37021', mention_fr: 'du NPD',             mention_en: 'the NDP' },
+  on_grn: { label_en: 'GP',  label_fr: 'PV',  color: '#3D9B35', mention_fr: 'du Parti vert',      mention_en: 'the Green Party' },
+  on_ind: { label_en: 'IND', label_fr: 'IND', color: '#888888', mention_fr: 'indépendant·e',      mention_en: 'an independent' },
+  on_oth: { label_en: 'OTH', label_fr: 'AUT', color: '#999999', mention_fr: "d'un autre parti",   mention_en: 'another party' },
+};
+
 export const QC_PARTIES: Record<string, PartyMeta> = {
   caq:    { label_en: 'CAQ',          label_fr: 'CAQ',  color: '#03A9F4', mention_fr: 'de la CAQ',           mention_en: 'the CAQ' },
   plq:    { label_en: 'PLQ',          label_fr: 'PLQ',  color: '#D71920', mention_fr: 'du PLQ',              mention_en: 'the Quebec Liberals' },
@@ -41,6 +51,7 @@ export const QC_PARTIES: Record<string, PartyMeta> = {
 const PALETTES: Record<string, Record<string, PartyMeta>> = {
   'federal-ca': CA_FEDERAL_PARTIES,
   'quebec': QC_PARTIES,
+  'ontario': ON_PARTIES,
 };
 
 export function partyMeta(jurisdiction: string, code: string): PartyMeta {

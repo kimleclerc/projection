@@ -1,0 +1,50 @@
+---
+import EditorialLayout from '../../../../../layouts/EditorialLayout.astro';
+import RidingPage from '../../../../../components/riding/RidingPage.astro';
+import { getAllOntarioRidings } from '../../../../../lib/riding-adapters/ontario';
+
+export function getStaticPaths() {
+  return getAllOntarioRidings().map((data) => ({
+    params: { id: data.slug },
+    props: { data },
+  }));
+}
+
+const { data } = Astro.props;
+const canonical = `https://vote-scope.com/en/canada/ontario/ridings/${data.slug}/`;
+const alternateFr = `https://vote-scope.com/fr/canada/ontario/circonscriptions/${data.slug}/`;
+const title = `${data.name.en || data.name.fr} — Ontario riding projection — Vote-Scope`;
+const description = `Vote-Scope projection for ${data.name.en || data.name.fr} (Ontario): vote share, win probability, sitting MPP and 2025 candidates.`;
+---
+
+<EditorialLayout
+  title={title}
+  description={description}
+  canonical={canonical}
+  lang="en"
+  currentPage="canada"
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={{ en: canonical, fr: alternateFr }}
+  jsonLd={[
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Place',
+      name: data.name.en || data.name.fr,
+      containedInPlace: { '@type': 'AdministrativeArea', name: 'Ontario' },
+      url: canonical,
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: 'https://vote-scope.com/en/' },
+        { '@type': 'ListItem', position: 2, name: 'Canada',    item: 'https://vote-scope.com/en/canada/' },
+        { '@type': 'ListItem', position: 3, name: 'Ontario',   item: 'https://vote-scope.com/en/canada/ontario/' },
+        { '@type': 'ListItem', position: 4, name: 'Ridings',   item: 'https://vote-scope.com/en/canada/ontario/ridings/' },
+        { '@type': 'ListItem', position: 5, name: data.name.en || data.name.fr, item: canonical },
+      ],
+    },
+  ]}
+>
+  <RidingPage data={data} lang="en" />
+</EditorialLayout>

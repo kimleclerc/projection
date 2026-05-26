@@ -1,0 +1,50 @@
+---
+import EditorialLayout from '../../../../../layouts/EditorialLayout.astro';
+import RidingPage from '../../../../../components/riding/RidingPage.astro';
+import { getAllOntarioRidings } from '../../../../../lib/riding-adapters/ontario';
+
+export function getStaticPaths() {
+  return getAllOntarioRidings().map((data) => ({
+    params: { id: data.slug },
+    props: { data },
+  }));
+}
+
+const { data } = Astro.props;
+const canonical = `https://vote-scope.com/fr/canada/ontario/circonscriptions/${data.slug}/`;
+const alternateEn = `https://vote-scope.com/en/canada/ontario/ridings/${data.slug}/`;
+const title = `${data.name.fr || data.name.en} — Projection provinciale (Ontario) — Vote-Scope`;
+const description = `Projection Vote-Scope pour ${data.name.fr || data.name.en} (Ontario) : parts de voix, probabilité de victoire, député·e en fonction et candidats 2025.`;
+---
+
+<EditorialLayout
+  title={title}
+  description={description}
+  canonical={canonical}
+  lang="fr"
+  currentPage="canada"
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={{ en: alternateEn, fr: canonical }}
+  jsonLd={[
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Place',
+      name: data.name.fr || data.name.en,
+      containedInPlace: { '@type': 'AdministrativeArea', name: 'Ontario' },
+      url: canonical,
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: 'https://vote-scope.com/fr/' },
+        { '@type': 'ListItem', position: 2, name: 'Canada',    item: 'https://vote-scope.com/fr/canada/' },
+        { '@type': 'ListItem', position: 3, name: 'Ontario',   item: 'https://vote-scope.com/fr/canada/ontario/' },
+        { '@type': 'ListItem', position: 4, name: 'Circonscriptions', item: 'https://vote-scope.com/fr/canada/ontario/circonscriptions/' },
+        { '@type': 'ListItem', position: 5, name: data.name.fr || data.name.en, item: canonical },
+      ],
+    },
+  ]}
+>
+  <RidingPage data={data} lang="fr" />
+</EditorialLayout>
