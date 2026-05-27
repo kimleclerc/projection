@@ -13,6 +13,7 @@ export function getStaticPaths() {
 const { data } = Astro.props;
 const canonical = `https://vote-scope.com/fr/canada/quebec/circonscriptions/${data.slug}/`;
 const alternateEn = `https://vote-scope.com/en/canada/quebec/ridings/${data.slug}/`;
+const alternateEs = `https://vote-scope.com/es/canada/quebec/distritos/${data.slug}/`;
 const title = `${data.name.fr} — Projection provinciale (Québec) — Vote-Scope`;
 const description = `Projection Vote-Scope pour ${data.name.fr} (Québec) : parts de voix, probabilité de victoire, député·e en fonction et candidats 2022.`;
 ---
@@ -24,7 +25,7 @@ const description = `Projection Vote-Scope pour ${data.name.fr} (Québec) : part
   lang="fr"
   currentPage="canada"
   ogImage="https://vote-scope.com/og/vote-scope.png"
-  alternates={{ en: alternateEn, fr: canonical }}
+  alternates={{ en: alternateEn, fr: canonical, es: alternateEs }}
   jsonLd={[
     {
       '@context': 'https://schema.org',

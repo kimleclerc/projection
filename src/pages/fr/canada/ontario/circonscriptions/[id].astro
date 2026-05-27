@@ -13,6 +13,7 @@ export function getStaticPaths() {
 const { data } = Astro.props;
 const canonical = `https://vote-scope.com/fr/canada/ontario/circonscriptions/${data.slug}/`;
 const alternateEn = `https://vote-scope.com/en/canada/ontario/ridings/${data.slug}/`;
+const alternateEs = `https://vote-scope.com/es/canada/ontario/distritos/${data.slug}/`;
 const title = `${data.name.fr || data.name.en} — Projection provinciale (Ontario) — Vote-Scope`;
 const description = `Projection Vote-Scope pour ${data.name.fr || data.name.en} (Ontario) : parts de voix, probabilité de victoire, député·e en fonction et candidats 2025.`;
 ---
@@ -24,7 +25,7 @@ const description = `Projection Vote-Scope pour ${data.name.fr || data.name.en} 
   lang="fr"
   currentPage="canada"
   ogImage="https://vote-scope.com/og/vote-scope.png"
-  alternates={{ en: alternateEn, fr: canonical }}
+  alternates={{ en: alternateEn, fr: canonical, es: alternateEs }}
   jsonLd={[
     {
       '@context': 'https://schema.org',
