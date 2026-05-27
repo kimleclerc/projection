@@ -1,0 +1,71 @@
+---
+import EditorialLayout from '../../../../layouts/EditorialLayout.astro';
+import { getAllUKRidings } from '../../../../lib/riding-adapters/uk';
+import { partyMeta } from '../../../../lib/riding-adapters/parties';
+
+const all = getAllUKRidings()
+  .slice()
+  .sort((a, b) => (a.name.en || a.name.fr).localeCompare(b.name.en || b.name.fr, 'es'));
+
+const canonical = 'https://vote-scope.com/es/uk/circunscripciones/';
+---
+
+<EditorialLayout
+  title="Circunscripciones del Reino Unido — Vote-Scope"
+  description="Las 650 circunscripciones de Westminster (uk_2029), proyección Vote-Scope por partido, diputado·a en funciones. Índice alfabético."
+  canonical={canonical}
+  lang="es"
+  currentPage="uk"
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={{ en: 'https://vote-scope.com/en/uk/constituencies/', fr: 'https://vote-scope.com/fr/uk/circonscriptions/', es: canonical }}
+  jsonLd={[
+    {
+      '@context': 'https://schema.org',
+      '@type': 'CollectionPage',
+      name: 'Circunscripciones de Westminster',
+      url: canonical,
+      inLanguage: 'es',
+      isPartOf: { '@type': 'WebSite', name: 'Vote-Scope', url: 'https://vote-scope.com/' },
+    },
+  ]}
+>
+  <section class="ridings-index-hero">
+    <div class="container">
+      <p class="eyebrow">Índice de circunscripciones · Reino Unido</p>
+      <h1>Las 650 circunscripciones británicas.</h1>
+      <p class="lede">Proyección, diputado·a en funciones, candidatos 2024, demografía ONS. Recorre alfabéticamente — los escaños de Irlanda del Norte conservan su identidad partidista (DUP, Sinn Féin, SDLP, Alliance, UUP, TUV) incluso cuando el modelo usa el bucket «otros».</p>
+    </div>
+  </section>
+
+  <section class="ridings-index">
+    <div class="container">
+      <ul class="riding-list">
+        {all.map((r) => {
+          const meta = partyMeta(r.jurisdiction, r.projection.winner);
+          return (
+            <li>
+              <a href={`/es/uk/circunscripciones/${r.slug}/`} style={`--accent:${meta.color}`}>
+                <span class="dot" aria-hidden="true"></span>
+                <span class="name">{r.name.en || r.name.fr}</span>
+                <span class="party">{meta.label_en}</span>
+              </a>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  </section>
+</EditorialLayout>
+
+<style>
+  .ridings-index-hero { padding: 80px 0 32px; border-bottom: 1px solid var(--rule); background: var(--paper); }
+  .ridings-index-hero h1 { margin: 8px 0 16px; font-family: var(--serif); font-size: clamp(40px, 5vw, 64px); font-weight: 420; letter-spacing: -0.02em; line-height: 1.02; max-width: 900px; }
+  .ridings-index-hero .lede { max-width: 760px; font-family: var(--serif); font-size: clamp(17px, 1.8vw, 20px); line-height: 1.55; color: var(--ink-2); }
+  .ridings-index { padding: 48px 0; background: var(--paper-2); }
+  .riding-list { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 0; border-top: 1px solid var(--rule); border-left: 1px solid var(--rule); }
+  .riding-list a { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule); background: var(--card); text-decoration: none; color: inherit; transition: background .15s ease; }
+  .riding-list a:hover { background: color-mix(in oklab, var(--accent) 12%, var(--card)); }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+  .name { font-family: var(--serif); font-size: 15px; flex: 1; }
+  .party { font-family: var(--mono); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); }
+</style>

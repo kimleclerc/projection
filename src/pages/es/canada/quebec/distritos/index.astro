@@ -1,0 +1,71 @@
+---
+import EditorialLayout from '../../../../../layouts/EditorialLayout.astro';
+import { getAllQuebecRidings } from '../../../../../lib/riding-adapters/quebec';
+import { partyMeta } from '../../../../../lib/riding-adapters/parties';
+
+const all = getAllQuebecRidings()
+  .slice()
+  .sort((a, b) => (a.name.fr || a.name.en).localeCompare(b.name.fr || b.name.en, 'es'));
+
+const canonical = 'https://vote-scope.com/es/canada/quebec/distritos/';
+---
+
+<EditorialLayout
+  title="Distritos provinciales de Quebec — Vote-Scope"
+  description="Los 125 distritos provinciales de Quebec (qc_2026), proyección Vote-Scope por partido, diputado·a en funciones. Índice alfabético."
+  canonical={canonical}
+  lang="es"
+  currentPage="canada"
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={{ en: 'https://vote-scope.com/en/canada/quebec/ridings/', fr: 'https://vote-scope.com/fr/canada/quebec/circonscriptions/', es: canonical }}
+  jsonLd={[
+    {
+      '@context': 'https://schema.org',
+      '@type': 'CollectionPage',
+      name: 'Distritos provinciales de Quebec',
+      url: canonical,
+      inLanguage: 'es',
+      isPartOf: { '@type': 'WebSite', name: 'Vote-Scope', url: 'https://vote-scope.com/' },
+    },
+  ]}
+>
+  <section class="ridings-index-hero">
+    <div class="container">
+      <p class="eyebrow">Índice de distritos · Quebec</p>
+      <h1>Los 125 distritos provinciales.</h1>
+      <p class="lede">Proyección, diputado·a en funciones, candidatos 2022, trayectoria del modelo y distritos vecinos — para cada uno de los 125 distritos del mapa 2026 de Quebec.</p>
+    </div>
+  </section>
+
+  <section class="ridings-index">
+    <div class="container">
+      <ul class="riding-list">
+        {all.map((r) => {
+          const meta = partyMeta(r.jurisdiction, r.projection.winner);
+          return (
+            <li>
+              <a href={`/es/canada/quebec/distritos/${r.slug}/`} style={`--accent:${meta.color}`}>
+                <span class="dot" aria-hidden="true"></span>
+                <span class="name">{r.name.fr || r.name.en}</span>
+                <span class="party">{meta.label_fr}</span>
+              </a>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  </section>
+</EditorialLayout>
+
+<style>
+  .ridings-index-hero { padding: 80px 0 32px; border-bottom: 1px solid var(--rule); background: var(--paper); }
+  .ridings-index-hero h1 { margin: 8px 0 16px; font-family: var(--serif); font-size: clamp(40px, 5vw, 64px); font-weight: 420; letter-spacing: -0.02em; line-height: 1.02; max-width: 900px; }
+  .ridings-index-hero .lede { max-width: 760px; font-family: var(--serif); font-size: clamp(17px, 1.8vw, 20px); line-height: 1.55; color: var(--ink-2); }
+  .ridings-index { padding: 48px 0; background: var(--paper-2); }
+  .riding-list { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 0; border-top: 1px solid var(--rule); border-left: 1px solid var(--rule); }
+  .riding-list a { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule); background: var(--card); text-decoration: none; color: inherit; transition: background .15s ease; }
+  .riding-list a:hover { background: color-mix(in oklab, var(--accent) 12%, var(--card)); }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+  .name { font-family: var(--serif); font-size: 15px; flex: 1; }
+  .party { font-family: var(--mono); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); }
+</style>

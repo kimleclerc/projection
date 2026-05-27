@@ -1,0 +1,68 @@
+---
+import Base from '../../../../layouts/Base.astro';
+import { canadaByelections } from '../../../../data/canadaByelections';
+
+const byelections = Object.values(canadaByelections);
+---
+
+<Base
+  title="Elecciones extraordinarias Canadá 2026 — Vote-Scope"
+  description="Tres elecciones extraordinarias federales, tres llamadas correctas: Scarborough Southwest, Terrebonne y University—Rosedale, el 13 de abril de 2026. Consulta cada desk y su resultado archivado."
+  canonical="https://vote-scope.com/es/canada/byelections/"
+  lang="es"
+  currentPage="canada"
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={{
+    en: 'https://vote-scope.com/en/canada/byelections/',
+    fr: 'https://vote-scope.com/fr/canada/byelections/',
+    es: 'https://vote-scope.com/es/canada/byelections/',
+  }}
+  jsonLd={[
+    { '@context': 'https://schema.org', '@type': 'CollectionPage', name: 'Elecciones extraordinarias Canadá 2026', url: 'https://vote-scope.com/es/canada/byelections/', inLanguage: 'es' },
+    { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: 'https://vote-scope.com/es/' },
+      { '@type': 'ListItem', position: 2, name: 'Canadá', item: 'https://vote-scope.com/es/canada/' },
+      { '@type': 'ListItem', position: 3, name: 'Elecciones extraordinarias', item: 'https://vote-scope.com/es/canada/byelections/' },
+    ]},
+  ]}
+>
+  <article class="byelections-hub-page">
+    <header class="byelections-hub-hero container">
+      <p class="byelections-hub-kicker">Oficina Canadá · Elecciones extraordinarias</p>
+      <h1>Tres extraordinarias, tres aciertos.</h1>
+      <p class="byelections-hub-dek">
+        El 13 de abril de 2026 se celebraron tres elecciones extraordinarias federales. Vote-Scope llamó las tres correctamente antes del día electoral — una retención liberal en Scarborough Southwest, una retención liberal en University—Rosedale y una ganancia liberal sobre el Bloc en Terrebonne.
+      </p>
+      <p class="byelections-hub-note" style="margin-top: 1rem; font-style: italic; color: var(--ink-2);">
+        Las páginas detalladas de cada elección extraordinaria solo están disponibles en inglés y francés por ahora.
+      </p>
+    </header>
+
+    <section class="byelections-hub-list container">
+      {byelections.map((config) => (
+        <a href={config.paths.en ?? '#'} class="byelection-card">
+          <div class="byelection-card-meta">
+            <span class="byelection-card-kicker">{config.kicker}</span>
+          </div>
+          <h2>{config.headline}</h2>
+          <p>{config.dek}</p>
+          <span class="byelection-card-cta">Ver página (EN) →</span>
+        </a>
+      ))}
+    </section>
+  </article>
+</Base>
+
+<style>
+  .byelections-hub-hero { padding: 80px 0 32px; border-bottom: 1px solid var(--rule); background: var(--paper); max-width: 1080px; margin-inline: auto; padding-inline: 1.5rem; }
+  .byelections-hub-kicker { font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
+  .byelections-hub-hero h1 { margin: 8px 0 16px; font-family: var(--serif); font-size: clamp(40px, 5vw, 64px); font-weight: 420; letter-spacing: -0.02em; line-height: 1.02; max-width: 900px; }
+  .byelections-hub-dek { max-width: 760px; font-family: var(--serif); font-size: clamp(17px, 1.8vw, 20px); line-height: 1.55; color: var(--ink-2); }
+  .byelections-hub-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px; padding: 48px 1.5rem; max-width: 1080px; margin-inline: auto; }
+  .byelection-card { display: block; padding: 24px; background: var(--card); border: 1px solid var(--rule); border-radius: 4px; text-decoration: none; color: inherit; transition: transform .15s ease, border-color .15s ease; }
+  .byelection-card:hover { transform: translateY(-2px); border-color: var(--ink); }
+  .byelection-card-kicker { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); }
+  .byelection-card h2 { margin: 8px 0 12px; font-family: var(--serif); font-size: 22px; font-weight: 460; }
+  .byelection-card p { color: var(--ink-2); line-height: 1.5; }
+  .byelection-card-cta { display: block; margin-top: 16px; font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
+</style>

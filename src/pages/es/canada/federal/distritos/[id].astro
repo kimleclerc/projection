@@ -1,0 +1,51 @@
+---
+import EditorialLayout from '../../../../../layouts/EditorialLayout.astro';
+import RidingPage from '../../../../../components/riding/RidingPage.astro';
+import { getAllFederalRidings } from '../../../../../lib/riding-adapters/federal';
+
+export function getStaticPaths() {
+  return getAllFederalRidings().map((data) => ({
+    params: { id: data.slug },
+    props: { data },
+  }));
+}
+
+const { data } = Astro.props;
+const canonical = `https://vote-scope.com/es/canada/federal/distritos/${data.slug}/`;
+const alternateEn = `https://vote-scope.com/en/canada/federal/ridings/${data.slug}/`;
+const alternateFr = `https://vote-scope.com/fr/canada/federal/circonscriptions/${data.slug}/`;
+const title = `${data.name.en || data.name.fr} — Proyección federal — Vote-Scope`;
+const description = `Proyección Vote-Scope para ${data.name.en || data.name.fr} (${data.province || 'Canadá'}): cuota de voto por partido, diputado·a en funciones y candidatos del último ciclo.`;
+---
+
+<EditorialLayout
+  title={title}
+  description={description}
+  canonical={canonical}
+  lang="es"
+  currentPage="canada"
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={{ en: alternateEn, fr: alternateFr, es: canonical }}
+  jsonLd={[
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Place',
+      name: data.name.en || data.name.fr,
+      containedInPlace: { '@type': 'AdministrativeArea', name: data.province || 'Canadá' },
+      url: canonical,
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: 'https://vote-scope.com/es/' },
+        { '@type': 'ListItem', position: 2, name: 'Canadá',     item: 'https://vote-scope.com/es/canada/' },
+        { '@type': 'ListItem', position: 3, name: 'Federal',    item: 'https://vote-scope.com/es/canada/federal/' },
+        { '@type': 'ListItem', position: 4, name: 'Distritos',  item: 'https://vote-scope.com/es/canada/federal/distritos/' },
+        { '@type': 'ListItem', position: 5, name: data.name.en || data.name.fr, item: canonical },
+      ],
+    },
+  ]}
+>
+  <RidingPage data={data} lang="es" />
+</EditorialLayout>

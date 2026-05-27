@@ -59,26 +59,32 @@ export const jurisdictions: Record<string, Jurisdiction> = {
     heroTitle: {
       fr: 'Projection <em>fédérale</em>',
       en: 'Federal <em>Projection</em>',
+      es: 'Proyección <em>federal</em>',
     },
     institution: {
       fr: 'Composition actuelle de la Chambre',
       en: 'Current House Composition',
+      es: 'Composición actual de la Cámara',
     },
     source: {
       fr: 'Sources : Élections Canada, firmes de sondage publiques',
       en: 'Sources: Elections Canada, public polling firms',
+      es: 'Fuentes: Elecciones Canadá, sondeadoras públicas',
     },
     mapSubtitle: {
       fr: "Projection par circonscription basée sur les résultats 2025, les sondages nationaux et les ajustements régionaux.",
       en: 'Riding projection based on 2025 results, national polling and regional adjustments.',
+      es: 'Proyección por distrito basada en los resultados de 2025, los sondeos nacionales y los ajustes regionales.',
     },
     pageTitle: {
       fr: 'Projection fédérale Canada 2025 — Vote-Scope',
       en: 'Canada Federal 2025 Projection — Vote-Scope',
+      es: 'Proyección federal de Canadá 2025 — Vote-Scope',
     },
     metaDescription: {
       fr: 'Projection des 343 sièges fédéraux canadiens — parti en tête, signaux de fragilité et écart avec les marchés de prédiction. Mis à jour en continu.',
       en: 'Live projection of 343 Canadian federal seats — top party, fragility signals, and what the market sees that the model doesn\'t. Updated continuously.',
+      es: 'Proyección de los 343 escaños federales canadienses — partido líder, señales de fragilidad y desfase con los mercados de predicción. Actualizado continuamente.',
     },
     baselineYear: 2025,
     seatsTotal: 343,
@@ -97,26 +103,32 @@ export const jurisdictions: Record<string, Jurisdiction> = {
     heroTitle: {
       fr: 'Projection <em>ontarienne</em>',
       en: 'Ontario <em>Projection</em>',
+      es: 'Proyección <em>de Ontario</em>',
     },
     institution: {
       fr: 'Composition actuelle de l\'Assemblée législative',
       en: 'Current Legislative Assembly Composition',
+      es: 'Composición actual de la Asamblea Legislativa',
     },
     source: {
       fr: 'Sources : Élections Ontario, firmes de sondage publiques',
       en: 'Sources: Elections Ontario, public polling firms',
+      es: 'Fuentes: Elecciones Ontario, sondeadoras públicas',
     },
     mapSubtitle: {
       fr: 'Projection par circonscription basée sur les résultats 2022, les sondages provinciaux et les ajustements régionaux.',
       en: 'Riding projection based on 2022 results, provincial polling and regional adjustments.',
+      es: 'Proyección por distrito basada en los resultados de 2022, los sondeos provinciales y los ajustes regionales.',
     },
     pageTitle: {
       fr: 'Projection Ontario 2026 — Vote-Scope',
       en: 'Ontario 2026 Projection — Vote-Scope',
+      es: 'Proyección Ontario 2026 — Vote-Scope',
     },
     metaDescription: {
       fr: 'Projection des 124 sièges de l\'Assemblée législative ontarienne — parti en tête, circonscriptions pivots et signal de fragilité. Mis à jour en continu.',
       en: 'Live projection of 124 Ontario legislative seats — top party, tipping-point ridings, and fragility signals. Updated continuously.',
+      es: 'Proyección de los 124 escaños de la Asamblea Legislativa de Ontario — partido líder, distritos clave y señales de fragilidad. Actualizado continuamente.',
     },
     baselineYear: 2022,
     seatsTotal: 124,
@@ -136,26 +148,32 @@ export const jurisdictions: Record<string, Jurisdiction> = {
     heroTitle: {
       fr: 'Projection <em>québécoise</em>',
       en: 'Quebec <em>Projection</em>',
+      es: 'Proyección <em>de Quebec</em>',
     },
     institution: {
       fr: "Composition actuelle de l'Assemblée nationale",
       en: 'Current National Assembly Composition',
+      es: 'Composición actual de la Asamblea Nacional',
     },
     source: {
       fr: 'Sources : Élections Québec, firmes de sondage publiques',
       en: 'Sources: Élections Québec, public polling firms',
+      es: 'Fuentes: Élections Québec, sondeadoras públicas',
     },
     mapSubtitle: {
       fr: 'Projection par circonscription basée sur les résultats 2022, les sondages provinciaux et les tendances régionales.',
       en: 'Riding projection based on 2022 results, provincial polling and regional trends.',
+      es: 'Proyección por distrito basada en los resultados de 2022, los sondeos provinciales y las tendencias regionales.',
     },
     pageTitle: {
       fr: 'Projection Québec 2026 — Vote-Scope',
       en: 'Quebec 2026 Projection — Vote-Scope',
+      es: 'Proyección Quebec 2026 — Vote-Scope',
     },
     metaDescription: {
       fr: 'Projection des 125 sièges de l\'Assemblée nationale du Québec — parti en tête, fragile ou solide, et ce que le marché ne voit pas encore. Mis à jour en continu.',
       en: 'Live projection of 125 Quebec National Assembly seats — top party, fragility signals, and what the market is missing. Updated continuously.',
+      es: 'Proyección de los 125 escaños de la Asamblea Nacional de Quebec — partido líder, señales de fragilidad y lo que el mercado pasa por alto. Actualizado continuamente.',
     },
     baselineYear: 2022,
     seatsTotal: 125,
@@ -266,26 +284,32 @@ export const jurisdictions: Record<string, Jurisdiction> = {
     heroTitle: {
       fr: 'Projection <em>britannique</em>',
       en: 'U.K. <em>General Election</em>',
+      es: 'Proyección <em>británica</em>',
     },
     institution: {
       fr: 'Composition actuelle de la Chambre des communes',
       en: 'Current House of Commons Composition',
+      es: 'Composición actual de la Cámara de los Comunes',
     },
     source: {
       fr: 'Sources : Electoral Commission, firmes de sondage publiques',
       en: 'Sources: Electoral Commission, public polling firms',
+      es: 'Fuentes: Electoral Commission, sondeadoras públicas',
     },
     mapSubtitle: {
       fr: 'Projection par circonscription basée sur les résultats 2024, les sondages nationaux et les tendances régionales.',
       en: 'Constituency projection based on 2024 results, national polling and regional trends.',
+      es: 'Proyección por circunscripción basada en los resultados de 2024, los sondeos nacionales y las tendencias regionales.',
     },
     pageTitle: {
       fr: 'Projection — Élection générale R.-U. — Vote-Scope',
       en: 'U.K. General Election Projection — Vote-Scope',
+      es: 'Proyección — Elecciones generales R.U. — Vote-Scope',
     },
     metaDescription: {
       fr: 'Projection des 650 sièges de la Chambre des communes britannique — parti en tête, sièges marginaux et signaux que le marché ne voit pas. Mis à jour en continu.',
       en: 'Live projection of all 650 U.K. House of Commons seats — top party, marginal seats, and signals the market is missing. Updated continuously.',
+      es: 'Proyección de los 650 escaños de la Cámara de los Comunes británica — partido líder, escaños marginales y señales que el mercado pasa por alto. Actualizado continuamente.',
     },
     baselineYear: 2024,
     seatsTotal: 650,

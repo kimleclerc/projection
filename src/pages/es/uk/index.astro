@@ -1,0 +1,75 @@
+---
+import EditorialLayout from '../../../layouts/EditorialLayout.astro';
+import EditorialHero from '../../../components/EditorialHero.astro';
+import MethodologyNote from '../../../components/MethodologyNote.astro';
+---
+
+<EditorialLayout
+  title="Política británica — Vote-Scope"
+  description="Proyecta las elecciones generales británicas circunscripción por circunscripción. Compara las señales de los sondeos y detecta los escaños marginales que el mercado subestima — Vote-Scope."
+  canonical="https://vote-scope.com/es/uk/"
+  lang="es"
+  currentPage="uk"
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={{ en: 'https://vote-scope.com/en/uk/', fr: 'https://vote-scope.com/fr/uk/', es: 'https://vote-scope.com/es/uk/' }}
+  jsonLd={[
+    {
+      '@context': 'https://schema.org',
+      '@type': 'CollectionPage',
+      name: 'Política británica — Vote-Scope',
+      url: 'https://vote-scope.com/es/uk/',
+      inLanguage: 'es',
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: 'https://vote-scope.com/es/' },
+        { '@type': 'ListItem', position: 2, name: 'R.U.',       item: 'https://vote-scope.com/es/uk/' },
+      ],
+    },
+  ]}
+>
+  <EditorialHero
+    eyebrow="Desk Reino Unido"
+    title="¿Dónde es realmente estable el mapa británico y dónde es discretamente frágil?"
+    promise="Proyecciones por circunscripción, agregación de sondeos y simulaciones Monte Carlo — construidas como instrumentos, no como tablas aisladas."
+    question="¿Qué escaños son seguros, cuáles son marginales que se hacen pasar por seguros, y qué dice el modelo que el mercado pasa por alto?"
+    primaryHref="/es/uk/general-election/"
+    primaryLabel="Abrir la proyección"
+    secondaryHref="/es/indexes/"
+    secondaryLabel="Todos los índices"
+  />
+
+  <section class="content-band">
+    <div class="container content-grid-2">
+      <a class="note-card" href="/es/uk/general-election/" style="text-decoration:none;color:inherit;">
+        <p class="eyebrow">Proyección elecciones generales</p>
+        <h3>Elecciones generales británicas</h3>
+        <p>Proyección de 650 escaños. Agregación bayesiana de sondeos, 50 000 simulaciones Monte Carlo, probabilidades por circunscripción y gráfico de composición.</p>
+        <footer style="margin-top:1rem;">
+          <span class="cta-link">Abrir la proyección →</span>
+        </footer>
+      </a>
+      <a class="note-card" href="/es/uk/circunscripciones/" style="text-decoration:none;color:inherit;">
+        <p class="eyebrow">Perfil por circunscripción</p>
+        <h3>650 circunscripciones de Westminster</h3>
+        <p>Páginas individuales para cada circunscripción: proyección, diputado·a en funciones, candidatos 2024, demografía ONS y circunscripciones vecinas. Los escaños de Irlanda del Norte conservan su identidad partidista (DUP, Sinn Féin, SDLP, Alliance, UUP, TUV).</p>
+        <footer style="margin-top:1rem;">
+          <span class="cta-link">Explorar las 650 circunscripciones →</span>
+        </footer>
+      </a>
+    </div>
+  </section>
+
+  <MethodologyNote
+    title="El desk del Reino Unido está construido para la profundidad, no solo para un titular de proyección."
+    body="El mapa electoral británico recompensa la granularidad: voto táctico, tendencias regionales y dinámicas de terceros desplazan escaños individuales de forma que los sondeos nacionales no pueden predecir. La superficie de proyección es el punto de partida."
+    bullets={[
+      "La agregación de sondeos utiliza un modelo BSTS bayesiano con ajustes regionales.",
+      "50 000 simulaciones Monte Carlo producen distribuciones de escaños y probabilidades de victoria.",
+      "Los perfiles de circunscripciones y el seguimiento de los marginales siguen una vez que el armazón básico es estable.",
+      "Las elecciones extraordinarias se siguen por separado como desks de carrera en vivo cuando los datos están disponibles.",
+    ]}
+  />
+</EditorialLayout>

@@ -1,0 +1,174 @@
+---
+import EditorialLayout from '../../../layouts/EditorialLayout.astro';
+import EditorialHero from '../../../components/EditorialHero.astro';
+import MethodologyNote from '../../../components/MethodologyNote.astro';
+import AnimatedNumber from '../../../islands/AnimatedNumber';
+import PolymarketEmbed from '../../../components/PolymarketEmbed.astro';
+
+import federalData from '../../../../web_data/federal/latest.json';
+import quebecData from '../../../../web_data/quebec/latest.json';
+import ontarioData from '../../../../web_data/ontario/latest.json';
+import fraserData from '../../../../web_data/on-fraser-interim/latest.json';
+
+const meta = federalData.meta;
+const parties = federalData.parties as Array<{
+  party: string;
+  label_en: string;
+  color: string;
+  seats_projected: number;
+  p_majority: number;
+  p_largest: number;
+}>;
+const lib = parties.find((p) => p.party === 'lib')!;
+const con = parties.find((p) => p.party === 'con')!;
+const pMajority = Math.round(lib.p_majority * 100);
+const pLargest = Math.round(lib.p_largest * 100);
+
+const qcParties = quebecData.parties as Array<{party:string;label_en:string;color:string;seats_projected:number;p_majority:number}>;
+const qcTop = qcParties.reduce((a,b)=>a.seats_projected>b.seats_projected?a:b);
+const qcMaj = Math.round(qcTop.p_majority * 100);
+const onParties = ontarioData.parties as Array<{party:string;label_en:string;color:string;seats_projected:number;p_majority:number}>;
+const onTop = onParties.reduce((a,b)=>a.seats_projected>b.seats_projected?a:b);
+const onMaj = Math.round(onTop.p_majority * 100);
+---
+
+<EditorialLayout
+  title="Canadá — Vote-Scope"
+  description="Proyecciones federales, de Quebec y de Ontario, además de las elecciones extraordinarias. Descubre qué distritos están consolidados y cuáles son discretamente frágiles — Vote-Scope."
+  canonical="https://vote-scope.com/es/canada/"
+  lang="es"
+  currentPage="canada"
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={{ en: 'https://vote-scope.com/en/canada/', fr: 'https://vote-scope.com/fr/canada/', es: 'https://vote-scope.com/es/canada/' }}
+  jsonLd={[
+    {
+      '@context': 'https://schema.org',
+      '@type': 'CollectionPage',
+      name: 'Canadá — Vote-Scope',
+      url: 'https://vote-scope.com/es/canada/',
+      inLanguage: 'es',
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: 'https://vote-scope.com/es/' },
+        { '@type': 'ListItem', position: 2, name: 'Canadá',     item: 'https://vote-scope.com/es/canada/' },
+      ],
+    },
+  ]}
+>
+  <EditorialHero
+    eyebrow="Desk Canadá"
+    title="¿Dónde es sólido el mapa canadiense y dónde solo lo finge?"
+    promise="Federal, Quebec, Ontario y elecciones extraordinarias deben leerse como inteligencia de carrera antes que como mecánica de proyección."
+    question="¿Qué distritos están realmente decididos y cuáles son discretamente frágiles?"
+    primaryHref="/es/indexes/"
+    primaryLabel="Ver instrumentos"
+    secondaryHref="/es/"
+    secondaryLabel="Todos los desks"
+  />
+
+  <section class="content-band">
+    <div class="container">
+      <p class="eyebrow">Último del desk Canadá</p>
+      <h2>Proyección federal — al {meta.run_date}</h2>
+      <p style="margin-bottom:1.5rem;">Basada en {meta.n_polls} sondeos · {meta.n_simulations.toLocaleString()} simulaciones</p>
+      <div class="content-grid-2" style="gap:1.5rem;margin-bottom:2rem;">
+        <div class="note-card" style={`border-left:4px solid ${lib.color};`}>
+          <p class="eyebrow">Liberal</p>
+          <h3 style="font-size:2.5rem;margin:0.25rem 0;">
+            <AnimatedNumber client:visible value={lib.seats_projected} />
+            <span style="font-size:1rem;font-weight:400;"> escaños proyectados</span>
+          </h3>
+          <p>Probabilidad de mayoría: <strong>{pMajority}%</strong> · Partido más grande: <strong>{pLargest}%</strong></p>
+        </div>
+        <div class="note-card" style={`border-left:4px solid ${con.color};`}>
+          <p class="eyebrow">Conservador</p>
+          <h3 style="font-size:2.5rem;margin:0.25rem 0;">
+            <AnimatedNumber client:visible value={con.seats_projected} />
+            <span style="font-size:1rem;font-weight:400;"> escaños proyectados</span>
+          </h3>
+          <p>Umbral de mayoría: {meta.majority_threshold} / {meta.total_seats} escaños</p>
+        </div>
+      </div>
+      <p style="text-align:right;">
+        <a href="/es/canada/federal/" class="cta-link">Proyección federal completa →</a>
+      </p>
+    </div>
+  </section>
+
+  <section class="content-band">
+    <div class="container content-grid-2">
+      <div class="note-card" style={`border-left:4px solid ${lib.color};`}>
+        <p class="eyebrow">Proyección federal</p>
+        <h3 style="font-family:var(--serif);font-size:1.4rem;margin:0.25rem 0;">{lib.label_en}</h3>
+        <p style="font-size:2rem;font-weight:700;margin:0.25rem 0;">
+          <AnimatedNumber client:visible value={lib.seats_projected} />
+          <span style="font-size:1rem;font-weight:400;"> / {meta.total_seats} escaños</span>
+        </p>
+        <p style="font-family:var(--mono);font-size:0.8rem;color:var(--ink-3);">Probabilidad de mayoría: {pMajority}% · Partido más grande: {pLargest}%</p>
+        <p style="margin-top:1rem;"><a href="/es/canada/federal/" class="cta-link" style="font-family:var(--mono);font-size:0.8rem;text-transform:uppercase;letter-spacing:.08em;">Proyección federal completa →</a></p>
+      </div>
+      <div class="note-card" style={`border-left:4px solid ${qcTop.color};`}>
+        <p class="eyebrow">Provincial · Quebec</p>
+        <h3 style="font-family:var(--serif);font-size:1.4rem;margin:0.25rem 0;">{qcTop.label_en}</h3>
+        <p style="font-size:2rem;font-weight:700;margin:0.25rem 0;">
+          <AnimatedNumber client:visible value={qcTop.seats_projected} />
+          <span style="font-size:1rem;font-weight:400;"> / {quebecData.meta.total_seats} escaños</span>
+        </p>
+        <p style="font-family:var(--mono);font-size:0.8rem;color:var(--ink-3);">Probabilidad de mayoría: {qcMaj}%</p>
+        <p style="margin-top:1rem;"><a href="/es/canada/quebec/" class="cta-link" style="font-family:var(--mono);font-size:0.8rem;text-transform:uppercase;letter-spacing:.08em;">Abrir proyección Quebec →</a></p>
+      </div>
+      <div class="note-card" style={`border-left:4px solid ${onTop.color};`}>
+        <p class="eyebrow">Provincial · Ontario</p>
+        <h3 style="font-family:var(--serif);font-size:1.4rem;margin:0.25rem 0;">{onTop.label_en}</h3>
+        <p style="font-size:2rem;font-weight:700;margin:0.25rem 0;">
+          <AnimatedNumber client:visible value={onTop.seats_projected} />
+          <span style="font-size:1rem;font-weight:400;"> / {ontarioData.meta.total_seats} escaños</span>
+        </p>
+        <p style="font-family:var(--mono);font-size:0.8rem;color:var(--ink-3);">Probabilidad de mayoría: {onMaj}%</p>
+        <p style="margin-top:1rem;"><a href="/es/canada/ontario/" class="cta-link" style="font-family:var(--mono);font-size:0.8rem;text-transform:uppercase;letter-spacing:.08em;">Abrir proyección Ontario →</a></p>
+      </div>
+      <div class="note-card">
+        <p class="eyebrow">Extraordinarias</p>
+        <h3><a href="/es/canada/byelections/">Últimas extraordinarias →</a></h3>
+        <p>Desks individuales para cada elección extraordinaria con proyecciones fundamentales, resultados históricos y archivos de carreras resueltas.</p>
+      </div>
+      <div class="note-card" style="border-left:4px solid var(--blue-tint,#3b82f6);">
+        <p class="eyebrow">Indicador editorial</p>
+        <h3 style="font-family:var(--serif);font-size:1.4rem;margin:0.25rem 0;">Índice Fraser interino</h3>
+        <p style="font-size:2rem;font-weight:700;margin:0.25rem 0;">
+          <AnimatedNumber client:visible value={fraserData.index.score} decimals={1} />
+          <span style="font-size:1rem;font-weight:400;">/100</span>
+        </p>
+        <p style="font-family:var(--mono);font-size:0.8rem;color:var(--ink-3);">{fraserData.index.label_fr ?? fraserData.index.label_en}</p>
+        <p style="margin-top:1rem;"><a href="/es/indexes/fraser-interim/" class="cta-link" style="font-family:var(--mono);font-size:0.8rem;text-transform:uppercase;letter-spacing:.08em;">Abrir el índice Fraser →</a></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="content-band">
+    <div class="container">
+      <PolymarketEmbed slug="will-parti-qubcois-win-the-most-seats-in-the-2026-quebec-general-election" title="Quebec — PQ más escaños" />
+      <PolymarketEmbed
+        slug="doug-ford-out-as-pc-party-leader-by-december-31"
+        title="Liderazgo PC Ontario antes del 31 de diciembre"
+        subtitle="Mercado de baja liquidez — interpretar con cautela"
+      />
+      <PolymarketEmbed slug="will-alberta-vote-for-independence-in-2026" title="Alberta — referéndum de independencia 2026" />
+      <PolymarketEmbed slug={null} />
+    </div>
+  </section>
+
+  <MethodologyNote
+    title="Tres jurisdicciones. Un solo estándar de proyección."
+    body="Las proyecciones federal, de Quebec y de Ontario comparten un pipeline BSTS bayesiano común: los sondeos se agregan con ajustes regionales y luego se someten a 50 000 simulaciones Monte Carlo para producir distribuciones de escaños y probabilidades por distrito."
+    bullets={[
+      "Los sondeos provienen de firmas registradas ante Elecciones Canadá y se ponderan por reciencia, tamaño de muestra y trayectoria de cada firma.",
+      "Las probabilidades por distrito están condicionadas a movimientos nacionales y regionales, y luego se reagregan en distribuciones totales de escaños.",
+      "Los umbrales de mayoría se modelan explícitamente: federal a 172/338, Quebec a 63/125, Ontario a 63/124.",
+      "Las proyecciones de extraordinarias usan un modelo de fundamentos — titularidad, margen histórico, datos demográficos — actualizado durante la campaña.",
+    ]}
+  />
+</EditorialLayout>

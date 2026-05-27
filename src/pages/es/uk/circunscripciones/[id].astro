@@ -1,0 +1,51 @@
+---
+import EditorialLayout from '../../../../layouts/EditorialLayout.astro';
+import RidingPage from '../../../../components/riding/RidingPage.astro';
+import { getAllUKRidings } from '../../../../lib/riding-adapters/uk';
+
+export function getStaticPaths() {
+  return getAllUKRidings().map((data) => ({
+    params: { id: data.slug },
+    props: { data },
+  }));
+}
+
+const { data } = Astro.props;
+const canonical = `https://vote-scope.com/es/uk/circunscripciones/${data.slug}/`;
+const alternateEn = `https://vote-scope.com/en/uk/constituencies/${data.slug}/`;
+const alternateFr = `https://vote-scope.com/fr/uk/circonscriptions/${data.slug}/`;
+const title = `${data.name.en || data.name.fr} — Proyección elecciones generales R.U. — Vote-Scope`;
+const description = `Proyección Vote-Scope para ${data.name.en || data.name.fr} (${data.province || 'Reino Unido'}): cuota de voto por partido, diputado·a en funciones y candidatos 2024.`;
+---
+
+<EditorialLayout
+  title={title}
+  description={description}
+  canonical={canonical}
+  lang="es"
+  currentPage="uk"
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={{ en: alternateEn, fr: alternateFr, es: canonical }}
+  jsonLd={[
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Place',
+      name: data.name.en || data.name.fr,
+      containedInPlace: { '@type': 'AdministrativeArea', name: data.province || 'Reino Unido' },
+      url: canonical,
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Vote-Scope',           item: 'https://vote-scope.com/es/' },
+        { '@type': 'ListItem', position: 2, name: 'Reino Unido',          item: 'https://vote-scope.com/es/uk/' },
+        { '@type': 'ListItem', position: 3, name: 'Elecciones generales', item: 'https://vote-scope.com/es/uk/general-election/' },
+        { '@type': 'ListItem', position: 4, name: 'Circunscripciones',    item: 'https://vote-scope.com/es/uk/circunscripciones/' },
+        { '@type': 'ListItem', position: 5, name: data.name.en || data.name.fr, item: canonical },
+      ],
+    },
+  ]}
+>
+  <RidingPage data={data} lang="es" />
+</EditorialLayout>
