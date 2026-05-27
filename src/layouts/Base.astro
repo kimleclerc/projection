@@ -204,11 +204,67 @@ const navLinks = [
 ];
 
 const languageLabels: Record<Locale, string> = { en: 'EN', fr: 'FR', es: 'ES' };
-const languageLinks = alternates
-  ? (['en', 'fr', 'es'] as Locale[])
-      .filter((locale) => locale !== lang && alternates[locale])
-      .map((locale) => ({ locale, label: languageLabels[locale], href: alternates[locale] as string }))
-  : [];
+
+/**
+ * Derive a sibling URL in another locale from the current path.
+ *
+ * Pages can pass an explicit `alternates` prop when their URL shapes
+ * diverge in ways this mapper can't infer (different query strings,
+ * one-off canonical paths, etc.). When `alternates` is missing or
+ * incomplete, we fall back to a path-rewrite using the slug variants
+ * that are stable across the site.
+ *
+ * Slug variants kept here:
+ *   federal/quebec/ontario ridings ↔ circonscriptions ↔ distritos
+ *   uk constituencies ↔ circonscriptions ↔ circunscripciones
+ *   us house ↔ chambre + districts ↔ distritos
+ *   us senate ↔ senat + seats ↔ sieges ↔ escanos
+ */
+const SLUG_VARIANTS: Array<{ en: string; fr: string; es: string }> = [
+  // CA federal / QC / ON riding folders
+  { en: '/ridings/', fr: '/circonscriptions/', es: '/distritos/' },
+  // UK
+  { en: '/constituencies/', fr: '/circonscriptions/', es: '/circunscripciones/' },
+  // US House districts/distritos (FR keeps 'districts')
+  { en: '/us/house/districts/', fr: '/us/chambre/districts/', es: '/us/house/distritos/' },
+  { en: '/us/house/',           fr: '/us/chambre/',           es: '/us/house/' },
+  // US Senate seats/sieges/escanos
+  { en: '/us/senate/seats/',    fr: '/us/senat/sieges/',      es: '/us/senate/escanos/' },
+  { en: '/us/senate/',          fr: '/us/senat/',             es: '/us/senate/' },
+];
+
+function deriveAltPath(path: string, from: Locale, to: Locale): string {
+  // Normalise to ensure we always work with a trailing slash so SLUG_VARIANTS
+  // (which end with `/`) can match cleanly. We strip the trailing slash from
+  // the result at the end only if the input also lacked one.
+  const hadTrailing = path.endsWith('/');
+  let p = hadTrailing ? path : `${path}/`;
+  // Swap the locale prefix first.
+  p = p.replace(new RegExp(`^/${from}(/|$)`), `/${to}$1`);
+  // Apply known slug variants. We swap from→to ONLY when the from token
+  // is actually present, to avoid accidental rewrites.
+  for (const v of SLUG_VARIANTS) {
+    if (v[from] !== v[to] && p.includes(v[from])) {
+      p = p.replace(v[from], v[to]);
+    }
+  }
+  if (!hadTrailing && p.endsWith('/') && p.length > 1) p = p.slice(0, -1);
+  return p;
+}
+
+const ORIGIN = 'https://vote-scope.com';
+const currentPath = Astro?.url?.pathname ?? '/';
+const derivedAlternates: Record<Locale, string> = {
+  en: alternates?.en ?? `${ORIGIN}${deriveAltPath(currentPath, lang as Locale, 'en')}`,
+  fr: alternates?.fr ?? `${ORIGIN}${deriveAltPath(currentPath, lang as Locale, 'fr')}`,
+  es: alternates?.es ?? `${ORIGIN}${deriveAltPath(currentPath, lang as Locale, 'es')}`,
+};
+
+// Show every locale except the current one. Even when alternates isn't
+// fully declared by the page, deriveAltPath gives us a sensible link.
+const languageLinks = (['en', 'fr', 'es'] as Locale[])
+  .filter((locale) => locale !== lang)
+  .map((locale) => ({ locale, label: languageLabels[locale], href: derivedAlternates[locale] }));
 ---
 <!DOCTYPE html>
 <html lang={lang} data-theme="light">
@@ -240,15 +296,12 @@ const languageLinks = alternates
   <meta name="robots" content={noindex ? 'noindex,follow' : 'max-snippet:-1, max-image-preview:large, max-video-preview:-1'} />
   <link rel="alternate" type="text/plain" title="LLM context" href="/llms.txt" />
 
-  <!-- hreflang alternates -->
-  {alternates && (
-    <>
-      <link rel="alternate" hreflang="en"        href={alternates.en} />
-      <link rel="alternate" hreflang="fr"        href={alternates.fr} />
-      {alternates.es && <link rel="alternate" hreflang="es" href={alternates.es} />}
-      <link rel="alternate" hreflang="x-default" href={alternates.en} />
-    </>
-  )}
+  <!-- hreflang alternates — uses derivedAlternates so every locale gets a
+       link even when the page didn't declare an explicit `alternates` prop. -->
+  <link rel="alternate" hreflang="en"        href={derivedAlternates.en} />
+  <link rel="alternate" hreflang="fr"        href={derivedAlternates.fr} />
+  <link rel="alternate" hreflang="es"        href={derivedAlternates.es} />
+  <link rel="alternate" hreflang="x-default" href={derivedAlternates.en} />
 
   <!-- Favicons -->
   <link rel="icon" href="/favicon.ico" sizes="any" />
