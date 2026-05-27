@@ -17,7 +17,8 @@
     "zone_color": "#c8a030",
     "delta_7d": 1.3,
     "data_quality": "real",
-    "n_components": 4
+    "n_components": 4,
+    "label_es": "El pato grazna"
   },
   "components": [
     {
@@ -33,7 +34,9 @@
       "data_quality": "real",
       "last_updated": "2026-05-26",
       "tooltip_en": "30-day weighted average of reliable pollsters (Gallup, YouGov, AP-NORC, Reuters/Ipsos). Higher = more lame.",
-      "tooltip_fr": "Moyenne pondérée 30 jours des sondeurs fiables. Élevé = plus boiteux."
+      "tooltip_fr": "Moyenne pondérée 30 jours des sondeurs fiables. Élevé = plus boiteux.",
+      "name_es": "Aprobación neta",
+      "tooltip_es": "Media ponderada a 30 días de los sondeadores fiables (Gallup, YouGov, AP-NORC, Reuters/Ipsos). Más alto = más cojo."
     },
     {
       "id": "generic_ballot",
@@ -49,7 +52,9 @@
       "last_updated": "2026-05-24",
       "tooltip_en": "30-day smoothed D-R generic congressional ballot. For a Republican president, higher D advantage = higher lame duck score.",
       "tooltip_fr": "Baromètre vote générique D-R lissé 30 jours. Pour un président républicain, avantage D élevé = score plus élevé.",
-      "n_polls": 45
+      "n_polls": 45,
+      "name_es": "Termómetro de voto genérico",
+      "tooltip_es": "Boleta congresional genérica D-R suavizada a 30 días. Para un presidente republicano, mayor ventaja D = mayor puntaje de pato cojo."
     },
     {
       "id": "congressional_ctrl",
@@ -71,7 +76,11 @@
       "p_house": 95.6,
       "p_senate": 51.6,
       "h_seats_dem": 228,
-      "s_seats_dem": 51
+      "s_seats_dem": 51,
+      "name_es": "Riesgo de control del Congreso",
+      "tooltip_es": "Modelo VoteScope: probabilidad de que la oposición controle la Cámara (60%) y el Senado (40%). Tomado directamente de nuestro modelo de intermedias.",
+      "raw_label_es": "Cámara 96% / Senado 52%",
+      "raw_label_fr": "Chambre 96% / Sénat 52%"
     },
     {
       "id": "economic_sentiment",
@@ -86,7 +95,9 @@
       "data_quality": "real",
       "last_updated": "2026-05-01",
       "tooltip_en": "University of Michigan Consumer Sentiment (UMCSENT). Lower consumer confidence = higher lame duck score. Source: FRED.",
-      "tooltip_fr": "Indice de confiance des consommateurs (UMCSENT, Univ. du Michigan). Faible confiance = score élevé. Source: FRED."
+      "tooltip_fr": "Indice de confiance des consommateurs (UMCSENT, Univ. du Michigan). Faible confiance = score élevé. Source: FRED.",
+      "name_es": "Sentimiento económico",
+      "tooltip_es": "Índice de confianza del consumidor de la Universidad de Michigan (UMCSENT). Menor confianza = mayor puntaje de pato cojo. Fuente: FRED."
     }
   ],
   "midterms": {
@@ -725,7 +736,9 @@
       "embed_url": "https://embed.polymarket.com/market?event=gop-wins-house-majority-2026&theme=light",
       "market_url": "https://polymarket.com/event/gop-wins-house-majority-2026",
       "note_en": "External market signal — not integrated in LDI calculation.",
-      "note_fr": "Signal de marché externe — non intégré au calcul du LDI."
+      "note_fr": "Signal de marché externe — non intégré au calcul du LDI.",
+      "label_es": "Republicanos mantienen mayoría en la Cámara 2026",
+      "note_es": "Señal de mercado externa — no integrada en el cálculo del LDI."
     },
     {
       "id": "gop-senate-2026",
@@ -734,7 +747,9 @@
       "embed_url": "https://embed.polymarket.com/market?event=gop-keeps-senate-2026&theme=light",
       "market_url": "https://polymarket.com/event/gop-keeps-senate-2026",
       "note_en": "External market signal — not integrated in LDI calculation.",
-      "note_fr": "Signal de marché externe — non intégré au calcul du LDI."
+      "note_fr": "Signal de marché externe — non intégré au calcul du LDI.",
+      "label_es": "Republicanos mantienen mayoría en el Senado 2026",
+      "note_es": "Señal de mercado externa — no integrada en el cálculo del LDI."
     }
   ],
   "zones": [
@@ -743,28 +758,32 @@
       "max": 25,
       "label_en": "Full Power",
       "label_fr": "Plein pouvoir",
-      "color": "#4a7fbf"
+      "color": "#4a7fbf",
+      "label_es": "Pleno poder"
     },
     {
       "min": 25,
       "max": 50,
       "label_en": "Waning",
       "label_fr": "Influence qui s'effrite",
-      "color": "#5aaa8a"
+      "color": "#5aaa8a",
+      "label_es": "Influencia menguante"
     },
     {
       "min": 50,
       "max": 75,
       "label_en": "Quacking",
       "label_fr": "Canard qui coasse",
-      "color": "#c8a030"
+      "color": "#c8a030",
+      "label_es": "El pato grazna"
     },
     {
       "min": 75,
       "max": 100,
       "label_en": "Fully Lame",
       "label_fr": "Canard boiteux",
-      "color": "#c94040"
+      "color": "#c94040",
+      "label_es": "Pato cojo total"
     }
   ]
 }

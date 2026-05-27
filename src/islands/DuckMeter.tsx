@@ -43,7 +43,7 @@ const T = {
   waterline: { en: 'Waterline', fr: 'Ligne d\'eau', es: 'Línea de agua' },
   current: { en: 'Current reading', fr: 'Lecture actuelle', es: 'Lectura actual' },
   fullPower: { en: '0 = full power', fr: '0 = plein pouvoir', es: '0 = pleno poder' },
-  fullyLame: { en: '100 = fully lame', fr: '100 = canard boiteux', es: '100 = lame duck total' },
+  fullyLame: { en: '100 = fully lame', fr: '100 = canard boiteux', es: '100 = pato cojo total' },
 };
 
 const DEFAULT_ZONES: DuckZone[] = [
@@ -68,7 +68,7 @@ const DEFAULT_ZONES: DuckZone[] = [
     max: 75,
     label_en: 'Quacking',
     label_fr: 'Canard qui coasse',
-    label_es: 'Quacking',
+    label_es: 'El pato grazna',
     color: 'var(--duck-deep)',
   },
   {
@@ -76,7 +76,7 @@ const DEFAULT_ZONES: DuckZone[] = [
     max: 100,
     label_en: 'Fully Lame',
     label_fr: 'Canard boiteux',
-    label_es: 'Lame duck total',
+    label_es: 'Pato cojo total',
     color: 'var(--red)',
   },
 ];

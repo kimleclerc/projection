@@ -110,7 +110,7 @@ export default function ComponentBreakdown({ components, locale }: Props) {
                 {Math.round((component.weight ?? 0) * 100)}% {t.weight}
               </p>
               <h3>{name}</h3>
-              <strong>{component.raw_label ?? '—'}</strong>
+              <strong>{(locale === 'fr' ? (component.raw_label_fr ?? component.raw_label) : locale === 'es' ? (component.raw_label_es ?? component.raw_label) : component.raw_label) ?? '—'}</strong>
               <em class={`is-${drag.tone}`}>{drag.text}</em>
               <div class="lame-duck-component-bar" aria-hidden="true">
                 <span style={{ width: `${Math.max(0, Math.min(100, score))}%`, background: color }} />

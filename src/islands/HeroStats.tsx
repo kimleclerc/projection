@@ -23,7 +23,7 @@ const copy = {
   fr: {
     reading: 'Lecture du jour',
     approval: 'Approbation nette',
-    countdown: 'Jours avant les midterms',
+    countdown: 'Jours avant les élections de mi-mandat',
     tracker: 'Tracker NYT',
     election: '3 nov. 2026',
     sevenDay: '7 jours',
@@ -31,8 +31,8 @@ const copy = {
   es: {
     reading: 'Lectura de hoy',
     approval: 'Aprobación neta',
-    countdown: 'Días hasta las midterms',
-    tracker: 'Tracker NYT',
+    countdown: 'Días hasta las elecciones intermedias',
+    tracker: 'Seguimiento NYT',
     election: '3 nov. 2026',
     sevenDay: '7 días',
   },

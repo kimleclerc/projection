@@ -12,7 +12,7 @@ function toneClass(tone: LameDuckTickerItem['tone']) {
   return 'is-neutral';
 }
 
-export default function LiveTicker({ items, ariaLabel = 'Live signals' }: Props) {
+export default function LiveTicker({ items, ariaLabel = 'Señales en vivo / Signaux en direct / Live signals' }: Props) {
   const safeItems = items.length > 0 ? items : [];
   const loopItems = [...safeItems, ...safeItems];
 
