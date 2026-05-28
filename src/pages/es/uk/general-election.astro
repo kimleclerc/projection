@@ -1,5 +1,6 @@
 ---
 import EditorialLayout from '../../../layouts/EditorialLayout.astro';
+import RidingsCta from '../../../components/RidingsCta.astro';
 import ProjectionEngine from '../../../components/ProjectionEngine.astro';
 import PolymarketEmbed from '../../../components/PolymarketEmbed.astro';
 import { jurisdictions } from '../../../data/jurisdictions';
@@ -52,20 +53,12 @@ const alternates = {
     <PolymarketEmbed slug={null} />
   </div>
 
-  <section class="ridings-cta">
-    <div class="container">
-      <p class="eyebrow">Perfil por circunscripción</p>
-      <h2>Profundiza en una circunscripción</h2>
-      <p>Proyección, diputado·a en funciones, candidatos 2024 y circunscripciones vecinas — para cada una de las 650 circunscripciones de Westminster. Los escaños de Irlanda del Norte conservan su identidad partidista (DUP, Sinn Féin, SDLP, Alliance, UUP, TUV) incluso cuando el modelo usa el bucket «otros».</p>
-      <a href="/es/uk/circunscripciones/" class="cta-btn">Explorar las 650 circunscripciones →</a>
-    </div>
-  </section>
+  <RidingsCta
+    eyebrow="Perfil por circunscripción"
+    title="Profundiza en una circunscripción"
+    blurb="Proyección, diputado·a en funciones, candidatos 2024 y circunscripciones vecinas — para cada una de las 650 circunscripciones de Westminster. Los escaños de Irlanda del Norte conservan su identidad partidista (DUP, Sinn Féin, SDLP, Alliance, UUP, TUV) incluso cuando el modelo usa el bucket «otros»."
+    href="/es/uk/circunscripciones/"
+    cta="Explorar las 650 circunscripciones →"
+  />
 </EditorialLayout>
 
-<style>
-  .ridings-cta { padding: 56px 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); background: var(--paper-2); }
-  .ridings-cta h2 { margin: 8px 0 12px; font-family: var(--serif); font-size: clamp(28px,3.2vw,40px); font-weight: 420; letter-spacing: -0.01em; }
-  .ridings-cta p { max-width: 720px; color: var(--ink-2); margin: 0 0 20px; line-height: 1.55; }
-  .cta-btn { display: inline-block; padding: 12px 22px; background: var(--ink); color: var(--paper); text-decoration: none; font-family: var(--mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; }
-  .cta-btn:hover { background: color-mix(in oklab, var(--ink) 80%, transparent); }
-</style>

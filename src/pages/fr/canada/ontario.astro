@@ -1,5 +1,6 @@
 ---
 import EditorialLayout from '../../../layouts/EditorialLayout.astro';
+import RidingsCta from '../../../components/RidingsCta.astro';
 import ProjectionEngine from '../../../components/ProjectionEngine.astro';
 import { jurisdictions } from '../../../data/jurisdictions';
 import ontarioMeta from '../../../../web_data/ontario/latest.json';
@@ -47,20 +48,12 @@ const alternates = {
   ]}
 >
   <ProjectionEngine jurisdiction={j} locale="fr" />
-  <section class="ridings-cta">
-    <div class="container">
-      <p class="eyebrow">Profil par circonscription</p>
-      <h2>Plonger dans une circonscription précise</h2>
-      <p>Projection, député·e en fonction, candidats 2025, trajectoire des projections et circonscriptions voisines — pour chacune des 124 circonscriptions provinciales de l'Ontario.</p>
-      <a href="/fr/canada/ontario/circonscriptions/" class="cta-btn">Parcourir les 124 circonscriptions →</a>
-    </div>
-  </section>
+  <RidingsCta
+    eyebrow="Profil par circonscription"
+    title="Plonger dans une circonscription précise"
+    blurb="Projection, député·e en fonction, candidats 2025, trajectoire des projections et circonscriptions voisines — pour chacune des 124 circonscriptions provinciales de l'Ontario."
+    href="/fr/canada/ontario/circonscriptions/"
+    cta="Parcourir les 124 circonscriptions →"
+  />
 </EditorialLayout>
 
-<style>
-  .ridings-cta { padding: 56px 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); background: var(--paper-2); }
-  .ridings-cta h2 { margin: 8px 0 12px; font-family: var(--serif); font-size: clamp(28px,3.2vw,40px); font-weight: 420; letter-spacing: -0.01em; }
-  .ridings-cta p { max-width: 720px; color: var(--ink-2); margin: 0 0 20px; line-height: 1.55; }
-  .cta-btn { display: inline-block; padding: 12px 22px; background: var(--ink); color: var(--paper); text-decoration: none; font-family: var(--mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; }
-  .cta-btn:hover { background: color-mix(in oklab, var(--ink) 80%, transparent); }
-</style>
