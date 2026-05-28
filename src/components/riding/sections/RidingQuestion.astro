@@ -19,7 +19,7 @@
  * "Sinn Féin", "du PQ", "de la CAQ"). Stay laconic — one short question.
  */
 import type { RidingData } from '../../../lib/riding-adapters/types';
-import { partyMeta } from '../../../lib/riding-adapters/parties';
+import { partyMeta, subjectFr, datifFr, aEs, agreementFr, isPluralEs } from '../../../lib/riding-adapters/parties';
 
 interface Props {
   data: RidingData;
@@ -36,11 +36,18 @@ const baselineMeta = data.baseline ? partyMeta(data.jurisdiction, data.baseline.
 function naked(meta: ReturnType<typeof partyMeta>, l: 'en' | 'fr' | 'es'): string {
   return l === 'fr' ? meta.label_fr : meta.label_en;
 }
-/** Genitive / referential mention, used after "lose/hold/replace". ES
- *  falls back to English mention until per-party Spanish forms ship. */
+/** Genitive / referential mention, used after "lose/hold/replace". */
 function mention(meta: ReturnType<typeof partyMeta>, l: 'en' | 'fr' | 'es'): string {
   if (l === 'fr') return meta.mention_fr ?? `du Parti ${meta.label_fr}`;
+  if (l === 'es') return meta.mention_es ?? `el Partido ${meta.label_en}`;
   return meta.mention_en ?? `the ${meta.label_en} Party`;
+}
+/** French interrogative inversion with subject-verb agreement.
+ *  `verbSing`/`verbPlural` are the 3rd-person present forms; `euphonicT` adds the
+ *  "-t-" liaison for singular verbs ending in a vowel (conserve-t-il, not perd-il). */
+function inflectFr(genitive: string, verbSing: string, verbPlural: string, euphonicT: boolean): string {
+  const { pron, plural } = agreementFr(genitive);
+  return plural ? `${verbPlural}-${pron}` : `${verbSing}${euphonicT ? '-t-' : '-'}${pron}`;
 }
 
 const winnerLabel = naked(winnerMeta, lang);
@@ -56,39 +63,42 @@ let questionEn = '';
 let questionFr = '';
 let questionEs = '';
 
+// Topic-label format: the riding name is a label before the colon, so it never
+// needs a grammatical article ("le Nunavut", "la Géorgie") — the question body
+// uses a generic "ce siège" / "este escaño" / "this seat". Works for any name
+// in any language, no per-riding metadata. FR keeps its " : " and " ?" spacing.
 if (isVacant && isByelection && data.byelectionDate) {
-  // Byelection with a known date — the previous member name lives in member,
-  // but we lean on baseline as the most reliable label.
+  // Byelection with a known date — lean on baseline as the most reliable label.
   if (baselineLabel) {
-    questionEn = `Who replaces ${mention(baselineMeta!, 'en')} in ${name}?`;
-    questionFr = `Qui succède ${mention(baselineMeta!, 'fr')} dans ${name} ?`;
-    questionEs = `¿Quién sucede a ${mention(baselineMeta!, 'es')} en ${name}?`;
+    questionEn = `${name}: who succeeds ${mention(baselineMeta!, 'en')}?`;
+    questionFr = `${name} : qui succède ${datifFr(mention(baselineMeta!, 'fr'))} ?`;
+    questionEs = `${name}: ¿quién sucede ${aEs(mention(baselineMeta!, 'es'))}?`;
   } else {
-    questionEn = `Who wins the ${name} byelection?`;
-    questionFr = `Qui remporte la partielle de ${name} ?`;
-    questionEs = `¿Quién gana la elección extraordinaria de ${name}?`;
+    questionEn = `${name}: who wins this byelection?`;
+    questionFr = `${name} : qui remporte cette partielle ?`;
+    questionEs = `${name}: ¿quién gana esta elección extraordinaria?`;
   }
 } else if (isVacant) {
-  questionEn = `Who wins this open seat in ${name}?`;
-  questionFr = `Qui remporte ce siège vacant dans ${name} ?`;
-  questionEs = `¿Quién gana este escaño vacante en ${name}?`;
+  questionEn = `${name}: who wins this open seat?`;
+  questionFr = `${name} : qui remporte ce siège vacant ?`;
+  questionEs = `${name}: ¿quién gana este escaño vacante?`;
 } else if (isTossup) {
-  questionEn = `Who wins this toss-up in ${name}?`;
-  questionFr = `Qui l'emporte dans ${name}, course incertaine ?`;
-  questionEs = `¿Quién gana esta carrera reñida en ${name}?`;
+  questionEn = `${name}: who wins this toss-up?`;
+  questionFr = `${name} : qui l'emporte dans cette course incertaine ?`;
+  questionEs = `${name}: ¿quién gana esta carrera reñida?`;
 } else if (isFlip && baselineMeta) {
-  questionEn = `Will ${baselineLabel} lose ${name} to ${winnerLabel}?`;
-  questionFr = `${baselineLabel} perd-il ${name} au profit ${mention(winnerMeta, 'fr')} ?`;
-  questionEs = `¿${baselineLabel} perderá ${name} frente a ${winnerLabel}?`;
+  questionEn = `${name}: will ${baselineLabel} lose this seat to ${winnerLabel}?`;
+  questionFr = `${name} : ${subjectFr(mention(baselineMeta!, 'fr'))} ${inflectFr(mention(baselineMeta!, 'fr'), 'perd', 'perdent', false)} ce siège au profit ${mention(winnerMeta, 'fr')} ?`;
+  questionEs = `${name}: ¿${mention(baselineMeta!, 'es')} ${isPluralEs(mention(baselineMeta!, 'es')) ? 'pierden' : 'pierde'} este escaño frente ${aEs(mention(winnerMeta, 'es'))}?`;
 } else if (isSafe) {
-  questionEn = `Is ${name} safe for ${mention(winnerMeta, 'en')}?`;
-  questionFr = `${name} reste-t-il un siège sûr ${mention(winnerMeta, 'fr')} ?`;
-  questionEs = `¿${name} sigue siendo un escaño seguro para ${mention(winnerMeta, 'es')}?`;
+  questionEn = `${name}: a safe seat for ${mention(winnerMeta, 'en')}?`;
+  questionFr = `${name} : un siège sûr pour ${subjectFr(mention(winnerMeta, 'fr'))} ?`;
+  questionEs = `${name}: ¿un escaño seguro para ${mention(winnerMeta, 'es')}?`;
 } else {
   // Leaning — competitive but a clear favourite.
-  questionEn = `Can ${mention(winnerMeta, 'en')} hold ${name}?`;
-  questionFr = `${mention(winnerMeta, 'fr')[0].toUpperCase()}${mention(winnerMeta, 'fr').slice(1)} conserve-t-il ${name} ?`;
-  questionEs = `¿Podrá ${mention(winnerMeta, 'es')} conservar ${name}?`;
+  questionEn = `${name}: can ${mention(winnerMeta, 'en')} hold this seat?`;
+  questionFr = `${name} : ${subjectFr(mention(winnerMeta, 'fr'))} ${inflectFr(mention(winnerMeta, 'fr'), 'conserve', 'conservent', true)} ce siège ?`;
+  questionEs = `${name}: ¿${isPluralEs(mention(winnerMeta, 'es')) ? 'pueden' : 'puede'} ${mention(winnerMeta, 'es')} conservar este escaño?`;
 }
 
 const question = { en: questionEn, fr: questionFr, es: questionEs }[lang];

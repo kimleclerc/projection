@@ -1,6 +1,6 @@
 ---
 import type { RidingData } from '../../../lib/riding-adapters/types';
-import { partyMeta } from '../../../lib/riding-adapters/parties';
+import { partyMeta, subjectFr, aEs, deEs } from '../../../lib/riding-adapters/parties';
 
 interface Props {
   data: RidingData;
@@ -17,14 +17,11 @@ const topMeta = top ? partyMeta(data.jurisdiction, top.code) : null;
 const secondMeta = second ? partyMeta(data.jurisdiction, second.code) : null;
 
 /** Editorial reference: prefer the per-party `mention_*` field; fall back
- *  to a generic "Parti X" / "X Party" pattern using the label. Spanish
- *  falls back to English mention because party-name forms map cleanly
- *  ("the Conservatives" → "los Conservadores" requires per-party data
- *  we don't yet store; defer to the universal English form). */
+ *  to a generic "Parti X" / "X Party" / "el Partido X" pattern using the label. */
 function mention(meta: ReturnType<typeof partyMeta> | null, l: 'en' | 'fr' | 'es', fallbackLabel: string): string {
   if (!meta) return '';
   if (l === 'fr') return meta.mention_fr ?? `du Parti ${fallbackLabel.toLowerCase()}`;
-  // ES fallback to EN until we ship mention_es on PartyMeta.
+  if (l === 'es') return meta.mention_es ?? `el Partido ${fallbackLabel}`;
   return meta.mention_en ?? `the ${fallbackLabel} Party`;
 }
 function naked(meta: ReturnType<typeof partyMeta> | null, l: 'en' | 'fr' | 'es'): string {
@@ -140,7 +137,7 @@ function originSentence(l: 'en' | 'fr' | 'es'): string | null {
 
 const blurbFR = [
   `${name}, ${ridingWordFR} ${urbanFR} ${provinceFR}, ${baselineMentionFr ? `a élu un·e député·e ${baselineMentionFr} lors du scrutin précédent avec une marge de ${data.baseline!.margin.toFixed(0)} points` : 'arrive sans baseline directe pour le cycle courant'}.`,
-  `Le modèle Vote-Scope projette ${winnerMentionFr} en tête avec ${top?.vote_mean_pct.toFixed(0)} % d'intentions de vote, contre ${second?.vote_mean_pct.toFixed(0)} % pour ${secondMentionFr}, et ${competitivenessFR}.`,
+  `Le modèle Vote-Scope projette ${subjectFr(winnerMentionFr)} en tête avec ${top?.vote_mean_pct.toFixed(0)} % d'intentions de vote, contre ${second?.vote_mean_pct.toFixed(0)} % pour ${subjectFr(secondMentionFr)}, et ${competitivenessFR}.`,
   data.demographics?.francophone_pct !== undefined
     ? `Profil linguistique : ${data.demographics.francophone_pct.toFixed(0)} % francophones, ${data.demographics.anglophone_pct?.toFixed(0) ?? '—'} % anglophones.`
     : null,
@@ -158,7 +155,7 @@ const blurbEN = [
 
 const blurbES = [
   `${name}, ${ridingWordES} ${urbanES} ${provinceES}, ${baselineMentionEs ? `eligió a un representante con ${baselineMentionEs} en el ciclo anterior, con un margen de ${data.baseline!.margin.toFixed(0)} puntos` : 'no tiene una baseline directa para el ciclo actual'}.`,
-  `El modelo Vote-Scope proyecta a ${winnerMentionEs} a la cabeza con ${top?.vote_mean_pct.toFixed(0)} % de intención de voto, frente al ${second?.vote_mean_pct.toFixed(0)} % de ${secondMentionEs}, y ${competitivenessES}.`,
+  `El modelo Vote-Scope proyecta ${aEs(winnerMentionEs)} a la cabeza con ${top?.vote_mean_pct.toFixed(0)} % de intención de voto, frente al ${second?.vote_mean_pct.toFixed(0)} % ${deEs(secondMentionEs)}, y ${competitivenessES}.`,
   data.demographics?.francophone_pct !== undefined
     ? `Perfil lingüístico: ${data.demographics.francophone_pct.toFixed(0)} % francófonos, ${data.demographics.anglophone_pct?.toFixed(0) ?? '—'} % anglófonos.`
     : null,
