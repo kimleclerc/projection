@@ -1,0 +1,37 @@
+---
+/**
+ * Official Google "preferred sources" badge — lets readers add Vote-Scope to
+ * their preferred sources in Google Search/Top Stories. Uses Google's own
+ * per-language badge images (light/dark variants swapped with the site theme).
+ * Deep-link format per Google docs: google.com/preferences/source?q=<domain>.
+ */
+interface Props {
+  locale: 'en' | 'fr' | 'es';
+}
+const { locale } = Astro.props;
+const label = {
+  en: 'Add Vote-Scope to your preferred sources on Google',
+  fr: 'Ajouter Vote-Scope à vos sources préférées sur Google',
+  es: 'Añade Vote-Scope a tus fuentes preferidas en Google',
+}[locale];
+---
+
+<a
+  class="gps"
+  href="https://google.com/preferences/source?q=vote-scope.com"
+  target="_blank"
+  rel="noopener"
+  aria-label={label}
+  title={label}
+>
+  <img class="gps-light" src={`/img/google-source/light_${locale}.png`} alt={label} width="676" height="213" loading="lazy" />
+  <img class="gps-dark" src={`/img/google-source/dark_${locale}.png`} alt={label} width="676" height="213" loading="lazy" />
+</a>
+
+<style>
+  .gps { display: inline-flex; margin-top: 14px; }
+  .gps img { height: 40px; width: auto; display: block; }
+  .gps-dark { display: none; }
+  :global([data-theme="dark"]) .gps-light { display: none; }
+  :global([data-theme="dark"]) .gps-dark { display: inline-block; }
+</style>

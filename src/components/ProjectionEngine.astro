@@ -5,6 +5,7 @@ import { resolve } from 'node:path';
 import ScenariosChart from '../islands/ScenariosChart.tsx';
 import VoteTrendChart from '../islands/VoteTrendChart.tsx';
 import RidingsMap from '../islands/RidingsMap.tsx';
+import GooglePreferredSource from './GooglePreferredSource.astro';
 import RidingTable from '../islands/RidingTable.tsx';
 import ElectionCountdown from '../islands/ElectionCountdown.tsx';
 import KeepDigging from './KeepDigging.astro';
@@ -48,14 +49,24 @@ const orderedParties = [...parties].sort((a, b) => {
 const totalSeats = meta.total_seats ?? jurisdiction.seatsTotal;
 const majorityThreshold = meta.majority_threshold ?? Math.floor(totalSeats / 2) + 1;
 
-// Build composition bar segments
-const compositionOrder = [...partyOrder, 'vacant'].filter(
+// Build composition bar segments. Include every party present in the current
+// composition — independents created by a floor-crossing (e.g. ind, qc_ind)
+// aren't in the jurisdiction's projection party order, so append those extras
+// before "vacant" instead of dropping them.
+const compositionExtras = Object.keys(currentCompositionByKey).filter(
+  (k) => !partyOrder.includes(k) && k !== 'vacant',
+);
+const compositionOrder = [...partyOrder, ...compositionExtras, 'vacant'].filter(
   (v, i, arr) => arr.indexOf(v) === i,
 );
 const fallbackPartyLabel = (key: string, targetLocale: Locale) => {
   const labels: Record<string, { en: string; fr: string }> = {
     vacant: { en: 'Vacant', fr: 'Vacants' },
+    ind: { en: 'Independent', fr: 'Indépendants' },
     qc_ind: { en: 'Independent', fr: 'Indépendants' },
+    on_ind: { en: 'Independent', fr: 'Indépendants' },
+    us_ind: { en: 'Independent', fr: 'Indépendants' },
+    fed_oth: { en: 'Other', fr: 'Autres' },
   };
   return labels[key]?.[targetLocale] ?? key;
 };
@@ -342,6 +353,7 @@ const keepDiggingLinks = (() => {
       <span class="pe-badge pe-badge-strong">{t.modelBadge}</span>
       <span class="pe-badge">{meta.election_cycle}</span>
     </div>
+    <GooglePreferredSource locale={locale} />
   </header>
 
   {jurisdiction.electionDate && (
