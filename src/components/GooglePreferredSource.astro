@@ -24,14 +24,10 @@ const label = {
   aria-label={label}
   title={label}
 >
-  <img class="gps-light" src={`/img/google-source/light_${locale}.png`} alt={label} width="676" height="213" loading="lazy" />
-  <img class="gps-dark" src={`/img/google-source/dark_${locale}.png`} alt={label} width="676" height="213" loading="lazy" />
+  <img src={`/img/google-source/light_${locale}.png`} alt={label} width="676" height="213" loading="lazy" />
 </a>
 
 <style>
   .gps { display: inline-flex; margin-top: 14px; }
   .gps img { height: 40px; width: auto; display: block; }
-  .gps-dark { display: none; }
-  :global([data-theme="dark"]) .gps-light { display: none; }
-  :global([data-theme="dark"]) .gps-dark { display: inline-block; }
 </style>
