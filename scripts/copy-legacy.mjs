@@ -83,6 +83,7 @@ const rootFiles = [
   'robots.txt',
   'llms.txt',
   'llms-long.txt',
+  'llms-full.txt',
   'manifest.json',
   'apple-touch-icon.png',
   'favicon-16x16.png',
