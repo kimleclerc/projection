@@ -3,16 +3,29 @@ import EditorialLayout from '../../../../../layouts/EditorialLayout.astro';
 import { getAllFederalRidings } from '../../../../../lib/riding-adapters/federal';
 import { partyMeta } from '../../../../../lib/riding-adapters/parties';
 
-const all = getAllFederalRidings()
-  .slice()
-  .sort((a, b) => (a.name.en || a.name.fr).localeCompare(b.name.en || b.name.fr, 'es'));
+const PROVINCE_ES: Record<string, string> = {
+  NL: 'Terranova y Labrador', PE: 'Isla del Príncipe Eduardo', NS: 'Nueva Escocia',
+  NB: 'Nuevo Brunswick', QC: 'Quebec', ON: 'Ontario', MB: 'Manitoba', SK: 'Saskatchewan',
+  AB: 'Alberta', BC: 'Columbia Británica', YT: 'Yukón', NT: 'Territorios del Noroeste', NU: 'Nunavut',
+};
+const PROVINCE_ORDER = ['BC','AB','SK','MB','ON','QC','NB','NS','PE','NL','YT','NT','NU'];
+
+const all = getAllFederalRidings();
+const byProvince: Record<string, typeof all> = {};
+for (const r of all) {
+  const p = r.province ?? 'XX';
+  (byProvince[p] ??= []).push(r);
+}
+for (const p of Object.keys(byProvince)) {
+  byProvince[p].sort((a, b) => (a.name.en || a.name.fr).localeCompare(b.name.en || b.name.fr, 'es'));
+}
 
 const canonical = 'https://vote-scope.com/es/canada/federal/distritos/';
 ---
 
 <EditorialLayout
   title="Distritos federales canadienses — Vote-Scope"
-  description="Los 343 distritos federales canadienses (fed_46), proyección Vote-Scope por partido, diputado·a en funciones. Índice alfabético."
+  description="Los 343 distritos federales canadienses (fed_46), proyección Vote-Scope por partido, diputado·a en funciones. Explora por provincia."
   canonical={canonical}
   lang="es"
   currentPage="canada"
@@ -33,26 +46,31 @@ const canonical = 'https://vote-scope.com/es/canada/federal/distritos/';
     <div class="container">
       <p class="eyebrow">Índice de distritos · Canadá federal</p>
       <h1>Los 343 distritos federales.</h1>
-      <p class="lede">Proyección, diputado·a en funciones, candidatos 2025, trayectoria del modelo. Recorre alfabéticamente — los escaños vacantes y las elecciones extraordinarias próximas aparecen en línea en cada página.</p>
+      <p class="lede">Proyección, diputado·a en funciones, candidatos 2025, trayectoria del modelo. Explora por provincia — los escaños vacantes y las elecciones extraordinarias próximas aparecen en línea en cada página.</p>
     </div>
   </section>
 
   <section class="ridings-index">
     <div class="container">
-      <ul class="riding-list">
-        {all.map((r) => {
-          const meta = partyMeta(r.jurisdiction, r.projection.winner);
-          return (
-            <li>
-              <a href={`/es/canada/federal/distritos/${r.slug}/`} style={`--accent:${meta.color}`}>
-                <span class="dot" aria-hidden="true"></span>
-                <span class="name">{r.name.en || r.name.fr}</span>
-                <span class="party">{meta.label_en}</span>
-              </a>
-            </li>
-          );
-        })}
-      </ul>
+      {PROVINCE_ORDER.filter((p) => byProvince[p]).map((p) => (
+        <div class="prov-block">
+          <h2 id={p.toLowerCase()}>{PROVINCE_ES[p]} <span class="count">{byProvince[p].length}</span></h2>
+          <ul class="riding-list">
+            {byProvince[p].map((r) => {
+              const meta = partyMeta(r.jurisdiction, r.projection.winner);
+              return (
+                <li>
+                  <a href={`/es/canada/federal/distritos/${r.slug}/`} style={`--accent:${meta.color}`}>
+                    <span class="dot" aria-hidden="true"></span>
+                    <span class="name">{r.name.en || r.name.fr}</span>
+                    <span class="party">{meta.label_en}</span>
+                  </a>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      ))}
     </div>
   </section>
 </EditorialLayout>
@@ -62,6 +80,9 @@ const canonical = 'https://vote-scope.com/es/canada/federal/distritos/';
   .ridings-index-hero h1 { margin: 8px 0 16px; font-family: var(--serif); font-size: clamp(40px, 5vw, 64px); font-weight: 420; letter-spacing: -0.02em; line-height: 1.02; max-width: 900px; }
   .ridings-index-hero .lede { max-width: 760px; font-family: var(--serif); font-size: clamp(17px, 1.8vw, 20px); line-height: 1.55; color: var(--ink-2); }
   .ridings-index { padding: 48px 0; background: var(--paper-2); }
+  .prov-block { margin-bottom: 48px; }
+  .prov-block h2 { margin: 0 0 18px; font-family: var(--serif); font-size: clamp(24px, 2.6vw, 32px); font-weight: 420; letter-spacing: -0.01em; }
+  .prov-block .count { font-family: var(--mono); font-size: 13px; color: var(--ink-2); margin-left: 10px; }
   .riding-list { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 0; border-top: 1px solid var(--rule); border-left: 1px solid var(--rule); }
   .riding-list a { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule); background: var(--card); text-decoration: none; color: inherit; transition: background .15s ease; }
   .riding-list a:hover { background: color-mix(in oklab, var(--accent) 12%, var(--card)); }
