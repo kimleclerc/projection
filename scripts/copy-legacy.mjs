@@ -84,6 +84,7 @@ const rootFiles = [
   'llms.txt',
   'llms-long.txt',
   'llms-full.txt',
+  'e218854fe8e84c5d01aba2961670c496.txt',  // IndexNow verification key
   'manifest.json',
   'apple-touch-icon.png',
   'favicon-16x16.png',
