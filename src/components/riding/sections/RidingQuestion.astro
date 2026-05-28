@@ -32,6 +32,15 @@ const name = lang === 'fr' ? data.name.fr : data.name.en;
 const winnerMeta = partyMeta(data.jurisdiction, data.projection.winner);
 const baselineMeta = data.baseline ? partyMeta(data.jurisdiction, data.baseline.winner) : null;
 
+// Who actually HOLDS the seat today, for the "hold / lose / flip" framing.
+// The sitting member's current caucus wins over the last-election result when
+// they differ (floor-crossing, e.g. Nunavut: elected NDP, now sits Liberal),
+// because the projection is about defending the seat as it stands now. Falls
+// back to the last-election winner when there is no sitting member.
+const sittingParty = data.member && data.member.seat_status !== 'vacant' ? data.member.party_current : null;
+const incumbentParty = sittingParty ?? data.baseline?.winner ?? null;
+const incumbentMeta = incumbentParty ? partyMeta(data.jurisdiction, incumbentParty) : null;
+
 /** Naked party label, used in subject position. */
 function naked(meta: ReturnType<typeof partyMeta>, l: 'en' | 'fr' | 'es'): string {
   return l === 'fr' ? meta.label_fr : meta.label_en;
@@ -52,10 +61,11 @@ function inflectFr(genitive: string, verbSing: string, verbPlural: string, eupho
 
 const winnerLabel = naked(winnerMeta, lang);
 const baselineLabel = baselineMeta ? naked(baselineMeta, lang) : null;
+const incumbentLabel = incumbentMeta ? naked(incumbentMeta, lang) : null;
 
 const isVacant = data.member?.seat_status === 'vacant' || (!data.member && !!data.isByelection);
 const isByelection = !!data.isByelection;
-const isFlip = baselineMeta && data.projection.winner !== data.baseline?.winner;
+const isFlip = incumbentMeta && data.projection.winner !== incumbentParty;
 const isTossup = data.projection.p_close_race >= 0.35;
 const isSafe = data.projection.p_winner >= 0.85;
 
@@ -86,10 +96,10 @@ if (isVacant && isByelection && data.byelectionDate) {
   questionEn = `${name}: who wins this toss-up?`;
   questionFr = `${name} : qui l'emporte dans cette course incertaine ?`;
   questionEs = `${name}: ¿quién gana esta carrera reñida?`;
-} else if (isFlip && baselineMeta) {
-  questionEn = `${name}: will ${baselineLabel} lose this seat to ${winnerLabel}?`;
-  questionFr = `${name} : ${subjectFr(mention(baselineMeta!, 'fr'))} ${inflectFr(mention(baselineMeta!, 'fr'), 'perd', 'perdent', false)} ce siège au profit ${mention(winnerMeta, 'fr')} ?`;
-  questionEs = `${name}: ¿${mention(baselineMeta!, 'es')} ${isPluralEs(mention(baselineMeta!, 'es')) ? 'pierden' : 'pierde'} este escaño frente ${aEs(mention(winnerMeta, 'es'))}?`;
+} else if (isFlip && incumbentMeta) {
+  questionEn = `${name}: will ${incumbentLabel} lose this seat to ${winnerLabel}?`;
+  questionFr = `${name} : ${subjectFr(mention(incumbentMeta, 'fr'))} ${inflectFr(mention(incumbentMeta, 'fr'), 'perd', 'perdent', false)} ce siège au profit ${mention(winnerMeta, 'fr')} ?`;
+  questionEs = `${name}: ¿${mention(incumbentMeta, 'es')} ${isPluralEs(mention(incumbentMeta, 'es')) ? 'pierden' : 'pierde'} este escaño frente ${aEs(mention(winnerMeta, 'es'))}?`;
 } else if (isSafe) {
   questionEn = `${name}: a safe seat for ${mention(winnerMeta, 'en')}?`;
   questionFr = `${name} : un siège sûr pour ${subjectFr(mention(winnerMeta, 'fr'))} ?`;
