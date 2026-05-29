@@ -30,9 +30,14 @@ interface Props {
   pollsBase: string;
   /** Optional poll trend (model estimate + history) for the chart. */
   trend?: TrendBundle;
+  /** Base URL for a poll's pre-rendered share card, e.g. '/og/us-house/poll/es'. */
+  cardBase?: string;
+  /** poll_ids that have a pre-rendered share PNG (recent polls only). */
+  cardIds?: string[];
 }
 
-const { lang, meta, polls, firms, parties, pollsBase, trend } = Astro.props as Props;
+const { lang, meta, polls, firms, parties, pollsBase, trend, cardBase, cardIds } = Astro.props as Props;
+const cardSet = new Set(cardIds ?? []);
 
 const LOCALE = lang === 'fr' ? 'fr-CA' : lang === 'es' ? 'es-ES' : 'en-US';
 
@@ -60,6 +65,7 @@ const T = {
     pop: 'Pop.',
     result: 'Topline',
     source: 'Source',
+    share: 'Share',
     detail: 'Breakdowns',
     nPolls: (n: number) => `${n} poll${n === 1 ? '' : 's'}`,
     latest: 'Most recent fieldwork',
@@ -80,6 +86,7 @@ const T = {
     pop: 'Pop.',
     result: 'Intentions',
     source: 'Source',
+    share: 'Partager',
     detail: 'Ventilations',
     nPolls: (n: number) => `${n} sondage${n > 1 ? 's' : ''}`,
     latest: 'Terrain le plus récent',
@@ -100,6 +107,7 @@ const T = {
     pop: 'Pob.',
     result: 'Intención',
     source: 'Fuente',
+    share: 'Compartir',
     detail: 'Desgloses',
     nPolls: (n: number) => `${n} sondeo${n === 1 ? '' : 's'}`,
     latest: 'Campo más reciente',
@@ -211,6 +219,7 @@ const nFirms = firms.length || new Set(polls.map((p) => p.firm)).size;
             <th class="c-pop">{T.pop}</th>
             <th class="c-result">{T.result}</th>
             <th class="c-src">{T.source}</th>
+            {cardBase && <th class="c-share">{T.share}</th>}
           </tr>
         </thead>
         <tbody>
@@ -257,6 +266,20 @@ const nFirms = firms.length || new Set(polls.map((p) => p.firm)).size;
                     <span class="muted">—</span>
                   )}
                 </td>
+                {cardBase && (
+                  <td class="c-share">
+                    {cardSet.has(p.poll_id) ? (
+                      <a
+                        class="share-link"
+                        href={`${cardBase}/${p.poll_id}.png`}
+                        download={`votescope-${p.poll_id}.png`}
+                        title={T.share}
+                      >⤓ PNG</a>
+                    ) : (
+                      <span class="muted">—</span>
+                    )}
+                  </td>
+                )}
               </tr>
             );
           })}
@@ -301,6 +324,9 @@ const nFirms = firms.length || new Set(polls.map((p) => p.firm)).size;
   .c-result { min-width: 220px; }
   .c-src a { color: var(--ink-2); text-decoration: none; border-bottom: 1px dotted var(--rule); }
   .c-src a:hover { color: var(--ink); }
+  .c-share { white-space: nowrap; }
+  .share-link { display: inline-block; padding: 3px 8px; border: 1px solid var(--rule); border-radius: 4px; color: var(--ink); text-decoration: none; font-size: 11px; letter-spacing: .04em; transition: background .15s ease, border-color .15s ease; }
+  .share-link:hover { background: color-mix(in oklab, var(--accent, var(--ink)) 10%, var(--card)); border-color: var(--ink-3); }
   .muted { color: var(--rule); }
 
   .bars { display: flex; flex-direction: column; gap: 4px; }

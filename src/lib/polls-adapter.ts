@@ -215,6 +215,21 @@ export function getPollDetail(webKey: string, pollId: string): PollDetail | unde
   return DETAIL_BY_KEY[webKey]?.[pollId];
 }
 
+/** A single poll row from the index, by id. */
+export function getPollRow(webKey: string, pollId: string): PollRow | undefined {
+  return INDEX_BY_KEY[webKey]?.polls.find((p) => p.poll_id === pollId);
+}
+
+/** How many recent national polls get a pre-rendered share PNG at build.
+ *  Bounds build time (option-3 decision); older polls show no card link. */
+export const RECENT_CARD_N = 48;
+
+/** Most recent national polls (no geography) — used to bound build-time card
+ *  generation: only recent polls get a pre-rendered share PNG. */
+export function getRecentNationalPolls(webKey: string, n: number = RECENT_CARD_N): PollRow[] {
+  return getNationalPolls(webKey).slice(0, n);
+}
+
 /**
  * Trend bundle for the polls chart — reuses the same `parties` (model estimate
  * + 95% CI) and `polls_history` series that the jurisdiction projection page

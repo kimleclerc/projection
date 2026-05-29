@@ -1,7 +1,7 @@
 ---
 import EditorialLayout from '../../../../../layouts/EditorialLayout.astro';
 import PollsHub from '../../../../../components/PollsHub.astro';
-import { getPollsMeta, getNationalPolls, getFirms, getPollsTrend } from '../../../../../lib/polls-adapter';
+import { getPollsMeta, getNationalPolls, getFirms, getPollsTrend, getRecentNationalPolls } from '../../../../../lib/polls-adapter';
 import { pollPartyChips } from '../../../../../lib/poll-parties';
 
 const WEB_KEY = 'us-house';
@@ -9,6 +9,7 @@ const meta = getPollsMeta(WEB_KEY)!;
 const polls = getNationalPolls(WEB_KEY);
 const firms = getFirms(WEB_KEY);
 const trend = getPollsTrend(WEB_KEY);
+const cardIds = getRecentNationalPolls(WEB_KEY).map((p) => p.poll_id);
 const chips = pollPartyChips(WEB_KEY, meta.parties, 'en');
 
 const canonical = 'https://vote-scope.com/en/us/house/polls/';
@@ -46,7 +47,7 @@ const canonical = 'https://vote-scope.com/en/us/house/polls/';
     </div>
   </section>
 
-  <PollsHub lang="en" meta={meta} polls={polls} firms={firms} parties={chips} trend={trend} pollsBase="/en/us/house/polls" />
+  <PollsHub lang="en" meta={meta} polls={polls} firms={firms} parties={chips} trend={trend} pollsBase="/en/us/house/polls" cardBase="/og/us-house/poll/en" cardIds={cardIds} />
 </EditorialLayout>
 
 <style>

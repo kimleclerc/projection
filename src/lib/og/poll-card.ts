@@ -54,6 +54,7 @@ export interface PollCardInput {
   eyebrow: string;       // mono kicker, e.g. "SONDEOS · CÁMARA US · 2026"
   title: string;         // serif headline (firm + cycle, or hub title)
   subtitle?: string;     // serif sub line (field dates / sample)
+  meta2?: string;        // mono detail line (n= · type · sponsor); absent fields omitted
   entries: CardEntry[];  // topline rows (sorted desc by caller)
   footerLeft: string;    // e.g. latest field date / source
   /** Output dimensions. Default 1200×630 (og / X 16:9). */
@@ -121,6 +122,12 @@ export async function renderPollCard(input: PollCardInput): Promise<Buffer> {
               display: 'flex', fontFamily: 'Newsreader', fontSize: 26,
               color: INK_2, marginTop: 10,
             }, input.subtitle)]
+          : []),
+        ...(input.meta2
+          ? [el('div', {
+              display: 'flex', fontFamily: 'JetBrains Mono', fontSize: 16,
+              letterSpacing: '0.02em', color: INK_3, marginTop: 8,
+            }, input.meta2)]
           : []),
       ]),
       // bars
