@@ -1,0 +1,55 @@
+---
+import EditorialLayout from '../../../../../layouts/EditorialLayout.astro';
+import PollsHub from '../../../../../components/PollsHub.astro';
+import { getPollsMeta, getNationalPolls, getFirms } from '../../../../../lib/polls-adapter';
+import { pollPartyChips } from '../../../../../lib/poll-parties';
+
+const WEB_KEY = 'us-house';
+const meta = getPollsMeta(WEB_KEY)!;
+const polls = getNationalPolls(WEB_KEY);
+const firms = getFirms(WEB_KEY);
+const chips = pollPartyChips(WEB_KEY, meta.parties, 'en');
+
+const canonical = 'https://vote-scope.com/en/us/house/polls/';
+---
+
+<EditorialLayout
+  title="2026 U.S. House Generic Ballot Polls — Vote-Scope"
+  description="Every generic-ballot poll for the U.S. House (2026 cycle): pollster, field dates, sample and vote intention. Continuously updated."
+  canonical={canonical}
+  lang="en"
+  currentPage="us"
+  ogImage="https://vote-scope.com/og/us-house/polls/en.png"
+  alternates={{
+    en: canonical,
+    fr: 'https://vote-scope.com/fr/us/chambre/sondages/',
+    es: 'https://vote-scope.com/es/us/house/sondeos/',
+  }}
+  jsonLd={[
+    {
+      '@context': 'https://schema.org',
+      '@type': 'CollectionPage',
+      name: '2026 U.S. House Generic Ballot Polls',
+      url: canonical,
+      inLanguage: 'en',
+      isPartOf: { '@type': 'WebSite', name: 'Vote-Scope', url: 'https://vote-scope.com/' },
+    },
+  ]}
+>
+  <section class="polls-hero">
+    <div class="container">
+      <p class="eyebrow">Polls · U.S. House · 2026 cycle</p>
+      <h1>The generic ballot.</h1>
+      <p class="lede">Every national generic-ballot poll, with its pollster, fieldwork and vote intention. District-level polls show up on each district’s forecast page.</p>
+    </div>
+  </section>
+
+  <PollsHub lang="en" meta={meta} polls={polls} firms={firms} parties={chips} pollsBase="/en/us/house/polls" />
+</EditorialLayout>
+
+<style>
+  .polls-hero { padding: 80px 0 28px; border-bottom: 1px solid var(--rule); background: var(--paper); }
+  .polls-hero .eyebrow { font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-2); }
+  .polls-hero h1 { margin: 8px 0 16px; font-family: var(--serif); font-size: clamp(40px, 5vw, 64px); font-weight: 420; letter-spacing: -0.02em; line-height: 1.02; max-width: 900px; }
+  .polls-hero .lede { max-width: 760px; font-family: var(--serif); font-size: clamp(17px, 1.8vw, 20px); line-height: 1.55; color: var(--ink-2); }
+</style>

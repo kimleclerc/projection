@@ -1,0 +1,261 @@
+---
+/**
+ * PollsHub — unified, jurisdiction-agnostic poll table (NYT/Upshot model).
+ *
+ * Renders the NATIONAL / big-regional polls of one cycle as dense rows:
+ * firm · field dates · sample · population · topline (bars + numbers) · source.
+ * A poll with `has_detail` links to its dedicated breakdown page; topline-only
+ * polls are rows only (no thin AdSense page). Local/district polls are NOT shown
+ * here — they live as rows inside district forecast pages.
+ *
+ * Thin per-language routes pass `lang` + the computed `parties` palette and the
+ * `pollsBase` URL segment; all markup/strings live here (uniformity principle).
+ */
+import type { PollRow, PollsMeta, PollFirm } from '../lib/polls-adapter';
+
+interface PartyChip {
+  code: string;
+  label: string;
+  color: string;
+}
+
+interface Props {
+  lang: 'en' | 'fr' | 'es';
+  meta: PollsMeta;
+  polls: PollRow[];
+  firms: PollFirm[];
+  parties: PartyChip[];
+  /** Absolute URL base for a poll's detail page, e.g. '/es/us/house/sondeos'. */
+  pollsBase: string;
+}
+
+const { lang, meta, polls, firms, parties, pollsBase } = Astro.props as Props;
+
+const T = {
+  en: {
+    table: 'Polls',
+    firm: 'Pollster',
+    dates: 'Field dates',
+    sample: 'Sample',
+    pop: 'Pop.',
+    result: 'Topline',
+    source: 'Source',
+    detail: 'Breakdowns',
+    nPolls: (n: number) => `${n} polls`,
+    latest: 'Most recent fieldwork',
+    updated: 'Updated',
+    pollsters: (n: number) => `${n} pollsters`,
+    pop_lv: 'LV',
+    pop_rv: 'RV',
+    pop_a: 'Adults',
+    src: 'link',
+    note:
+      'National and big-regional polls only. District-level polls appear on each district’s forecast page.',
+  },
+  fr: {
+    table: 'Sondages',
+    firm: 'Maison',
+    dates: 'Terrain',
+    sample: 'Échantillon',
+    pop: 'Pop.',
+    result: 'Intentions',
+    source: 'Source',
+    detail: 'Ventilations',
+    nPolls: (n: number) => `${n} sondages`,
+    latest: 'Terrain le plus récent',
+    updated: 'Mis à jour',
+    pollsters: (n: number) => `${n} maisons`,
+    pop_lv: 'él. prob.',
+    pop_rv: 'él. ins.',
+    pop_a: 'adultes',
+    src: 'lien',
+    note:
+      'Sondages nationaux et grands régionaux seulement. Les sondages de circonscription apparaissent sur la page de prévision de chaque circonscription.',
+  },
+  es: {
+    table: 'Sondeos',
+    firm: 'Encuestadora',
+    dates: 'Trabajo de campo',
+    sample: 'Muestra',
+    pop: 'Pob.',
+    result: 'Intención',
+    source: 'Fuente',
+    detail: 'Desgloses',
+    nPolls: (n: number) => `${n} sondeos`,
+    latest: 'Campo más reciente',
+    updated: 'Actualizado',
+    pollsters: (n: number) => `${n} encuestadoras`,
+    pop_lv: 'vot. prob.',
+    pop_rv: 'vot. reg.',
+    pop_a: 'adultos',
+    src: 'enlace',
+    note:
+      'Solo sondeos nacionales y grandes regionales. Los sondeos por distrito aparecen en la página de proyección de cada distrito.',
+  },
+}[lang];
+
+const colorByCode: Record<string, string> = {};
+const labelByCode: Record<string, string> = {};
+for (const p of parties) {
+  colorByCode[p.code] = p.color;
+  labelByCode[p.code] = p.label;
+}
+
+function fmtPop(pop?: string | null): string {
+  if (!pop) return '—';
+  const k = pop.toLowerCase();
+  if (k === 'lv') return T.pop_lv;
+  if (k === 'rv') return T.pop_rv;
+  if (k === 'a' || k === 'adults') return T.pop_a;
+  return pop.toUpperCase();
+}
+
+function fmtDates(p: PollRow): string {
+  const s = p.field_start;
+  const e = p.field_end || p.display_date;
+  if (s && e) return s === e ? e : `${s} → ${e}`;
+  return e || p.release_date || '—';
+}
+
+function fmtSample(n?: number | null): string {
+  if (!n || n <= 0) return '—';
+  return n.toLocaleString(lang === 'en' ? 'en-US' : lang === 'fr' ? 'fr-CA' : 'es-ES');
+}
+
+/** Ordered topline entries (desc), known parties first. */
+function toplineEntries(p: PollRow): Array<[string, number]> {
+  return Object.entries(p.topline)
+    .filter(([, v]) => typeof v === 'number' && v > 0)
+    .sort((a, b) => b[1] - a[1]);
+}
+
+const totalSample = polls.reduce((s, p) => s + (p.sample_size || 0), 0);
+const nFirms = firms.length || new Set(polls.map((p) => p.firm)).size;
+---
+
+<section class="polls-hub">
+  <div class="container">
+    <div class="polls-meta-row">
+      <span class="stat"><strong>{T.nPolls(polls.length)}</strong></span>
+      <span class="sep" aria-hidden="true">·</span>
+      <span class="stat">{T.pollsters(nFirms)}</span>
+      {meta.latest_field_end && (
+        <>
+          <span class="sep" aria-hidden="true">·</span>
+          <span class="stat">{T.latest}: <strong>{meta.latest_field_end}</strong></span>
+        </>
+      )}
+    </div>
+
+    <div class="poll-legend">
+      {parties.map((p) => (
+        <span class="legend-item">
+          <span class="swatch" style={`--c:${p.color}`}></span>{p.label}
+        </span>
+      ))}
+    </div>
+
+    <div class="poll-table-wrap">
+      <table class="poll-table">
+        <thead>
+          <tr>
+            <th class="c-firm">{T.firm}</th>
+            <th class="c-dates">{T.dates}</th>
+            <th class="c-sample">{T.sample}</th>
+            <th class="c-pop">{T.pop}</th>
+            <th class="c-result">{T.result}</th>
+            <th class="c-src">{T.source}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {polls.map((p) => {
+            const entries = toplineEntries(p);
+            const max = Math.max(1, ...entries.map(([, v]) => v));
+            return (
+              <tr>
+                <td class="c-firm">
+                  {p.has_detail ? (
+                    <a class="firm-link" href={`${pollsBase}/${p.poll_id}/`}>
+                      {p.firm_name}
+                    </a>
+                  ) : (
+                    <span>{p.firm_name}</span>
+                  )}
+                  {p.client && <span class="client">{p.client}</span>}
+                </td>
+                <td class="c-dates">{fmtDates(p)}</td>
+                <td class="c-sample">{fmtSample(p.sample_size)}</td>
+                <td class="c-pop">{fmtPop(p.population)}</td>
+                <td class="c-result">
+                  <div class="bars">
+                    {entries.map(([code, v]) => (
+                      <span class="bar-row">
+                        <span class="bar-label" style={`--c:${colorByCode[code] || 'var(--ink-2)'}`}>
+                          {labelByCode[code] || code}
+                        </span>
+                        <span class="bar-track">
+                          <span
+                            class="bar-fill"
+                            style={`width:${(v / max) * 100}%;--c:${colorByCode[code] || 'var(--ink-2)'}`}
+                          ></span>
+                        </span>
+                        <span class="bar-val">{v.toFixed(0)}</span>
+                      </span>
+                    ))}
+                  </div>
+                </td>
+                <td class="c-src">
+                  {p.source_url ? (
+                    <a href={p.source_url} target="_blank" rel="nofollow noopener">{T.src}</a>
+                  ) : (
+                    <span class="muted">—</span>
+                  )}
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+
+    <p class="hub-note">{T.note}</p>
+  </div>
+</section>
+
+<style>
+  .polls-hub { padding: 32px 0 56px; background: var(--paper-2); }
+  .polls-meta-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px; font-family: var(--mono); font-size: 12px; letter-spacing: .04em; color: var(--ink-2); text-transform: uppercase; margin-bottom: 16px; }
+  .polls-meta-row strong { color: var(--ink); }
+  .sep { color: var(--rule); }
+
+  .poll-legend { display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 16px; font-family: var(--mono); font-size: 11px; letter-spacing: .04em; text-transform: uppercase; color: var(--ink-2); }
+  .legend-item { display: inline-flex; align-items: center; gap: 6px; }
+  .swatch { width: 12px; height: 12px; border-radius: 2px; background: var(--c); display: inline-block; }
+
+  .poll-table-wrap { overflow-x: auto; border: 1px solid var(--rule); background: var(--card); border-radius: 4px; }
+  .poll-table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 12px; }
+  .poll-table thead th { position: sticky; top: 0; background: var(--paper); text-align: left; font-weight: 500; letter-spacing: .06em; text-transform: uppercase; font-size: 10px; color: var(--ink-2); padding: 10px 12px; border-bottom: 1px solid var(--rule); white-space: nowrap; }
+  .poll-table tbody td { padding: 10px 12px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  .poll-table tbody tr:last-child td { border-bottom: 0; }
+  .poll-table tbody tr:hover { background: color-mix(in oklab, var(--accent, var(--ink)) 5%, var(--card)); }
+
+  .c-firm { font-family: var(--serif); font-size: 14px; min-width: 160px; }
+  .firm-link { color: inherit; text-decoration: none; border-bottom: 1px solid var(--rule); }
+  .firm-link:hover { border-bottom-color: var(--ink); }
+  .client { display: block; font-family: var(--mono); font-size: 10px; color: var(--ink-2); margin-top: 2px; }
+  .c-dates, .c-sample, .c-pop { white-space: nowrap; color: var(--ink-2); }
+  .c-sample { text-align: right; }
+  .c-result { min-width: 220px; }
+  .c-src a { color: var(--ink-2); text-decoration: none; border-bottom: 1px dotted var(--rule); }
+  .c-src a:hover { color: var(--ink); }
+  .muted { color: var(--rule); }
+
+  .bars { display: flex; flex-direction: column; gap: 4px; }
+  .bar-row { display: grid; grid-template-columns: 54px 1fr 28px; align-items: center; gap: 8px; }
+  .bar-label { color: var(--c); font-size: 10px; letter-spacing: .04em; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .bar-track { height: 8px; background: color-mix(in oklab, var(--ink) 8%, transparent); border-radius: 2px; overflow: hidden; }
+  .bar-fill { display: block; height: 100%; background: var(--c); border-radius: 2px; }
+  .bar-val { text-align: right; font-variant-numeric: tabular-nums; color: var(--ink); }
+
+  .hub-note { margin-top: 16px; font-family: var(--serif); font-style: italic; font-size: 14px; color: var(--ink-2); max-width: 720px; }
+</style>
