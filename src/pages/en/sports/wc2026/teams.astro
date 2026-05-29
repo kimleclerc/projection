@@ -1,0 +1,37 @@
+---
+import EditorialLayout from '../../../../layouts/EditorialLayout.astro';
+import WcTeamsIndex from '../../../../components/WcTeamsIndex.astro';
+import { wcTeamsAlternates } from '../../../../lib/wc';
+
+const alts = wcTeamsAlternates();
+---
+
+<EditorialLayout
+  title="All teams — 2026 tournament forecast — Vote-Scope"
+  description="Every national team in the 2026 international football tournament, ranked by title probability within each confederation. Vote-Scope model."
+  canonical={alts.en}
+  lang="en"
+  currentPage="sports"
+  alternates={alts}
+  jsonLd={[
+    {
+      '@context': 'https://schema.org',
+      '@type': 'CollectionPage',
+      name: 'All teams — 2026 tournament forecast',
+      description: 'Title probabilities for every national team at the 2026 international football tournament.',
+      url: alts.en,
+      isAccessibleForFree: true,
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Sports Scope', item: 'https://vote-scope.com/en/sports/' },
+        { '@type': 'ListItem', position: 2, name: 'WC2026', item: 'https://vote-scope.com/en/sports/wc2026/' },
+        { '@type': 'ListItem', position: 3, name: 'Teams', item: alts.en },
+      ],
+    },
+  ]}
+>
+  <WcTeamsIndex lang="en" />
+</EditorialLayout>

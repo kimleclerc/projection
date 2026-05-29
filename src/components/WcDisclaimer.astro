@@ -1,0 +1,20 @@
+---
+// Avertissement de non-affiliation — obligatoire sur toute page du module tournoi 2026.
+import type { Lang } from '../lib/wc';
+interface Props { lang: Lang; }
+const { lang } = Astro.props;
+const T: Record<Lang, string> = {
+  en: 'Disclaimer: Vote-Scope is not affiliated with FIFA or any official tournament rights-holders. Country names are used for purely descriptive and informational purposes. This page presents statistical model output only and makes no claim to official tournament status or sponsorship.',
+  fr: 'Avertissement : Vote-Scope n’est pas affilié à la FIFA ni à aucun détenteur officiel des droits du tournoi. Les noms de pays sont utilisés à des fins purement descriptives et informatives. Cette page présente uniquement les résultats d’un modèle statistique et ne revendique aucun statut officiel ni parrainage lié au tournoi.',
+  es: 'Aviso: Vote-Scope no está afiliado con la FIFA ni con los titulares de derechos oficiales del torneo. Los nombres de países se utilizan únicamente con fines descriptivos e informativos. Esta página presenta únicamente resultados de un modelo estadístico y no reivindica estatus oficial ni patrocinio relacionado con el torneo.',
+};
+const label: Record<Lang, string> = { en: 'Disclaimer:', fr: 'Avertissement :', es: 'Aviso:' };
+const body = T[lang].replace(/^[^:]+:\s/, '');
+---
+<section class="content-band" style="background:var(--surface-alt,#f8f8f8);padding-block:32px;">
+  <div class="container">
+    <p style="font-size:0.82rem;color:var(--ink-3);max-width:760px;line-height:1.6;">
+      <strong>{label[lang]}</strong> {body}
+    </p>
+  </div>
+</section>

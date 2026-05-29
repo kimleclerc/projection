@@ -1,0 +1,37 @@
+---
+import EditorialLayout from '../../../../layouts/EditorialLayout.astro';
+import WcTeamsIndex from '../../../../components/WcTeamsIndex.astro';
+import { wcTeamsAlternates } from '../../../../lib/wc';
+
+const alts = wcTeamsAlternates();
+---
+
+<EditorialLayout
+  title="Toutes les équipes — pronostic tournoi 2026 — Vote-Scope"
+  description="Toutes les sélections nationales du tournoi international de football 2026, classées par probabilité de titre au sein de chaque confédération. Modèle Vote-Scope."
+  canonical={alts.fr}
+  lang="fr"
+  currentPage="sports"
+  alternates={alts}
+  jsonLd={[
+    {
+      '@context': 'https://schema.org',
+      '@type': 'CollectionPage',
+      name: 'Toutes les équipes — pronostic tournoi 2026',
+      description: 'Probabilités de titre pour chaque sélection nationale au tournoi international de football 2026.',
+      url: alts.fr,
+      isAccessibleForFree: true,
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Sports Scope', item: 'https://vote-scope.com/fr/sports/' },
+        { '@type': 'ListItem', position: 2, name: 'WC2026', item: 'https://vote-scope.com/fr/sports/wc2026/' },
+        { '@type': 'ListItem', position: 3, name: 'Équipes', item: alts.fr },
+      ],
+    },
+  ]}
+>
+  <WcTeamsIndex lang="fr" />
+</EditorialLayout>

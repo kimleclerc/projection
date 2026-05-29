@@ -3,6 +3,10 @@ import EditorialLayout from '../../../layouts/EditorialLayout.astro';
 import EditorialHero from '../../../components/EditorialHero.astro';
 import MethodologyNote from '../../../components/MethodologyNote.astro';
 import PolymarketEmbed from '../../../components/PolymarketEmbed.astro';
+import WcGroupTables from '../../../components/WcGroupTables.astro';
+import WcSchedule from '../../../components/WcSchedule.astro';
+import WcBracket from '../../../components/WcBracket.astro';
+import WcLiveScores from '../../../islands/WcLiveScores';
 import AnimatedNumber from '../../../islands/AnimatedNumber';
 import wcData from '../../../../web_data/sports/worldcup2026_latest.json';
 
@@ -39,6 +43,12 @@ const confOrder = ['UEFA', 'CONMEBOL', 'CONCACAF', 'AFC', 'CAF', 'OFC'];
 const sortedConfs = confOrder.filter((c) => byConf[c]);
 
 const hostTeams = board.filter((t) => t.is_host).slice(0, 3);
+
+// Embed de marché — on tire le slug des market_embeds du modèle pour viser le
+// bon marché Coupe du Monde (un slug LNH traînait ici auparavant).
+const marketEmbeds = (wcData.market_embeds ?? []) as Array<{ type: string; embed_url: string }>;
+const winnerEmbed = marketEmbeds.find((m) => m.type === 'winner');
+const winnerSlug = winnerEmbed ? new URL(winnerEmbed.embed_url).searchParams.get('market') : null;
 ---
 
 <EditorialLayout
@@ -48,7 +58,7 @@ const hostTeams = board.filter((t) => t.is_host).slice(0, 3);
   lang="fr"
   currentPage="sports"
   ogImage="https://vote-scope.com/og/vote-scope.png"
-  alternates={{ en: 'https://vote-scope.com/en/sports/wc2026/', fr: 'https://vote-scope.com/fr/sports/wc2026/' }}
+  alternates={{ en: 'https://vote-scope.com/en/sports/wc2026/', fr: 'https://vote-scope.com/fr/sports/wc2026/', es: 'https://vote-scope.com/es/sports/wc2026/' }}
   jsonLd={[
     {
       '@context': 'https://schema.org',
@@ -111,6 +121,14 @@ const hostTeams = board.filter((t) => t.is_host).slice(0, 3);
           </div>
         ))}
       </div>
+    </div>
+  </section>
+
+  <!-- Live & recent scores -->
+  <section class="content-band">
+    <div class="container">
+      <p class="eyebrow">Scores en direct et récents</p>
+      <WcLiveScores client:idle lang="fr" />
     </div>
   </section>
 
@@ -204,9 +222,21 @@ const hostTeams = board.filter((t) => t.is_host).slice(0, 3);
     </section>
   )}
 
+  <WcGroupTables lang="fr" groups={wcData.groups} />
+
   <section class="content-band">
     <div class="container">
-      <PolymarketEmbed slug="will-the-montreal-canadiens-win-the-2026-nhl-stanley-cup" title="Connexe — Champion Coupe Stanley NHL 2026" />
+      <p><a href="/fr/sports/wc2026/equipes/">Les 48 équipes →</a></p>
+    </div>
+  </section>
+
+  <WcSchedule lang="fr" schedule={wcData.match_schedule} />
+
+  <WcBracket lang="fr" bracket={wcData.knockout_bracket} />
+
+  <section class="content-band">
+    <div class="container">
+      <PolymarketEmbed slug={winnerSlug} title="Marché — Champion de la Coupe du Monde 2026" subtitle="Probabilité de victoire finale par pays" />
     </div>
   </section>
 

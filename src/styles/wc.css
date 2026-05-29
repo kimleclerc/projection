@@ -1,0 +1,59 @@
+/* Styles de l'île de scores en direct du tournoi mondial 2026. */
+.wc-live {
+  border: 1px solid var(--rule, #ddd);
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  background: var(--surface-alt, #fafafa);
+}
+.wc-live-head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 0.75rem;
+}
+.wc-live-title {
+  font-family: var(--mono, monospace);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-3, #666);
+}
+.wc-live-badge {
+  font-family: var(--mono, monospace);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+  color: #fff;
+  background: var(--accent, #c00);
+  padding: 2px 6px;
+  border-radius: 3px;
+  animation: wc-live-pulse 1.6s ease-in-out infinite;
+}
+@keyframes wc-live-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wc-live-badge { animation: none; }
+}
+.wc-live-msg { font-size: 0.9rem; color: var(--ink-3, #666); margin: 0.5rem 0; }
+.wc-live-list { list-style: none; padding: 0; margin: 0; }
+.wc-live-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--rule, #eee);
+  font-size: 0.9rem;
+}
+.wc-live-row.is-live { background: rgba(204, 0, 0, 0.04); }
+.wc-live-teams { display: flex; align-items: baseline; gap: 0.6rem; }
+.wc-live-score {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  min-width: 44px;
+  text-align: center;
+}
+.wc-live-status { font-size: 0.78rem; color: var(--ink-3, #888); white-space: nowrap; }
+.wc-live-source { font-size: 0.72rem; color: var(--ink-3, #999); margin: 0.75rem 0 0; line-height: 1.5; }

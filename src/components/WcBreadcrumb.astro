@@ -1,0 +1,41 @@
+---
+// Fil d'Ariane du module tournoi mondial 2026 — composant partagé en/fr/es.
+import type { Lang } from '../lib/wc';
+
+interface Crumb { label: string; href?: string; }
+interface Props { lang: Lang; trail: Crumb[]; }
+const { lang, trail } = Astro.props;
+
+const T: Record<Lang, { sports: string; wc: string }> = {
+  en: { sports: 'Sports', wc: 'WC2026' },
+  fr: { sports: 'Sports', wc: 'WC2026' },
+  es: { sports: 'Sports', wc: 'WC2026' },
+};
+const t = T[lang];
+const crumbs: Crumb[] = [
+  { label: t.sports, href: `/${lang}/sports/` },
+  { label: t.wc, href: `/${lang}/sports/wc2026/` },
+  ...trail,
+];
+---
+
+<nav class="wc-crumb" aria-label="Breadcrumb">
+  <ol>
+    {crumbs.map((c, i) => (
+      <li>
+        {c.href && i < crumbs.length - 1 ? <a href={c.href}>{c.label}</a> : <span aria-current="page">{c.label}</span>}
+        {i < crumbs.length - 1 && <span class="wc-crumb-sep" aria-hidden="true">/</span>}
+      </li>
+    ))}
+  </ol>
+</nav>
+
+<style>
+  .wc-crumb { margin: 0 0 0.5rem; }
+  .wc-crumb ol { list-style: none; display: flex; flex-wrap: wrap; gap: 0.4rem; padding: 0; margin: 0; }
+  .wc-crumb li { display: flex; align-items: center; gap: 0.4rem; }
+  .wc-crumb { font-family: var(--mono, monospace); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3, #888); }
+  .wc-crumb a { color: var(--ink-3, #888); text-decoration: none; }
+  .wc-crumb a:hover { color: var(--accent, #c00); }
+  .wc-crumb-sep { color: var(--rule, #ccc); }
+</style>

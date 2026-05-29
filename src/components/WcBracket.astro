@@ -1,0 +1,133 @@
+---
+// Scaffold du tableau à élimination directe — tournoi mondial 2026.
+// Composant partagé en/fr/es. Tant que la phase de groupes n'est pas terminée,
+// les appariements ne sont pas connus : on affiche la structure des 5 tours en
+// attente. Quand knockout_bracket se remplit (current_round != group_stage),
+// on affiche les équipes réelles par tour.
+// Langage générique (pays, « tournoi »), aucune marque officielle.
+type Lang = 'en' | 'fr' | 'es';
+
+interface BracketSlot {
+  home?: Record<string, string> | string;
+  away?: Record<string, string> | string;
+  winner?: Record<string, string> | string;
+}
+interface Bracket {
+  current_round: string;
+  r32?: Record<string, BracketSlot> | BracketSlot[];
+  r16?: Record<string, BracketSlot> | BracketSlot[];
+  qf?: Record<string, BracketSlot> | BracketSlot[];
+  sf?: Record<string, BracketSlot> | BracketSlot[];
+  final?: Record<string, BracketSlot> | BracketSlot[] | BracketSlot;
+}
+
+interface Props {
+  lang: Lang;
+  bracket: Bracket;
+}
+
+const { lang, bracket } = Astro.props;
+
+const T: Record<Lang, Record<string, string>> = {
+  en: {
+    eyebrow: 'Knockout bracket',
+    heading: 'The road to the final',
+    pending: 'The bracket is set once the group stage ends. 32 teams advance — the 12 group winners, 12 runners-up and the 8 best third-placed teams — into a single-elimination bracket.',
+    r32: 'Round of 32', r16: 'Round of 16', qf: 'Quarter-finals', sf: 'Semi-finals', final: 'Final',
+    matches: 'matches', tbd: 'To be determined',
+  },
+  fr: {
+    eyebrow: 'Tableau à élimination directe',
+    heading: 'Le chemin vers la finale',
+    pending: 'Le tableau se fixe à la fin de la phase de groupes. 32 équipes se qualifient — les 12 vainqueurs de groupe, 12 deuxièmes et les 8 meilleurs troisièmes — pour un tableau à élimination directe.',
+    r32: '16es de finale', r16: '8es de finale', qf: 'Quarts de finale', sf: 'Demi-finales', final: 'Finale',
+    matches: 'matchs', tbd: 'À déterminer',
+  },
+  es: {
+    eyebrow: 'Cuadro eliminatorio',
+    heading: 'El camino a la final',
+    pending: 'El cuadro queda definido al terminar la fase de grupos. 32 selecciones avanzan — los 12 primeros de grupo, 12 segundos y los 8 mejores terceros — a un cuadro de eliminación directa.',
+    r32: 'Dieciseisavos', r16: 'Octavos', qf: 'Cuartos', sf: 'Semifinales', final: 'Final',
+    matches: 'partidos', tbd: 'Por determinar',
+  },
+};
+const t = T[lang];
+
+const rounds = [
+  { key: 'r32', label: t.r32, count: 16 },
+  { key: 'r16', label: t.r16, count: 8 },
+  { key: 'qf', label: t.qf, count: 4 },
+  { key: 'sf', label: t.sf, count: 2 },
+  { key: 'final', label: t.final, count: 1 },
+] as const;
+
+const isPending = !bracket || bracket.current_round === 'group_stage';
+
+const slotCount = (key: string): number => {
+  const r = (bracket as any)?.[key];
+  if (Array.isArray(r)) return r.length;
+  if (r && typeof r === 'object') return Object.keys(r).length;
+  return 0;
+};
+---
+
+<section class="content-band">
+  <div class="container">
+    <p class="eyebrow">{t.eyebrow}</p>
+    <h2>{t.heading}</h2>
+    {isPending && (
+      <p style="margin-bottom:1.5rem;font-size:0.9rem;color:var(--ink-3);max-width:680px;">{t.pending}</p>
+    )}
+    <div class="wc-bracket">
+      {rounds.map((r) => {
+        const filled = slotCount(r.key);
+        return (
+          <div class="wc-round">
+            <p class="wc-round-label">{r.label}</p>
+            <p class="wc-round-count">
+              {filled > 0 ? `${filled} ${t.matches}` : `${r.count} ${t.matches}`}
+            </p>
+            <div class="wc-round-slots">
+              {Array.from({ length: r.count }).map(() => (
+                <div class="wc-slot" aria-hidden="true"></div>
+              ))}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  </div>
+</section>
+
+<style>
+  .wc-bracket {
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+    margin-top: 1rem;
+    align-items: stretch;
+  }
+  .wc-round {
+    flex: 1 0 130px;
+    min-width: 130px;
+    display: flex;
+    flex-direction: column;
+  }
+  .wc-round-label {
+    font-family: var(--mono, monospace);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent, #c00);
+    margin: 0;
+  }
+  .wc-round-count { font-size: 0.75rem; color: var(--ink-3, #888); margin: 0.1rem 0 0.5rem; }
+  .wc-round-slots { display: flex; flex-direction: column; gap: 6px; justify-content: space-around; flex: 1; }
+  .wc-slot {
+    height: 18px;
+    border: 1px dashed var(--rule, #ccc);
+    border-radius: 3px;
+    background: var(--surface-alt, #fafafa);
+  }
+</style>

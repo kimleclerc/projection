@@ -1,0 +1,47 @@
+---
+import EditorialLayout from '../../../../../layouts/EditorialLayout.astro';
+import WcGroup from '../../../../../components/WcGroup.astro';
+import { groupKeys, groups, label, wcGroupAlternates } from '../../../../../lib/wc';
+
+export function getStaticPaths() {
+  return groupKeys.map((g) => ({ params: { group: g.toLowerCase() } }));
+}
+
+const { group } = Astro.params;
+const groupKey = group!.toUpperCase();
+const lang = 'en' as const;
+const alts = wcGroupAlternates(groupKey);
+const teams = (groups[groupKey]?.standings ?? []).map((s) => label(s.labels, lang, s.team)).join(', ');
+---
+
+<EditorialLayout
+  title={`Group ${groupKey} — 2026 tournament forecast — Vote-Scope`}
+  description={`Projected Group ${groupKey} standings for the 2026 international football tournament: advance and finish probabilities for ${teams}. Vote-Scope model.`}
+  canonical={alts.en}
+  lang="en"
+  currentPage="sports"
+  alternates={alts}
+  jsonLd={[
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Dataset',
+      name: `Group ${groupKey} — 2026 tournament forecast`,
+      description: `Finish and advance probabilities for Group ${groupKey} at the 2026 international football tournament.`,
+      url: alts.en,
+      creator: { '@type': 'Person', name: 'Kim Leclerc', url: 'https://kimleclerc.ca' },
+      publisher: { '@type': 'Organization', name: 'Vote-Scope', url: 'https://vote-scope.com' },
+      isAccessibleForFree: true,
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Sports Scope', item: 'https://vote-scope.com/en/sports/' },
+        { '@type': 'ListItem', position: 2, name: 'WC2026', item: 'https://vote-scope.com/en/sports/wc2026/' },
+        { '@type': 'ListItem', position: 3, name: `Group ${groupKey}`, item: alts.en },
+      ],
+    },
+  ]}
+>
+  <WcGroup lang="en" groupKey={groupKey} />
+</EditorialLayout>

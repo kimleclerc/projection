@@ -1,0 +1,51 @@
+---
+// « Chemin » d'une équipe à travers le tournoi mondial 2026 — composant partagé.
+// L'angle unique de Vote-Scope : probabilités prospectives, tour par tour.
+import { pathSteps, type BoardTeam, type Lang } from '../lib/wc';
+
+interface Props {
+  lang: Lang;
+  team: BoardTeam;
+}
+const { lang, team } = Astro.props;
+const steps = pathSteps(team, lang);
+---
+
+<div class="wc-path">
+  {steps.map((s) => (
+    <div class="wc-path-step">
+      <span class="wc-path-fill" style={`width:${Math.max(0, Math.min(100, s.pct))}%;`}></span>
+      <span class="wc-path-label">{s.label}</span>
+      <span class="wc-path-pct">{s.pct}%</span>
+    </div>
+  ))}
+</div>
+
+<style>
+  .wc-path { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; }
+  .wc-path-step {
+    flex: 1 1 120px;
+    border: 1px solid var(--rule, #eee);
+    border-radius: 6px;
+    padding: 0.6rem 0.75rem;
+    background: var(--surface-alt, #fafafa);
+    position: relative;
+    overflow: hidden;
+  }
+  .wc-path-fill {
+    position: absolute;
+    inset: 0 auto 0 0;
+    background: rgba(204, 0, 0, 0.10);
+    z-index: 0;
+  }
+  .wc-path-label, .wc-path-pct { position: relative; z-index: 1; }
+  .wc-path-label {
+    font-family: var(--mono, monospace);
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-3, #666);
+    display: block;
+  }
+  .wc-path-pct { font-size: 1.25rem; font-weight: 700; color: var(--accent, #c00); }
+</style>

@@ -1,0 +1,104 @@
+---
+// Tableaux de groupes du tournoi mondial 2026 — composant partagé en/fr/es.
+// Langage générique (pays, « tournoi »), aucune marque officielle. Le disclaimer
+// de non-affiliation vit sur la page hôte (wc2026.astro).
+type Lang = 'en' | 'fr' | 'es';
+
+interface Standing {
+  team: string;
+  labels: Record<string, string>;
+  p_advance: number | null;
+  p_1st: number | null;
+  p_2nd?: number | null;
+  p_champion?: number | null;
+  is_host?: boolean;
+  is_tbd?: boolean;
+}
+interface Group {
+  teams: string[];
+  standings: Standing[];
+}
+
+interface Props {
+  lang: Lang;
+  groups: Record<string, Group>;
+}
+
+const { lang, groups } = Astro.props;
+
+const T: Record<Lang, Record<string, string>> = {
+  en: { eyebrow: 'Group stage', groupWord: 'Group', heading: 'All 12 groups', team: 'Country', adv: 'Advance%', first: '1st%', host: '(host)', tbd: 'To be determined', note: 'Probability of advancing past the group stage (top 2 per group plus the 8 best third-placed teams).' },
+  fr: { eyebrow: 'Phase de groupes', groupWord: 'Groupe', heading: 'Les 12 groupes', team: 'Pays', adv: 'Passage%', first: '1er%', host: '(hôte)', tbd: 'À déterminer', note: 'Probabilité de franchir la phase de groupes (top 2 par groupe plus les 8 meilleurs troisièmes).' },
+  es: { eyebrow: 'Fase de grupos', groupWord: 'Grupo', heading: 'Los 12 grupos', team: 'País', adv: 'Avance%', first: '1.º%', host: '(sede)', tbd: 'Por determinar', note: 'Probabilidad de superar la fase de grupos (los 2 primeros de cada grupo más los 8 mejores terceros).' },
+};
+const t = T[lang];
+const label = (s: Standing) => s.labels?.[lang] ?? s.labels?.en ?? s.team.toUpperCase();
+const groupKeys = Object.keys(groups).sort();
+const segGroups: Record<Lang, string> = { en: 'groups', fr: 'groupes', es: 'grupos' };
+const base = `/${lang}/sports/wc2026`;
+const groupHref = (g: string) => `${base}/${segGroups[lang]}/${g.toLowerCase()}/`;
+const teamHref = (code: string) => `${base}/${code}/`;
+---
+
+<section class="content-band">
+  <div class="container">
+    <p class="eyebrow">{t.eyebrow}</p>
+    <h2>{t.heading}</h2>
+    <p style="margin-bottom:1.5rem;font-size:0.9rem;color:var(--ink-3);">{t.note}</p>
+    <div class="wc-group-grid">
+      {groupKeys.map((g) => (
+        <div class="note-card wc-group-card">
+          <p class="eyebrow"><a href={groupHref(g)} class="wc-group-link">{t.groupWord} {g} →</a></p>
+          <table class="wc-group-table">
+            <thead>
+              <tr>
+                <th>{t.team}</th>
+                <th style="text-align:right;">{t.first}</th>
+                <th style="text-align:right;">{t.adv}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {groups[g].standings.map((s, i) => (
+                <tr style={i < 2 ? 'font-weight:600;' : ''}>
+                  <td>
+                    {s.is_tbd ? <span style="color:var(--ink-3);font-style:italic;">{t.tbd}</span> : <a href={teamHref(s.team)} class="wc-team-link">{label(s)}</a>}
+                    {s.is_host ? <span style="font-size:0.7rem;color:var(--accent);margin-left:4px;">{t.host}</span> : null}
+                  </td>
+                  <td style="text-align:right;">{s.p_1st != null ? `${s.p_1st}%` : '—'}</td>
+                  <td style="text-align:right;font-weight:700;">{s.p_advance != null ? `${s.p_advance}%` : '—'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .wc-group-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+  .wc-group-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-top: 0.5rem; }
+  .wc-group-table th {
+    font-family: var(--mono, monospace);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-3, #666);
+    font-weight: 400;
+    padding: 4px 6px;
+    border-bottom: 1px solid var(--rule, #ddd);
+    text-align: left;
+  }
+  .wc-group-table td { padding: 4px 6px; border-bottom: 1px solid var(--rule, #eee); }
+  .wc-group-card { padding: 1rem; }
+  .wc-group-link { color: var(--ink-3, #888); text-decoration: none; }
+  .wc-group-link:hover { color: var(--accent, #c00); }
+  .wc-team-link { color: var(--ink, #111); text-decoration: none; }
+  .wc-team-link:hover { color: var(--accent, #c00); }
+</style>

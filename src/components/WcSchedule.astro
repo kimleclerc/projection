@@ -1,0 +1,113 @@
+---
+// Calendrier du tournoi mondial 2026 — composant partagé en/fr/es.
+// Affiche uniquement la phase de groupes (les matchs à élimination directe
+// n'ont pas encore d'équipes; le scaffold du bracket s'en charge).
+// Langage générique (pays, « tournoi »), aucune marque officielle.
+type Lang = 'en' | 'fr' | 'es';
+
+interface Match {
+  stage: string;
+  group?: string;
+  date?: string;
+  time_et?: string;
+  home_team?: string;
+  away_team?: string;
+  home_label?: Record<string, string>;
+  away_label?: Record<string, string>;
+}
+
+interface Props {
+  lang: Lang;
+  schedule: Match[];
+  limit?: number;
+}
+
+const { lang, schedule, limit } = Astro.props;
+
+const T: Record<Lang, Record<string, string>> = {
+  en: { eyebrow: 'Schedule', heading: 'Group-stage fixtures', groupWord: 'Group', tz: 'All times Eastern (ET).', vs: 'vs', more: 'fixtures continue through the group stage.' },
+  fr: { eyebrow: 'Calendrier', heading: 'Matchs de la phase de groupes', groupWord: 'Groupe', tz: 'Heures de l’Est (HE).', vs: 'c.', more: 'le calendrier se poursuit pendant la phase de groupes.' },
+  es: { eyebrow: 'Calendario', heading: 'Partidos de la fase de grupos', groupWord: 'Grupo', tz: 'Horario del Este (ET).', vs: 'vs', more: 'el calendario continúa durante la fase de grupos.' },
+};
+const t = T[lang];
+const locales: Record<Lang, string> = { en: 'en-US', fr: 'fr-CA', es: 'es-ES' };
+
+const label = (obj: Record<string, string> | undefined, code?: string) =>
+  obj?.[lang] ?? obj?.en ?? (code ? code.toUpperCase() : '?');
+
+const groupMatches = schedule.filter((m) => m.stage === 'group_stage' && m.date);
+const shown = limit ? groupMatches.slice(0, limit) : groupMatches;
+
+// Regrouper par date
+const byDate: Record<string, Match[]> = {};
+for (const m of shown) {
+  const d = m.date as string;
+  (byDate[d] ??= []).push(m);
+}
+const dates = Object.keys(byDate).sort();
+
+const fmtDate = (iso: string) => {
+  const dt = new Date(iso + 'T12:00:00Z');
+  return dt.toLocaleDateString(locales[lang], { weekday: 'short', month: 'short', day: 'numeric', timeZone: 'UTC' });
+};
+const hasMore = limit != null && groupMatches.length > limit;
+---
+
+<section class="content-band">
+  <div class="container">
+    <p class="eyebrow">{t.eyebrow}</p>
+    <h2>{t.heading}</h2>
+    <p style="margin-bottom:1.5rem;font-size:0.85rem;color:var(--ink-3);">{t.tz}</p>
+    <div class="wc-sched">
+      {dates.map((d) => (
+        <div class="wc-sched-day">
+          <p class="wc-sched-date">{fmtDate(d)}</p>
+          <ul class="wc-sched-list">
+            {byDate[d].map((m) => (
+              <li class="wc-sched-row">
+                <span class="wc-sched-time">{m.time_et}</span>
+                <span class="wc-sched-grp">{t.groupWord} {m.group}</span>
+                <span class="wc-sched-teams">
+                  {label(m.home_label, m.home_team)} <span class="wc-sched-vs">{t.vs}</span> {label(m.away_label, m.away_team)}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+    {hasMore && (
+      <p style="margin-top:1rem;font-size:0.85rem;color:var(--ink-3);">+{groupMatches.length - (limit as number)} {t.more}</p>
+    )}
+  </div>
+</section>
+
+<style>
+  .wc-sched {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+  .wc-sched-date {
+    font-family: var(--mono, monospace);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent, #c00);
+    margin: 0 0 0.25rem;
+  }
+  .wc-sched-list { list-style: none; padding: 0; margin: 0; }
+  .wc-sched-row {
+    display: grid;
+    grid-template-columns: 48px 64px 1fr;
+    gap: 0.5rem;
+    align-items: baseline;
+    padding: 4px 0;
+    border-bottom: 1px solid var(--rule, #eee);
+    font-size: 0.85rem;
+  }
+  .wc-sched-time { color: var(--ink-3, #666); font-variant-numeric: tabular-nums; }
+  .wc-sched-grp { font-size: 0.7rem; color: var(--ink-3, #888); text-transform: uppercase; }
+  .wc-sched-vs { color: var(--ink-3, #999); font-size: 0.75rem; }
+</style>

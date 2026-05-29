@@ -1,0 +1,69 @@
+---
+// Index des équipes du tournoi mondial 2026 — corps partagé en/fr/es.
+// Grille des 48 pays par confédération, liens vers chaque page pays.
+// Langage générique, aucune marque officielle. Disclaimer obligatoire.
+import WcBreadcrumb from './WcBreadcrumb.astro';
+import WcDisclaimer from './WcDisclaimer.astro';
+import {
+  teamsByConfederation, CONF_ORDER, label, wcBase,
+  type Lang,
+} from '../lib/wc';
+
+interface Props { lang: Lang; }
+const { lang } = Astro.props;
+
+const T: Record<Lang, Record<string, string>> = {
+  en: { heading: 'All teams', sub: '48 national teams, ranked by title probability within each confederation.', champ: 'champion', host: 'host', crumb: 'Teams' },
+  fr: { heading: 'Toutes les équipes', sub: '48 sélections nationales, classées par probabilité de titre au sein de chaque confédération.', champ: 'champion', host: 'hôte', crumb: 'Équipes' },
+  es: { heading: 'Todos los equipos', sub: '48 selecciones nacionales, ordenadas por probabilidad de título dentro de cada confederación.', champ: 'campeón', host: 'sede', crumb: 'Equipos' },
+};
+const t = T[lang];
+const byConf = teamsByConfederation();
+const teamHref = (code: string) => `${wcBase(lang)}/${code}/`;
+---
+
+<section class="content-band">
+  <div class="container">
+    <WcBreadcrumb lang={lang} trail={[{ label: t.crumb }]} />
+    <h1 style="margin:0.25rem 0;">{t.heading}</h1>
+    <p class="eyebrow">{t.sub}</p>
+  </div>
+</section>
+
+<section class="content-band">
+  <div class="container">
+    {CONF_ORDER.filter((c) => byConf[c]?.length).map((conf) => (
+      <div class="wc-conf-block">
+        <p class="eyebrow">{conf}</p>
+        <ul class="wc-team-grid">
+          {byConf[conf].map((team) => (
+            <li>
+              <a href={teamHref(team.team)}>
+                <span class="wc-team-name">{label(team.labels, lang, team.team)}{team.is_host ? ' ★' : ''}</span>
+                <span class="wc-team-pct">{team.p_champion}% {t.champ}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    ))}
+  </div>
+</section>
+
+<WcDisclaimer lang={lang} />
+
+<style>
+  .wc-conf-block { margin-bottom: 2rem; }
+  .wc-team-grid {
+    list-style: none; padding: 0; margin: 0.5rem 0 0;
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 0.5rem;
+  }
+  .wc-team-grid a {
+    display: flex; flex-direction: column; gap: 2px;
+    padding: 10px 12px; border: 1px solid var(--rule, #eee); border-radius: 6px;
+    text-decoration: none; color: var(--ink, #111); transition: border-color 0.15s, background 0.15s;
+  }
+  .wc-team-grid a:hover { border-color: var(--accent, #c00); background: rgba(204, 0, 0, 0.03); }
+  .wc-team-name { font-weight: 600; font-size: 0.95rem; }
+  .wc-team-pct { font-family: var(--mono, monospace); font-size: 11px; color: var(--ink-3, #888); font-variant-numeric: tabular-nums; }
+</style>
