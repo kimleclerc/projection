@@ -215,6 +215,31 @@ export function getPollDetail(webKey: string, pollId: string): PollDetail | unde
   return DETAIL_BY_KEY[webKey]?.[pollId];
 }
 
+/** Catch-all / "Other" buckets — never shown, any jurisdiction. */
+const OTH_RE = /_oth$|^(oth|other|autre|others|autres)$/i;
+
+/**
+ * Party codes worth displaying for a jurisdiction: drop the `_oth`/Other bucket
+ * always, and drop micro-parties the model gives essentially no seats (PPC,
+ * etc.) — "never show a party that holds no seat and wins none" (Kim).
+ * Ordered by projected seats desc, so legends/charts lead with what matters.
+ */
+export function getDisplayPartyCodes(webKey: string): string[] {
+  const meta = INDEX_BY_KEY[webKey]?.meta;
+  const latest = LATEST_BY_KEY[webKey];
+  const seats: Record<string, number> = {};
+  for (const p of (latest?.parties as Array<Record<string, unknown>>) ?? []) {
+    const s = (p.seats_projected ?? p.seats_mean) as number | undefined;
+    if (typeof s === 'number') seats[String(p.party)] = s;
+  }
+  const codes = (meta?.parties ?? Object.keys(seats)).filter((c) => {
+    if (OTH_RE.test(c)) return false;
+    const s = seats[c];
+    return s === undefined || s >= 0.5; // keep if it holds/wins ≥1 seat (or unknown)
+  });
+  return codes.sort((a, b) => (seats[b] ?? -1) - (seats[a] ?? -1));
+}
+
 /** A single poll row from the index, by id. */
 export function getPollRow(webKey: string, pollId: string): PollRow | undefined {
   return INDEX_BY_KEY[webKey]?.polls.find((p) => p.poll_id === pollId);
@@ -248,9 +273,11 @@ export function getPollsTrend(webKey: string): TrendBundle | undefined {
     vote_ci_low_95: Number(p.vote_ci_low_95 ?? p.vote_mean ?? 0),
     vote_ci_high_95: Number(p.vote_ci_high_95 ?? p.vote_mean ?? 0),
   }));
+  // Same display rule as the legend/bars: no _oth, no micro-parties, top 5.
+  const display = new Set(getDisplayPartyCodes(webKey));
   const trendOrder = trendParties
     .map((p) => p.party)
-    .filter((k) => !/_oth$/.test(k))
+    .filter((k) => display.has(k))
     .slice(0, 5);
   const pollsHistory: PollSnapshot[] = (
     (d.polls_history as Array<Record<string, unknown>>) ?? []

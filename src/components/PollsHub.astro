@@ -179,10 +179,13 @@ function cleanSource(url?: string | null): string | null {
   return first;
 }
 
-/** Ordered topline entries (desc), known parties first. */
+/** Only parties we display (legend chips); drops _oth + micro-parties. */
+const allowedCodes = new Set(parties.map((p) => p.code));
+
+/** Ordered topline entries (desc), restricted to displayed parties. */
 function toplineEntries(p: PollRow): Array<[string, number]> {
   return Object.entries(p.topline)
-    .filter(([, v]) => typeof v === 'number' && v > 0)
+    .filter(([code, v]) => typeof v === 'number' && v > 0 && allowedCodes.has(code))
     .sort((a, b) => b[1] - a[1]);
 }
 

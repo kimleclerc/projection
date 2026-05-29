@@ -4,7 +4,7 @@
  * average as a branded, watermarked card. Copy comes from POLLS_HUBS.
  */
 import type { APIRoute, GetStaticPaths } from 'astro';
-import { getNationalPolls, getPollsMeta } from '../../../../lib/polls-adapter';
+import { getNationalPolls, getPollsMeta, getDisplayPartyCodes } from '../../../../lib/polls-adapter';
 import { pollPartyChips } from '../../../../lib/poll-parties';
 import { renderPollCard, type CardEntry } from '../../../../lib/og/poll-card';
 import { POLLS_HUBS, type HubLang } from '../../../../lib/polls-hubs';
@@ -34,7 +34,7 @@ export const GET: APIRoute = async ({ params }) => {
       cnt[code] = (cnt[code] ?? 0) + 1;
     }
   }
-  const chips = pollPartyChips(key, meta.parties, lang);
+  const chips = pollPartyChips(key, getDisplayPartyCodes(key), lang);
   const entries: CardEntry[] = chips
     .filter((c) => cnt[c.code])
     .map((c) => ({ label: c.label, color: c.color, value: sum[c.code] / cnt[c.code] }))

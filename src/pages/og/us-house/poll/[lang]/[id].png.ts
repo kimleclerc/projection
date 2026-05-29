@@ -8,7 +8,7 @@
  * population/type, sponsor (when present), topline. Absent fields are omitted.
  */
 import type { APIRoute, GetStaticPaths } from 'astro';
-import { getRecentNationalPolls, getPollRow, getPollsMeta, RECENT_CARD_N, type PollRow } from '../../../../../lib/polls-adapter';
+import { getRecentNationalPolls, getPollRow, getPollsMeta, getDisplayPartyCodes, RECENT_CARD_N, type PollRow } from '../../../../../lib/polls-adapter';
 import { pollPartyChips } from '../../../../../lib/poll-parties';
 import { renderPollCard, type CardEntry } from '../../../../../lib/og/poll-card';
 
@@ -64,13 +64,14 @@ export const GET: APIRoute = async ({ params }) => {
   const p = getPollRow(WEB_KEY, String(params.id));
   if (!p) return new Response('Not found', { status: 404 });
 
-  const chips = pollPartyChips(WEB_KEY, meta.parties, lang);
+  const chips = pollPartyChips(WEB_KEY, getDisplayPartyCodes(WEB_KEY), lang);
   const colorByCode: Record<string, string> = {};
   const labelByCode: Record<string, string> = {};
+  const allowed = new Set(chips.map((ch) => ch.code));
   for (const ch of chips) { colorByCode[ch.code] = ch.color; labelByCode[ch.code] = ch.label; }
 
   const entries: CardEntry[] = Object.entries(p.topline)
-    .filter(([, v]) => typeof v === 'number' && v > 0)
+    .filter(([code, v]) => typeof v === 'number' && v > 0 && allowed.has(code))
     .sort((a, b) => b[1] - a[1])
     .map(([code, v]) => ({
       label: labelByCode[code] ?? code.toUpperCase(),
