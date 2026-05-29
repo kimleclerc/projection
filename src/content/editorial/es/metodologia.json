@@ -1,0 +1,73 @@
+{
+  "locale": "es",
+  "slug": "metodologia",
+  "title": "Metodología — Vote-Scope",
+  "description": "Explica cómo Vote-Scope proyecta escaños: sondeos agregados a diario, modelo bayesiano, 10 000 simulaciones por circunscripción. Transparente, independiente y actualizado de forma continua.",
+  "eyebrow": "Metodología · VoteScope",
+  "h1Html": "Cómo calculamos<br><em>quién va a ganar</em>",
+  "intro": "VoteScope no se limita a mostrar sondeos. Los agrega, los pondera, corrige los sesgos y simula miles de escenarios para producir una proyección realista — no una simple instantánea de un único sondeo.",
+  "sections": [
+    {
+      "number": "01",
+      "title": "Recopilamos todos los sondeos",
+      "bodyHtml": "<p>Cada sondeo publicado por las principales firmas (Léger, Abacus, Nanos, Mainstreet, EKOS, Angus Reid…) se registra con su fecha, tamaño de muestra y casa encuestadora. Los sondeos recientes pesan más — el modelo aplica un decaimiento temporal.</p><p>Para el Canadá federal: más de 190 sondeos agregados. Para Quebec: más de 55 sondeos provinciales.</p>"
+    },
+    {
+      "number": "02",
+      "title": "Corregimos los sesgos de cada firma",
+      "bodyHtml": "<p>Algunas firmas sobrestiman sistemáticamente a un partido y otras lo subestiman. Calculamos estos sesgos (<em>house effects</em>) a partir de resultados electorales pasados y los corregimos automáticamente. El resultado: una estimación del apoyo electoral real, no el sesgo de una firma en particular.</p>"
+    },
+    {
+      "number": "03",
+      "title": "Estimamos la intención de voto",
+      "bodyHtml": "<p>El núcleo del modelo es una serie temporal estructural bayesiana (BSTS) — un modelo estadístico que sigue la intención de voto a lo largo del tiempo teniendo en cuenta la incertidumbre. Genera una distribución de probabilidad para cada partido, no solo una cifra única.</p><p>En términos sencillos: el modelo dice «los Liberales probablemente tienen entre el 44 % y el 50 %» — no solo «47 %».</p>"
+    },
+    {
+      "number": "04",
+      "title": "Simulamos 10 000 escenarios de escaños",
+      "bodyHtml": "<p>Para cada simulación extraemos al azar un resultado nacional plausible y lo aplicamos a cada una de las 343 circunscripciones federales (o las 125 circunscripciones de Quebec, las 124 de Ontario…). Tenemos en cuenta el voto de 2025 en cada circunscripción, las dinámicas regionales y un factor de aleatoriedad local.</p><p>El resultado: una distribución de escaños realista — no una cifra mágica, sino un rango con probabilidades asociadas a cada escenario.</p>"
+    },
+    {
+      "number": "05",
+      "title": "Publicamos y repetimos al día siguiente",
+      "bodyHtml": "<p>Los resultados se exportan como JSON estático y se actualizan con cada nueva ejecución. La página muestra la fecha de la última ejecución. A medida que se acerca el día de las elecciones, los sondeos recientes pesan más — y el rango se estrecha.</p>"
+    }
+  ],
+  "callout": "<strong>Idea clave:</strong> Los escaños mostrados son <em>promedios de simulación</em>, no una predicción garantizada. Un partido proyectado en 218 escaños podría obtener 195 o 240 — la distribución refleja esa incertidumbre. Una probabilidad de mayoría del 90 % significa que en 9 de cada 10 simulaciones ese partido obtiene la mayoría — no que sea seguro.",
+  "cards": [
+    {
+      "kicker": "Fuentes de datos",
+      "title": "De dónde salen las cifras",
+      "itemsHtml": [
+        "Sondeos públicos (Léger, Abacus, Nanos, Mainstreet, EKOS, Angus Reid, Pallas, Forum, Innovative…)",
+        "Resultados oficiales de 2025 — Elections Canada",
+        "Resultados oficiales de 2022 — Élections Québec",
+        "Resultados de 2024 — MIT Election Lab (EE. UU.)",
+        "Mapas geográficos — Elections Canada, Census Bureau",
+        "Elecciones parciales, cambios de bancada y de escaños registrados manualmente"
+      ]
+    },
+    {
+      "kicker": "Límites del modelo",
+      "title": "Lo que no captamos bien",
+      "itemsHtml": [
+        "El voto estratégico — difícil de anticipar de forma mecánica",
+        "Candidatos locales destacados que superan a su partido",
+        "Acontecimientos de campaña de último minuto",
+        "Circunscripciones muy ajustadas — donde el margen de error es mayor",
+        "Contextos sociolingüísticos muy locales (algunas circunscripciones bilingües, indígenas, etc.)"
+      ]
+    },
+    {
+      "kicker": "Independencia",
+      "title": "Sin afiliación partidista",
+      "bodyHtml": "<p>VoteScope es un proyecto personal de <a href=\"https://kimleclerc.ca\" target=\"_blank\" rel=\"noopener\">Kim Leclerc</a>, periodista y analista de datos. El modelo no está afiliado a ningún partido, casa encuestadora ni medio de comunicación. Se basa únicamente en datos públicos y en una metodología estadística transparente.</p><p>Las decisiones metodológicas se documentan aquí. Si detecta un error o quiere debatir el método, escriba a través de <a href=\"https://kimleclerc.ca\" target=\"_blank\" rel=\"noopener\">kimleclerc.ca</a>.</p>"
+    }
+  ],
+  "canonicalSlug": "/es/metodologia",
+  "alternates": {
+    "en": "https://vote-scope.com/en/methodology",
+    "fr": "https://vote-scope.com/fr/methodologie",
+    "es": "https://vote-scope.com/es/metodologia"
+  }
+}
