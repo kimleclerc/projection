@@ -16,9 +16,25 @@ interface Props {
   subtitle?: string;
   theme?: 'light' | 'dark';
   height?: number;
+  /** Langue de la page — localise l'iframe (&locale) et le lien sortant. */
+  lang?: 'en' | 'fr' | 'es';
+  /** URL canonique de l'événement Polymarket (forme EN, /event/...). */
+  eventUrl?: string;
 }
 
-const { slug, title, subtitle, theme = 'light', height = 500 } = Astro.props;
+const { slug, title, subtitle, theme = 'light', height = 500, lang = 'en', eventUrl } = Astro.props;
+
+// Polymarket sert l'EN sans préfixe ; FR/ES via /fr/ /es/.
+const localizedEventUrl = eventUrl && lang !== 'en'
+  ? eventUrl.replace('polymarket.com/event', `polymarket.com/${lang}/event`)
+  : eventUrl;
+const localeParam = lang !== 'en' ? `&locale=${lang}` : '';
+const viewLabel: Record<'en' | 'fr' | 'es', string> = {
+  en: 'View on Polymarket →', fr: 'Voir sur Polymarket →', es: 'Ver en Polymarket →',
+};
+const oddsLabel: Record<'en' | 'fr' | 'es', string> = {
+  en: 'Live odds via Polymarket', fr: 'Cotes en direct via Polymarket', es: 'Cuotas en directo vía Polymarket',
+};
 ---
 
 {slug ? (
@@ -26,7 +42,7 @@ const { slug, title, subtitle, theme = 'light', height = 500 } = Astro.props;
     {title && <p class="pm-label">{title}</p>}
     {subtitle && <p class="pm-subtitle">{subtitle}</p>}
     <iframe
-      src={`https://embed.polymarket.com/market?market=${slug}&height=${height}${theme === 'dark' ? '&theme=dark' : ''}`}
+      src={`https://embed.polymarket.com/market?market=${slug}&height=${height}${theme === 'dark' ? '&theme=dark' : ''}${localeParam}`}
       title={title ?? 'Polymarket prediction market'}
       loading="lazy"
       sandbox="allow-scripts allow-same-origin allow-popups"
@@ -35,7 +51,12 @@ const { slug, title, subtitle, theme = 'light', height = 500 } = Astro.props;
       style="border:none;border-radius:6px;display:block;"
       allowtransparency="true"
     />
-    <p class="pm-attribution">Live odds via Polymarket</p>
+    <p class="pm-attribution">
+      {localizedEventUrl && (
+        <a href={localizedEventUrl} target="_blank" rel="noopener" class="pm-view">{viewLabel[lang]}</a>
+      )}
+      <span>{oddsLabel[lang]}</span>
+    </p>
   </section>
 ) : null}
 
@@ -62,11 +83,24 @@ const { slug, title, subtitle, theme = 'light', height = 500 } = Astro.props;
 
   .pm-attribution {
     margin: 8px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1rem;
     font-family: var(--mono);
     font-size: 10px;
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--ink-3, #999);
-    text-align: right;
   }
+
+  .pm-attribution span { margin-left: auto; text-align: right; }
+
+  .pm-view {
+    color: var(--ink-3, #999);
+    text-decoration: none;
+    border-bottom: 1px solid var(--rule, #ddd);
+  }
+
+  .pm-view:hover { color: var(--accent, #c00); border-bottom-color: var(--accent, #c00); }
 </style>

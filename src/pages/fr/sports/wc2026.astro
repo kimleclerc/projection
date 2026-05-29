@@ -46,9 +46,10 @@ const hostTeams = board.filter((t) => t.is_host).slice(0, 3);
 
 // Embed de marché — on tire le slug des market_embeds du modèle pour viser le
 // bon marché Coupe du Monde (un slug LNH traînait ici auparavant).
-const marketEmbeds = (wcData.market_embeds ?? []) as Array<{ type: string; embed_url: string }>;
+const marketEmbeds = (wcData.market_embeds ?? []) as Array<{ type: string; embed_url: string; url?: string }>;
 const winnerEmbed = marketEmbeds.find((m) => m.type === 'winner');
 const winnerSlug = winnerEmbed ? new URL(winnerEmbed.embed_url).searchParams.get('market') : null;
+const winnerUrl = winnerEmbed?.url ?? undefined;
 ---
 
 <EditorialLayout
@@ -236,7 +237,7 @@ const winnerSlug = winnerEmbed ? new URL(winnerEmbed.embed_url).searchParams.get
 
   <section class="content-band">
     <div class="container">
-      <PolymarketEmbed slug={winnerSlug} title="Marché — Champion de la Coupe du Monde 2026" subtitle="Probabilité de victoire finale par pays" />
+      <PolymarketEmbed slug={winnerSlug} lang="fr" eventUrl={winnerUrl} title="Marché — Champion de la Coupe du Monde 2026" subtitle="Probabilité de victoire finale par pays" />
     </div>
   </section>
 
