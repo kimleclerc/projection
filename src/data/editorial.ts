@@ -31,7 +31,7 @@ export const editorialPhilosophy = {
       "Not just who’s ahead. What’s moving, what’s fragile, and what the market is missing.",
     method: "one page, one question",
     proof:
-      "The model stays visible, but the reader meets the tension first and the methodology second.",
+      "Every projection is built from public polls, an open Bayesian method, and the source data behind it — all on the page.",
   },
   fr: {
     position:
@@ -40,7 +40,7 @@ export const editorialPhilosophy = {
       "Pas juste qui mène. Ce qui bouge, ce qui est fragile, et ce que le marché ne voit pas encore.",
     method: "une page, une question",
     proof:
-      "Le modèle reste visible, mais le lecteur rencontre la tension avant la méthodologie.",
+      "Chaque projection s'appuie sur des sondages publics, une méthode bayésienne ouverte et les données sources — le tout sur la page.",
   },
   es: {
     position:
@@ -49,7 +49,7 @@ export const editorialPhilosophy = {
       "No solo quién va adelante. Qué se está moviendo, qué es frágil y qué está perdiendo el mercado.",
     method: "una página, una pregunta",
     proof:
-      "El modelo permanece visible, pero el lector encuentra primero la tensión y después la metodología.",
+      "Cada proyección parte de sondeos públicos, un método bayesiano abierto y los datos de origen — todo en la página.",
   },
 } as const;
 

@@ -56,10 +56,10 @@ const signals = [
   ]}
 >
   <EditorialHero
-    eyebrow="Vote-Scope editorial shift"
+    eyebrow="Election & sports intelligence"
     title="A bureau of electoral and sports intelligence."
     promise="Not just who’s ahead. What’s moving, what’s fragile, and what the market is missing."
-    question="What instrument should the reader use to understand this race, desk, or playoff path?"
+    question="Who’s ahead, what’s fragile, and where is the market wrong?"
     primaryHref="/en/indexes/"
     primaryLabel="View instruments"
     secondaryHref="/en/us/"
@@ -110,20 +110,20 @@ const signals = [
   <InstrumentGrid
     instruments={instruments.en.slice(0, 6)}
     title="The numbers are public. The signal is ours."
-    intro="Vote-Scope pages should feel like instruments the reader can return to, not static model dumps. Each named index carries one question, one metric, one methodology, and one distribution loop."
+    intro="Each index answers one question with one number you can follow over time — presidential drag, majority fragility, and where the model and the market disagree."
   />
 
   <MarketCheck
-    kicker="Market layer"
-    title="Markets become a reading layer, not the product."
-    body="Polymarket and odds data should sit beside the model as a benchmark: where traders agree, where they panic, and where Vote-Scope sees a gap."
+    kicker="Model vs market"
+    title="Where we line up with the market — and where we don’t."
+    body="Polymarket and betting odds sit right beside the model, so you can see at a glance where the traders and the math agree, where the market is panicking, and where Vote-Scope sees an edge."
     modelLabel="Model output"
     marketLabel="Benchmark"
-    note="Future API work should keep public JSON stable while reserving a versioned API surface for richer access, history, and premium endpoints."
+    note="Refreshed daily, beside every projection."
   />
 
   <MethodologyNote
-    title="Methodology moves below the hook."
+    title="How the projections are built."
     body={philosophy.proof}
     bullets={[
       'All projections aggregate public polls with a Bayesian BSTS model and run 50,000 Monte Carlo simulations per release.',
