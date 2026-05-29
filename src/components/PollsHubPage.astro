@@ -1,0 +1,84 @@
+---
+/**
+ * Generic polls-hub page — EditorialLayout + hero + PollsHub for any
+ * jurisdiction in POLLS_HUBS. Thin per-language routes just render
+ * `<PollsHubPage webKey=… lang=… />`, keeping one body for all (uniformity).
+ */
+import EditorialLayout from '../layouts/EditorialLayout.astro';
+import PollsHub from './PollsHub.astro';
+import {
+  getPollsMeta, getNationalPolls, getFirms, getPollsTrend, getRecentNationalPolls,
+} from '../lib/polls-adapter';
+import { pollPartyChips } from '../lib/poll-parties';
+import { POLLS_HUBS, hubLinks, hubUrl, type HubLang } from '../lib/polls-hubs';
+
+interface Props { webKey: string; lang: HubLang; }
+const { webKey, lang } = Astro.props as Props;
+
+const cfg = POLLS_HUBS[webKey];
+const copy = cfg.copy[lang];
+const meta = getPollsMeta(webKey)!;
+const polls = getNationalPolls(webKey);
+const firms = getFirms(webKey);
+const trend = getPollsTrend(webKey);
+const chips = pollPartyChips(webKey, meta.parties, lang);
+
+const { canonical, alternates } = hubLinks(cfg, lang);
+const pollsBase = `${cfg.base[lang]}/${cfg.seg[lang]}`;
+const ogImage = `https://vote-scope.com/og/${webKey}/polls/${lang}.png`;
+
+const cardBase = cfg.hasCards ? `/og/${webKey}/poll/${lang}` : undefined;
+const cardIds = cfg.hasCards ? getRecentNationalPolls(webKey).map((p) => p.poll_id) : undefined;
+
+const description = copy.lede1.replace(/<[^>]+>/g, '');
+---
+
+<EditorialLayout
+  title={`${copy.ogTitle} — Vote-Scope`}
+  description={description}
+  canonical={canonical}
+  lang={lang}
+  currentPage={cfg.currentPage}
+  ogImage={ogImage}
+  alternates={alternates}
+  jsonLd={[
+    {
+      '@context': 'https://schema.org',
+      '@type': 'CollectionPage',
+      name: copy.ogTitle,
+      url: canonical,
+      inLanguage: lang,
+      isPartOf: { '@type': 'WebSite', name: 'Vote-Scope', url: 'https://vote-scope.com/' },
+    },
+  ]}
+>
+  <section class="polls-hero">
+    <div class="container">
+      <p class="eyebrow">{copy.eyebrow}</p>
+      <h1>{copy.h1}</h1>
+      <p class="lede" set:html={copy.lede1}></p>
+      <p class="lede" set:html={copy.lede2}></p>
+    </div>
+  </section>
+
+  <PollsHub
+    lang={lang}
+    meta={meta}
+    polls={polls}
+    firms={firms}
+    parties={chips}
+    trend={trend}
+    pollsBase={pollsBase}
+    cardBase={cardBase}
+    cardIds={cardIds}
+  />
+</EditorialLayout>
+
+<style>
+  .polls-hero { padding: 80px 0 28px; border-bottom: 1px solid var(--rule); background: var(--paper); }
+  .polls-hero .eyebrow { font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-2); }
+  .polls-hero h1 { margin: 8px 0 16px; font-family: var(--serif); font-size: clamp(40px, 5vw, 64px); font-weight: 420; letter-spacing: -0.02em; line-height: 1.02; max-width: 900px; }
+  .polls-hero .lede { max-width: 760px; font-family: var(--serif); font-size: clamp(17px, 1.8vw, 20px); line-height: 1.55; color: var(--ink-2); }
+  .polls-hero .lede + .lede { margin-top: 14px; }
+  .polls-hero .lede :global(em) { font-style: italic; }
+</style>

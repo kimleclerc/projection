@@ -34,9 +34,12 @@ interface Props {
   cardBase?: string;
   /** poll_ids that have a pre-rendered share PNG (recent polls only). */
   cardIds?: string[];
+  /** True only when per-poll detail PAGES exist (else firm stays plain text,
+   *  no dead link). No jurisdiction ships detail pages yet. */
+  detailPages?: boolean;
 }
 
-const { lang, meta, polls, firms, parties, pollsBase, trend, cardBase, cardIds } = Astro.props as Props;
+const { lang, meta, polls, firms, parties, pollsBase, trend, cardBase, cardIds, detailPages = false } = Astro.props as Props;
 const cardSet = new Set(cardIds ?? []);
 
 const LOCALE = lang === 'fr' ? 'fr-CA' : lang === 'es' ? 'es-ES' : 'en-US';
@@ -160,6 +163,22 @@ function fmtSample(n?: number | null): string {
   return n.toLocaleString(lang === 'en' ? 'en-US' : lang === 'fr' ? 'fr-CA' : 'es-ES');
 }
 
+/**
+ * Outbound-source guard: never link to competing aggregators (338Canada, QC125)
+ * — they're only our scrape origin, not the primary source. Attribution stays
+ * on the polling firm (shown in the firm column). Direct firm/media URLs pass.
+ * Also tolerates multiple ";"-joined URLs and stray trailing punctuation.
+ */
+const BLOCKED_SOURCE_HOSTS = ['338canada', 'qc125'];
+function cleanSource(url?: string | null): string | null {
+  if (!url) return null;
+  const first = url.split(/[;\s]+/).find(Boolean) ?? '';
+  if (!first || !/^https?:\/\//i.test(first)) return null;
+  const lower = first.toLowerCase();
+  if (BLOCKED_SOURCE_HOSTS.some((h) => lower.includes(h))) return null;
+  return first;
+}
+
 /** Ordered topline entries (desc), known parties first. */
 function toplineEntries(p: PollRow): Array<[string, number]> {
   return Object.entries(p.topline)
@@ -229,7 +248,7 @@ const nFirms = firms.length || new Set(polls.map((p) => p.firm)).size;
             return (
               <tr>
                 <td class="c-firm">
-                  {p.has_detail ? (
+                  {detailPages && p.has_detail ? (
                     <a class="firm-link" href={`${pollsBase}/${p.poll_id}/`}>
                       {p.firm_name}
                     </a>
@@ -260,8 +279,8 @@ const nFirms = firms.length || new Set(polls.map((p) => p.firm)).size;
                   </div>
                 </td>
                 <td class="c-src">
-                  {p.source_url ? (
-                    <a href={p.source_url} target="_blank" rel="nofollow noopener">{T.src}</a>
+                  {cleanSource(p.source_url) ? (
+                    <a href={cleanSource(p.source_url)!} target="_blank" rel="nofollow noopener">{T.src}</a>
                   ) : (
                     <span class="muted">—</span>
                   )}
