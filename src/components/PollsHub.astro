@@ -11,7 +11,8 @@
  * Thin per-language routes pass `lang` + the computed `parties` palette and the
  * `pollsBase` URL segment; all markup/strings live here (uniformity principle).
  */
-import type { PollRow, PollsMeta, PollFirm } from '../lib/polls-adapter';
+import type { PollRow, PollsMeta, PollFirm, TrendBundle } from '../lib/polls-adapter';
+import VoteTrendChart from '../islands/VoteTrendChart.tsx';
 
 interface PartyChip {
   code: string;
@@ -27,9 +28,28 @@ interface Props {
   parties: PartyChip[];
   /** Absolute URL base for a poll's detail page, e.g. '/es/us/house/sondeos'. */
   pollsBase: string;
+  /** Optional poll trend (model estimate + history) for the chart. */
+  trend?: TrendBundle;
 }
 
-const { lang, meta, polls, firms, parties, pollsBase } = Astro.props as Props;
+const { lang, meta, polls, firms, parties, pollsBase, trend } = Astro.props as Props;
+
+const LOCALE = lang === 'fr' ? 'fr-CA' : lang === 'es' ? 'es-ES' : 'en-US';
+
+/** "24 mai 2026" / "May 24, 2026" / "24 de mayo de 2026" (UTC, no off-by-one). */
+function fmtLong(iso?: string | null): string {
+  if (!iso) return '—';
+  const d = new Date(`${iso}T00:00:00Z`);
+  if (Number.isNaN(d.getTime())) return iso;
+  return d.toLocaleDateString(LOCALE, { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+}
+function dayNum(iso: string): number {
+  return new Date(`${iso}T00:00:00Z`).getUTCDate();
+}
+function fmtShort(iso: string): string {
+  const d = new Date(`${iso}T00:00:00Z`);
+  return d.toLocaleDateString(LOCALE, { day: 'numeric', month: 'short', timeZone: 'UTC' });
+}
 
 const T = {
   en: {
@@ -41,10 +61,10 @@ const T = {
     result: 'Topline',
     source: 'Source',
     detail: 'Breakdowns',
-    nPolls: (n: number) => `${n} polls`,
+    nPolls: (n: number) => `${n} poll${n === 1 ? '' : 's'}`,
     latest: 'Most recent fieldwork',
     updated: 'Updated',
-    pollsters: (n: number) => `${n} pollsters`,
+    pollsters: (n: number) => `${n} pollster${n === 1 ? '' : 's'}`,
     pop_lv: 'LV',
     pop_rv: 'RV',
     pop_a: 'Adults',
@@ -61,10 +81,10 @@ const T = {
     result: 'Intentions',
     source: 'Source',
     detail: 'Ventilations',
-    nPolls: (n: number) => `${n} sondages`,
+    nPolls: (n: number) => `${n} sondage${n > 1 ? 's' : ''}`,
     latest: 'Terrain le plus récent',
     updated: 'Mis à jour',
-    pollsters: (n: number) => `${n} maisons`,
+    pollsters: (n: number) => `${n} maison${n > 1 ? 's' : ''}`,
     pop_lv: 'él. prob.',
     pop_rv: 'él. ins.',
     pop_a: 'adultes',
@@ -81,10 +101,10 @@ const T = {
     result: 'Intención',
     source: 'Fuente',
     detail: 'Desgloses',
-    nPolls: (n: number) => `${n} sondeos`,
+    nPolls: (n: number) => `${n} sondeo${n === 1 ? '' : 's'}`,
     latest: 'Campo más reciente',
     updated: 'Actualizado',
-    pollsters: (n: number) => `${n} encuestadoras`,
+    pollsters: (n: number) => `${n} encuestadora${n === 1 ? '' : 's'}`,
     pop_lv: 'vot. prob.',
     pop_rv: 'vot. reg.',
     pop_a: 'adultos',
@@ -92,6 +112,12 @@ const T = {
     note:
       'Solo sondeos nacionales y grandes regionales. Los sondeos por distrito aparecen en la página de proyección de cada distrito.',
   },
+}[lang];
+
+const CHART_T = {
+  en: { title: 'Polling trend vs. Vote-Scope model', help: 'Each dot is one published poll; the diamond is the Vote-Scope model estimate with its 95% interval.' },
+  fr: { title: 'Tendance des sondages vs modèle Vote-Scope', help: 'Chaque point est un sondage publié ; le losange est l’estimation du modèle Vote-Scope avec son intervalle à 95 %.' },
+  es: { title: 'Tendencia de los sondeos vs modelo Vote-Scope', help: 'Cada punto es un sondeo publicado; el rombo es la estimación del modelo Vote-Scope con su intervalo del 95 %.' },
 }[lang];
 
 const colorByCode: Record<string, string> = {};
@@ -113,8 +139,12 @@ function fmtPop(pop?: string | null): string {
 function fmtDates(p: PollRow): string {
   const s = p.field_start;
   const e = p.field_end || p.display_date;
-  if (s && e) return s === e ? e : `${s} → ${e}`;
-  return e || p.release_date || '—';
+  if (!e) return p.release_date ? fmtLong(p.release_date) : '—';
+  if (s && s !== e) {
+    const sameMonth = s.slice(0, 7) === e.slice(0, 7);
+    return sameMonth ? `${dayNum(s)}–${fmtShort(e)}` : `${fmtShort(s)} – ${fmtShort(e)}`;
+  }
+  return fmtLong(e);
 }
 
 function fmtSample(n?: number | null): string {
@@ -142,10 +172,26 @@ const nFirms = firms.length || new Set(polls.map((p) => p.firm)).size;
       {meta.latest_field_end && (
         <>
           <span class="sep" aria-hidden="true">·</span>
-          <span class="stat">{T.latest}: <strong>{meta.latest_field_end}</strong></span>
+          <span class="stat">{T.latest}: <strong>{fmtLong(meta.latest_field_end)}</strong></span>
         </>
       )}
     </div>
+
+    {trend && trend.pollsHistory.length > 0 && (
+      <article class="poll-chart-card">
+        <header class="poll-chart-header">
+          <h2>{CHART_T.title}</h2>
+          <p>{CHART_T.help}</p>
+        </header>
+        <VoteTrendChart
+          polls={trend.pollsHistory}
+          parties={trend.trendParties}
+          partiesOrder={trend.trendOrder}
+          locale={lang}
+          client:only="preact"
+        />
+      </article>
+    )}
 
     <div class="poll-legend">
       {parties.map((p) => (
@@ -227,6 +273,13 @@ const nFirms = firms.length || new Set(polls.map((p) => p.firm)).size;
   .polls-meta-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px; font-family: var(--mono); font-size: 12px; letter-spacing: .04em; color: var(--ink-2); text-transform: uppercase; margin-bottom: 16px; }
   .polls-meta-row strong { color: var(--ink); }
   .sep { color: var(--rule); }
+
+  .poll-chart-card { background: var(--card); border: 1px solid var(--rule); border-radius: 8px; padding: 24px 24px 16px; margin-bottom: 24px; }
+  .poll-chart-header h2 { font-family: var(--serif); font-size: clamp(20px, 2.4vw, 26px); font-weight: 500; margin: 0 0 4px; color: var(--ink); }
+  .poll-chart-header p { font-family: var(--serif); font-size: 14px; line-height: 1.5; color: var(--ink-2); margin: 0 0 8px; max-width: 640px; }
+  .poll-chart-card :global(.pe-chart) { width: 100%; height: 380px; }
+  .poll-chart-card :global(.pe-chart-loading),
+  .poll-chart-card :global(.pe-chart-error) { font-family: var(--mono); font-size: 12px; color: var(--ink-2); padding: 16px 0; }
 
   .poll-legend { display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 16px; font-family: var(--mono); font-size: 11px; letter-spacing: .04em; text-transform: uppercase; color: var(--ink-2); }
   .legend-item { display: inline-flex; align-items: center; gap: 6px; }

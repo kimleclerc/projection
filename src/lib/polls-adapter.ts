@@ -71,7 +71,34 @@ export interface PollFirm {
   firm_name: string;
   n_polls?: number;
   latest_field_end?: string;
+  poll_ids?: string[];
+  profile?: Record<string, unknown>;
   [k: string]: unknown;
+}
+
+/** One poll point in the trend series (matches VoteTrendChart's PollSnapshot). */
+export interface PollSnapshot {
+  date: string;
+  firm?: string;
+  n?: number;
+  weight?: number | null;
+  [partyKey: string]: string | number | null | undefined;
+}
+
+export interface TrendParty {
+  party: string;
+  label_en: string;
+  label_fr: string;
+  color: string;
+  vote_mean: number;
+  vote_ci_low_95: number;
+  vote_ci_high_95: number;
+}
+
+export interface TrendBundle {
+  pollsHistory: PollSnapshot[];
+  trendParties: TrendParty[];
+  trendOrder: string[];
 }
 
 /** Optional breakdown detail — shape mirrors the engine's per-dimension export. */
@@ -96,10 +123,14 @@ const DETAILS = import.meta.glob<{ default: PollDetail }>(
   '../../web_data/*/polls/!(index|firms).json',
   { eager: true },
 );
+const LATEST = import.meta.glob<{ default: Record<string, unknown> }>(
+  '../../web_data/*/latest.json',
+  { eager: true },
+);
 
-/** Extract `<web_key>` from a `.../web_data/<web_key>/polls/<file>.json` path. */
+/** Extract `<web_key>` from any `.../web_data/<web_key>/…` path. */
 function webKeyFromPath(path: string): string {
-  const m = /web_data\/([^/]+)\/polls\//.exec(path);
+  const m = /web_data\/([^/]+)\//.exec(path);
   return m ? m[1] : '';
 }
 
@@ -110,10 +141,16 @@ for (const [path, mod] of Object.entries(INDEXES)) {
 
 const FIRMS_BY_KEY: Record<string, PollFirm[]> = {};
 for (const [path, mod] of Object.entries(FIRMS)) {
-  const raw = mod.default;
+  const raw = mod.default as PollFirm[] | { firms?: PollFirm[] };
+  // Engine ships `{ "firms": [...] }`; tolerate a bare array or a keyed map too.
   FIRMS_BY_KEY[webKeyFromPath(path)] = Array.isArray(raw)
     ? raw
-    : Object.values(raw);
+    : (raw.firms ?? (Object.values(raw) as PollFirm[]));
+}
+
+const LATEST_BY_KEY: Record<string, Record<string, unknown>> = {};
+for (const [path, mod] of Object.entries(LATEST)) {
+  LATEST_BY_KEY[webKeyFromPath(path)] = mod.default;
 }
 
 const DETAIL_BY_KEY: Record<string, Record<string, PollDetail>> = {};
@@ -176,6 +213,38 @@ export function getDetailablePolls(webKey: string): PollRow[] {
 
 export function getPollDetail(webKey: string, pollId: string): PollDetail | undefined {
   return DETAIL_BY_KEY[webKey]?.[pollId];
+}
+
+/**
+ * Trend bundle for the polls chart — reuses the same `parties` (model estimate
+ * + 95% CI) and `polls_history` series that the jurisdiction projection page
+ * already feeds to VoteTrendChart, so the hub chart matches the projection one.
+ */
+export function getPollsTrend(webKey: string): TrendBundle | undefined {
+  const d = LATEST_BY_KEY[webKey];
+  if (!d) return undefined;
+  const parties = (d.parties as Array<Record<string, unknown>>) ?? [];
+  const trendParties: TrendParty[] = parties.map((p) => ({
+    party: String(p.party),
+    label_en: String(p.label_en ?? p.party),
+    label_fr: String(p.label_fr ?? p.party),
+    color: String(p.color ?? '#999'),
+    vote_mean: Number(p.vote_mean ?? 0),
+    vote_ci_low_95: Number(p.vote_ci_low_95 ?? p.vote_mean ?? 0),
+    vote_ci_high_95: Number(p.vote_ci_high_95 ?? p.vote_mean ?? 0),
+  }));
+  const trendOrder = trendParties
+    .map((p) => p.party)
+    .filter((k) => !/_oth$/.test(k))
+    .slice(0, 5);
+  const pollsHistory: PollSnapshot[] = (
+    (d.polls_history as Array<Record<string, unknown>>) ?? []
+  ).map((poll) => ({
+    ...(poll as PollSnapshot),
+    date: String(poll.date ?? poll.field_end ?? poll.release_date ?? ''),
+    n: (poll.n ?? poll.sample_size) as number | undefined,
+  }));
+  return { pollsHistory, trendParties, trendOrder };
 }
 
 function byFieldEndDesc(a: PollRow, b: PollRow): number {

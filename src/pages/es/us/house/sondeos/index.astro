@@ -1,13 +1,14 @@
 ---
 import EditorialLayout from '../../../../../layouts/EditorialLayout.astro';
 import PollsHub from '../../../../../components/PollsHub.astro';
-import { getPollsMeta, getNationalPolls, getFirms } from '../../../../../lib/polls-adapter';
+import { getPollsMeta, getNationalPolls, getFirms, getPollsTrend } from '../../../../../lib/polls-adapter';
 import { pollPartyChips } from '../../../../../lib/poll-parties';
 
 const WEB_KEY = 'us-house';
 const meta = getPollsMeta(WEB_KEY)!;
 const polls = getNationalPolls(WEB_KEY);
 const firms = getFirms(WEB_KEY);
+const trend = getPollsTrend(WEB_KEY);
 const chips = pollPartyChips(WEB_KEY, meta.parties, 'es');
 
 const canonical = 'https://vote-scope.com/es/us/house/sondeos/';
@@ -38,13 +39,14 @@ const canonical = 'https://vote-scope.com/es/us/house/sondeos/';
 >
   <section class="polls-hero">
     <div class="container">
-      <p class="eyebrow">Sondeos · Cámara US · ciclo 2026</p>
-      <h1>Voto genérico para la Cámara.</h1>
-      <p class="lede">Cada sondeo nacional del voto genérico, con su encuestadora, su trabajo de campo y su intención de voto. Los sondeos por distrito se muestran en la página de proyección de cada distrito.</p>
+      <p class="eyebrow">Sondeos · Cámara de Representantes de EE. UU. · ciclo 2026</p>
+      <h1>El voto genérico para la Cámara.</h1>
+      <p class="lede">¿Qué partido controlará la Cámara tras las legislativas de 2026? El <em>voto genérico</em> —preguntar a los votantes si apoyarían al candidato demócrata o republicano en su distrito— es el mejor termómetro nacional de la contienda.</p>
+      <p class="lede">Vote-Scope reúne todos los sondeos nacionales publicados y, con su modelo, los convierte en una proyección de escaños. Abajo: la tendencia frente a la estimación del modelo, y la tabla completa sondeo por sondeo.</p>
     </div>
   </section>
 
-  <PollsHub lang="es" meta={meta} polls={polls} firms={firms} parties={chips} pollsBase="/es/us/house/sondeos" />
+  <PollsHub lang="es" meta={meta} polls={polls} firms={firms} parties={chips} trend={trend} pollsBase="/es/us/house/sondeos" />
 </EditorialLayout>
 
 <style>
@@ -52,4 +54,6 @@ const canonical = 'https://vote-scope.com/es/us/house/sondeos/';
   .polls-hero .eyebrow { font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-2); }
   .polls-hero h1 { margin: 8px 0 16px; font-family: var(--serif); font-size: clamp(40px, 5vw, 64px); font-weight: 420; letter-spacing: -0.02em; line-height: 1.02; max-width: 900px; }
   .polls-hero .lede { max-width: 760px; font-family: var(--serif); font-size: clamp(17px, 1.8vw, 20px); line-height: 1.55; color: var(--ink-2); }
+  .polls-hero .lede + .lede { margin-top: 14px; }
+  .polls-hero .lede em { font-style: italic; }
 </style>

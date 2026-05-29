@@ -1,13 +1,14 @@
 ---
 import EditorialLayout from '../../../../../layouts/EditorialLayout.astro';
 import PollsHub from '../../../../../components/PollsHub.astro';
-import { getPollsMeta, getNationalPolls, getFirms } from '../../../../../lib/polls-adapter';
+import { getPollsMeta, getNationalPolls, getFirms, getPollsTrend } from '../../../../../lib/polls-adapter';
 import { pollPartyChips } from '../../../../../lib/poll-parties';
 
 const WEB_KEY = 'us-house';
 const meta = getPollsMeta(WEB_KEY)!;
 const polls = getNationalPolls(WEB_KEY);
 const firms = getFirms(WEB_KEY);
+const trend = getPollsTrend(WEB_KEY);
 const chips = pollPartyChips(WEB_KEY, meta.parties, 'fr');
 
 const canonical = 'https://vote-scope.com/fr/us/chambre/sondages/';
@@ -38,13 +39,14 @@ const canonical = 'https://vote-scope.com/fr/us/chambre/sondages/';
 >
   <section class="polls-hero">
     <div class="container">
-      <p class="eyebrow">Sondages · Chambre US · cycle 2026</p>
+      <p class="eyebrow">Sondages · Chambre des représentants des États-Unis · cycle 2026</p>
       <h1>Le vote générique.</h1>
-      <p class="lede">Chaque sondage national d’intentions de vote, avec sa maison, son terrain et ses intentions. Les sondages de circonscription apparaissent sur la page de prévision de chaque circonscription.</p>
+      <p class="lede">Quel parti contrôlera la Chambre après les élections de mi-mandat de 2026 ? Le <em>vote générique</em> —demander aux électeurs s’ils appuieraient le candidat démocrate ou républicain dans leur circonscription— reste le meilleur baromètre national de la course.</p>
+      <p class="lede">Vote-Scope réunit chaque sondage national publié et le traduit, par son modèle, en projection de sièges. Ci-dessous : la tendance face à l’estimation du modèle, puis le tableau complet, sondage par sondage.</p>
     </div>
   </section>
 
-  <PollsHub lang="fr" meta={meta} polls={polls} firms={firms} parties={chips} pollsBase="/fr/us/chambre/sondages" />
+  <PollsHub lang="fr" meta={meta} polls={polls} firms={firms} parties={chips} trend={trend} pollsBase="/fr/us/chambre/sondages" />
 </EditorialLayout>
 
 <style>
@@ -52,4 +54,6 @@ const canonical = 'https://vote-scope.com/fr/us/chambre/sondages/';
   .polls-hero .eyebrow { font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-2); }
   .polls-hero h1 { margin: 8px 0 16px; font-family: var(--serif); font-size: clamp(40px, 5vw, 64px); font-weight: 420; letter-spacing: -0.02em; line-height: 1.02; max-width: 900px; }
   .polls-hero .lede { max-width: 760px; font-family: var(--serif); font-size: clamp(17px, 1.8vw, 20px); line-height: 1.55; color: var(--ink-2); }
+  .polls-hero .lede + .lede { margin-top: 14px; }
+  .polls-hero .lede em { font-style: italic; }
 </style>

@@ -1,13 +1,14 @@
 ---
 import EditorialLayout from '../../../../../layouts/EditorialLayout.astro';
 import PollsHub from '../../../../../components/PollsHub.astro';
-import { getPollsMeta, getNationalPolls, getFirms } from '../../../../../lib/polls-adapter';
+import { getPollsMeta, getNationalPolls, getFirms, getPollsTrend } from '../../../../../lib/polls-adapter';
 import { pollPartyChips } from '../../../../../lib/poll-parties';
 
 const WEB_KEY = 'us-house';
 const meta = getPollsMeta(WEB_KEY)!;
 const polls = getNationalPolls(WEB_KEY);
 const firms = getFirms(WEB_KEY);
+const trend = getPollsTrend(WEB_KEY);
 const chips = pollPartyChips(WEB_KEY, meta.parties, 'en');
 
 const canonical = 'https://vote-scope.com/en/us/house/polls/';
@@ -38,13 +39,14 @@ const canonical = 'https://vote-scope.com/en/us/house/polls/';
 >
   <section class="polls-hero">
     <div class="container">
-      <p class="eyebrow">Polls · U.S. House · 2026 cycle</p>
+      <p class="eyebrow">Polls · U.S. House of Representatives · 2026 cycle</p>
       <h1>The generic ballot.</h1>
-      <p class="lede">Every national generic-ballot poll, with its pollster, fieldwork and vote intention. District-level polls show up on each district’s forecast page.</p>
+      <p class="lede">Which party will control the House after the 2026 midterms? The <em>generic ballot</em> —asking voters whether they’d back the Democrat or the Republican in their district— is the single best national read on the race.</p>
+      <p class="lede">Vote-Scope gathers every published national poll and runs it through its model to project seats. Below: the trend against the model estimate, then the full poll-by-poll table.</p>
     </div>
   </section>
 
-  <PollsHub lang="en" meta={meta} polls={polls} firms={firms} parties={chips} pollsBase="/en/us/house/polls" />
+  <PollsHub lang="en" meta={meta} polls={polls} firms={firms} parties={chips} trend={trend} pollsBase="/en/us/house/polls" />
 </EditorialLayout>
 
 <style>
@@ -52,4 +54,6 @@ const canonical = 'https://vote-scope.com/en/us/house/polls/';
   .polls-hero .eyebrow { font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-2); }
   .polls-hero h1 { margin: 8px 0 16px; font-family: var(--serif); font-size: clamp(40px, 5vw, 64px); font-weight: 420; letter-spacing: -0.02em; line-height: 1.02; max-width: 900px; }
   .polls-hero .lede { max-width: 760px; font-family: var(--serif); font-size: clamp(17px, 1.8vw, 20px); line-height: 1.55; color: var(--ink-2); }
+  .polls-hero .lede + .lede { margin-top: 14px; }
+  .polls-hero .lede em { font-style: italic; }
 </style>

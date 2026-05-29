@@ -24,7 +24,7 @@ interface Props {
   parties: TrendParty[];
   /** Party keys to plot, in display order (typically the top 5 mainstream parties). */
   partiesOrder: string[];
-  locale: 'en' | 'fr';
+  locale: 'en' | 'fr' | 'es';
   axisColor?: string;
   gridColor?: string;
 }
@@ -57,7 +57,9 @@ export default function VoteTrendChart({
           setError(
             locale === 'fr'
               ? 'Aucun sondage exploitable pour cette juridiction.'
-              : 'No usable polling history is available for this jurisdiction.',
+              : locale === 'es'
+                ? 'No hay historial de sondeos utilizable para esta jurisdicción.'
+                : 'No usable polling history is available for this jurisdiction.',
           );
           setLoaded(true);
           return;
@@ -94,7 +96,7 @@ export default function VoteTrendChart({
             type: 'scatter' as const,
             mode: 'markers' as const,
             name: `${locale === 'fr' ? meta.label_fr : meta.label_en} (${
-              locale === 'fr' ? 'modèle' : 'model'
+              locale === 'fr' ? 'modèle' : locale === 'es' ? 'modelo' : 'model'
             })`,
             x: [lastDate],
             y: [meta.vote_mean],
@@ -115,7 +117,7 @@ export default function VoteTrendChart({
             },
             legendgroup: key,
             showlegend: false,
-            hovertemplate: `${locale === 'fr' ? 'Modèle' : 'Model'} ${
+            hovertemplate: `${locale === 'fr' ? 'Modèle' : locale === 'es' ? 'Modelo' : 'Model'} ${
               locale === 'fr' ? meta.label_fr : meta.label_en
             }<br>%{y:.1f}% [${meta.vote_ci_low_95.toFixed(
               1,
@@ -182,7 +184,7 @@ export default function VoteTrendChart({
       )}
       {!error && !loaded && (
         <p class="pe-chart-loading" role="status">
-          {locale === 'fr' ? 'Chargement du graphique…' : 'Loading chart…'}
+          {locale === 'fr' ? 'Chargement du graphique…' : locale === 'es' ? 'Cargando el gráfico…' : 'Loading chart…'}
         </p>
       )}
       <div ref={ref} class="pe-chart" />
