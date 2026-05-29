@@ -105,6 +105,26 @@ export interface RidingNeighbor {
   tone_party?: string;
 }
 
+/**
+ * One district-level poll, rendered as a ROW inside the LocalPolls section
+ * (NYT/Upshot model). Topline-only by design — district polls ship no
+ * breakdowns, so they never earn their own page. Mirrors the engine's PollRow
+ * (cf. polls-adapter) trimmed to what the row needs.
+ */
+export interface RidingPoll {
+  poll_id: string;
+  firm_name: string;
+  field_start?: string | null;
+  field_end?: string | null;
+  display_date?: string | null;
+  release_date: string;
+  sample_size?: number | null;
+  population?: string | null;   // 'lv' | 'rv' | 'a' …
+  client?: string | null;       // sponsor, when disclosed
+  source_url?: string | null;   // raw; the section's cleanSource() guards aggregator links
+  topline: Record<string, number>;
+}
+
 export interface RegionalContext {
   /** Vote-mean averaged across all ridings in the riding's province. */
   province: Record<string, number>;
@@ -135,7 +155,7 @@ export interface RidingData {
   demographics?: RidingDemographics;
   member?: RidingMember;     // current sitting member
   candidates?: RidingCandidate[];  // candidates from the most recent general election (baseline cycle)
-  polls?: unknown[];         // shape TBD when riding-level polls become available
+  polls?: RidingPoll[];      // district-level polls → rows in the LocalPolls section (NYT model)
   neighbors?: RidingNeighbor[];
   regionalContext?: RegionalContext;
 

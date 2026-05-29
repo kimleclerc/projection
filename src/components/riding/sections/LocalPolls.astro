@@ -1,0 +1,238 @@
+---
+/**
+ * LocalPolls — district-level polls as dense rows inside a riding forecast page
+ * (NYT/Upshot model, NOT 338's page-per-poll). Static Astro, no island.
+ *
+ * District polls are topline-only (no breakdowns), so they live here as rows
+ * and never earn their own page — keeps us clear of AdSense thin content
+ * (cf. project memory votescope-polls-vertical). One row = one poll:
+ * pollster · field dates · sample · topline (bars + numbers) · source.
+ *
+ * Party palette + colors come from `data.parties` (this riding's projection
+ * buckets), so the bars match the rest of the page. The `_oth`/Other bucket is
+ * dropped — "never show a party that holds no seat and wins none" (Kim).
+ * cleanSource() mirrors PollsHub: never link to aggregators (338Canada/QC125).
+ */
+import type { RidingData, RidingPoll } from '../../../lib/riding-adapters/types';
+
+interface Props {
+  data: RidingData;
+  lang: 'en' | 'fr' | 'es';
+}
+
+const { data, lang } = Astro.props;
+const polls = data.polls ?? [];
+if (polls.length === 0) return null;
+
+const LOCALE = lang === 'fr' ? 'fr-CA' : lang === 'es' ? 'es-ES' : 'en-US';
+
+function fmtLong(iso?: string | null): string {
+  if (!iso) return '—';
+  const d = new Date(`${iso}T00:00:00Z`);
+  if (Number.isNaN(d.getTime())) return iso;
+  return d.toLocaleDateString(LOCALE, { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+}
+function dayNum(iso: string): number {
+  return new Date(`${iso}T00:00:00Z`).getUTCDate();
+}
+function fmtShort(iso: string): string {
+  const d = new Date(`${iso}T00:00:00Z`);
+  return d.toLocaleDateString(LOCALE, { day: 'numeric', month: 'short', timeZone: 'UTC' });
+}
+
+const T = {
+  en: {
+    eyebrow: 'District polls',
+    title: 'Polls in this district',
+    firm: 'Pollster',
+    dates: 'Field dates',
+    sample: 'Sample',
+    pop: 'Pop.',
+    result: 'Topline',
+    source: 'Source',
+    src: 'link',
+    pop_lv: 'LV', pop_rv: 'RV', pop_a: 'Adults',
+    nPolls: (n: number) => `${n} poll${n === 1 ? '' : 's'}`,
+    note: 'District-level polls, topline only. Vote-Scope reports each published poll as the pollster released it; figures are not the Vote-Scope projection.',
+  },
+  fr: {
+    eyebrow: 'Sondages de circonscription',
+    title: 'Sondages dans cette circonscription',
+    firm: 'Maison',
+    dates: 'Terrain',
+    sample: 'Échantillon',
+    pop: 'Pop.',
+    result: 'Intentions',
+    source: 'Source',
+    src: 'lien',
+    pop_lv: 'él. prob.', pop_rv: 'él. ins.', pop_a: 'adultes',
+    nPolls: (n: number) => `${n} sondage${n > 1 ? 's' : ''}`,
+    note: 'Sondages de circonscription, intentions globales seulement. Vote-Scope rapporte chaque sondage publié tel que diffusé par la maison ; ces chiffres ne sont pas la prévision Vote-Scope.',
+  },
+  es: {
+    eyebrow: 'Sondeos del distrito',
+    title: 'Sondeos en este distrito',
+    firm: 'Encuestadora',
+    dates: 'Trabajo de campo',
+    sample: 'Muestra',
+    pop: 'Pob.',
+    result: 'Intención',
+    source: 'Fuente',
+    src: 'enlace',
+    pop_lv: 'vot. prob.', pop_rv: 'vot. reg.', pop_a: 'adultos',
+    nPolls: (n: number) => `${n} sondeo${n === 1 ? '' : 's'}`,
+    note: 'Sondeos por distrito, solo intención global. Vote-Scope reporta cada sondeo publicado tal como lo difundió la encuestadora; estas cifras no son la proyección de Vote-Scope.',
+  },
+}[lang];
+
+function fmtPop(pop?: string | null): string {
+  if (!pop) return '—';
+  const k = pop.toLowerCase();
+  if (k === 'lv') return T.pop_lv;
+  if (k === 'rv') return T.pop_rv;
+  if (k === 'a' || k === 'adults') return T.pop_a;
+  return pop.toUpperCase();
+}
+
+function fmtDates(p: RidingPoll): string {
+  const s = p.field_start;
+  const e = p.field_end || p.display_date;
+  if (!e) return p.release_date ? fmtLong(p.release_date) : '—';
+  if (s && s !== e) {
+    const sameMonth = s.slice(0, 7) === e.slice(0, 7);
+    return sameMonth ? `${dayNum(s)}–${fmtShort(e)}` : `${fmtShort(s)} – ${fmtShort(e)}`;
+  }
+  return fmtLong(e);
+}
+
+function fmtSample(n?: number | null): string {
+  if (!n || n <= 0) return '—';
+  return n.toLocaleString(LOCALE);
+}
+
+/** Outbound-source guard — never link to competing aggregators (338Canada/QC125);
+ *  attribution stays on the pollster. Tolerates ";"-joined URLs + stray punctuation. */
+const BLOCKED_SOURCE_HOSTS = ['338canada', 'qc125'];
+function cleanSource(url?: string | null): string | null {
+  if (!url) return null;
+  const first = url.split(/[;\s]+/).find(Boolean) ?? '';
+  if (!first || !/^https?:\/\//i.test(first)) return null;
+  const lower = first.toLowerCase();
+  if (BLOCKED_SOURCE_HOSTS.some((h) => lower.includes(h))) return null;
+  return first;
+}
+
+// Party palette from this riding's projection buckets — drop _oth/Other.
+const OTH_RE = /_oth$|^(oth|other|autre|others|autres)$/i;
+const colorByCode: Record<string, string> = {};
+const labelByCode: Record<string, string> = {};
+const allowed = new Set<string>();
+for (const p of data.parties) {
+  if (OTH_RE.test(p.code)) continue;
+  allowed.add(p.code);
+  colorByCode[p.code] = p.color;
+  labelByCode[p.code] = lang === 'fr' ? p.label_fr : p.label_en;
+}
+
+/** Topline entries (desc), restricted to displayed parties, value > 0. */
+function toplineEntries(p: RidingPoll): Array<[string, number]> {
+  return Object.entries(p.topline)
+    .filter(([code, v]) => typeof v === 'number' && v > 0 && allowed.has(code))
+    .sort((a, b) => b[1] - a[1]);
+}
+---
+
+<section class="local-polls">
+  <div class="container">
+    <p class="eyebrow">{T.eyebrow}</p>
+    <h2>{T.title}</h2>
+    <p class="count">{T.nPolls(polls.length)}</p>
+
+    <div class="poll-table-wrap">
+      <table class="poll-table">
+        <thead>
+          <tr>
+            <th class="c-firm">{T.firm}</th>
+            <th class="c-dates">{T.dates}</th>
+            <th class="c-sample">{T.sample}</th>
+            <th class="c-pop">{T.pop}</th>
+            <th class="c-result">{T.result}</th>
+            <th class="c-src">{T.source}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {polls.map((p) => {
+            const entries = toplineEntries(p);
+            const max = Math.max(1, ...entries.map(([, v]) => v));
+            return (
+              <tr>
+                <td class="c-firm">
+                  <span>{p.firm_name}</span>
+                  {p.client && <span class="client">{p.client}</span>}
+                </td>
+                <td class="c-dates">{fmtDates(p)}</td>
+                <td class="c-sample">{fmtSample(p.sample_size)}</td>
+                <td class="c-pop">{fmtPop(p.population)}</td>
+                <td class="c-result">
+                  <div class="bars">
+                    {entries.map(([code, v]) => (
+                      <span class="bar-row">
+                        <span class="bar-label" style={`--c:${colorByCode[code] || 'var(--ink-2)'}`}>
+                          {labelByCode[code] || code}
+                        </span>
+                        <span class="bar-track">
+                          <span class="bar-fill" style={`width:${(v / max) * 100}%;--c:${colorByCode[code] || 'var(--ink-2)'}`}></span>
+                        </span>
+                        <span class="bar-val">{v.toFixed(0)}</span>
+                      </span>
+                    ))}
+                  </div>
+                </td>
+                <td class="c-src">
+                  {cleanSource(p.source_url) ? (
+                    <a href={cleanSource(p.source_url)!} target="_blank" rel="nofollow noopener">{T.src}</a>
+                  ) : (
+                    <span class="muted">—</span>
+                  )}
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+
+    <p class="note">{T.note}</p>
+  </div>
+</section>
+
+<style>
+  .local-polls { padding: 56px 0; border-bottom: 1px solid var(--rule); }
+  h2 { margin: 8px 0 4px; font-family: var(--serif); font-size: clamp(28px, 3.4vw, 40px); font-weight: 420; letter-spacing: -0.01em; }
+  .count { margin: 0 0 24px; font-family: var(--mono); font-size: 12px; letter-spacing: .04em; text-transform: uppercase; color: var(--ink-2); }
+
+  .poll-table-wrap { overflow-x: auto; border: 1px solid var(--rule); background: var(--card); border-radius: 4px; }
+  .poll-table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 12px; }
+  .poll-table thead th { background: var(--paper); text-align: left; font-weight: 500; letter-spacing: .06em; text-transform: uppercase; font-size: 10px; color: var(--ink-2); padding: 10px 12px; border-bottom: 1px solid var(--rule); white-space: nowrap; }
+  .poll-table tbody td { padding: 10px 12px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  .poll-table tbody tr:last-child td { border-bottom: 0; }
+  .poll-table tbody tr:hover { background: color-mix(in oklab, var(--accent, var(--ink)) 5%, var(--card)); }
+
+  .c-firm { font-family: var(--serif); font-size: 14px; min-width: 160px; }
+  .client { display: block; font-family: var(--mono); font-size: 10px; color: var(--ink-2); margin-top: 2px; }
+  .c-dates, .c-sample, .c-pop { white-space: nowrap; color: var(--ink-2); }
+  .c-sample { text-align: right; }
+  .c-result { min-width: 220px; }
+  .c-src a { color: var(--ink-2); text-decoration: none; border-bottom: 1px dotted var(--rule); }
+  .c-src a:hover { color: var(--ink); }
+  .muted { color: var(--rule); }
+
+  .bars { display: flex; flex-direction: column; gap: 4px; }
+  .bar-row { display: grid; grid-template-columns: 54px 1fr 28px; align-items: center; gap: 8px; }
+  .bar-label { color: var(--c); font-size: 10px; letter-spacing: .04em; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .bar-track { height: 8px; background: color-mix(in oklab, var(--ink) 8%, transparent); border-radius: 2px; overflow: hidden; }
+  .bar-fill { display: block; height: 100%; background: var(--c); border-radius: 2px; }
+  .bar-val { text-align: right; font-variant-numeric: tabular-nums; color: var(--ink); }
+
+  .note { margin-top: 16px; font-family: var(--serif); font-style: italic; font-size: 14px; color: var(--ink-2); max-width: 720px; }
+</style>

@@ -19,10 +19,11 @@
  *   (slot pattern).
  */
 import type {
-  RidingData, RidingMember, RidingCandidate, RidingNeighbor,
+  RidingData, RidingMember, RidingCandidate, RidingNeighbor, RidingPoll,
 } from './types';
 import { ridingSlug } from './types';
 import { partyMeta } from './parties';
+import { getLocalPollsByRiding, type PollRow } from '../polls-adapter';
 import ridingsSource from '../../../web_data/us-house/ridings.json';
 import membersSource from '../../../web_data/us-house/members.json';
 import candidatesSource from '../../../web_data/us-house/candidates_2026.json';
@@ -62,6 +63,39 @@ const candidatesByRiding = candidatesSource as Record<string, Array<{ name: stri
 const primariesByRiding = primariesSource as Record<string, RidingData['primaries']>;
 const redistrictingByRiding = redistrictingSource as Record<string, RidingData['redistrictingImpact']>;
 const RIDINGS_WITH_HISTORY = new Set((historyIndex as { ridings_with_history: string[] }).ridings_with_history);
+
+/**
+ * District-level polls, keyed by the engine's de-padded riding_id. The polls
+ * export strips leading zeros from state FIPS ("06011" → "6011", "31001" stays),
+ * so we look up by `String(Number(riding_id))`. At-large seats (AK "02000" vs
+ * poll geography "2001") don't reconcile and stay unmatched — a known quirk,
+ * not worth special-casing for one district.
+ */
+const LOCAL_POLLS_BY_RIDING = getLocalPollsByRiding('us-house');
+
+/** Map an engine PollRow to the trimmed RidingPoll the LocalPolls row needs. */
+function adaptPoll(p: PollRow): RidingPoll {
+  return {
+    poll_id: p.poll_id,
+    firm_name: p.firm_name,
+    field_start: p.field_start,
+    field_end: p.field_end,
+    display_date: p.display_date,
+    release_date: p.release_date,
+    sample_size: p.sample_size,
+    population: p.population,
+    client: p.client,
+    source_url: p.source_url,
+    topline: p.topline,
+  };
+}
+
+/** District polls for a riding (already sorted field_end desc by the adapter). */
+function adaptPolls(rid: string): RidingPoll[] | undefined {
+  const rows = LOCAL_POLLS_BY_RIDING[String(Number(rid))];
+  if (!rows || rows.length === 0) return undefined;
+  return rows.map(adaptPoll);
+}
 
 /** National vote_mean by party (unweighted mean across 435 districts). */
 const NATIONAL_VOTE_MEAN: Record<string, number> = (() => {
@@ -187,6 +221,7 @@ function adaptOne(raw: RawRiding): RidingData {
     baseline,
     member: adaptMember(raw.riding_id),
     candidates: adaptCandidates(raw.riding_id),
+    polls: adaptPolls(raw.riding_id),
     primaries: primariesByRiding[raw.riding_id],
     redistrictingImpact: redistrictingByRiding[raw.riding_id],
     runDate: META.run_date,
