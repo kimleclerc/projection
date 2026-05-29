@@ -6,6 +6,7 @@
  */
 import EditorialLayout from '../layouts/EditorialLayout.astro';
 import PollsHub from './PollsHub.astro';
+import JurisdictionNav from './JurisdictionNav.astro';
 import {
   getPollsMeta, getNationalPolls, getFirms, getPollsTrend, getRecentNationalPolls,
   getDisplayPartyCodes,
@@ -53,6 +54,7 @@ const description = copy.lede1.replace(/<[^>]+>/g, '');
     },
   ]}
 >
+  <JurisdictionNav webKey={webKey} lang={lang} active="polls" />
   <section class="polls-hero">
     <div class="container">
       <p class="eyebrow">{copy.eyebrow}</p>

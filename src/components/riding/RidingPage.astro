@@ -6,6 +6,8 @@
  * all ~600 pages automatically. Edit this file → every riding page rebuilds.
  */
 import type { RidingData } from '../../lib/riding-adapters/types';
+import { getNavEntryForRiding } from '../../lib/jurisdiction-nav';
+import JurisdictionNav from '../JurisdictionNav.astro';
 import Hero from './sections/Hero.astro';
 import RidingQuestion from './sections/RidingQuestion.astro';
 import PrimaryStatus from './sections/PrimaryStatus.astro';
@@ -29,8 +31,10 @@ interface Props {
 }
 
 const { data, lang } = Astro.props;
+const navWebKey = getNavEntryForRiding(data.jurisdiction)?.webKey;
 ---
 
+{navWebKey && <JurisdictionNav webKey={navWebKey} lang={lang} active="districts" />}
 <Hero data={data} lang={lang} />
 <RidingQuestion data={data} lang={lang} />
 <EditorialBlurb data={data} lang={lang} />

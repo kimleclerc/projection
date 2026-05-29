@@ -1,0 +1,191 @@
+---
+/**
+ * JurisdictionNav — contextual sub-nav band shown under the global header on
+ * jurisdiction pages. Two controls, both pure-HTML (no island):
+ *   1. Section tabs for the CURRENT jurisdiction — projection · polls ·
+ *      districts — so a reader moves laterally without going up to a hub.
+ *   2. A jurisdiction switcher (<details> disclosure) — jump to the SAME
+ *      section in any other jurisdiction (or its projection if absent).
+ *
+ * Driven entirely by lib/jurisdiction-nav.ts. Dropped into the three shared
+ * page components (ProjectionEngine, PollsHubPage, RidingPage), so it lights
+ * up across every jurisdiction page at once (uniformity principle).
+ */
+import {
+  getNavEntry, JURISDICTION_NAV, sectionUrl, sectionLabel, switchUrl,
+  type NavLang, type SectionKey,
+} from '../lib/jurisdiction-nav';
+
+interface Props {
+  webKey: string;
+  lang: NavLang;
+  active: SectionKey;
+}
+
+const { webKey, lang, active } = Astro.props as Props;
+const entry = getNavEntry(webKey);
+
+// Order tabs predictably even if a jurisdiction omits one.
+const TAB_ORDER: SectionKey[] = ['projection', 'polls', 'districts'];
+
+const T = {
+  en: { aria: 'Section navigation', switcher: 'Switch jurisdiction', here: 'You are here' },
+  fr: { aria: 'Navigation de section', switcher: 'Changer de juridiction', here: 'Vous êtes ici' },
+  es: { aria: 'Navegación de sección', switcher: 'Cambiar de jurisdicción', here: 'Está aquí' },
+}[lang];
+
+const tabs = entry
+  ? TAB_ORDER.filter((s) => entry.sections[s]).map((s) => ({
+      key: s,
+      label: sectionLabel(entry, s, lang),
+      href: sectionUrl(entry, s, lang),
+      current: s === active,
+    }))
+  : [];
+
+// Switcher options: every OTHER jurisdiction, grouped, → same section if it
+// ships it, else its projection. Current jurisdiction shown as the label.
+const others = JURISDICTION_NAV.filter((e) => e.webKey !== webKey);
+const groups: Array<{ group: string; items: Array<{ label: string; href: string }> }> = [];
+for (const e of others) {
+  const g = e.group[lang];
+  let bucket = groups.find((x) => x.group === g);
+  if (!bucket) { bucket = { group: g, items: [] }; groups.push(bucket); }
+  bucket.items.push({ label: e.label[lang], href: switchUrl(e, active, lang) });
+}
+
+const currentLabel = entry ? `${entry.group[lang]} · ${entry.label[lang]}` : '';
+---
+
+{entry && (
+  <nav class="jnav" aria-label={T.aria}>
+    <div class="container jnav-inner">
+      <ul class="jnav-tabs">
+        {tabs.map((t) => (
+          <li>
+            <a href={t.href} class={t.current ? 'current' : ''} aria-current={t.current ? 'page' : undefined}>
+              {t.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+
+      <details class="jnav-switch">
+        <summary aria-label={T.switcher}>
+          <span class="jnav-here">{currentLabel}</span>
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+        </summary>
+        <div class="jnav-menu" role="menu">
+          {groups.map((g) => (
+            <div class="jnav-group">
+              <p class="jnav-group-label">{g.group}</p>
+              {g.items.map((it) => (
+                <a class="jnav-item" role="menuitem" href={it.href}>{it.label}</a>
+              ))}
+            </div>
+          ))}
+        </div>
+      </details>
+    </div>
+  </nav>
+)}
+
+<style>
+  .jnav {
+    border-bottom: 1px solid var(--rule);
+    background: var(--paper-3);
+  }
+  .jnav-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    min-height: 46px;
+  }
+  .jnav-tabs {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .jnav-tabs::-webkit-scrollbar { display: none; }
+  .jnav-tabs a {
+    display: inline-block;
+    padding: 13px 0;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+  }
+  .jnav-tabs a:hover { color: var(--ink); }
+  .jnav-tabs a.current { color: var(--ink); border-bottom-color: var(--ink); }
+
+  /* Jurisdiction switcher — native <details> disclosure, no JS. */
+  .jnav-switch { position: relative; flex: 0 0 auto; }
+  .jnav-switch summary {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    cursor: pointer;
+    list-style: none;
+    padding: 6px 10px;
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+    background: var(--card);
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .06em;
+    color: var(--ink-2);
+    white-space: nowrap;
+  }
+  .jnav-switch summary::-webkit-details-marker { display: none; }
+  .jnav-switch summary:hover { color: var(--ink); border-color: var(--ink-3); }
+  .jnav-switch[open] summary { color: var(--ink); border-color: var(--ink-3); }
+  .jnav-switch[open] summary svg { transform: rotate(180deg); }
+  .jnav-switch summary svg { transition: transform .15s ease; }
+  .jnav-here { font-weight: 500; }
+
+  .jnav-menu {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 6px);
+    z-index: 40;
+    min-width: 220px;
+    padding: 8px;
+    background: var(--card);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    box-shadow: 0 8px 28px color-mix(in oklab, var(--ink) 14%, transparent);
+  }
+  .jnav-group + .jnav-group { margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--rule-2); }
+  .jnav-group-label {
+    margin: 4px 8px 4px;
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--ink-4);
+  }
+  .jnav-item {
+    display: block;
+    padding: 7px 8px;
+    border-radius: 3px;
+    font-family: var(--serif);
+    font-size: 15px;
+    color: var(--ink);
+  }
+  .jnav-item:hover { background: color-mix(in oklab, var(--ink) 6%, transparent); }
+
+  @media (max-width: 600px) {
+    .jnav-inner { gap: 10px; }
+    .jnav-tabs { gap: 16px; }
+    .jnav-here { max-width: 38vw; overflow: hidden; text-overflow: ellipsis; }
+  }
+</style>

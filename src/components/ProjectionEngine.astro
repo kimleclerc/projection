@@ -9,6 +9,8 @@ import GooglePreferredSource from './GooglePreferredSource.astro';
 import RidingTable from '../islands/RidingTable.tsx';
 import ElectionCountdown from '../islands/ElectionCountdown.tsx';
 import KeepDigging from './KeepDigging.astro';
+import JurisdictionNav from './JurisdictionNav.astro';
+import { getNavEntry, type NavLang } from '../lib/jurisdiction-nav';
 
 interface Props {
   jurisdiction: Jurisdiction;
@@ -16,6 +18,9 @@ interface Props {
 }
 
 const { jurisdiction, locale } = Astro.props;
+
+// Contextual sub-nav: jurisdiction.dataPath matches the nav registry webKey.
+const navEntry = getNavEntry(jurisdiction.dataPath);
 
 // Build-time read of latest.json from the project data contract. The files are
 // copied to dist/web_data after Astro renders the static HTML.
@@ -337,6 +342,7 @@ const keepDiggingLinks = (() => {
 })();
 ---
 
+{navEntry && <JurisdictionNav webKey={jurisdiction.dataPath} lang={locale as NavLang} active="projection" />}
 <article class="projection-engine">
   <!-- HERO -->
   <header class="pe-hero container">
