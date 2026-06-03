@@ -26,7 +26,7 @@ export interface PollsHubConfig {
   base: Record<HubLang, string>;  // path prefix per language
   seg: Record<HubLang, string>;   // localized "polls" segment
   copy: Record<HubLang, HubCopy>;
-  hasCards?: boolean;             // per-poll share PNGs exist (us-house only)
+  hasCards?: boolean;             // emit per-poll share PNGs for this hub (us-house, federal)
 }
 
 const SEG: Record<HubLang, string> = { en: 'polls', fr: 'sondages', es: 'sondeos' };
@@ -70,7 +70,7 @@ export const POLLS_HUBS: Record<string, PollsHubConfig> = {
     },
   },
   federal: {
-    webKey: 'federal', currentPage: 'canada', langs: ['en', 'fr', 'es'], seg: SEG,
+    webKey: 'federal', currentPage: 'canada', langs: ['en', 'fr', 'es'], seg: SEG, hasCards: true,
     base: { en: '/en/canada/federal', fr: '/fr/canada/federal', es: '/es/canada/federal' },
     copy: {
       en: { eyebrow: 'Polls · Canada · House of Commons', h1: 'Federal voting intention.',
