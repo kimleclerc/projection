@@ -26,7 +26,7 @@ export interface PollsHubConfig {
   base: Record<HubLang, string>;  // path prefix per language
   seg: Record<HubLang, string>;   // localized "polls" segment
   copy: Record<HubLang, HubCopy>;
-  hasCards?: boolean;             // emit per-poll share PNGs for this hub (us-house, federal)
+  hasCards?: boolean;             // emit per-poll share PNGs for this hub (us-house, federal, uk)
 }
 
 const SEG: Record<HubLang, string> = { en: 'polls', fr: 'sondages', es: 'sondeos' };
@@ -124,7 +124,7 @@ export const POLLS_HUBS: Record<string, PollsHubConfig> = {
     },
   },
   uk: {
-    webKey: 'uk', currentPage: 'uk', langs: ['en', 'fr', 'es'], seg: SEG,
+    webKey: 'uk', currentPage: 'uk', langs: ['en', 'fr', 'es'], seg: SEG, hasCards: true,
     base: { en: '/en/uk', fr: '/fr/uk', es: '/es/uk' },
     copy: {
       en: { eyebrow: 'Polls · United Kingdom · Westminster', h1: 'UK voting intention.',
