@@ -146,6 +146,7 @@ const copy = {
 const t = copy[locale] ?? copy.en;
 const canonical = `https://vote-scope.com${canonicalPath}`;
 const lameDuckHref = locale === 'es' ? '/es/us/indexes/lame-duck/' : locale === 'fr' ? '/fr/us/indexes/lame-duck/' : '/en/us/indexes/lame-duck/';
+const licenseHref = `https://vote-scope.com/${locale === 'fr' ? 'fr/conditions' : locale === 'es' ? 'es/terminos' : 'en/terms'}/`;
 
 const alternates = {
   en: 'https://vote-scope.com/en/canada/indexes/canada-goose/',
@@ -172,6 +173,7 @@ const jsonLd = [
     temporalCoverage: `${data.meta.mandate_start ?? '2026-04-28'}/..`,
     url: canonical,
     isAccessibleForFree: true,
+    license: licenseHref,
     distribution: {
       '@type': 'DataDownload',
       contentUrl: 'https://vote-scope.com/web_data/ca-canada-goose/latest.json',

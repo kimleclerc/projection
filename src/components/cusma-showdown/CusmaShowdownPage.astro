@@ -103,6 +103,7 @@ const ctx = data.context_signals ?? {};
 const canadaHref = locale === 'fr' ? sides.canada?.href_fr : sides.canada?.href_en;
 const usHref = locale === 'fr' ? sides.us?.href_fr : sides.us?.href_en;
 const gapLabel = showdownLabel(data.showdown, locale);
+const licenseHref = `https://vote-scope.com/${locale === 'fr' ? 'fr/conditions' : locale === 'es' ? 'es/terminos' : 'en/terms'}/`;
 
 const alternates = {
   en: 'https://vote-scope.com/en/indexes/cusma-showdown',
@@ -120,6 +121,7 @@ const jsonLd = [
     publisher: { '@type': 'Organization', name: 'Vote-Scope', url: 'https://vote-scope.com' },
     url: canonical,
     isAccessibleForFree: true,
+    license: licenseHref,
     distribution: {
       '@type': 'DataDownload',
       contentUrl: 'https://vote-scope.com/web_data/cusma-showdown/latest.json',

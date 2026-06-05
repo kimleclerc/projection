@@ -115,6 +115,7 @@ const copy = {
 
 const t = copy[locale] ?? copy.en;
 const canonical = `https://vote-scope.com${canonicalPath}`;
+const licenseHref = `https://vote-scope.com/${locale === 'fr' ? 'fr/conditions' : locale === 'es' ? 'es/terminos' : 'en/terms'}/`;
 const approvalComponent = data.components.find((component) => component.id === 'net_approval');
 const alternates = {
   en: 'https://vote-scope.com/en/us/indexes/lame-duck/',
@@ -159,6 +160,7 @@ const jsonLd = [
     temporalCoverage: `${data.meta.term_start ?? '2025-01-20'}/..`,
     url: canonical,
     isAccessibleForFree: true,
+    license: licenseHref,
     distribution: {
       '@type': 'DataDownload',
       contentUrl: 'https://vote-scope.com/web_data/us-lame-duck/latest.json',
