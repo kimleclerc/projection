@@ -1,6 +1,7 @@
 ---
 import EditorialLayout from '../../layouts/EditorialLayout.astro';
 import CusmaTugOfWar from '../../islands/CusmaTugOfWar.tsx';
+import PolymarketEmbed from '../PolymarketEmbed.astro';
 import { showdownLabel } from '../../data/cusmaShowdown';
 import type { ShowdownData, ShowdownLocale } from '../../data/cusmaShowdown';
 import '../../styles/lame-duck.css';
@@ -15,9 +16,9 @@ const { data, locale, canonicalPath } = Astro.props;
 
 const copy = {
   en: {
-    title: 'CUSMA Showdown — Goose vs Lame Duck — Vote-Scope',
+    title: 'CUSMA / USMCA Showdown — Goose vs Lame Duck — Vote-Scope',
     description:
-      'Who leads the CUSMA negotiating table? The CUSMA Showdown pits the Canada Goose Index against the Trump Lame-Duck Index in one leverage-gap number. Positive = Canada ahead.',
+      'Who leads the CUSMA (USMCA) negotiating table — Carney or Trump? The CUSMA Showdown pits the Canada Goose Index against the Trump Lame-Duck Index in one leverage-gap number. Positive = Canada ahead.',
     eyebrow: 'Vote-Scope · CUSMA · Live duel',
     headline: 'Goose vs Lame Duck.',
     dek:
@@ -42,9 +43,9 @@ const copy = {
     viewMarket: 'View market',
   },
   fr: {
-    title: 'Duel ACEUM — Bernache contre Canard boiteux — Vote-Scope',
+    title: 'Duel ACEUM (USMCA) — Bernache contre Canard boiteux — Vote-Scope',
     description:
-      "Qui mène la table de négociation de l'ACEUM ? Le Duel ACEUM oppose l'Indice Bernache à l'Indice canard boiteux de Trump en un seul écart de levier. Positif = avantage Canada.",
+      "Qui mène la table de négociation de l'ACEUM (USMCA) — Carney ou Trump ? Le Duel ACEUM oppose l'Indice Bernache à l'Indice canard boiteux de Trump en un seul écart de levier. Positif = avantage Canada.",
     eyebrow: 'Vote-Scope · ACEUM · Duel live',
     headline: 'Bernache contre Canard boiteux.',
     dek:
@@ -69,9 +70,9 @@ const copy = {
     viewMarket: 'Voir le marché',
   },
   es: {
-    title: 'Duelo T-MEC — Ganso vs Pato cojo — Vote-Scope',
+    title: 'Duelo T-MEC (USMCA) — Ganso vs Pato cojo — Vote-Scope',
     description:
-      '¿Quién lidera la mesa del T-MEC? El Duelo T-MEC enfrenta el Canada Goose Index al Lame-Duck Index en una sola brecha de ventaja. Positivo = Canadá adelante.',
+      '¿Quién lidera la mesa del T-MEC (USMCA) — Carney o Trump? El Duelo T-MEC enfrenta el Canada Goose Index al Lame-Duck Index en una sola brecha de ventaja. Positivo = Canadá adelante.',
     eyebrow: 'Vote-Scope · T-MEC · Duelo en vivo',
     headline: 'Ganso vs Pato cojo.',
     dek: '¿Quién aporta más peso a la mesa del T-MEC? El duelo resta la fuerza residual de Trump a la de Carney, en una sola brecha de ventaja.',
@@ -116,6 +117,7 @@ const jsonLd = [
     '@context': 'https://schema.org',
     '@type': 'Dataset',
     name: 'CUSMA Showdown — leverage gap',
+    keywords: 'CUSMA, USMCA, CUSMA Showdown, Mark Carney, Donald Trump, Canada Goose Index, Lame-Duck Index, Canada–US trade, tariffs, negotiating leverage',
     description: t.description,
     creator: { '@type': 'Person', name: 'Kim Leclerc', url: 'https://kimleclerc.ca' },
     publisher: { '@type': 'Organization', name: 'Vote-Scope', url: 'https://vote-scope.com' },
@@ -127,6 +129,15 @@ const jsonLd = [
       contentUrl: 'https://vote-scope.com/web_data/cusma-showdown/latest.json',
       encodingFormat: 'application/json',
     },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: `https://vote-scope.com/${locale}/` },
+      { '@type': 'ListItem', position: 2, name: locale === 'fr' ? 'Indices' : locale === 'es' ? 'Índices' : 'Indexes', item: `https://vote-scope.com/${locale}/indexes` },
+      { '@type': 'ListItem', position: 3, name: 'CUSMA Showdown', item: canonical },
+    ],
   },
 ];
 
@@ -247,6 +258,21 @@ const deltaArrow = typeof delta === 'number' ? (delta > 0 ? '▲' : delta < 0 ? 
           )}
         </div>
         {favNote && <p class="note-card" style="margin-top:1.25rem;max-width:680px">{favNote}</p>}
+        {tariff && (
+          <div style="margin-top:1.5rem;max-width:680px">
+            <PolymarketEmbed
+              slug="tariff-increase-on-canada-in-effect-by-june-30"
+              title={t.tariffTitle}
+              subtitle={locale === 'fr'
+                ? 'Marché externe — hors du calcul de l’écart.'
+                : locale === 'es'
+                ? 'Mercado externo — fuera del cálculo de la brecha.'
+                : 'External market — not part of the gap calculation.'}
+              lang={locale}
+              eventUrl={tariff.market_url}
+            />
+          </div>
+        )}
       </div>
     </section>
   </article>

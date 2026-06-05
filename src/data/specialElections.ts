@@ -28,17 +28,17 @@ export const specialElections = {
     dataPath: 'ca1-special',
     currentPage: 'usa-hub',
     modelBadge: 'Fundamentals-only',
-    title: 'CA-1 Special Primary — Resolved Archive — Vote-Scope',
+    title: 'CA-1 Special Primary Result — Resolved Archive — Vote-Scope',
     description:
-      "Archived: VoteScope's fundamentals-only forecast for the June 2, 2026 CA-1 top-two special primary, preserved as a record of the pre-election model.",
+      "Archived result: in the June 2, 2026 CA-1 top-two special primary, Republican James Gallagher led (~47%) with Democrat Mike McGuire second (~38%); both advance to the special general. VoteScope's fundamentals-only model projected the field before election day.",
     kicker: 'Resolved special primary · June 2, 2026',
     headline: 'CA-1 primary archive.',
     dek:
-      "This special-election desk is now a resolved archive of the June 2, 2026 top-two primary. VoteScope's fundamentals-only model projected the field before election day; the page is kept for the record.",
+      "Resolved archive of the June 2, 2026 top-two special primary. Republican James Gallagher finished first (~47%) and Democrat Mike McGuire second (~38%) — the two advance to the special general in this safely Republican district. VoteScope's fundamentals-only model projected the field before election day.",
     kicker_es: 'Primaria especial resuelta · 2 de junio de 2026',
     headline_es: 'Archivo de la primaria CA-1.',
     dek_es:
-      'Este desk de elección especial es ahora un archivo resuelto de la primaria top-2 del 2 de junio de 2026. El modelo solo de fundamentos de VoteScope proyectó la contienda antes del día de la elección; la página se conserva para el registro.',
+      'Archivo resuelto de la primaria especial top-2 del 2 de junio de 2026. El republicano James Gallagher quedó primero (~47%) y el demócrata Mike McGuire segundo (~38%) — ambos avanzan a la general especial en este distrito seguro republicano. El modelo solo de fundamentos de VoteScope proyectó la contienda antes del día de la elección.',
     paths: {
       en: '/en/us/specials/ca1/',
       fr: '/fr/us/specials/ca1/',
