@@ -1,0 +1,251 @@
+---
+import EditorialLayout from '../../layouts/EditorialLayout.astro';
+import CusmaTugOfWar from '../../islands/CusmaTugOfWar.tsx';
+import { showdownLabel } from '../../data/cusmaShowdown';
+import type { ShowdownData, ShowdownLocale } from '../../data/cusmaShowdown';
+import '../../styles/lame-duck.css';
+
+interface Props {
+  data: ShowdownData;
+  locale: ShowdownLocale;
+  canonicalPath: string;
+}
+
+const { data, locale, canonicalPath } = Astro.props;
+
+const copy = {
+  en: {
+    title: 'CUSMA Showdown — Goose vs Lame Duck — Vote-Scope',
+    description:
+      'Who leads the CUSMA negotiating table? The CUSMA Showdown pits the Canada Goose Index against the Trump Lame-Duck Index in one leverage-gap number. Positive = Canada ahead.',
+    eyebrow: 'Vote-Scope · CUSMA · Live duel',
+    headline: 'Goose vs Lame Duck.',
+    dek:
+      "Who brings more standing to the CUSMA table? The showdown subtracts Trump's residual strength from Carney's, in one leverage-gap number. Positive means Canada leads, negative means the U.S. leads.",
+    updated: 'Updated',
+    methodEyebrow: 'How the gap works',
+    methodTitle: 'One number from two instruments.',
+    methodBody:
+      'The gap is Canada Goose Index minus Trump strength (100 − Lame-Duck Index). It is derived purely from our two proprietary instruments — transparent and defensible. The signals below are bilateral context, deliberately NOT folded into the number.',
+    sidesEyebrow: 'The two birds',
+    sidesTitle: 'Each side, its own instrument.',
+    canadaSub: 'Canada Goose Index',
+    usSub: 'Lame-Duck Index',
+    strengthLabel: 'residual strength',
+    openIndex: 'Open index',
+    contextEyebrow: 'Bilateral context',
+    contextTitle: 'Signals around the table.',
+    contextBody: 'Real relational data — shown as context, not part of the gap calculation.',
+    cadTitle: 'Loonie (USD→CAD)',
+    favTitle: 'U.S. favourability of Canada',
+    tariffTitle: 'Tariff market',
+    viewMarket: 'View market',
+  },
+  fr: {
+    title: 'Duel ACEUM — Bernache contre Canard boiteux — Vote-Scope',
+    description:
+      "Qui mène la table de négociation de l'ACEUM ? Le Duel ACEUM oppose l'Indice Bernache à l'Indice canard boiteux de Trump en un seul écart de levier. Positif = avantage Canada.",
+    eyebrow: 'Vote-Scope · ACEUM · Duel live',
+    headline: 'Bernache contre Canard boiteux.',
+    dek:
+      "Qui apporte le plus de poids à la table de l'ACEUM ? Le duel soustrait la force résiduelle de Trump de celle de Carney, en un seul écart de levier. Positif = le Canada mène, négatif = les É.-U. mènent.",
+    updated: 'Mis à jour',
+    methodEyebrow: 'Comment l’écart fonctionne',
+    methodTitle: 'Un nombre, deux instruments.',
+    methodBody:
+      "L’écart, c’est l’Indice Bernache moins la force de Trump (100 − Indice canard boiteux). Il est tiré uniquement de nos deux instruments propriétaires — transparent et défendable. Les signaux ci-dessous sont du contexte bilatéral, volontairement PAS fondus dans le nombre.",
+    sidesEyebrow: 'Les deux oiseaux',
+    sidesTitle: 'Chaque camp, son propre instrument.',
+    canadaSub: 'Indice Bernache',
+    usSub: 'Indice canard boiteux',
+    strengthLabel: 'force résiduelle',
+    openIndex: 'Ouvrir l’indice',
+    contextEyebrow: 'Contexte bilatéral',
+    contextTitle: 'Les signaux autour de la table.',
+    contextBody: 'De la vraie data relationnelle — affichée comme contexte, hors du calcul de l’écart.',
+    cadTitle: 'Huard (USD→CAD)',
+    favTitle: 'Favourabilité du Canada aux É.-U.',
+    tariffTitle: 'Marché des tarifs',
+    viewMarket: 'Voir le marché',
+  },
+  es: {
+    title: 'Duelo T-MEC — Ganso vs Pato cojo — Vote-Scope',
+    description:
+      '¿Quién lidera la mesa del T-MEC? El Duelo T-MEC enfrenta el Canada Goose Index al Lame-Duck Index en una sola brecha de ventaja. Positivo = Canadá adelante.',
+    eyebrow: 'Vote-Scope · T-MEC · Duelo en vivo',
+    headline: 'Ganso vs Pato cojo.',
+    dek: '¿Quién aporta más peso a la mesa del T-MEC? El duelo resta la fuerza residual de Trump a la de Carney, en una sola brecha de ventaja.',
+    updated: 'Actualizado',
+    methodEyebrow: 'Cómo funciona la brecha',
+    methodTitle: 'Un número, dos instrumentos.',
+    methodBody:
+      'La brecha es el Canada Goose Index menos la fuerza de Trump (100 − Lame-Duck Index). Derivada solo de nuestros dos instrumentos propios. Las señales abajo son contexto bilateral, no parte del cálculo.',
+    sidesEyebrow: 'Las dos aves',
+    sidesTitle: 'Cada lado, su instrumento.',
+    canadaSub: 'Canada Goose Index',
+    usSub: 'Lame-Duck Index',
+    strengthLabel: 'fuerza residual',
+    openIndex: 'Abrir índice',
+    contextEyebrow: 'Contexto bilateral',
+    contextTitle: 'Señales alrededor de la mesa.',
+    contextBody: 'Datos relacionales reales — como contexto, fuera del cálculo de la brecha.',
+    cadTitle: 'Loonie (USD→CAD)',
+    favTitle: 'Favorabilidad de Canadá en EE. UU.',
+    tariffTitle: 'Mercado de aranceles',
+    viewMarket: 'Ver mercado',
+  },
+} as const;
+
+const t = copy[locale] ?? copy.en;
+const canonical = `https://vote-scope.com${canonicalPath}`;
+const sides = data.sides;
+const ctx = data.context_signals ?? {};
+const canadaHref = locale === 'fr' ? sides.canada?.href_fr : sides.canada?.href_en;
+const usHref = locale === 'fr' ? sides.us?.href_fr : sides.us?.href_en;
+const gapLabel = showdownLabel(data.showdown, locale);
+
+const alternates = {
+  en: 'https://vote-scope.com/en/indexes/cusma-showdown',
+  fr: 'https://vote-scope.com/fr/indexes/cusma-showdown',
+  es: 'https://vote-scope.com/es/indexes/cusma-showdown',
+};
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Dataset',
+    name: 'CUSMA Showdown — leverage gap',
+    description: t.description,
+    creator: { '@type': 'Person', name: 'Kim Leclerc', url: 'https://kimleclerc.ca' },
+    publisher: { '@type': 'Organization', name: 'Vote-Scope', url: 'https://vote-scope.com' },
+    url: canonical,
+    isAccessibleForFree: true,
+    distribution: {
+      '@type': 'DataDownload',
+      contentUrl: 'https://vote-scope.com/web_data/cusma-showdown/latest.json',
+      encodingFormat: 'application/json',
+    },
+  },
+];
+
+const cad = ctx.cad_usd;
+const fav = ctx.canada_favourability;
+const tariff = ctx.tariff_market;
+const favNote = fav ? (locale === 'fr' ? fav.note_fr : fav.note_en) : '';
+const delta = data.showdown.delta_7d;
+const deltaArrow = typeof delta === 'number' ? (delta > 0 ? '▲' : delta < 0 ? '▼' : '—') : '—';
+---
+
+<EditorialLayout
+  title={t.title}
+  description={t.description}
+  canonical={canonical}
+  lang={locale}
+  currentPage="indexes"
+  ogImage="https://vote-scope.com/og/cusma-showdown.png"
+  alternates={alternates}
+  jsonLd={jsonLd}
+>
+  <article class="lame-duck-page">
+    <header class="lame-duck-hero container">
+      <div class="lame-duck-hero-copy">
+        <p class="lame-duck-kicker">{t.eyebrow}</p>
+        <h1 class="lame-duck-title">{t.headline}</h1>
+        <p class="lame-duck-dek">{t.dek}</p>
+        <div class="lame-duck-meta">
+          <span>{t.updated} {data.computed.asOfLabel}</span>
+          <span aria-hidden="true">·</span>
+          <span>v{data.meta.version ?? '1.0'}</span>
+          <span aria-hidden="true">·</span>
+          <span>{data.computed.dataQualityLabel[locale] ?? data.computed.dataQualityLabel.en}</span>
+        </div>
+      </div>
+
+      <aside class="lame-duck-meter-card" aria-label={t.headline}>
+        <div class="lame-duck-meter-head">
+          <div>
+            <h2>{t.headline}</h2>
+            <p>{gapLabel} · {deltaArrow} {typeof delta === 'number' ? Math.abs(delta).toFixed(1) : '—'}</p>
+          </div>
+          <span>LIVE</span>
+        </div>
+        <CusmaTugOfWar
+          gap={data.showdown.gap}
+          zones={data.zones}
+          leader={data.showdown.leader}
+          label={gapLabel}
+          locale={locale}
+          client:visible
+        />
+      </aside>
+    </header>
+
+    <section class="content-band" id="sides">
+      <div class="container">
+        <p class="eyebrow">{t.sidesEyebrow}</p>
+        <div class="content-grid-2">
+          <div><h2>{t.sidesTitle}</h2></div>
+          <div></div>
+        </div>
+        <div class="lame-duck-stats" style="margin-top:1.5rem">
+          <article style={`border-left:4px solid ${sides.canada?.color ?? '#2f6fb0'};padding-left:1rem`}>
+            <p>{sides.canada?.name} · {t.canadaSub}</p>
+            <strong class="is-blue">{sides.canada?.score?.toFixed(1)}<span>/100</span></strong>
+            <em>{showdownLabel({ label_en: sides.canada?.label_en, label_fr: sides.canada?.label_fr }, locale)}</em>
+            {canadaHref && <a class="btn-outline" href={canadaHref} style="margin-top:.6rem;display:inline-block">{t.openIndex} ↗</a>}
+          </article>
+          <article style={`border-left:4px solid ${sides.us?.color ?? '#c94040'};padding-left:1rem`}>
+            <p>{sides.us?.name} · {t.usSub}</p>
+            <strong class="is-red">{sides.us?.strength?.toFixed(1)}<span>/100</span></strong>
+            <em>{t.strengthLabel} · LDI {sides.us?.ldi?.toFixed(1)}</em>
+            {usHref && <a class="btn-outline" href={usHref} style="margin-top:.6rem;display:inline-block">{t.openIndex} ↗</a>}
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="content-band" id="methodology">
+      <div class="container">
+        <p class="eyebrow">{t.methodEyebrow}</p>
+        <div class="content-grid-2">
+          <div><h2>{t.methodTitle}</h2></div>
+          <div><p>{t.methodBody}</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="content-band" id="context">
+      <div class="container">
+        <p class="eyebrow">{t.contextEyebrow}</p>
+        <div class="content-grid-2">
+          <div><h2>{t.contextTitle}</h2></div>
+          <div><p>{t.contextBody}</p></div>
+        </div>
+        <div class="lame-duck-stats" style="margin-top:1.5rem">
+          {cad && (
+            <article>
+              <p>{t.cadTitle}</p>
+              <strong>{cad.value.toFixed(4)}</strong>
+              <em>{cad.source} · {cad.as_of}</em>
+            </article>
+          )}
+          {fav && (
+            <article>
+              <p>{t.favTitle}</p>
+              <strong>{fav.value}%</strong>
+              <em>{fav.source} · {fav.as_of}</em>
+            </article>
+          )}
+          {tariff && (
+            <article>
+              <p>{t.tariffTitle}</p>
+              <strong style="font-size:1.1rem;line-height:1.3">{locale === 'fr' ? tariff.label_fr : tariff.label_en}</strong>
+              {tariff.market_url && <a class="btn-outline" href={tariff.market_url} target="_blank" rel="noopener" style="margin-top:.6rem;display:inline-block">{t.viewMarket} ↗</a>}
+            </article>
+          )}
+        </div>
+        {favNote && <p class="note-card" style="margin-top:1.25rem;max-width:680px">{favNote}</p>}
+      </div>
+    </section>
+  </article>
+</EditorialLayout>

@@ -1,0 +1,331 @@
+---
+import EditorialLayout from '../../layouts/EditorialLayout.astro';
+import GooseMeter from '../../islands/GooseMeter.tsx';
+import LiveTicker from '../../islands/LiveTicker.tsx';
+import GooseBreakdown from '../../islands/GooseBreakdown.tsx';
+import GooseHistory from '../../islands/GooseHistory.tsx';
+import type { GooseData, GooseLocale } from '../../data/canadaGoose';
+import '../../styles/lame-duck.css';
+
+interface Props {
+  data: GooseData;
+  locale: GooseLocale;
+  canonicalPath: string;
+}
+
+const { data, locale, canonicalPath } = Astro.props;
+
+const copy = {
+  en: {
+    title: 'Canada Goose Index — Vote-Scope',
+    description:
+      "Tracks Mark Carney's negotiating strength in the CUSMA review — updated as data lands. Six public signals — electoral lead, seat projection, government approval, Nanos confidence, national mood, and mandate runway — combined into one 0–100 score.",
+    eyebrow: 'Vote-Scope Canada · Live instrument',
+    headline: 'The Canada Goose Index.',
+    dek:
+      "A composite score measuring how much standing Mark Carney brings to the CUSMA table. Six weighted components, real public data, zero opinion. The goose climbs as Canada's position strengthens.",
+    updated: 'Updated',
+    methodology: 'How it works',
+    history: 'View history',
+    meterTitle: 'The Canada Goose Meter',
+    meterSub: 'Composite · Updated as data lands',
+    live: 'Live',
+    readingLabel: "Today's reading",
+    leadStat: 'Liberal lead',
+    runwayStat: 'Days to next election',
+    methodTitle: 'How we measure the honk.',
+    methodBody:
+      'The Index is a composite score, not an opinion. Six components, all from publicly available Canadian polling, the VoteScope federal model, and the Bloomberg/Nanos confidence series. Higher means a stronger negotiating posture.',
+    methodEyebrow: 'Methodology',
+    breakdownEyebrow: 'Component Breakdown',
+    breakdownTitle: 'Six signals, one number.',
+    breakdownBody:
+      'Each component is public, weighted, and visible. Personal Carney approval and the "who handles Trump best" question are the phase-2 upgrade — they are not yet in the data, so we do not fake them.',
+    historyEyebrow: 'Historical Series',
+    historyTitle: 'Since launch.',
+    historyBody:
+      'The series builds one reading at a time. Watch the goose track Carney’s standing through the CUSMA review.',
+    mandateEyebrow: 'Mandate',
+    mandateTitle: 'A fresh majority, years of runway.',
+    mandateBody:
+      'Where Trump faces a midterms clock, Carney holds a fresh mandate. The federal model and the calendar both feed the index.',
+    seatsLabel: 'Projected Liberal seats',
+    majorityLabel: 'Majority probability',
+    voteLabel: 'Projected vote share',
+    cusmaEyebrow: 'CUSMA Showdown',
+    cusmaTitle: 'Goose vs Lame Duck.',
+    cusmaBody:
+      'The Canada Goose Index is one half of the matchup. The CUSMA showdown layer pits it against the Trump Lame-Duck Index to read who leads the negotiating table — coming next.',
+    cusmaCta: 'See the Lame-Duck Index',
+  },
+  fr: {
+    title: 'Indice Bernache (Canada Goose) — Vote-Scope',
+    description:
+      "Mesure la force de négociation de Mark Carney dans la révision de l'ACEUM — mise à jour au fil des données. Six signaux publics — avance électorale, projection de sièges, approbation du gouvernement, confiance Nanos, humeur nationale et horizon de mandat — combinés en un score de 0 à 100.",
+    eyebrow: 'Vote-Scope Canada · Instrument live',
+    headline: 'L’Indice Bernache.',
+    dek:
+      "Un score composite mesurant le poids que Mark Carney apporte à la table de l'ACEUM. Six composantes pondérées, de la vraie data publique, zéro opinion. La bernache monte à mesure que la position du Canada se renforce.",
+    updated: 'Mis à jour',
+    methodology: 'Méthodologie',
+    history: 'Voir l’historique',
+    meterTitle: 'Le Mètre Bernache',
+    meterSub: 'Composite · Mis à jour au fil des données',
+    live: 'Live',
+    readingLabel: 'Lecture du jour',
+    leadStat: 'Avance libérale',
+    runwayStat: 'Jours avant l’élection',
+    methodTitle: 'Comment on mesure le klaxon.',
+    methodBody:
+      "L’indice est un score composite, pas une opinion. Six composantes, toutes tirées de sondages canadiens publics, du modèle fédéral VoteScope et de la série de confiance Bloomberg/Nanos. Plus le score est élevé, plus la posture de négociation est forte.",
+    methodEyebrow: 'Méthodologie',
+    breakdownEyebrow: 'Détail des composantes',
+    breakdownTitle: 'Six signaux, un seul nombre.',
+    breakdownBody:
+      "Chaque composante est publique, pondérée et visible. La cote personnelle de Carney et la question « qui gère le mieux Trump » sont l’amélioration de phase 2 — elles ne sont pas encore dans les données, donc on ne les invente pas.",
+    historyEyebrow: 'Série historique',
+    historyTitle: 'Depuis le lancement.',
+    historyBody:
+      "La série se construit une lecture à la fois. Suivez la bernache au fil de la révision de l’ACEUM.",
+    mandateEyebrow: 'Mandat',
+    mandateTitle: 'Une majorité fraîche, des années de marge.',
+    mandateBody:
+      "Là où Trump affronte l’horloge des midterms, Carney détient un mandat frais. Le modèle fédéral et le calendrier nourrissent tous deux l’indice.",
+    seatsLabel: 'Sièges libéraux projetés',
+    majorityLabel: 'Probabilité de majorité',
+    voteLabel: 'Part du vote projetée',
+    cusmaEyebrow: 'Duel ACEUM',
+    cusmaTitle: 'Bernache contre Canard boiteux.',
+    cusmaBody:
+      "L’Indice Bernache n’est qu’une moitié de l’affrontement. La couche duel ACEUM l’oppose à l’Indice canard boiteux de Trump pour lire qui mène la table de négociation — à venir.",
+    cusmaCta: 'Voir l’Indice canard boiteux',
+  },
+  es: {
+    title: 'Canada Goose Index — Vote-Scope',
+    description:
+      'Mide la fuerza negociadora de Mark Carney en la revisión del T-MEC — actualizado según llegan los datos. Seis señales públicas combinadas en un puntaje de 0 a 100.',
+    eyebrow: 'Vote-Scope Canadá · Instrumento en vivo',
+    headline: 'El Canada Goose Index.',
+    dek:
+      'Un puntaje compuesto que mide cuánto peso aporta Mark Carney a la mesa del T-MEC. Seis componentes ponderados, datos públicos reales, cero opinión.',
+    updated: 'Actualizado',
+    methodology: 'Metodología',
+    history: 'Ver historial',
+    meterTitle: 'El medidor Canada Goose',
+    meterSub: 'Compuesto · Actualizado según llegan los datos',
+    live: 'En vivo',
+    readingLabel: 'Lectura de hoy',
+    leadStat: 'Ventaja liberal',
+    runwayStat: 'Días hasta la elección',
+    methodTitle: 'Cómo medimos el graznido.',
+    methodBody:
+      'El índice es un puntaje compuesto, no una opinión. Seis componentes de sondeos canadienses públicos, el modelo federal de VoteScope y la serie de confianza Bloomberg/Nanos. Más alto = postura negociadora más fuerte.',
+    methodEyebrow: 'Metodología',
+    breakdownEyebrow: 'Desglose de componentes',
+    breakdownTitle: 'Seis señales, un número.',
+    breakdownBody:
+      'Cada componente es público, ponderado y visible. La aprobación personal de Carney y la pregunta "quién maneja mejor a Trump" son la mejora de fase 2 — aún no están en los datos, así que no las inventamos.',
+    historyEyebrow: 'Serie histórica',
+    historyTitle: 'Desde el lanzamiento.',
+    historyBody: 'La serie se construye lectura a lectura.',
+    mandateEyebrow: 'Mandato',
+    mandateTitle: 'Una mayoría fresca, años de margen.',
+    mandateBody:
+      'Donde Trump enfrenta el reloj de las intermedias, Carney tiene un mandato fresco. El modelo federal y el calendario alimentan el índice.',
+    seatsLabel: 'Escaños liberales proyectados',
+    majorityLabel: 'Probabilidad de mayoría',
+    voteLabel: 'Voto proyectado',
+    cusmaEyebrow: 'Duelo T-MEC',
+    cusmaTitle: 'Ganso contra Pato cojo.',
+    cusmaBody:
+      'El Canada Goose Index es una mitad del enfrentamiento. La capa del duelo T-MEC lo enfrenta al Lame-Duck Index de Trump — próximamente.',
+    cusmaCta: 'Ver el Lame-Duck Index',
+  },
+} as const;
+
+const t = copy[locale] ?? copy.en;
+const canonical = `https://vote-scope.com${canonicalPath}`;
+const lameDuckHref = locale === 'es' ? '/es/us/indexes/lame-duck/' : locale === 'fr' ? '/fr/us/indexes/lame-duck/' : '/en/us/indexes/lame-duck/';
+
+const alternates = {
+  en: 'https://vote-scope.com/en/canada/indexes/canada-goose/',
+  fr: 'https://vote-scope.com/fr/canada/indexes/canada-goose/',
+  es: 'https://vote-scope.com/es/canada/indexes/canada-goose/',
+};
+
+const homeLabel = 'Vote-Scope';
+const countryLabel = locale === 'fr' ? 'Canada' : locale === 'es' ? 'Canadá' : 'Canada';
+const breadcrumbItems = [
+  { '@type': 'ListItem', position: 1, name: homeLabel, item: `https://vote-scope.com/${locale}/` },
+  { '@type': 'ListItem', position: 2, name: countryLabel, item: `https://vote-scope.com/${locale}/canada/` },
+  { '@type': 'ListItem', position: 3, name: 'Canada Goose Index', item: canonical },
+];
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Dataset',
+    name: 'Canada Goose Index (CGI)',
+    description: t.description,
+    creator: { '@type': 'Person', name: 'Kim Leclerc', url: 'https://kimleclerc.ca' },
+    publisher: { '@type': 'Organization', name: 'Vote-Scope', url: 'https://vote-scope.com' },
+    temporalCoverage: `${data.meta.mandate_start ?? '2026-04-28'}/..`,
+    url: canonical,
+    isAccessibleForFree: true,
+    distribution: {
+      '@type': 'DataDownload',
+      contentUrl: 'https://vote-scope.com/web_data/ca-canada-goose/latest.json',
+      encodingFormat: 'application/json',
+    },
+  },
+  { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: breadcrumbItems },
+];
+
+const mandate = data.mandate ?? {};
+const delta = data.cgi.delta_7d;
+const deltaArrow = typeof delta === 'number' ? (delta > 0 ? '▲' : delta < 0 ? '▼' : '—') : '—';
+const deltaTone = typeof delta === 'number' ? (delta > 0 ? 'is-up' : delta < 0 ? 'is-down' : 'is-flat') : 'is-flat';
+---
+
+<EditorialLayout
+  title={t.title}
+  description={t.description}
+  canonical={canonical}
+  lang={locale}
+  currentPage="canada"
+  ogImage="https://vote-scope.com/og/canada-goose.png"
+  alternates={alternates}
+  jsonLd={jsonLd}
+>
+  <article class="lame-duck-page">
+    <header class="lame-duck-hero container">
+      <div class="lame-duck-hero-copy">
+        <p class="lame-duck-kicker">{t.eyebrow}</p>
+        <h1 class="lame-duck-title">{t.headline}</h1>
+        <p class="lame-duck-dek">{t.dek}</p>
+        <div class="lame-duck-meta">
+          <span>{t.updated} {data.computed.asOfLabel}</span>
+          <span aria-hidden="true">·</span>
+          <span>CGI v{data.meta.version ?? '1.0'}</span>
+          <span aria-hidden="true">·</span>
+          <span>{data.computed.dataQualityLabel[locale] ?? data.computed.dataQualityLabel.en}</span>
+        </div>
+        <div class="lame-duck-actions">
+          <a class="btn-primary" href="#methodology">{t.methodology}</a>
+          <a class="btn-outline" href="#history">{t.history}</a>
+        </div>
+
+        <div class="lame-duck-stats" aria-label="Canada Goose live stats">
+          <article>
+            <p>{t.readingLabel}</p>
+            <strong>{data.cgi.score.toFixed(1)}<span>/100</span></strong>
+            <em class={deltaTone}>{deltaArrow} {typeof delta === 'number' ? Math.abs(delta).toFixed(1) : '—'} · 7{locale === 'en' ? 'd' : locale === 'es' ? 'd' : 'j'}</em>
+          </article>
+          <article>
+            <p>{t.leadStat}</p>
+            <strong class="is-blue">{data.computed.leadLabel}</strong>
+            <em>338 / model</em>
+          </article>
+          <article>
+            <p>{t.runwayStat}</p>
+            <strong>{data.computed.daysToElection ?? '—'}</strong>
+            <em>{mandate.next_election ?? data.meta.next_election}</em>
+          </article>
+        </div>
+      </div>
+
+      <aside class="lame-duck-meter-card" aria-label={t.meterTitle}>
+        <div class="lame-duck-meter-head">
+          <div>
+            <h2>{t.meterTitle}</h2>
+            <p>{t.meterSub}</p>
+          </div>
+          <span>{t.live}</span>
+        </div>
+        <GooseMeter
+          score={data.cgi.score}
+          locale={locale}
+          zones={data.zones}
+          qualityNote={data.computed.dataQualityLabel[locale] ?? data.computed.dataQualityLabel.en}
+          client:visible
+        />
+      </aside>
+    </header>
+
+    <LiveTicker items={data.ticker} client:idle />
+
+    <section class="content-band" id="methodology">
+      <div class="container">
+        <p class="eyebrow">{t.methodEyebrow}</p>
+        <div class="content-grid-2">
+          <div><h2>{t.methodTitle}</h2></div>
+          <div><p>{t.methodBody}</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="content-band" id="breakdown">
+      <div class="container">
+        <p class="eyebrow">{t.breakdownEyebrow}</p>
+        <div class="content-grid-2">
+          <div><h2>{t.breakdownTitle}</h2></div>
+          <div><p>{t.breakdownBody}</p></div>
+        </div>
+        <GooseBreakdown components={data.components} locale={locale} client:visible />
+      </div>
+    </section>
+
+    <section class="content-band" id="history">
+      <div class="container">
+        <p class="eyebrow">{t.historyEyebrow}</p>
+        <div class="content-grid-2">
+          <div><h2>{t.historyTitle}</h2></div>
+          <div><p>{t.historyBody}</p></div>
+        </div>
+        <GooseHistory history={data.history} currentScore={data.cgi.score} locale={locale} client:visible />
+      </div>
+    </section>
+
+    <section class="content-band" id="mandate">
+      <div class="container">
+        <p class="eyebrow">{t.mandateEyebrow}</p>
+        <div class="content-grid-2">
+          <div><h2>{t.mandateTitle}</h2></div>
+          <div><p>{t.mandateBody}</p></div>
+        </div>
+        <div class="lame-duck-stats" style="margin-top:1.5rem">
+          <article>
+            <p>{t.seatsLabel}</p>
+            <strong class="is-blue">{mandate.seats_mean ?? '—'}</strong>
+            <em>/ {mandate.total_seats ?? 343}</em>
+          </article>
+          <article>
+            <p>{t.majorityLabel}</p>
+            <strong>{typeof mandate.p_majority === 'number' ? `${Math.round(mandate.p_majority * 100)}%` : '—'}</strong>
+            <em>10k sims</em>
+          </article>
+          <article>
+            <p>{t.voteLabel}</p>
+            <strong>{typeof mandate.vote_mean === 'number' ? `${mandate.vote_mean.toFixed(1)}%` : '—'}</strong>
+            <em>LIB</em>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="content-band" id="cusma">
+      <div class="container">
+        <p class="eyebrow">{t.cusmaEyebrow}</p>
+        <div class="content-grid-2">
+          <div><h2>{t.cusmaTitle}</h2></div>
+          <div>
+            <p>{t.cusmaBody}</p>
+            <div class="lame-duck-actions" style="margin-top:1rem">
+              <a class="btn-outline" href={lameDuckHref}>{t.cusmaCta}</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </article>
+</EditorialLayout>

@@ -10,6 +10,7 @@ import { specialElections } from '../../../data/specialElections';
 import ldiData from '../../../../web_data/us-lame-duck/latest.json';
 import houseData from '../../../../web_data/us-house/latest.json';
 import senateData from '../../../../web_data/us-senate/latest.json';
+import showdownData from '../../../../web_data/cusma-showdown/latest.json';
 
 const ldi = ldiData.ldi;
 const houseDem = (houseData.parties as Array<{party:string;seats_projected:number;p_majority:number;label_en:string;color:string}>).find((p) => p.party === 'us_dem')!;
@@ -94,6 +95,11 @@ const deltaSign = ldi.delta_7d >= 0 ? '+' : '';
             </p>
             <p>D majority probability: <strong>{Math.round(senateDem.p_majority * 100)}%</strong></p>
             <a href="/en/us/senate/" class="cta-link" style="font-size:0.85rem;">Senate projection →</a>
+          </div>
+          <div class="note-card" style={`border-left:4px solid ${showdownData.showdown.zone_color};`}>
+            <p class="eyebrow">CUSMA Showdown</p>
+            <p>Leverage gap: <strong style={`color:${showdownData.showdown.zone_color};`}>{showdownData.showdown.gap > 0 ? '+' : ''}{showdownData.showdown.gap}</strong> — {showdownData.showdown.label_en}</p>
+            <a href="/en/indexes/cusma-showdown/" class="cta-link" style="font-size:0.85rem;">Goose vs Lame Duck →</a>
           </div>
         </div>
       </div>

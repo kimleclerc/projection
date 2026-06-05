@@ -9,6 +9,8 @@ import federalData from '../../../../web_data/federal/latest.json';
 import quebecData from '../../../../web_data/quebec/latest.json';
 import ontarioData from '../../../../web_data/ontario/latest.json';
 import fraserData from '../../../../web_data/on-fraser-interim/latest.json';
+import gooseData from '../../../../web_data/ca-canada-goose/latest.json';
+import showdownData from '../../../../web_data/cusma-showdown/latest.json';
 
 const meta = federalData.meta;
 const parties = federalData.parties as Array<{
@@ -148,6 +150,23 @@ const onMaj = Math.round(onTop.p_majority * 100);
         </p>
         <p style="font-family:var(--mono);font-size:0.8rem;color:var(--ink-3);">{fraserData.index.label_en}</p>
         <p style="margin-top:1rem;"><a href="/en/indexes/fraser-interim/" class="cta-link" style="font-family:var(--mono);font-size:0.8rem;text-transform:uppercase;letter-spacing:.08em;">Open Fraser Interim Index →</a></p>
+      </div>
+      <div class="note-card" style={`border-left:4px solid ${gooseData.cgi.zone_color};`}>
+        <p class="eyebrow">CUSMA · Live instrument</p>
+        <h3 style="font-family:var(--serif);font-size:1.4rem;margin:0.25rem 0;">Canada Goose Index</h3>
+        <p style="font-size:2rem;font-weight:700;margin:0.25rem 0;">
+          <AnimatedNumber client:visible value={gooseData.cgi.score} decimals={1} />
+          <span style="font-size:1rem;font-weight:400;">/100</span>
+        </p>
+        <p style="font-family:var(--mono);font-size:0.8rem;color:var(--ink-3);">{gooseData.cgi.label_en}</p>
+        <p style="margin-top:1rem;"><a href="/en/canada/indexes/canada-goose/" class="cta-link" style="font-family:var(--mono);font-size:0.8rem;text-transform:uppercase;letter-spacing:.08em;">Open Canada Goose Index →</a></p>
+      </div>
+      <div class="note-card" style={`border-left:4px solid ${showdownData.showdown.zone_color};`}>
+        <p class="eyebrow">CUSMA · Duel</p>
+        <h3 style="font-family:var(--serif);font-size:1.4rem;margin:0.25rem 0;">CUSMA Showdown</h3>
+        <p style="font-size:2rem;font-weight:700;margin:0.25rem 0;">{showdownData.showdown.gap > 0 ? '+' : ''}{showdownData.showdown.gap}</p>
+        <p style="font-family:var(--mono);font-size:0.8rem;color:var(--ink-3);">{showdownData.showdown.label_en}</p>
+        <p style="margin-top:1rem;"><a href="/en/indexes/cusma-showdown/" class="cta-link" style="font-family:var(--mono);font-size:0.8rem;text-transform:uppercase;letter-spacing:.08em;">Open CUSMA Showdown →</a></p>
       </div>
     </div>
   </section>

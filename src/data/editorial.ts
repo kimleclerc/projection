@@ -73,7 +73,7 @@ export const desks: Record<'en' | 'fr' | 'es', Desk[]> = {
       description:
         'Federal, Quebec, Ontario, by-elections, riding risk, and the path from public polls to seat pressure.',
       href: '/en/canada/',
-      signal: 'Riding-level projections remain the backbone',
+      signal: 'Canada Goose Index is now live',
     },
     {
       id: 'sports',
@@ -105,7 +105,7 @@ export const desks: Record<'en' | 'fr' | 'es', Desk[]> = {
       description:
         'Fédéral, Québec, Ontario, partielles, risque par circonscription et passage des sondages à la pression en sièges.',
       href: '/fr/canada/',
-      signal: 'Les projections par circonscription restent la colonne vertébrale',
+      signal: 'L’indice Bernache est maintenant en ligne',
     },
     {
       id: 'sports',
@@ -137,7 +137,7 @@ export const desks: Record<'en' | 'fr' | 'es', Desk[]> = {
       description:
         'Federal, Quebec, Ontario, parciales, riesgo por circunscripción y el paso de las encuestas a la presión en escaños.',
       href: '/en/canada/',
-      signal: 'Las proyecciones por circunscripción siguen siendo la columna vertebral',
+      signal: 'El Canada Goose Index ya está en vivo',
     },
     {
       id: 'sports',
@@ -165,6 +165,30 @@ export const instruments: Record<'en' | 'fr' | 'es', Instrument[]> = {
       status: 'live',
       cadence: 'Daily / weekly inputs',
       metric: 'Current score from web_data/us-lame-duck/latest.json',
+    },
+    {
+      id: 'canada-goose',
+      name: 'Canada Goose Index',
+      family: 'Power',
+      question: 'How much standing does Carney bring to the CUSMA table?',
+      description:
+        'A composite of Liberal electoral lead, seat projection, government approval, Nanos confidence, national mood, and mandate runway. Higher = stronger negotiating posture.',
+      href: '/en/canada/indexes/canada-goose/',
+      status: 'live',
+      cadence: 'As data lands',
+      metric: 'Current score from web_data/ca-canada-goose/latest.json',
+    },
+    {
+      id: 'cusma-showdown',
+      name: 'CUSMA Showdown',
+      family: 'Power',
+      question: 'Who leads the CUSMA negotiating table — Carney or Trump?',
+      description:
+        'Pits the Canada Goose Index against the Trump Lame-Duck Index in one leverage-gap number. Positive = Canada ahead.',
+      href: '/en/indexes/cusma-showdown/',
+      status: 'live',
+      cadence: 'Daily',
+      metric: 'Leverage gap from web_data/cusma-showdown/latest.json',
     },
     {
       id: 'majority-fragility',
@@ -248,6 +272,30 @@ export const instruments: Record<'en' | 'fr' | 'es', Instrument[]> = {
       metric: 'Score courant depuis web_data/us-lame-duck/latest.json',
     },
     {
+      id: 'canada-goose',
+      name: 'Indice Bernache',
+      family: 'Power',
+      question: 'Quel poids Carney apporte-t-il à la table de l’ACEUM?',
+      description:
+        'Un composite de l’avance électorale libérale, la projection de sièges, l’approbation du gouvernement, la confiance Nanos, l’humeur nationale et l’horizon de mandat. Plus haut = posture plus forte.',
+      href: '/fr/canada/indexes/canada-goose/',
+      status: 'live',
+      cadence: 'Au fil des données',
+      metric: 'Score courant depuis web_data/ca-canada-goose/latest.json',
+    },
+    {
+      id: 'cusma-showdown',
+      name: 'Duel ACEUM',
+      family: 'Power',
+      question: 'Qui mène la table de l’ACEUM — Carney ou Trump?',
+      description:
+        'Oppose l’Indice Bernache à l’Indice canard boiteux de Trump en un seul écart de levier. Positif = avantage Canada.',
+      href: '/fr/indexes/cusma-showdown/',
+      status: 'live',
+      cadence: 'Quotidien',
+      metric: 'Écart de levier depuis web_data/cusma-showdown/latest.json',
+    },
+    {
       id: 'majority-fragility',
       name: 'Majority Fragility Index',
       family: 'Power',
@@ -327,6 +375,30 @@ export const instruments: Record<'en' | 'fr' | 'es', Instrument[]> = {
       status: 'live',
       cadence: 'Entradas diarias / semanales',
       metric: 'Puntuación actual desde web_data/us-lame-duck/latest.json',
+    },
+    {
+      id: 'canada-goose',
+      name: 'Canada Goose Index',
+      family: 'Power',
+      question: '¿Cuánto peso aporta Carney a la mesa del T-MEC?',
+      description:
+        'Un compuesto de la ventaja electoral liberal, la proyección de escaños, la aprobación del gobierno, la confianza Nanos, el ánimo nacional y el horizonte de mandato. Más alto = postura más fuerte.',
+      href: '/es/canada/indexes/canada-goose/',
+      status: 'live',
+      cadence: 'Según llegan los datos',
+      metric: 'Puntuación actual desde web_data/ca-canada-goose/latest.json',
+    },
+    {
+      id: 'cusma-showdown',
+      name: 'Duelo T-MEC',
+      family: 'Power',
+      question: '¿Quién lidera la mesa del T-MEC — Carney o Trump?',
+      description:
+        'Enfrenta el Canada Goose Index al Lame-Duck Index de Trump en una sola brecha de ventaja. Positivo = Canadá adelante.',
+      href: '/es/indexes/cusma-showdown/',
+      status: 'live',
+      cadence: 'Diario',
+      metric: 'Brecha de ventaja desde web_data/cusma-showdown/latest.json',
     },
     {
       id: 'majority-fragility',

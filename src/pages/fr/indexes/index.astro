@@ -8,6 +8,8 @@ import PolymarketEmbed from '../../../components/PolymarketEmbed.astro';
 import { instruments } from '../../../data/editorial';
 
 import ldiData from '../../../../web_data/us-lame-duck/latest.json';
+import gooseData from '../../../../web_data/ca-canada-goose/latest.json';
+import showdownData from '../../../../web_data/cusma-showdown/latest.json';
 
 const ldi = ldiData.ldi;
 const deltaSign = ldi.delta_7d >= 0 ? '+' : '';
@@ -65,6 +67,27 @@ const deltaSign = ldi.delta_7d >= 0 ? '+' : '';
         <p style="margin-top:1rem;">
           <a href="/fr/us/indexes/lame-duck/" class="cta-link">Index complet →</a>
         </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="content-band">
+    <div class="container">
+      <p class="eyebrow">Maintenant en ligne</p>
+      <h2>Indice Bernache & Duel ACEUM.</h2>
+      <div class="content-grid-2" style="gap:1.5rem;margin-top:1rem;">
+        <div class="note-card" style={`border-left:4px solid ${gooseData.cgi.zone_color};`}>
+          <p class="eyebrow">Indice Bernache · {gooseData.meta.pm}</p>
+          <h3 style="font-size:2.5rem;margin:0.25rem 0;color:var(--text);"><AnimatedNumber client:visible value={gooseData.cgi.score} decimals={1} /><span style="font-size:1.1rem;font-weight:400;">/100</span></h3>
+          <p style={`font-weight:700;color:${gooseData.cgi.zone_color};`}>{gooseData.cgi.label_fr}</p>
+          <p style="margin-top:1rem;"><a href="/fr/canada/indexes/canada-goose/" class="cta-link">Ouvrir l'indice Bernache →</a></p>
+        </div>
+        <div class="note-card" style={`border-left:4px solid ${showdownData.showdown.zone_color};`}>
+          <p class="eyebrow">Duel ACEUM · Bernache vs Canard boiteux</p>
+          <h3 style="font-size:2.5rem;margin:0.25rem 0;color:var(--text);">{showdownData.showdown.gap > 0 ? '+' : ''}{showdownData.showdown.gap}</h3>
+          <p style={`font-weight:700;color:${showdownData.showdown.zone_color};`}>{showdownData.showdown.label_fr}</p>
+          <p style="margin-top:1rem;"><a href="/fr/indexes/cusma-showdown/" class="cta-link">Ouvrir le Duel ACEUM →</a></p>
+        </div>
       </div>
     </div>
   </section>
