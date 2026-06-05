@@ -30,15 +30,15 @@ export const specialElections = {
     modelBadge: 'Fundamentals-only',
     title: 'CA-1 Special Primary Result — Resolved Archive — Vote-Scope',
     description:
-      "Archived result: in the June 2, 2026 CA-1 top-two special primary, Republican James Gallagher led (~47%) with Democrat Mike McGuire second (~38%); both advance to the special general. VoteScope's fundamentals-only model projected the field before election day.",
+      "Archived result: in the June 2, 2026 CA-1 top-two special primary, Republican James Gallagher led (~47%) with Democrat Mike McGuire second (~38%); both advance to the special general. Vote-Scope's fundamentals-only model projected the field before election day.",
     kicker: 'Resolved special primary · June 2, 2026',
     headline: 'CA-1 primary archive.',
     dek:
-      "Resolved archive of the June 2, 2026 top-two special primary. Republican James Gallagher finished first (~47%) and Democrat Mike McGuire second (~38%) — the two advance to the special general in this safely Republican district. VoteScope's fundamentals-only model projected the field before election day.",
+      "Resolved archive of the June 2, 2026 top-two special primary. Republican James Gallagher finished first (~47%) and Democrat Mike McGuire second (~38%) — the two advance to the special general in this safely Republican district. Vote-Scope's fundamentals-only model projected the field before election day.",
     kicker_es: 'Primaria especial resuelta · 2 de junio de 2026',
     headline_es: 'Archivo de la primaria CA-1.',
     dek_es:
-      'Archivo resuelto de la primaria especial top-2 del 2 de junio de 2026. El republicano James Gallagher quedó primero (~47%) y el demócrata Mike McGuire segundo (~38%) — ambos avanzan a la general especial en este distrito seguro republicano. El modelo solo de fundamentos de VoteScope proyectó la contienda antes del día de la elección.',
+      'Archivo resuelto de la primaria especial top-2 del 2 de junio de 2026. El republicano James Gallagher quedó primero (~47%) y el demócrata Mike McGuire segundo (~38%) — ambos avanzan a la general especial en este distrito seguro republicano. El modelo solo de fundamentos de Vote-Scope proyectó la contienda antes del día de la elección.',
     paths: {
       en: '/en/us/specials/ca1/',
       fr: '/fr/us/specials/ca1/',
@@ -90,11 +90,11 @@ export const specialElections = {
     kicker: 'Result locked · April 8, 2026 · Georgia 14',
     headline: "Fuller won.\nWe called it.",
     dek:
-      "VoteScope built this special-election page for a no-polls runoff environment, leaning on first-round structure, district partisanship and 50,000 Monte Carlo simulations. The call held: Clay Fuller won, validating the model's first public special-election projection.",
+      "Vote-Scope built this special-election page for a no-polls runoff environment, leaning on first-round structure, district partisanship and 50,000 Monte Carlo simulations. The call held: Clay Fuller won, validating the model's first public special-election projection.",
     kicker_es: 'Resultado confirmado · 8 de abril de 2026 · Georgia 14',
     headline_es: 'Fuller ganó.\nLo pronosticamos.',
     dek_es:
-      'VoteScope construyó esta página para un entorno de segunda vuelta sin encuestas, apoyándose en la estructura de la primera ronda, el partidismo del distrito y 50 000 simulaciones Monte Carlo. El pronóstico se confirmó: Clay Fuller ganó, validando la primera proyección pública de elección especial del modelo.',
+      'Vote-Scope construyó esta página para un entorno de segunda vuelta sin encuestas, apoyándose en la estructura de la primera ronda, el partidismo del distrito y 50 000 simulaciones Monte Carlo. El pronóstico se confirmó: Clay Fuller ganó, validando la primera proyección pública de elección especial del modelo.',
     paths: {
       en: '/en/us/specials/ga14/',
       fr: '/fr/us/specials/ga14/',
@@ -118,11 +118,11 @@ export const specialElections = {
     kicker: 'Resolved special election · April 16',
     headline: 'NJ-11 result archive.',
     dek:
-      "This page is now a resolved archive. VoteScope projected Analilia Mejia as the clear favorite before election day, and the district finished in a decisive Democratic hold.",
+      "This page is now a resolved archive. Vote-Scope projected Analilia Mejia as the clear favorite before election day, and the district finished in a decisive Democratic hold.",
     kicker_es: 'Elección especial resuelta · 16 de abril',
     headline_es: 'Archivo de resultados NJ-11.',
     dek_es:
-      'Esta página es ahora un archivo resuelto. VoteScope proyectó a Analilia Mejia como la clara favorita antes del día de la elección, y el distrito terminó con una contundente retención demócrata.',
+      'Esta página es ahora un archivo resuelto. Vote-Scope proyectó a Analilia Mejia como la clara favorita antes del día de la elección, y el distrito terminó con una contundente retención demócrata.',
     paths: {
       en: '/en/us/specials/nj11/',
       fr: '/fr/us/specials/nj11/',

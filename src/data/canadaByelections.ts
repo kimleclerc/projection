@@ -119,7 +119,7 @@ export const canadaByelections = {
     kicker: 'Résultat confirmé · 13 avril 2026',
     headline: 'Terrebonne.',
     dek:
-      'Tatiana Auguste et les libéraux gagnent Terrebonne. VoteScope had projected a Liberal gain over the Bloc with 63% confidence before the April 13, 2026 federal by-election — the result confirmed the call.',
+      'Tatiana Auguste et les libéraux gagnent Terrebonne. Vote-Scope had projected a Liberal gain over the Bloc with 63% confidence before the April 13, 2026 federal by-election — the result confirmed the call.',
     electionDate: '2026-04-13',
     result: {
       date_held: '2026-04-13',

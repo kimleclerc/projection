@@ -21,7 +21,7 @@ const d = entry.data;
       <ol class="story-section-list">
         {d.sections.map((s) => (
           <li class="story-section">
-            {s.number && <span class="story-section-number">{s.number}</span>}
+            <span class="story-section-number">{s.number ?? ''}</span>
             <div class="story-section-body">
               <h2>{s.title}</h2>
               <div set:html={s.bodyHtml} />

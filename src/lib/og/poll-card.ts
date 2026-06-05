@@ -3,7 +3,7 @@
  *
  * This is the centerpiece of the polls vertical (cf. project memory
  * votescope-polls-vertical): every shared poll URL resolves to a branded
- * VoteScope topline card — the og:image AND the downloadable share asset.
+ * Vote-Scope topline card — the og:image AND the downloadable share asset.
  *
  * Pure function: caller passes already-localized strings + topline entries,
  * gets back a PNG Buffer. No data fetching here (uniformity / one template).
