@@ -73,6 +73,28 @@ const onMaj = Math.round(onTop.p_majority * 100);
 
   <section class="content-band">
     <div class="container">
+      <p class="eyebrow">ACEUM · Instruments live</p>
+      <div class="content-grid-2" style="gap:1.5rem;align-items:start;">
+        <div class="note-card" style={`border-left:4px solid ${gooseData.cgi.zone_color};`}>
+          <p class="eyebrow">Indice Bernache · {gooseData.meta.pm}</p>
+          <h2 style="font-size:3rem;margin:0.25rem 0;color:var(--text);"><AnimatedNumber client:visible value={gooseData.cgi.score} decimals={1} /><span style="font-size:1.1rem;font-weight:400;">/100</span></h2>
+          <p style={`font-weight:700;color:${gooseData.cgi.zone_color};`}>{gooseData.cgi.label_fr}</p>
+          <p style="margin-top:0.5rem;">Le poids de Carney à la table de négociation de l'ACEUM.</p>
+          <p style="margin-top:0.75rem;"><a href="/fr/canada/indexes/canada-goose/" class="cta-link">Ouvrir l'indice Bernache →</a></p>
+        </div>
+        <div class="note-card" style={`border-left:4px solid ${showdownData.showdown.zone_color};`}>
+          <p class="eyebrow">Duel ACEUM · Bernache vs Canard boiteux</p>
+          <h2 style="font-size:3rem;margin:0.25rem 0;color:var(--text);">{showdownData.showdown.gap > 0 ? '+' : ''}{showdownData.showdown.gap}</h2>
+          <p style={`font-weight:700;color:${showdownData.showdown.zone_color};`}>{showdownData.showdown.label_fr}</p>
+          <p style="margin-top:0.5rem;">Écart de levier face à l'Indice canard boiteux de Trump.</p>
+          <p style="margin-top:0.75rem;"><a href="/fr/indexes/cusma-showdown/" class="cta-link">Ouvrir le Duel ACEUM →</a></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="content-band">
+    <div class="container">
       <p class="eyebrow">Dernier du desk Canada</p>
       <h2>Projection fédérale — au {meta.run_date}</h2>
       <p style="margin-bottom:1.5rem;">Basée sur {meta.n_polls} sondages · {meta.n_simulations.toLocaleString()} simulations</p>
@@ -149,23 +171,6 @@ const onMaj = Math.round(onTop.p_majority * 100);
         </p>
         <p style="font-family:var(--mono);font-size:0.8rem;color:var(--ink-3);">{fraserData.index.label_fr}</p>
         <p style="margin-top:1rem;"><a href="/fr/indexes/fraser-interim/" class="cta-link" style="font-family:var(--mono);font-size:0.8rem;text-transform:uppercase;letter-spacing:.08em;">Ouvrir l'indice Fraser →</a></p>
-      </div>
-      <div class="note-card" style={`border-left:4px solid ${gooseData.cgi.zone_color};`}>
-        <p class="eyebrow">ACEUM · Instrument live</p>
-        <h3 style="font-family:var(--serif);font-size:1.4rem;margin:0.25rem 0;">Indice Bernache</h3>
-        <p style="font-size:2rem;font-weight:700;margin:0.25rem 0;">
-          <AnimatedNumber client:visible value={gooseData.cgi.score} decimals={1} />
-          <span style="font-size:1rem;font-weight:400;">/100</span>
-        </p>
-        <p style="font-family:var(--mono);font-size:0.8rem;color:var(--ink-3);">{gooseData.cgi.label_fr}</p>
-        <p style="margin-top:1rem;"><a href="/fr/canada/indexes/canada-goose/" class="cta-link" style="font-family:var(--mono);font-size:0.8rem;text-transform:uppercase;letter-spacing:.08em;">Ouvrir l'indice Bernache →</a></p>
-      </div>
-      <div class="note-card" style={`border-left:4px solid ${showdownData.showdown.zone_color};`}>
-        <p class="eyebrow">ACEUM · Duel</p>
-        <h3 style="font-family:var(--serif);font-size:1.4rem;margin:0.25rem 0;">Duel ACEUM</h3>
-        <p style="font-size:2rem;font-weight:700;margin:0.25rem 0;">{showdownData.showdown.gap > 0 ? '+' : ''}{showdownData.showdown.gap}</p>
-        <p style="font-family:var(--mono);font-size:0.8rem;color:var(--ink-3);">{showdownData.showdown.label_fr}</p>
-        <p style="margin-top:1rem;"><a href="/fr/indexes/cusma-showdown/" class="cta-link" style="font-family:var(--mono);font-size:0.8rem;text-transform:uppercase;letter-spacing:.08em;">Ouvrir le Duel ACEUM →</a></p>
       </div>
     </div>
   </section>

@@ -73,6 +73,28 @@ const onMaj = Math.round(onTop.p_majority * 100);
 
   <section class="content-band">
     <div class="container">
+      <p class="eyebrow">T-MEC · Instrumentos en vivo</p>
+      <div class="content-grid-2" style="gap:1.5rem;align-items:start;">
+        <div class="note-card" style={`border-left:4px solid ${gooseData.cgi.zone_color};`}>
+          <p class="eyebrow">Canada Goose Index · {gooseData.meta.pm}</p>
+          <h2 style="font-size:3rem;margin:0.25rem 0;color:var(--text);"><AnimatedNumber client:visible value={gooseData.cgi.score} decimals={1} /><span style="font-size:1.1rem;font-weight:400;">/100</span></h2>
+          <p style={`font-weight:700;color:${gooseData.cgi.zone_color};`}>{gooseData.cgi.label_es}</p>
+          <p style="margin-top:0.5rem;">El peso de Carney en la mesa de negociación del T-MEC.</p>
+          <p style="margin-top:0.75rem;"><a href="/es/canada/indexes/canada-goose/" class="cta-link">Abrir el Canada Goose Index →</a></p>
+        </div>
+        <div class="note-card" style={`border-left:4px solid ${showdownData.showdown.zone_color};`}>
+          <p class="eyebrow">Duelo T-MEC · Ganso vs Pato cojo</p>
+          <h2 style="font-size:3rem;margin:0.25rem 0;color:var(--text);">{showdownData.showdown.gap > 0 ? '+' : ''}{showdownData.showdown.gap}</h2>
+          <p style={`font-weight:700;color:${showdownData.showdown.zone_color};`}>{showdownData.showdown.label_es}</p>
+          <p style="margin-top:0.5rem;">Brecha de ventaja frente al Lame-Duck Index de Trump.</p>
+          <p style="margin-top:0.75rem;"><a href="/es/indexes/cusma-showdown/" class="cta-link">Abrir el Duelo T-MEC →</a></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="content-band">
+    <div class="container">
       <p class="eyebrow">Último del desk Canadá</p>
       <h2>Proyección federal — al {meta.run_date}</h2>
       <p style="margin-bottom:1.5rem;">Basada en {meta.n_polls} sondeos · {meta.n_simulations.toLocaleString()} simulaciones</p>
@@ -149,23 +171,6 @@ const onMaj = Math.round(onTop.p_majority * 100);
         </p>
         <p style="font-family:var(--mono);font-size:0.8rem;color:var(--ink-3);">{fraserData.index.label_fr ?? fraserData.index.label_en}</p>
         <p style="margin-top:1rem;"><a href="/es/indexes/fraser-interim/" class="cta-link" style="font-family:var(--mono);font-size:0.8rem;text-transform:uppercase;letter-spacing:.08em;">Abrir el índice Fraser →</a></p>
-      </div>
-      <div class="note-card" style={`border-left:4px solid ${gooseData.cgi.zone_color};`}>
-        <p class="eyebrow">T-MEC · Instrumento en vivo</p>
-        <h3 style="font-family:var(--serif);font-size:1.4rem;margin:0.25rem 0;">Canada Goose Index</h3>
-        <p style="font-size:2rem;font-weight:700;margin:0.25rem 0;">
-          <AnimatedNumber client:visible value={gooseData.cgi.score} decimals={1} />
-          <span style="font-size:1rem;font-weight:400;">/100</span>
-        </p>
-        <p style="font-family:var(--mono);font-size:0.8rem;color:var(--ink-3);">{gooseData.cgi.label_es}</p>
-        <p style="margin-top:1rem;"><a href="/es/canada/indexes/canada-goose/" class="cta-link" style="font-family:var(--mono);font-size:0.8rem;text-transform:uppercase;letter-spacing:.08em;">Abrir el Canada Goose Index →</a></p>
-      </div>
-      <div class="note-card" style={`border-left:4px solid ${showdownData.showdown.zone_color};`}>
-        <p class="eyebrow">T-MEC · Duelo</p>
-        <h3 style="font-family:var(--serif);font-size:1.4rem;margin:0.25rem 0;">Duelo T-MEC</h3>
-        <p style="font-size:2rem;font-weight:700;margin:0.25rem 0;">{showdownData.showdown.gap > 0 ? '+' : ''}{showdownData.showdown.gap}</p>
-        <p style="font-family:var(--mono);font-size:0.8rem;color:var(--ink-3);">{showdownData.showdown.label_es}</p>
-        <p style="margin-top:1rem;"><a href="/es/indexes/cusma-showdown/" class="cta-link" style="font-family:var(--mono);font-size:0.8rem;text-transform:uppercase;letter-spacing:.08em;">Abrir el Duelo T-MEC →</a></p>
       </div>
     </div>
   </section>

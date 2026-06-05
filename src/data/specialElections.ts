@@ -28,17 +28,17 @@ export const specialElections = {
     dataPath: 'ca1-special',
     currentPage: 'usa-hub',
     modelBadge: 'Fundamentals-only',
-    title: 'CA-1 Special Election Forecast — Vote-Scope',
+    title: 'CA-1 Special Primary — Resolved Archive — Vote-Scope',
     description:
-      "Projects the June 2, 2026 CA-1 special primary: top-two odds, runoff risk, and the most likely August pairing. 50,000 simulations, fundamentals model — Vote-Scope.",
-    kicker: 'U.S. House special · June 2, 2026',
-    headline: 'CA-1 special primary forecast.',
+      "Archived: VoteScope's fundamentals-only forecast for the June 2, 2026 CA-1 top-two special primary, preserved as a record of the pre-election model.",
+    kicker: 'Resolved special primary · June 2, 2026',
+    headline: 'CA-1 primary archive.',
     dek:
-      "California's 1st Congressional District gets a special-election desk: a fundamentals-only model for the all-party June 2 primary, with runoff risk, top-two odds and the most likely August pairing.",
-    kicker_es: 'Especial Cámara EE. UU. · 2 de junio de 2026',
-    headline_es: 'Pronóstico de la primaria especial CA-1.',
+      "This special-election desk is now a resolved archive of the June 2, 2026 top-two primary. VoteScope's fundamentals-only model projected the field before election day; the page is kept for the record.",
+    kicker_es: 'Primaria especial resuelta · 2 de junio de 2026',
+    headline_es: 'Archivo de la primaria CA-1.',
     dek_es:
-      'El 1.er Distrito Congresional de California estrena un desk de elección especial: modelo solo de fundamentos para la primaria del 2 de junio, con riesgo de segunda vuelta, probabilidades top-2 y el duelo de agosto más probable.',
+      'Este desk de elección especial es ahora un archivo resuelto de la primaria top-2 del 2 de junio de 2026. El modelo solo de fundamentos de VoteScope proyectó la contienda antes del día de la elección; la página se conserva para el registro.',
     paths: {
       en: '/en/us/specials/ca1/',
       fr: '/fr/us/specials/ca1/',
