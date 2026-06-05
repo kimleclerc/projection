@@ -81,6 +81,7 @@ for (const f of ['_redirects', '_headers']) {
 // Root-level files crawlers, PWAs, and OS launchers expect at /<file>.
 const rootFiles = [
   'robots.txt',
+  'ai.txt',
   'llms.txt',
   'llms-long.txt',
   'llms-full.txt',

@@ -1,8 +1,8 @@
-# VoteScope
+# Vote-Scope
 
 > Projections électorales canadiennes, américaines, françaises et britanniques basées sur un modèle BSTS bayésien avec agrégation de sondages et simulations Monte Carlo. Trilingue (EN/FR/ES). Par Kim Leclerc.
 
-VoteScope (vote-scope.com) est un outil de projection électorale indépendant et non partisan créé par Kim Leclerc (kimleclerc.ca). Il couvre les élections fédérales canadiennes (343 sièges), provinciales du Québec (125) et de l'Ontario (124), la Chambre des représentants américaine (435 districts), le Sénat américain (35 courses contestées en 2026), les élections générales britanniques (650 circonscriptions) et la présidentielle française 2027, avec des pages spéciales d'événement, des index éditoriaux et une page publique de track record.
+Vote-Scope (vote-scope.com) est un outil de projection électorale indépendant et non partisan créé par Kim Leclerc (kimleclerc.ca). Il couvre les élections fédérales canadiennes (343 sièges), provinciales du Québec (125) et de l'Ontario (124), la Chambre des représentants américaine (435 districts), le Sénat américain (35 courses contestées en 2026), les élections générales britanniques (650 circonscriptions) et la présidentielle française 2027, avec des pages spéciales d'événement, des index éditoriaux et une page publique de track record.
 
 Toutes les pages existent en trois langues : anglais (`/en/`), français (`/fr/`) et espagnol (`/es/`). Le site comprend une page individuelle pour chacune des ~1677 circonscriptions/districts (projection, élu·e en exercice, candidats du dernier scrutin, démographie, voisinage, trajectoire), soit plus de 5000 pages au total. Les URLs ci-dessous montrent la variante anglaise canonique ; remplacer `/en/` par `/fr/` ou `/es/` pour les autres langues (les segments de chemin sont localisés : `ridings`→`circonscriptions`→`distritos`, `constituencies`→`circonscriptions`→`circunscripciones`, `house`→`chambre`→`house`, `senate`→`senat`→`senate`).
 
@@ -33,7 +33,7 @@ Le site contient aussi une verticale sport distincte, `Sports Scope`, sous `/en/
 - [Index circonscriptions R.-U.](https://vote-scope.com/en/uk/constituencies/): Les 650 circonscriptions de Westminster ; Irlande du Nord individualisée (DUP, Sinn Féin, SDLP, Alliance, UUP, TUV)
 - [France](https://vote-scope.com/en/france/): Présidentielle française 2027 — scénarios de second tour
 - [Index Fraser intérimaire](https://vote-scope.com/en/indexes/fraser-interim/): Indicateur éditorial sur l'hypothèse du leader intérimaire libéral ontarien
-- [Track Record](https://vote-scope.com/en/track-record/): Historique public des calls VoteScope et du volume net de marchés validés
+- [Track Record](https://vote-scope.com/en/track-record/): Historique public des calls Vote-Scope et du volume net de marchés validés
 - [Méthodologie](https://vote-scope.com/en/methodology/): Description complète du modèle
 - [Sports Scope NHL](https://vote-scope.com/en/sports/nhl/): Projections Coupe Stanley 2025-26 — probabilités, séries, scores, méthode
 - [Sports Scope — Track record](https://vote-scope.com/en/sports/track-record/): Historique des calls sport
@@ -45,10 +45,18 @@ Modèle BSTS (Bayesian Structural Time Series) avec agrégation de sondages pond
 
 Pour `Sports Scope`, la couche publique expose des pages statiques reliées à des exports JSON : modèle BSTS + Monte Carlo + GoalieLayer pour la NHL, comparaisons marché et modules live. Distinction claire entre analyse probabiliste et conseil de pari : le site se présente comme outil d'analyse et de divertissement.
 
+## Conditions, confidentialité & usage IA
+
+Tout accès, extraction ou utilisation du site et de son contenu — y compris l'entraînement ou le fine-tuning de modèles d'IA, directement ou indirectement (datasets tiers ou publics compris) — est régi par les Conditions d'utilisation et vaut acceptation pleine et irrévocable de celles-ci (renonciation perpétuelle, libération de responsabilité, indemnisation, juridiction de l'Ontario, Canada). Voir aussi le fichier `/ai.txt`.
+
+- [Conditions d'utilisation](https://vote-scope.com/fr/conditions) (EN: https://vote-scope.com/en/terms · ES: https://vote-scope.com/es/terminos)
+- [Politique de confidentialité](https://vote-scope.com/fr/confidentialite) (EN: https://vote-scope.com/en/privacy · ES: https://vote-scope.com/es/privacidad)
+- [Notice IA](https://vote-scope.com/ai.txt)
+
 ## Auteur
 
 Kim Leclerc — kimleclerc.ca
 
 ## Licence
 
-Données librement consultables. Citation souhaitée : « VoteScope (vote-scope.com) par Kim Leclerc ».
+Données librement consultables, sous réserve des Conditions d'utilisation (https://vote-scope.com/en/terms). Attribution requise pour toute réutilisation : « Vote-Scope (vote-scope.com) par Kim Leclerc », avec lien vers la source.
