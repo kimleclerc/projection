@@ -22,11 +22,11 @@ const upcoming: UpcomingItem[] = data.upcoming;
 function fmtCurrency(n: number) {
   if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(2)}M`;
   if (n >= 1_000) return `$${Math.round(n / 1_000)}K`;
-  return `$${n.toLocaleString('en-CA')}`;
+  return `$${n.toLocaleString('es-ES')}`;
 }
 
 function fmtDate(iso: string) {
-  return new Date(`${iso}T12:00:00`).toLocaleDateString('en-CA', {
+  return new Date(`${iso}T12:00:00`).toLocaleDateString('es-ES', {
     month: 'long',
     day: 'numeric',
     year: 'numeric',
@@ -35,10 +35,10 @@ function fmtDate(iso: string) {
 ---
 
 <Base
-  title="Track Record — Vote-Scope"
-  description="Every Vote-Scope prediction, tracked and verified: calls made, results confirmed, and prediction-market volume behind each one. Transparency over trust."
-  canonical="https://vote-scope.com/en/track-record/"
-  lang="en"
+  title="Historial de pronósticos — Vote-Scope"
+  description="Cada pronóstico de Vote-Scope, rastreado y verificado: llamadas realizadas, resultados confirmados y el volumen de los mercados de predicción detrás de cada una. Transparencia antes que confianza."
+  canonical="https://vote-scope.com/es/track-record/"
+  lang="es"
   currentPage="intl"
   ogImage="https://vote-scope.com/og/vote-scope.png"
   alternates={{
@@ -47,48 +47,48 @@ function fmtDate(iso: string) {
     es: 'https://vote-scope.com/es/track-record/',
   }}
   jsonLd={[
-    { '@context': 'https://schema.org', '@type': 'WebPage', name: 'Track Record — Vote-Scope', url: 'https://vote-scope.com/en/track-record/', inLanguage: 'en' },
+    { '@context': 'https://schema.org', '@type': 'WebPage', name: 'Historial de pronósticos — Vote-Scope', url: 'https://vote-scope.com/es/track-record/', inLanguage: 'es' },
     { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: 'https://vote-scope.com/en/' },
-      { '@type': 'ListItem', position: 2, name: 'Track Record', item: 'https://vote-scope.com/en/track-record/' },
+      { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: 'https://vote-scope.com/es/' },
+      { '@type': 'ListItem', position: 2, name: 'Historial', item: 'https://vote-scope.com/es/track-record/' },
     ]},
   ]}
 >
   <article class="track-page">
     <header class="track-hero container">
-      <p class="track-kicker">Verified predictions · Updated {fmtDate(meta.last_updated)}</p>
-      <h1>Every call.<br />Every result.</h1>
+      <p class="track-kicker">Pronósticos verificados · Actualizado el {fmtDate(meta.last_updated)}</p>
+      <h1>Cada llamada.<br />Cada resultado.</h1>
       <p class="track-dek">
         {meta.note_en}
       </p>
     </header>
 
-    <section class="track-stats container" aria-label="Prediction scoreboard">
+    <section class="track-stats container" aria-label="Marcador de pronósticos">
       <div class="track-stat-card">
-        <p class="track-stat-label">Scoreboard</p>
+        <p class="track-stat-label">Marcador</p>
         <strong class="track-stat-value">
           <AnimatedNumber value={meta.correct} client:visible /> / {meta.resolved}
         </strong>
-        <span class="track-stat-note">out of {meta.resolved} resolved calls</span>
+        <span class="track-stat-note">de {meta.resolved} llamadas resueltas</span>
       </div>
       <div class="track-stat-card track-stat-card--gold">
-        <p class="track-stat-label">Accuracy rate</p>
+        <p class="track-stat-label">Tasa de acierto</p>
         <strong class="track-stat-value track-stat-value--gold">
           <AnimatedNumber value={Math.round(meta.accuracy_rate * 100)} suffix="%" client:visible />
         </strong>
-        <span class="track-stat-note">Based on resolved predictions only</span>
+        <span class="track-stat-note">Basada únicamente en pronósticos resueltos</span>
       </div>
       <div class="track-stat-card">
-        <p class="track-stat-label">Net validated market volume</p>
+        <p class="track-stat-label">Volumen de mercado neto validado</p>
         <strong class="track-stat-value">
           <AnimatedNumber value={meta.net_market_volume_usd} format="thousands" prefix="$" client:visible />
         </strong>
-        <span class="track-stat-note">Correct-call volume minus any future miss volume</span>
+        <span class="track-stat-note">Volumen de llamadas correctas menos el volumen de cualquier fallo futuro</span>
       </div>
     </section>
 
     <section class="track-resolved container" aria-labelledby="track-resolved-title">
-      <p class="track-section-label" id="track-resolved-title">Resolved predictions</p>
+      <p class="track-section-label" id="track-resolved-title">Pronósticos resueltos</p>
       <div class="track-pred-list">
         {predictions.map((pred, i) => {
           const totalVol = pred.markets.reduce((sum, m) => sum + m.volume_usd, 0);
@@ -106,10 +106,10 @@ function fmtDate(iso: string) {
               </div>
               <div class="track-pred-conf">
                 <strong>{pred.confidence.toFixed(1)}%</strong>
-                <span>confidence</span>
+                <span>confianza</span>
               </div>
               <div class="track-pred-call">
-                <span class="track-pred-label">Our call</span>
+                <span class="track-pred-label">Nuestra llamada</span>
                 <strong>{pred.call_en}</strong>
               </div>
               <div class="track-pred-result">
@@ -117,12 +117,12 @@ function fmtDate(iso: string) {
               </div>
               <div class="track-pred-volume">
                 <strong>{fmtCurrency(totalVol)}</strong>
-                <span>market volume</span>
+                <span>volumen de mercado</span>
               </div>
               <div class="track-pred-badge">
-                {isResolvedCorrect && <span class="track-badge track-badge--correct">Correct</span>}
-                {isPending && <span class="track-badge track-badge--pending">Pending</span>}
-                {isResolvedMiss && <span class="track-badge track-badge--miss">Miss</span>}
+                {isResolvedCorrect && <span class="track-badge track-badge--correct">Correcto</span>}
+                {isPending && <span class="track-badge track-badge--pending">Pendiente</span>}
+                {isResolvedMiss && <span class="track-badge track-badge--miss">Fallo</span>}
               </div>
             </article>
           );
@@ -131,10 +131,10 @@ function fmtDate(iso: string) {
     </section>
 
     <section class="track-upcoming container" aria-labelledby="track-upcoming-title">
-      <p class="track-section-label" id="track-upcoming-title">What is still ahead</p>
+      <p class="track-section-label" id="track-upcoming-title">Lo que viene</p>
       <div class="track-upcoming-box">
-        <h2>Upcoming desks and cycles</h2>
-        <p>Resolved calls move into the archive, while upcoming specials and major cycles stay on the active desks.</p>
+        <h2>Próximos desks y ciclos</h2>
+        <p>Las llamadas resueltas pasan al archivo, mientras que las elecciones especiales y los grandes ciclos siguen en los desks activos.</p>
         <div class="track-upcoming-list">
           {upcoming.map((item) => (
             <div class="track-upcoming-item">
@@ -150,7 +150,7 @@ function fmtDate(iso: string) {
     </section>
 
     <section class="track-markets container" aria-labelledby="track-markets-title">
-      <p class="track-section-label" id="track-markets-title">Validated market volume breakdown</p>
+      <p class="track-section-label" id="track-markets-title">Desglose del volumen de mercado validado</p>
       <div class="track-market-row">
         <span class="track-market-name">Kalshi</span>
         <span class="track-market-vol">{fmtCurrency(meta.kalshi_volume_usd)}</span>
@@ -163,38 +163,38 @@ function fmtDate(iso: string) {
 
     <section class="track-method container">
       <div class="track-method-box">
-        <h2>What "net validated market volume" means</h2>
+        <h2>Qué significa «volumen de mercado neto validado»</h2>
         <p>
-          When Vote-Scope makes a prediction, traders on platforms like Kalshi and Polymarket independently price the same outcome. The net validated figure adds the volume traded on markets that resolved in the direction of our correct calls, minus the volume that would have resolved against any misses. It is an accountability counter, not personal P&L.
+          Cuando Vote-Scope publica un pronóstico, los operadores de plataformas como Kalshi y Polymarket valoran de forma independiente el mismo resultado. La cifra neta validada suma el volumen negociado en los mercados que se resolvieron en la dirección de nuestras llamadas correctas, menos el volumen que se habría resuelto en contra de cualquier fallo. Es un contador de rendición de cuentas, no una ganancia personal.
         </p>
       </div>
     </section>
 
     <div class="track-keep-digging container">
       <KeepDigging
-        eyebrow="Keep digging"
-        title="Back to the instruments."
-        body="All resolved calls link to their original projection pages. Active desks update as new data arrives."
+        eyebrow="Sigue explorando"
+        title="Volver a los instrumentos."
+        body="Todas las llamadas resueltas enlazan a sus páginas de proyección originales. Los desks activos se actualizan a medida que llegan nuevos datos."
         links={[
           {
-            href: '/en/us/specials/ca1/',
-            label: 'CA-1 Special Forecast',
-            detail: 'June 2, 2026 · U.S. House',
+            href: '/es/us/specials/ca1/',
+            label: 'Pronóstico especial CA-1',
+            detail: '2 de junio de 2026 · Cámara de EE. UU.',
           },
           {
-            href: '/en/canada/byelections/',
-            label: 'Canada By-elections',
-            detail: '3 resolved · April 2026',
+            href: '/es/canada/byelections/',
+            label: 'Elecciones parciales de Canadá',
+            detail: '3 resueltas · abril de 2026',
           },
           {
-            href: '/en/us/',
-            label: 'U.S. Desk',
-            detail: 'House · Senate · indexes',
+            href: '/es/us/',
+            label: 'Desk de EE. UU.',
+            detail: 'Cámara · Senado · índices',
           },
           {
-            href: '/en/methodology/',
-            label: 'Methodology',
-            detail: 'How the models work',
+            href: '/es/metodologia/',
+            label: 'Metodología',
+            detail: 'Cómo funcionan los modelos',
           },
         ]}
       />

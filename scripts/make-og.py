@@ -58,11 +58,24 @@ def card(path, eyebrow, title, big, color, sub, accent, kind, gap=None):
     img.save(path); print("wrote", path)
 
 
+def brand(path):
+    img = Image.new("RGB", OG, BG); d = ImageDraw.Draw(img)
+    d.rectangle([0, OG[1] - 14, OG[0], OG[1]], fill=INK)
+    d.text((70, 68), "VOTE-SCOPE · ELECTORAL INTELLIGENCE DESK", font=F(MENLO, 25, 0), fill=INK3)
+    d.text((68, 180), "Vote-Scope.", font=F(GEO_B, 124), fill=INK)
+    d.text((72, 350), "Election projections, polling averages", font=F(GEO_B, 44), fill=INK3)
+    d.text((72, 410), "and live political instruments.", font=F(GEO_B, 44), fill=INK3)
+    d.text((70, OG[1] - 72), "vote-scope.com", font=F(MENLO, 28, 0), fill=INK)
+    flock(d)
+    img.save(path); print("wrote", path)
+
+
 def main():
     g = json.loads((ROOT / "web_data" / "ca-canada-goose" / "latest.json").read_text())["cgi"]
     s = json.loads((ROOT / "web_data" / "cusma-showdown" / "latest.json").read_text())["showdown"]
     gap = s["gap"]; gaps = f"+{gap}" if gap > 0 else str(gap); col = BLUE if gap > 0 else RED
     out = ROOT / "public" / "og"; out.mkdir(parents=True, exist_ok=True)
+    brand(out / "vote-scope.png")
     card(out / "canada-goose.png", "VOTE-SCOPE · CANADA · LIVE INSTRUMENT", "The Canada Goose Index.",
          str(int(round(g["score"]))), BLUE, g["label_en"], BLUE, "goose")
     card(out / "cusma-showdown.png", "VOTE-SCOPE · CUSMA · LIVE DUEL", "Goose vs Lame Duck.",
