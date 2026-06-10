@@ -56,7 +56,7 @@ export interface RidingOriginEntry {
 }
 
 const ridings = (ridingsSource as { ridings: RawRiding[]; meta: { run_date: string } }).ridings;
-const META = (ridingsSource as { meta: { run_date: string } }).meta;
+const META = (ridingsSource as { meta: { run_date: string; total_seats?: number } }).meta;
 const members = membersSource as Record<string, RidingMember | undefined>;
 const candidatesByRiding = candidatesSource as Record<string, RidingCandidate[] | undefined>;
 const ORIGIN = originSource as Record<string, RidingOriginEntry[] | undefined>;
@@ -184,7 +184,7 @@ function adaptOne(raw: RawRiding): RidingData {
     regionalContext: {
       province: PROVINCE_VOTE_MEAN,
       national: {},
-      totalSeats: 125,
+      totalSeats: META.total_seats ?? 127,
     },
     shapePath: SHAPES[raw.riding_id]?.path,
     shapeViewBox: SHAPES[raw.riding_id]?.viewBox,

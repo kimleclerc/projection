@@ -131,7 +131,7 @@ export interface RegionalContext {
   /** National vote_mean from `latest.json` -> `parties[].vote_mean`.
    *  Leave empty {} when not applicable (e.g. provincial-only jurisdictions). */
   national: Record<string, number>;
-  /** Total seats used for the comparison (343 federal, 125 QC, …). Drives
+  /** Total seats used for the comparison (343 federal, 127 QC, …). Drives
    *  the foot-of-table note copy. */
   totalSeats?: number;
 }
