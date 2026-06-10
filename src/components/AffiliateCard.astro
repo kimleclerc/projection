@@ -1,0 +1,71 @@
+---
+import { affiliates, disclosureMicrocopy, disclosurePath } from '../data/affiliates';
+
+interface Props {
+  partner: keyof typeof affiliates | string;
+  lang: 'en' | 'fr' | 'es';
+}
+
+const { partner, lang } = Astro.props;
+const p = affiliates[partner];
+const live = p && p.url.trim() !== '';
+const copy = live ? p.copy[lang] : null;
+const micro = disclosureMicrocopy[lang];
+---
+
+{live && copy && (
+  <aside class="affiliate-card note-card" aria-label={copy.kicker}>
+    <p class="eyebrow">{copy.kicker}</p>
+    <h3>{copy.title}</h3>
+    <p class="affiliate-body">{copy.body}</p>
+    <p class="affiliate-cta-row">
+      <a class="affiliate-cta" href={p.url} target="_blank" rel="sponsored noopener">{copy.cta} →</a>
+    </p>
+    <p class="affiliate-disclosure">
+      {micro.notice}
+      <a href={disclosurePath[lang]}>{micro.link}</a>
+    </p>
+  </aside>
+)}
+
+<style>
+  .affiliate-card {
+    border-left: 4px solid var(--red, #c33);
+    max-width: 640px;
+  }
+  .affiliate-card h3 {
+    margin: 0.25rem 0 0.5rem;
+    font-size: 1.35rem;
+  }
+  .affiliate-body {
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+  .affiliate-cta-row {
+    margin-top: 0.85rem;
+  }
+  .affiliate-cta {
+    display: inline-block;
+    padding: 8px 18px;
+    background: var(--red, #c33);
+    color: var(--paper, #fff);
+    border-radius: 4px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    text-decoration: none;
+  }
+  .affiliate-cta:hover {
+    opacity: 0.9;
+  }
+  .affiliate-disclosure {
+    margin-top: 0.75rem;
+    font-size: 0.75rem;
+    color: var(--ink-3, #666);
+    line-height: 1.5;
+  }
+  .affiliate-disclosure a {
+    color: inherit;
+    text-decoration: underline;
+    margin-left: 4px;
+  }
+</style>

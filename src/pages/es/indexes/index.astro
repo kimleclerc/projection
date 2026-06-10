@@ -1,0 +1,124 @@
+---
+import EditorialLayout from '../../../layouts/EditorialLayout.astro';
+import EditorialHero from '../../../components/EditorialHero.astro';
+import MethodologyNote from '../../../components/MethodologyNote.astro';
+import InstrumentFilter from '../../../islands/InstrumentFilter';
+import AnimatedNumber from '../../../islands/AnimatedNumber';
+import PolymarketEmbed from '../../../components/PolymarketEmbed.astro';
+import { instruments } from '../../../data/editorial';
+
+import ldiData from '../../../../web_data/us-lame-duck/latest.json';
+import gooseData from '../../../../web_data/ca-canada-goose/latest.json';
+import showdownData from '../../../../web_data/cusma-showdown/latest.json';
+
+const ldi = ldiData.ldi;
+const deltaSign = ldi.delta_7d >= 0 ? '+' : '';
+---
+
+<EditorialLayout
+  title="Índices e instrumentos — Vote-Scope"
+  description="Índices con nombre propio que responden cada uno a una pregunta precisa: Lame-Duck, Fraser interino, Cup Path y más. Cada instrumento explica la tensión que las cifras por sí solas no transmiten — Vote-Scope."
+  canonical="https://vote-scope.com/es/indexes/"
+  lang="es"
+  currentPage="indexes"
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={{ en: 'https://vote-scope.com/en/indexes/', fr: 'https://vote-scope.com/fr/indexes/', es: 'https://vote-scope.com/es/indexes/' }}
+  jsonLd={[
+    {
+      '@context': 'https://schema.org',
+      '@type': 'CollectionPage',
+      name: 'Índices e instrumentos — Vote-Scope',
+      url: 'https://vote-scope.com/es/indexes/',
+      inLanguage: 'es',
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: 'https://vote-scope.com/es/' },
+        { '@type': 'ListItem', position: 2, name: 'Índices', item: 'https://vote-scope.com/es/indexes/' },
+      ],
+    },
+  ]}
+>
+  <EditorialHero
+    eyebrow="Índices"
+    title="Los instrumentos son el producto."
+    promise="Cada índice Vote-Scope responde a una pregunta viva con una señal nombrada, una metodología transparente y un formato de distribución."
+    question="¿Qué instrumento propio explica mejor la tensión?"
+    primaryHref="/es/us/indexes/lame-duck/"
+    primaryLabel="Abrir el índice en vivo"
+    secondaryHref="/es/"
+    secondaryLabel="Volver a los desks"
+  />
+
+  <section class="content-band">
+    <div class="container">
+      <p class="eyebrow">Instrumento destacado</p>
+      <h2>Lame-Duck Index — en vivo ahora</h2>
+      <div class="note-card" style={`border-left:4px solid ${ldi.zone_color};max-width:640px;margin-top:1rem;`}>
+        <p class="eyebrow">Lame-Duck Index · {ldiData.meta.president}</p>
+        <h3 style="font-size:3rem;margin:0.25rem 0;color:var(--text);">
+          <AnimatedNumber client:visible value={ldi.score} decimals={1} />
+          <span style="font-size:1.1rem;font-weight:400;">/100</span>
+        </h3>
+        <p style={`font-weight:700;color:${ldi.zone_color};font-size:1.1rem;margin-bottom:0.5rem;`}>{ldi.label_es ?? ldi.label_en}</p>
+        <p>Delta 7 días: <strong>{deltaSign}{ldi.delta_7d}</strong> · {ldi.n_components} componentes · al {ldiData.meta.as_of_date}</p>
+        <p style="margin-top:1rem;">
+          <a href="/es/us/indexes/lame-duck/" class="cta-link">Índice completo →</a>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="content-band">
+    <div class="container">
+      <p class="eyebrow">Ahora en línea</p>
+      <h2>Canada Goose Index & Duelo T-MEC.</h2>
+      <div class="content-grid-2" style="gap:1.5rem;margin-top:1rem;">
+        <div class="note-card" style={`border-left:4px solid ${gooseData.cgi.zone_color};`}>
+          <p class="eyebrow">Canada Goose Index · {gooseData.meta.pm}</p>
+          <h3 style="font-size:2.5rem;margin:0.25rem 0;color:var(--text);"><AnimatedNumber client:visible value={gooseData.cgi.score} decimals={1} /><span style="font-size:1.1rem;font-weight:400;">/100</span></h3>
+          <p style={`font-weight:700;color:${gooseData.cgi.zone_color};`}>{gooseData.cgi.label_es ?? gooseData.cgi.label_en}</p>
+          <p style="margin-top:1rem;"><a href="/es/canada/indexes/canada-goose/" class="cta-link">Abrir el Canada Goose Index →</a></p>
+        </div>
+        <div class="note-card" style={`border-left:4px solid ${showdownData.showdown.zone_color};`}>
+          <p class="eyebrow">Duelo T-MEC · Goose vs Lame-Duck</p>
+          <h3 style="font-size:2.5rem;margin:0.25rem 0;color:var(--text);">{showdownData.showdown.gap > 0 ? '+' : ''}{showdownData.showdown.gap}</h3>
+          <p style={`font-weight:700;color:${showdownData.showdown.zone_color};`}>{showdownData.showdown.label_es ?? showdownData.showdown.label_en}</p>
+          <p style="margin-top:1rem;"><a href="/es/indexes/cusma-showdown/" class="cta-link">Abrir el Duelo T-MEC →</a></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="content-band">
+    <div class="container">
+      <p class="eyebrow">Catálogo interactivo</p>
+      <h2>Filtrar lo que está en vivo, próximo o planificado.</h2>
+      <p>Cada instrumento lleva un estado en vivo: los instrumentos activos se actualizan continuamente; los próximos se listan por transparencia antes de su lanzamiento.</p>
+      <InstrumentFilter
+        client:visible
+        instruments={instruments.es}
+        labels={{ all: 'Todos', live: 'En vivo', next: 'Próximos', planned: 'Planificados', open: 'Abrir' }}
+      />
+    </div>
+  </section>
+
+  <section class="content-band">
+    <div class="container">
+      <PolymarketEmbed slug="2026-balance-of-power-d-senate-d-house-949" title="Elecciones intermedias de EE. UU. 2026 — equilibrio de poderes" />
+    </div>
+  </section>
+
+  <MethodologyNote
+    title="Cada índice responde a una pregunta con una sola cifra."
+    body="Los índices Vote-Scope son instrumentos con nombre propio, no tableros de control. Cada uno lleva una pregunta única, una metodología transparente, una puntuación en vivo actualizada según una cadencia documentada y un historial."
+    bullets={[
+      "El Lame-Duck Index (LDI) es un compuesto de 0 a 100 que agrupa la aprobación presidencial, el peso económico, la distribución de los márgenes de distrito y las cuotas de los mercados de predicción — 4 componentes, actualizado a diario.",
+      "Todas las puntuaciones de los índices se producen a partir de datos de fuentes públicas: BLS, Reserva Federal, agregadores de encuestas y Polymarket. Las fuentes se documentan en cada página de instrumento.",
+      "Las páginas metodológicas de los índices son públicas y versionadas. Cuando el modelo cambia, el registro de modificaciones se publica con la puntuación actualizada.",
+      "Las puntuaciones históricas se archivan en el JSON público de cada desk. Ninguna puntuación se revisa retroactivamente sin un aviso de corrección documentado.",
+    ]}
+  />
+</EditorialLayout>

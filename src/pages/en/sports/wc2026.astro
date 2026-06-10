@@ -8,6 +8,9 @@ import WcSchedule from '../../../components/WcSchedule.astro';
 import WcBracket from '../../../components/WcBracket.astro';
 import WcLiveScores from '../../../islands/WcLiveScores';
 import AnimatedNumber from '../../../islands/AnimatedNumber';
+import WcEditorial from '../../../components/WcEditorial.astro';
+import WcBeatTheModel from '../../../islands/WcBeatTheModel';
+import AffiliateCard from '../../../components/AffiliateCard.astro';
 import wcData from '../../../../web_data/sports/worldcup2026_latest.json';
 
 const board = wcData.board as Array<{
@@ -127,6 +130,17 @@ const winnerUrl = winnerEmbed?.url ?? undefined;
     </div>
   </section>
 
+  <WcEditorial lang="en" board={board} groups={wcData.groups} runDate={meta.run_date} />
+
+  <!-- Mini-game: your bracket vs the model -->
+  <section class="content-band" id="beat-the-model">
+    <div class="container">
+      <p class="eyebrow">Mini-game</p>
+      <h2>Beat the model.</h2>
+      <WcBeatTheModel client:visible lang="en" board={board} />
+    </div>
+  </section>
+
   <!-- Live & recent scores -->
   <section class="content-band">
     <div class="container">
@@ -234,6 +248,13 @@ const winnerUrl = winnerEmbed?.url ?? undefined;
   </section>
 
   <WcSchedule lang="en" schedule={wcData.match_schedule} />
+
+  <section class="content-band">
+    <div class="container">
+      <AffiliateCard partner="nordvpn" lang="en" />
+      <p style="margin-top:1rem;font-size:0.9rem;"><a href="/en/library/">The locker room: books & tournament gear we recommend →</a></p>
+    </div>
+  </section>
 
   <WcBracket lang="en" bracket={wcData.knockout_bracket} />
 

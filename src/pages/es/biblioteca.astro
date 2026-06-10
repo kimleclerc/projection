@@ -1,0 +1,55 @@
+---
+import EditorialLayout from '../../layouts/EditorialLayout.astro';
+import EditorialHero from '../../components/EditorialHero.astro';
+import AmazonShelf from '../../components/AmazonShelf.astro';
+import { amazon } from '../../data/affiliates';
+
+const live = amazon.tag.trim() !== '';
+---
+
+<EditorialLayout
+  title="La biblioteca del desk — Vote-Scope"
+  description="Los libros detrás de los modelos: pronóstico, estadística, sesgos cognitivos y analítica del fútbol — la lista de lectura que dio forma a cómo Vote-Scope proyecta elecciones y torneos."
+  canonical="https://vote-scope.com/es/biblioteca/"
+  lang="es"
+  currentPage="library"
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={{ en: 'https://vote-scope.com/en/library/', fr: 'https://vote-scope.com/fr/bibliotheque/', es: 'https://vote-scope.com/es/biblioteca/' }}
+  jsonLd={[
+    { '@context': 'https://schema.org', '@type': 'CollectionPage', name: 'La biblioteca del desk — Vote-Scope', url: 'https://vote-scope.com/es/biblioteca/', inLanguage: 'es' },
+    { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: 'https://vote-scope.com/es/' },
+      { '@type': 'ListItem', position: 2, name: 'Biblioteca', item: 'https://vote-scope.com/es/biblioteca/' },
+    ]},
+  ]}
+>
+  <EditorialHero
+    eyebrow="La biblioteca del desk"
+    title="Los libros detrás de los modelos."
+    promise="Todo lo que hace Vote-Scope — house effects, simulaciones, intervalos de confianza — alguien escribió primero un gran libro al respecto. Este es el estante."
+    question="¿Quieres entender por qué el modelo piensa como piensa?"
+    primaryHref="/es/metodologia/"
+    primaryLabel="Leer la metodología"
+    secondaryHref="/es/track-record/"
+    secondaryLabel="Ver el track record"
+  />
+
+  <section class="content-band">
+    <div class="container">
+      <p class="eyebrow">Pronóstico y estadística</p>
+      <h2>Empieza aquí.</h2>
+      <AmazonShelf lang="es" kind="book" />
+      {!live && <p>La lista de lectura llega pronto.</p>}
+    </div>
+  </section>
+
+  <section class="content-band">
+    <div class="container">
+      <p class="eyebrow">El vestuario · Copa del Mundo 2026</p>
+      <h2>Para el torneo.</h2>
+      <AmazonShelf lang="es" kind="wc" />
+      {!live && <p>Las selecciones del torneo llegan pronto.</p>}
+      <p style="margin-top:1.5rem;"><a href="/es/sports/wc2026/">Nuestra proyección WC2026 — 50.000 simulaciones →</a></p>
+    </div>
+  </section>
+</EditorialLayout>

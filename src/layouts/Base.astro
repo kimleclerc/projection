@@ -3,6 +3,7 @@ import '@fontsource-variable/newsreader/opsz.css';
 import '@fontsource-variable/newsreader/opsz-italic.css';
 import '@fontsource-variable/geist/wght.css';
 import '@fontsource-variable/jetbrains-mono/wght.css';
+import { affiliates, amazon } from '../data/affiliates';
 
 interface Props {
   title: string;
@@ -50,6 +51,8 @@ const localeCopy: Record<Locale, {
   trackRecord: string;
   privacy: string;
   terms: string;
+  disclosure: string;
+  library: string;
   contact: string;
   homeLabel: string;
   usLabel: string;
@@ -72,6 +75,8 @@ const localeCopy: Record<Locale, {
   trackRecordLabel: string;
   privacyLabel: string;
   termsLabel: string;
+  disclosureLabel: string;
+  libraryLabel: string;
   contactLabel: string;
   languageLabel: string;
   themeLabel: string;
@@ -91,6 +96,8 @@ const localeCopy: Record<Locale, {
     trackRecord: '/en/track-record/',
     privacy: '/en/privacy/',
     terms: '/en/terms/',
+    disclosure: '/en/disclosure/',
+    library: '/en/library/',
     contact: '/en/',
     homeLabel: 'Home',
     usLabel: 'U.S.',
@@ -113,6 +120,8 @@ const localeCopy: Record<Locale, {
     trackRecordLabel: 'Track record',
     privacyLabel: 'Privacy',
     termsLabel: 'Terms',
+    disclosureLabel: 'Disclosure',
+    libraryLabel: 'Library',
     contactLabel: 'Contact',
     languageLabel: 'Language',
     themeLabel: 'Toggle dark mode',
@@ -132,6 +141,8 @@ const localeCopy: Record<Locale, {
     trackRecord: '/fr/track-record/',
     privacy: '/fr/confidentialite/',
     terms: '/fr/conditions/',
+    disclosure: '/fr/divulgation/',
+    library: '/fr/bibliotheque/',
     contact: '/fr/',
     homeLabel: 'Accueil',
     usLabel: 'États-Unis',
@@ -154,6 +165,8 @@ const localeCopy: Record<Locale, {
     trackRecordLabel: 'Historique',
     privacyLabel: 'Confidentialité',
     termsLabel: 'Conditions',
+    disclosureLabel: 'Divulgation',
+    libraryLabel: 'Bibliothèque',
     contactLabel: 'Contact',
     languageLabel: 'Langue',
     themeLabel: 'Basculer le mode sombre',
@@ -173,6 +186,8 @@ const localeCopy: Record<Locale, {
     trackRecord: '/es/track-record/',
     privacy: '/es/privacidad/',
     terms: '/es/terminos/',
+    disclosure: '/es/divulgacion/',
+    library: '/es/biblioteca/',
     contact: '/es/',
     homeLabel: 'Inicio',
     usLabel: 'EE. UU.',
@@ -195,6 +210,8 @@ const localeCopy: Record<Locale, {
     trackRecordLabel: 'Historial',
     privacyLabel: 'Privacidad',
     termsLabel: 'Condiciones',
+    disclosureLabel: 'Divulgación',
+    libraryLabel: 'Biblioteca',
     contactLabel: 'Contacto',
     languageLabel: 'Idioma',
     themeLabel: 'Cambiar modo oscuro',
@@ -204,6 +221,15 @@ const localeCopy: Record<Locale, {
 };
 
 const copy = localeCopy[lang as Locale] ?? localeCopy.en;
+
+// Evergreen footer partner line — renders only once a real tracking URL is
+// set in src/data/affiliates.ts. rel="sponsored" is required on these links.
+const footerPartner = affiliates.proton.url.trim() !== '' ? affiliates.proton : null;
+const footerPartnerLabel: Record<string, string> = {
+  en: 'Partner: Proton — encrypted email & VPN',
+  fr: 'Partenaire : Proton — courriel chiffré & VPN',
+  es: 'Socio: Proton — correo cifrado y VPN',
+};
 
 const navLinks = [
   { href: copy.root, label: copy.homeLabel, key: 'intl' },
@@ -542,6 +568,14 @@ const languageLinks = (['en', 'fr', 'es'] as Locale[])
         <a class="coffee-btn" href="https://buymeacoffee.com/kimleclerc" target="_blank" rel="noopener">
           {copy.coffeeLabel}
         </a>
+        {footerPartner && (
+          <p style="font-size:12px;color:var(--ink-3);margin-top:12px;">
+            <a href={footerPartner.url} target="_blank" rel="sponsored noopener" style="color:inherit;">
+              {footerPartnerLabel[lang] ?? footerPartnerLabel.en}
+            </a>
+            · <a href={copy.disclosure} style="color:inherit;">{copy.disclosureLabel}</a>
+          </p>
+        )}
       </div>
       <div class="footer-col">
         <h4>{copy.unitedStatesLabel}</h4>
@@ -567,6 +601,8 @@ const languageLinks = (['en', 'fr', 'es'] as Locale[])
         <a href={copy.trackRecord}>{copy.trackRecordLabel}</a>
         <a href={copy.privacy}>{copy.privacyLabel}</a>
         <a href={copy.terms}>{copy.termsLabel}</a>
+        <a href={copy.disclosure}>{copy.disclosureLabel}</a>
+        <a href={copy.library}>{copy.libraryLabel}</a>
         <a href={copy.contact}>{copy.contactLabel}</a>
       </div>
     </div>
@@ -603,5 +639,8 @@ const languageLinks = (['en', 'fr', 'es'] as Locale[])
   });
 </script>
 
+{amazon.oneLinkScriptSrc.trim() !== '' && (
+  <script is:inline async src={amazon.oneLinkScriptSrc}></script>
+)}
 </body>
 </html>

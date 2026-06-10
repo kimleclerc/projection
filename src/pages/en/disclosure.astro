@@ -1,0 +1,28 @@
+---
+import { getEntry } from 'astro:content';
+import EditorialLayout from '../../layouts/EditorialLayout.astro';
+import EditorialStory from '../../components/EditorialStory.astro';
+
+const entry = await getEntry('editorial', 'en/disclosure');
+if (!entry) throw new Error('Missing editorial entry: en/disclosure');
+const d = entry.data;
+---
+
+<EditorialLayout
+  title={d.title}
+  description={d.description}
+  canonical={d.alternates.en}
+  lang="en"
+  currentPage="disclosure"
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={d.alternates}
+  jsonLd={[
+    { '@context': 'https://schema.org', '@type': 'WebPage', name: d.title, url: d.alternates.en, inLanguage: 'en' },
+    { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: 'https://vote-scope.com/en/' },
+      { '@type': 'ListItem', position: 2, name: 'Disclosure', item: d.alternates.en },
+    ]},
+  ]}
+>
+  <EditorialStory entry={entry} />
+</EditorialLayout>

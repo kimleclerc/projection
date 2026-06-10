@@ -1,0 +1,113 @@
+---
+/**
+ * Auto-generated tournament read. All sentences are derived from the current
+ * model run (web_data/sports/worldcup2026_latest.json), so the text stays
+ * accurate after every update without manual rewriting — and gives search
+ * engines real prose on a page that is otherwise mostly tables.
+ */
+
+interface BoardTeam {
+  team: string;
+  labels: { en: string; fr: string; es: string };
+  group: string;
+  confederation: string;
+  is_host: boolean;
+  p_champion: number;
+  p_final: number;
+  p_semifinal: number;
+  p_knockout_stage: number;
+}
+
+interface GroupStanding {
+  team: string;
+  labels: { en: string; fr: string; es: string };
+  p_advance: number;
+  p_1st: number;
+  is_host: boolean;
+}
+
+interface Props {
+  lang: 'en' | 'fr' | 'es';
+  board: BoardTeam[];
+  groups: Record<string, { teams: string[]; standings: GroupStanding[] }>;
+  runDate: string;
+}
+
+const { lang, board, groups, runDate } = Astro.props;
+
+const fav = board[0];
+const second = board[1];
+const third = board[2];
+
+// Dark horse: best semifinal odds among teams outside the top 6 championship ranks.
+const darkHorse = board.slice(6, 24).reduce((best, t) => (t.p_semifinal > best.p_semifinal ? t : best), board[6]);
+
+// Tightest group: smallest gap in p_1st between the top two teams.
+let tightest = { key: 'A', gap: Infinity, leader: null as GroupStanding | null, chaser: null as GroupStanding | null };
+for (const [key, g] of Object.entries(groups)) {
+  const byFirst = [...g.standings].sort((a, b) => b.p_1st - a.p_1st);
+  const gap = byFirst[0].p_1st - byFirst[1].p_1st;
+  if (gap < tightest.gap) tightest = { key, gap, leader: byFirst[0], chaser: byFirst[1] };
+}
+
+const hosts = board.filter((t) => t.is_host);
+const bestHost = hosts.length ? hosts.reduce((b, t) => (t.p_champion > b.p_champion ? t : b), hosts[0]) : null;
+
+const n = (t: BoardTeam | GroupStanding) => t.labels[lang];
+const pct = (v: number) => (lang === 'en' ? `${v}%` : `${String(v).replace('.', ',')} %`);
+
+const heading: Record<string, { eyebrow: string; title: string }> = {
+  en: { eyebrow: `The model's read — run ${runDate}`, title: 'Favorites, dark horses and the group to watch.' },
+  fr: { eyebrow: `La lecture du modèle — run ${runDate}`, title: 'Favoris, négligés et le groupe à surveiller.' },
+  es: { eyebrow: `La lectura del modelo — corrida ${runDate}`, title: 'Favoritos, tapados y el grupo a seguir.' },
+};
+
+const paragraphs: Record<string, string[]> = {
+  en: [
+    `<strong>${n(fav)}</strong> opens the tournament as the model's favorite at ${pct(fav.p_champion)} to lift the trophy — ahead of <strong>${n(second)}</strong> (${pct(second.p_champion)}) and <strong>${n(third)}</strong> (${pct(third.p_champion)}). In a 48-team field, even the favorite is more likely to lose than to win: that single-digit number is what a genuinely open tournament looks like.`,
+    `The dark horse on the board is <strong>${n(darkHorse)}</strong>: only ${pct(darkHorse.p_champion)} to win it all, but ${pct(darkHorse.p_semifinal)} to reach the semifinals — the kind of bracket path that turns a quiet contender into the story of the knockout rounds.`,
+    `The tightest race for first place is <strong>Group ${tightest.key}</strong>, where ${n(tightest.leader!)} edges ${n(tightest.chaser!)} by ${pct(Math.round(tightest.gap * 10) / 10)} for the top spot. Group winners draw the kinder side of the bracket, so this margin matters more than it looks.`,
+    bestHost
+      ? `Among the host nations, <strong>${n(bestHost)}</strong> is best positioned at ${pct(bestHost.p_champion)} to win and ${pct(bestHost.p_knockout_stage)} to reach the knockout stage — home crowds have historically been worth real points at this stage of the tournament.`
+      : '',
+  ],
+  fr: [
+    `<strong>${n(fav)}</strong> aborde le tournoi en favori du modèle à ${pct(fav.p_champion)} de soulever le trophée — devant <strong>${n(second)}</strong> (${pct(second.p_champion)}) et <strong>${n(third)}</strong> (${pct(third.p_champion)}). Dans un plateau à 48 équipes, même le favori a plus de chances de perdre que de gagner : ce chiffre à un seul chiffre, c'est le visage d'un tournoi réellement ouvert.`,
+    `Le négligé du tableau, c'est <strong>${n(darkHorse)}</strong> : seulement ${pct(darkHorse.p_champion)} de tout gagner, mais ${pct(darkHorse.p_semifinal)} d'atteindre les demi-finales — le genre de parcours de tableau qui transforme un prétendant discret en histoire des rondes éliminatoires.`,
+    `La course la plus serrée pour la première place se joue dans le <strong>groupe ${tightest.key}</strong>, où ${n(tightest.leader!)} devance ${n(tightest.chaser!)} de ${pct(Math.round(tightest.gap * 10) / 10)} pour le sommet. Les premiers de groupe héritent du côté le plus clément du tableau : cette marge compte plus qu'elle n'en a l'air.`,
+    bestHost
+      ? `Parmi les nations hôtes, <strong>${n(bestHost)}</strong> est la mieux placée à ${pct(bestHost.p_champion)} de gagner et ${pct(bestHost.p_knockout_stage)} d'atteindre la phase éliminatoire — le public à domicile a historiquement valu de vrais points à ce stade du tournoi.`
+      : '',
+  ],
+  es: [
+    `<strong>${n(fav)}</strong> llega al torneo como favorito del modelo con ${pct(fav.p_champion)} de levantar el trofeo — por delante de <strong>${n(second)}</strong> (${pct(second.p_champion)}) y <strong>${n(third)}</strong> (${pct(third.p_champion)}). En un cuadro de 48 equipos, incluso el favorito tiene más probabilidades de perder que de ganar: esa cifra de un solo dígito es el rostro de un torneo realmente abierto.`,
+    `El tapado del tablero es <strong>${n(darkHorse)}</strong>: solo ${pct(darkHorse.p_champion)} de ganarlo todo, pero ${pct(darkHorse.p_semifinal)} de alcanzar las semifinales — el tipo de camino que convierte a un aspirante discreto en la historia de las rondas eliminatorias.`,
+    `La carrera más apretada por el primer puesto está en el <strong>grupo ${tightest.key}</strong>, donde ${n(tightest.leader!)} supera a ${n(tightest.chaser!)} por ${pct(Math.round(tightest.gap * 10) / 10)}. Los primeros de grupo heredan el lado más amable del cuadro: ese margen importa más de lo que parece.`,
+    bestHost
+      ? `Entre las naciones anfitrionas, <strong>${n(bestHost)}</strong> es la mejor situada con ${pct(bestHost.p_champion)} de ganar y ${pct(bestHost.p_knockout_stage)} de alcanzar la fase eliminatoria — el público local históricamente ha valido puntos reales en esta etapa del torneo.`
+      : '',
+  ],
+};
+---
+
+<section class="content-band">
+  <div class="container">
+    <p class="eyebrow">{heading[lang].eyebrow}</p>
+    <h2>{heading[lang].title}</h2>
+    <div class="wc-editorial">
+      {paragraphs[lang].filter(Boolean).map((p) => <p set:html={p} />)}
+    </div>
+  </div>
+</section>
+
+<style>
+  .wc-editorial {
+    max-width: 720px;
+    margin-top: 1rem;
+  }
+  .wc-editorial p {
+    margin: 0 0 1rem;
+    line-height: 1.7;
+    font-size: 1.02rem;
+  }
+</style>

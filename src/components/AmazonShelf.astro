@@ -1,0 +1,95 @@
+---
+import { amazon, amazonDp, amazonSearch, amazonDisclosure, disclosurePath } from '../data/affiliates';
+import { amazonPicks, type AmazonPick } from '../data/amazonPicks';
+
+interface Props {
+  lang: 'en' | 'fr' | 'es';
+  kind: 'book' | 'wc';
+}
+
+const { lang, kind } = Astro.props;
+const live = amazon.tag.trim() !== '';
+const picks = live ? amazonPicks.filter((p) => p.kind === kind) : [];
+
+const ctaLabel: Record<string, string> = {
+  en: 'View on Amazon →',
+  fr: 'Voir sur Amazon →',
+  es: 'Ver en Amazon →',
+};
+const disclosureLinkLabel: Record<string, string> = {
+  en: 'How we disclose',
+  fr: 'Notre politique de divulgation',
+  es: 'Cómo lo divulgamos',
+};
+
+const linkFor = (p: AmazonPick): string =>
+  p.url ?? (p.asin ? amazonDp(p.asin) : amazonSearch((p.search ?? { en: '', fr: '', es: '' })[lang]));
+---
+
+{live && picks.length > 0 && (
+  <div class="amazon-shelf">
+    <div class="shelf-grid">
+      {picks.map((p) => (
+        <div class="note-card shelf-card">
+          <h3>{p.title[lang]}</h3>
+          {p.author && <p class="shelf-author">{p.author}</p>}
+          <p class="shelf-blurb">{p.blurb[lang]}</p>
+          <p>
+            <a class="shelf-cta" href={linkFor(p)} target="_blank" rel="sponsored noopener">{ctaLabel[lang]}</a>
+          </p>
+        </div>
+      ))}
+    </div>
+    <p class="shelf-disclosure">
+      {amazonDisclosure[lang]}
+      <a href={disclosurePath[lang]}>{disclosureLinkLabel[lang]}</a>
+    </p>
+  </div>
+)}
+
+<style>
+  .shelf-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1.25rem;
+    margin-top: 1rem;
+  }
+  .shelf-card h3 {
+    margin: 0 0 0.15rem;
+    font-size: 1.15rem;
+  }
+  .shelf-author {
+    font-family: var(--mono, monospace);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-3, #666);
+    margin: 0 0 0.5rem;
+  }
+  .shelf-blurb {
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+  .shelf-cta {
+    display: inline-block;
+    margin-top: 0.5rem;
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--red, #c33);
+    text-decoration: none;
+  }
+  .shelf-cta:hover {
+    text-decoration: underline;
+  }
+  .shelf-disclosure {
+    margin-top: 1.25rem;
+    font-size: 0.78rem;
+    color: var(--ink-3, #666);
+    line-height: 1.5;
+  }
+  .shelf-disclosure a {
+    color: inherit;
+    text-decoration: underline;
+    margin-left: 4px;
+  }
+</style>
