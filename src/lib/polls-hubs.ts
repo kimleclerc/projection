@@ -26,7 +26,7 @@ export interface PollsHubConfig {
   base: Record<HubLang, string>;  // path prefix per language
   seg: Record<HubLang, string>;   // localized "polls" segment
   copy: Record<HubLang, HubCopy>;
-  hasCards?: boolean;             // emit per-poll share PNGs for this hub (us-house, federal, uk)
+  hasCards?: boolean;             // emit per-poll share PNGs for this hub (us-house, federal, uk, quebec)
 }
 
 const SEG: Record<HubLang, string> = { en: 'polls', fr: 'sondages', es: 'sondeos' };
@@ -88,7 +88,7 @@ export const POLLS_HUBS: Record<string, PollsHubConfig> = {
     },
   },
   quebec: {
-    webKey: 'quebec', currentPage: 'canada', langs: ['en', 'fr', 'es'], seg: SEG,
+    webKey: 'quebec', currentPage: 'canada', langs: ['en', 'fr', 'es'], seg: SEG, hasCards: true,
     base: { en: '/en/canada/quebec', fr: '/fr/canada/quebec', es: '/es/canada/quebec' },
     copy: {
       en: { eyebrow: 'Polls · Quebec · National Assembly', h1: 'Quebec voting intention.',
