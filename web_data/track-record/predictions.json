@@ -259,5 +259,180 @@
       "flag": "🇨🇦",
       "url": "/quebec"
     }
-  ]
+  ],
+  "backtests": {
+    "intro_note": "Backtests = modèle rejoué avec uniquement les sondages disponibles à l'époque, cycle cible exclu des données d'ancrage (pas de fuite). Compilé 2026-06-11. Sources: docs/backtests/ (repo models).",
+    "items": [
+      {
+        "id": "fed_2021",
+        "flag": "🇨🇦",
+        "election_en": "Canada federal 2021",
+        "election_fr": "Fédérale canadienne 2021",
+        "election_es": "Federal de Canadá 2021",
+        "horizon_days": 5,
+        "seats_total": 338,
+        "mae_seats": 1.6,
+        "leader_correct": true,
+        "majority_status_correct": true,
+        "note_en": "Near-perfect: every party within the 80% interval.",
+        "note_fr": "Quasi parfait : tous les partis dans l'intervalle 80 %.",
+        "note_es": "Casi perfecto: todos los partidos dentro del intervalo del 80 %.",
+        "parties": [
+          {
+            "party": "LIB",
+            "proj": 162.6,
+            "actual": 160
+          },
+          {
+            "party": "CON",
+            "proj": 116.5,
+            "actual": 119
+          },
+          {
+            "party": "BQ",
+            "proj": 31.7,
+            "actual": 32
+          },
+          {
+            "party": "NDP",
+            "proj": 27.2,
+            "actual": 25
+          },
+          {
+            "party": "GRN",
+            "proj": 0.0,
+            "actual": 2
+          }
+        ]
+      },
+      {
+        "id": "fed_2025",
+        "flag": "🇨🇦",
+        "election_en": "Canada federal 2025",
+        "election_fr": "Fédérale canadienne 2025",
+        "election_es": "Federal de Canadá 2025",
+        "horizon_days": 5,
+        "seats_total": 343,
+        "mae_seats": 8.5,
+        "leader_correct": true,
+        "majority_status_correct": true,
+        "note_en": "Leader called; BQ/NDP/Greens excellent. Residual = the LIB/CON seat-efficiency gap 2025 polls didn't contain, on top of the 338→343 redistribution.",
+        "note_fr": "Meneur correct; BQ/NPD/Verts excellents. Le résidu = l'efficacité du vote CON que les sondages 2025 ne contenaient pas, en plus du redécoupage 338→343.",
+        "note_es": "Líder acertado; BQ/NPD/Verdes excelentes. El residuo = la eficiencia del voto CON que las encuestas de 2025 no contenían, además de la redistribución 338→343.",
+        "parties": [
+          {
+            "party": "LIB",
+            "proj": 188.6,
+            "actual": 169
+          },
+          {
+            "party": "CON",
+            "proj": 125.2,
+            "actual": 144
+          },
+          {
+            "party": "BQ",
+            "proj": 22.7,
+            "actual": 22
+          },
+          {
+            "party": "NDP",
+            "proj": 4.5,
+            "actual": 7
+          },
+          {
+            "party": "GRN",
+            "proj": 2.0,
+            "actual": 1
+          }
+        ]
+      },
+      {
+        "id": "fed_2019",
+        "flag": "🇨🇦",
+        "election_en": "Canada federal 2019",
+        "election_fr": "Fédérale canadienne 2019",
+        "election_es": "Federal de Canadá 2019",
+        "horizon_days": 5,
+        "seats_total": 338,
+        "mae_seats": 8.5,
+        "leader_correct": true,
+        "majority_status_correct": true,
+        "note_en": "Leader, runner-up and minority status all called. Residual = the late BQ wave in Quebec that 2019 national polls didn't break out regionally — the weakness that motivated the model's regional BSTS anchors.",
+        "note_fr": "Meneur, deuxième et statut minoritaire corrects. Le résidu = la vague BQ de fin de campagne que les sondages nationaux 2019 ne ventilaient pas — la faiblesse qui a motivé les ancres régionales BSTS du moteur.",
+        "note_es": "Líder, segundo y estatus minoritario acertados. El residuo = la ola del BQ de fin de campaña que las encuestas nacionales de 2019 no desglosaban regionalmente.",
+        "parties": [
+          {
+            "party": "LIB",
+            "proj": 152.7,
+            "actual": 157
+          },
+          {
+            "party": "CON",
+            "proj": 119.9,
+            "actual": 121
+          },
+          {
+            "party": "BQ",
+            "proj": 11.6,
+            "actual": 32
+          },
+          {
+            "party": "NDP",
+            "proj": 53.8,
+            "actual": 24
+          },
+          {
+            "party": "GRN",
+            "proj": 0.0,
+            "actual": 3
+          }
+        ]
+      },
+      {
+        "id": "uk_2024",
+        "flag": "🇬🇧",
+        "election_en": "UK general election 2024",
+        "election_fr": "Générale britannique 2024",
+        "election_es": "Generales británicas 2024",
+        "horizon_days": 1,
+        "seats_total": 650,
+        "mae_seats": 17.2,
+        "pct_ridings_correct": 78.9,
+        "vote_mae_pts": 1.6,
+        "leader_correct": true,
+        "majority_status_correct": true,
+        "note_en": "Labour majority called at P=0.95 despite the industry overestimating Labour by +5.8 pts. Residual (Con +89 / LD −39) = 2024 anti-Tory tactical voting only published MRPs captured — why the model now uses MRP anchors.",
+        "note_fr": "Majorité travailliste appelée à P=0,95 malgré une industrie sondagière surestimant Lab de +5,8 pts. Le résidu (Con +89 / LD −39) = le vote tactique anti-Tory que seuls les MRP captaient — d'où les ancres MRP du modèle.",
+        "note_es": "Mayoría laborista acertada con P=0,95 pese a una industria que sobrestimó a Lab en +5,8 pts. El residuo (Con +89 / LD −39) = el voto táctico anti-Tory que solo los MRP captaban.",
+        "parties": [
+          {
+            "party": "LAB",
+            "proj": 357.6,
+            "actual": 409
+          },
+          {
+            "party": "CON",
+            "proj": 210.0,
+            "actual": 121
+          },
+          {
+            "party": "LD",
+            "proj": 33.5,
+            "actual": 72
+          },
+          {
+            "party": "SNP",
+            "proj": 24.2,
+            "actual": 9
+          },
+          {
+            "party": "REF",
+            "proj": 0.0,
+            "actual": 5
+          }
+        ]
+      }
+    ]
+  }
 }

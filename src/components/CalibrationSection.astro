@@ -1,0 +1,218 @@
+---
+/**
+ * "Calibration" section for the Track Record pages: published backtests —
+ * the model replayed on past elections using only the polls available at the
+ * time. Data lives in web_data/track-record/predictions.json (backtests key).
+ */
+
+interface BacktestParty {
+  party: string;
+  proj: number;
+  actual: number;
+}
+
+interface BacktestItem {
+  id: string;
+  flag: string;
+  election_en: string;
+  election_fr: string;
+  election_es: string;
+  horizon_days: number;
+  seats_total: number;
+  mae_seats: number;
+  pct_ridings_correct?: number;
+  vote_mae_pts?: number;
+  leader_correct: boolean;
+  majority_status_correct: boolean;
+  note_en: string;
+  note_fr: string;
+  note_es: string;
+  parties: BacktestParty[];
+}
+
+interface Props {
+  lang: 'en' | 'fr' | 'es';
+  backtests: { items: BacktestItem[] } | undefined;
+}
+
+const { lang, backtests } = Astro.props;
+const items = backtests?.items ?? [];
+
+const num = (v: number, d = 1) =>
+  lang === 'en' ? v.toFixed(d) : v.toFixed(d).replace('.', ',');
+
+const t = {
+  en: {
+    eyebrow: 'Calibration · Backtests',
+    heading: 'We replayed past elections. Here are our errors.',
+    intro: 'Each backtest reruns the full model on a past election using only the polls available at the time — the target election is excluded from every anchor, so nothing leaks from the future. Predicting the past is easier than predicting the future; that is exactly why we publish the errors instead of just the wins.',
+    election: (it: BacktestItem) => it.election_en,
+    note: (it: BacktestItem) => it.note_en,
+    mae: 'MAE',
+    seats: 'seats',
+    horizon: (d: number) => `run at D−${d}`,
+    leader: 'Leader called',
+    majority: 'Majority status called',
+    ridings: 'ridings correct',
+    voteMae: 'vote MAE',
+    pts: 'pts',
+    party: 'Party',
+    projected: 'Projected',
+    actual: 'Actual',
+    error: 'Error',
+    yes: '✓',
+    methodLink: 'How the model works →',
+  },
+  fr: {
+    eyebrow: 'Calibration · Backtests',
+    heading: 'On a rejoué les élections passées. Voici nos erreurs.',
+    intro: "Chaque backtest refait tourner le modèle complet sur une élection passée avec uniquement les sondages disponibles à l'époque — l'élection cible est exclue de tous les ancrages, donc rien ne fuite du futur. Prédire le passé est plus facile que prédire l'avenir; c'est exactement pourquoi on publie les erreurs, pas seulement les bons coups.",
+    election: (it: BacktestItem) => it.election_fr,
+    note: (it: BacktestItem) => it.note_fr,
+    mae: 'MAE',
+    seats: 'sièges',
+    horizon: (d: number) => `run à J−${d}`,
+    leader: 'Meneur correct',
+    majority: 'Statut majoritaire correct',
+    ridings: 'circonscriptions correctes',
+    voteMae: 'MAE vote',
+    pts: 'pts',
+    party: 'Parti',
+    projected: 'Projeté',
+    actual: 'Réel',
+    error: 'Erreur',
+    yes: '✓',
+    methodLink: 'Comment le modèle fonctionne →',
+  },
+  es: {
+    eyebrow: 'Calibración · Backtests',
+    heading: 'Reprodujimos elecciones pasadas. Estos son nuestros errores.',
+    intro: 'Cada backtest vuelve a ejecutar el modelo completo sobre una elección pasada usando solo las encuestas disponibles en su momento — la elección objetivo se excluye de todos los anclajes, así que nada se filtra del futuro. Predecir el pasado es más fácil que predecir el futuro; exactamente por eso publicamos los errores, no solo los aciertos.',
+    election: (it: BacktestItem) => it.election_es,
+    note: (it: BacktestItem) => it.note_es,
+    mae: 'MAE',
+    seats: 'escaños',
+    horizon: (d: number) => `corrida a D−${d}`,
+    leader: 'Líder acertado',
+    majority: 'Estatus de mayoría acertado',
+    ridings: 'distritos correctos',
+    voteMae: 'MAE voto',
+    pts: 'pts',
+    party: 'Partido',
+    projected: 'Proyectado',
+    actual: 'Real',
+    error: 'Error',
+    yes: '✓',
+    methodLink: 'Cómo funciona el modelo →',
+  },
+}[lang];
+
+const methodologyHref =
+  lang === 'fr' ? '/fr/methodologie/' : lang === 'es' ? '/es/metodologia/' : '/en/methodology/';
+---
+
+{items.length > 0 && (
+  <section class="content-band" id="calibration">
+    <div class="container">
+      <p class="eyebrow">{t.eyebrow}</p>
+      <h2>{t.heading}</h2>
+      <p class="cal-intro">{t.intro}</p>
+      <div class="cal-grid">
+        {items.map((it) => (
+          <div class="note-card cal-card">
+            <p class="eyebrow">{it.flag} {t.election(it)} · {t.horizon(it.horizon_days)}</p>
+            <p class="cal-headline">
+              <span>{t.mae}&nbsp;</span><strong>{num(it.mae_seats)}</strong><span>&nbsp;{t.seats} / {it.seats_total}</span>
+              {typeof it.pct_ridings_correct === 'number' && (
+                <span> · <strong>{num(it.pct_ridings_correct)}&nbsp;%</strong>&nbsp;{t.ridings}</span>
+              )}
+              {typeof it.vote_mae_pts === 'number' && (
+                <span> · {t.voteMae}&nbsp;<strong>{num(it.vote_mae_pts)}</strong>&nbsp;{t.pts}</span>
+              )}
+            </p>
+            <p class="cal-checks">
+              {it.leader_correct && <span class="cal-check">{t.yes} {t.leader}</span>}
+              {it.majority_status_correct && <span class="cal-check">{t.yes} {t.majority}</span>}
+            </p>
+            <table class="cal-table">
+              <thead>
+                <tr><th>{t.party}</th><th>{t.projected}</th><th>{t.actual}</th><th>{t.error}</th></tr>
+              </thead>
+              <tbody>
+                {it.parties.map((p) => (
+                  <tr>
+                    <td>{p.party}</td>
+                    <td>{num(p.proj)}</td>
+                    <td>{p.actual}</td>
+                    <td>{p.proj - p.actual >= 0 ? '+' : '−'}{num(Math.abs(p.proj - p.actual))}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <p class="cal-note">{t.note(it)}</p>
+          </div>
+        ))}
+      </div>
+      <p style="margin-top:1.5rem;"><a href={methodologyHref}>{t.methodLink}</a></p>
+    </div>
+  </section>
+)}
+
+<style>
+  .cal-intro {
+    max-width: 720px;
+    line-height: 1.7;
+    margin-bottom: 1.5rem;
+  }
+  .cal-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.25rem;
+  }
+  .cal-card {
+    border-left: 4px solid var(--red, #c33);
+  }
+  .cal-headline {
+    font-size: 1.05rem;
+    margin: 0.4rem 0;
+  }
+  .cal-checks {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin: 0.25rem 0 0.75rem;
+  }
+  .cal-check {
+    font-family: var(--mono, monospace);
+    font-size: 11px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--ink-3, #555);
+  }
+  .cal-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+  }
+  .cal-table th {
+    font-family: var(--mono, monospace);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-3, #666);
+    font-weight: 400;
+    text-align: left;
+    padding: 4px 8px;
+    border-bottom: 1px solid var(--rule, #ddd);
+  }
+  .cal-table td {
+    padding: 4px 8px;
+    border-bottom: 1px solid var(--rule, #eee);
+  }
+  .cal-note {
+    margin-top: 0.75rem;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    color: var(--ink-3, #555);
+  }
+</style>

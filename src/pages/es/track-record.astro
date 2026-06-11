@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import Base from '../../layouts/Base.astro';
 import KeepDigging from '../../components/KeepDigging.astro';
+import CalibrationSection from '../../components/CalibrationSection.astro';
 import AnimatedNumber from '../../islands/AnimatedNumber.tsx';
 
 const dataPath = resolve(process.cwd(), 'web_data', 'track-record', 'predictions.json');
@@ -169,6 +170,8 @@ function fmtDate(iso: string) {
         </p>
       </div>
     </section>
+
+    <CalibrationSection lang="es" backtests={data.backtests} />
 
     <div class="track-keep-digging container">
       <KeepDigging
