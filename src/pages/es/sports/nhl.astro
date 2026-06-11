@@ -29,16 +29,19 @@ const board = sportsData.board as Array<{
 const hero = sportsData.hero;
 const boardMeta = sportsData.board_meta;
 
-const topTeams = board.slice(0, 8);
-const topThree = board.slice(0, 3);
+// Équipes encore en vie seulement : en finale, le board doit montrer les deux
+// finalistes exclusivement, pas les éliminées à 0 %.
+const aliveBoard = board.filter((t) => t.p_cup_win > 0);
+const topTeams = aliveBoard.slice(0, 8);
+const topThree = aliveBoard.slice(0, 3);
 
-const gaps = board
+const gaps = aliveBoard
   .slice(0, 8)
   .map((t) => ({ ...t, gap: Math.abs(t.p_cup_bsts - t.p_cup_market) }))
   .sort((a, b) => b.gap - a.gap)
   .slice(0, 3);
 
-const trendUp = board.filter((t) => t.trend_direction === 'up').slice(0, 3);
+const trendUp = aliveBoard.filter((t) => t.trend_direction === 'up').slice(0, 3);
 ---
 
 <EditorialLayout
