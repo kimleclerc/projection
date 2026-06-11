@@ -273,12 +273,15 @@ export function getPollsTrend(webKey: string): TrendBundle | undefined {
     vote_ci_low_95: Number(p.vote_ci_low_95 ?? p.vote_mean ?? 0),
     vote_ci_high_95: Number(p.vote_ci_high_95 ?? p.vote_mean ?? 0),
   }));
-  // Same display rule as the legend/bars: no _oth, no micro-parties, top 5.
+  // Same display rule as the legend/bars (no _oth, no micro-parties), ordered
+  // by current vote share so the leaders are always charted — the previous
+  // JSON-order slice(0, 5) silently dropped Reform (the UK leader) and SNP.
   const display = new Set(getDisplayPartyCodes(webKey));
-  const trendOrder = trendParties
+  const trendOrder = [...trendParties]
+    .sort((a, b) => b.vote_mean - a.vote_mean)
     .map((p) => p.party)
     .filter((k) => display.has(k))
-    .slice(0, 5);
+    .slice(0, 7);
   const pollsHistory: PollSnapshot[] = (
     (d.polls_history as Array<Record<string, unknown>>) ?? []
   ).map((poll) => ({

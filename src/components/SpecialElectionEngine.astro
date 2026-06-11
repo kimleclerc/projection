@@ -17,6 +17,14 @@ interface Props {
 }
 
 const { lang, config } = Astro.props;
+
+// Metas localisées avec repli EN — Bing signalait des titres/descriptions
+// identiques entre locales sur les pages specials.
+const metaTitle =
+  (lang === 'fr' ? config.title_fr : lang === 'es' ? config.title_es : undefined) ?? config.title;
+const metaDescription =
+  (lang === 'fr' ? config.description_fr : lang === 'es' ? config.description_es : undefined) ??
+  config.description;
 const canonicalPath = config.paths[lang] ?? config.paths.en;
 if (!canonicalPath) {
   throw new Error(`Missing canonical path for special election ${config.slug}`);
@@ -150,8 +158,8 @@ const jsonLd = [
   {
     '@context': 'https://schema.org',
     '@type': 'Dataset',
-    name: config.title.replace(' — Vote-Scope', '').replace(' | Vote-Scope', ''),
-    description: config.description,
+    name: metaTitle.replace(' — Vote-Scope', '').replace(' | Vote-Scope', ''),
+    description: metaDescription,
     creator: {
       '@type': 'Person',
       name: 'Kim Leclerc',
@@ -183,8 +191,8 @@ const jsonLd = [
 ---
 
 <Base
-  title={config.title}
-  description={config.description}
+  title={metaTitle}
+  description={metaDescription}
   canonical={canonical}
   currentPage={config.currentPage}
   lang={lang}

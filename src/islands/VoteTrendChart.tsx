@@ -89,7 +89,9 @@ export default function VoteTrendChart({
           };
         });
 
-        const lastDate = xDates[xDates.length - 1];
+        // Date la plus récente, peu importe l'ordre de polls_history (desc sur
+        // certaines juridictions — le losange du modèle se retrouvait en janvier).
+        const lastDate = xDates.reduce((a, b) => (a > b ? a : b), xDates[0]);
         const estimateTraces = orderedKeys.map((key) => {
           const meta = partyByKey.get(key)!;
           return {

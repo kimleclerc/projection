@@ -7,6 +7,11 @@ export interface SpecialElectionConfig {
   modelBadge: string;
   title: string;
   description: string;
+  /** Localized meta overrides — Bing flags identical cross-locale titles/descriptions. */
+  title_fr?: string;
+  description_fr?: string;
+  title_es?: string;
+  description_es?: string;
   kicker: string;
   headline: string;
   dek: string;
@@ -29,6 +34,10 @@ export const specialElections = {
     currentPage: 'usa-hub',
     modelBadge: 'Fundamentals-only',
     title: 'CA-1 Special Primary Result — Resolved Archive — Vote-Scope',
+    title_fr: 'Primaire spéciale CA-1 — résultat et archive — Vote-Scope',
+    title_es: 'Primaria especial CA-1 — resultado y archivo — Vote-Scope',
+    description_fr: "Résultat archivé : à la primaire spéciale top-two de CA-1 du 2 juin 2026, le républicain James Gallagher mène (~47 %) devant le démocrate Mike McGuire (~38 %); les deux passent à la générale. Le modèle fondamentaux de Vote-Scope avait projeté le champ avant le vote.",
+    description_es: "Resultado archivado: en la primaria especial top-two de CA-1 del 2 de junio de 2026, el republicano James Gallagher lideró (~47 %) con el demócrata Mike McGuire segundo (~38 %); ambos avanzan a la general. El modelo de fundamentos de Vote-Scope proyectó el campo antes del voto.",
     description:
       "Archived result: in the June 2, 2026 CA-1 top-two special primary, Republican James Gallagher led (~47%) with Democrat Mike McGuire second (~38%); both advance to the special general. Vote-Scope's fundamentals-only model projected the field before election day.",
     kicker: 'Resolved special primary · June 2, 2026',
@@ -57,6 +66,10 @@ export const specialElections = {
     currentPage: 'usa-hub',
     modelBadge: 'Fundamentals-only',
     title: 'CA-14 Special Election Forecast — Vote-Scope',
+    title_fr: 'Élection spéciale CA-14 — projection — Vote-Scope',
+    title_es: 'Elección especial CA-14 — proyección — Vote-Scope',
+    description_fr: "Projette la primaire spéciale top-two de CA-14 du 16 juin 2026 : probabilités top-two, risque de second tour en août et duel le plus probable à la générale. 50 000 simulations — Vote-Scope.",
+    description_es: "Proyecta la primaria especial top-two de CA-14 del 16 de junio de 2026: probabilidades top-two, riesgo de segunda vuelta en agosto y el duelo más probable en la general. 50.000 simulaciones — Vote-Scope.",
     description:
       "Projects the June 16, 2026 CA-14 special top-two primary: top-two odds, August runoff risk, and the most likely general pairing. 50,000 simulations — Vote-Scope.",
     kicker: 'U.S. House special · June 16',
@@ -85,6 +98,10 @@ export const specialElections = {
     currentPage: 'usa-hub',
     modelBadge: 'Fundamentals-only',
     title: 'GA-14 Special Runoff — Called Correctly — Vote-Scope',
+    title_fr: 'Second tour spécial GA-14 — appel réussi — Vote-Scope',
+    title_es: 'Segunda vuelta especial GA-14 — acierto del modelo — Vote-Scope',
+    description_fr: "Vote-Scope avait vu juste sur GA-14 : 95,8 % de probabilité de victoire pour Clay Fuller avant le vote, validée par 3,79 M$ de volume de marché. Archive du modèle qui a eu raison.",
+    description_es: "Vote-Scope acertó en GA-14: 95,8 % de probabilidad de victoria para Clay Fuller antes del voto, validada por 3,79 M$ de volumen de mercado. Archivo del modelo que acertó.",
     description:
       "Vote-Scope called GA-14 correctly: 95.8% pre-election win probability for Clay Fuller, validated by $3.79M in market volume. Archive of the model that got it right.",
     kicker: 'Result locked · April 8, 2026 · Georgia 14',
@@ -113,6 +130,10 @@ export const specialElections = {
     currentPage: 'usa-hub',
     modelBadge: 'Fundamentals-only',
     title: 'NJ-11 Special Election Result — Vote-Scope',
+    title_fr: 'Élection spéciale NJ-11 — résultat — Vote-Scope',
+    title_es: 'Elección especial NJ-11 — resultado — Vote-Scope',
+    description_fr: "Résultat archivé : Vote-Scope projetait Analilia Mejia grande favorite avant l'élection spéciale NJ-11 du 16 avril 2026 — confirmé le soir du vote. Maintien démocrate décisif.",
+    description_es: "Resultado archivado: Vote-Scope proyectaba a Analilia Mejia como clara favorita antes de la elección especial NJ-11 del 16 de abril de 2026 — confirmado el día del voto. Retención demócrata decisiva.",
     description:
       "Archived result: Vote-Scope projected Analilia Mejia as the clear favorite before the April 16, 2026 NJ-11 special election — confirmed on election day. Decisive Democratic hold.",
     kicker: 'Resolved special election · April 16',
