@@ -1,67 +1,89 @@
 {
   "locale": "es",
   "slug": "metodologia",
-  "title": "Metodología — Vote-Scope",
-  "description": "Explica cómo Vote-Scope proyecta escaños: sondeos agregados a diario, modelo bayesiano, 10 000 simulaciones por circunscripción. Transparente, independiente y actualizado de forma continua.",
+  "title": "Metodología: cómo se calculan nuestras proyecciones electorales — Vote-Scope",
+  "description": "Cómo Vote-Scope proyecta escaños: agregación ponderada de encuestas, auditoría de calidad por encuesta, corrección de sesgos de las firmas, modelo bayesiano BSTS y hasta 50.000 simulaciones Monte Carlo. Transparente y verificable.",
   "eyebrow": "Metodología · Vote-Scope",
   "h1Html": "Cómo calculamos<br><em>quién va a ganar</em>",
-  "intro": "Vote-Scope no se limita a mostrar sondeos. Los agrega, los pondera, corrige los sesgos y simula miles de escenarios para producir una proyección realista — no una simple instantánea de un único sondeo.",
+  "intro": "Vote-Scope no se limita a mostrar encuestas. Cada encuesta es auditada, ponderada, corregida de sus sesgos y fusionada en un modelo estadístico bayesiano que alimenta decenas de miles de simulaciones electorales completas. Aquí está cada etapa de la máquina — porque una proyección que no se puede inspeccionar no vale nada.",
   "sections": [
     {
       "number": "01",
-      "title": "Recopilamos todos los sondeos",
-      "bodyHtml": "<p>Cada sondeo publicado por las principales firmas (Léger, Abacus, Nanos, Mainstreet, EKOS, Angus Reid…) se registra con su fecha, tamaño de muestra y casa encuestadora. Los sondeos recientes pesan más — el modelo aplica un decaimiento temporal.</p><p>Para el Canadá federal: más de 190 sondeos agregados. Para Quebec: más de 55 sondeos provinciales.</p>"
+      "title": "Recopilamos cada encuesta publicada",
+      "bodyHtml": "<p>Cada encuesta publicada por las firmas (Léger, Abacus, Nanos, Mainstreet, EKOS, Angus Reid, Pallas, Innovative…) se registra con sus fechas de campo, tamaño de muestra, firma, modo de recolección y desgloses regionales cuando existen. A nivel federal: más de 240 encuestas agregadas. En Quebec: más de 60 encuestas provinciales, con desgloses por región y por idioma cuando se publican.</p><p>Las encuestas recientes pesan más: la ponderación temporal sigue una <strong>vida media de 14 días</strong> — una encuesta de hace dos semanas cuenta la mitad que una de hoy. Cuando el modelo detecta una ola (movimiento rápido y coherente entre varias firmas), la vida media se acorta automáticamente, hasta la mitad, para seguir el movimiento sin suavizarlo en exceso.</p>"
     },
     {
       "number": "02",
-      "title": "Corregimos los sesgos de cada firma",
-      "bodyHtml": "<p>Algunas firmas sobrestiman sistemáticamente a un partido y otras lo subestiman. Calculamos estos sesgos (<em>house effects</em>) a partir de resultados electorales pasados y los corregimos automáticamente. El resultado: una estimación del apoyo electoral real, no el sesgo de una firma en particular.</p>"
+      "title": "Cada encuesta pasa una auditoría de calidad",
+      "bodyHtml": "<p>Antes de cualquier ponderación, un módulo de calidad audita la metodología de cada encuesta individualmente — no la reputación de la firma, la encuesta misma: variables de ponderación declaradas (edad, género, región, educación, idioma, voto pasado), fuente de los objetivos de ponderación (qué censo), presencia de desgloses regionales y tamaño de muestra efectivo una vez considerado el <em>design effect</em>.</p><p>Cada verificación produce una señal auditable y una puntuación de calidad que modula el peso de la encuesta, con un piso conservador: ninguna encuesta se descarta, pero un dato nacional sin desgloses pesa menos que un estudio completo. Las encuestas antiguas, publicadas antes de que se capturaran estos campos, reciben valores neutros — la falta de información no se trata como una falta metodológica.</p><p>Es el primer bloque de nuestra iniciativa de integridad de datos, que separa estrictamente tres preguntas: ¿es esta encuesta metodológicamente sólida (calidad)?, ¿acierta históricamente esta firma (desempeño)?, ¿hay señales de anomalía en los datos (integridad)?</p>"
     },
     {
       "number": "03",
-      "title": "Estimamos la intención de voto",
-      "bodyHtml": "<p>El núcleo del modelo es una serie temporal estructural bayesiana (BSTS) — un modelo estadístico que sigue la intención de voto a lo largo del tiempo teniendo en cuenta la incertidumbre. Genera una distribución de probabilidad para cada partido, no solo una cifra única.</p><p>En términos sencillos: el modelo dice «los Liberales probablemente tienen entre el 44 % y el 50 %» — no solo «47 %».</p>"
+      "title": "Ponderamos las firmas — y corregimos sus sesgos",
+      "bodyHtml": "<p>El peso final de cada encuesta combina varios factores multiplicativos documentados: la <strong>transparencia metodológica</strong> de la firma (puntuación de divulgación), su <strong>desempeño histórico</strong> (error absoluto medio en elecciones pasadas: una firma con 1 punto de error recibe una bonificación, una con 5 puntos se reduce fuertemente), una penalización para encuestas encargadas por clientes partidistas, y el <strong>tamaño de muestra</strong> en escala logarítmica — pasar de 1.000 a 2.000 encuestados ayuda, pero no el doble.</p><p>Luego viene la corrección de los <em>house effects</em>: para cada firma, el modelo mide la desviación sistemática entre sus cifras y el consenso de las demás firmas en el mismo período. La corrección usa un <strong>encogimiento adaptativo</strong>: una desviación pequeña (compatible con el ruido de muestreo) apenas se corrige; una desviación grande y persistente se corrige con plena fuerza. No castigamos a una firma por ser diferente — corregimos lo que es demostrablemente sistemático.</p><p>Finalmente, las firmas históricamente mal calibradas no solo se reponderan: la incertidumbre de sus observaciones se amplía dentro del modelo, para que la duda se propague hasta los intervalos de confianza finales.</p>"
     },
     {
       "number": "04",
-      "title": "Simulamos 10 000 escenarios de escaños",
-      "bodyHtml": "<p>Para cada simulación extraemos al azar un resultado nacional plausible y lo aplicamos a cada una de las 343 circunscripciones federales (o las 125 circunscripciones de Quebec, las 124 de Ontario…). Tenemos en cuenta el voto de 2025 en cada circunscripción, las dinámicas regionales y un factor de aleatoriedad local.</p><p>El resultado: una distribución de escaños realista — no una cifra mágica, sino un rango con probabilidades asociadas a cada escenario.</p>"
+      "title": "Un modelo bayesiano estima la intención de voto (BSTS)",
+      "bodyHtml": "<p>El núcleo del modelo es una <strong>serie temporal estructural bayesiana</strong> (BSTS), ajustada por separado para cada partido. La intención de voto se trata como un estado oculto que evoluciona en el tiempo — un nivel y una tendencia local — observado imperfectamente a través de las encuestas ponderadas. El modelo elige su propia estructura según la riqueza de los datos: un ciclo rico en encuestas recientes permite una tendencia más reactiva; un ciclo escaso impone una estructura más prudente.</p><p>La estimación corre por <strong>MCMC</strong> (Markov chain Monte Carlo): miles de extracciones sucesivas exploran el conjunto de trayectorias compatibles con los datos. El resultado no es una cifra, es una <strong>distribución posterior completa</strong> para cada partido en cada fecha — «los liberales están probablemente entre 41 % y 46 %» — y cada extracción mantiene la coherencia entre partidos (las cuotas deben ser plausibles juntas, no solo por separado).</p>"
     },
     {
       "number": "05",
-      "title": "Publicamos y repetimos al día siguiente",
-      "bodyHtml": "<p>Los resultados se exportan como JSON estático y se actualizan con cada nueva ejecución. La página muestra la fecha de la última ejecución. A medida que se acerca el día de las elecciones, los sondeos recientes pesan más — y el rango se estrecha.</p>"
+      "title": "Monte Carlo: hasta 50.000 elecciones simuladas",
+      "bodyHtml": "<p>Un promedio nacional no produce escaños. Para traducir votos en escaños, simulamos la elección completa decenas de miles de veces — <strong>50.000 simulaciones a nivel federal, 20.000 en Quebec</strong>. Cada simulación extrae un resultado nacional plausible de las distribuciones del BSTS, respetando la <strong>matriz de correlaciones entre partidos</strong> estimada de los datos: cuando un partido sube, el modelo sabe de quién toma los votos.</p><p>Ese resultado nacional se proyecta luego región por región con <strong>elasticidades de swing</strong>: cada región y cada tipo de distrito (urbano, rural) reacciona de forma diferente al mismo movimiento nacional, calibrado con elecciones pasadas. El swing regional se ancla en los desgloses regionales de las encuestas cuando existen, en la historia si no. A nivel federal, los resultados de elecciones parciales sirven de ancla local adicional. Un ruido local por distrito completa el cuadro — porque cada distrito tiene sus sorpresas.</p><p>Las cifras publicadas son estadísticas sobre estas simulaciones: la proyección de escaños es el promedio, el intervalo del 80 % cubre los escenarios centrales, y «probabilidad de mayoría: 90 %» significa literalmente que el partido gana la mayoría en 9 de cada 10 simulaciones.</p>"
+    },
+    {
+      "number": "06",
+      "title": "Nos calibramos con el pasado — y publicamos nuestros errores",
+      "bodyHtml": "<p>Después de cada elección, los perfiles de las firmas se actualizan: sesgos medidos, error absoluto medio, confianza. Estos perfiles alimentan directamente la ponderación y las correcciones del siguiente ciclo — el modelo aprende de cada votación.</p><p>El modelo también se reproduce sobre elecciones pasadas usando solo las encuestas disponibles en su momento (<em>backtests</em>): las elecciones federales de 2019, 2021 y 2025, y las generales británicas de 2024. Los errores observados — por partido, en escaños — se publican en nuestra página <a href=\"/es/track-record/\">Track Record</a>. Predecir el pasado es más fácil que predecir el futuro; precisamente por eso nos imponemos el ejercicio y mostramos los resultados.</p>"
+    },
+    {
+      "number": "07",
+      "title": "Publicamos, y lo repetimos mañana",
+      "bodyHtml": "<p>Cada corrida exporta JSON estáticos públicos — los mismos archivos que alimentan estas páginas. Cada proyección muestra la fecha de su última corrida, con el número de encuestas y simulaciones usadas. A medida que se acerca el día de la elección, las encuestas recientes pesan más y los intervalos se estrechan naturalmente.</p>"
     }
   ],
-  "callout": "<strong>Idea clave:</strong> Los escaños mostrados son <em>promedios de simulación</em>, no una predicción garantizada. Un partido proyectado en 218 escaños podría obtener 195 o 240 — la distribución refleja esa incertidumbre. Una probabilidad de mayoría del 90 % significa que en 9 de cada 10 simulaciones ese partido obtiene la mayoría — no que sea seguro.",
+  "callout": "<strong>Lo esencial:</strong> los escaños mostrados son <em>promedios de simulación</em>, no una predicción garantizada. Un partido proyectado en 218 escaños podría ganar 195 o 240 — la distribución muestra esa incertidumbre. Una probabilidad de mayoría del 90 % significa que en 9 de cada 10 simulaciones ese partido obtiene la mayoría — no que sea seguro.",
   "cards": [
     {
-      "kicker": "Fuentes de datos",
-      "title": "De dónde salen las cifras",
+      "kicker": "Por jurisdicción",
+      "title": "El mismo esqueleto, calibrado localmente",
       "itemsHtml": [
-        "Sondeos públicos (Léger, Abacus, Nanos, Mainstreet, EKOS, Angus Reid, Pallas, Forum, Innovative…)",
-        "Resultados oficiales de 2025 — Elections Canada",
-        "Resultados oficiales de 2022 — Élections Québec",
-        "Resultados de 2024 — MIT Election Lab (EE. UU.)",
-        "Mapas geográficos — Elections Canada, Census Bureau",
-        "Elecciones parciales, cambios de bancada y de escaños registrados manualmente"
+        "<strong>Canadá federal</strong> — 343 distritos, 50.000 simulaciones, anclaje en elecciones parciales. Nuestro pipeline más completo, backtesteado en 2019, 2021 y 2025.",
+        "<strong>Quebec 2026</strong> — 127 distritos (mapa híbrido de la redistribución PL3), 20.000 simulaciones, desgloses por región e idioma integrados.",
+        "<strong>Ontario</strong> — 124 distritos, encuestas provinciales agregadas.",
+        "<strong>Estados Unidos</strong> — Cámara (435 distritos) y Senado (escaños de Clase II), entorno nacional + calificaciones de carreras.",
+        "<strong>Reino Unido</strong> — 650 escaños, anclas MRP públicas; backtest 2024 publicado. Calibración aún en refinamiento.",
+        "<strong>Francia</strong> — presidencial, escenarios de transferencia de votos; estatus explícitamente experimental."
+      ]
+    },
+    {
+      "kicker": "Fuentes de datos",
+      "title": "De dónde vienen las cifras",
+      "itemsHtml": [
+        "Encuestas públicas (Léger, Abacus, Nanos, Mainstreet, EKOS, Angus Reid, Pallas, Forum, Innovative…)",
+        "Resultados oficiales 2025 — Elecciones Canadá",
+        "Resultados oficiales 2022 y geometría de 127 distritos — Élections Québec / DGEQ",
+        "Resultados 2024 — MIT Election Lab (EE. UU.) y resultados oficiales (R.U.)",
+        "Mapas geográficos — Elecciones Canadá, DGEQ, Census Bureau",
+        "Parciales, cambios de bancada y escaños vacantes seguidos manualmente"
       ]
     },
     {
       "kicker": "Límites del modelo",
       "title": "Lo que no captamos bien",
       "itemsHtml": [
-        "El voto estratégico — difícil de anticipar de forma mecánica",
-        "Candidatos locales destacados que superan a su partido",
-        "Acontecimientos de campaña de último minuto",
-        "Circunscripciones muy ajustadas — donde el margen de error es mayor",
-        "Contextos sociolingüísticos muy locales (algunas circunscripciones bilingües, indígenas, etc.)"
+        "El voto estratégico — difícil de anticipar mecánicamente",
+        "Los candidatos estrella locales que superan a su partido",
+        "Los eventos de fin de campaña",
+        "Los distritos muy reñidos — donde el margen de error es máximo",
+        "Los contextos sociolingüísticos muy locales (distritos bilingües, indígenas, etc.)"
       ]
     },
     {
       "kicker": "Independencia",
       "title": "Sin afiliación partidista",
-      "bodyHtml": "<p>Vote-Scope es un proyecto personal de <a href=\"https://kimleclerc.ca\" target=\"_blank\" rel=\"noopener\">Kim Leclerc</a>, periodista y analista de datos. El modelo no está afiliado a ningún partido, casa encuestadora ni medio de comunicación. Se basa únicamente en datos públicos y en una metodología estadística transparente.</p><p>Las decisiones metodológicas se documentan aquí. Si detecta un error o quiere debatir el método, escriba a través de <a href=\"https://kimleclerc.ca\" target=\"_blank\" rel=\"noopener\">kimleclerc.ca</a>.</p>"
+      "bodyHtml": "<p>Vote-Scope es un proyecto personal de <a href=\"https://kimleclerc.ca\" target=\"_blank\" rel=\"noopener\">Kim Leclerc</a>, periodista y analista de datos. El modelo no está afiliado a ningún partido, firma encuestadora ni medio. Se basa únicamente en datos públicos y una metodología estadística transparente.</p><p>Las decisiones metodológicas se documentan aquí y evolucionan con el proyecto. Si detectas un error o quieres discutir el método, escribe a través de <a href=\"https://kimleclerc.ca\" target=\"_blank\" rel=\"noopener\">kimleclerc.ca</a>.</p>"
     }
   ],
   "canonicalSlug": "/es/metodologia",

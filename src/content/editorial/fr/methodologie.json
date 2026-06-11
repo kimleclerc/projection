@@ -1,67 +1,89 @@
 {
   "locale": "fr",
   "slug": "methodologie",
-  "title": "Méthodologie — Vote-Scope",
-  "description": "Explique comment Vote-Scope projette les sièges : sondages agrégés quotidiennement, modèle bayésien, 10 000 simulations par circonscription. Transparent, indépendant, mis à jour en continu.",
+  "title": "Méthodologie : comment nos projections électorales sont calculées — Vote-Scope",
+  "description": "Comment Vote-Scope projette les sièges : agrégation pondérée des sondages, audit de qualité par sondage, correction des biais de firmes, modèle bayésien BSTS et jusqu'à 50 000 simulations Monte Carlo. Transparent et vérifiable.",
   "eyebrow": "Méthodologie · Vote-Scope",
   "h1Html": "Comment on calcule<br><em>qui va gagner</em>",
-  "intro": "Vote-Scope ne se contente pas d'afficher des sondages. On les agrège, on les pondère, on corrige les biais et on simule des milliers de scénarios pour produire une projection réaliste — pas un simple instantané d'un seul sondage.",
+  "intro": "Vote-Scope n'affiche pas simplement des sondages. Chaque sondage est audité, pondéré, corrigé de ses biais, puis fusionné dans un modèle statistique bayésien qui alimente des dizaines de milliers de simulations électorales complètes. Voici chaque étape de la machine — parce qu'une projection qu'on ne peut pas inspecter ne vaut rien.",
   "sections": [
     {
       "number": "01",
-      "title": "On collecte tous les sondages",
-      "bodyHtml": "<p>Chaque sondage publié par les grandes firmes (Léger, Abacus, Nanos, Mainstreet, EKOS, Angus Reid…) est intégré avec sa date, sa taille d'échantillon et la firme qui l'a produit. Les sondages récents comptent plus — le modèle applique une décroissance temporelle.</p><p>Pour le fédéral canadien : plus de 190 sondages agrégés. Pour le Québec : 55+ sondages provinciaux.</p>"
+      "title": "On collecte chaque sondage publié",
+      "bodyHtml": "<p>Chaque sondage publié par les firmes (Léger, Abacus, Nanos, Mainstreet, EKOS, Angus Reid, Pallas, Innovative…) est saisi avec sa date de terrain, sa taille d'échantillon, sa firme, son mode de collecte et ses ventilations régionales quand elles existent. Au fédéral : plus de 240 sondages agrégés. Au Québec : plus de 60 sondages provinciaux, avec ventilations par région et par langue lorsque publiées.</p><p>Les sondages récents pèsent plus lourd : la pondération temporelle suit une <strong>demi-vie de 14 jours</strong> — un sondage vieux de deux semaines compte moitié moins qu'un sondage d'aujourd'hui. Quand le modèle détecte une vague (mouvement rapide et cohérent entre plusieurs firmes), la demi-vie se raccourcit automatiquement, jusqu'à moitié, pour suivre le mouvement sans le lisser à outrance.</p>"
     },
     {
       "number": "02",
-      "title": "On corrige les biais des firmes",
-      "bodyHtml": "<p>Certaines firmes surestiment systématiquement un parti, d'autres le sous-estiment. On calcule ces biais (<em>house effects</em>) à partir des résultats électoraux passés et on les corrige automatiquement. Le résultat : une estimation du vrai appui électoral, pas du biais d'une firme particulière.</p>"
+      "title": "Chaque sondage passe un audit de qualité",
+      "bodyHtml": "<p>Avant toute pondération, un module d'audit (<em>poll quality</em>) examine la méthodologie de chaque sondage individuellement — pas la réputation de la firme, le sondage lui-même : variables de pondération déclarées (âge, genre, région, éducation, langue, vote passé), source des cibles de pondération (recensement utilisé), présence de ventilations régionales, taille d'échantillon effective une fois le <em>design effect</em> pris en compte.</p><p>Chaque vérification produit un drapeau auditable et un score de qualité qui module le poids du sondage, avec un plancher conservateur : aucun sondage n'est éliminé, mais un topline national sans ventilation pèse moins qu'une étude complète. Les sondages anciens, publiés avant que ces champs soient saisis, reçoivent des valeurs neutres — l'absence d'information n'est pas traitée comme une faute.</p><p>C'est la première brique de notre initiative d'intégrité des données, qui sépare strictement trois questions : ce sondage est-il méthodologiquement solide (qualité), cette firme vise-t-elle juste historiquement (performance), et y a-t-il des signaux d'anomalie dans les données (intégrité).</p>"
     },
     {
       "number": "03",
-      "title": "On estime les intentions de vote",
-      "bodyHtml": "<p>Le cœur du modèle est un BSTS bayésien (<em>Bayesian Structural Time Series</em>) — un modèle statistique qui suit l'évolution des intentions de vote dans le temps en tenant compte de l'incertitude. Il génère une distribution de probabilités pour chaque parti, pas juste un chiffre unique.</p><p>En clair : le modèle dit « les libéraux ont probablement entre 44 % et 50 % des voix » — pas seulement « 47 % ».</p>"
+      "title": "On pondère les firmes — et on corrige leurs biais",
+      "bodyHtml": "<p>Le poids final de chaque sondage combine plusieurs facteurs multiplicatifs documentés : la <strong>transparence méthodologique</strong> de la firme (score de divulgation), sa <strong>performance historique</strong> (erreur absolue moyenne aux élections passées : une firme à 1 point d'erreur est bonifiée, une firme à 5 points est fortement réduite), une pénalité pour les sondages commandés par un client partisan, et la <strong>taille d'échantillon</strong> en échelle logarithmique — passer de 1 000 à 2 000 répondants aide, mais n'aide pas deux fois plus.</p><p>Vient ensuite la correction des <em>house effects</em> : pour chaque firme, le modèle mesure l'écart systématique entre ses chiffres et le consensus des autres firmes sur la même période. La correction utilise un <strong>rétrécissement adaptatif</strong> : un écart faible (compatible avec le bruit d'échantillonnage) n'est presque pas corrigé; un écart large et persistant est corrigé à pleine force. On ne punit pas une firme d'être différente — on corrige ce qui est démontrablement systématique.</p><p>Enfin, les firmes mal calibrées historiquement ne sont pas seulement repondérées : l'incertitude de leurs observations est élargie dans le modèle, pour que le doute se propage jusqu'aux intervalles de confiance finaux.</p>"
     },
     {
       "number": "04",
-      "title": "On simule 10 000 scénarios de sièges",
-      "bodyHtml": "<p>Pour chaque simulation, on tire aléatoirement un résultat national plausible et on l'applique à chacune des 343 circonscriptions fédérales (ou 125 comtés québécois, 124 circonscriptions ontariennes…). On tient compte du vote de 2025 dans chaque circonscription, de la dynamique régionale et d'un facteur d'aléa local.</p><p>Résultat : une distribution réaliste de sièges — pas un chiffre magique, mais une fourchette avec une probabilité associée pour chaque scénario.</p>"
+      "title": "Un modèle bayésien estime l'intention de vote (BSTS)",
+      "bodyHtml": "<p>Le cœur du modèle est une <strong>série temporelle structurelle bayésienne</strong> (BSTS), ajustée séparément pour chaque parti. L'intention de vote y est traitée comme un état caché qui évolue dans le temps — niveau et tendance locale — observé imparfaitement à travers les sondages pondérés. Le modèle choisit lui-même sa structure selon la richesse des données : un cycle riche en sondages récents autorise une tendance plus réactive; un cycle pauvre force une structure plus prudente.</p><p>L'estimation se fait par <strong>MCMC</strong> (Markov chain Monte Carlo) : des milliers de tirages successifs explorent l'ensemble des trajectoires compatibles avec les données. Le résultat n'est pas un chiffre, c'est une <strong>distribution a posteriori complète</strong> pour chaque parti à chaque date — « les libéraux sont probablement entre 41 % et 46 % » — dont chaque tirage conserve la cohérence entre partis (les parts doivent rester plausibles ensemble, pas seulement séparément).</p>"
     },
     {
       "number": "05",
-      "title": "On publie et on recommence demain",
-      "bodyHtml": "<p>Les résultats sont exportés en JSON statique et mis à jour à chaque nouveau run. La page affiche la date du dernier run. Plus on approche du jour de l'élection, plus les sondages récents pèsent lourd — et plus la fourchette se resserre.</p>"
+      "title": "Monte Carlo : jusqu'à 50 000 élections simulées",
+      "bodyHtml": "<p>Une moyenne nationale ne donne pas des sièges. Pour traduire les votes en sièges, on simule l'élection complète des dizaines de milliers de fois — <strong>50 000 simulations au fédéral, 20 000 au Québec</strong>. Chaque simulation tire un résultat national plausible dans les distributions du BSTS, en respectant la <strong>matrice de corrélations entre partis</strong> estimée sur les données : quand un parti monte, le modèle sait chez qui il puise.</p><p>Ce résultat national est ensuite décliné région par région avec des <strong>élasticités de swing</strong> : chaque région et chaque type de circonscription (urbaine, rurale) réagit différemment à un même mouvement national, calibré sur les élections passées. Le swing régional s'ancre sur les ventilations régionales des sondages quand elles existent, sur l'histoire sinon. Au fédéral, les résultats d'élections partielles servent d'ancrage local supplémentaire. Un bruit local par circonscription complète le tableau — parce que chaque circonscription a ses surprises.</p><p>Les chiffres publiés sont des statistiques sur ces simulations : la projection de sièges est la moyenne, l'intervalle à 80 % couvre les scénarios centraux, et « probabilité de majorité : 90 % » signifie littéralement que le parti obtient la majorité dans 9 simulations sur 10.</p>"
+    },
+    {
+      "number": "06",
+      "title": "On se calibre sur le passé — et on publie nos erreurs",
+      "bodyHtml": "<p>Après chaque élection, les profils de firmes sont mis à jour : biais mesurés, erreur absolue moyenne, confiance. Ces profils alimentent directement la pondération et les corrections du prochain cycle — le modèle apprend de chaque scrutin.</p><p>Le modèle est aussi rejoué sur les élections passées avec uniquement les sondages disponibles à l'époque (<em>backtests</em>) : élections fédérales 2019, 2021 et 2025, et élection générale britannique 2024. Les erreurs constatées — par parti, en sièges — sont publiées sur notre page <a href=\"/fr/track-record/\">Track Record</a>. Prédire le passé est plus facile que prédire l'avenir; c'est justement pour ça qu'on s'impose l'exercice et qu'on en montre les résultats.</p>"
+    },
+    {
+      "number": "07",
+      "title": "On publie, et on recommence demain",
+      "bodyHtml": "<p>Chaque run exporte des JSON statiques publics — les mêmes fichiers qui alimentent ces pages. La date du dernier run est affichée sur chaque projection, avec le nombre de sondages et de simulations utilisés. À mesure que le jour du vote approche, les sondages récents pèsent plus lourd et les intervalles se resserrent naturellement.</p>"
     }
   ],
-  "callout": "<strong>À retenir :</strong> Les sièges affichés sont des <em>moyennes de simulations</em>, pas une prédiction garantie. Un parti projeté à 218 sièges pourrait en obtenir 195 ou 240 — la distribution montre cette incertitude. Une probabilité de majorité de 90 % signifie que dans 9 simulations sur 10, ce parti obtient une majorité — pas que c'est certain.",
+  "callout": "<strong>L'essentiel :</strong> les sièges affichés sont des <em>moyennes de simulation</em>, pas une prédiction garantie. Un parti projeté à 218 sièges peut en gagner 195 ou 240 — la distribution montre cette incertitude. Une probabilité de majorité de 90 % signifie que dans 9 simulations sur 10, ce parti obtient la majorité — pas que c'est certain.",
   "cards": [
+    {
+      "kicker": "Par juridiction",
+      "title": "Le même squelette, calibré localement",
+      "itemsHtml": [
+        "<strong>Canada fédéral</strong> — 343 circonscriptions, 50 000 simulations, ancrage sur les partielles. Notre pipeline le plus complet, backtesté sur 2019, 2021 et 2025.",
+        "<strong>Québec 2026</strong> — 127 circonscriptions (carte hybride du redécoupage PL3), 20 000 simulations, ventilations région et langue intégrées.",
+        "<strong>Ontario</strong> — 124 circonscriptions, sondages provinciaux agrégés.",
+        "<strong>États-Unis</strong> — Chambre (435 districts) et Sénat (sièges de classe II), environnement national + cotes de courses.",
+        "<strong>Royaume-Uni</strong> — 650 sièges, ancrages MRP publics; backtest 2024 publié. Calibration encore en raffinement.",
+        "<strong>France</strong> — présidentielle, scénarios de transferts de voix; statut expérimental assumé."
+      ]
+    },
     {
       "kicker": "Sources de données",
       "title": "D'où viennent les chiffres",
       "itemsHtml": [
         "Sondages publics (Léger, Abacus, Nanos, Mainstreet, EKOS, Angus Reid, Pallas, Forum, Innovative…)",
         "Résultats officiels 2025 — Élections Canada",
-        "Résultats officiels 2022 — Élections Québec",
-        "Résultats 2024 — MIT Election Lab (US)",
-        "Cartes géographiques — Élections Canada, Census Bureau",
-        "Partielles, traversées de parquet et changements de siège tenus à jour manuellement"
+        "Résultats officiels 2022 et géométrie 127 — Élections Québec / DGEQ",
+        "Résultats 2024 — MIT Election Lab (É.-U.) et résultats officiels (R.-U.)",
+        "Cartes géographiques — Élections Canada, DGEQ, Census Bureau",
+        "Partielles, changements d'allégeance et sièges vacants suivis manuellement"
       ]
     },
     {
       "kicker": "Limites du modèle",
-      "title": "Ce qu'on ne capture pas bien",
+      "title": "Ce qu'on capte mal",
       "itemsHtml": [
         "Le vote stratégique — difficile à anticiper mécaniquement",
-        "Les candidatures vedettes locales qui surperforment leur parti",
-        "Les événements de campagne de dernière minute",
-        "Les comtés très serrés — la marge d'erreur y est la plus grande",
-        "Les contextes sociolinguistiques très locaux (certains comtés bilingues, autochtones, etc.)"
+        "Les candidats vedettes locaux qui surperforment leur parti",
+        "Les événements de fin de campagne",
+        "Les circonscriptions très serrées — là où la marge d'erreur est maximale",
+        "Les contextes sociolinguistiques très locaux (circonscriptions bilingues, autochtones, etc.)"
       ]
     },
     {
       "kicker": "Indépendance",
       "title": "Aucune affiliation partisane",
-      "bodyHtml": "<p>Vote-Scope est un projet personnel de <a href=\"https://kimleclerc.ca\" target=\"_blank\" rel=\"noopener\">Kim Leclerc</a>, journaliste et analyste de données. Le modèle n'est affilié à aucun parti, aucune firme de sondage et aucun média. Il s'appuie uniquement sur des données publiques et une méthodologie statistique transparente.</p><p>Les choix méthodologiques sont documentés ici. Si vous repérez une erreur ou souhaitez discuter de la méthode, contactez-moi via <a href=\"https://kimleclerc.ca\" target=\"_blank\" rel=\"noopener\">kimleclerc.ca</a>.</p>"
+      "bodyHtml": "<p>Vote-Scope est un projet personnel de <a href=\"https://kimleclerc.ca\" target=\"_blank\" rel=\"noopener\">Kim Leclerc</a>, journaliste et analyste de données. Le modèle n'est affilié à aucun parti, firme de sondage ou média. Il repose uniquement sur des données publiques et une méthodologie statistique transparente.</p><p>Les choix méthodologiques sont documentés ici et évoluent avec le projet. Si vous repérez une erreur ou voulez discuter de la méthode, écrivez via <a href=\"https://kimleclerc.ca\" target=\"_blank\" rel=\"noopener\">kimleclerc.ca</a>.</p>"
     }
   ],
   "canonicalSlug": "/fr/methodologie",

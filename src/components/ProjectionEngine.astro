@@ -117,6 +117,50 @@ const projectionSegments = orderedParties
 
 const majorityMarkerPct = (majorityThreshold / totalSeats) * 100;
 
+// ——— Auto-generated SEO intro ———
+// Real prose above the tables, derived from the current run so it stays
+// accurate without manual rewriting. Gives search engines something better
+// to quote than raw table cells.
+const bySeats = [...orderedParties].sort((a, b) => b.seats_mean - a.seats_mean);
+const lead = bySeats[0];
+const second = bySeats[1];
+const partyLabel = (p: typeof lead) => (locale === 'fr' ? p.label_fr : p.label_en);
+const num = (v: number) => (locale === 'en' ? String(v) : String(v).replace('.', ','));
+const pMaj = Math.round(lead.p_majority * 100);
+const majorityPhrase =
+  locale === 'fr'
+    ? pMaj >= 99
+      ? 'une majorité quasi certaine dans nos simulations'
+      : pMaj <= 1
+        ? 'pratiquement aucun scénario majoritaire'
+        : `une probabilité de majorité de ${pMaj} %`
+    : locale === 'es'
+      ? pMaj >= 99
+        ? 'una mayoría casi segura en nuestras simulaciones'
+        : pMaj <= 1
+          ? 'prácticamente ningún escenario de mayoría'
+          : `una probabilidad de mayoría del ${pMaj} %`
+      : pMaj >= 99
+        ? 'a near-certain majority across our simulations'
+        : pMaj <= 1
+          ? 'virtually no majority scenario'
+          : `a ${pMaj}% probability of a majority`;
+const introParagraphs: string[] =
+  locale === 'fr'
+    ? [
+        `D'après notre agrégation de ${meta.n_polls} sondages et ${meta.n_simulations.toLocaleString('fr-CA')} simulations (run du ${meta.run_date}), le ${partyLabel(lead)} mène les intentions de vote à ${num(lead.vote_mean)} % et obtiendrait en moyenne ${Math.round(lead.seats_mean)} des ${totalSeats} sièges (intervalle de confiance 80 % : ${Math.round(lead.seats_ci_low_80)}–${Math.round(lead.seats_ci_high_80)}), avec ${majorityPhrase}.`,
+        `${partyLabel(second)} suit à ${num(second.vote_mean)} % des voix pour une projection moyenne de ${Math.round(second.seats_mean)} sièges. Le seuil de majorité est de ${majorityThreshold} sièges. Les chiffres ci-dessous sont des moyennes de simulation, pas des prédictions garanties — la méthodologie complète est publique.`,
+      ]
+    : locale === 'es'
+      ? [
+          `Según nuestra agregación de ${meta.n_polls} encuestas y ${meta.n_simulations.toLocaleString('es-ES')} simulaciones (corrida del ${meta.run_date}), ${partyLabel(lead)} lidera la intención de voto con ${num(lead.vote_mean)} % y obtendría en promedio ${Math.round(lead.seats_mean)} de los ${totalSeats} escaños (intervalo de confianza del 80 %: ${Math.round(lead.seats_ci_low_80)}–${Math.round(lead.seats_ci_high_80)}), con ${majorityPhrase}.`,
+          `${partyLabel(second)} le sigue con ${num(second.vote_mean)} % de los votos y una proyección media de ${Math.round(second.seats_mean)} escaños. El umbral de mayoría es de ${majorityThreshold} escaños. Las cifras siguientes son promedios de simulación, no predicciones garantizadas — la metodología completa es pública.`,
+        ]
+      : [
+          `Based on our aggregation of ${meta.n_polls} polls and ${meta.n_simulations.toLocaleString('en-CA')} simulations (run of ${meta.run_date}), the ${partyLabel(lead)} party leads voting intentions at ${num(lead.vote_mean)}% and would win an average of ${Math.round(lead.seats_mean)} of ${totalSeats} seats (80% confidence interval: ${Math.round(lead.seats_ci_low_80)}–${Math.round(lead.seats_ci_high_80)}), with ${majorityPhrase}.`,
+          `${partyLabel(second)} follows at ${num(second.vote_mean)}% of the vote for an average projection of ${Math.round(second.seats_mean)} seats. The majority threshold is ${majorityThreshold} seats. The numbers below are simulation averages, not guaranteed predictions — the full methodology is public.`,
+        ];
+
 // Localized strings
 const isFr = locale === "fr";
 const isEs = locale === "es";
@@ -362,6 +406,10 @@ const keepDiggingLinks = (() => {
     <GooglePreferredSource locale={locale} />
   </header>
 
+  <section class="pe-section container pe-intro" aria-label={locale === 'fr' ? 'Résumé de la projection' : locale === 'es' ? 'Resumen de la proyección' : 'Projection summary'}>
+    {introParagraphs.map((p) => <p>{p}</p>)}
+  </section>
+
   {jurisdiction.electionDate && (
     <section
       class="pe-section container"
@@ -554,6 +602,15 @@ const keepDiggingLinks = (() => {
   }
 
   /* HERO */
+  .pe-intro {
+    max-width: 760px;
+  }
+  .pe-intro p {
+    margin: 0 0 0.85rem;
+    line-height: 1.7;
+    font-size: 1.02rem;
+  }
+
   .pe-hero {
     max-width: 1080px;
     padding-bottom: 48px;
