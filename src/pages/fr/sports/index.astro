@@ -7,11 +7,13 @@ import AnimatedNumber from '../../../islands/AnimatedNumber';
 import PolymarketEmbed from '../../../components/PolymarketEmbed.astro';
 
 import sportsData from '../../../../web_data/sports/latest.json';
+import { flagFor } from '../../../lib/wc-flags';
 import wcData from '../../../../web_data/sports/worldcup2026_latest.json';
 
 const hero = sportsData.hero;
 const boardMeta = sportsData.board_meta;
 const wcHero = wcData.hero;
+const wcTop3 = (wcData.board as Array<{ team: string; labels: Record<string, string>; p_champion: number }>).slice(0, 3);
 const wcMeta = wcData.board_meta;
 ---
 
@@ -46,11 +48,34 @@ const wcMeta = wcData.board_meta;
     title="Qui a le chemin le plus propre, et qui vit sur une séquence fragile?"
     promise="Une verticale plus sportive pour chemins de séries, volatilité des gardiens, scores live, marchés et chaos de tournoi."
     question="Le favori est-il vraiment construit pour la prochaine ronde?"
-    primaryHref="/fr/sports/nhl/"
-    primaryLabel="Desk NHL"
-    secondaryHref="/fr/indexes/"
-    secondaryLabel="Tous les instruments"
+    primaryHref="/fr/sports/wc2026/"
+    primaryLabel="Desk Coupe du monde"
+    secondaryHref="/fr/sports/nhl/"
+    secondaryLabel="Desk NHL"
   />
+
+
+  <section class="content-band">
+    <div class="container">
+      <p class="eyebrow">Coupe du monde 2026 · coup d’envoi le 11 juin</p>
+      <h2>Le tournoi est lancé.</h2>
+      <div class="content-grid-2" style="gap:1.5rem;margin-top:1rem;">
+        {wcTop3.map((team, i) => (
+          <div class="note-card" style="border-left:4px solid var(--red, #c33);">
+            <p class="eyebrow">{i === 0 ? 'Favori du tournoi' : i === 1 ? 'Deuxième' : 'Troisième'}</p>
+            <h3 style="font-size:1.6rem;margin:0.25rem 0;">{flagFor(team.team)} {team.labels.fr}</h3>
+            <p style="font-size:1.6rem;font-weight:700;color:var(--red, #c33);">{team.p_champion}%</p>
+          </div>
+        ))}
+      </div>
+      <p style="margin-top:1rem;">48 équipes · 50 000 simulations · mis à jour pendant tout le tournoi.</p>
+      <p style="margin-top:0.5rem;">
+        <a href="/fr/sports/wc2026/" class="cta-link">Ouvrir le desk Coupe du monde →</a>
+        &nbsp;·&nbsp;
+        <a href="/fr/sports/wc2026/#beat-the-model" class="cta-link">Jouer : bats le modèle →</a>
+      </p>
+    </div>
+  </section>
 
   <section class="content-band">
     <div class="container">

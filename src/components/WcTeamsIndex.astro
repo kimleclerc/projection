@@ -1,4 +1,5 @@
 ---
+import { flagFor } from '../lib/wc-flags';
 // Index des équipes du tournoi mondial 2026 — corps partagé en/fr/es.
 // Grille des 48 pays par confédération, liens vers chaque page pays.
 // Langage générique, aucune marque officielle. Disclaimer obligatoire.
@@ -39,7 +40,7 @@ const teamHref = (code: string) => `${wcBase(lang)}/${code}/`;
           {byConf[conf].map((team) => (
             <li>
               <a href={teamHref(team.team)}>
-                <span class="wc-team-name">{label(team.labels, lang, team.team)}{team.is_host ? ' ★' : ''}</span>
+                <span class="wc-team-name">{flagFor(team.team)} {label(team.labels, lang, team.team)}{team.is_host ? ' ★' : ''}</span>
                 <span class="wc-team-pct">{team.p_champion}% {t.champ}</span>
               </a>
             </li>

@@ -53,7 +53,8 @@ for (const [key, g] of Object.entries(groups)) {
 const hosts = board.filter((t) => t.is_host);
 const bestHost = hosts.length ? hosts.reduce((b, t) => (t.p_champion > b.p_champion ? t : b), hosts[0]) : null;
 
-const n = (t: BoardTeam | GroupStanding) => t.labels[lang];
+import { flagFor } from '../lib/wc-flags';
+const n = (t: BoardTeam | GroupStanding) => `${flagFor((t as { team?: string }).team ?? '')} ${t.labels[lang]}`.trim();
 const pct = (v: number) => (lang === 'en' ? `${v}%` : `${String(v).replace('.', ',')} %`);
 
 const heading: Record<string, { eyebrow: string; title: string }> = {

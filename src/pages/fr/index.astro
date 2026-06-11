@@ -9,12 +9,17 @@ import AnimatedNumber from '../../islands/AnimatedNumber';
 import { desks, editorialPhilosophy, instruments } from '../../data/editorial';
 
 import ldiData from '../../../web_data/us-lame-duck/latest.json';
+import wcHome from '../../../web_data/sports/worldcup2026_latest.json';
+import { flagFor } from '../../lib/wc-flags';
 
 const philosophy = editorialPhilosophy.fr;
 const ldi = ldiData.ldi;
 const deltaSign = ldi.delta_7d >= 0 ? '+' : '';
+const wcFav = wcHome.hero;
+const wcFavName = `${flagFor(wcFav.favorite_team)} ${wcFav.favorite_labels.fr}`.trim();
 
 const signals = [
+  { label: 'Coupe du monde 2026', value: `${wcFavName} en tête du tableau`, href: '/fr/sports/wc2026/' },
   { label: 'Posture éditoriale', value: "Bureau d’intelligence électorale et sportive", href: '/fr/indexes/' },
   { label: 'Règle', value: 'Une page, une question', href: '/fr/indexes/' },
   { label: 'Instrument live', value: 'Lame-Duck Index', href: '/fr/us/indexes/lame-duck/' },
@@ -67,6 +72,24 @@ const signals = [
     secondaryHref="/fr/us/"
     secondaryLabel="Ouvrir le desk US"
   />
+
+  <section class="content-band" style="border-top:4px solid var(--red, #c33);">
+    <div class="container" style="display:flex;align-items:center;gap:2rem;flex-wrap:wrap;">
+      <div>
+        <p class="eyebrow" style="margin-bottom:0.25rem;">Coupe du monde 2026 — desk en direct</p>
+        <h2 style="margin:0;">La Coupe du monde est lancée.</h2>
+        <p style="font-size:1.5rem;font-weight:700;margin-top:0.5rem;">{wcFavName} — {wcFav.favorite_prob}%</p>
+      </div>
+      <div style="flex:1;min-width:220px;">
+        <p>48 équipes, 50 000 tournois simulés. Le favori du modèle, les négligés, chaque groupe — plus un mini-jeu où tu fais ton tableau contre la machine.</p>
+        <p style="margin-top:0.75rem;">
+          <a href="/fr/sports/wc2026/" class="cta-link">Ouvrir le desk Coupe du monde →</a>
+          &nbsp;·&nbsp;
+          <a href="/fr/sports/wc2026/#beat-the-model" class="cta-link">Bats le modèle →</a>
+        </p>
+      </div>
+    </div>
+  </section>
 
   <section class="content-band" style="background:var(--surface-alt,#f9f7f2);padding:2rem 0;">
     <div class="container" style="display:flex;align-items:center;gap:2rem;flex-wrap:wrap;">

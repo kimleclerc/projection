@@ -11,6 +11,7 @@ import AnimatedNumber from '../../../islands/AnimatedNumber';
 import WcEditorial from '../../../components/WcEditorial.astro';
 import WcBeatTheModel from '../../../islands/WcBeatTheModel';
 import AffiliateCard from '../../../components/AffiliateCard.astro';
+import { flagFor } from '../../../lib/wc-flags';
 import wcData from '../../../../web_data/sports/worldcup2026_latest.json';
 
 const board = wcData.board as Array<{
@@ -111,7 +112,7 @@ const winnerUrl = winnerEmbed?.url ?? undefined;
               · {team.confederation} · Grupo {team.group}
               {team.is_host ? ' · Sede' : ''}
             </p>
-            <h3 style="font-size:1.75rem;margin:0.25rem 0;">{team.labels.es}</h3>
+            <h3 style="font-size:1.75rem;margin:0.25rem 0;">{flagFor(team.team)} {team.labels.es}</h3>
             <p style="font-size:2rem;font-weight:700;color:var(--accent);">
               <AnimatedNumber client:visible value={team.p_champion} decimals={2} suffix="%" />
             </p>
@@ -177,7 +178,7 @@ const winnerUrl = winnerEmbed?.url ?? undefined;
               <tr style={`border-bottom:1px solid var(--rule,#eee);${i % 2 === 0 ? 'background:var(--surface-alt,#fafafa);' : ''}`}>
                 <td style="padding:8px 12px;color:var(--ink-3);">{i + 1}</td>
                 <td style="padding:8px 12px;font-weight:600;">
-                  {team.labels.es}
+                  {flagFor(team.team)} {team.labels.es}
                   {team.is_host ? <span style="font-size:0.75rem;color:var(--accent);margin-left:4px;">(sede)</span> : null}
                 </td>
                 <td style="padding:8px 12px;font-size:0.85rem;color:var(--ink-3);">{team.confederation}</td>
@@ -206,7 +207,7 @@ const winnerUrl = winnerEmbed?.url ?? undefined;
             <p class="eyebrow">{conf}</p>
             {byConf[conf].map((t) => (
               <p style="margin:0.25rem 0;">
-                <strong>{t.labels.es}</strong>
+                <strong>{flagFor(t.team)} {t.labels.es}</strong>
                 {t.is_host ? ' (sede)' : ''} —
                 {t.p_champion}% campeón · {t.p_knockout_stage}% fase final
               </p>
@@ -227,7 +228,7 @@ const winnerUrl = winnerEmbed?.url ?? undefined;
           {hostTeams.map((team) => (
             <div class="note-card" style="border-left:4px solid var(--accent);">
               <p class="eyebrow">Sede · {team.confederation} · Grupo {team.group}</p>
-              <h3 style="margin:0.25rem 0;">{team.labels.es}</h3>
+              <h3 style="margin:0.25rem 0;">{flagFor(team.team)} {team.labels.es}</h3>
               <p>Campeón: <strong>{team.p_champion}%</strong> · Fase final: <strong>{team.p_knockout_stage}%</strong></p>
               <p style="font-size:0.85rem;margin-top:0.25rem;">Final: {team.p_final}% · Semi: {team.p_semifinal}%</p>
             </div>

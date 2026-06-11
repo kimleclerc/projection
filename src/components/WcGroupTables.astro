@@ -32,7 +32,8 @@ const T: Record<Lang, Record<string, string>> = {
   es: { eyebrow: 'Fase de grupos', groupWord: 'Grupo', heading: 'Los 12 grupos', team: 'País', adv: 'Avance%', first: '1.º%', host: '(sede)', tbd: 'Por determinar', note: 'Probabilidad de superar la fase de grupos (los 2 primeros de cada grupo más los 8 mejores terceros).' },
 };
 const t = T[lang];
-const label = (s: Standing) => s.labels?.[lang] ?? s.labels?.en ?? s.team.toUpperCase();
+import { flagFor } from '../lib/wc-flags';
+const label = (s: Standing) => `${flagFor(s.team)} ${s.labels?.[lang] ?? s.labels?.en ?? s.team.toUpperCase()}`.trim();
 const groupKeys = Object.keys(groups).sort();
 const segGroups: Record<Lang, string> = { en: 'groups', fr: 'groupes', es: 'grupos' };
 const base = `/${lang}/sports/wc2026`;

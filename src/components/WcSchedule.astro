@@ -32,6 +32,7 @@ const T: Record<Lang, Record<string, string>> = {
 const t = T[lang];
 const locales: Record<Lang, string> = { en: 'en-US', fr: 'fr-CA', es: 'es-ES' };
 
+import { flagFor } from '../lib/wc-flags';
 const label = (obj: Record<string, string> | undefined, code?: string) =>
   obj?.[lang] ?? obj?.en ?? (code ? code.toUpperCase() : '?');
 
@@ -68,7 +69,7 @@ const hasMore = limit != null && groupMatches.length > limit;
                 <span class="wc-sched-time">{m.time_et}</span>
                 <span class="wc-sched-grp">{t.groupWord} {m.group}</span>
                 <span class="wc-sched-teams">
-                  {label(m.home_label, m.home_team)} <span class="wc-sched-vs">{t.vs}</span> {label(m.away_label, m.away_team)}
+                  {flagFor(m.home_team)} {label(m.home_label, m.home_team)} <span class="wc-sched-vs">{t.vs}</span> {flagFor(m.away_team)} {label(m.away_label, m.away_team)}
                 </span>
               </li>
             ))}

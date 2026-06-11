@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'preact/hooks';
+import { flagFor } from '../lib/wc-flags';
 
 type Lang = 'en' | 'fr' | 'es';
 
@@ -155,7 +156,7 @@ export default function WcBeatTheModel({ lang, board }: Props) {
 
   const share = async () => {
     if (!complete) return;
-    const text = `${t.shareChampion}: ${champ.labels[lang]} 🏆 — ${t.shareVs} ${pct(lang, champ.p_champion)}. ${t.boldness}: ${boldnessScore}/100. ${t.shareTry} https://vote-scope.com/${lang}/sports/wc2026/`;
+    const text = `${t.shareChampion}: ${flagFor(champ.team)} ${champ.labels[lang]} 🏆 — ${t.shareVs} ${pct(lang, champ.p_champion)}. ${t.boldness}: ${boldnessScore}/100. ${t.shareTry} https://vote-scope.com/${lang}/sports/wc2026/`;
     try {
       if (navigator.share) {
         await navigator.share({ text });
@@ -178,7 +179,7 @@ export default function WcBeatTheModel({ lang, board }: Props) {
         <select id={`btm-${key}`} value={picks[key]} onChange={(e) => update(key, (e.target as HTMLSelectElement).value)}>
           <option value="">{t.pick}</option>
           {sorted.map((b) => (
-            <option value={b.team}>{b.labels[lang]}</option>
+            <option value={b.team}>{`${flagFor(b.team)} ${b.labels[lang]}`.trim()}</option>
           ))}
         </select>
         {sel && (

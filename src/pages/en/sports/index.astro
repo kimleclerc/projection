@@ -7,11 +7,13 @@ import AnimatedNumber from '../../../islands/AnimatedNumber';
 import PolymarketEmbed from '../../../components/PolymarketEmbed.astro';
 
 import sportsData from '../../../../web_data/sports/latest.json';
+import { flagFor } from '../../../lib/wc-flags';
 import wcData from '../../../../web_data/sports/worldcup2026_latest.json';
 
 const hero = sportsData.hero;
 const boardMeta = sportsData.board_meta;
 const wcHero = wcData.hero;
+const wcTop3 = (wcData.board as Array<{ team: string; labels: Record<string, string>; p_champion: number }>).slice(0, 3);
 const wcMeta = wcData.board_meta;
 ---
 
@@ -46,11 +48,34 @@ const wcMeta = wcData.board_meta;
     title="Who has the cleanest path, and who is riding a fragile streak?"
     promise="A sportier desk for playoff paths, goalie volatility, live scores, market checks, and tournament chaos."
     question="Is the favorite actually built for the next round?"
-    primaryHref="/en/sports/nhl/"
-    primaryLabel="NHL desk"
-    secondaryHref="/en/indexes/"
-    secondaryLabel="All instruments"
+    primaryHref="/en/sports/wc2026/"
+    primaryLabel="World Cup desk"
+    secondaryHref="/en/sports/nhl/"
+    secondaryLabel="NHL desk"
   />
+
+
+  <section class="content-band">
+    <div class="container">
+      <p class="eyebrow">World Cup 2026 · kicked off June 11</p>
+      <h2>The tournament is on.</h2>
+      <div class="content-grid-2" style="gap:1.5rem;margin-top:1rem;">
+        {wcTop3.map((team, i) => (
+          <div class="note-card" style="border-left:4px solid var(--red, #c33);">
+            <p class="eyebrow">{i === 0 ? 'Tournament favorite' : i === 1 ? 'Runner-up' : 'Third'}</p>
+            <h3 style="font-size:1.6rem;margin:0.25rem 0;">{flagFor(team.team)} {team.labels.en}</h3>
+            <p style="font-size:1.6rem;font-weight:700;color:var(--red, #c33);">{team.p_champion}%</p>
+          </div>
+        ))}
+      </div>
+      <p style="margin-top:1rem;">48 teams · 50,000 simulations · updated through the tournament.</p>
+      <p style="margin-top:0.5rem;">
+        <a href="/en/sports/wc2026/" class="cta-link">Open the World Cup desk →</a>
+        &nbsp;·&nbsp;
+        <a href="/en/sports/wc2026/#beat-the-model" class="cta-link">Play: beat the model →</a>
+      </p>
+    </div>
+  </section>
 
   <section class="content-band">
     <div class="container">
