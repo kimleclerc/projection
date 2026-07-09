@@ -14,22 +14,21 @@ export function getStaticPaths() {
 
 const { candidate } = Astro.props;
 const meta = (latest as any).meta;
-const canonical = `https://vote-scope.com/fr/france/candidats/${candidate.slug}/`;
-const enSlug = slugify(candidate.name);
-const desc = `${candidate.name} — présidentielle française 2027 : ${statusLabel(candidate.status, 'fr').toLowerCase()}, ${blocLabel(candidate.bloc, 'fr')}. Intentions de vote au premier tour et duels de second tour, sur ${candidate.activeScenarios} castings. Run du ${meta.run_date}.`;
+const canonical = `https://vote-scope.com/es/france/candidatos/${candidate.slug}/`;
+const desc = `${candidate.name} — elección presidencial francesa de 2027: ${statusLabel(candidate.status, 'es').toLowerCase()}, ${blocLabel(candidate.bloc, 'es')}. Intención de voto en primera vuelta y duelos de segunda vuelta en ${candidate.activeScenarios} combinaciones. Ejecución del ${meta.run_date}.`;
 ---
 
 <EditorialLayout
-  title={`${candidate.name} — Présidentielle 2027 — Vote-Scope`}
+  title={`${candidate.name} — Presidencial Francia 2027 — Vote-Scope`}
   description={desc}
   canonical={canonical}
-  lang="fr"
+  lang="es"
   currentPage="france"
   ogImage="https://vote-scope.com/og/vote-scope.png"
   alternates={{
-    en: `https://vote-scope.com/en/france/candidates/${enSlug}/`,
-    fr: canonical,
-    es: `https://vote-scope.com/es/france/candidatos/${enSlug}/`,
+    en: `https://vote-scope.com/en/france/candidates/${slugify(candidate.name)}/`,
+    fr: `https://vote-scope.com/fr/france/candidats/${slugify(candidate.name)}/`,
+    es: canonical,
   }}
   jsonLd={[
     {
@@ -37,9 +36,9 @@ const desc = `${candidate.name} — présidentielle française 2027 : ${statusLa
       '@type': 'Person',
       name: candidate.name,
       url: canonical,
-      description: `Candidat à l'élection présidentielle française de 2027 (${blocLabel(candidate.bloc, 'fr')}).`,
+      description: `Candidato·a en la elección presidencial francesa de 2027 (${blocLabel(candidate.bloc, 'es')}).`,
     },
   ]}
 >
-  <FranceCandidatePage candidate={candidate} locale="fr" />
+  <FranceCandidatePage candidate={candidate} locale="es" />
 </EditorialLayout>

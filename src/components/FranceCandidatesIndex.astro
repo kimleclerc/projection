@@ -1,7 +1,7 @@
 ---
 // Annuaire des candidats France 2027 — composant partagé fr/en.
 import { getAllCandidates } from '../lib/fr-candidates';
-import { blocVar, blocLabel, statusLabel, fmtPct1, type Locale } from '../lib/fr-pres';
+import { blocVar, blocLabel, fmtPct1, franceBase, franceCandBase, type Locale } from '../lib/fr-pres';
 
 interface Props {
   locale: Locale;
@@ -11,11 +11,10 @@ const { locale } = Astro.props;
 const all = getAllCandidates();
 const declared = all.filter((c) => c.status === 'declared');
 const probable = all.filter((c) => c.status === 'probable');
-const candBase = locale === 'fr' ? '/fr/france/candidats' : '/en/france/candidates';
+const candBase = franceCandBase(locale);
 
-const C =
-  locale === 'fr'
-    ? {
+const COPY = {
+  fr: {
         kicker: 'Présidentielle 2027 · Candidats',
         title: 'Le champ des candidats.',
         dek: `Une page par candidat : bio, intentions de vote au premier tour et duels de second tour. ${declared.length} candidatures déclarées, ${probable.length} probables.`,
@@ -23,8 +22,8 @@ const C =
         probable: 'Candidatures probables',
         best: 'meilleur casting',
         back: '← Desk France',
-      }
-    : {
+      },
+  en: {
         kicker: '2027 Presidential · Candidates',
         title: 'The field of candidates.',
         dek: `One page per candidate: bio, first-round voting intention and runoff matchups. ${declared.length} declared candidacies, ${probable.length} probable.`,
@@ -32,7 +31,18 @@ const C =
         probable: 'Probable candidacies',
         best: 'best lineup',
         back: '← France Desk',
-      };
+      },
+  es: {
+        kicker: 'Presidencial 2027 · Candidatos',
+        title: 'El campo de candidatos.',
+        dek: `Una página por candidato: biografía, intención de voto en primera vuelta y duelos de segunda vuelta. ${declared.length} candidaturas declaradas, ${probable.length} probables.`,
+        declared: 'Candidaturas declaradas',
+        probable: 'Candidaturas probables',
+        best: 'mejor combinación',
+        back: '← Mesa Francia',
+      },
+} as const;
+const C = COPY[locale];
 
 const groups = [
   { label: C.declared, items: declared },
@@ -42,7 +52,7 @@ const groups = [
 
 <article class="frci">
   <header class="frci-hero container">
-    <a class="frci-back" href={locale === 'fr' ? '/fr/france' : '/en/france'}>{C.back}</a>
+    <a class="frci-back" href={franceBase(locale)}>{C.back}</a>
     <p class="frci-kicker">{C.kicker}</p>
     <h1 class="frci-title">{C.title}</h1>
     <p class="frci-dek">{C.dek}</p>

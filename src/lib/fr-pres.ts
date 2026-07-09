@@ -5,7 +5,7 @@
 // sont définies en variables CSS (--bloc-*) dans la page pour rester
 // thème-aware (clair/sombre). Palette validée dataviz (six-checks, 2 modes).
 
-export type Locale = 'fr' | 'en';
+export type Locale = 'fr' | 'en' | 'es';
 
 export type Bloc =
   | 'far_left'
@@ -37,19 +37,19 @@ export const BLOC_ORDER: Bloc[] = [
   'other',
 ];
 
-export const BLOC_LABELS: Record<Bloc, { fr: string; en: string }> = {
-  far_left: { fr: 'Extrême gauche', en: 'Far left' },
-  left: { fr: 'Gauche (PCF)', en: 'Left (PCF)' },
-  left_radical: { fr: 'Gauche radicale (LFI)', en: 'Radical left (LFI)' },
-  left_populist: { fr: 'Gauche populaire', en: 'Populist left' },
-  left_social_dem: { fr: 'Sociaux-démocrates (PS)', en: 'Social democrats (PS)' },
-  greens: { fr: 'Écologistes', en: 'Greens' },
-  centre: { fr: 'Centre', en: 'Centre' },
-  centre_right: { fr: 'Centre droit (Horizons)', en: 'Centre-right (Horizons)' },
-  right: { fr: 'Droite (LR)', en: 'Right (LR)' },
-  sovereignist: { fr: 'Souverainistes', en: 'Sovereignist' },
-  far_right: { fr: 'Extrême droite (RN)', en: 'Far right (RN)' },
-  other: { fr: 'Autres', en: 'Other' },
+export const BLOC_LABELS: Record<Bloc, { fr: string; en: string; es: string }> = {
+  far_left: { fr: 'Extrême gauche', en: 'Far left', es: 'Extrema izquierda' },
+  left: { fr: 'Gauche (PCF)', en: 'Left (PCF)', es: 'Izquierda (PCF)' },
+  left_radical: { fr: 'Gauche radicale (LFI)', en: 'Radical left (LFI)', es: 'Izquierda radical (LFI)' },
+  left_populist: { fr: 'Gauche populaire', en: 'Populist left', es: 'Izquierda popular' },
+  left_social_dem: { fr: 'Sociaux-démocrates (PS)', en: 'Social democrats (PS)', es: 'Socialdemócratas (PS)' },
+  greens: { fr: 'Écologistes', en: 'Greens', es: 'Ecologistas' },
+  centre: { fr: 'Centre', en: 'Centre', es: 'Centro' },
+  centre_right: { fr: 'Centre droit (Horizons)', en: 'Centre-right (Horizons)', es: 'Centroderecha (Horizons)' },
+  right: { fr: 'Droite (LR)', en: 'Right (LR)', es: 'Derecha (LR)' },
+  sovereignist: { fr: 'Souverainistes', en: 'Sovereignist', es: 'Soberanistas' },
+  far_right: { fr: 'Extrême droite (RN)', en: 'Far right (RN)', es: 'Extrema derecha (RN)' },
+  other: { fr: 'Autres', en: 'Other', es: 'Otros' },
 };
 
 /** Variable CSS thème-aware pour un bloc (définie dans la page). */
@@ -63,11 +63,11 @@ export function blocLabel(bloc: string, locale: Locale): string {
   return BLOC_LABELS[b][locale];
 }
 
-export const STATUS_LABELS: Record<string, { fr: string; en: string }> = {
-  declared: { fr: 'Candidature déclarée', en: 'Declared' },
-  probable: { fr: 'Probable', en: 'Probable' },
-  testing: { fr: 'Testé·e', en: 'Tested' },
-  withdrawn: { fr: 'Retiré·e', en: 'Withdrawn' },
+export const STATUS_LABELS: Record<string, { fr: string; en: string; es: string }> = {
+  declared: { fr: 'Candidature déclarée', en: 'Declared', es: 'Candidatura declarada' },
+  probable: { fr: 'Probable', en: 'Probable', es: 'Probable' },
+  testing: { fr: 'Testé·e', en: 'Tested', es: 'En sondeos' },
+  withdrawn: { fr: 'Retiré·e', en: 'Withdrawn', es: 'Retirado·a' },
 };
 
 export function statusLabel(status: string, locale: Locale): string {
@@ -177,4 +177,18 @@ export function toScenarioCard(s: FrScenario, locale: Locale): ScenarioCard {
 }
 
 export const fmtPct1 = (v: number, locale: Locale) =>
-  `${v.toFixed(1).replace('.', locale === 'fr' ? ',' : '.')}%`;
+  `${v.toFixed(1).replace('.', locale === 'en' ? '.' : ',')}%`;
+
+// ── Chemins d'URL par langue (slugs traduits comme le reste du site :
+// « distritos », « sondeos » côté es) ────────────────────────────────────────
+export const franceBase = (locale: Locale): string => `/${locale}/france`;
+
+export const franceCandBase = (locale: Locale): string =>
+  locale === 'fr'
+    ? '/fr/france/candidats'
+    : locale === 'es'
+      ? '/es/france/candidatos'
+      : '/en/france/candidates';
+
+export const methodHref = (locale: Locale): string =>
+  locale === 'en' ? '/en/methodology/' : `/${locale}/methodologie/`;

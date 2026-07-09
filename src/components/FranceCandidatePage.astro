@@ -2,7 +2,7 @@
 // Page profil d'un candidat présidentiel France 2027 — composant partagé fr/en.
 // Répond à « Qui est X ? Comment est-il/elle sondé·e ? » (une question, une
 // page). Contenu factuel + data-driven → texte SEO qui s'auto-alimente.
-import { blocVar, blocLabel, statusLabel, fmtPct1, type Locale } from '../lib/fr-pres';
+import { blocVar, blocLabel, statusLabel, fmtPct1, franceBase, franceCandBase, type Locale } from '../lib/fr-pres';
 import { candidateProse, slugify, getAllCandidates, type CandidateProfile } from '../lib/fr-candidates';
 
 interface Props {
@@ -21,12 +21,11 @@ const sameBloc = others.filter((x) => x.bloc === c.bloc).slice(0, 3);
 const topOthers = others.filter((x) => x.bloc !== c.bloc).slice(0, 4);
 const related = [...sameBloc, ...topOthers].slice(0, 5);
 
-const base = locale === 'fr' ? '/fr/france' : '/en/france';
-const candBase = locale === 'fr' ? `${base}/candidats` : `${base}/candidates`;
+const base = franceBase(locale);
+const candBase = franceCandBase(locale);
 
-const C =
-  locale === 'fr'
-    ? {
+const COPY = {
+  fr: {
         back: '← Desk France',
         party: 'Famille politique',
         status: 'Statut',
@@ -45,8 +44,8 @@ const C =
         exploreCta: 'Voir tous les castings',
         allCandidates: 'Tous les candidats',
         noDuel: 'Aucun duel de second tour projeté pour l’instant.',
-      }
-    : {
+      },
+  en: {
         back: '← France Desk',
         party: 'Political family',
         status: 'Status',
@@ -65,7 +64,29 @@ const C =
         exploreCta: 'See all lineups',
         allCandidates: 'All candidates',
         noDuel: 'No projected runoff matchup yet.',
-      };
+      },
+  es: {
+        back: '← Mesa Francia',
+        party: 'Familia política',
+        status: 'Estado',
+        pollingTitle: 'Intención de voto en primera vuelta',
+        pollingHelp: `Rango observado en ${c.activeScenarios} combinaciones sondeadas. La marca señala la mejor combinación.`,
+        floor: 'Suelo',
+        ceiling: 'Techo',
+        best: 'Mejor combinación',
+        top2: 'Probabilidad de clasificación',
+        duelsTitle: 'Duelos de segunda vuelta',
+        duelsHelp: 'Resultado proyectado frente a cada rival, en la combinación destacada más favorable.',
+        wins: 'en cabeza',
+        loses: 'por detrás',
+        vs: 'frente a',
+        relatedTitle: 'Otros candidatos',
+        exploreCta: 'Ver todas las combinaciones',
+        allCandidates: 'Todos los candidatos',
+        noDuel: 'Aún no hay duelo de segunda vuelta proyectado.',
+      },
+} as const;
+const C = COPY[locale];
 ---
 
 <article class="frc">

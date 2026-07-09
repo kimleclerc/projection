@@ -18,12 +18,13 @@ import {
   type Locale,
 } from '../lib/fr-pres';
 import { slugify } from '../lib/fr-candidates';
+import { franceCandBase } from '../lib/fr-pres';
 
 interface Props {
   locale: Locale;
 }
 const { locale } = Astro.props;
-const candBase = locale === 'fr' ? '/fr/france/candidats' : '/en/france/candidates';
+const candBase = franceCandBase(locale);
 
 const meta = (latest as any).meta;
 const scenarios = (latest as any).scenarios as FrScenario[];
@@ -106,7 +107,18 @@ const duelLoseShare = hDuel ? Math.min(hDuel.leftShare, hDuel.rightShare) : 0;
 
 const headlineLeads = heroLead?.name === headlineName;
 const introParagraphs =
-  locale === 'fr'
+  locale === 'es'
+    ? [
+        heroLead && heroSecond
+          ? headlineLeads
+            ? `Según nuestra agregación de ${nPolls} sondeos (ejecución del ${runDate}), en la combinación más sondeada ${headlineName} — candidata de la Agrupación Nacional oficialmente declarada — encabeza la primera vuelta con ${fmtPct1(heroLead.mean, locale)}, por delante de ${heroSecond.name} con ${fmtPct1(heroSecond.mean, locale)}. Ambos pasarían a la segunda vuelta.`
+            : `Según nuestra agregación de ${nPolls} sondeos (ejecución del ${runDate}), en la combinación más sondeada que incluye a ${headlineName} (candidata de la Agrupación Nacional oficialmente declarada), ${heroLead.name} encabeza la primera vuelta con ${fmtPct1(heroLead.mean, locale)}, por delante de ${heroSecond.name} con ${fmtPct1(heroSecond.mean, locale)}. Ambos pasarían a la segunda vuelta.`
+          : '',
+        hDuel
+          ? `En segunda vuelta, nuestro modelo proyecta a ${duelWinnerName} en cabeza con ${fmtPct1(duelWinShare, locale)} frente a ${duelLoserName} (${fmtPct1(duelLoseShare, locale)}), estimado a partir de sondeos de duelo y transferencias históricas. Son promedios de simulación por combinación, no predicciones: la campaña de 2027 apenas comienza y el campo de ${nDeclared} candidaturas declaradas sigue cambiando.`
+          : '',
+      ]
+    : locale === 'fr'
     ? [
         heroLead && heroSecond
           ? headlineLeads
@@ -129,15 +141,15 @@ const introParagraphs =
       ];
 
 const firstRoundDate = new Date(`${meta.election_date_first_round}T00:00:00`);
-const dateLong = firstRoundDate.toLocaleDateString(locale === 'fr' ? 'fr-FR' : 'en-CA', {
+const dateLocale = locale === 'fr' ? 'fr-FR' : locale === 'es' ? 'es-ES' : 'en-CA';
+const dateLong = firstRoundDate.toLocaleDateString(dateLocale, {
   year: 'numeric',
   month: 'long',
   day: 'numeric',
 });
 
-const C =
-  locale === 'fr'
-    ? {
+const COPY = {
+  fr: {
         kicker: 'Présidentielle 2027 · Modèle par scénarios',
         titleA: 'La France vote en ',
         titleEm: 'avril 2027',
@@ -170,8 +182,8 @@ const C =
           { href: '/fr/', label: 'Tous les bureaux', detail: 'Tous les instruments' },
         ],
         summaryLabel: 'Résumé de la projection',
-      }
-    : {
+      },
+  en: {
         kicker: '2027 Presidential · Scenario model',
         titleA: 'France votes in ',
         titleEm: 'April 2027',
@@ -204,7 +216,43 @@ const C =
           { href: '/en/', label: 'All desks', detail: 'Every instrument' },
         ],
         summaryLabel: 'Projection summary',
-      };
+      },
+  es: {
+        kicker: 'Presidencial 2027 · Modelo por escenarios',
+        titleA: 'Francia vota en ',
+        titleEm: 'abril de 2027',
+        dekA: 'Nuestro modelo no proyecta escaños sino ',
+        dekStrong: 'combinaciones',
+        dekB: ': para cada configuración de candidaturas, la intención de voto en primera vuelta y el resultado probable de la segunda vuelta. Escenario de referencia: ',
+        pollsAgg: `${nPolls} sondeos agregados`,
+        scenarios: `${meta.n_scenarios} escenarios`,
+        runOf: `Ejecución del ${runDate}`,
+        firstLead: 'Primera vuelta — cabeza',
+        secondProj: 'Segunda vuelta proyectada',
+        wins: 'gana',
+        ctaExplore: 'Explorar las combinaciones',
+        ctaMethod: 'Metodología',
+        methodHref: '/es/metodologia/',
+        countdownTitle: `Primera vuelta el ${dateLong}.`,
+        explorerTitle: 'Explorar las combinaciones',
+        explorerHelp:
+          'Cada combinación es una configuración de candidaturas realmente sondeada. Cambie para comparar la primera y la segunda vuelta proyectadas.',
+        registryTitle: 'Candidatos seguidos',
+        registryHelp: `Estado al ${runDate}. Haga clic en un candidato para su ficha — biografía, sondeos y duelos. La proyección se ajusta cuando un candidato se declara.`,
+        allCandidates: 'Todos los candidatos',
+        kdEyebrow: 'Seguir explorando',
+        kdTitle: 'La proyección continúa.',
+        kdBody: 'Compare los demás instrumentos de Vote-Scope mientras arranca la campaña de 2027.',
+        kdLinks: [
+          { href: '/es/uk/', label: 'Elección general R.U.', detail: 'Proyección Westminster' },
+          { href: '/es/canada/federal/', label: 'Canadá federal', detail: '343 escaños' },
+          { href: '/es/us/indexes/lame-duck/', label: 'Índice Lame-Duck', detail: 'Presión preelectoral EE. UU.' },
+          { href: '/es/', label: 'Todas las mesas', detail: 'Todos los instrumentos' },
+        ],
+        summaryLabel: 'Resumen de la proyección',
+      },
+} as const;
+const C = COPY[locale];
 ---
 
 <article class="fr-desk">

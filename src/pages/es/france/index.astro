@@ -4,23 +4,27 @@ import FranceDesk from '../../../components/FranceDesk.astro';
 import latest from '../../../../web_data/france-presidential/latest.json';
 
 const meta = (latest as any).meta;
-const canonical = 'https://vote-scope.com/en/france/';
+const canonical = 'https://vote-scope.com/es/france/';
 ---
 
 <EditorialLayout
-  title="French Presidential Election 2027 — Vote-Scope Projection"
-  description={`Scenario-based projection of the 2027 French presidential election: first round, runoff matchups and hypothetical lineups. ${meta.n_first_round_polls} polls aggregated, run of ${meta.run_date}.`}
+  title="Elección presidencial francesa 2027 — Proyección Vote-Scope"
+  description={`Proyección por escenarios de la elección presidencial francesa de 2027: primera vuelta, duelos de segunda vuelta y combinaciones hipotéticas. ${meta.n_first_round_polls} sondeos agregados, ejecución del ${meta.run_date}.`}
   canonical={canonical}
-  lang="en"
+  lang="es"
   currentPage="france"
   ogImage="https://vote-scope.com/og/vote-scope.png"
-  alternates={{ en: canonical, fr: 'https://vote-scope.com/fr/france/', es: 'https://vote-scope.com/es/france/' }}
+  alternates={{
+    en: 'https://vote-scope.com/en/france/',
+    fr: 'https://vote-scope.com/fr/france/',
+    es: canonical,
+  }}
   jsonLd={[
     {
       '@context': 'https://schema.org',
       '@type': 'Dataset',
-      name: '2027 French Presidential Projection',
-      description: 'Scenario-based projection: first round and runoff matchups.',
+      name: 'Proyección presidencial Francia 2027',
+      description: 'Proyección por escenarios: primera vuelta y duelos de segunda vuelta.',
       url: canonical,
       dateModified: meta.run_date,
       creator: { '@type': 'Person', name: 'Kim Leclerc', url: 'https://kimleclerc.ca' },
@@ -29,5 +33,5 @@ const canonical = 'https://vote-scope.com/en/france/';
     },
   ]}
 >
-  <FranceDesk locale="en" />
+  <FranceDesk locale="es" />
 </EditorialLayout>

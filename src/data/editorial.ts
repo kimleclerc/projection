@@ -160,6 +160,16 @@ export const desks: Record<'en' | 'fr' | 'es', Desk[]> = {
       signal: 'El Canada Goose Index ya está en vivo',
     },
     {
+      id: 'france',
+      name: 'Mesa Francia',
+      eyebrow: 'Presidencial 2027',
+      question: '¿Quién llega a la segunda vuelta, y quién la gana, en un campo aún en formación?',
+      description:
+        'Escenarios de primera vuelta, duelos de segunda vuelta y el campo declarado para la presidencial francesa de 2027 — combinación por combinación.',
+      href: '/es/france/',
+      signal: 'Le Pen declarada · Bardella encabeza la primera vuelta',
+    },
+    {
       id: 'sports',
       name: 'Sports Scope',
       eyebrow: 'NHL + Copa del Mundo',

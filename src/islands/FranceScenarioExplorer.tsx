@@ -39,6 +39,19 @@ const COPY = {
     pDuel: 'Probability of this matchup',
     noDuel: 'No projected runoff for this lineup.',
   },
+  es: {
+    lineup: 'Combinación sondeada',
+    polls: (n: number) => `${n} sondeo${n > 1 ? 's' : ''}`,
+    firstRound: 'Primera vuelta',
+    firstRoundHelp:
+      'Intención de voto media ± incertidumbre del modelo. Los dos primeros pasan a la segunda vuelta.',
+    secondRound: 'Segunda vuelta proyectada',
+    duelHelp: 'Transferencia de votos estimada a partir de sondeos de duelo y transferencias históricas.',
+    qualifies: 'Pasa',
+    winner: 'gana',
+    pDuel: 'Probabilidad de este duelo',
+    noDuel: 'No hay segunda vuelta proyectada para esta combinación.',
+  },
 } as const;
 
 export default function FranceScenarioExplorer({ scenarios, locale }: Props) {

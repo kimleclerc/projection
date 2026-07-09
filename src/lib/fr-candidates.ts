@@ -55,7 +55,7 @@ export interface CandidateProfile {
   bestPTop2: number | null;
   activeScenarios: number;
   featuredScenarios: number;
-  bio: { fr: string; en: string } | null;
+  bio: { fr: string; en: string; es: string } | null;
   duels: CandidateDuel[];
 }
 
@@ -133,22 +133,32 @@ export function getCandidateBySlug(slug: string): CandidateProfile | undefined {
 
 // Prose SEO data-driven (change à chaque run). Faits vérifiables : parti,
 // bloc, statut, fourchette de sondage, nombre de scénarios, meilleur duel.
-const STATUS_PHRASE: Record<string, { fr: string; en: string }> = {
-  declared: { fr: 'officiellement candidat·e', en: 'an officially declared candidate' },
-  probable: { fr: 'candidat·e probable', en: 'a probable candidate' },
-  testing: { fr: 'testé·e dans les sondages', en: 'a candidate tested in polls' },
+const STATUS_PHRASE: Record<string, { fr: string; en: string; es: string }> = {
+  declared: { fr: 'officiellement candidat·e', en: 'an officially declared candidate', es: 'candidato·a oficialmente declarado·a' },
+  probable: { fr: 'candidat·e probable', en: 'a probable candidate', es: 'candidato·a probable' },
+  testing: { fr: 'testé·e dans les sondages', en: 'a candidate tested in polls', es: 'candidato·a en sondeos' },
 };
 
 export function candidateProse(c: CandidateProfile, locale: Locale): string[] {
   const party = blocLabel(c.bloc, locale);
   const phrase =
     STATUS_PHRASE[c.status]?.[locale] ??
-    (locale === 'fr' ? 'candidat·e' : 'a candidate');
+    (locale === 'fr' ? 'candidat·e' : locale === 'es' ? 'candidato·a' : 'a candidate');
   const range =
     locale === 'fr'
       ? `entre ${c.floor.toFixed(0)} et ${c.ceiling.toFixed(0)} %`
-      : `between ${c.floor.toFixed(0)} and ${c.ceiling.toFixed(0)}%`;
+      : locale === 'es'
+        ? `entre ${c.floor.toFixed(0)} y ${c.ceiling.toFixed(0)} %`
+        : `between ${c.floor.toFixed(0)} and ${c.ceiling.toFixed(0)}%`;
   const bestDuel = c.duels.find((d) => d.wins) ?? c.duels[0];
+
+  if (locale === 'es') {
+    const p1 = `${c.name} (${party}) es ${phrase} en la elección presidencial francesa de 2027. Nuestras agregaciones lo/la prueban en ${c.activeScenarios} configuraciones de candidaturas, con una intención de voto en primera vuelta ${range} según la combinación.`;
+    const p2 = bestDuel
+      ? `En segunda vuelta, en la combinación «${bestDuel.scenarioLabel}», nuestro modelo lo/la da ${bestDuel.wins ? 'ganador·a' : 'perdedor·a'} frente a ${bestDuel.opponentName} (${bestDuel.ownShare.toFixed(1).replace('.', ',')} % contra ${bestDuel.opponentShare.toFixed(1).replace('.', ',')} %). Son promedios de simulación por escenario, no predicciones.`
+      : '';
+    return [p1, p2].filter(Boolean);
+  }
 
   if (locale === 'fr') {
     const p1 = `${c.name} (${party}) est ${phrase} à l'élection présidentielle française de 2027. Nos agrégations le/la testent dans ${c.activeScenarios} configurations de candidatures, avec une intention de vote au premier tour ${range} selon le casting.`;
