@@ -1,0 +1,18 @@
+---
+import EditorialLayout from '../../../../layouts/EditorialLayout.astro';
+import FranceCandidatesIndex from '../../../../components/FranceCandidatesIndex.astro';
+
+const canonical = 'https://vote-scope.com/en/france/candidates/';
+---
+
+<EditorialLayout
+  title="2027 French Presidential Candidates — Vote-Scope"
+  description="All candidates in the 2027 French presidential election: declared and probable. One page per candidate — bio, first-round voting intention and runoff matchups."
+  canonical={canonical}
+  lang="en"
+  currentPage="france"
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={{ en: canonical, fr: 'https://vote-scope.com/fr/france/candidats/' }}
+>
+  <FranceCandidatesIndex locale="en" />
+</EditorialLayout>

@@ -1,0 +1,127 @@
+---
+// Annuaire des candidats France 2027 — composant partagé fr/en.
+import { getAllCandidates } from '../lib/fr-candidates';
+import { blocVar, blocLabel, statusLabel, fmtPct1, type Locale } from '../lib/fr-pres';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+
+const all = getAllCandidates();
+const declared = all.filter((c) => c.status === 'declared');
+const probable = all.filter((c) => c.status === 'probable');
+const candBase = locale === 'fr' ? '/fr/france/candidats' : '/en/france/candidates';
+
+const C =
+  locale === 'fr'
+    ? {
+        kicker: 'Présidentielle 2027 · Candidats',
+        title: 'Le champ des candidats.',
+        dek: `Une page par candidat : bio, intentions de vote au premier tour et duels de second tour. ${declared.length} candidatures déclarées, ${probable.length} probables.`,
+        declared: 'Candidatures déclarées',
+        probable: 'Candidatures probables',
+        best: 'meilleur casting',
+        back: '← Desk France',
+      }
+    : {
+        kicker: '2027 Presidential · Candidates',
+        title: 'The field of candidates.',
+        dek: `One page per candidate: bio, first-round voting intention and runoff matchups. ${declared.length} declared candidacies, ${probable.length} probable.`,
+        declared: 'Declared candidacies',
+        probable: 'Probable candidacies',
+        best: 'best lineup',
+        back: '← France Desk',
+      };
+
+const groups = [
+  { label: C.declared, items: declared },
+  { label: C.probable, items: probable },
+];
+---
+
+<article class="frci">
+  <header class="frci-hero container">
+    <a class="frci-back" href={locale === 'fr' ? '/fr/france' : '/en/france'}>{C.back}</a>
+    <p class="frci-kicker">{C.kicker}</p>
+    <h1 class="frci-title">{C.title}</h1>
+    <p class="frci-dek">{C.dek}</p>
+  </header>
+
+  {groups.map((g) => g.items.length > 0 && (
+    <section class="frci-section container">
+      <h2 class="frci-group-title">{g.label}</h2>
+      <ul class="frci-grid">
+        {g.items.map((c) => (
+          <li>
+            <a class="frci-card" href={`${candBase}/${c.slug}/`}>
+              <span class="frci-swatch" style={`background:${blocVar(c.bloc)}`} />
+              <span class="frci-card-body">
+                <span class="frci-card-name">{c.name}</span>
+                <span class="frci-card-bloc">{blocLabel(c.bloc, locale)}</span>
+              </span>
+              {typeof c.bestMean === 'number' && (
+                <span class="frci-card-mean">
+                  {fmtPct1(c.bestMean, locale)}
+                  <span class="frci-card-meanlbl">{C.best}</span>
+                </span>
+              )}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+  ))}
+</article>
+
+<style>
+  .frci {
+    --bloc-far_left: #6b1f2e; --bloc-left: #b0202a; --bloc-left_radical: #c1272d;
+    --bloc-left_populist: #d4602e; --bloc-left_social_dem: #e5567f; --bloc-greens: #4a9d5b;
+    --bloc-centre: #b7860f; --bloc-centre_right: #bf6d1f; --bloc-right: #3f82d6;
+    --bloc-sovereignist: #6d4c8a; --bloc-far_right: #2b4f8c; --bloc-other: var(--ink-3);
+    padding-block: 48px 96px;
+  }
+  :global(:root[data-theme='dark']) .frci {
+    --bloc-far_left: #a8474f; --bloc-left: #d24b52; --bloc-left_radical: #e0574f;
+    --bloc-left_populist: #e08a5a; --bloc-left_social_dem: #d5628a; --bloc-greens: #4fa460;
+    --bloc-centre: #b88d2c; --bloc-centre_right: #cc7f3e; --bloc-right: #5a95d8;
+    --bloc-sovereignist: #9c7ac0; --bloc-far_right: #3a6bb0;
+  }
+  .frci-hero { max-width: 900px; padding-bottom: 32px; border-bottom: 1px solid var(--rule); }
+  .frci-back { font-family: var(--mono); font-size: 12px; color: var(--ink-3); text-decoration: none; }
+  .frci-back:hover { color: var(--ink); }
+  .frci-kicker {
+    margin: 18px 0 12px; font-family: var(--mono); font-size: 12px; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--ink-3);
+  }
+  .frci-title {
+    margin: 0 0 14px; font-family: var(--serif); font-size: clamp(38px, 5.5vw, 64px);
+    font-weight: 420; letter-spacing: -0.02em; line-height: 1;
+  }
+  .frci-dek { max-width: 640px; margin: 0; color: var(--ink-2); font-size: 16px; line-height: 1.6; }
+  .frci-section { max-width: 900px; margin-top: 40px; }
+  .frci-group-title {
+    margin: 0 0 16px; font-family: var(--mono); font-size: 12px; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--ink-3);
+  }
+  .frci-grid {
+    list-style: none; margin: 0; padding: 0; display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 10px;
+  }
+  .frci-card {
+    display: flex; align-items: center; gap: 12px; border: 1px solid var(--rule);
+    border-radius: 8px; background: var(--card); padding: 14px 16px; text-decoration: none;
+    transition: border-color 0.15s ease;
+  }
+  .frci-card:hover { border-color: var(--ink); }
+  .frci-swatch { width: 14px; height: 14px; border-radius: 4px; flex: none; }
+  .frci-card-body { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .frci-card-name { font-family: var(--serif); font-size: 17px; color: var(--ink); }
+  .frci-card-bloc { font-family: var(--mono); font-size: 10px; color: var(--ink-3); }
+  .frci-card-mean {
+    margin-left: auto; text-align: right; font-family: var(--serif); font-size: 20px;
+    color: var(--ink); font-variant-numeric: tabular-nums; display: flex; flex-direction: column;
+  }
+  .frci-card-meanlbl { font-family: var(--mono); font-size: 9px; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; }
+</style>

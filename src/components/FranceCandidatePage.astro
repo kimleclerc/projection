@@ -1,0 +1,274 @@
+---
+// Page profil d'un candidat présidentiel France 2027 — composant partagé fr/en.
+// Répond à « Qui est X ? Comment est-il/elle sondé·e ? » (une question, une
+// page). Contenu factuel + data-driven → texte SEO qui s'auto-alimente.
+import { blocVar, blocLabel, statusLabel, fmtPct1, type Locale } from '../lib/fr-pres';
+import { candidateProse, slugify, getAllCandidates, type CandidateProfile } from '../lib/fr-candidates';
+
+interface Props {
+  candidate: CandidateProfile;
+  locale: Locale;
+}
+const { candidate: c, locale } = Astro.props;
+
+const prose = candidateProse(c, locale);
+const bio = c.bio ? c.bio[locale] : null;
+const AXIS_MAX = 45; // échelle de l'axe des intentions de vote (%)
+
+// Autres candidats du même bloc + quelques têtes d'affiche (rabbit-hole).
+const others = getAllCandidates().filter((x) => x.id !== c.id);
+const sameBloc = others.filter((x) => x.bloc === c.bloc).slice(0, 3);
+const topOthers = others.filter((x) => x.bloc !== c.bloc).slice(0, 4);
+const related = [...sameBloc, ...topOthers].slice(0, 5);
+
+const base = locale === 'fr' ? '/fr/france' : '/en/france';
+const candBase = locale === 'fr' ? `${base}/candidats` : `${base}/candidates`;
+
+const C =
+  locale === 'fr'
+    ? {
+        back: '← Desk France',
+        party: 'Famille politique',
+        status: 'Statut',
+        pollingTitle: 'Intentions de vote au premier tour',
+        pollingHelp: `Fourchette observée sur ${c.activeScenarios} castings testés. Le repère marque le meilleur casting.`,
+        floor: 'Plancher',
+        ceiling: 'Plafond',
+        best: 'Meilleur casting',
+        top2: 'Probabilité de qualification',
+        duelsTitle: 'Duels de second tour',
+        duelsHelp: 'Issue projetée face à chaque adversaire, dans le casting vedette le plus favorable.',
+        wins: 'en tête',
+        loses: 'battu·e',
+        vs: 'face à',
+        relatedTitle: 'Autres candidats',
+        exploreCta: 'Voir tous les castings',
+        allCandidates: 'Tous les candidats',
+        noDuel: 'Aucun duel de second tour projeté pour l’instant.',
+      }
+    : {
+        back: '← France Desk',
+        party: 'Political family',
+        status: 'Status',
+        pollingTitle: 'First-round voting intention',
+        pollingHelp: `Range observed across ${c.activeScenarios} tested lineups. The marker shows the best lineup.`,
+        floor: 'Floor',
+        ceiling: 'Ceiling',
+        best: 'Best lineup',
+        top2: 'Probability of advancing',
+        duelsTitle: 'Runoff matchups',
+        duelsHelp: 'Projected outcome against each opponent, in the most favourable featured lineup.',
+        wins: 'ahead',
+        loses: 'behind',
+        vs: 'vs',
+        relatedTitle: 'Other candidates',
+        exploreCta: 'See all lineups',
+        allCandidates: 'All candidates',
+        noDuel: 'No projected runoff matchup yet.',
+      };
+---
+
+<article class="frc">
+  <header class="frc-hero container">
+    <a class="frc-back" href={base}>{C.back}</a>
+    <div class="frc-id">
+      <span class="frc-swatch" style={`background:${blocVar(c.bloc)}`} />
+      <h1 class="frc-name">{c.name}</h1>
+    </div>
+    <div class="frc-badges">
+      <span class="frc-badge">{blocLabel(c.bloc, locale)}</span>
+      <span class={`frc-badge frc-status is-${c.status}`}>{statusLabel(c.status, locale)}</span>
+    </div>
+  </header>
+
+  <section class="frc-section container frc-prose" aria-label={c.name}>
+    {bio && <p class="frc-bio">{bio}</p>}
+    {prose.map((p) => <p>{p}</p>)}
+  </section>
+
+  <!-- FOURCHETTE 1er TOUR -->
+  <section class="frc-section container" aria-labelledby="frc-polling">
+    <h2 id="frc-polling" class="frc-section-title">{C.pollingTitle}</h2>
+    <p class="frc-section-help">{C.pollingHelp}</p>
+    <div class="frc-range" role="img"
+      aria-label={`${C.floor} ${fmtPct1(c.floor, locale)}, ${C.ceiling} ${fmtPct1(c.ceiling, locale)}`}>
+      <div class="frc-range-track">
+        <div
+          class="frc-range-band"
+          style={`left:${(c.floor / AXIS_MAX) * 100}%; width:${((c.ceiling - c.floor) / AXIS_MAX) * 100}%; background:${blocVar(c.bloc)}`}
+        />
+        {typeof c.bestMean === 'number' && (
+          <div class="frc-range-marker" style={`left:${(c.bestMean / AXIS_MAX) * 100}%`} />
+        )}
+      </div>
+      <div class="frc-range-scale">
+        <span>0%</span><span>15%</span><span>30%</span><span>45%</span>
+      </div>
+    </div>
+    <dl class="frc-stats">
+      <div><dt>{C.floor}</dt><dd>{fmtPct1(c.floor, locale)}</dd></div>
+      <div><dt>{C.ceiling}</dt><dd>{fmtPct1(c.ceiling, locale)}</dd></div>
+      {typeof c.bestMean === 'number' && (
+        <div><dt>{C.best}</dt><dd>{fmtPct1(c.bestMean, locale)}</dd></div>
+      )}
+      {typeof c.bestPTop2 === 'number' && (
+        <div><dt>{C.top2}</dt><dd>{Math.round(c.bestPTop2 * 100)}%</dd></div>
+      )}
+    </dl>
+  </section>
+
+  <!-- DUELS -->
+  <section class="frc-section container" aria-labelledby="frc-duels">
+    <h2 id="frc-duels" class="frc-section-title">{C.duelsTitle}</h2>
+    <p class="frc-section-help">{C.duelsHelp}</p>
+    {c.duels.length ? (
+      <ul class="frc-duels">
+        {c.duels.map((d) => (
+          <li class="frc-duel">
+            <span class={`frc-duel-out ${d.wins ? 'win' : 'lose'}`}>
+              {d.wins ? C.wins : C.loses}
+            </span>
+            <span class="frc-duel-vs">
+              {C.vs} <a href={`${candBase}/${slugify(d.opponentName)}/`}>{d.opponentName}</a>
+            </span>
+            <span class="frc-duel-score">
+              {fmtPct1(d.ownShare, locale)} — {fmtPct1(d.opponentShare, locale)}
+            </span>
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <p class="frc-empty">{C.noDuel}</p>
+    )}
+  </section>
+
+  <!-- RABBIT-HOLE : autres candidats + retour desk -->
+  <section class="frc-section container" aria-labelledby="frc-related">
+    <h2 id="frc-related" class="frc-section-title">{C.relatedTitle}</h2>
+    <ul class="frc-related">
+      {related.map((x) => (
+        <li>
+          <a class="frc-related-item" href={`${candBase}/${x.slug}/`}>
+            <span class="frc-swatch" style={`background:${blocVar(x.bloc)}`} />
+            <span class="frc-related-name">{x.name}</span>
+            <span class="frc-related-bloc">{blocLabel(x.bloc, locale)}</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+    <div class="frc-cta-row">
+      <a class="frc-cta frc-cta-strong" href={`${base}#fr-explorer-title`}>{C.exploreCta} →</a>
+      <a class="frc-cta" href={candBase}>{C.allCandidates} →</a>
+    </div>
+  </section>
+</article>
+
+<style>
+  .frc {
+    --bloc-far_left: #6b1f2e; --bloc-left: #b0202a; --bloc-left_radical: #c1272d;
+    --bloc-left_populist: #d4602e; --bloc-left_social_dem: #e5567f; --bloc-greens: #4a9d5b;
+    --bloc-centre: #b7860f; --bloc-centre_right: #bf6d1f; --bloc-right: #3f82d6;
+    --bloc-sovereignist: #6d4c8a; --bloc-far_right: #2b4f8c; --bloc-other: var(--ink-3);
+    padding-block: 48px 96px;
+  }
+  :global(:root[data-theme='dark']) .frc {
+    --bloc-far_left: #a8474f; --bloc-left: #d24b52; --bloc-left_radical: #e0574f;
+    --bloc-left_populist: #e08a5a; --bloc-left_social_dem: #d5628a; --bloc-greens: #4fa460;
+    --bloc-centre: #b88d2c; --bloc-centre_right: #cc7f3e; --bloc-right: #5a95d8;
+    --bloc-sovereignist: #9c7ac0; --bloc-far_right: #3a6bb0;
+  }
+  .frc-hero { max-width: 900px; padding-bottom: 28px; border-bottom: 1px solid var(--rule); }
+  .frc-back {
+    font-family: var(--mono); font-size: 12px; color: var(--ink-3); text-decoration: none;
+  }
+  .frc-back:hover { color: var(--ink); }
+  .frc-id { display: flex; align-items: center; gap: 12px; margin: 18px 0 14px; }
+  .frc-name {
+    margin: 0; font-family: var(--serif); font-size: clamp(38px, 5.5vw, 64px);
+    font-weight: 420; letter-spacing: -0.02em; line-height: 1;
+  }
+  .frc-swatch { width: 16px; height: 16px; border-radius: 4px; flex: none; }
+  .frc-badges { display: flex; flex-wrap: wrap; gap: 8px; }
+  .frc-badge {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase;
+    padding: 4px 10px; border: 1px solid var(--rule); border-radius: 999px; color: var(--ink-2);
+  }
+  .frc-status.is-declared { background: var(--blue-tint); border-color: var(--blue-soft); color: var(--blue); }
+  .frc-section { max-width: 900px; margin-top: 44px; }
+  .frc-prose { max-width: 720px; }
+  .frc-prose p { margin: 0 0 0.9rem; color: var(--ink-2); font-size: 1.02rem; line-height: 1.7; }
+  .frc-bio { font-family: var(--serif); font-size: 1.15rem; color: var(--ink) !important; }
+  .frc-section-title {
+    margin: 0 0 10px; font-family: var(--serif); font-size: clamp(24px, 2.6vw, 32px);
+    font-weight: 430; letter-spacing: -0.01em;
+  }
+  .frc-section-help {
+    max-width: 620px; margin: 0 0 20px; font-family: var(--mono); font-size: 12px;
+    line-height: 1.6; color: var(--ink-3);
+  }
+  .frc-range-track {
+    position: relative; height: 26px; background: var(--paper-2);
+    border: 1px solid var(--rule); border-radius: 6px; overflow: hidden;
+  }
+  .frc-range-band { position: absolute; inset-block: 0; border-radius: 4px; opacity: 0.85; }
+  .frc-range-marker {
+    position: absolute; inset-block: -3px; width: 2px; background: var(--ink);
+  }
+  .frc-range-marker::after {
+    content: ''; position: absolute; top: -4px; left: -3px; width: 8px; height: 8px;
+    border-radius: 50%; background: var(--ink);
+  }
+  .frc-range-scale {
+    display: flex; justify-content: space-between; margin-top: 6px;
+    font-family: var(--mono); font-size: 10px; color: var(--ink-3);
+  }
+  .frc-stats {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 12px; margin: 24px 0 0;
+  }
+  .frc-stats > div {
+    border: 1px solid var(--rule); border-radius: 6px; background: var(--card); padding: 12px 14px;
+  }
+  .frc-stats dt {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--ink-3); margin-bottom: 6px;
+  }
+  .frc-stats dd {
+    margin: 0; font-family: var(--serif); font-size: 26px; color: var(--ink);
+    font-variant-numeric: tabular-nums;
+  }
+  .frc-duels { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+  .frc-duel {
+    display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 12px;
+    border: 1px solid var(--rule); border-radius: 6px; background: var(--card); padding: 11px 14px;
+  }
+  .frc-duel-out {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase;
+    padding: 3px 8px; border-radius: 999px;
+  }
+  .frc-duel-out.win { background: color-mix(in oklab, #2e6f40 22%, transparent); color: #2e6f40; }
+  .frc-duel-out.lose { background: color-mix(in oklab, #8b0000 18%, transparent); color: #b03030; }
+  .frc-duel-vs { font-family: var(--mono); font-size: 13px; color: var(--ink-2); }
+  .frc-duel-vs a { color: var(--ink); text-decoration: underline; text-underline-offset: 2px; text-decoration-color: var(--rule); }
+  .frc-duel-vs a:hover { text-decoration-color: var(--ink); }
+  .frc-duel-score { font-family: var(--mono); font-size: 13px; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .frc-related { list-style: none; margin: 0 0 24px; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; }
+  .frc-related-item {
+    display: flex; align-items: center; gap: 10px; border: 1px solid var(--rule);
+    border-radius: 6px; background: var(--card); padding: 11px 14px; text-decoration: none;
+    transition: border-color 0.15s ease;
+  }
+  .frc-related-item:hover { border-color: var(--ink); }
+  .frc-related-name { font-family: var(--serif); font-size: 15px; color: var(--ink); }
+  .frc-related-bloc { font-family: var(--mono); font-size: 10px; color: var(--ink-3); margin-left: auto; }
+  .frc-cta-row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .frc-cta {
+    display: inline-flex; align-items: center; padding: 9px 16px; border: 1px solid var(--rule);
+    border-radius: 999px; font-family: var(--mono); font-size: 12px; color: var(--ink-2); text-decoration: none;
+  }
+  .frc-cta:hover { border-color: var(--ink); color: var(--ink); }
+  .frc-cta-strong { background: var(--ink); color: var(--paper-3); border-color: var(--ink); }
+  @media (max-width: 560px) {
+    .frc-duel { grid-template-columns: 1fr; gap: 4px; }
+  }
+</style>

@@ -17,28 +17,52 @@ import {
   type FrScenario,
   type Locale,
 } from '../lib/fr-pres';
+import { slugify } from '../lib/fr-candidates';
 
 interface Props {
   locale: Locale;
 }
 const { locale } = Astro.props;
+const candBase = locale === 'fr' ? '/fr/france/candidats' : '/en/france/candidates';
 
 const meta = (latest as any).meta;
 const scenarios = (latest as any).scenarios as FrScenario[];
 const defaultId = (latest as any).default_scenario_id as string;
 
+const candidates = ((dataSheets as any).candidates ?? []) as any[];
 const defaultScenario =
   scenarios.find((s) => s.scenario.scenario_id === defaultId) ?? scenarios[0];
-const heroCard = toScenarioCard(defaultScenario, locale);
 
-// Explorateur : vedettes robustes (≥ 3 sondages), défaut en tête, castings
-// Le Pen ensuite (candidature déclarée), puis par nombre de sondages.
+// MISE EN AVANT DU CANDIDAT RN DÉCLARÉ (éditorial, data-driven) : au juillet
+// 2026 c'est Marine Le Pen, pas Bardella. Le hero features le casting vedette
+// LE PLUS SONDÉ qui inclut le candidat d'extrême droite officiellement
+// déclaré. Si une décision de justice rebascule la candidature (Bardella),
+// le hero suit automatiquement — aucune valeur codée en dur. Repli sur le
+// scénario par défaut du modèle si aucun RN déclaré.
+const declaredCandidates = candidates.filter((c) => c.status === 'declared');
+const rnDeclared = declaredCandidates.find((c) => c.bloc === 'far_right');
+const rnHeroScenario = rnDeclared
+  ? [...scenarios]
+      .filter(
+        (s) =>
+          s.scenario.featured &&
+          s.scenario.active_candidate_ids.includes(rnDeclared.candidate_id),
+      )
+      .sort((a, b) => (b.diagnostics?.n_polls_used ?? 0) - (a.diagnostics?.n_polls_used ?? 0))[0]
+  : undefined;
+const heroScenario = rnHeroScenario ?? defaultScenario;
+const heroId = heroScenario.scenario.scenario_id;
+const heroCard = toScenarioCard(heroScenario, locale);
+const headlineName = rnDeclared?.candidate_name ?? heroCard.qualification[0]?.name ?? '';
+
+// Explorateur : vedettes robustes (≥ 3 sondages), scénario du hero en tête,
+// castings Le Pen ensuite, puis par nombre de sondages.
 const featured = scenarios.filter((s) => s.scenario.featured);
 const explorerScenarios = [...featured]
-  .filter((s) => s.scenario.scenario_id === defaultId || (s.diagnostics?.n_polls_used ?? 0) >= 3)
+  .filter((s) => s.scenario.scenario_id === heroId || (s.diagnostics?.n_polls_used ?? 0) >= 3)
   .sort((a, b) => {
-    if (a.scenario.scenario_id === defaultId) return -1;
-    if (b.scenario.scenario_id === defaultId) return 1;
+    if (a.scenario.scenario_id === heroId) return -1;
+    if (b.scenario.scenario_id === heroId) return 1;
     const aLepen = a.scenario.category === 'le_pen' ? 1 : 0;
     const bLepen = b.scenario.category === 'le_pen' ? 1 : 0;
     if (aLepen !== bLepen) return bLepen - aLepen;
@@ -47,7 +71,6 @@ const explorerScenarios = [...featured]
   .slice(0, 8)
   .map((s) => toScenarioCard(s, locale));
 
-const candidates = ((dataSheets as any).candidates ?? []) as any[];
 const registry = candidates
   .filter((c) => ['declared', 'probable'].includes(c.status))
   .sort((a, b) => {
@@ -56,11 +79,54 @@ const registry = candidates
     if (s !== 0) return s;
     return (b.default_first_round_mean ?? 0) - (a.default_first_round_mean ?? 0);
   });
+const nDeclared = declaredCandidates.length;
 
 const runDate = meta.run_date;
 const nPolls = meta.n_first_round_polls;
 const heroLead = heroCard.qualification[0];
 const heroSecond = heroCard.qualification[1];
+
+// ── Prose SEO auto-générée (change à chaque run/sondage) ──────────────────
+// Vrai texte au-dessus des graphiques, dérivé du run courant : donne aux
+// moteurs de recherche autre chose à citer que des cellules de barre, et
+// reste exact sans réécriture manuelle. Même principe que le desk Québec.
+const hDuel = heroCard.duel;
+const duelWinnerName = hDuel
+  ? hDuel.winnerId === hDuel.leftId
+    ? hDuel.leftName
+    : hDuel.rightName
+  : '';
+const duelLoserName = hDuel
+  ? hDuel.winnerId === hDuel.leftId
+    ? hDuel.rightName
+    : hDuel.leftName
+  : '';
+const duelWinShare = hDuel ? Math.max(hDuel.leftShare, hDuel.rightShare) : 0;
+const duelLoseShare = hDuel ? Math.min(hDuel.leftShare, hDuel.rightShare) : 0;
+
+const headlineLeads = heroLead?.name === headlineName;
+const introParagraphs =
+  locale === 'fr'
+    ? [
+        heroLead && heroSecond
+          ? headlineLeads
+            ? `D'après notre agrégation de ${nPolls} sondages (run du ${runDate}), dans le casting le plus testé, ${headlineName} — candidate du Rassemblement national officiellement déclarée — mène le premier tour à ${fmtPct1(heroLead.mean, locale)}, devant ${heroSecond.name} à ${fmtPct1(heroSecond.mean, locale)}. Les deux se qualifieraient pour le second tour.`
+            : `D'après notre agrégation de ${nPolls} sondages (run du ${runDate}), dans le casting le plus testé incluant ${headlineName} (candidate du Rassemblement national officiellement déclarée), ${heroLead.name} mène le premier tour à ${fmtPct1(heroLead.mean, locale)}, devant ${heroSecond.name} à ${fmtPct1(heroSecond.mean, locale)}. Les deux se qualifieraient pour le second tour.`
+          : '',
+        hDuel
+          ? `Au second tour, notre modèle projette ${duelWinnerName} en tête à ${fmtPct1(duelWinShare, locale)} face à ${duelLoserName} (${fmtPct1(duelLoseShare, locale)}), estimé à partir des sondages de duel et des reports historiques. Ce sont des moyennes de simulation par casting, pas des prédictions : la campagne 2027 ne fait que commencer et le champ des ${nDeclared} candidatures déclarées continue d'évoluer.`
+          : '',
+      ]
+    : [
+        heroLead && heroSecond
+          ? headlineLeads
+            ? `Based on our aggregation of ${nPolls} polls (run of ${runDate}), in the most-polled lineup ${headlineName} — the officially declared National Rally candidate — leads the first round at ${fmtPct1(heroLead.mean, locale)}, ahead of ${heroSecond.name} at ${fmtPct1(heroSecond.mean, locale)}. Both would advance to the runoff.`
+            : `Based on our aggregation of ${nPolls} polls (run of ${runDate}), in the most-polled lineup featuring ${headlineName} (the officially declared National Rally candidate), ${heroLead.name} leads the first round at ${fmtPct1(heroLead.mean, locale)}, ahead of ${heroSecond.name} at ${fmtPct1(heroSecond.mean, locale)}. Both would advance to the runoff.`
+          : '',
+        hDuel
+          ? `In the runoff, our model projects ${duelWinnerName} ahead at ${fmtPct1(duelWinShare, locale)} against ${duelLoserName} (${fmtPct1(duelLoseShare, locale)}), estimated from head-to-head polls and historical transfers. These are per-lineup simulation averages, not predictions: the 2027 campaign is just starting and the field of ${nDeclared} declared candidates keeps shifting.`
+          : '',
+      ];
 
 const firstRoundDate = new Date(`${meta.election_date_first_round}T00:00:00`);
 const dateLong = firstRoundDate.toLocaleDateString(locale === 'fr' ? 'fr-FR' : 'en-CA', {
@@ -84,12 +150,16 @@ const C =
         firstLead: 'Premier tour — tête',
         secondProj: 'Second tour projeté',
         wins: "l'emporte",
+        ctaExplore: 'Explorer les castings',
+        ctaMethod: 'Méthodologie',
+        methodHref: '/fr/methodologie/',
         countdownTitle: `Premier tour le ${dateLong}.`,
         explorerTitle: 'Explorer les castings',
         explorerHelp:
           'Chaque casting est une hypothèse de candidatures réellement testée par les sondeurs. Basculez pour comparer premier tour et second tour projetés.',
         registryTitle: 'Candidats suivis',
-        registryHelp: `Statut au ${runDate}. La projection s'ajuste automatiquement lorsqu'un candidat se déclare.`,
+        registryHelp: `Statut au ${runDate}. Cliquez un candidat pour sa fiche — bio, sondages et duels. La projection s'ajuste lorsqu'un candidat se déclare.`,
+        allCandidates: 'Tous les candidats',
         kdEyebrow: 'Continuer à creuser',
         kdTitle: 'La projection continue ailleurs.',
         kdBody: "Comparez les autres instruments Vote-Scope en attendant l'ouverture de la campagne 2027.",
@@ -114,12 +184,16 @@ const C =
         firstLead: 'First round — leaders',
         secondProj: 'Projected runoff',
         wins: 'wins',
+        ctaExplore: 'Explore the lineups',
+        ctaMethod: 'Methodology',
+        methodHref: '/en/methodology/',
         countdownTitle: `First round on ${dateLong}.`,
         explorerTitle: 'Explore the lineups',
         explorerHelp:
           'Each lineup is a candidate configuration actually tested by pollsters. Switch to compare projected first and second rounds.',
         registryTitle: 'Candidates tracked',
-        registryHelp: `Status as of ${runDate}. The projection adjusts automatically when a candidate declares.`,
+        registryHelp: `Status as of ${runDate}. Click a candidate for their profile — bio, polls and matchups. The projection adjusts when a candidate declares.`,
+        allCandidates: 'All candidates',
         kdEyebrow: 'Keep digging',
         kdTitle: 'The projection keeps going.',
         kdBody: 'Compare the other Vote-Scope instruments while the 2027 campaign gets going.',
@@ -181,7 +255,17 @@ const C =
         )}
       </div>
     )}
+
+    <div class="fr-cta-row">
+      <a class="fr-cta fr-cta-strong" href="#fr-explorer-title">{C.ctaExplore} ↓</a>
+      <a class="fr-cta" href={C.methodHref}>{C.ctaMethod} →</a>
+    </div>
   </header>
+
+  <!-- INTRO SEO (auto-générée depuis le run) -->
+  <section class="fr-section container fr-intro" aria-label={C.summaryLabel}>
+    {introParagraphs.filter(Boolean).map((p) => <p>{p}</p>)}
+  </section>
 
   <!-- COMPTE À REBOURS -->
   <section class="fr-section container">
@@ -208,14 +292,19 @@ const C =
     <p class="fr-section-help">{C.registryHelp}</p>
     <ul class="fr-registry">
       {registry.map((c) => (
-        <li class="fr-reg-item">
-          <span class="fr-swatch" style={`background:${blocVar(c.bloc)}`} />
-          <span class="fr-reg-name">{c.candidate_name}</span>
-          <span class="fr-reg-bloc">{blocLabel(c.bloc, locale)}</span>
-          <span class={`fr-reg-status is-${c.status}`}>{statusLabel(c.status, locale)}</span>
+        <li>
+          <a class="fr-reg-item" href={`${candBase}/${slugify(c.candidate_name)}/`}>
+            <span class="fr-swatch" style={`background:${blocVar(c.bloc)}`} />
+            <span class="fr-reg-name">{c.candidate_name}</span>
+            <span class="fr-reg-bloc">{blocLabel(c.bloc, locale)}</span>
+            <span class={`fr-reg-status is-${c.status}`}>{statusLabel(c.status, locale)}</span>
+          </a>
         </li>
       ))}
     </ul>
+    <div class="fr-cta-row" style="margin-top:18px;">
+      <a class="fr-cta" href={candBase}>{C.allCandidates} →</a>
+    </div>
   </section>
 
   <section class="fr-section container">
@@ -303,6 +392,47 @@ const C =
   }
   .fr-meta span[aria-hidden] {
     color: var(--rule);
+  }
+  .fr-cta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 26px;
+  }
+  .fr-cta {
+    display: inline-flex;
+    align-items: center;
+    padding: 9px 16px;
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    color: var(--ink-2);
+    text-decoration: none;
+    transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+  }
+  .fr-cta:hover {
+    border-color: var(--ink);
+    color: var(--ink);
+  }
+  .fr-cta-strong {
+    background: var(--ink);
+    color: var(--paper-3);
+    border-color: var(--ink);
+  }
+  .fr-cta-strong:hover {
+    color: var(--paper-3);
+    filter: brightness(1.15);
+  }
+  .fr-intro {
+    max-width: 760px;
+  }
+  .fr-intro p {
+    margin: 0 0 0.85rem;
+    color: var(--ink-2);
+    font-size: 1.02rem;
+    line-height: 1.7;
   }
   .fr-hero-headline {
     display: grid;
@@ -400,6 +530,11 @@ const C =
     border-radius: 6px;
     background: var(--card);
     padding: 11px 14px;
+    text-decoration: none;
+    transition: border-color 0.15s ease;
+  }
+  .fr-reg-item:hover {
+    border-color: var(--ink);
   }
   .fr-reg-name {
     font-family: var(--serif);

@@ -1,0 +1,44 @@
+---
+import EditorialLayout from '../../../../layouts/EditorialLayout.astro';
+import FranceCandidatePage from '../../../../components/FranceCandidatePage.astro';
+import { getAllCandidates, slugify } from '../../../../lib/fr-candidates';
+import { blocLabel, statusLabel } from '../../../../lib/fr-pres';
+import latest from '../../../../../web_data/france-presidential/latest.json';
+
+export function getStaticPaths() {
+  return getAllCandidates().map((candidate) => ({
+    params: { id: candidate.slug },
+    props: { candidate },
+  }));
+}
+
+const { candidate } = Astro.props;
+const meta = (latest as any).meta;
+const canonical = `https://vote-scope.com/fr/france/candidats/${candidate.slug}/`;
+const enSlug = slugify(candidate.name);
+const desc = `${candidate.name} — présidentielle française 2027 : ${statusLabel(candidate.status, 'fr').toLowerCase()}, ${blocLabel(candidate.bloc, 'fr')}. Intentions de vote au premier tour et duels de second tour, sur ${candidate.activeScenarios} castings. Run du ${meta.run_date}.`;
+---
+
+<EditorialLayout
+  title={`${candidate.name} — Présidentielle 2027 — Vote-Scope`}
+  description={desc}
+  canonical={canonical}
+  lang="fr"
+  currentPage="france"
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={{
+    en: `https://vote-scope.com/en/france/candidates/${enSlug}/`,
+    fr: canonical,
+  }}
+  jsonLd={[
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Person',
+      name: candidate.name,
+      url: canonical,
+      description: `Candidat à l'élection présidentielle française de 2027 (${blocLabel(candidate.bloc, 'fr')}).`,
+    },
+  ]}
+>
+  <FranceCandidatePage candidate={candidate} locale="fr" />
+</EditorialLayout>
