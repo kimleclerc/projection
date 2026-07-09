@@ -76,6 +76,16 @@ export const desks: Record<'en' | 'fr' | 'es', Desk[]> = {
       signal: 'Canada Goose Index is now live',
     },
     {
+      id: 'france',
+      name: 'France Desk',
+      eyebrow: '2027 Presidential',
+      question: 'Who reaches the runoff, and who wins it, in a field still taking shape?',
+      description:
+        'First-round scenarios, runoff matchups, and the declared field for the 2027 French presidential — lineup by lineup.',
+      href: '/en/france/',
+      signal: 'Le Pen declared · Bardella leads the first round',
+    },
+    {
       id: 'sports',
       name: 'Sports Scope',
       eyebrow: 'NHL + World Cup',
@@ -106,6 +116,16 @@ export const desks: Record<'en' | 'fr' | 'es', Desk[]> = {
         'Fédéral, Québec, Ontario, partielles, risque par circonscription et passage des sondages à la pression en sièges.',
       href: '/fr/canada/',
       signal: 'L’indice Bernache est maintenant en ligne',
+    },
+    {
+      id: 'france',
+      name: 'Desk France',
+      eyebrow: 'Présidentielle 2027',
+      question: 'Qui atteint le second tour, et qui le gagne, dans un champ encore mouvant?',
+      description:
+        'Scénarios de premier tour, duels de second tour et champ déclaré pour la présidentielle 2027 — casting par casting.',
+      href: '/fr/france/',
+      signal: 'Le Pen déclarée · Bardella en tête au premier tour',
     },
     {
       id: 'sports',

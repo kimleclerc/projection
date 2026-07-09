@@ -1,0 +1,616 @@
+---
+// Desk présidentiel France 2027 — composant partagé fr/en (pattern
+// ProjectionEngine : logique + markup + style une seule fois, langue en prop).
+// Le modèle est PAR SCÉNARIOS (castings hypothétiques → 1er tour mean±sd +
+// duel 2d tour), pas une projection par sièges.
+import ElectionCountdown from '../islands/ElectionCountdown.tsx';
+import FranceScenarioExplorer from '../islands/FranceScenarioExplorer.tsx';
+import KeepDigging from './KeepDigging.astro';
+import latest from '../../web_data/france-presidential/latest.json';
+import dataSheets from '../../web_data/france-presidential/data_sheets.json';
+import {
+  toScenarioCard,
+  blocVar,
+  blocLabel,
+  statusLabel,
+  fmtPct1,
+  type FrScenario,
+  type Locale,
+} from '../lib/fr-pres';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+
+const meta = (latest as any).meta;
+const scenarios = (latest as any).scenarios as FrScenario[];
+const defaultId = (latest as any).default_scenario_id as string;
+
+const defaultScenario =
+  scenarios.find((s) => s.scenario.scenario_id === defaultId) ?? scenarios[0];
+const heroCard = toScenarioCard(defaultScenario, locale);
+
+// Explorateur : vedettes robustes (≥ 3 sondages), défaut en tête, castings
+// Le Pen ensuite (candidature déclarée), puis par nombre de sondages.
+const featured = scenarios.filter((s) => s.scenario.featured);
+const explorerScenarios = [...featured]
+  .filter((s) => s.scenario.scenario_id === defaultId || (s.diagnostics?.n_polls_used ?? 0) >= 3)
+  .sort((a, b) => {
+    if (a.scenario.scenario_id === defaultId) return -1;
+    if (b.scenario.scenario_id === defaultId) return 1;
+    const aLepen = a.scenario.category === 'le_pen' ? 1 : 0;
+    const bLepen = b.scenario.category === 'le_pen' ? 1 : 0;
+    if (aLepen !== bLepen) return bLepen - aLepen;
+    return (b.diagnostics?.n_polls_used ?? 0) - (a.diagnostics?.n_polls_used ?? 0);
+  })
+  .slice(0, 8)
+  .map((s) => toScenarioCard(s, locale));
+
+const candidates = ((dataSheets as any).candidates ?? []) as any[];
+const registry = candidates
+  .filter((c) => ['declared', 'probable'].includes(c.status))
+  .sort((a, b) => {
+    const order: Record<string, number> = { declared: 0, probable: 1 };
+    const s = (order[a.status] ?? 9) - (order[b.status] ?? 9);
+    if (s !== 0) return s;
+    return (b.default_first_round_mean ?? 0) - (a.default_first_round_mean ?? 0);
+  });
+
+const runDate = meta.run_date;
+const nPolls = meta.n_first_round_polls;
+const heroLead = heroCard.qualification[0];
+const heroSecond = heroCard.qualification[1];
+
+const firstRoundDate = new Date(`${meta.election_date_first_round}T00:00:00`);
+const dateLong = firstRoundDate.toLocaleDateString(locale === 'fr' ? 'fr-FR' : 'en-CA', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
+
+const C =
+  locale === 'fr'
+    ? {
+        kicker: 'Présidentielle 2027 · Modèle par scénarios',
+        titleA: 'La France vote en ',
+        titleEm: 'avril 2027',
+        dekA: 'Notre modèle ne projette pas des sièges mais des ',
+        dekStrong: 'castings',
+        dekB: " : pour chaque configuration de candidatures, l'intention de vote au premier tour et l'issue probable du duel de second tour. Scénario de référence : ",
+        pollsAgg: `${nPolls} sondages agrégés`,
+        scenarios: `${meta.n_scenarios} scénarios`,
+        runOf: `Run du ${runDate}`,
+        firstLead: 'Premier tour — tête',
+        secondProj: 'Second tour projeté',
+        wins: "l'emporte",
+        countdownTitle: `Premier tour le ${dateLong}.`,
+        explorerTitle: 'Explorer les castings',
+        explorerHelp:
+          'Chaque casting est une hypothèse de candidatures réellement testée par les sondeurs. Basculez pour comparer premier tour et second tour projetés.',
+        registryTitle: 'Candidats suivis',
+        registryHelp: `Statut au ${runDate}. La projection s'ajuste automatiquement lorsqu'un candidat se déclare.`,
+        kdEyebrow: 'Continuer à creuser',
+        kdTitle: 'La projection continue ailleurs.',
+        kdBody: "Comparez les autres instruments Vote-Scope en attendant l'ouverture de la campagne 2027.",
+        kdLinks: [
+          { href: '/fr/uk/', label: 'Élection générale R.-U.', detail: 'Projection Westminster' },
+          { href: '/fr/canada/federal/', label: 'Canada fédéral', detail: '343 sièges' },
+          { href: '/fr/us/indexes/lame-duck/', label: 'Index canard boiteux', detail: 'Pression pré-électorale US' },
+          { href: '/fr/', label: 'Tous les bureaux', detail: 'Tous les instruments' },
+        ],
+        summaryLabel: 'Résumé de la projection',
+      }
+    : {
+        kicker: '2027 Presidential · Scenario model',
+        titleA: 'France votes in ',
+        titleEm: 'April 2027',
+        dekA: 'Our model does not project seats but ',
+        dekStrong: 'lineups',
+        dekB: ': for each configuration of candidates, first-round voting intention and the likely outcome of the runoff. Reference scenario: ',
+        pollsAgg: `${nPolls} polls aggregated`,
+        scenarios: `${meta.n_scenarios} scenarios`,
+        runOf: `Run of ${runDate}`,
+        firstLead: 'First round — leaders',
+        secondProj: 'Projected runoff',
+        wins: 'wins',
+        countdownTitle: `First round on ${dateLong}.`,
+        explorerTitle: 'Explore the lineups',
+        explorerHelp:
+          'Each lineup is a candidate configuration actually tested by pollsters. Switch to compare projected first and second rounds.',
+        registryTitle: 'Candidates tracked',
+        registryHelp: `Status as of ${runDate}. The projection adjusts automatically when a candidate declares.`,
+        kdEyebrow: 'Keep digging',
+        kdTitle: 'The projection keeps going.',
+        kdBody: 'Compare the other Vote-Scope instruments while the 2027 campaign gets going.',
+        kdLinks: [
+          { href: '/en/uk/', label: 'U.K. general election', detail: 'Westminster projection' },
+          { href: '/en/canada/federal/', label: 'Canada federal', detail: '343 seats' },
+          { href: '/en/us/indexes/lame-duck/', label: 'Lame-Duck Index', detail: 'U.S. pre-election drag' },
+          { href: '/en/', label: 'All desks', detail: 'Every instrument' },
+        ],
+        summaryLabel: 'Projection summary',
+      };
+---
+
+<article class="fr-desk">
+  <!-- HERO -->
+  <header class="fr-hero container" aria-label={C.summaryLabel}>
+    <p class="fr-kicker">{C.kicker}</p>
+    <h1 class="fr-title">{C.titleA}<em>{C.titleEm}</em>.</h1>
+    <p class="fr-dek">
+      {C.dekA}<strong>{C.dekStrong}</strong>{C.dekB}<strong>{heroCard.label}</strong>.
+    </p>
+    <div class="fr-meta">
+      <span>{C.runOf}</span>
+      <span aria-hidden="true">·</span>
+      <span>{C.pollsAgg}</span>
+      <span aria-hidden="true">·</span>
+      <span>{C.scenarios}</span>
+    </div>
+
+    {heroLead && heroSecond && (
+      <div class="fr-hero-headline">
+        <div class="fr-hero-first">
+          <span class="fr-hl-label">{C.firstLead}</span>
+          <div class="fr-hl-pair">
+            <span class="fr-hl-cand">
+              <span class="fr-swatch" style={`background:${blocVar(heroLead.bloc)}`} />
+              {heroLead.name} <b>{fmtPct1(heroLead.mean, locale)}</b>
+            </span>
+            <span class="fr-hl-cand">
+              <span class="fr-swatch" style={`background:${blocVar(heroSecond.bloc)}`} />
+              {heroSecond.name} <b>{fmtPct1(heroSecond.mean, locale)}</b>
+            </span>
+          </div>
+        </div>
+        {heroCard.duel && (
+          <div class="fr-hero-duel">
+            <span class="fr-hl-label">{C.secondProj}</span>
+            <p class="fr-hl-duel">
+              <b>
+                {heroCard.duel.winnerId === heroCard.duel.leftId
+                  ? heroCard.duel.leftName
+                  : heroCard.duel.rightName}
+              </b>{' '}
+              {C.wins} —{' '}
+              {fmtPct1(Math.max(heroCard.duel.leftShare, heroCard.duel.rightShare), locale)}{' '}
+              vs {fmtPct1(Math.min(heroCard.duel.leftShare, heroCard.duel.rightShare), locale)}
+            </p>
+          </div>
+        )}
+      </div>
+    )}
+  </header>
+
+  <!-- COMPTE À REBOURS -->
+  <section class="fr-section container">
+    <ElectionCountdown
+      targetDate={meta.election_date_first_round}
+      locale={locale}
+      title={C.countdownTitle}
+      client:load
+    />
+  </section>
+
+  <!-- EXPLORATEUR -->
+  <section class="fr-section container" aria-labelledby="fr-explorer-title">
+    <h2 id="fr-explorer-title" class="fr-section-title">{C.explorerTitle}</h2>
+    <p class="fr-section-help">{C.explorerHelp}</p>
+    <div class="fr-explorer-card">
+      <FranceScenarioExplorer scenarios={explorerScenarios} locale={locale} client:visible />
+    </div>
+  </section>
+
+  <!-- REGISTRE -->
+  <section class="fr-section container" aria-labelledby="fr-registry-title">
+    <h2 id="fr-registry-title" class="fr-section-title">{C.registryTitle}</h2>
+    <p class="fr-section-help">{C.registryHelp}</p>
+    <ul class="fr-registry">
+      {registry.map((c) => (
+        <li class="fr-reg-item">
+          <span class="fr-swatch" style={`background:${blocVar(c.bloc)}`} />
+          <span class="fr-reg-name">{c.candidate_name}</span>
+          <span class="fr-reg-bloc">{blocLabel(c.bloc, locale)}</span>
+          <span class={`fr-reg-status is-${c.status}`}>{statusLabel(c.status, locale)}</span>
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  <section class="fr-section container">
+    <KeepDigging
+      eyebrow={C.kdEyebrow}
+      title={C.kdTitle}
+      body={C.kdBody}
+      links={C.kdLinks}
+    />
+  </section>
+</article>
+
+<style>
+  /* Palette de blocs — convention politique française, validée dataviz
+     (six-checks, clair + sombre). Identité portée aussi par les étiquettes.
+     Thème piloté par [data-theme] (Base.astro), jamais @media seul. */
+  .fr-desk {
+    --bloc-far_left: #6b1f2e;
+    --bloc-left: #b0202a;
+    --bloc-left_radical: #c1272d;
+    --bloc-left_populist: #d4602e;
+    --bloc-left_social_dem: #e5567f;
+    --bloc-greens: #4a9d5b;
+    --bloc-centre: #b7860f;
+    --bloc-centre_right: #bf6d1f;
+    --bloc-right: #3f82d6;
+    --bloc-sovereignist: #6d4c8a;
+    --bloc-far_right: #2b4f8c;
+    --bloc-other: var(--ink-3);
+    padding-block: 64px 96px;
+  }
+  :global(:root[data-theme='dark']) .fr-desk {
+    --bloc-far_left: #a8474f;
+    --bloc-left: #d24b52;
+    --bloc-left_radical: #e0574f;
+    --bloc-left_populist: #e08a5a;
+    --bloc-left_social_dem: #d5628a;
+    --bloc-greens: #4fa460;
+    --bloc-centre: #b88d2c;
+    --bloc-centre_right: #cc7f3e;
+    --bloc-right: #5a95d8;
+    --bloc-sovereignist: #9c7ac0;
+    --bloc-far_right: #3a6bb0;
+  }
+
+  .fr-hero {
+    max-width: 1080px;
+    padding-bottom: 44px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .fr-kicker {
+    margin: 0 0 16px;
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .fr-title {
+    margin: 0 0 18px;
+    font-family: var(--serif);
+    font-size: clamp(44px, 6.5vw, 78px);
+    font-weight: 420;
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+  .fr-title em {
+    font-style: italic;
+    color: var(--ink-2);
+  }
+  .fr-dek {
+    max-width: 680px;
+    margin: 0 0 22px;
+    color: var(--ink-2);
+    font-size: 17px;
+    line-height: 1.6;
+  }
+  .fr-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 14px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--ink-2);
+  }
+  .fr-meta span[aria-hidden] {
+    color: var(--rule);
+  }
+  .fr-hero-headline {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 16px;
+    margin-top: 28px;
+  }
+  .fr-hero-first,
+  .fr-hero-duel {
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    background: var(--card);
+    padding: 16px 18px;
+  }
+  .fr-hl-label {
+    display: block;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    margin-bottom: 10px;
+  }
+  .fr-hl-pair {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .fr-hl-cand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--mono);
+    font-size: 14px;
+    color: var(--ink-2);
+  }
+  .fr-hl-cand b {
+    margin-left: auto;
+    color: var(--ink);
+  }
+  .fr-hl-duel {
+    margin: 0;
+    font-family: var(--serif);
+    font-size: 20px;
+    line-height: 1.3;
+    color: var(--ink);
+  }
+  .fr-swatch {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    flex: none;
+  }
+
+  .fr-section {
+    max-width: 1080px;
+    margin-top: 56px;
+  }
+  .fr-section-title {
+    margin: 0 0 12px;
+    font-family: var(--serif);
+    font-size: clamp(26px, 3vw, 38px);
+    font-weight: 430;
+    letter-spacing: -0.01em;
+    line-height: 1.05;
+  }
+  .fr-section-help {
+    max-width: 640px;
+    margin: 0 0 22px;
+    color: var(--ink-3);
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.6;
+  }
+  .fr-explorer-card {
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    background: var(--card);
+    padding: 20px;
+  }
+
+  .fr-registry {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 10px;
+  }
+  .fr-reg-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    background: var(--card);
+    padding: 11px 14px;
+  }
+  .fr-reg-name {
+    font-family: var(--serif);
+    font-size: 16px;
+    color: var(--ink);
+  }
+  .fr-reg-bloc {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--ink-3);
+    margin-left: auto;
+    text-align: right;
+  }
+  .fr-reg-status {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 3px 7px;
+    border-radius: 999px;
+    border: 1px solid var(--rule);
+    color: var(--ink-2);
+    white-space: nowrap;
+  }
+  .fr-reg-status.is-declared {
+    background: var(--blue-tint);
+    border-color: var(--blue-soft);
+    color: var(--blue);
+  }
+</style>
+
+<style is:global>
+  .fse-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 24px;
+  }
+  .fse-tab {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 8px 12px;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    background: var(--paper-3);
+    cursor: pointer;
+    text-align: left;
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+  .fse-tab:hover {
+    border-color: var(--ink-3);
+  }
+  .fse-tab.is-active {
+    border-color: var(--ink);
+    background: var(--card);
+  }
+  .fse-tab-label {
+    font-family: var(--serif);
+    font-size: 14px;
+    color: var(--ink);
+  }
+  .fse-tab-polls {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--ink-3);
+  }
+  .fse-block {
+    margin-top: 28px;
+  }
+  .fse-block-head h3 {
+    margin: 0 0 4px;
+    font-family: var(--serif);
+    font-size: 20px;
+    font-weight: 430;
+    color: var(--ink);
+  }
+  .fse-block-head p {
+    margin: 0 0 16px;
+    font-family: var(--mono);
+    font-size: 11px;
+    line-height: 1.5;
+    color: var(--ink-3);
+  }
+  .fse-bars {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .fse-bar-row {
+    display: grid;
+    grid-template-columns: minmax(120px, 1.4fr) 3fr auto;
+    align-items: center;
+    gap: 12px;
+  }
+  .fse-bar-name {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--ink-2);
+  }
+  .fse-bar-row.is-top2 .fse-bar-name {
+    color: var(--ink);
+    font-weight: 600;
+  }
+  .fse-qual {
+    font-size: 9px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    padding: 1px 6px;
+  }
+  .fse-bar-track {
+    position: relative;
+    height: 20px;
+    background: var(--paper-2);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .fse-bar-fill {
+    position: absolute;
+    inset-block: 0;
+    left: 0;
+    border-radius: 4px;
+    min-width: 3px;
+  }
+  .fse-bar-ci {
+    position: absolute;
+    inset-block: 6px;
+    background: repeating-linear-gradient(
+      90deg,
+      color-mix(in oklab, var(--ink) 55%, transparent) 0 2px,
+      transparent 2px 4px
+    );
+    border-radius: 2px;
+    pointer-events: none;
+  }
+  .fse-bar-val {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+    min-width: 46px;
+    text-align: right;
+  }
+  .fse-duel-bar {
+    display: flex;
+    height: 44px;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid var(--rule);
+  }
+  .fse-duel-side {
+    display: flex;
+    align-items: center;
+    color: #fff;
+    font-family: var(--mono);
+    font-size: 13px;
+    min-width: 0;
+  }
+  .fse-duel-side.left {
+    justify-content: flex-start;
+    padding-left: 12px;
+  }
+  .fse-duel-side.right {
+    justify-content: flex-end;
+    padding-right: 12px;
+  }
+  .fse-duel-side:not(.is-winner) {
+    opacity: 0.55;
+  }
+  .fse-duel-share {
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+    font-weight: 600;
+  }
+  .fse-duel-names {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 8px;
+    font-family: var(--serif);
+    font-size: 15px;
+    color: var(--ink);
+  }
+  .fse-duel-note {
+    margin: 12px 0 0;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--ink-2);
+  }
+  .fse-duel-note strong {
+    color: var(--ink);
+  }
+  .fse-empty {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--ink-3);
+  }
+  @media (max-width: 560px) {
+    .fse-bar-row {
+      grid-template-columns: 1fr;
+      gap: 4px;
+    }
+    .fse-bar-val {
+      text-align: left;
+    }
+  }
+</style>

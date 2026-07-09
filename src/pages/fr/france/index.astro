@@ -1,113 +1,33 @@
 ---
-import Base from '../../../layouts/Base.astro';
-import KeepDigging from '../../../components/KeepDigging.astro';
+import EditorialLayout from '../../../layouts/EditorialLayout.astro';
+import FranceDesk from '../../../components/FranceDesk.astro';
+import latest from '../../../../web_data/france-presidential/latest.json';
+
+const meta = (latest as any).meta;
+const canonical = 'https://vote-scope.com/fr/france/';
 ---
 
-<Base
-  title="France — Bientôt disponible — Vote-Scope"
-  description="Le desk France de Vote-Scope est en reconstruction pour la présidentielle 2027. Explorez nos instruments en direct en attendant — Vote-Scope."
-  canonical="https://vote-scope.com/fr/france/"
+<EditorialLayout
+  title="Présidentielle française 2027 — Projection Vote-Scope"
+  description={`Projection par scénarios de la présidentielle française 2027 : premier tour, duels du second tour et castings hypothétiques. ${meta.n_first_round_polls} sondages agrégés, run du ${meta.run_date}.`}
+  canonical={canonical}
   lang="fr"
   currentPage="france"
   ogImage="https://vote-scope.com/og/vote-scope.png"
-  alternates={{
-    en: 'https://vote-scope.com/en/france/',
-    fr: 'https://vote-scope.com/fr/france/',
-  }}
-  noindex={true}
+  alternates={{ en: 'https://vote-scope.com/en/france/', fr: canonical }}
+  jsonLd={[
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Dataset',
+      name: 'Projection présidentielle France 2027',
+      description: 'Projection par scénarios : premier tour et duels du second tour.',
+      url: canonical,
+      dateModified: meta.run_date,
+      creator: { '@type': 'Person', name: 'Kim Leclerc', url: 'https://kimleclerc.ca' },
+      publisher: { '@type': 'Organization', name: 'Vote-Scope', url: 'https://vote-scope.com' },
+      isAccessibleForFree: true,
+    },
+  ]}
 >
-  <article class="france-page">
-    <header class="france-hero container">
-      <p class="france-kicker">Bientôt disponible · Présidentielle 2027</p>
-      <h1>La France est en chantier.</h1>
-      <p class="france-dek">
-        Nous reconstruisons la projection française sur la nouvelle pile Astro avec le même langage visuel que nos autres instruments. En attendant, explorez l'<a href="/fr/us/indexes/lame-duck/">Index canard boiteux</a>, la <a href="/fr/canada/federal/">projection fédérale Canada</a> ou l'<a href="/fr/uk/">élection générale au Royaume-Uni</a>.
-      </p>
-    </header>
-
-    <div class="france-keep-digging container">
-      <KeepDigging
-        eyebrow="En attendant"
-        title="Explorez nos instruments en direct."
-        body="La projection France revient avant la présidentielle 2027. D'ici là, tous les autres bureaux sont en ligne."
-        links={[
-          {
-            href: '/fr/us/indexes/lame-duck/',
-            label: 'Index canard boiteux',
-            detail: 'Pression pré-électorale américaine · En direct',
-          },
-          {
-            href: '/fr/canada/federal/',
-            label: 'Canada fédéral',
-            detail: 'Modèle par circonscription · 343 sièges',
-          },
-          {
-            href: '/fr/uk/',
-            label: 'Élection générale R.-U.',
-            detail: 'Projection Westminster',
-          },
-          {
-            href: '/fr/',
-            label: 'Tous les bureaux',
-            detail: 'Tous les instruments sur une page',
-          },
-        ]}
-      />
-    </div>
-  </article>
-</Base>
-
-<style>
-  .france-page {
-    padding-block: 64px 96px;
-  }
-
-  .france-hero {
-    max-width: 1080px;
-    padding-bottom: 48px;
-    border-bottom: 1px solid var(--rule);
-  }
-
-  .france-kicker {
-    margin: 0 0 16px;
-    font-family: var(--mono);
-    font-size: 12px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--ink-3);
-  }
-
-  .france-hero h1 {
-    max-width: 700px;
-    margin: 0 0 18px;
-    font-family: var(--serif);
-    font-size: clamp(48px, 7vw, 84px);
-    font-weight: 420;
-    letter-spacing: -0.02em;
-    line-height: 1;
-  }
-
-  .france-dek {
-    max-width: 680px;
-    margin: 0;
-    color: var(--ink-2);
-    font-size: 17px;
-    line-height: 1.6;
-  }
-
-  .france-dek a {
-    color: var(--ink);
-    text-decoration: underline;
-    text-underline-offset: 3px;
-    text-decoration-color: var(--rule);
-  }
-
-  .france-dek a:hover {
-    text-decoration-color: var(--ink);
-  }
-
-  .france-keep-digging {
-    max-width: 1080px;
-    margin-top: 64px;
-  }
-</style>
+  <FranceDesk locale="fr" />
+</EditorialLayout>
