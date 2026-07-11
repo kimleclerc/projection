@@ -1,0 +1,14 @@
+---
+import UkByelectionDesk from '../../../../components/UkByelectionDesk.astro';
+import { ukByelections } from '../../../../data/ukByelections';
+
+export function getStaticPaths() {
+  return Object.values(ukByelections)
+    .filter((config) => config.paths.en)
+    .map((config) => ({ params: { slug: config.slug }, props: { config } }));
+}
+
+const { config } = Astro.props;
+---
+
+<UkByelectionDesk lang="en" config={config} />

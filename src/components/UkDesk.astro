@@ -1,0 +1,335 @@
+---
+// Desk UK — accueil de section data-driven (pattern FranceDesk : un composant,
+// locale en prop). Remplace l'ancien hub à deux cartes : le desk montre le
+// topline live du modèle, la composition réelle de la Chambre et les
+// partielles, au lieu d'être une étape vide avant la projection.
+import EditorialLayout from '../layouts/EditorialLayout.astro';
+import EditorialHero from './EditorialHero.astro';
+import MethodologyNote from './MethodologyNote.astro';
+import ukMeta from '../../web_data/uk/latest.json';
+import { ukByelections, ukResolvedByelections2026 } from '../data/ukByelections';
+
+type Locale = 'en' | 'fr' | 'es';
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+
+const meta = (ukMeta as any).meta;
+const parties = ((ukMeta as any).parties as any[]) ?? [];
+const composition = ((ukMeta as any).current_composition as any[]) ?? [];
+
+const topParties = [...parties]
+  .filter((p) => p.party !== 'uk_oth')
+  .sort((a, b) => (b.vote_mean ?? 0) - (a.vote_mean ?? 0))
+  .slice(0, 5);
+const leader = topParties[0];
+const runnerUp = topParties[1];
+const compTotal = composition.reduce((acc, c) => acc + (c.seats ?? 0), 0);
+
+const clacton = ukByelections.clacton;
+const clactonPath = clacton.paths[locale];
+
+const partyLabel = (p: any) =>
+  locale === 'fr' ? p.label_fr ?? p.label_en : locale === 'es' ? p.label_es ?? p.label_en : p.label_en;
+
+const fmt1 = (v: number) =>
+  locale === 'en' ? v.toFixed(1) : v.toFixed(1).replace('.', ',');
+
+const copy = {
+  en: {
+    title: 'U.K. Politics — Vote-Scope',
+    description:
+      'The Vote-Scope U.K. desk: live general-election projection topline, real Commons composition, and by-election coverage including Clacton — updated as polls land.',
+    eyebrow: 'U.K. Desk',
+    heroTitle: 'Where is the British map genuinely settled, and where is it quietly fragile?',
+    promise: 'Constituency projections from aggregated polls and Monte Carlo simulations — every seat, updated as new polls land.',
+    question: `${partyLabel(leader)} leads on ${fmt1(leader.vote_mean)}% — but who actually banks the seats?`,
+    openProjection: 'Open projection',
+    allIndexes: 'All indexes',
+    toplineLabel: `Model topline · run ${meta.run_date} · ${meta.n_polls} polls`,
+    votes: 'vote',
+    seats: 'seats',
+    compositionLabel: `Commons today — ${compTotal} of ${meta.total_seats} GB seats tracked`,
+    byeLabel: 'By-elections',
+    clactonKicker: 'Live race · date not set',
+    clactonTitle: 'Clacton.',
+    clactonBody:
+      'Farage resigned; a single independent — Count Binface — shapes the field. No partisan baseline, so no projection until a local poll exists. The desk explains why.',
+    clactonCta: 'Open the race desk →',
+    resolvedLabel: '2026 by-elections — called and settled',
+    cards: [
+      { href: '/en/uk/general-election/', eyebrow: 'General election projection', title: 'U.K. General Election', body: '650-seat projection. Bayesian poll aggregation, 50,000 Monte Carlo simulations, seat-level probabilities.', cta: 'Open projection →' },
+      { href: '/en/uk/constituencies/', eyebrow: 'Constituency profiles', title: '650 Westminster constituencies', body: 'A page for every seat: projection, sitting MP, 2024 result, ONS demographics and neighbouring seats.', cta: 'Explore all 650 →' },
+      { href: '/en/uk/polls/', eyebrow: 'Polling hub', title: 'Every poll, weighted', body: 'The full U.K. polling series that feeds the model — firm, dates, sample and weight, poll by poll.', cta: 'Open the polls hub →' },
+    ],
+    methodTitle: 'Built for depth, down to the marginal seat.',
+    methodBody:
+      "The British electoral map rewards granularity: tactical voting, regional swings and third-party dynamics shift individual seats in ways national polls can't predict. Vote-Scope projects every seat, so you can see exactly where the contest lives.",
+    methodBullets: [
+      'Polling aggregation uses a Bayesian BSTS model with region-level adjustments.',
+      '50,000 Monte Carlo simulations produce seat distributions and win probabilities.',
+      'Commons composition reflects resolved by-elections and current vacancies — not just the 2024 result.',
+      'By-elections are tracked as live race desks; no numbers are published without local data.',
+    ],
+  },
+  fr: {
+    title: 'Politique britannique — Vote-Scope',
+    description:
+      'Le desk UK de Vote-Scope : topline live de la projection, composition réelle des Communes et couverture des partielles dont Clacton — mis à jour au fil des sondages.',
+    eyebrow: 'Bureau UK',
+    heroTitle: 'Où la carte britannique est-elle vraiment jouée, et où est-elle discrètement fragile ?',
+    promise: 'Projections par circonscription à partir de sondages agrégés et de simulations Monte Carlo — chaque siège, mis à jour au fil des sondages.',
+    question: `${partyLabel(leader)} mène à ${fmt1(leader.vote_mean)} % — mais qui encaisse vraiment les sièges ?`,
+    openProjection: 'Ouvrir la projection',
+    allIndexes: 'Tous les indices',
+    toplineLabel: `Topline du modèle · run ${meta.run_date} · ${meta.n_polls} sondages`,
+    votes: 'voix',
+    seats: 'sièges',
+    compositionLabel: `Les Communes aujourd'hui — ${compTotal} des ${meta.total_seats} sièges GB suivis`,
+    byeLabel: 'Partielles',
+    clactonKicker: 'Course en direct · date non fixée',
+    clactonTitle: 'Clacton.',
+    clactonBody:
+      "Farage a démissionné; un indépendant unique — Count Binface — structure le champ. Pas de baseline partisane, donc pas de projection avant un sondage local. Le desk explique pourquoi.",
+    clactonCta: 'Ouvrir le desk de course →',
+    resolvedLabel: 'Partielles 2026 — jugées et réglées',
+    cards: [
+      { href: '/fr/uk/general-election/', eyebrow: 'Projection de la générale', title: 'Générale britannique', body: 'Projection des 650 sièges. Agrégation bayésienne des sondages, 50 000 simulations Monte Carlo, probabilités par siège.', cta: 'Ouvrir la projection →' },
+      { href: '/fr/uk/circonscriptions/', eyebrow: 'Fiches de circonscription', title: '650 circonscriptions de Westminster', body: 'Une page par siège : projection, député en poste, résultat 2024, démographie ONS et sièges voisins.', cta: 'Explorer les 650 →' },
+      { href: '/fr/uk/sondages/', eyebrow: 'Hub des sondages', title: 'Chaque sondage, pondéré', body: 'La série complète des sondages UK qui alimente le modèle — firme, dates, échantillon et poids, sondage par sondage.', cta: 'Ouvrir le hub →' },
+    ],
+    methodTitle: 'Conçu pour la profondeur, jusqu’au siège marginal.',
+    methodBody:
+      'La carte électorale britannique récompense la granularité : vote tactique, swings régionaux et dynamiques de tiers partis déplacent des sièges individuels que les sondages nationaux ne voient pas. Vote-Scope projette chaque siège.',
+    methodBullets: [
+      'Agrégation des sondages par modèle bayésien BSTS avec ajustements régionaux.',
+      '50 000 simulations Monte Carlo produisent distributions de sièges et probabilités de victoire.',
+      'La composition des Communes reflète les partielles résolues et les vacances en cours — pas seulement le résultat 2024.',
+      'Les partielles sont suivies comme desks de course en direct; aucun chiffre publié sans donnée locale.',
+    ],
+  },
+  es: {
+    title: 'Política británica — Vote-Scope',
+    description:
+      'El desk del Reino Unido de Vote-Scope: topline en vivo de la proyección, composición real de los Comunes y cobertura de parciales incluida Clacton.',
+    eyebrow: 'Desk del Reino Unido',
+    heroTitle: '¿Dónde está realmente decidido el mapa británico y dónde es discretamente frágil?',
+    promise: 'Proyecciones por circunscripción a partir de encuestas agregadas y simulaciones Monte Carlo — cada escaño, actualizado con cada encuesta.',
+    question: `${partyLabel(leader)} lidera con ${fmt1(leader.vote_mean)} % — pero ¿quién se lleva realmente los escaños?`,
+    openProjection: 'Abrir la proyección',
+    allIndexes: 'Todos los índices',
+    toplineLabel: `Topline del modelo · ejecución ${meta.run_date} · ${meta.n_polls} encuestas`,
+    votes: 'voto',
+    seats: 'escaños',
+    compositionLabel: `Los Comunes hoy — ${compTotal} de los ${meta.total_seats} escaños GB seguidos`,
+    byeLabel: 'Parciales',
+    clactonKicker: 'Contienda en vivo · fecha sin fijar',
+    clactonTitle: 'Clacton.',
+    clactonBody:
+      'Farage renunció; un único independiente — Count Binface — define la contienda. Sin línea de base partidista no hay proyección hasta que exista una encuesta local. El desk explica por qué.',
+    clactonCta: 'Abrir el desk de la contienda →',
+    resolvedLabel: 'Parciales de 2026 — resueltas',
+    cards: [
+      { href: '/es/uk/general-election/', eyebrow: 'Proyección de las generales', title: 'Generales británicas', body: 'Proyección de 650 escaños. Agregación bayesiana de encuestas, 50 000 simulaciones Monte Carlo, probabilidades por escaño.', cta: 'Abrir la proyección →' },
+      { href: '/es/uk/circunscripciones/', eyebrow: 'Fichas de circunscripción', title: '650 circunscripciones de Westminster', body: 'Una página por escaño: proyección, diputado en ejercicio, resultado 2024, demografía ONS y escaños vecinos.', cta: 'Explorar las 650 →' },
+      { href: '/es/uk/sondeos/', eyebrow: 'Hub de encuestas', title: 'Cada encuesta, ponderada', body: 'La serie completa de encuestas del Reino Unido que alimenta el modelo — casa, fechas, muestra y peso.', cta: 'Abrir el hub →' },
+    ],
+    methodTitle: 'Construido para la profundidad, hasta el escaño marginal.',
+    methodBody:
+      'El mapa electoral británico premia la granularidad: voto táctico, swings regionales y terceras fuerzas mueven escaños que las encuestas nacionales no ven. Vote-Scope proyecta cada escaño.',
+    methodBullets: [
+      'Agregación de encuestas con un modelo bayesiano BSTS y ajustes regionales.',
+      '50 000 simulaciones Monte Carlo producen distribuciones de escaños y probabilidades.',
+      'La composición de los Comunes refleja parciales resueltas y vacantes actuales — no solo el resultado de 2024.',
+      'Las parciales se siguen como desks en vivo; no se publican cifras sin datos locales.',
+    ],
+  },
+}[locale];
+
+const t = copy;
+const canonical = `https://vote-scope.com/${locale}/uk/`;
+const alternates = {
+  en: 'https://vote-scope.com/en/uk/',
+  fr: 'https://vote-scope.com/fr/uk/',
+  es: 'https://vote-scope.com/es/uk/',
+};
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: t.title,
+    url: canonical,
+    inLanguage: locale,
+    dateModified: meta.run_date,
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: `https://vote-scope.com/${locale}/` },
+      { '@type': 'ListItem', position: 2, name: 'U.K.', item: canonical },
+    ],
+  },
+];
+
+const dateLabel = (iso: string) => {
+  const d = new Date(`${iso}T12:00:00`);
+  return d.toLocaleDateString(locale === 'en' ? 'en-GB' : locale === 'fr' ? 'fr-FR' : 'es-ES', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  });
+};
+---
+
+<EditorialLayout
+  title={t.title}
+  description={t.description}
+  canonical={canonical}
+  lang={locale}
+  currentPage="uk"
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={alternates}
+  jsonLd={jsonLd}
+>
+  <EditorialHero
+    eyebrow={t.eyebrow}
+    title={t.heroTitle}
+    promise={t.promise}
+    question={t.question}
+    primaryHref={`/${locale}/uk/general-election/`}
+    primaryLabel={t.openProjection}
+    secondaryHref={`/${locale}/indexes/`}
+    secondaryLabel={t.allIndexes}
+  />
+
+  <section class="content-band ukdesk-topline-band">
+    <div class="container">
+      <p class="ukdesk-label">{t.toplineLabel}</p>
+      <div class="ukdesk-topline">
+        {topParties.map((p) => (
+          <div class="ukdesk-tile" style={`--party-color:${p.color}`}>
+            <span class="ukdesk-tile-party">{partyLabel(p)}</span>
+            <strong class="ukdesk-tile-vote">{fmt1(p.vote_mean)}%</strong>
+            <span class="ukdesk-tile-seats">{Math.round(p.seats_mean)} {t.seats}</span>
+          </div>
+        ))}
+      </div>
+
+      <p class="ukdesk-label" style="margin-top:34px;">{t.compositionLabel}</p>
+      <div class="ukdesk-comp-bar" role="img" aria-label={t.compositionLabel}>
+        {composition.filter((c) => c.seats > 0).map((c) => (
+          <div
+            style={`width:${(c.seats / compTotal) * 100}%;background:${c.color};`}
+            title={`${partyLabel(c)}: ${c.seats}`}
+          />
+        ))}
+      </div>
+      <div class="ukdesk-comp-legend">
+        {composition.filter((c) => c.seats > 0).map((c) => (
+          <span><i style={`background:${c.color}`}></i>{partyLabel(c)} {c.seats}</span>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="content-band">
+    <div class="container">
+      <p class="ukdesk-label">{t.byeLabel}</p>
+      <div class="content-grid-2" style="margin-top:14px;">
+        <a class="note-card ukdesk-clacton" href={clactonPath} style="text-decoration:none;color:inherit;">
+          <p class="eyebrow">{t.clactonKicker}</p>
+          <h3>{t.clactonTitle}</h3>
+          <p>{t.clactonBody}</p>
+          <footer style="margin-top:1rem;"><span class="cta-link">{t.clactonCta}</span></footer>
+        </a>
+        <div class="ukdesk-resolved">
+          <p class="eyebrow">{t.resolvedLabel}</p>
+          {ukResolvedByelections2026.map((b) => (
+            <div class="ukdesk-resolved-row">
+              <i style={`background:${b.color}`}></i>
+              <span class="ukdesk-resolved-name">{b.name}</span>
+              <span class="ukdesk-resolved-outcome">
+                {locale === 'fr' ? b.outcome_fr : locale === 'es' ? b.outcome_es : b.outcome_en}
+              </span>
+              <span class="ukdesk-resolved-date">{dateLabel(b.date)}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="content-band">
+    <div class="container ukdesk-cards">
+      {t.cards.map((card) => (
+        <a class="note-card" href={card.href} style="text-decoration:none;color:inherit;">
+          <p class="eyebrow">{card.eyebrow}</p>
+          <h3>{card.title}</h3>
+          <p>{card.body}</p>
+          <footer style="margin-top:1rem;"><span class="cta-link">{card.cta}</span></footer>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <MethodologyNote
+    title={t.methodTitle}
+    body={t.methodBody}
+    bullets={t.methodBullets}
+  />
+</EditorialLayout>
+
+<style>
+  .ukdesk-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .ukdesk-topline {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 14px;
+    margin-top: 14px;
+  }
+  .ukdesk-tile {
+    border: 1px solid var(--rule);
+    border-top: 3px solid var(--party-color);
+    border-radius: 4px;
+    background: var(--card);
+    padding: 14px;
+    display: grid;
+    gap: 4px;
+  }
+  .ukdesk-tile-party { font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; color: var(--ink-2); }
+  .ukdesk-tile-vote { font-family: var(--serif); font-size: 30px; font-weight: 430; letter-spacing: -0.01em; }
+  .ukdesk-tile-seats { font-family: var(--mono); font-size: 11px; color: var(--ink-3); }
+  .ukdesk-comp-bar { display: flex; height: 16px; border-radius: 3px; overflow: hidden; margin-top: 12px; }
+  .ukdesk-comp-legend { display: flex; flex-wrap: wrap; gap: 8px 16px; margin-top: 10px; font-family: var(--mono); font-size: 11px; color: var(--ink-2); }
+  .ukdesk-comp-legend i { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 5px; }
+  .ukdesk-resolved { border: 1px solid var(--rule); border-radius: 6px; background: var(--card); padding: 20px; }
+  .ukdesk-resolved-row {
+    display: grid;
+    grid-template-columns: 10px minmax(90px, 0.6fr) 1.6fr auto;
+    gap: 10px;
+    align-items: baseline;
+    padding: 9px 0;
+    border-bottom: 1px solid var(--rule-2);
+    font-size: 13px;
+  }
+  .ukdesk-resolved-row:last-child { border-bottom: 0; }
+  .ukdesk-resolved-row i { width: 9px; height: 9px; border-radius: 50%; align-self: center; }
+  .ukdesk-resolved-name { font-weight: 600; }
+  .ukdesk-resolved-outcome { color: var(--ink-2); line-height: 1.4; }
+  .ukdesk-resolved-date { font-family: var(--mono); font-size: 11px; color: var(--ink-3); white-space: nowrap; }
+  .ukdesk-cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
+  @media (max-width: 900px) {
+    .ukdesk-topline { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .ukdesk-cards { grid-template-columns: 1fr; }
+    .ukdesk-resolved-row { grid-template-columns: 10px 1fr auto; }
+    .ukdesk-resolved-outcome { grid-column: 2 / -1; }
+  }
+</style>

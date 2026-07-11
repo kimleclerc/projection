@@ -1,0 +1,264 @@
+---
+// Desk de partielle UK — course EN ATTENTE sans projection (convention moteur :
+// aucun nombre tant qu'aucun sondage LOCAL n'existe — cas Clacton : un seul
+// candidat indépendant, donc pas de baseline partisane à projeter).
+import Base from '../layouts/Base.astro';
+import KeepDigging from './KeepDigging.astro';
+import {
+  ukByelectionAlternates,
+  type UkByelectionConfig,
+  type UkByelectionLocale,
+} from '../data/ukByelections';
+
+interface Props {
+  lang: UkByelectionLocale;
+  config: UkByelectionConfig;
+}
+
+const { lang, config } = Astro.props;
+const canonical = `https://vote-scope.com${config.paths[lang]}`;
+const alternates = ukByelectionAlternates(config);
+
+const copy = {
+  en: {
+    kicker: 'U.K. by-election · date not set',
+    headline: `${config.ridingName}.`,
+    dek: 'Nigel Farage resigned the seat he won in 2024. The race shapes up as Farage against a single independent — Count Binface — with no partisan baseline to project from. This desk tracks what is known, and is explicit about what cannot be projected yet.',
+    knownLabel: 'What we know',
+    known: [
+      ['Vacancy', 'Farage resigned on July 7, 2026. The writ has not been moved; no polling day is set.'],
+      ['The field', 'Expected: Nigel Farage (Reform UK) and one independent, Count Binface. No major-party candidacies confirmed.'],
+      ['Why it is hard to model', 'An independent has no 2024 share, no national swing to apply and no transfer profile. The usual baseline-plus-swing machinery only covers one side of the race.'],
+    ],
+    noProjTitle: 'Why no projection yet',
+    noProjBody: 'Vote-Scope publishes numbers only when they mean something. Until at least one constituency poll of Clacton exists, any figure for a novelty independent would be a guess dressed as a probability. The model rule: national preference polls are context, never voting intention; the independent gets a wide prior from his own electoral history, and it only tightens on local data.',
+    ctxLabel: 'National signal — context only',
+    ctxCaveat: 'This is a national preference question (“who would you prefer to win”), not a poll of Clacton voters. Preference questions systematically flatter protest candidacies. It informs the mood, not the model.',
+    baseLabel: '2024 baseline — the seat Farage vacated',
+    keepDiggingEyebrow: 'Keep digging',
+    keepDiggingTitle: 'More from the U.K. Desk.',
+    keepDiggingBody: 'The general-election projection, all 650 constituency profiles, and the polling hub.',
+    links: [
+      { href: '/en/uk/general-election/', label: 'U.K. general election projection →' },
+      { href: '/en/uk/constituencies/E14001174-clacton/', label: 'Clacton constituency profile →' },
+      { href: '/en/uk/polls/', label: 'U.K. polling hub →' },
+    ],
+  },
+  fr: {
+    kicker: 'Partielle UK · date non fixée',
+    headline: `${config.ridingName}.`,
+    dek: "Nigel Farage a démissionné du siège gagné en 2024. La course s'annonce comme un duel Farage contre un indépendant unique — Count Binface — sans baseline partisane pour projeter. Ce desk suit ce qui est connu, et dit franchement ce qui ne peut pas encore être projeté.",
+    knownLabel: 'Ce que l’on sait',
+    known: [
+      ['Vacance', 'Farage a démissionné le 7 juillet 2026. Le writ n’est pas déposé; aucune date de scrutin n’est fixée.'],
+      ['Le champ', 'Attendus : Nigel Farage (Reform UK) et un seul indépendant, Count Binface. Aucune candidature des grands partis confirmée.'],
+      ['Pourquoi c’est dur à modéliser', 'Un indépendant n’a ni part 2024, ni swing national applicable, ni profil de report. La mécanique habituelle baseline + swing ne couvre qu’un côté de la course.'],
+    ],
+    noProjTitle: 'Pourquoi pas encore de projection',
+    noProjBody: 'Vote-Scope ne publie des chiffres que lorsqu’ils veulent dire quelque chose. Tant qu’il n’existe pas au moins un sondage de circonscription à Clacton, tout chiffre pour un indépendant-surprise serait une devinette déguisée en probabilité. Règle du modèle : les sondages nationaux de préférence sont du contexte, jamais de l’intention de vote; l’indépendant reçoit un prior large tiré de son propre historique électoral, qui ne se resserre que sur données locales.',
+    ctxLabel: 'Signal national — contexte seulement',
+    ctxCaveat: 'C’est une question de préférence nationale (« qui préféreriez-vous voir gagner »), pas un sondage des électeurs de Clacton. Les questions de préférence flattent systématiquement les candidatures de protestation. Ça informe l’humeur, pas le modèle.',
+    baseLabel: 'Baseline 2024 — le siège laissé par Farage',
+    keepDiggingEyebrow: 'Continuer à creuser',
+    keepDiggingTitle: 'Plus du bureau UK.',
+    keepDiggingBody: 'La projection de la générale, les 650 fiches de circonscription et le hub des sondages.',
+    links: [
+      { href: '/fr/uk/general-election/', label: 'Projection de la générale UK →' },
+      { href: '/fr/uk/circonscriptions/E14001174-clacton/', label: 'Fiche de la circonscription de Clacton →' },
+      { href: '/fr/uk/sondages/', label: 'Hub des sondages UK →' },
+    ],
+  },
+  es: {
+    kicker: 'Parcial del Reino Unido · fecha sin fijar',
+    headline: `${config.ridingName}.`,
+    dek: 'Nigel Farage renunció al escaño ganado en 2024. La contienda se perfila como Farage contra un único independiente — Count Binface — sin línea de base partidista para proyectar. Este desk sigue lo conocido y es explícito sobre lo que aún no puede proyectarse.',
+    knownLabel: 'Lo que se sabe',
+    known: [
+      ['Vacante', 'Farage renunció el 7 de julio de 2026. El writ no se ha presentado; no hay fecha de votación.'],
+      ['Los candidatos', 'Esperados: Nigel Farage (Reform UK) y un único independiente, Count Binface. Sin candidaturas confirmadas de los grandes partidos.'],
+      ['Por qué es difícil de modelar', 'Un independiente no tiene cuota de 2024, ni swing nacional aplicable, ni perfil de transferencias. La maquinaria habitual solo cubre un lado de la contienda.'],
+    ],
+    noProjTitle: 'Por qué aún no hay proyección',
+    noProjBody: 'Vote-Scope publica números solo cuando significan algo. Hasta que exista al menos una encuesta de la circunscripción de Clacton, cualquier cifra para un independiente-sorpresa sería una conjetura disfrazada de probabilidad. Regla del modelo: las encuestas nacionales de preferencia son contexto, nunca intención de voto; el independiente recibe un prior amplio de su propio historial electoral, que solo se ajusta con datos locales.',
+    ctxLabel: 'Señal nacional — solo contexto',
+    ctxCaveat: 'Es una pregunta nacional de preferencia («a quién preferiría ver ganar»), no una encuesta de votantes de Clacton. Las preguntas de preferencia favorecen sistemáticamente a las candidaturas de protesta. Informa el ánimo, no el modelo.',
+    baseLabel: 'Línea de base 2024 — el escaño que dejó Farage',
+    keepDiggingEyebrow: 'Seguir cavando',
+    keepDiggingTitle: 'Más del desk del Reino Unido.',
+    keepDiggingBody: 'La proyección de las generales, las 650 fichas de circunscripción y el hub de encuestas.',
+    links: [
+      { href: '/es/uk/general-election/', label: 'Proyección de las generales del Reino Unido →' },
+      { href: '/es/uk/circunscripciones/E14001174-clacton/', label: 'Ficha de la circunscripción de Clacton →' },
+      { href: '/es/uk/sondeos/', label: 'Hub de encuestas del Reino Unido →' },
+    ],
+  },
+}[lang];
+
+const t = copy;
+const ctxPoll = config.contextPolls[0];
+const ctxQuestion = lang === 'fr' ? ctxPoll.question_fr : lang === 'es' ? ctxPoll.question_es : ctxPoll.question_en;
+const fmtPct = (v: number) => (lang === 'en' ? v.toFixed(1) : v.toFixed(1).replace('.', ','));
+
+const breadcrumbUk = { en: 'U.K.', fr: 'UK', es: 'Reino Unido' }[lang];
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    name: config.title[lang].replace(' — Vote-Scope', ''),
+    description: config.description[lang],
+    headline: t.headline,
+    author: { '@type': 'Person', name: 'Kim Leclerc', url: 'https://kimleclerc.ca' },
+    publisher: { '@type': 'Organization', name: 'Vote-Scope', url: 'https://vote-scope.com' },
+    url: canonical,
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: `https://vote-scope.com/${lang}/` },
+      { '@type': 'ListItem', position: 2, name: breadcrumbUk, item: `https://vote-scope.com/${lang}/uk/` },
+      { '@type': 'ListItem', position: 3, name: config.ridingName, item: canonical },
+    ],
+  },
+];
+---
+
+<Base
+  title={config.title[lang]}
+  description={config.description[lang]}
+  canonical={canonical}
+  currentPage="uk"
+  lang={lang}
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={alternates}
+  jsonLd={jsonLd}
+>
+  <article class="ukbye">
+    <header class="ukbye-hero container">
+      <p class="ukbye-kicker">{t.kicker}</p>
+      <h1>{t.headline}</h1>
+      <p class="ukbye-dek">{t.dek}</p>
+    </header>
+
+    <section class="container" aria-labelledby="ukbye-known">
+      <p class="ukbye-label" id="ukbye-known">{t.knownLabel}</p>
+      <div class="ukbye-known-grid">
+        {t.known.map(([head, body]) => (
+          <div class="ukbye-card">
+            <strong>{head}</strong>
+            <p>{body}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <section class="container" aria-labelledby="ukbye-noproj">
+      <div class="ukbye-noproj">
+        <p class="ukbye-label" id="ukbye-noproj">{t.noProjTitle}</p>
+        <p>{t.noProjBody}</p>
+      </div>
+    </section>
+
+    <section class="container" aria-labelledby="ukbye-ctx">
+      <p class="ukbye-label" id="ukbye-ctx">{t.ctxLabel}</p>
+      <div class="ukbye-ctx-card">
+        <p class="ukbye-ctx-question">{ctxQuestion}</p>
+        <div class="ukbye-ctx-bars">
+          {ctxPoll.options.map((o) => (
+            <div class="ukbye-ctx-row">
+              <span class="ukbye-ctx-name">{lang === 'fr' ? o.label_fr : lang === 'es' ? o.label_es : o.label_en}</span>
+              <div class="ukbye-ctx-track">
+                <div class="ukbye-ctx-fill" style={`width:${o.pct}%;background:${o.color};`} />
+              </div>
+              <strong class="ukbye-ctx-pct">{o.pct}%</strong>
+            </div>
+          ))}
+        </div>
+        <p class="ukbye-ctx-meta">
+          {ctxPoll.firm} · {ctxPoll.field_dates_label[lang]} · n={ctxPoll.sample_size}
+        </p>
+        <p class="ukbye-ctx-caveat">{t.ctxCaveat}</p>
+      </div>
+    </section>
+
+    <section class="container" aria-labelledby="ukbye-2024">
+      <p class="ukbye-label" id="ukbye-2024">{t.baseLabel}</p>
+      <div class="ukbye-breakdown-bar">
+        {config.last2024.candidates.map((c) => (
+          <div style={`width:${c.pct}%;background:${c.color};`} title={`${c.name}: ${c.pct.toFixed(1)}%`} />
+        ))}
+      </div>
+      <div class="ukbye-vote-grid">
+        {config.last2024.candidates.map((c) => (
+          <div class={`ukbye-vote-row${c.is_winner ? ' ukbye-vote-row--winner' : ''}`}>
+            <div class="ukbye-vote-dot" style={`background:${c.color}`} />
+            <span class="ukbye-vote-party">
+              {lang === 'fr' ? c.party_label_fr : lang === 'es' ? c.party_label_es : c.party_label_en} — {c.name}
+            </span>
+            <strong>{fmtPct(c.pct)}%</strong>
+            {c.is_winner && <span class="ukbye-check">✓</span>}
+          </div>
+        ))}
+      </div>
+      <p class="ukbye-ctx-meta">
+        {lang === 'fr' ? config.last2024.turnout_note_fr : lang === 'es' ? config.last2024.turnout_note_es : config.last2024.turnout_note_en}
+      </p>
+    </section>
+
+    <KeepDigging
+      eyebrow={t.keepDiggingEyebrow}
+      title={t.keepDiggingTitle}
+      body={t.keepDiggingBody}
+      links={t.links}
+    />
+  </article>
+</Base>
+
+<style>
+  .ukbye { padding-bottom: 64px; }
+  .ukbye .container { max-width: 880px; margin-inline: auto; padding-inline: 1.5rem; }
+  .ukbye-hero { padding-top: 56px; }
+  .ukbye-kicker {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--ink-3);
+  }
+  .ukbye-hero h1 {
+    margin-top: 10px; font-family: var(--serif); font-weight: 420;
+    font-size: clamp(42px, 7vw, 76px); letter-spacing: -0.02em; line-height: 0.98;
+  }
+  .ukbye-dek { margin-top: 16px; max-width: 60ch; color: var(--ink-2); line-height: 1.6; font-size: 17px; }
+  .ukbye-label {
+    margin-top: 48px; font-family: var(--mono); font-size: 11px;
+    letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-3);
+  }
+  .ukbye-known-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 14px; }
+  .ukbye-card { border: 1px solid var(--rule); border-radius: 6px; background: var(--card); padding: 18px; }
+  .ukbye-card strong { font-family: var(--serif); font-size: 20px; font-weight: 430; }
+  .ukbye-card p { margin-top: 8px; color: var(--ink-2); line-height: 1.55; font-size: 14px; }
+  .ukbye-noproj { border-left: 3px solid var(--ink); padding: 4px 0 4px 18px; margin-top: 8px; }
+  .ukbye-noproj p:not(.ukbye-label) { margin-top: 10px; color: var(--ink-2); line-height: 1.65; max-width: 68ch; }
+  .ukbye-ctx-card { border: 1px solid var(--rule); border-radius: 6px; background: var(--card); padding: 20px; margin-top: 14px; }
+  .ukbye-ctx-question { font-family: var(--serif); font-size: 19px; font-weight: 430; line-height: 1.25; }
+  .ukbye-ctx-bars { margin-top: 16px; display: grid; gap: 10px; }
+  .ukbye-ctx-row { display: grid; grid-template-columns: 130px 1fr 44px; align-items: center; gap: 10px; }
+  .ukbye-ctx-name { font-size: 13px; color: var(--ink-2); }
+  .ukbye-ctx-track { height: 14px; background: var(--paper-3); border-radius: 3px; overflow: hidden; }
+  .ukbye-ctx-fill { height: 100%; }
+  .ukbye-ctx-pct { font-family: var(--mono); font-size: 12px; text-align: right; }
+  .ukbye-ctx-meta { margin-top: 12px; font-family: var(--mono); font-size: 11px; color: var(--ink-3); }
+  .ukbye-ctx-caveat {
+    margin-top: 10px; padding: 10px 12px; border: 1px dashed var(--rule);
+    border-radius: 4px; font-size: 13px; color: var(--ink-2); line-height: 1.5;
+  }
+  .ukbye-breakdown-bar { display: flex; height: 18px; border-radius: 3px; overflow: hidden; margin-top: 14px; }
+  .ukbye-vote-grid { margin-top: 14px; display: grid; gap: 8px; }
+  .ukbye-vote-row { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--ink-2); }
+  .ukbye-vote-row--winner { color: var(--ink); font-weight: 600; }
+  .ukbye-vote-dot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+  .ukbye-vote-party { flex: 1; }
+  .ukbye-check { color: var(--ink); }
+  @media (max-width: 720px) {
+    .ukbye-known-grid { grid-template-columns: 1fr; }
+    .ukbye-ctx-row { grid-template-columns: 104px 1fr 40px; }
+  }
+</style>
