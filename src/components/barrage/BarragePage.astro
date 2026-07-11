@@ -1,0 +1,382 @@
+---
+import EditorialLayout from '../../layouts/EditorialLayout.astro';
+import BarrageMeter from '../../islands/BarrageMeter.tsx';
+import LiveTicker from '../../islands/LiveTicker.tsx';
+import BarrageBreakdown from '../../islands/BarrageBreakdown.tsx';
+import BarrageHistory from '../../islands/BarrageHistory.tsx';
+import type { BarrageData, BarrageLocale } from '../../data/barrage';
+import '../../styles/lame-duck.css';
+
+interface Props {
+  data: BarrageData;
+  locale: BarrageLocale;
+  canonicalPath: string;
+}
+
+const { data, locale, canonicalPath } = Astro.props;
+
+const copy = {
+  en: {
+    title: 'Barrage Index — how solid is France’s republican front against the RN? — Vote-Scope',
+    description:
+      'Tracks the solidity of the French "front républicain" against the Rassemblement National ahead of the 2027 presidential election. Four public signals — second-round polling margins, the VoteScope model verdict, transfer discipline, and far-right first-round pressure — in one 0–100 score.',
+    eyebrow: 'Vote-Scope France · Live instrument',
+    headline: 'The Barrage Index.',
+    dek:
+      'One question has structured French politics for twenty years: does the republican firewall against the far right still hold? The Barrage Index reads it as a dam — four weighted components, real polling and model data, zero opinion. The score falls as the wall cracks.',
+    updated: 'Updated',
+    methodology: 'How it works',
+    history: 'View history',
+    meterTitle: 'The Barrage Meter',
+    meterSub: 'Composite · Updated as data lands',
+    live: 'Live',
+    readingLabel: "Today's reading",
+    duelStat: 'Most likely runoff',
+    countdownStat: 'Days to first round',
+    methodTitle: 'How we measure the wall.',
+    methodBody:
+      'The Index is a composite score, not an opinion. Four components, all from published French polling (Ifop, Elabe, Odoxa, Harris, Toluna…), the VoteScope presidential model (20k simulations) and transfer priors anchored on 2017/2022 exit data. Higher means a more solid barrage; lower means a higher risk of a far-right win in 2027.',
+    methodEyebrow: 'Methodology',
+    breakdownEyebrow: 'Component Breakdown',
+    breakdownTitle: 'Four signals, one number.',
+    breakdownBody:
+      'Each component is public, weighted, and visible. Second-round duels are weighted by how likely the model rates each opponent’s qualification, so an implausible duel never drives the score.',
+    duelEyebrow: 'The duel',
+    duelTitle: 'The runoff the model expects.',
+    duelBody:
+      'The dam is only tested where the wave actually hits. This is the most likely second-round pairing in the default VoteScope scenario, with the barrage candidate’s simulated share and win probability.',
+    duelShareLabel: 'Barrage share (simulated)',
+    duelWinLabel: 'Barrage win probability',
+    duelPLabel: 'Probability of this duel',
+    retroEyebrow: 'Calibration',
+    retroTitle: 'What the wall looked like in 2017 and 2022.',
+    retroBody:
+      'Scored on official runoff results, the same margin component reads 2017 as a rock-solid barrage (+32 points) and 2022 as a barrage cut in half (+17). The 2027 polls currently sit on the other side of 50 — that is the story this instrument exists to track.',
+    retroHeld: 'Barrage held',
+    retroBroke: 'Barrage breached',
+    historyEyebrow: 'Historical Series',
+    historyTitle: 'Since launch.',
+    historyBody:
+      'The series builds one reading at a time, through the declarations, the RN candidacy question, and the campaign itself.',
+    deskEyebrow: 'France Desk',
+    deskTitle: 'From one number to every scenario.',
+    deskBody:
+      'The Barrage Index compresses the France presidential desk into a single reading. The desk itself lets you explore every candidate lineup, qualification probabilities, and duel outcomes.',
+    deskCta: 'Open the France desk',
+    zonesNote: 'Zones: Rock-solid (75–100) · Holding (50–75) · Strained (25–50) · Breached (0–25).',
+  },
+  fr: {
+    title: 'Barrage Index — le front républicain tient-il face au RN ? — Vote-Scope',
+    description:
+      "Mesure la solidité du barrage républicain face au Rassemblement National à l'approche de la présidentielle 2027. Quatre signaux publics — marges des duels de 2e tour, verdict du modèle VoteScope, discipline de report et pression du 1er tour — en un score de 0 à 100.",
+    eyebrow: 'Vote-Scope France · Instrument live',
+    headline: 'Le Barrage Index.',
+    dek:
+      "Une question structure la vie politique française depuis vingt ans : le barrage républicain face à l'extrême droite tient-il encore ? Le Barrage Index le lit comme un ouvrage d'art — quatre composantes pondérées, de la vraie data de sondage et de modèle, zéro opinion. Le score baisse à mesure que le mur se fissure.",
+    updated: 'Mis à jour',
+    methodology: 'Méthodologie',
+    history: "Voir l'historique",
+    meterTitle: 'La Jauge Barrage',
+    meterSub: 'Composite · Mis à jour au fil des données',
+    live: 'Live',
+    readingLabel: 'Lecture du jour',
+    duelStat: 'Duel le plus probable',
+    countdownStat: 'Jours avant le 1er tour',
+    methodTitle: 'Comment on mesure le mur.',
+    methodBody:
+      "L'indice est un score composite, pas une opinion. Quatre composantes, toutes tirées des sondages français publiés (Ifop, Elabe, Odoxa, Harris, Toluna…), du modèle présidentiel VoteScope (20 000 simulations) et de priors de report ancrés sur les sorties d'urnes 2017/2022. Plus haut = barrage plus solide ; plus bas = risque de bascule plus élevé en 2027.",
+    methodEyebrow: 'Méthodologie',
+    breakdownEyebrow: 'Détail des composantes',
+    breakdownTitle: 'Quatre signaux, un seul nombre.',
+    breakdownBody:
+      "Chaque composante est publique, pondérée et visible. Les duels de 2e tour sont pondérés par la probabilité de qualification de l'adversaire du RN selon le modèle — un duel improbable ne pilote jamais le score.",
+    duelEyebrow: 'Le duel',
+    duelTitle: 'Le second tour que le modèle attend.',
+    duelBody:
+      "Le barrage ne se teste que là où la vague frappe. Voici l'affiche de 2e tour la plus probable dans le scénario par défaut de VoteScope, avec la part simulée du candidat de barrage et sa probabilité de victoire.",
+    duelShareLabel: 'Part du barrage (simulée)',
+    duelWinLabel: 'Probabilité que le barrage gagne',
+    duelPLabel: 'Probabilité de ce duel',
+    retroEyebrow: 'Calibration',
+    retroTitle: 'Ce que le mur donnait en 2017 et 2022.',
+    retroBody:
+      "Appliquée aux résultats officiels, la même composante de marge lit 2017 comme un barrage béton (+32 points) et 2022 comme un barrage divisé par deux (+17). Les sondages 2027 se placent aujourd'hui de l'autre côté de 50 — c'est précisément ce que cet instrument existe pour suivre.",
+    retroHeld: 'Barrage tenu',
+    retroBroke: 'Barrage rompu',
+    historyEyebrow: 'Série historique',
+    historyTitle: 'Depuis le lancement.',
+    historyBody:
+      "La série se construit une lecture à la fois, au fil des déclarations, de la question de la candidature RN et de la campagne elle-même.",
+    deskEyebrow: 'Desk France',
+    deskTitle: "D'un seul chiffre à tous les scénarios.",
+    deskBody:
+      "Le Barrage Index compresse le desk présidentiel France en une seule lecture. Le desk, lui, permet d'explorer chaque configuration de candidats, les probabilités de qualification et l'issue des duels.",
+    deskCta: 'Ouvrir le desk France',
+    zonesNote: 'Zones : Béton (75–100) · Tenu (50–75) · Fissuré (25–50) · Rompu (0–25).',
+  },
+  es: {
+    title: 'Barrage Index — ¿aguanta el frente republicano francés ante el RN? — Vote-Scope',
+    description:
+      'Mide la solidez del "frente republicano" francés frente al Rassemblement National de cara a la presidencial de 2027. Cuatro señales públicas combinadas en un puntaje de 0 a 100.',
+    eyebrow: 'Vote-Scope Francia · Instrumento en vivo',
+    headline: 'El Barrage Index.',
+    dek:
+      'Una pregunta estructura la política francesa desde hace veinte años: ¿aguanta todavía el dique republicano contra la extrema derecha? El Barrage Index lo lee como una presa — cuatro componentes ponderados, datos reales de sondeos y del modelo, cero opinión.',
+    updated: 'Actualizado',
+    methodology: 'Metodología',
+    history: 'Ver historial',
+    meterTitle: 'El medidor Barrage',
+    meterSub: 'Compuesto · Actualizado según llegan los datos',
+    live: 'En vivo',
+    readingLabel: 'Lectura de hoy',
+    duelStat: 'Segunda vuelta más probable',
+    countdownStat: 'Días hasta la primera vuelta',
+    methodTitle: 'Cómo medimos el muro.',
+    methodBody:
+      'El índice es un puntaje compuesto, no una opinión. Cuatro componentes de sondeos franceses publicados, el modelo presidencial de VoteScope (20k simulaciones) y transferencias ancladas en 2017/2022. Más alto = dique más sólido.',
+    methodEyebrow: 'Metodología',
+    breakdownEyebrow: 'Desglose de componentes',
+    breakdownTitle: 'Cuatro señales, un número.',
+    breakdownBody:
+      'Cada componente es público, ponderado y visible. Los duelos de segunda vuelta se ponderan por la probabilidad de clasificación del adversario del RN según el modelo.',
+    duelEyebrow: 'El duelo',
+    duelTitle: 'La segunda vuelta que espera el modelo.',
+    duelBody:
+      'La presa solo se prueba donde golpea la ola. Este es el duelo más probable en el escenario por defecto de VoteScope.',
+    duelShareLabel: 'Parte del dique (simulada)',
+    duelWinLabel: 'Probabilidad de que el dique gane',
+    duelPLabel: 'Probabilidad de este duelo',
+    retroEyebrow: 'Calibración',
+    retroTitle: 'Cómo se veía el muro en 2017 y 2022.',
+    retroBody:
+      'Sobre resultados oficiales, el mismo componente lee 2017 como un dique sólido (+32 puntos) y 2022 como un dique reducido a la mitad (+17). Los sondeos de 2027 están hoy al otro lado del 50.',
+    retroHeld: 'El dique aguantó',
+    retroBroke: 'El dique se rompió',
+    historyEyebrow: 'Serie histórica',
+    historyTitle: 'Desde el lanzamiento.',
+    historyBody: 'La serie se construye lectura a lectura.',
+    deskEyebrow: 'Mesa Francia',
+    deskTitle: 'De un solo número a todos los escenarios.',
+    deskBody:
+      'El Barrage Index comprime la mesa presidencial de Francia en una sola lectura. La mesa permite explorar cada configuración de candidatos.',
+    deskCta: 'Abrir la mesa Francia',
+    zonesNote: 'Zonas: Sólido (75–100) · Aguanta (50–75) · Agrietado (25–50) · Roto (0–25).',
+  },
+} as const;
+
+const t = copy[locale] ?? copy.en;
+const canonical = `https://vote-scope.com${canonicalPath}`;
+const deskHref = `/${locale}/france/`;
+const licenseHref = `https://vote-scope.com/${locale === 'fr' ? 'fr/conditions' : locale === 'es' ? 'es/terminos' : 'en/terms'}/`;
+
+const alternates = {
+  en: 'https://vote-scope.com/en/france/indexes/barrage/',
+  fr: 'https://vote-scope.com/fr/france/indexes/barrage/',
+  es: 'https://vote-scope.com/es/france/indexes/barrage/',
+};
+
+const homeLabel = 'Vote-Scope';
+const countryLabel = locale === 'fr' ? 'France' : locale === 'es' ? 'Francia' : 'France';
+const breadcrumbItems = [
+  { '@type': 'ListItem', position: 1, name: homeLabel, item: `https://vote-scope.com/${locale}/` },
+  { '@type': 'ListItem', position: 2, name: countryLabel, item: `https://vote-scope.com/${locale}/france/` },
+  { '@type': 'ListItem', position: 3, name: 'Barrage Index', item: canonical },
+];
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Dataset',
+    name: 'Barrage Index (Front républicain)',
+    keywords:
+      'Barrage Index, front républicain, barrage républicain, Rassemblement National, RN, présidentielle 2027, second tour, France, far right, runoff, Bardella, Le Pen',
+    description: t.description,
+    creator: { '@type': 'Person', name: 'Kim Leclerc', url: 'https://kimleclerc.ca' },
+    publisher: { '@type': 'Organization', name: 'Vote-Scope', url: 'https://vote-scope.com' },
+    temporalCoverage: `${data.meta.as_of_date ?? '2026-07-10'}/..`,
+    url: canonical,
+    isAccessibleForFree: true,
+    license: licenseHref,
+    distribution: {
+      '@type': 'DataDownload',
+      contentUrl: 'https://vote-scope.com/web_data/fr-barrage/latest.json',
+      encodingFormat: 'application/json',
+    },
+  },
+  { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: breadcrumbItems },
+];
+
+const fmt1 = (v: number) => (locale === 'en' ? v.toFixed(1) : v.toFixed(1).replace('.', ','));
+
+const duel = data.duel ?? {};
+const delta = data.bfi.delta_7d;
+const deltaArrow = typeof delta === 'number' ? (delta > 0 ? '▲' : delta < 0 ? '▼' : '—') : '—';
+const deltaTone = typeof delta === 'number' ? (delta > 0 ? 'is-up' : delta < 0 ? 'is-down' : 'is-flat') : 'is-flat';
+const duelLabel = duel.barrage_name && duel.far_right_name ? `${duel.barrage_name} · ${duel.far_right_name}` : '—';
+---
+
+<EditorialLayout
+  title={t.title}
+  description={t.description}
+  canonical={canonical}
+  lang={locale}
+  currentPage="france"
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={alternates}
+  jsonLd={jsonLd}
+>
+  <article class="lame-duck-page">
+    <header class="lame-duck-hero container">
+      <div class="lame-duck-hero-copy">
+        <p class="lame-duck-kicker">{t.eyebrow}</p>
+        <h1 class="lame-duck-title">{t.headline}</h1>
+        <p class="lame-duck-dek">{t.dek}</p>
+        <div class="lame-duck-meta">
+          <span>{t.updated} {data.computed.asOfLabel}</span>
+          <span aria-hidden="true">·</span>
+          <span>Barrage v{data.meta.version ?? '1.0'}</span>
+          <span aria-hidden="true">·</span>
+          <span>{data.computed.dataQualityLabel[locale] ?? data.computed.dataQualityLabel.en}</span>
+        </div>
+        <div class="lame-duck-actions">
+          <a class="btn-primary" href="#methodology">{t.methodology}</a>
+          <a class="btn-outline" href="#history">{t.history}</a>
+        </div>
+
+        <div class="lame-duck-stats" aria-label="Barrage Index live stats">
+          <article>
+            <p>{t.readingLabel}</p>
+            <strong>{fmt1(data.bfi.score)}<span>/100</span></strong>
+            <em class={deltaTone}>{deltaArrow} {typeof delta === 'number' ? fmt1(Math.abs(delta)) : '—'} · 7{locale === 'en' ? 'd' : locale === 'es' ? 'd' : 'j'}</em>
+          </article>
+          <article>
+            <p>{t.duelStat}</p>
+            <strong class="is-blue" style="font-size:1.05rem;line-height:1.3">{duelLabel}</strong>
+            <em>{duel.scenario_label ?? 'Vote-Scope model'}</em>
+          </article>
+          <article>
+            <p>{t.countdownStat}</p>
+            <strong>{data.computed.daysToFirstRound ?? '—'}</strong>
+            <em>{data.meta.first_round_date ?? '2027-04-11'}</em>
+          </article>
+        </div>
+      </div>
+
+      <aside class="lame-duck-meter-card" aria-label={t.meterTitle}>
+        <div class="lame-duck-meter-head">
+          <div>
+            <h2>{t.meterTitle}</h2>
+            <p>{t.meterSub}</p>
+          </div>
+          <span>{t.live}</span>
+        </div>
+        <BarrageMeter
+          score={data.bfi.score}
+          locale={locale}
+          zones={data.zones}
+          defaultView="dam"
+          qualityNote={data.computed.dataQualityLabel[locale] ?? data.computed.dataQualityLabel.en}
+          client:visible
+        />
+      </aside>
+    </header>
+
+    <LiveTicker items={data.ticker} client:idle />
+
+    <section class="content-band" id="methodology">
+      <div class="container">
+        <p class="eyebrow">{t.methodEyebrow}</p>
+        <div class="content-grid-2">
+          <div><h2>{t.methodTitle}</h2></div>
+          <div>
+            <p>{t.methodBody}</p>
+            <p style="margin-top:.75rem;color:var(--ink-3);font-size:.9rem">{t.zonesNote}</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="content-band" id="breakdown">
+      <div class="container">
+        <p class="eyebrow">{t.breakdownEyebrow}</p>
+        <div class="content-grid-2">
+          <div><h2>{t.breakdownTitle}</h2></div>
+          <div><p>{t.breakdownBody}</p></div>
+        </div>
+        <BarrageBreakdown components={data.components} locale={locale} client:visible />
+      </div>
+    </section>
+
+    <section class="content-band" id="duel">
+      <div class="container">
+        <p class="eyebrow">{t.duelEyebrow}</p>
+        <div class="content-grid-2">
+          <div><h2>{t.duelTitle}</h2></div>
+          <div><p>{t.duelBody}</p></div>
+        </div>
+        <div class="lame-duck-stats" style="margin-top:1.5rem">
+          <article>
+            <p>{t.duelPLabel}</p>
+            <strong>{typeof duel.p_duel === 'number' ? `${Math.round(duel.p_duel * 100)}%` : '—'}</strong>
+            <em>{duelLabel}</em>
+          </article>
+          <article>
+            <p>{t.duelShareLabel}</p>
+            <strong class="is-blue">{typeof duel.barrage_share_mean === 'number' ? `${fmt1(duel.barrage_share_mean)}%` : '—'}</strong>
+            <em>{duel.barrage_name ?? '—'}</em>
+          </article>
+          <article>
+            <p>{t.duelWinLabel}</p>
+            <strong>{typeof duel.barrage_win_prob === 'number' ? `${Math.round(duel.barrage_win_prob * 100)}%` : '—'}</strong>
+            <em>20k sims</em>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="content-band" id="retro">
+      <div class="container">
+        <p class="eyebrow">{t.retroEyebrow}</p>
+        <div class="content-grid-2">
+          <div><h2>{t.retroTitle}</h2></div>
+          <div><p>{t.retroBody}</p></div>
+        </div>
+        <div class="lame-duck-stats" style="margin-top:1.5rem">
+          {data.retro.map((entry) => (
+            <article>
+              <p>{entry.year} · {entry.barrage_candidate} vs {entry.far_right_candidate}</p>
+              <strong class={entry.held ? 'is-blue' : ''}>{fmt1(entry.barrage_share)}%</strong>
+              <em>{entry.held ? t.retroHeld : t.retroBroke} · +{fmt1(entry.margin_pp)}pp</em>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="content-band" id="history">
+      <div class="container">
+        <p class="eyebrow">{t.historyEyebrow}</p>
+        <div class="content-grid-2">
+          <div><h2>{t.historyTitle}</h2></div>
+          <div><p>{t.historyBody}</p></div>
+        </div>
+        <BarrageHistory history={data.history} currentScore={data.bfi.score} locale={locale} client:visible />
+      </div>
+    </section>
+
+    <section class="content-band" id="desk">
+      <div class="container">
+        <p class="eyebrow">{t.deskEyebrow}</p>
+        <div class="content-grid-2">
+          <div><h2>{t.deskTitle}</h2></div>
+          <div>
+            <p>{t.deskBody}</p>
+            <div class="lame-duck-actions" style="margin-top:1rem">
+              <a class="btn-outline" href={deskHref}>{t.deskCta}</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </article>
+</EditorialLayout>

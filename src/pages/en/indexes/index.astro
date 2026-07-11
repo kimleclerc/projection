@@ -10,6 +10,7 @@ import { instruments } from '../../../data/editorial';
 import ldiData from '../../../../web_data/us-lame-duck/latest.json';
 import gooseData from '../../../../web_data/ca-canada-goose/latest.json';
 import showdownData from '../../../../web_data/cusma-showdown/latest.json';
+import barrageData from '../../../../web_data/fr-barrage/latest.json';
 
 const ldi = ldiData.ldi;
 const deltaSign = ldi.delta_7d >= 0 ? '+' : '';
@@ -87,6 +88,12 @@ const deltaSign = ldi.delta_7d >= 0 ? '+' : '';
           <h3 style="font-size:2.5rem;margin:0.25rem 0;color:var(--text);">{showdownData.showdown.gap > 0 ? '+' : ''}{showdownData.showdown.gap}</h3>
           <p style={`font-weight:700;color:${showdownData.showdown.zone_color};`}>{showdownData.showdown.label_en}</p>
           <p style="margin-top:1rem;"><a href="/en/indexes/cusma-showdown/" class="cta-link">Open CUSMA Showdown →</a></p>
+        </div>
+        <div class="note-card" style={`border-left:4px solid ${barrageData.bfi.zone_color};`}>
+          <p class="eyebrow">Barrage Index · France 2027</p>
+          <h3 style="font-size:2.5rem;margin:0.25rem 0;color:var(--text);"><AnimatedNumber client:visible value={barrageData.bfi.score} decimals={1} /><span style="font-size:1.1rem;font-weight:400;">/100</span></h3>
+          <p style={`font-weight:700;color:${barrageData.bfi.zone_color};`}>{barrageData.bfi.label_en}</p>
+          <p style="margin-top:1rem;"><a href="/en/france/indexes/barrage/" class="cta-link">Open the Barrage Index →</a></p>
         </div>
       </div>
     </div>

@@ -1,0 +1,184 @@
+{
+  "meta": {
+    "generated_at": "2026-07-10T16:01:37.631690+00:00",
+    "as_of_date": "2026-07-10",
+    "election_cycle": "fr_pres_2027",
+    "first_round_date": "2027-04-11",
+    "runoff_date": "2027-04-25",
+    "model_run_date": "2026-07-10",
+    "version": "1.0",
+    "methodology_url": "https://vote-scope.com/fr/france/indexes/barrage/#methodology"
+  },
+  "bfi": {
+    "score": 28.7,
+    "label_en": "Strained",
+    "label_fr": "Fissuré",
+    "label_es": "Agrietado",
+    "zone_color": "#c8a030",
+    "delta_7d": null,
+    "data_quality": "real",
+    "n_components": 4
+  },
+  "components": [
+    {
+      "id": "runoff_margin",
+      "name_en": "Runoff firewall margin",
+      "name_fr": "Marge de barrage (2e tour)",
+      "name_es": "Margen del dique (2.ª vuelta)",
+      "weight": 0.3,
+      "score": 33.3,
+      "raw_value": 46.7,
+      "raw_label": "non-RN 46.7% (-6.7pp)",
+      "raw_label_fr": "non-RN 46.7% (-6.7pts)",
+      "raw_label_es": "no-RN 46.7% (-6.7pp)",
+      "delta_30d": -3.1,
+      "trend": "down",
+      "data_quality": "real",
+      "last_updated": "2026-07-08",
+      "n_polls": 24,
+      "tooltip_en": "Weighted average share of the republican-front candidate in second-round polls against the far right (recency × sample × the model's qualification probability for that candidate). 50% = a coin-flip runoff.",
+      "tooltip_fr": "Part moyenne pondérée du candidat de barrage dans les sondages de 2e tour face à l'extrême droite (récence × échantillon × probabilité de qualification du candidat selon le modèle). 50 % = second tour à pile ou face.",
+      "tooltip_es": "Parte media ponderada del candidato del frente republicano en los sondeos de segunda vuelta frente a la extrema derecha. 50% = segunda vuelta al azar."
+    },
+    {
+      "id": "model_hold",
+      "name_en": "Model verdict",
+      "name_fr": "Verdict du modèle",
+      "name_es": "Veredicto del modelo",
+      "weight": 0.3,
+      "score": 25.8,
+      "raw_value": 25.8,
+      "raw_label": "26% barrage holds",
+      "raw_label_fr": "26% barrage tient",
+      "raw_label_es": "26% dique aguanta",
+      "delta_30d": null,
+      "trend": "flat",
+      "data_quality": "real",
+      "last_updated": "2026-07-10",
+      "p_barrage": 0.2581,
+      "tooltip_en": "Probability that no far-right candidate wins the runoff, from the VoteScope presidential model (20k simulations, duel probabilities × win probabilities in the default scenario).",
+      "tooltip_fr": "Probabilité qu'aucun candidat d'extrême droite ne gagne le 2e tour, selon le modèle présidentiel VoteScope (20k simulations, probabilité de chaque duel × probabilité de victoire, scénario par défaut).",
+      "tooltip_es": "Probabilidad de que ningún candidato de extrema derecha gane la segunda vuelta, según el modelo presidencial de VoteScope (20k simulaciones)."
+    },
+    {
+      "id": "transfer_discipline",
+      "name_en": "Transfer discipline",
+      "name_fr": "Discipline de report",
+      "name_es": "Disciplina de transferencia",
+      "weight": 0.2,
+      "score": 47.7,
+      "raw_value": 0.318,
+      "raw_label": "net +32pp to barrage",
+      "raw_label_fr": "report net +32pts vers le barrage",
+      "raw_label_es": "neto +32pp al dique",
+      "delta_30d": null,
+      "trend": "flat",
+      "data_quality": "real",
+      "last_updated": "2026-07-10",
+      "n_sources": 4,
+      "duel_left_id": "centre_philippe",
+      "duel_right_id": "rn_bardella",
+      "tooltip_en": "Net transfers from eliminated first-round electorates toward the republican-front candidate in the most likely duel (transfer priors anchored on 2017/2022 exit data, weighted by projected first-round share).",
+      "tooltip_fr": "Reports nets des électorats éliminés au 1er tour vers le candidat de barrage dans le duel le plus probable (priors de report ancrés sur les sorties d'urnes 2017/2022, pondérés par le 1er tour projeté).",
+      "tooltip_es": "Transferencias netas de los electorados eliminados hacia el candidato del frente republicano en el duelo más probable (anclado en 2017/2022)."
+    },
+    {
+      "id": "far_right_pressure",
+      "name_en": "Far-right first-round pressure",
+      "name_fr": "Pression RN (1er tour)",
+      "name_es": "Presión RN (1.ª vuelta)",
+      "weight": 0.2,
+      "score": 7.0,
+      "raw_value": 38.6,
+      "raw_label": "far-right bloc 38.6%",
+      "raw_label_fr": "bloc extrême droite 38.6%",
+      "raw_label_es": "bloque extrema derecha 38.6%",
+      "delta_30d": -1.0,
+      "trend": "down",
+      "data_quality": "real",
+      "last_updated": "2026-07-09",
+      "n_polls": 45,
+      "tooltip_en": "Combined far-right first-round vote share (RN + allies), 90-day weighted average across polled scenarios. The 2022 reference level (Le Pen + Zemmour) was ~30%. Higher pressure = lower score.",
+      "tooltip_fr": "Part cumulée du bloc extrême droite au 1er tour (RN + alliés), moyenne pondérée 90 jours sur les scénarios sondés. Référence 2022 (Le Pen + Zemmour) ≈ 30 %. Plus de pression = score plus bas.",
+      "tooltip_es": "Parte combinada de la extrema derecha en la primera vuelta, media ponderada de 90 días. Referencia 2022 ≈ 30%. Más presión = puntaje más bajo."
+    }
+  ],
+  "duel": {
+    "scenario_id": "centre_vs_rn",
+    "scenario_label": "Centre consolidé",
+    "p_duel": 0.8768,
+    "barrage_id": "centre_philippe",
+    "barrage_name": "Edouard Philippe",
+    "far_right_id": "rn_bardella",
+    "far_right_name": "Jordan Bardella",
+    "barrage_share_mean": 49.511,
+    "barrage_win_prob": 0.2931,
+    "far_right_win_prob": 0.7069
+  },
+  "retro": [
+    {
+      "cycle": "fr_pres_2017",
+      "year": 2017,
+      "barrage_candidate": "Emmanuel Macron",
+      "far_right_candidate": "Marine Le Pen",
+      "barrage_share": 66.1,
+      "margin_pp": 32.2,
+      "runoff_margin_score": 100.0,
+      "held": true
+    },
+    {
+      "cycle": "fr_pres_2022",
+      "year": 2022,
+      "barrage_candidate": "Emmanuel Macron",
+      "far_right_candidate": "Marine Le Pen",
+      "barrage_share": 58.55,
+      "margin_pp": 17.1,
+      "runoff_margin_score": 92.7,
+      "held": true
+    }
+  ],
+  "history": [
+    {
+      "date": "2026-07-10",
+      "bfi": 28.7,
+      "runoff_share": 46.7,
+      "p_barrage": 25.8,
+      "far_right_bloc": 38.6
+    }
+  ],
+  "market_signals": [],
+  "zones": [
+    {
+      "min": 0,
+      "max": 25,
+      "label_en": "Breached",
+      "label_fr": "Rompu",
+      "label_es": "Roto",
+      "color": "#c94040"
+    },
+    {
+      "min": 25,
+      "max": 50,
+      "label_en": "Strained",
+      "label_fr": "Fissuré",
+      "label_es": "Agrietado",
+      "color": "#c8a030"
+    },
+    {
+      "min": 50,
+      "max": 75,
+      "label_en": "Holding",
+      "label_fr": "Tenu",
+      "label_es": "Aguanta",
+      "color": "#5aaa8a"
+    },
+    {
+      "min": 75,
+      "max": 100,
+      "label_en": "Rock-solid",
+      "label_fr": "Béton",
+      "label_es": "Sólido",
+      "color": "#2f6fb0"
+    }
+  ]
+}

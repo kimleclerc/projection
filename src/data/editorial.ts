@@ -287,6 +287,18 @@ export const instruments: Record<'en' | 'fr' | 'es', Instrument[]> = {
       cadence: 'Quarterly',
       metric: '65.8 / 100',
     },
+    {
+      id: 'barrage',
+      name: 'Barrage Index',
+      family: 'Power',
+      question: 'How solid is France’s republican front against the RN ahead of 2027?',
+      description:
+        'A composite of second-round polling margins, the VoteScope model verdict, transfer discipline, and far-right first-round pressure. Higher = the barrage holds; lower = rising risk of a far-right win.',
+      href: '/en/france/indexes/barrage/',
+      status: 'live',
+      cadence: 'As data lands',
+      metric: 'Current score from web_data/fr-barrage/latest.json',
+    },
   ],
   fr: [
     {
@@ -392,6 +404,18 @@ export const instruments: Record<'en' | 'fr' | 'es', Instrument[]> = {
       cadence: 'Trimestriel',
       metric: '65,8 / 100',
     },
+    {
+      id: 'barrage',
+      name: 'Barrage Index',
+      family: 'Power',
+      question: 'Le barrage républicain tient-il face au RN à l’approche de 2027?',
+      description:
+        "Un composite des marges de duels de 2e tour, du verdict du modèle VoteScope, de la discipline de report et de la pression d'extrême droite au 1er tour. Plus haut = le barrage tient; plus bas = risque de bascule.",
+      href: '/fr/france/indexes/barrage/',
+      status: 'live',
+      cadence: 'Au fil des données',
+      metric: 'Score courant depuis web_data/fr-barrage/latest.json',
+    },
   ],
   es: [
     {
@@ -429,6 +453,18 @@ export const instruments: Record<'en' | 'fr' | 'es', Instrument[]> = {
       status: 'live',
       cadence: 'Diario',
       metric: 'Brecha de ventaja desde web_data/cusma-showdown/latest.json',
+    },
+    {
+      id: 'barrage',
+      name: 'Barrage Index',
+      family: 'Power',
+      question: '¿Aguanta el frente republicano francés ante el RN de cara a 2027?',
+      description:
+        'Un compuesto de los márgenes de segunda vuelta, el veredicto del modelo VoteScope, la disciplina de transferencia y la presión de la extrema derecha en la primera vuelta. Más alto = el dique aguanta.',
+      href: '/es/france/indexes/barrage/',
+      status: 'live',
+      cadence: 'Según llegan los datos',
+      metric: 'Puntuación actual desde web_data/fr-barrage/latest.json',
     },
     {
       id: 'majority-fragility',

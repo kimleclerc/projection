@@ -8,6 +8,7 @@ import FranceScenarioExplorer from '../islands/FranceScenarioExplorer.tsx';
 import KeepDigging from './KeepDigging.astro';
 import latest from '../../web_data/france-presidential/latest.json';
 import dataSheets from '../../web_data/france-presidential/data_sheets.json';
+import barrageLatest from '../../web_data/fr-barrage/latest.json';
 import {
   toScenarioCard,
   blocVar,
@@ -25,6 +26,33 @@ interface Props {
 }
 const { locale } = Astro.props;
 const candBase = franceCandBase(locale);
+
+// Barrage Index — carte promo live vers l'instrument (web_data/fr-barrage).
+const bfi = (barrageLatest as any).bfi ?? {};
+const barrageHref = `/${locale}/france/indexes/barrage/`;
+const barrageCopy = {
+  fr: {
+    eyebrow: 'Instrument live',
+    title: 'Barrage Index',
+    question: 'Le barrage républicain tient-il face au RN ?',
+    zone: bfi.label_fr,
+    cta: "Ouvrir l'instrument",
+  },
+  en: {
+    eyebrow: 'Live instrument',
+    title: 'Barrage Index',
+    question: 'Does France’s republican front still hold against the RN?',
+    zone: bfi.label_en,
+    cta: 'Open the instrument',
+  },
+  es: {
+    eyebrow: 'Instrumento en vivo',
+    title: 'Barrage Index',
+    question: '¿Aguanta el frente republicano francés ante el RN?',
+    zone: bfi.label_es,
+    cta: 'Abrir el instrumento',
+  },
+}[locale];
 
 const meta = (latest as any).meta;
 const scenarios = (latest as any).scenarios as FrScenario[];
@@ -323,6 +351,16 @@ const C = COPY[locale];
       title={C.countdownTitle}
       client:load
     />
+  </section>
+
+  <!-- BARRAGE INDEX (instrument live) -->
+  <section class="fr-section container" aria-label={barrageCopy.title}>
+    <a class="note-card" href={barrageHref} style={`display:block;text-decoration:none;color:inherit;border-left:4px solid ${bfi.zone_color ?? 'var(--ink-3)'};`}>
+      <p class="eyebrow">{barrageCopy.eyebrow}</p>
+      <h3 style="margin:0.25rem 0;">{barrageCopy.title} — <span style={`color:${bfi.zone_color ?? 'inherit'}`}>{typeof bfi.score === 'number' ? (locale === 'en' ? bfi.score.toFixed(1) : bfi.score.toFixed(1).replace('.', ',')) : '—'}/100 · {barrageCopy.zone ?? ''}</span></h3>
+      <p>{barrageCopy.question}</p>
+      <footer style="margin-top:0.75rem;"><span class="cta-link">{barrageCopy.cta} →</span></footer>
+    </a>
   </section>
 
   <!-- EXPLORATEUR -->
