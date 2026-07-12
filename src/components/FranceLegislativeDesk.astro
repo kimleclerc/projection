@@ -1,5 +1,10 @@
 ---
+import fs from 'node:fs';
+import path from 'node:path';
 import latest from '../../web_data/france-legislative/latest.json';
+import ridingsData from '../../web_data/france-legislative/ridings.json';
+import RidingsMap from '../islands/RidingsMap.tsx';
+import { FR_LEG_PARTIES } from '../lib/riding-adapters/parties';
 type Locale = 'fr' | 'en' | 'es';
 interface Props { locale: Locale }
 const { locale } = Astro.props;
@@ -9,6 +14,52 @@ const ready = meta.status === 'live' && (payload.scenarios ?? []).length > 0;
 const national = payload.national ?? [];
 const scenarios = payload.scenarios ?? [];
 const hot = payload.hot_constituencies ?? [];
+
+// ── Cartes (îlot RidingsMap partagé, comme ProjectionEngine) ──────────────
+// Carte A : vainqueur final projeté (scénario central front 2024).
+// Carte B : bloc en tête au 1er tour (argmax des parts espérées).
+// L'îlot n'accepte que 'en'|'fr' : élection française → repli 'fr' pour 'es'.
+const mapLocale: 'en' | 'fr' = locale === 'en' ? 'en' : 'fr';
+const rawRidings = ((ridingsData as any).ridings ?? []) as any[];
+const BLOCK_ORDER = ['far_right', 'left', 'centre', 'right', 'far_left', 'greens', 'sovereignist', 'other'];
+const mapParties = BLOCK_ORDER.filter((k) => FR_LEG_PARTIES[k]).map((k) => ({
+  key: k,
+  label_en: FR_LEG_PARTIES[k].label_en,
+  label_fr: FR_LEG_PARTIES[k].label_fr,
+  color: FR_LEG_PARTIES[k].color,
+}));
+const toMapRiding = (r: any) => ({
+  riding_id: String(r.riding_id),
+  name_en: r.name_en,
+  name_fr: r.name_fr,
+  province: r.province ?? null,
+  projection: {
+    winner: r.projection?.winner ?? 'tossup',
+    p_winner: r.projection?.p_winner ?? 0,
+    mean_margin: r.projection?.mean_margin ?? 0,
+    p_close_race: r.projection?.p_close_race ?? 0,
+    vote_mean: r.projection?.vote_mean ?? {},
+    win_prob: r.projection?.win_prob ?? {},
+  },
+  baseline: r.baseline_result
+    ? { winner: r.baseline_result.winner ?? null, margin: r.baseline_result.margin ?? null, turnout_pct: r.baseline_result.turnout_pct ?? null }
+    : null,
+});
+const mapRidingsFinal = rawRidings.map(toMapRiding);
+const mapRidingsT1 = rawRidings.map((r) => {
+  const vm: Record<string, number> = r.projection?.vote_mean ?? {};
+  const leader = Object.entries(vm).sort((a, b) => (b[1] as number) - (a[1] as number))[0];
+  const base = toMapRiding(r);
+  return {
+    ...base,
+    projection: { ...base.projection, winner: leader?.[0] ?? 'tossup', p_winner: leader ? (leader[1] as number) / 100 : 0, p_close_race: 0 },
+  };
+});
+// La carte ne s'affiche que si la géométrie existe RÉELLEMENT à la compilation
+// (ridings.json est toujours là ; le geojson arrive avec le pipeline de contours).
+// Sans lui, on montre « carte en préparation » plutôt que l'erreur 404 de l'îlot.
+const geojsonPath = path.resolve(process.cwd(), 'web_data/france-legislative/ridings.geojson');
+const hasGeometry = rawRidings.length > 0 && fs.existsSync(geojsonPath);
 
 const blocLabels: Record<Locale, Record<string, string>> = {
   fr: { far_right: 'RN et alliés', left: 'Gauche (NFP)', centre: 'Centre (Ensemble)', right: 'LR et divers droite', far_left: 'Extrême gauche', greens: 'Écologistes', sovereignist: 'Souverainistes', other: 'Autres et régionalistes' },
@@ -95,6 +146,66 @@ const copy = {
 }[locale];
 const labels = blocLabels[locale];
 const scCopy = scenarioCopy[locale];
+
+const mapCopy = {
+  fr: {
+    sectionTitle: 'La carte, deux tours',
+    finalTitle: 'Vainqueur final projeté',
+    finalHelp: 'Bloc favori dans le scénario central (front républicain au niveau 2024). Cliquez une circonscription pour sa page.',
+    t1Title: 'Premier tour — bloc en tête',
+    t1Help: 'Bloc arrivé en tête des intentions au premier tour, avant reports et désistements.',
+    overseas: 'Les 11 circonscriptions des Français de l’étranger n’ont pas de territoire cartographiable : absentes de la carte, mais présentes dans l’index et les pages.',
+    pending: 'Carte en préparation — la géométrie des circonscriptions est en cours d’intégration.',
+  },
+  en: {
+    sectionTitle: 'The map, both rounds',
+    finalTitle: 'Projected final winner',
+    finalHelp: 'Favourite bloc in the central scenario (republican front at its 2024 level). Click a constituency for its page.',
+    t1Title: 'First round — leading bloc',
+    t1Help: 'Bloc leading first-round intentions, before transfers and withdrawals.',
+    overseas: 'The 11 overseas-French constituencies have no mappable territory: absent from the map, but present in the index and pages.',
+    pending: 'Map in preparation — constituency geometry is being integrated.',
+  },
+  es: {
+    sectionTitle: 'El mapa, dos vueltas',
+    finalTitle: 'Ganador final proyectado',
+    finalHelp: 'Bloque favorito en el escenario central (frente republicano al nivel de 2024). Haz clic en una circunscripción para su página.',
+    t1Title: 'Primera vuelta — bloque en cabeza',
+    t1Help: 'Bloque líder en la primera vuelta, antes de transferencias y retiradas.',
+    overseas: 'Las 11 circunscripciones de los franceses en el extranjero no tienen territorio cartografiable: ausentes del mapa, pero presentes en el índice y las páginas.',
+    pending: 'Mapa en preparación — se está integrando la geometría de las circunscripciones.',
+  },
+}[locale];
+
+const processCopy = {
+  fr: {
+    title: 'Comment cette projection est construite',
+    steps: [
+      { h: 'Le problème : des sondages rares', body: 'Les sondages législatifs français sont événementiels — ils n’apparaissent qu’en période de crise. La dernière vague directe date de septembre-octobre 2025 (cinq sondages, trois instituts). Depuis, plus rien.' },
+      { h: 'Le pont différentiel', body: 'Le niveau part de cette ancre d’octobre 2025. Le mouvement, lui, vient des intentions présidentielles 2027, mesurées en continu : on n’en retient que la variation, appliquée un pour un (β = 1, imposé faute d’assez de fenêtres de co-observation, mais validé sur celles disponibles). L’incertitude vaut ±3,2 points et croît avec l’âge de l’ancre.' },
+      { h: 'Des voix aux sièges', body: 'Le résultat national est simulé en Monte Carlo sur les 577 circonscriptions, avec les vraies règles : qualification à 12,5 % des inscrits, élection directe à 50 % des exprimés et 25 % des inscrits. Les reports de voix sont estimés par type de duel sur les 1 646 seconds tours de 2017-2024, puis réconciliés (méthode Bradley-Terry). Les désistements, eux, sont mesurés — en 2024, les troisièmes se sont retirés à 95 % à gauche, 82 % au centre, 28 % à droite.' },
+      { h: 'Trois scénarios plutôt qu’une certitude', body: 'Parce que le niveau futur des désistements est inconnaissable, on le décline en trois scénarios de front républicain plutôt que d’en figer un seul. Les backtests le justifient : 2022 tombe à 7,4 sièges d’erreur moyenne en interne, 2024 place l’extrême droite à ±3 sièges — mais les reports dérivent fortement d’un scrutin à l’autre.' },
+    ],
+  },
+  en: {
+    title: 'How this projection is built',
+    steps: [
+      { h: 'The problem: sparse polling', body: 'French legislative polls are event-driven — they only appear during crises. The last direct wave dates to September-October 2025 (five polls, three firms). Nothing since.' },
+      { h: 'The differential bridge', body: 'The level starts from that October 2025 anchor. The movement comes from 2027 presidential intentions, measured continuously: we keep only the change, applied one-for-one (β = 1, imposed for lack of co-observation windows, but validated on those available). Uncertainty is ±3.2 points and grows as the anchor ages.' },
+      { h: 'From votes to seats', body: 'The national result is Monte-Carlo simulated across all 577 constituencies with the real rules: qualification at 12.5% of registered voters, direct election at 50% of votes cast plus 25% of registered. Vote transfers are estimated by duel type over the 1,646 runoffs of 2017-2024, then reconciled (Bradley-Terry). Withdrawals are measured — in 2024, third-place candidates stood down 95% on the left, 82% in the centre, 28% on the right.' },
+      { h: 'Three scenarios, not one certainty', body: 'Because the future level of withdrawals is unknowable, we bracket it in three republican-front scenarios rather than freezing one. The backtests justify it: 2022 lands at 7.4 seats of mean in-sample error, 2024 places the far right within ±3 seats — but transfers drift sharply from one election to the next.' },
+    ],
+  },
+  es: {
+    title: 'Cómo se construye esta proyección',
+    steps: [
+      { h: 'El problema: encuestas escasas', body: 'Las encuestas legislativas francesas son episódicas — solo aparecen en crisis. La última oleada directa es de septiembre-octubre de 2025 (cinco encuestas, tres firmas). Nada desde entonces.' },
+      { h: 'El puente diferencial', body: 'El nivel parte de esa ancla de octubre de 2025. El movimiento viene de las intenciones presidenciales de 2027, medidas en continuo: se retiene solo la variación, aplicada uno a uno (β = 1, impuesto por falta de ventanas de co-observación, pero validado en las disponibles). La incertidumbre es de ±3,2 puntos y crece con la edad del ancla.' },
+      { h: 'De votos a escaños', body: 'El resultado nacional se simula por Monte Carlo en las 577 circunscripciones con las reglas reales: calificación al 12,5 % del censo, elección directa al 50 % de los votos y 25 % del censo. Las transferencias se estiman por tipo de duelo sobre las 1.646 segundas vueltas de 2017-2024 y se reconcilian (Bradley-Terry). Las retiradas se miden — en 2024, los terceros se retiraron el 95 % a la izquierda, 82 % en el centro, 28 % a la derecha.' },
+      { h: 'Tres escenarios, no una certeza', body: 'Como el nivel futuro de retiradas es incognoscible, lo acotamos en tres escenarios de frente republicano en vez de fijar uno. Los backtests lo justifican: 2022 cae a 7,4 escaños de error medio interno, 2024 sitúa a la extrema derecha a ±3 escaños — pero las transferencias derivan mucho de una elección a otra.' },
+    ],
+  },
+}[locale];
 const pct = (v: number) => (locale === 'en' ? v.toFixed(1) : v.toFixed(1).replace('.', ','));
 const circoBase = { fr: '/fr/france/legislatives/circonscriptions/', en: '/en/france/legislative-election/constituencies/', es: '/es/france/legislativas/circunscripciones/' }[locale];
 const circoSlug = (id: string, name: string) =>
@@ -129,6 +240,25 @@ const topSeats = (sc: any) => sc.seats.filter((r: any) => ['far_right', 'left', 
           ))}
         </div>
         <p class="leg-method">{copy.nowcastNote}</p>
+      </section>
+
+      <section class="container leg-panel">
+        <h2>{mapCopy.sectionTitle}</h2>
+        {hasGeometry ? (
+          <div class="leg-maps">
+            <figure class="leg-map">
+              <figcaption><strong>{mapCopy.finalTitle}</strong><span>{mapCopy.finalHelp}</span></figcaption>
+              <RidingsMap geoUrl="/web_data/france-legislative/ridings.geojson" ridings={mapRidingsFinal} parties={mapParties} locale={mapLocale} center={[46.6, 2.4]} zoom={5} idProp="riding_id" baselineYear={2024} client:only="preact" />
+            </figure>
+            <figure class="leg-map">
+              <figcaption><strong>{mapCopy.t1Title}</strong><span>{mapCopy.t1Help}</span></figcaption>
+              <RidingsMap geoUrl="/web_data/france-legislative/ridings.geojson" ridings={mapRidingsT1} parties={mapParties} locale={mapLocale} center={[46.6, 2.4]} zoom={5} idProp="riding_id" client:only="preact" />
+            </figure>
+          </div>
+        ) : (
+          <p class="leg-method">{mapCopy.pending}</p>
+        )}
+        <p class="leg-method">{mapCopy.overseas}</p>
       </section>
 
       <section class="container leg-panel">
@@ -168,6 +298,15 @@ const topSeats = (sc: any) => sc.seats.filter((r: any) => ['far_right', 'left', 
             </li>
           ))}
         </ul>
+      </section>
+
+      <section class="container leg-panel leg-process">
+        <h2>{processCopy.title}</h2>
+        <ol class="leg-steps">
+          {processCopy.steps.map((s: any) => (
+            <li><h3>{s.h}</h3><p>{s.body}</p></li>
+          ))}
+        </ol>
       </section>
 
       <section class="container leg-panel leg-caveats">
@@ -232,4 +371,14 @@ const topSeats = (sc: any) => sc.seats.filter((r: any) => ['far_right', 'left', 
   .leg-all-link a:hover { text-decoration: underline; }
   .leg-flip { font-family: var(--mono); font-size: .65rem; color: var(--accent); text-transform: uppercase; letter-spacing: .05em; font-style: normal; }
   .leg-caveats ul { max-width: 78ch; color: var(--ink-2); font-size: .95rem; display: grid; gap: .6rem; padding-left: 1.2rem; }
+  .leg-maps { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; }
+  .leg-map { margin: 0; }
+  .leg-map figcaption { display: grid; gap: .2rem; margin-bottom: .6rem; }
+  .leg-map figcaption strong { font-family: var(--serif); font-size: 1.05rem; }
+  .leg-map figcaption span { font-family: var(--mono); font-size: .72rem; color: var(--ink-3); }
+  .leg-steps { list-style: none; counter-reset: step; padding: 0; margin: 0; display: grid; gap: 1.4rem; max-width: 80ch; }
+  .leg-steps li { counter-increment: step; padding-left: 2.6rem; position: relative; }
+  .leg-steps li::before { content: counter(step); position: absolute; left: 0; top: 0; width: 1.8rem; height: 1.8rem; border: 1px solid var(--rule); border-radius: 50%; display: grid; place-items: center; font-family: var(--mono); font-size: .8rem; color: var(--accent); }
+  .leg-steps h3 { font-family: var(--serif); font-size: 1.15rem; margin: 0 0 .3rem; }
+  .leg-steps p { color: var(--ink-2); font-size: .95rem; margin: 0; }
 </style>
