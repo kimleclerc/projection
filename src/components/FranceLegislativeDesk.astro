@@ -1,0 +1,226 @@
+---
+import latest from '../../web_data/france-legislative/latest.json';
+type Locale = 'fr' | 'en' | 'es';
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+const payload = latest as any;
+const meta = payload.meta ?? {};
+const ready = meta.status === 'live' && (payload.scenarios ?? []).length > 0;
+const national = payload.national ?? [];
+const scenarios = payload.scenarios ?? [];
+const hot = payload.hot_constituencies ?? [];
+
+const blocLabels: Record<Locale, Record<string, string>> = {
+  fr: { far_right: 'RN et alliés', left: 'Gauche (NFP)', centre: 'Centre (Ensemble)', right: 'LR et divers droite', far_left: 'Extrême gauche', greens: 'Écologistes', sovereignist: 'Souverainistes', other: 'Autres et régionalistes' },
+  en: { far_right: 'RN and allies', left: 'Left (NFP)', centre: 'Centre (Ensemble)', right: 'LR and centre-right', far_left: 'Far left', greens: 'Greens', sovereignist: 'Sovereignists', other: 'Others and regionalists' },
+  es: { far_right: 'RN y aliados', left: 'Izquierda (NFP)', centre: 'Centro (Ensemble)', right: 'LR y derecha diversa', far_left: 'Extrema izquierda', greens: 'Ecologistas', sovereignist: 'Soberanistas', other: 'Otros y regionalistas' },
+};
+const scenarioCopy: Record<Locale, Record<string, { name: string; dek: string }>> = {
+  fr: {
+    front_2024: { name: 'Front républicain — niveau 2024', dek: 'Désistements des troisièmes comme en 2024 : gauche 95 %, centre 82 %, droite 28 %.' },
+    front_affaibli: { name: 'Front affaibli', dek: 'Probabilités de désistement divisées par deux — la discipline s’érode.' },
+    sans_front: { name: 'Sans front', dek: 'Chaque qualifié se maintient. Triangulaires partout.' },
+  },
+  en: {
+    front_2024: { name: 'Republican front — 2024 level', dek: 'Third-place withdrawals as in 2024: left 95%, centre 82%, right 28%.' },
+    front_affaibli: { name: 'Weakened front', dek: 'Withdrawal probabilities halved — discipline erodes.' },
+    sans_front: { name: 'No front', dek: 'Every qualifier stays in. Three-way runoffs everywhere.' },
+  },
+  es: {
+    front_2024: { name: 'Frente republicano — nivel 2024', dek: 'Retiradas de terceros como en 2024: izquierda 95 %, centro 82 %, derecha 28 %.' },
+    front_affaibli: { name: 'Frente debilitado', dek: 'Probabilidades de retirada divididas por dos — la disciplina se erosiona.' },
+    sans_front: { name: 'Sin frente', dek: 'Cada calificado se mantiene. Triangulares por todas partes.' },
+  },
+};
+const sigmaRaw = typeof meta.bridge_sigma_pts === 'number' ? meta.bridge_sigma_pts.toFixed(1) : '—';
+const sigmaFr = sigmaRaw.replace('.', ',');
+const copy = {
+  fr: {
+    kicker: 'France · Prochaines législatives', title: 'Les 577 circonscriptions, deux tours à la fois.',
+    dek: 'En cas de dissolution aujourd’hui : moteur Monte Carlo à deux tours, reports et désistements calibrés sur les 1 646 seconds tours de 2017-2024, projection ancrée au dernier sondage législatif direct.',
+    waiting: 'Le moteur est prêt. La projection publique s’ouvrira après l’import et le backtest des scrutins 2017, 2022 et 2024.',
+    majority: 'Majorité absolue : 289 sièges', nowcastTitle: 'Intentions de vote estimées — 1er tour',
+    nowcastNote: `Estimation indirecte : dernier sondage législatif direct en octobre 2025 (${meta.n_anchor_polls ?? '—'} sondages d'ancrage). Le mouvement depuis vient des intentions présidentielles (pont différentiel), incertitude ±${sigmaFr} pts.`,
+    scenariosTitle: 'Trois scénarios de désistement', pMaj: 'probabilité de majorité absolue RN',
+    hotTitle: 'Circonscriptions les plus disputées', hotNote: `${meta.n_scenario_flips ?? '—'} circonscriptions changent de vainqueur selon le scénario de front. Les 15 plus incertaines (scénario central) :`,
+    flip: 'bascule selon le scénario', pWin: 'p(victoire)',
+    methodTitle: 'Ce que cette projection est — et n’est pas',
+    caveats: [
+      'Aucun sondage législatif direct depuis octobre 2025 : le niveau vient de cette ancre, le mouvement des sondages présidentiels (β=1, validé sur les fenêtres de co-observation disponibles).',
+      'Le premier tour applique le vrai seuil de qualification (12,5 % des inscrits); le second simule reports et désistements calibrés sur 2017-2024.',
+      'Les désistements futurs sont inconnaissables : les trois scénarios encadrent le résultat, aucun n’est une prédiction.',
+      'Participation supposée au niveau de 2024 (66,7 %). Une participation plus basse réduit les triangulaires et change la carte.',
+      'Backtests publiés : 2022 (MAE 7,4 sièges in-sample) et 2024 (extrême droite à ±3 sièges in-sample; résidu gauche/centre documenté).',
+    ],
+    updated: 'Dernière mise à jour', anchor: 'Ancre sondagière',
+  },
+  en: {
+    kicker: 'France · Next legislative election', title: 'All 577 constituencies, two rounds at a time.',
+    dek: 'If the Assembly were dissolved today: a two-round Monte Carlo engine, transfers and withdrawals calibrated on the 1,646 runoffs of 2017-2024, anchored to the last direct legislative poll.',
+    waiting: 'The engine is ready. The public forecast opens after importing and backtesting the 2017, 2022 and 2024 elections.',
+    majority: 'Absolute majority: 289 seats', nowcastTitle: 'Estimated first-round vote intentions',
+    nowcastNote: `Indirect estimate: last direct legislative poll October 2025 (${meta.n_anchor_polls ?? '—'} anchor polls). Movement since then carried by presidential intentions (differential bridge), uncertainty ±${sigmaRaw} pts.`,
+    scenariosTitle: 'Three withdrawal scenarios', pMaj: 'probability of an absolute RN majority',
+    hotTitle: 'Most contested constituencies', hotNote: `${meta.n_scenario_flips ?? '—'} constituencies change winner depending on the front scenario. The 15 most uncertain (central scenario):`,
+    flip: 'flips across scenarios', pWin: 'p(win)',
+    methodTitle: 'What this projection is — and is not',
+    caveats: [
+      'No direct legislative poll since October 2025: the level comes from that anchor, the movement from presidential polls (β=1, validated on the available co-observation windows).',
+      'The first round applies the real qualification threshold (12.5% of registered voters); the runoff simulates transfers and withdrawals calibrated on 2017-2024.',
+      'Future withdrawals are unknowable: the three scenarios bracket the outcome — none is a prediction.',
+      'Turnout assumed at the 2024 level (66.7%). Lower turnout means fewer three-way runoffs and a different map.',
+      'Published backtests: 2022 (seat MAE 7.4 in-sample) and 2024 (far right within ±3 seats in-sample; left/centre residual documented).',
+    ],
+    updated: 'Last updated', anchor: 'Polling anchor',
+  },
+  es: {
+    kicker: 'Francia · Próximas legislativas', title: 'Las 577 circunscripciones, dos vueltas a la vez.',
+    dek: 'Si la Asamblea se disolviera hoy: motor Monte Carlo de dos vueltas, transferencias y retiradas calibradas sobre las 1.646 segundas vueltas de 2017-2024, anclado a la última encuesta legislativa directa.',
+    waiting: 'El motor está listo. La proyección pública se abrirá tras importar y validar las elecciones de 2017, 2022 y 2024.',
+    majority: 'Mayoría absoluta: 289 escaños', nowcastTitle: 'Intención de voto estimada — 1.ª vuelta',
+    nowcastNote: `Estimación indirecta: última encuesta legislativa directa en octubre de 2025 (${meta.n_anchor_polls ?? '—'} encuestas de ancla). El movimiento posterior proviene de las intenciones presidenciales (puente diferencial), incertidumbre ±${sigmaFr} pts.`,
+    scenariosTitle: 'Tres escenarios de retirada', pMaj: 'probabilidad de mayoría absoluta del RN',
+    hotTitle: 'Circunscripciones más disputadas', hotNote: `${meta.n_scenario_flips ?? '—'} circunscripciones cambian de ganador según el escenario. Las 15 más inciertas (escenario central):`,
+    flip: 'cambia según el escenario', pWin: 'p(victoria)',
+    methodTitle: 'Qué es esta proyección — y qué no',
+    caveats: [
+      'Ninguna encuesta legislativa directa desde octubre de 2025: el nivel viene de esa ancla, el movimiento de las encuestas presidenciales (β=1, validado en las ventanas de co-observación disponibles).',
+      'La primera vuelta aplica el umbral real de calificación (12,5 % del censo); la segunda simula transferencias y retiradas calibradas sobre 2017-2024.',
+      'Las retiradas futuras son incognoscibles: los tres escenarios acotan el resultado — ninguno es una predicción.',
+      'Participación supuesta al nivel de 2024 (66,7 %). Menor participación significa menos triangulares y otro mapa.',
+      'Backtests publicados: 2022 (MAE 7,4 escaños in-sample) y 2024 (extrema derecha a ±3 escaños in-sample; residuo izquierda/centro documentado).',
+    ],
+    updated: 'Última actualización', anchor: 'Ancla de encuestas',
+  },
+}[locale];
+const labels = blocLabels[locale];
+const scCopy = scenarioCopy[locale];
+const pct = (v: number) => (locale === 'en' ? v.toFixed(1) : v.toFixed(1).replace('.', ','));
+const pctInt = (v: number) => Math.round(v * 100);
+const topSeats = (sc: any) => sc.seats.filter((r: any) => ['far_right', 'left', 'centre', 'right'].includes(r.party));
+---
+<article class="leg-desk">
+  <header class="leg-hero container">
+    <p class="leg-kicker">{copy.kicker}</p>
+    <h1>{copy.title}</h1>
+    <p class="leg-dek">{copy.dek}</p>
+    <div class="leg-meta">
+      <span>{copy.majority}</span>
+      <span>{copy.updated} : {meta.generated ?? '—'}</span>
+      <span>{copy.anchor} : {meta.anchor_midpoint ?? '—'}</span>
+    </div>
+  </header>
+
+  {ready ? (
+    <>
+      <section class="container leg-panel">
+        <h2>{copy.nowcastTitle}</h2>
+        <div class="leg-bar" role="img" aria-label={national.map((b: any) => `${labels[b.block] ?? b.block} ${pct(b.pct)}%`).join(', ')}>
+          {national.filter((b: any) => b.pct >= 1).map((b: any) => (
+            <div class="leg-bar-seg" style={`flex:${b.pct};background:var(--bloc-${b.block})`}></div>
+          ))}
+        </div>
+        <div class="leg-bar-legend">
+          {national.filter((b: any) => b.pct >= 1).map((b: any) => (
+            <span><i style={`background:var(--bloc-${b.block})`}></i>{labels[b.block] ?? b.block} <strong>{pct(b.pct)} %</strong></span>
+          ))}
+        </div>
+        <p class="leg-method">{copy.nowcastNote}</p>
+      </section>
+
+      <section class="container leg-panel">
+        <h2>{copy.scenariosTitle}</h2>
+        <div class="leg-scenarios">
+          {scenarios.map((sc: any) => (
+            <article class={`leg-scenario${sc.id === meta.central_scenario ? ' is-central' : ''}`}>
+              <h3>{scCopy[sc.id]?.name ?? sc.id}</h3>
+              <p class="leg-scenario-dek">{scCopy[sc.id]?.dek ?? ''}</p>
+              <p class="leg-pmaj"><strong>{pctInt(sc.p_majority_far_right)} %</strong><span>{copy.pMaj}</span></p>
+              <ul class="leg-seatlist">
+                {topSeats(sc).map((r: any) => (
+                  <li>
+                    <i style={`background:var(--bloc-${r.party})`}></i>
+                    <span class="leg-seat-name">{labels[r.party] ?? r.party}</span>
+                    <strong>{Math.round(r.mean)}</strong>
+                    <small>[{r.low_80}–{r.high_80}]</small>
+                  </li>
+                ))}
+              </ul>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section class="container leg-panel">
+        <h2>{copy.hotTitle}</h2>
+        <p class="leg-method">{copy.hotNote}</p>
+        <ul class="leg-hotlist">
+          {hot.map((c: any) => (
+            <li>
+              <i style={`background:var(--bloc-${c.winner})`}></i>
+              <span class="leg-hot-name">{c.name}</span>
+              <span class="leg-hot-p">{copy.pWin} {pctInt(c.p_win)} %</span>
+              {c.flips_between_scenarios && <em class="leg-flip">{copy.flip}</em>}
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section class="container leg-panel leg-caveats">
+        <h2>{copy.methodTitle}</h2>
+        <ul>{copy.caveats.map((c: string) => <li>{c}</li>)}</ul>
+      </section>
+    </>
+  ) : (
+    <section class="container leg-panel" aria-live="polite">
+      <div class="leg-waiting"><span aria-hidden="true">◌</span><p>{copy.waiting}</p></div>
+    </section>
+  )}
+</article>
+<style>
+  .leg-desk {
+    /* Palette de blocs — même convention que FranceDesk (validée dataviz),
+       thème piloté par [data-theme], jamais @media seul. */
+    --bloc-far_left: #6b1f2e; --bloc-left: #b0202a; --bloc-greens: #4a9d5b;
+    --bloc-centre: #b7860f; --bloc-right: #3f82d6; --bloc-sovereignist: #6d4c8a;
+    --bloc-far_right: #2b4f8c; --bloc-other: var(--ink-3);
+    padding: clamp(3rem, 7vw, 7rem) 0;
+  }
+  :global(:root[data-theme='dark']) .leg-desk {
+    --bloc-far_left: #a8474f; --bloc-left: #d24b52; --bloc-greens: #4fa460;
+    --bloc-centre: #b88d2c; --bloc-right: #5a95d8; --bloc-sovereignist: #9c7ac0;
+    --bloc-far_right: #3a6bb0;
+  }
+  .leg-hero { max-width: 920px; }
+  .leg-kicker, .leg-meta, .leg-method { font-family: var(--mono); }
+  .leg-kicker { color: var(--accent); text-transform: uppercase; letter-spacing: .08em; font-size: .75rem; }
+  h1 { max-width: 18ch; font-family: var(--serif); font-size: clamp(2.5rem, 7vw, 5.8rem); line-height: .94; }
+  h2 { font-family: var(--serif); font-size: clamp(1.4rem, 3vw, 2rem); margin-bottom: 1.2rem; }
+  .leg-dek { max-width: 68ch; color: var(--ink-2); font-size: 1.15rem; }
+  .leg-meta { display: flex; flex-wrap: wrap; gap: .6rem 1.2rem; margin-top: 1.5rem; font-size: .75rem; color: var(--ink-3); }
+  .leg-panel { margin-top: 3rem; padding-block: 2rem; border-block: 1px solid var(--rule); }
+  .leg-waiting { display: flex; gap: 1rem; align-items: center; max-width: 760px; font-family: var(--serif); font-size: 1.35rem; }
+  .leg-waiting span { font-size: 2rem; color: var(--accent); }
+  .leg-method { margin-top: 1.2rem; font-size: .75rem; color: var(--ink-3); max-width: 78ch; }
+  .leg-bar { display: flex; height: 34px; border-radius: 3px; overflow: hidden; }
+  .leg-bar-legend { display: flex; flex-wrap: wrap; gap: .4rem 1.1rem; margin-top: .8rem; font-size: .8rem; color: var(--ink-2); }
+  .leg-bar-legend i, .leg-seatlist i, .leg-hotlist i { display: inline-block; width: .7em; height: .7em; border-radius: 2px; margin-right: .4em; }
+  .leg-scenarios { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; }
+  .leg-scenario { padding: 1.2rem; border: 1px solid var(--rule); border-radius: 4px; background: var(--paper); }
+  .leg-scenario.is-central { border-color: var(--accent); }
+  .leg-scenario h3 { font-family: var(--serif); font-size: 1.15rem; }
+  .leg-scenario-dek { font-size: .8rem; color: var(--ink-3); min-height: 3em; }
+  .leg-pmaj { margin: .8rem 0; }
+  .leg-pmaj strong { font: 2.4rem var(--serif); display: block; line-height: 1; }
+  .leg-pmaj span { font-family: var(--mono); font-size: .7rem; color: var(--ink-3); text-transform: uppercase; letter-spacing: .06em; }
+  .leg-seatlist { list-style: none; padding: 0; margin: 0; display: grid; gap: .45rem; }
+  .leg-seatlist li { display: flex; align-items: baseline; gap: .5rem; font-size: .9rem; }
+  .leg-seat-name { flex: 1; color: var(--ink-2); }
+  .leg-seatlist strong { font-family: var(--serif); font-size: 1.15rem; }
+  .leg-seatlist small, .leg-hot-p { color: var(--ink-3); font-family: var(--mono); font-size: .75rem; }
+  .leg-hotlist { list-style: none; padding: 0; margin-top: 1rem; display: grid; gap: .5rem; max-width: 760px; }
+  .leg-hotlist li { display: flex; align-items: baseline; gap: .6rem; font-size: .9rem; border-bottom: 1px dashed var(--rule); padding-bottom: .4rem; }
+  .leg-hot-name { flex: 1; }
+  .leg-flip { font-family: var(--mono); font-size: .65rem; color: var(--accent); text-transform: uppercase; letter-spacing: .05em; font-style: normal; }
+  .leg-caveats ul { max-width: 78ch; color: var(--ink-2); font-size: .95rem; display: grid; gap: .6rem; padding-left: 1.2rem; }
+</style>
