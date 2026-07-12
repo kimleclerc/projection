@@ -35,7 +35,7 @@
     {
       "number": "06",
       "title": "We calibrate on the past — and publish our errors",
-      "bodyHtml": "<p>After every election, firm profiles are updated: measured biases, mean absolute error, confidence. These profiles feed directly into the next cycle's weighting and corrections — the model learns from every vote.</p><p>The model is also replayed on past elections using only the polls available at the time (<em>backtests</em>): the 2019, 2021 and 2025 federal elections, and the 2024 UK general election. The observed errors — by party, in seats — are published on our <a href=\"/en/track-record/\">Track Record page</a>. Predicting the past is easier than predicting the future; that is exactly why we impose the exercise on ourselves and show the results.</p>"
+      "bodyHtml": "<p>After every election, firm profiles are updated: measured biases, mean absolute error, confidence. These profiles feed directly into the next cycle's weighting and corrections — the model learns from every vote.</p><p>The model is also replayed on past elections using only the polls available at the time (<em>backtests</em>): the 2019, 2021 and 2025 federal elections, the 2024 UK general election, the 2017 and 2022 French presidential elections, and the 2022 and 2024 French legislative elections. The observed errors — by party, in seats — are published on our <a href=\"/en/track-record/\">Track Record page</a>. Predicting the past is easier than predicting the future; that is exactly why we impose the exercise on ourselves and show the results.</p>"
     },
     {
       "number": "07",
@@ -53,8 +53,9 @@
         "<strong>Quebec 2026</strong> — 127 ridings (hybrid map from the PL3 redistribution), 20,000 simulations, region and language breakdowns built in.",
         "<strong>Ontario</strong> — 124 ridings, provincial polls aggregated.",
         "<strong>United States</strong> — House (435 districts) and Senate (Class II seats), national environment + race ratings.",
-        "<strong>United Kingdom</strong> — 650 seats, calibrated against published MRPs (YouGov, More in Common) used as local constituency anchors, plus real by-election anchoring. GE2024 backtest published (MAE 17.2 seats, 78.9% of constituencies). 50,000 simulations.",
-        "<strong>France</strong> — presidential, vote-transfer scenarios; explicitly experimental status."
+        "<strong>United Kingdom</strong> — 650 seats, calibrated against published MRPs (YouGov, More in Common) used as local constituency anchors, plus real by-election anchoring. GE2024 backtest published (MAE 17.2 seats, 78.9% of constituencies). 50,000 simulations. For by-elections, a discipline rule: no projection is published without local constituency polling — national context alone is not enough.",
+        "<strong>France — 2027 presidential</strong> — political-bloc aggregation, industry-bias correction calibrated on the 2017 and 2022 polling errors, bloc correlations estimated from the data, full second-round duel matrix. Plus the <a href=\"/en/france/indexes/barrage/\">Barrage Index</a>, a continuous measure of how solid the republican front against the RN remains.",
+        "<strong>France — legislative</strong> — a two-round Monte Carlo engine over all 577 constituencies with the real legal rules (qualification at 12.5% of registered voters, direct first-round election). Vote transfers and withdrawals are calibrated on the 1,646 runoffs of 2017, 2022 and 2024 — the 2024 republican front is measured, not assumed (third-place withdrawal rates: left 95%, centre 82%, right 28%). Because French legislative polling is event-driven, a differential bridge anchors the projection to the last direct poll and carries the movement of presidential intentions, with uncertainty that grows as the anchor ages. Withdrawal scenarios bracket the outcome rather than pretending to know it."
       ]
     },
     {
@@ -65,6 +66,8 @@
         "Official 2025 results — Elections Canada",
         "Official 2022 results and 127-riding geometry — Élections Québec / DGEQ",
         "2024 results — MIT Election Lab (US) and official results (UK)",
+        "Official French legislative results 2017, 2022 and 2024, by candidate and constituency — Ministry of the Interior via data.gouv.fr",
+        "French polls — institute publications filed with the Commission des sondages",
         "Geographic maps — Elections Canada, DGEQ, Census Bureau",
         "By-elections, floor crossings and vacant seats tracked manually"
       ]
@@ -76,6 +79,7 @@
         "Strategic voting — hard to anticipate mechanically",
         "Local star candidates who outperform their party",
         "Last-minute campaign events",
+        "French second-round withdrawals — their recent history is measured, their next level is bracketed by scenarios, not predicted",
         "Very tight ridings — where the margin of error is greatest",
         "Highly local sociolinguistic contexts (some bilingual, Indigenous ridings, etc.)"
       ]
