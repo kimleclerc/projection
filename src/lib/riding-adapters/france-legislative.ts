@@ -14,6 +14,11 @@ import type { RidingData, RidingNeighbor } from './types';
 import { ridingSlug } from './types';
 import { partyMeta } from './parties';
 import ridingsSource from '../../../web_data/france-legislative/ridings.json';
+import shapesSource from '../../../web_data/france-legislative/shapes.json';
+import centroidsSource from '../../../web_data/france-legislative/centroids.json';
+
+const SHAPES = shapesSource as Record<string, { path: string; viewBox: string } | undefined>;
+const CENTROIDS = centroidsSource as Record<string, { lon: number; lat: number } | undefined>;
 
 type RawRiding = {
   riding_id: string;
@@ -87,24 +92,43 @@ function frSlug(raw: RawRiding): string {
   return ridingSlug(raw.riding_id, raw.name_fr);
 }
 
+function neighborOf(r: RawRiding): RidingNeighbor {
+  const slug = frSlug(r);
+  return {
+    id: r.riding_id,
+    slug,
+    name_en: r.name_en,
+    name_fr: r.name_fr,
+    href_en: `/en/france/legislative-election/constituencies/${slug}/`,
+    href_fr: `/fr/france/legislatives/circonscriptions/${slug}/`,
+    href_es: `/es/france/legislativas/circunscripciones/${slug}/`,
+    tone: projectionTone(r.projection),
+    tone_party: r.projection.winner,
+  };
+}
+
 function buildNeighbors(raw: RawRiding): RidingNeighbor[] {
+  // Voisins réels par distance de centroïde (pattern uk.ts) ; repli sur le
+  // même département quand la géométrie manque (11 circos des Français de
+  // l'étranger, sans territoire).
+  const selfCent = CENTROIDS[raw.riding_id];
+  if (selfCent) {
+    return RIDINGS
+      .filter((r) => r.riding_id !== raw.riding_id && CENTROIDS[r.riding_id])
+      .map((r) => {
+        const c = CENTROIDS[r.riding_id]!;
+        const dx = c.lon - selfCent.lon;
+        const dy = c.lat - selfCent.lat;
+        return { r, d2: dx * dx + dy * dy };
+      })
+      .sort((a, b) => a.d2 - b.d2)
+      .slice(0, 6)
+      .map(({ r }) => neighborOf(r));
+  }
   return RIDINGS
     .filter((r) => r.province === raw.province && r.riding_id !== raw.riding_id)
     .slice(0, 8)
-    .map((r) => {
-      const slug = frSlug(r);
-      return {
-        id: r.riding_id,
-        slug,
-        name_en: r.name_en,
-        name_fr: r.name_fr,
-        href_en: `/en/france/legislative-election/constituencies/${slug}/`,
-        href_fr: `/fr/france/legislatives/circonscriptions/${slug}/`,
-        href_es: `/es/france/legislativas/circunscripciones/${slug}/`,
-        tone: projectionTone(r.projection),
-        tone_party: r.projection.winner,
-      };
-    });
+    .map(neighborOf);
 }
 
 function adaptOne(raw: RawRiding): RidingData {
@@ -155,6 +179,8 @@ function adaptOne(raw: RawRiding): RidingData {
     candidates: raw.candidates,
     runDate: SOURCE.meta.run_date,
     hasProjectionHistory: false,
+    shapePath: SHAPES[raw.riding_id]?.path,
+    shapeViewBox: SHAPES[raw.riding_id]?.viewBox,
     neighbors: buildNeighbors(raw),
     regionalContext: {
       province: PROVINCE_VOTE_MEAN[raw.province] ?? {},
