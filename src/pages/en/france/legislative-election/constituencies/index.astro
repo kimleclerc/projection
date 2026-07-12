@@ -1,0 +1,71 @@
+---
+import EditorialLayout from '../../../../../layouts/EditorialLayout.astro';
+import { getAllFranceLegRidings } from '../../../../../lib/riding-adapters/france-legislative';
+import { partyMeta } from '../../../../../lib/riding-adapters/parties';
+
+const all = getAllFranceLegRidings()
+  .slice()
+  .sort((a, b) => a.name.en.localeCompare(b.name.en, 'fr') || a.id.localeCompare(b.id));
+
+const canonical = 'https://vote-scope.com/en/france/legislative-election/constituencies/';
+---
+
+<EditorialLayout
+  title="French legislative constituencies — Vote-Scope"
+  description="All 577 National Assembly constituencies: Vote-Scope bloc forecast (2024 republican-front scenario), deputy elected in 2024, candidates and official results."
+  canonical={canonical}
+  lang="en"
+  currentPage="france"
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={{ en: canonical, fr: 'https://vote-scope.com/fr/france/legislatives/circonscriptions/', es: 'https://vote-scope.com/es/france/legislativas/circunscripciones/' }}
+  jsonLd={[
+    {
+      '@context': 'https://schema.org',
+      '@type': 'CollectionPage',
+      name: 'National Assembly constituencies',
+      url: canonical,
+      inLanguage: 'en',
+      isPartOf: { '@type': 'WebSite', name: 'Vote-Scope', url: 'https://vote-scope.com/' },
+    },
+  ]}
+>
+  <section class="ridings-index-hero">
+    <div class="container">
+      <p class="eyebrow">Constituency index · France</p>
+      <h1>All 577 National Assembly constituencies.</h1>
+      <p class="lede">Bloc-level forecast under the central scenario (republican front at its 2024 level), deputy elected in 2024, candidates and official Interior Ministry results. Colour marks the favourite — <a href="/en/france/legislative-election">back to the legislative desk</a>.</p>
+    </div>
+  </section>
+
+  <section class="ridings-index">
+    <div class="container">
+      <ul class="riding-list">
+        {all.map((r) => {
+          const meta = partyMeta(r.jurisdiction, r.projection.winner);
+          return (
+            <li>
+              <a href={`/en/france/legislative-election/constituencies/${r.slug}/`} style={`--accent:${meta.color}`}>
+                <span class="dot" aria-hidden="true"></span>
+                <span class="name">{r.name.en}</span>
+                <span class="party">{meta.label_en}</span>
+              </a>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  </section>
+</EditorialLayout>
+
+<style>
+  .ridings-index-hero { padding: 80px 0 32px; border-bottom: 1px solid var(--rule); background: var(--paper); }
+  .ridings-index-hero h1 { margin: 8px 0 16px; font-family: var(--serif); font-size: clamp(40px, 5vw, 64px); font-weight: 420; letter-spacing: -0.02em; line-height: 1.02; max-width: 900px; }
+  .ridings-index-hero .lede { max-width: 760px; font-family: var(--serif); font-size: clamp(17px, 1.8vw, 20px); line-height: 1.55; color: var(--ink-2); }
+  .ridings-index { padding: 48px 0; background: var(--paper-2); }
+  .riding-list { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 0; border-top: 1px solid var(--rule); border-left: 1px solid var(--rule); }
+  .riding-list a { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule); background: var(--card); text-decoration: none; color: inherit; transition: background .15s ease; }
+  .riding-list a:hover { background: color-mix(in oklab, var(--accent) 12%, var(--card)); }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+  .name { font-family: var(--serif); font-size: 15px; flex: 1; }
+  .party { font-family: var(--mono); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); }
+</style>

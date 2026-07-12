@@ -1,0 +1,51 @@
+---
+import EditorialLayout from '../../../../../layouts/EditorialLayout.astro';
+import RidingPage from '../../../../../components/riding/RidingPage.astro';
+import { getAllFranceLegRidings } from '../../../../../lib/riding-adapters/france-legislative';
+
+export function getStaticPaths() {
+  return getAllFranceLegRidings().map((data) => ({
+    params: { id: data.slug },
+    props: { data },
+  }));
+}
+
+const { data } = Astro.props;
+const canonical = `https://vote-scope.com/en/france/legislative-election/constituencies/${data.slug}/`;
+const alternateFr = `https://vote-scope.com/fr/france/legislatives/circonscriptions/${data.slug}/`;
+const alternateEs = `https://vote-scope.com/es/france/legislativas/circunscripciones/${data.slug}/`;
+const title = `${data.name.en} — French legislative forecast — Vote-Scope`;
+const description = `Vote-Scope forecast for ${data.name.en} (${data.province}): bloc win probabilities, withdrawal scenarios, deputy elected in 2024, candidates and official 2024 results.`;
+---
+
+<EditorialLayout
+  title={title}
+  description={description}
+  canonical={canonical}
+  lang="en"
+  currentPage="france"
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={{ en: canonical, fr: alternateFr, es: alternateEs }}
+  jsonLd={[
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Place',
+      name: data.name.en,
+      containedInPlace: { '@type': 'AdministrativeArea', name: data.province || 'France' },
+      url: canonical,
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Vote-Scope',       item: 'https://vote-scope.com/en/' },
+        { '@type': 'ListItem', position: 2, name: 'France',           item: 'https://vote-scope.com/en/france/' },
+        { '@type': 'ListItem', position: 3, name: 'Legislative',      item: 'https://vote-scope.com/en/france/legislative-election/' },
+        { '@type': 'ListItem', position: 4, name: 'Constituencies',   item: 'https://vote-scope.com/en/france/legislative-election/constituencies/' },
+        { '@type': 'ListItem', position: 5, name: data.name.en,       item: canonical },
+      ],
+    },
+  ]}
+>
+  <RidingPage data={data} lang="en" />
+</EditorialLayout>

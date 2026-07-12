@@ -10,6 +10,11 @@ import { desks, editorialPhilosophy, instruments } from '../../data/editorial';
 
 import ldiData from '../../../web_data/us-lame-duck/latest.json';
 import wcHome from '../../../web_data/sports/worldcup2026_latest.json';
+import bfiData from '../../../web_data/fr-barrage/latest.json';
+import frLegData from '../../../web_data/france-legislative/latest.json';
+import clactonData from '../../../web_data/uk-clacton-special/latest.json';
+import gooseData from '../../../web_data/ca-canada-goose/latest.json';
+import cusmaData from '../../../web_data/cusma-showdown/latest.json';
 import { flagFor } from '../../lib/wc-flags';
 
 const philosophy = editorialPhilosophy.fr;
@@ -17,16 +22,32 @@ const ldi = ldiData.ldi;
 const deltaSign = ldi.delta_7d >= 0 ? '+' : '';
 const wcFav = wcHome.hero;
 const wcFavName = `${flagFor(wcFav.favorite_team)} ${wcFav.favorite_labels.fr}`.trim();
+const bfi = (bfiData as any).bfi;
+const legCentral = (frLegData as any).scenarios.find((s: any) => s.id === (frLegData as any).meta.central_scenario);
+const pMajRN = Math.round((legCentral?.p_majority_far_right ?? 0) * 100);
+const pFarage = Math.round(((clactonData as any).model.p_farage_win ?? 0) * 1000) / 10;
+const goose = (gooseData as any).cgi;
+const cusma = (cusmaData as any).showdown;
 
+// Le bandeau ne porte que des chiffres du site — jamais de promesses.
 const signals = [
-  { label: 'Coupe du monde 2026', value: `${wcFavName} en tête du tableau`, href: '/fr/sports/wc2026/' },
-  { label: 'Posture éditoriale', value: "Bureau d’intelligence électorale et sportive", href: '/fr/indexes/' },
-  { label: 'Règle', value: 'Une page, une question', href: '/fr/indexes/' },
-  { label: 'Instrument live', value: 'Lame-Duck Index', href: '/fr/us/indexes/lame-duck/' },
-  { label: 'Duel ACEUM', value: 'Bernache vs Canard boiteux', href: '/fr/indexes/cusma-showdown/' },
-  { label: 'Nouvel indice', value: 'Indice Bernache', href: '/fr/canada/indexes/canada-goose/' },
-  { label: 'Prochaine couche sport', value: 'Cup Path + Goalie Volatility', href: '/fr/sports/' },
+  { label: 'Coupe du monde 2026', value: `${wcFavName} favorite — ${wcFav.favorite_prob} %`, href: '/fr/sports/wc2026/' },
+  { label: 'Indice Barrage', value: `${bfi.score}/100 · ${bfi.label_fr}`, href: '/fr/france/indexes/barrage/' },
+  { label: 'Législatives FR', value: `p(majorité RN) ${pMajRN} % si front 2024`, href: '/fr/france/legislatives' },
+  { label: 'Partielle Clacton', value: `Farage ${pFarage} % — scrutin le 13 août`, href: '/fr/uk/byelections/clacton/' },
+  { label: 'Lame-Duck Index', value: `${ldi.score}/100 · ${ldi.label_fr}`, href: '/fr/us/indexes/lame-duck/' },
+  { label: 'Indice Bernache', value: `${goose.score}/100 · ${goose.label_fr}`, href: '/fr/canada/indexes/canada-goose/' },
+  { label: 'Duel ACEUM', value: `écart ${cusma.gap > 0 ? '+' : ''}${cusma.gap} — ${cusma.label_fr}`, href: '/fr/indexes/cusma-showdown/' },
 ];
+
+// Chiffre le plus marquant de chaque desk, injecté sur sa carte.
+const liveSignals: Record<string, string> = {
+  us: `Lame-Duck ${ldi.score}/100 · ${ldi.label_fr}`,
+  canada: `Bernache ${goose.score}/100 · ACEUM ${cusma.gap > 0 ? '+' : ''}${cusma.gap}`,
+  france: `p(majorité RN) ${pMajRN} % si front 2024 · Barrage ${bfi.score}/100`,
+  uk: `Clacton : Farage ${pFarage} % — 13 août`,
+  sports: `${wcFavName} favorite à ${wcFav.favorite_prob} % — demi-finales`,
+};
 ---
 
 <EditorialLayout
@@ -125,7 +146,7 @@ const signals = [
             <h2>{desk.name}</h2>
             <strong>{desk.question}</strong>
             <p>{desk.description}</p>
-            <footer>{desk.signal}</footer>
+            <footer>{liveSignals[desk.id] ?? desk.signal}</footer>
           </a>
         ))}
       </div>

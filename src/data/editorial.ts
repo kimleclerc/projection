@@ -76,24 +76,34 @@ export const desks: Record<'en' | 'fr' | 'es', Desk[]> = {
       signal: 'Canada Goose Index is now live',
     },
     {
+      id: 'uk',
+      name: 'United Kingdom Desk',
+      eyebrow: 'Westminster + by-elections',
+      question: 'How real is the Reform wave, seat by seat?',
+      description:
+        '650 constituencies calibrated against published MRPs, real by-election anchoring, and a special desk for Clacton — Farage under investigation, market checks included.',
+      href: '/en/uk/',
+      signal: 'Clacton special desk is live',
+    },
+    {
       id: 'france',
       name: 'France Desk',
       eyebrow: '2027 Presidential',
       question: 'Who reaches the runoff, and who wins it, in a field still taking shape?',
       description:
-        'First-round scenarios, runoff matchups, and the declared field for the 2027 French presidential — lineup by lineup.',
+        'The 2027 presidential first: first-round scenarios, runoff matchups, declared field. Plus a full legislative model — 577 constituencies, calibrated withdrawal scenarios, and a bridge that carries presidential polling movement when direct legislative polls go quiet.',
       href: '/en/france/',
       signal: 'Le Pen declared · Bardella leads the first round',
     },
     {
       id: 'sports',
       name: 'Sports Scope',
-      eyebrow: 'NHL + World Cup',
+      eyebrow: 'World Cup + NHL',
       question: 'Who has the cleanest path, and who is riding a fragile streak?',
       description:
         'A sportier desk for playoff paths, goalie volatility, live scores, market checks, and tournament chaos.',
       href: '/en/sports/',
-      signal: 'Cup Path and Goalie Volatility are the next instruments',
+      signal: 'World Cup semi-finals: live conditioned simulations',
     },
   ],
   fr: [
@@ -118,24 +128,34 @@ export const desks: Record<'en' | 'fr' | 'es', Desk[]> = {
       signal: 'L’indice Bernache est maintenant en ligne',
     },
     {
+      id: 'uk',
+      name: 'Desk Royaume-Uni',
+      eyebrow: 'Westminster + partielles',
+      question: 'La vague Reform est-elle réelle, siège par siège?',
+      description:
+        '650 circonscriptions calibrées sur les MRP publiés, ancrage des partielles réelles, et un desk spécial pour Clacton — Farage sous enquête, marchés en comparaison.',
+      href: '/fr/uk/',
+      signal: 'Le desk spécial Clacton est en ligne',
+    },
+    {
       id: 'france',
       name: 'Desk France',
       eyebrow: 'Présidentielle 2027',
       question: 'Qui atteint le second tour, et qui le gagne, dans un champ encore mouvant?',
       description:
-        'Scénarios de premier tour, duels de second tour et champ déclaré pour la présidentielle 2027 — casting par casting.',
+        'La présidentielle 2027 d’abord : scénarios de premier tour, duels, champ déclaré. Plus un modèle législatif complet — 577 circonscriptions, scénarios de désistement calibrés, et un pont qui porte le mouvement des sondages présidentiels quand les sondages législatifs se taisent.',
       href: '/fr/france/',
       signal: 'Le Pen déclarée · Bardella en tête au premier tour',
     },
     {
       id: 'sports',
       name: 'Sports Scope',
-      eyebrow: 'NHL + Coupe du monde',
+      eyebrow: 'Coupe du monde + NHL',
       question: 'Qui a le chemin le plus propre, et qui vit sur une séquence fragile?',
       description:
         'Une verticale plus sportive pour chemins de séries, volatilité des gardiens, scores live, marchés et chaos de tournoi.',
       href: '/fr/sports/',
-      signal: 'Cup Path et Goalie Volatility sont les prochains instruments',
+      signal: 'Demi-finales de la Coupe du monde : simulations conditionnées en direct',
     },
   ],
   es: [
@@ -160,24 +180,34 @@ export const desks: Record<'en' | 'fr' | 'es', Desk[]> = {
       signal: 'El Canada Goose Index ya está en vivo',
     },
     {
+      id: 'uk',
+      name: 'Desk Reino Unido',
+      eyebrow: 'Westminster + parciales',
+      question: '¿Qué tan real es la ola de Reform, escaño por escaño?',
+      description:
+        '650 circunscripciones calibradas contra los MRP publicados, anclaje de parciales reales y un desk especial para Clacton — Farage bajo investigación, mercados como referencia.',
+      href: '/es/uk/',
+      signal: 'El desk especial de Clacton está en vivo',
+    },
+    {
       id: 'france',
       name: 'Mesa Francia',
       eyebrow: 'Presidencial 2027',
       question: '¿Quién llega a la segunda vuelta, y quién la gana, en un campo aún en formación?',
       description:
-        'Escenarios de primera vuelta, duelos de segunda vuelta y el campo declarado para la presidencial francesa de 2027 — combinación por combinación.',
+        'La presidencial de 2027 primero: escenarios de primera vuelta, duelos, campo declarado. Además un modelo legislativo completo — 577 circunscripciones, escenarios de retirada calibrados y un puente que traslada el movimiento presidencial cuando las encuestas legislativas callan.',
       href: '/es/france/',
       signal: 'Le Pen declarada · Bardella encabeza la primera vuelta',
     },
     {
       id: 'sports',
       name: 'Sports Scope',
-      eyebrow: 'NHL + Copa del Mundo',
+      eyebrow: 'Copa del Mundo + NHL',
       question: '¿Quién tiene el camino más despejado y quién vive de una racha frágil?',
       description:
         'Una vertical más deportiva para caminos de playoff, volatilidad de porteros, marcadores en vivo, mercados y caos de torneo.',
       href: '/es/sports/',
-      signal: 'Cup Path y Goalie Volatility son los próximos instrumentos',
+      signal: 'Semifinales del Mundial: simulaciones condicionadas en vivo',
     },
   ],
 };
@@ -219,61 +249,6 @@ export const instruments: Record<'en' | 'fr' | 'es', Instrument[]> = {
       status: 'live',
       cadence: 'Daily',
       metric: 'Leverage gap from web_data/cusma-showdown/latest.json',
-    },
-    {
-      id: 'majority-fragility',
-      name: 'Majority Fragility Index',
-      family: 'Power',
-      question: 'How breakable is the governing majority?',
-      description:
-        'Turns seat margins, local risk, and by-election signals into a readable stress score.',
-      href: '/en/indexes/',
-      status: 'next',
-      cadence: 'After projection runs',
-    },
-    {
-      id: 'model-market-gap',
-      name: 'Model vs Market Gap',
-      family: 'Markets',
-      question: 'Where does Vote-Scope disagree with the market?',
-      description:
-        'A market benchmark that treats Polymarket and odds data as a comparison layer, not a betting product.',
-      href: '/en/indexes/',
-      status: 'next',
-      cadence: 'After market refreshes',
-    },
-    {
-      id: 'battleground-heat',
-      name: 'Battleground Heat Index',
-      family: 'Movement',
-      question: 'Which races are becoming politically hot before the topline notices?',
-      description:
-        'A scan for swing, volatility, and attention across districts, states, ridings, and regions.',
-      href: '/en/indexes/',
-      status: 'planned',
-      cadence: 'Nightly',
-    },
-    {
-      id: 'cup-path',
-      name: 'Cup Path Index',
-      family: 'Sports',
-      question: 'Who has the cleanest path to the Stanley Cup?',
-      description:
-        'Combines team strength, bracket path, goalie layer, injuries, and market expectations.',
-      href: '/en/sports/',
-      status: 'next',
-      cadence: 'After NHL game updates',
-    },
-    {
-      id: 'goalie-volatility',
-      name: 'Goalie Volatility Index',
-      family: 'Sports',
-      question: 'Which teams are most exposed to the next bad crease night?',
-      description:
-        'A Sports Scope instrument built around starter uncertainty, high-danger save rates, and playoff leverage.',
-      href: '/en/sports/',
-      status: 'next',
-      cadence: 'Game days',
     },
     {
       id: 'fraser-interim',
@@ -336,61 +311,6 @@ export const instruments: Record<'en' | 'fr' | 'es', Instrument[]> = {
       status: 'live',
       cadence: 'Quotidien',
       metric: 'Écart de levier depuis web_data/cusma-showdown/latest.json',
-    },
-    {
-      id: 'majority-fragility',
-      name: 'Majority Fragility Index',
-      family: 'Power',
-      question: 'À quel point une majorité gouvernementale est-elle cassable?',
-      description:
-        'Transforme les marges en sièges, les risques locaux et les signaux de partielles en score de tension lisible.',
-      href: '/fr/indexes/',
-      status: 'next',
-      cadence: 'Après les runs de projection',
-    },
-    {
-      id: 'model-market-gap',
-      name: 'Model vs Market Gap',
-      family: 'Markets',
-      question: 'Où Vote-Scope est-il en désaccord avec le marché?',
-      description:
-        "Un repère de comparaison qui traite Polymarket et les cotes comme une couche de lecture, pas comme un produit de pari.",
-      href: '/fr/indexes/',
-      status: 'next',
-      cadence: 'Après les refreshs marché',
-    },
-    {
-      id: 'battleground-heat',
-      name: 'Battleground Heat Index',
-      family: 'Movement',
-      question: 'Quelles courses chauffent avant que le topline le voie?',
-      description:
-        "Un balayage du swing, de la volatilité et de l'attention dans les districts, États, circonscriptions et régions.",
-      href: '/fr/indexes/',
-      status: 'planned',
-      cadence: 'Chaque nuit',
-    },
-    {
-      id: 'cup-path',
-      name: 'Cup Path Index',
-      family: 'Sports',
-      question: 'Qui a le chemin le plus propre vers la Coupe Stanley?',
-      description:
-        "Combine force d'équipe, chemin de bracket, couche gardiens, blessures et attentes du marché.",
-      href: '/fr/sports/',
-      status: 'next',
-      cadence: 'Après les matchs NHL',
-    },
-    {
-      id: 'goalie-volatility',
-      name: 'Goalie Volatility Index',
-      family: 'Sports',
-      question: 'Quelles équipes sont exposées à la prochaine mauvaise soirée devant le filet?',
-      description:
-        "Un instrument Sports Scope autour de l'incertitude des partants, du HDSV% et du levier en séries.",
-      href: '/fr/sports/',
-      status: 'next',
-      cadence: 'Jours de match',
     },
     {
       id: 'fraser-interim',
@@ -465,61 +385,6 @@ export const instruments: Record<'en' | 'fr' | 'es', Instrument[]> = {
       status: 'live',
       cadence: 'Según llegan los datos',
       metric: 'Puntuación actual desde web_data/fr-barrage/latest.json',
-    },
-    {
-      id: 'majority-fragility',
-      name: 'Majority Fragility Index',
-      family: 'Power',
-      question: '¿Qué tan fácil es romper la mayoría gobernante?',
-      description:
-        'Convierte márgenes de escaños, riesgos locales y señales de elecciones parciales en una puntuación de estrés legible.',
-      href: '/es/indexes/',
-      status: 'next',
-      cadence: 'Tras las ejecuciones de proyección',
-    },
-    {
-      id: 'model-market-gap',
-      name: 'Model vs Market Gap',
-      family: 'Markets',
-      question: '¿Dónde discrepa Vote-Scope con el mercado?',
-      description:
-        'Un punto de referencia que trata a Polymarket y los datos de cuotas como una capa de comparación, no como un producto de apuestas.',
-      href: '/es/indexes/',
-      status: 'next',
-      cadence: 'Tras las actualizaciones del mercado',
-    },
-    {
-      id: 'battleground-heat',
-      name: 'Battleground Heat Index',
-      family: 'Movement',
-      question: '¿Qué carreras se están calentando antes de que el topline lo note?',
-      description:
-        'Un análisis de swing, volatilidad y atención en distritos, estados, circunscripciones y regiones.',
-      href: '/es/indexes/',
-      status: 'planned',
-      cadence: 'Cada noche',
-    },
-    {
-      id: 'cup-path',
-      name: 'Cup Path Index',
-      family: 'Sports',
-      question: '¿Quién tiene el camino más despejado hacia la Copa Stanley?',
-      description:
-        'Combina fortaleza del equipo, ruta en el bracket, capa de porteros, lesiones y expectativas del mercado.',
-      href: '/es/sports/',
-      status: 'next',
-      cadence: 'Tras los partidos de la NHL',
-    },
-    {
-      id: 'goalie-volatility',
-      name: 'Goalie Volatility Index',
-      family: 'Sports',
-      question: '¿Qué equipos están más expuestos a una mala noche bajo los palos?',
-      description:
-        'Un instrumento Sports Scope centrado en la incertidumbre del titular, el HDSV% y el apalancamiento en playoffs.',
-      href: '/es/sports/',
-      status: 'next',
-      cadence: 'Días de partido',
     },
   ],
 };

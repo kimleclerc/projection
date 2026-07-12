@@ -9,6 +9,7 @@ import KeepDigging from './KeepDigging.astro';
 import latest from '../../web_data/france-presidential/latest.json';
 import dataSheets from '../../web_data/france-presidential/data_sheets.json';
 import barrageLatest from '../../web_data/fr-barrage/latest.json';
+import frLegLatest from '../../web_data/france-legislative/latest.json';
 import {
   toScenarioCard,
   blocVar,
@@ -26,6 +27,32 @@ interface Props {
 }
 const { locale } = Astro.props;
 const candBase = franceCandBase(locale);
+
+// Législatives — carte teaser vers le desk (web_data/france-legislative).
+const legPayload = frLegLatest as any;
+const legCentralSc = legPayload.scenarios?.find((s: any) => s.id === legPayload.meta?.central_scenario);
+const legPMaj = Math.round((legCentralSc?.p_majority_far_right ?? 0) * 100);
+const legHref = { fr: '/fr/france/legislatives', en: '/en/france/legislative-election', es: '/es/france/legislativas' }[locale];
+const legCopy = {
+  fr: {
+    eyebrow: 'Législatives — en cas de dissolution',
+    title: `p(majorité absolue RN) : ${legPMaj} % si front républicain au niveau 2024`,
+    body: 'Les sondages législatifs français sont événementiels — il n’y en a presque jamais hors crise. Le modèle ancre donc sa projection au dernier sondage direct (oct. 2025) et lui applique le mouvement des intentions présidentielles, mesurées en continu : c’est le pont différentiel. Les 577 circonscriptions sont ensuite simulées avec des reports et désistements calibrés sur les 1 646 seconds tours de 2017-2024, en trois scénarios de front républicain.',
+    cta: 'Ouvrir le desk législatif',
+  },
+  en: {
+    eyebrow: 'Legislative — if dissolved today',
+    title: `p(absolute RN majority): ${legPMaj}% under a 2024-level republican front`,
+    body: 'French legislative polling is event-driven — it all but disappears outside crises. The model therefore anchors its projection to the last direct poll (Oct. 2025) and applies the movement of continuously-measured presidential intentions: the differential bridge. The 577 constituencies are then simulated with transfers and withdrawals calibrated on the 1,646 runoffs of 2017-2024, across three republican-front scenarios.',
+    cta: 'Open the legislative desk',
+  },
+  es: {
+    eyebrow: 'Legislativas — si se disolviera hoy',
+    title: `p(mayoría absoluta RN): ${legPMaj}% con frente republicano al nivel de 2024`,
+    body: 'Las encuestas legislativas francesas son episódicas — casi desaparecen fuera de las crisis. El modelo ancla su proyección a la última encuesta directa (oct. 2025) y le aplica el movimiento de las intenciones presidenciales, medidas en continuo: el puente diferencial. Las 577 circunscripciones se simulan luego con transferencias y retiradas calibradas sobre las 1.646 segundas vueltas de 2017-2024, en tres escenarios de frente republicano.',
+    cta: 'Abrir el desk legislativo',
+  },
+}[locale];
 
 // Barrage Index — carte promo live vers l'instrument (web_data/fr-barrage).
 const bfi = (barrageLatest as any).bfi ?? {};
@@ -360,6 +387,16 @@ const C = COPY[locale];
       <h3 style="margin:0.25rem 0;">{barrageCopy.title} — <span style={`color:${bfi.zone_color ?? 'inherit'}`}>{typeof bfi.score === 'number' ? (locale === 'en' ? bfi.score.toFixed(1) : bfi.score.toFixed(1).replace('.', ',')) : '—'}/100 · {barrageCopy.zone ?? ''}</span></h3>
       <p>{barrageCopy.question}</p>
       <footer style="margin-top:0.75rem;"><span class="cta-link">{barrageCopy.cta} →</span></footer>
+    </a>
+  </section>
+
+  <!-- LÉGISLATIVES (desk complet, nowcast indirect) -->
+  <section class="fr-section container" aria-label={legCopy.eyebrow}>
+    <a class="note-card" href={legHref} style="display:block;text-decoration:none;color:inherit;border-left:4px solid var(--bloc-far_right, #2b4f8c);">
+      <p class="eyebrow">{legCopy.eyebrow}</p>
+      <h3 style="margin:0.25rem 0;">{legCopy.title}</h3>
+      <p>{legCopy.body}</p>
+      <footer style="margin-top:0.75rem;"><span class="cta-link">{legCopy.cta} →</span></footer>
     </a>
   </section>
 

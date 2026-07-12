@@ -96,6 +96,9 @@ const copy = {
 const labels = blocLabels[locale];
 const scCopy = scenarioCopy[locale];
 const pct = (v: number) => (locale === 'en' ? v.toFixed(1) : v.toFixed(1).replace('.', ','));
+const circoBase = { fr: '/fr/france/legislatives/circonscriptions/', en: '/en/france/legislative-election/constituencies/', es: '/es/france/legislativas/circunscripciones/' }[locale];
+const circoSlug = (id: string, name: string) =>
+  `${id}-${name.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')}`;
 const pctInt = (v: number) => Math.round(v * 100);
 const topSeats = (sc: any) => sc.seats.filter((r: any) => ['far_right', 'left', 'centre', 'right'].includes(r.party));
 ---
@@ -154,11 +157,12 @@ const topSeats = (sc: any) => sc.seats.filter((r: any) => ['far_right', 'left', 
       <section class="container leg-panel">
         <h2>{copy.hotTitle}</h2>
         <p class="leg-method">{copy.hotNote}</p>
+        <p class="leg-all-link"><a href={{ fr: '/fr/france/legislatives/circonscriptions/', en: '/en/france/legislative-election/constituencies/', es: '/es/france/legislativas/circunscripciones/' }[locale]}>{{ fr: 'Parcourir les 577 circonscriptions →', en: 'Browse all 577 constituencies →', es: 'Explorar las 577 circunscripciones →' }[locale]}</a></p>
         <ul class="leg-hotlist">
           {hot.map((c: any) => (
             <li>
               <i style={`background:var(--bloc-${c.winner})`}></i>
-              <span class="leg-hot-name">{c.name}</span>
+              <a class="leg-hot-name" href={`${circoBase}${circoSlug(c.id, c.name)}/`}>{c.name}</a>
               <span class="leg-hot-p">{copy.pWin} {pctInt(c.p_win)} %</span>
               {c.flips_between_scenarios && <em class="leg-flip">{copy.flip}</em>}
             </li>
@@ -221,6 +225,11 @@ const topSeats = (sc: any) => sc.seats.filter((r: any) => ['far_right', 'left', 
   .leg-hotlist { list-style: none; padding: 0; margin-top: 1rem; display: grid; gap: .5rem; max-width: 760px; }
   .leg-hotlist li { display: flex; align-items: baseline; gap: .6rem; font-size: .9rem; border-bottom: 1px dashed var(--rule); padding-bottom: .4rem; }
   .leg-hot-name { flex: 1; }
+  a.leg-hot-name { color: inherit; text-decoration: none; }
+  a.leg-hot-name:hover { text-decoration: underline; }
+  .leg-all-link { font-family: var(--mono); font-size: .8rem; margin-top: .8rem; }
+  .leg-all-link a { color: var(--accent); text-decoration: none; }
+  .leg-all-link a:hover { text-decoration: underline; }
   .leg-flip { font-family: var(--mono); font-size: .65rem; color: var(--accent); text-transform: uppercase; letter-spacing: .05em; font-style: normal; }
   .leg-caveats ul { max-width: 78ch; color: var(--ink-2); font-size: .95rem; display: grid; gap: .6rem; padding-left: 1.2rem; }
 </style>

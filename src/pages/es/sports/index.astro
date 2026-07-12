@@ -77,32 +77,6 @@ const wcMeta = wcData.board_meta;
     </div>
   </section>
 
-  <section class="content-band">
-    <div class="container">
-      <p class="eyebrow">Playoffs NHL</p>
-      <h2>Principal contendiente de la Copa</h2>
-      <div class="content-grid-2" style="gap:1.5rem;margin-top:1rem;">
-        <div class="note-card">
-          <p class="eyebrow">Cup Path Index — principal contendiente</p>
-          <h3 style="font-size:1.75rem;margin:0.25rem 0;">{hero.favorite_label_en}</h3>
-          <p style="font-size:2rem;font-weight:700;color:var(--accent);">
-            <AnimatedNumber client:visible value={hero.favorite_prob} decimals={1} suffix="%" />
-          </p>
-          <p>Probabilidad de campeonato · {boardMeta.n_sims.toLocaleString()} simulaciones</p>
-          <p style="margin-top:0.5rem;font-size:0.9rem;">Modelo: {boardMeta.model}</p>
-          <p style="margin-top:1rem;">
-            <a href="/es/sports/nhl/" class="cta-link">Desk NHL completo →</a>
-          </p>
-        </div>
-        <div class="note-card">
-          <p class="eyebrow">En alza</p>
-          <h3>{hero.riser_label_en}</h3>
-          <p>Movimiento 7 días: <strong>+{hero.riser_trend} pts</strong></p>
-          <p style="margin-top:0.5rem;">Segundo: {hero.runner_up_label_en} con {hero.runner_up_prob}%</p>
-        </div>
-      </div>
-    </div>
-  </section>
 
   <section class="content-band">
     <div class="container content-grid-2">
@@ -127,21 +101,32 @@ const wcMeta = wcData.board_meta;
 
   <section class="content-band">
     <div class="container">
-      <PolymarketEmbed slug="will-the-montreal-canadiens-win-the-2026-nhl-stanley-cup" title="Campeón de la Stanley Cup NHL 2026" />
+      <PolymarketEmbed slug="world-cup-winner" title="Polymarket — Campeón del Mundial 2026" />
+    </div>
+  </section>
+
+  <section class="content-band" style="padding:1.5rem 0;">
+    <div class="container">
+      <div class="note-card" style="opacity:.85;">
+        <p class="eyebrow">NHL — temporada 2025-26 terminada</p>
+        <h3>{hero.favorite_label_en}: campeones de la Stanley Cup 2026.</h3>
+        <p>Finalista: {hero.runner_up_label_en}. El desk y el historial completo del modelo siguen abiertos — los instrumentos NHL vuelven en el training camp.</p>
+        <p style="margin-top:0.75rem;"><a href="/es/sports/nhl/" class="cta-link">Desk NHL →</a>&nbsp;·&nbsp;<a href="/es/sports/track-record/" class="cta-link">Historial →</a></p>
+      </div>
     </div>
   </section>
 
   <MarketCheck
     kicker="Pulso del mercado deportivo"
     title="El mercado ve el mismo partido. El modelo ve el camino."
-    body="Las cuotas de Polymarket sobre la Stanley Cup acompañan al modelo Cup Path como referencia independiente. Donde coinciden, la señal es sólida. Donde divergen, esa brecha es la historia."
+    body="Las cuotas de Polymarket y Kalshi sobre el Mundial acompañan al modelo como referencia independiente. Donde convergen, la señal es fuerte. Donde divergen, esa brecha es la historia."
     modelLabel="Modelo Copa"
     marketLabel="Pulso de mercado"
     note="Los datos de mercados de predicción se muestran solo como referencia. El modelo y el mercado se actualizan en cadencias independientes."
   />
 
   <MethodologyNote
-    title="Dos instrumentos deportivos. Un mismo estándar."
+    title="Dos desks deportivos. Un mismo estándar."
     body="Cup Path y Goalie Volatility comparten el mismo pipeline Monte Carlo: los resultados de series se simulan 50,000 veces por ciclo, con el desempeño del portero como multiplicador de volatilidad en la probabilidad de victoria de cada equipo."
     bullets={[
       'NHL Cup Path: 50,000 simulaciones por ronda de playoffs, actualizadas tras cada resultado de serie. La capa de volatilidad del portero se condiciona en el porcentaje de paradas reciente y el estado de lesiones.',

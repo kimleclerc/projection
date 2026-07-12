@@ -95,6 +95,23 @@ export const US_HOUSE_PARTIES: Record<string, PartyMeta> = {
   us_oth: { label_en: 'Other',       label_fr: 'Autre',         color: '#999999', mention_fr: "d'un autre parti",  mention_en: 'another party',    mention_es: 'otro partido' },
 };
 
+/**
+ * France législatives — BLOCS, pas partis : le modèle projette les huit blocs
+ * VoteScope (mêmes couleurs que FranceDesk, convention politique française
+ * validée dataviz). Les nuances ministère individuelles restent visibles via
+ * party_raw dans la table des candidats.
+ */
+export const FR_LEG_PARTIES: Record<string, PartyMeta> = {
+  far_right:    { label_en: 'RN and allies',   label_fr: 'RN et alliés',      color: '#2b4f8c', mention_fr: 'du RN et ses alliés',      mention_en: 'the RN and its allies', mention_es: 'el RN y sus aliados' },
+  left:         { label_en: 'Left (NFP)',      label_fr: 'Gauche (NFP)',      color: '#b0202a', mention_fr: 'de la gauche unie',        mention_en: 'the united left',       mention_es: 'la izquierda unida' },
+  centre:       { label_en: 'Centre (Ensemble)', label_fr: 'Centre (Ensemble)', color: '#b7860f', mention_fr: 'du bloc central',        mention_en: 'the centrist bloc',     mention_es: 'el bloque central' },
+  right:        { label_en: 'LR and allies',   label_fr: 'LR et divers droite', color: '#3f82d6', mention_fr: 'de la droite LR',        mention_en: 'the LR right',          mention_es: 'la derecha LR' },
+  far_left:     { label_en: 'Far left',        label_fr: 'Extrême gauche',    color: '#6b1f2e', mention_fr: "de l'extrême gauche",      mention_en: 'the far left',          mention_es: 'la extrema izquierda' },
+  greens:       { label_en: 'Greens',          label_fr: 'Écologistes',       color: '#4a9d5b', mention_fr: 'des écologistes',          mention_en: 'the Greens',            mention_es: 'los ecologistas' },
+  sovereignist: { label_en: 'Sovereignists',   label_fr: 'Souverainistes',    color: '#6d4c8a', mention_fr: 'des souverainistes',       mention_en: 'the sovereignists',     mention_es: 'los soberanistas' },
+  other:        { label_en: 'Others',          label_fr: 'Autres',            color: '#999999', mention_fr: "d'un autre bloc",          mention_en: 'another bloc',          mention_es: 'otro bloque' },
+};
+
 const PALETTES: Record<string, Record<string, PartyMeta>> = {
   'federal-ca': CA_FEDERAL_PARTIES,
   'quebec': QC_PARTIES,
@@ -102,6 +119,7 @@ const PALETTES: Record<string, Record<string, PartyMeta>> = {
   'uk': UK_PARTIES,
   'us-house': US_HOUSE_PARTIES,
   'us-senate': US_HOUSE_PARTIES,  // same Dem/Rep palette
+  'france': FR_LEG_PARTIES,
 };
 
 export function partyMeta(jurisdiction: string, code: string): PartyMeta {

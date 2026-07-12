@@ -77,32 +77,6 @@ const wcMeta = wcData.board_meta;
     </div>
   </section>
 
-  <section class="content-band">
-    <div class="container">
-      <p class="eyebrow">NHL playoffs</p>
-      <h2>Current Cup favorite</h2>
-      <div class="content-grid-2" style="gap:1.5rem;margin-top:1rem;">
-        <div class="note-card">
-          <p class="eyebrow">Cup Path Index — top contender</p>
-          <h3 style="font-size:1.75rem;margin:0.25rem 0;">{hero.favorite_label_en}</h3>
-          <p style="font-size:2rem;font-weight:700;color:var(--accent);">
-            <AnimatedNumber client:visible value={hero.favorite_prob} decimals={1} suffix="%" />
-          </p>
-          <p>Championship probability · {boardMeta.n_sims.toLocaleString()} simulations</p>
-          <p style="margin-top:0.5rem;font-size:0.9rem;">Model: {boardMeta.model}</p>
-          <p style="margin-top:1rem;">
-            <a href="/en/sports/nhl/" class="cta-link">Full NHL desk →</a>
-          </p>
-        </div>
-        <div class="note-card">
-          <p class="eyebrow">Riser watch</p>
-          <h3>{hero.riser_label_en}</h3>
-          <p>7-day move: <strong>+{hero.riser_trend} pts</strong></p>
-          <p style="margin-top:0.5rem;">Runner-up: {hero.runner_up_label_en} at {hero.runner_up_prob}%</p>
-        </div>
-      </div>
-    </div>
-  </section>
 
   <section class="content-band">
     <div class="container content-grid-2">
@@ -127,25 +101,36 @@ const wcMeta = wcData.board_meta;
 
   <section class="content-band">
     <div class="container">
-      <PolymarketEmbed slug="will-the-montreal-canadiens-win-the-2026-nhl-stanley-cup" title="2026 NHL Stanley Cup champion" />
+      <PolymarketEmbed slug="world-cup-winner" title="Polymarket — 2026 World Cup Champion" />
+    </div>
+  </section>
+
+  <section class="content-band" style="padding:1.5rem 0;">
+    <div class="container">
+      <div class="note-card" style="opacity:.85;">
+        <p class="eyebrow">NHL — 2025-26 season complete</p>
+        <h3>{hero.favorite_label_en}: 2026 Stanley Cup champions.</h3>
+        <p>Runner-up: {hero.runner_up_label_en}. The desk and the full model track record remain open — NHL instruments return at training camp.</p>
+        <p style="margin-top:0.75rem;"><a href="/en/sports/nhl/" class="cta-link">NHL desk →</a>&nbsp;·&nbsp;<a href="/en/sports/track-record/" class="cta-link">Track record →</a></p>
+      </div>
     </div>
   </section>
 
   <MarketCheck
     kicker="Sports market pulse"
     title="The market sees the same game. The model sees the path."
-    body="Polymarket odds on Stanley Cup outcomes run alongside the Cup Path model as an independent benchmark. Where they agree, the signal is strong. Where they diverge, that gap is the story."
+    body="Polymarket and Kalshi odds on the World Cup run alongside the model as an independent benchmark. Where they agree, the signal is strong. Where they diverge, that gap is the story."
     modelLabel="Cup model"
     marketLabel="Market pulse"
     note="Prediction-market data is shown as a benchmark only. Model and market are updated on independent cadences."
   />
 
   <MethodologyNote
-    title="Two sports instruments. One standard."
-    body="Cup Path and Goalie Volatility share the same Monte Carlo pipeline: series outcomes are simulated 50,000 times per run, with goalie performance factored in as a volatility multiplier on each team's win probability."
+    title="Two sports desks. One standard."
+    body="World Cup and NHL share the same Monte Carlo pipeline: outcomes are simulated 50,000 times per run, conditioned on real results as the tournament unfolds."
     bullets={[
+      'World Cup 2026: 48 teams, 50,000 simulations conditioned on real results (FIFA rankings, recent form, home advantage), updated after every match through the final.',
       'NHL Cup Path: 50,000 simulations per playoff round, updated after each series result. Goalie volatility layer conditions on recent save percentage and injury status.',
-      'WC2026 group-stage model: 48-team simulation with 50,000 runs, using FIFA rankings, recent form, and home advantage as inputs.',
       'Track record is public: every published model run and series call is archived and verifiable.',
       'Model outputs are available as public JSON at each desk, updated on a rolling basis.',
     ]}

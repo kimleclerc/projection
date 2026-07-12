@@ -1,0 +1,51 @@
+---
+import EditorialLayout from '../../../../../layouts/EditorialLayout.astro';
+import RidingPage from '../../../../../components/riding/RidingPage.astro';
+import { getAllFranceLegRidings } from '../../../../../lib/riding-adapters/france-legislative';
+
+export function getStaticPaths() {
+  return getAllFranceLegRidings().map((data) => ({
+    params: { id: data.slug },
+    props: { data },
+  }));
+}
+
+const { data } = Astro.props;
+const canonical = `https://vote-scope.com/fr/france/legislatives/circonscriptions/${data.slug}/`;
+const alternateEn = `https://vote-scope.com/en/france/legislative-election/constituencies/${data.slug}/`;
+const alternateEs = `https://vote-scope.com/es/france/legislativas/circunscripciones/${data.slug}/`;
+const title = `${data.name.fr} — Projection législatives françaises — Vote-Scope`;
+const description = `Projection Vote-Scope pour ${data.name.fr} (${data.province}) : probabilités par bloc, scénarios de désistement, député·e élu·e en 2024, candidats et résultats 2024.`;
+---
+
+<EditorialLayout
+  title={title}
+  description={description}
+  canonical={canonical}
+  lang="fr"
+  currentPage="france"
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={{ en: alternateEn, fr: canonical, es: alternateEs }}
+  jsonLd={[
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Place',
+      name: data.name.fr,
+      containedInPlace: { '@type': 'AdministrativeArea', name: data.province || 'France' },
+      url: canonical,
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Vote-Scope',        item: 'https://vote-scope.com/fr/' },
+        { '@type': 'ListItem', position: 2, name: 'France',            item: 'https://vote-scope.com/fr/france/' },
+        { '@type': 'ListItem', position: 3, name: 'Législatives',      item: 'https://vote-scope.com/fr/france/legislatives/' },
+        { '@type': 'ListItem', position: 4, name: 'Circonscriptions',  item: 'https://vote-scope.com/fr/france/legislatives/circonscriptions/' },
+        { '@type': 'ListItem', position: 5, name: data.name.fr,        item: canonical },
+      ],
+    },
+  ]}
+>
+  <RidingPage data={data} lang="fr" />
+</EditorialLayout>
