@@ -7,6 +7,7 @@ import EditorialLayout from '../layouts/EditorialLayout.astro';
 import EditorialHero from './EditorialHero.astro';
 import MethodologyNote from './MethodologyNote.astro';
 import ukMeta from '../../web_data/uk/latest.json';
+import clactonSpecial from '../../web_data/uk-clacton-special/latest.json';
 import { ukByelections, ukResolvedByelections2026 } from '../data/ukByelections';
 
 type Locale = 'en' | 'fr' | 'es';
@@ -29,6 +30,9 @@ const compTotal = composition.reduce((acc, c) => acc + (c.seats ?? 0), 0);
 
 const clacton = ukByelections.clacton;
 const clactonPath = clacton.paths[locale];
+const clactonModel = (clactonSpecial as any).model;
+const pFarage = Math.round(clactonModel.p_farage_win * 1000) / 10;
+const pBinface = Math.round(clactonModel.p_binface_win * 1000) / 10;
 
 const partyLabel = (p: any) =>
   locale === 'fr' ? p.label_fr ?? p.label_en : locale === 'es' ? p.label_es ?? p.label_en : p.label_en;
@@ -52,11 +56,11 @@ const copy = {
     seats: 'seats',
     compositionLabel: `Commons today — ${compTotal} of ${meta.total_seats} GB seats tracked`,
     byeLabel: 'By-elections',
-    clactonKicker: 'Live race · date not set',
-    clactonTitle: 'Clacton.',
+    clactonKicker: 'Live race · polling day 13 August',
+    clactonTitle: 'Farage vs Binface.',
     clactonBody:
-      'Farage resigned; a single independent — Count Binface — shapes the field. No partisan baseline, so no projection until a local poll exists. The desk explains why.',
-    clactonCta: 'Open the race desk →',
+      `Farage recontests his own seat against Count Binface while the major parties boycott. Dedicated Monte Carlo engine: Farage ${fmt1(pFarage)}%, Binface ${fmt1(pBinface)}% — with markets, odds and Binface's path to victory.`,
+    clactonCta: 'Open the special desk →',
     resolvedLabel: '2026 by-elections — called and settled',
     cards: [
       { href: '/en/uk/general-election/', eyebrow: 'General election projection', title: 'U.K. General Election', body: '650-seat projection. Bayesian poll aggregation, 50,000 Monte Carlo simulations, seat-level probabilities.', cta: 'Open projection →' },
@@ -70,7 +74,7 @@ const copy = {
       'Polling aggregation uses a Bayesian BSTS model with region-level adjustments.',
       '50,000 Monte Carlo simulations produce seat distributions and win probabilities.',
       'Commons composition reflects resolved by-elections and current vacancies — not just the 2024 result.',
-      'By-elections are tracked as live race desks; no numbers are published without local data.',
+      'By-elections get dedicated race desks — Clacton runs on its own Monte Carlo engine, with markets shown as external comparison.',
     ],
   },
   fr: {
@@ -88,11 +92,11 @@ const copy = {
     seats: 'sièges',
     compositionLabel: `Les Communes aujourd'hui — ${compTotal} des ${meta.total_seats} sièges GB suivis`,
     byeLabel: 'Partielles',
-    clactonKicker: 'Course en direct · date non fixée',
-    clactonTitle: 'Clacton.',
+    clactonKicker: 'Course en direct · scrutin le 13 août',
+    clactonTitle: 'Farage vs Binface.',
     clactonBody:
-      "Farage a démissionné; un indépendant unique — Count Binface — structure le champ. Pas de baseline partisane, donc pas de projection avant un sondage local. Le desk explique pourquoi.",
-    clactonCta: 'Ouvrir le desk de course →',
+      `Farage rejoue son propre siège face à Count Binface pendant que les grands partis boycottent. Moteur Monte Carlo dédié : Farage ${fmt1(pFarage)} %, Binface ${fmt1(pBinface)} % — avec marchés, cotes et le path to victory de Binface.`,
+    clactonCta: 'Ouvrir le desk spécial →',
     resolvedLabel: 'Partielles 2026 — jugées et réglées',
     cards: [
       { href: '/fr/uk/general-election/', eyebrow: 'Projection de la générale', title: 'Générale britannique', body: 'Projection des 650 sièges. Agrégation bayésienne des sondages, 50 000 simulations Monte Carlo, probabilités par siège.', cta: 'Ouvrir la projection →' },
@@ -106,7 +110,7 @@ const copy = {
       'Agrégation des sondages par modèle bayésien BSTS avec ajustements régionaux.',
       '50 000 simulations Monte Carlo produisent distributions de sièges et probabilités de victoire.',
       'La composition des Communes reflète les partielles résolues et les vacances en cours — pas seulement le résultat 2024.',
-      'Les partielles sont suivies comme desks de course en direct; aucun chiffre publié sans donnée locale.',
+      'Les partielles ont leurs desks dédiés — Clacton tourne sur son propre moteur Monte Carlo, marchés affichés en comparaison externe.',
     ],
   },
   es: {
@@ -124,11 +128,11 @@ const copy = {
     seats: 'escaños',
     compositionLabel: `Los Comunes hoy — ${compTotal} de los ${meta.total_seats} escaños GB seguidos`,
     byeLabel: 'Parciales',
-    clactonKicker: 'Contienda en vivo · fecha sin fijar',
-    clactonTitle: 'Clacton.',
+    clactonKicker: 'Contienda en vivo · votación el 13 de agosto',
+    clactonTitle: 'Farage vs Binface.',
     clactonBody:
-      'Farage renunció; un único independiente — Count Binface — define la contienda. Sin línea de base partidista no hay proyección hasta que exista una encuesta local. El desk explica por qué.',
-    clactonCta: 'Abrir el desk de la contienda →',
+      `Farage disputa su propio escaño contra Count Binface mientras los grandes partidos boicotean. Motor Monte Carlo dedicado: Farage ${fmt1(pFarage)} %, Binface ${fmt1(pBinface)} % — con mercados, cuotas y el path to victory de Binface.`,
+    clactonCta: 'Abrir el desk especial →',
     resolvedLabel: 'Parciales de 2026 — resueltas',
     cards: [
       { href: '/es/uk/general-election/', eyebrow: 'Proyección de las generales', title: 'Generales británicas', body: 'Proyección de 650 escaños. Agregación bayesiana de encuestas, 50 000 simulaciones Monte Carlo, probabilidades por escaño.', cta: 'Abrir la proyección →' },
@@ -142,7 +146,7 @@ const copy = {
       'Agregación de encuestas con un modelo bayesiano BSTS y ajustes regionales.',
       '50 000 simulaciones Monte Carlo producen distribuciones de escaños y probabilidades.',
       'La composición de los Comunes refleja parciales resueltas y vacantes actuales — no solo el resultado de 2024.',
-      'Las parciales se siguen como desks en vivo; no se publican cifras sin datos locales.',
+      'Las parciales tienen desks dedicados — Clacton corre en su propio motor Monte Carlo, con mercados como comparación externa.',
     ],
   },
 }[locale];

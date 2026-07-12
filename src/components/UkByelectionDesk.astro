@@ -1,9 +1,13 @@
 ---
-// Desk de partielle UK — course EN ATTENTE sans projection (convention moteur :
-// aucun nombre tant qu'aucun sondage LOCAL n'existe — cas Clacton : un seul
-// candidat indépendant, donc pas de baseline partisane à projeter).
+// Desk spécial — partielle de Clacton 2026 (Farage vs Count Binface).
+// Page étendue : compte à rebours, snapshot modèle vs marchés, projection
+// Monte Carlo (moteur run_clacton_special_projection.py), Path to Victory,
+// marchés de prédiction, contexte, timeline et sources. Les marchés sont
+// affichés en COMPARAISON — jamais des entrées du modèle.
 import Base from '../layouts/Base.astro';
 import KeepDigging from './KeepDigging.astro';
+import ElectionCountdown from '../islands/ElectionCountdown.tsx';
+import special from '../../web_data/uk-clacton-special/latest.json';
 import {
   ukByelectionAlternates,
   type UkByelectionConfig,
@@ -19,22 +23,106 @@ const { lang, config } = Astro.props;
 const canonical = `https://vote-scope.com${config.paths[lang]}`;
 const alternates = ukByelectionAlternates(config);
 
+const sp = special as any;
+const model = sp.model;
+const meta = sp.meta;
+const markets = sp.markets ?? {};
+
+const fmtPct = (v: number, digits = 1) =>
+  lang === 'en' ? v.toFixed(digits) : v.toFixed(digits).replace('.', ',');
+const fmtProb = (p: number) => fmtPct(p * 100, p * 100 < 10 ? 1 : 0);
+
+// ── Extraction marchés ──────────────────────────────────────────────────────
+const pmEvents = Object.values(markets.polymarket ?? {}) as any[];
+const pmWinner = pmEvents.find((e) => /Winner/i.test(e.title ?? ''));
+const pmSecond = pmEvents.find((e) => /2nd place/i.test(e.title ?? ''));
+const pmBuckets = pmEvents.find((e) => /Vote %/i.test(e.title ?? ''));
+const pmImprove = pmEvents.find((e) => /up his vote share/i.test(e.title ?? ''));
+const pmYes = (event: any, needle: string): number | null => {
+  const m = (event?.markets ?? []).find((x: any) => x.question?.includes(needle));
+  return m ? Number(m.yes) : null;
+};
+const pmFarage = pmYes(pmWinner, 'Nigel Farage');
+const pmBinface = pmYes(pmWinner, 'Count Binface');
+const pmFarage2nd = pmYes(pmSecond, 'Nigel Farage');
+const pmBinface2nd = pmYes(pmSecond, 'Count Binface');
+const pmFarageImproves = pmImprove?.markets?.[0] ? Number(pmImprove.markets[0].yes) : null;
+const kalshiFarage = markets.kalshi?.farage?.last_price ?? null;
+const kalshiBinface = markets.kalshi?.binface?.last_price ?? null;
+const bookies = markets.bookies ?? {};
+const marketsAsOf = (markets.as_of ?? '').slice(0, 16).replace('T', ' ');
+
+const bucketRows = [
+  { key: 'lt10', label: '< 10 %', needle: 'less than 10%' },
+  { key: '10_20', label: '10 – 20 %', needle: '10–20%' },
+  { key: '20_30', label: '20 – 30 %', needle: '20–30%' },
+  { key: '30_40', label: '30 – 40 %', needle: '30–40%' },
+  { key: 'gte40', label: '≥ 40 %', needle: 'at least 40%' },
+].map((b) => ({
+  ...b,
+  model: model.binface_share_buckets?.[b.key] ?? 0,
+  market: pmYes(pmBuckets, b.needle),
+}));
+
+// ── Candidats ───────────────────────────────────────────────────────────────
+const candMeta: Record<string, { name: string; tag_en: string; tag_fr: string; tag_es: string; color: string }> = {
+  farage: { name: 'Nigel Farage', tag_en: 'Reform UK', tag_fr: 'Reform UK', tag_es: 'Reform UK', color: '#12B6CF' },
+  binface: { name: 'Count Binface', tag_en: 'Independent', tag_fr: 'Indépendant', tag_es: 'Independiente', color: '#1a1a1a' },
+  fox: { name: 'Laurence Fox', tag_en: 'Reclaim', tag_fr: 'Reclaim', tag_es: 'Reclaim', color: '#7a2048' },
+  others: { name: '', tag_en: 'Micro-field (10+ candidates)', tag_fr: 'Micro-champ (10+ candidatures)', tag_es: 'Micro-campo (10+ candidaturas)', color: '#9a938a' },
+};
+const candOrder = ['farage', 'binface', 'fox', 'others'];
+
 const copy = {
   en: {
-    kicker: 'U.K. by-election · date not set',
-    headline: `${config.ridingName}.`,
-    dek: 'Nigel Farage resigned the seat he won in 2024. The race shapes up as Farage against a single independent — Count Binface — with no partisan baseline to project from. This desk tracks what is known, and is explicit about what cannot be projected yet.',
-    knownLabel: 'What we know',
-    known: [
-      ['Vacancy', 'Farage resigned on July 7, 2026. The writ has not been moved; no polling day is set.'],
-      ['The field', 'Expected: Nigel Farage (Reform UK) and one independent, Count Binface. No major-party candidacies confirmed.'],
-      ['Why it is hard to model', 'An independent has no 2024 share, no national swing to apply and no transfer profile. The usual baseline-plus-swing machinery only covers one side of the race.'],
+    kicker: 'U.K. by-election special desk · Clacton · 13 August 2026',
+    headline: 'Farage vs Binface.',
+    dek: "Britain's strangest by-election: Farage resigned mid-investigation and is recontesting his own seat; the five major parties are boycotting; the focal opponent is Count Binface. Vote-Scope runs the numbers the circus deserves — a real Monte Carlo forecast, checked against Polymarket, Kalshi and the bookmakers.",
+    countdownKicker: 'Clacton by-election · polling day',
+    snapshotLabel: `Snapshot — model run ${meta.run_date} · markets ${marketsAsOf} UTC`,
+    snapFarage: 'Farage wins (Vote-Scope)',
+    snapBinface: 'Binface wins (Vote-Scope)',
+    snapPmFarage: 'Farage wins (Polymarket)',
+    snapBinfaceShare: 'Binface vote share (model median)',
+    modelLabel: 'The Vote-Scope forecast',
+    modelIntro: `${model.n_sims.toLocaleString('en-GB')} Monte Carlo simulations of voter flows from the 2024 result: how much of his own bloc Farage keeps under investigation, where each boycotting party's orphaned voters go (or whether they stay home), how far the protest vote consolidates behind Binface, and what the media circus pulls in. No local poll exists yet — every parameter is a documented, deliberately wide prior; the model re-centres the moment constituency polling lands.`,
+    modelRange: 'Projected vote share (10th–90th percentile, median marked)',
+    modelCaveat: 'v0 fundamentals model — no local polls yet. Treat the win probabilities as structural, not predictive to the decimal.',
+    pathLabel: 'Path to victory — how could the bin actually win?',
+    pathIntro: `Baseline: Vote-Scope gives Count Binface ${fmtProb(model.p_binface_win)}% — the markets say ${pmBinface != null ? fmtProb(pmBinface) : '—'}%. For the upset, several things must break at once. Conditional win probabilities, from the same simulations:`,
+    pathOutro: 'Verdict: very unlikely — but this is the one election where the improbable is the most fun to watch. If Binface clears 25% while Farage sinks toward 40%, election night gets interesting.',
+    marketsLabel: 'Prediction markets & bookmakers',
+    marketsIntro: 'External comparison only — market prices never feed the model. Binface opened around 500/1 with the bookies and shortened to ~5/1 within days.',
+    thMarket: 'Market', thFarage: 'Farage / Reform', thBinface: 'Count Binface', thNote: 'Note',
+    rowPmWinner: 'Polymarket — winner', rowPmSecond: 'Polymarket — 2nd place', rowKalshi: 'Kalshi — winner', rowBookies: 'Bookmakers (avg odds)',
+    secondNote: pmBinface2nd != null ? `Markets make Binface ${fmtProb(pmBinface2nd)}% to finish second.` : '',
+    bucketLabel: 'Binface vote share — model vs Polymarket buckets',
+    bucketModel: 'Vote-Scope', bucketMarket: 'Polymarket',
+    improveNote: pmFarageImproves != null ? `Polymarket also prices Farage at ${fmtProb(pmFarageImproves)}% to beat his 2024 share (46.2%) — the model agrees, at ${fmtProb(model.p_farage_improves_2024)}%.` : '',
+    ctxLabel: 'Why this by-election exists',
+    ctxBullets: [
+      'Farage resigned on 7 July 2026 amid parliamentary investigations: a £5M payment from Christopher Harborne, possible gifts in kind, alleged Bank of England crypto lobbying, and property declarations — with the £5M also reported to the National Crime Agency.',
+      'By resigning and recontesting, Farage seeks a fresh mandate at a moment of his choosing — a later suspension could still trigger a recall petition and yet another by-election.',
+      'Labour, the Conservatives, the Lib Dems, the Greens and Restore Britain are all boycotting what Kemi Badenoch called a "fake by-election".',
+      'The closest precedent: Haltemprice & Howden 2008 — David Davis resigned to recontest his seat, and the major parties stood aside.',
     ],
-    noProjTitle: 'Why no projection yet',
-    noProjBody: 'Vote-Scope publishes numbers only when they mean something. Until at least one constituency poll of Clacton exists, any figure for a novelty independent would be a guess dressed as a probability. The model rule: national preference polls are context, never voting intention; the independent gets a wide prior from his own electoral history, and it only tightens on local data.',
-    ctxLabel: 'National signal — context only',
-    ctxCaveat: 'This is a national preference question (“who would you prefer to win”), not a poll of Clacton voters. Preference questions systematically flatter protest candidacies. It informs the mood, not the model.',
+    ipsosLabel: 'National mood — context only',
+    ipsosCaveat: 'A national preference question, not a poll of Clacton voters — preference questions flatter protest candidacies. It moves the vibe, not the model.',
     baseLabel: '2024 baseline — the seat Farage vacated',
+    timelineLabel: 'Timeline',
+    timeline: [
+      { date: '2026-07-07', text: 'Farage resigns as MP; the £5M payment is reported to the NCA the same day.' },
+      { date: '2026-07-07', text: 'Major parties vow to boycott within hours.' },
+      { date: '2026-07-08', text: 'Count Binface declares. Bookmakers slash his odds from ~500/1 to ~5/1.' },
+      { date: '2026-07-09', text: 'Ipsos: 33% of Britons would prefer Binface to win, vs 21% for Farage.' },
+      { date: '2026-07-10', text: 'Tendring District Council confirms polling day: 13 August 2026.' },
+      { date: '2026-07-17', text: 'Nominations close — final candidate list.' },
+      { date: '2026-08-13', text: 'Polling day.' },
+    ],
+    sourcesLabel: 'Sources',
+    subscribeTitle: 'Clacton alerts',
+    subscribeBody: 'Model updates, market moves and the final call — in the Vote-Scope newsletter.',
+    subscribeCta: 'Subscribe on Substack →',
     keepDiggingEyebrow: 'Keep digging',
     keepDiggingTitle: 'More from the U.K. Desk.',
     keepDiggingBody: 'The general-election projection, all 650 constituency profiles, and the polling hub.',
@@ -45,20 +133,54 @@ const copy = {
     ],
   },
   fr: {
-    kicker: 'Partielle UK · date non fixée',
-    headline: `${config.ridingName}.`,
-    dek: "Nigel Farage a démissionné du siège gagné en 2024. La course s'annonce comme un duel Farage contre un indépendant unique — Count Binface — sans baseline partisane pour projeter. Ce desk suit ce qui est connu, et dit franchement ce qui ne peut pas encore être projeté.",
-    knownLabel: 'Ce que l’on sait',
-    known: [
-      ['Vacance', 'Farage a démissionné le 7 juillet 2026. Le writ n’est pas déposé; aucune date de scrutin n’est fixée.'],
-      ['Le champ', 'Attendus : Nigel Farage (Reform UK) et un seul indépendant, Count Binface. Aucune candidature des grands partis confirmée.'],
-      ['Pourquoi c’est dur à modéliser', 'Un indépendant n’a ni part 2024, ni swing national applicable, ni profil de report. La mécanique habituelle baseline + swing ne couvre qu’un côté de la course.'],
+    kicker: 'Desk spécial partielle UK · Clacton · 13 août 2026',
+    headline: 'Farage vs Binface.',
+    dek: "La partielle la plus étrange du Royaume-Uni : Farage démissionne en pleine enquête et rejoue son propre siège ; les cinq grands partis boycottent ; l'adversaire focal est Count Binface. Vote-Scope donne au cirque les chiffres qu'il mérite — une vraie projection Monte Carlo, confrontée à Polymarket, Kalshi et aux bookmakers.",
+    countdownKicker: 'Partielle de Clacton · jour du scrutin',
+    snapshotLabel: `Snapshot — run modèle ${meta.run_date} · marchés ${marketsAsOf} UTC`,
+    snapFarage: 'Farage gagne (Vote-Scope)',
+    snapBinface: 'Binface gagne (Vote-Scope)',
+    snapPmFarage: 'Farage gagne (Polymarket)',
+    snapBinfaceShare: 'Part Binface (médiane du modèle)',
+    modelLabel: 'La projection Vote-Scope',
+    modelIntro: `${model.n_sims.toLocaleString('fr-FR')} simulations Monte Carlo des flux d'électeurs depuis le résultat 2024 : quelle part de son bloc Farage retient sous enquête, où vont les électeurs orphelins de chaque parti boycotteur (ou s'ils restent chez eux), jusqu'où le vote protestataire se consolide sur Binface, et ce que le cirque médiatique attire. Aucun sondage local n'existe encore — chaque paramètre est un prior documenté, volontairement large ; le modèle se recentre dès qu'un sondage de circonscription tombe.`,
+    modelRange: 'Parts projetées (10e–90e percentile, médiane marquée)',
+    modelCaveat: 'Modèle fundamentals v0 — pas encore de sondage local. Lisez les probabilités comme structurelles, pas prédictives à la décimale.',
+    pathLabel: 'Path to victory — comment la poubelle pourrait-elle gagner ?',
+    pathIntro: `Point de départ : Vote-Scope donne ${fmtProb(model.p_binface_win)} % à Count Binface — les marchés disent ${pmBinface != null ? fmtProb(pmBinface) : '—'} %. Pour l'exploit, il faut que plusieurs choses cassent en même temps. Probabilités conditionnelles, tirées des mêmes simulations :`,
+    pathOutro: "Verdict : très improbable — mais c'est l'élection où l'improbable est le plus délicieux à regarder. Si Binface franchit 25 % pendant que Farage glisse vers 40 %, la soirée électorale devient intéressante.",
+    marketsLabel: 'Marchés de prédiction & bookmakers',
+    marketsIntro: "Comparaison externe seulement — les prix de marché n'entrent jamais dans le modèle. Binface a ouvert autour de 500/1 chez les bookmakers avant de tomber à ~5/1 en quelques jours.",
+    thMarket: 'Marché', thFarage: 'Farage / Reform', thBinface: 'Count Binface', thNote: 'Note',
+    rowPmWinner: 'Polymarket — vainqueur', rowPmSecond: 'Polymarket — 2e place', rowKalshi: 'Kalshi — vainqueur', rowBookies: 'Bookmakers (cotes moy.)',
+    secondNote: pmBinface2nd != null ? `Les marchés donnent Binface 2e à ${fmtProb(pmBinface2nd)} %.` : '',
+    bucketLabel: 'Part de voix Binface — modèle vs buckets Polymarket',
+    bucketModel: 'Vote-Scope', bucketMarket: 'Polymarket',
+    improveNote: pmFarageImproves != null ? `Polymarket donne aussi Farage à ${fmtProb(pmFarageImproves)} % de battre sa part 2024 (46,2 %) — le modèle est d'accord, à ${fmtProb(model.p_farage_improves_2024)} %.` : '',
+    ctxLabel: 'Pourquoi cette partielle existe',
+    ctxBullets: [
+      "Farage a démissionné le 7 juillet 2026 en pleine enquête parlementaire : paiement de 5 M£ de Christopher Harborne, possibles avantages en nature, allégations de lobbying crypto auprès de la Bank of England, déclarations immobilières — les 5 M£ ayant aussi été signalés à la National Crime Agency.",
+      "En démissionnant pour se représenter, Farage cherche un mandat frais au moment de SON choix — une suspension ultérieure pourrait quand même déclencher une pétition de rappel et une nouvelle partielle.",
+      "Labour, Conservateurs, Lib Dems, Verts et Restore Britain boycottent ce que Kemi Badenoch appelle une « fausse partielle ».",
+      "Le précédent le plus proche : Haltemprice & Howden 2008 — David Davis démissionne pour se représenter, les grands partis s'effacent.",
     ],
-    noProjTitle: 'Pourquoi pas encore de projection',
-    noProjBody: 'Vote-Scope ne publie des chiffres que lorsqu’ils veulent dire quelque chose. Tant qu’il n’existe pas au moins un sondage de circonscription à Clacton, tout chiffre pour un indépendant-surprise serait une devinette déguisée en probabilité. Règle du modèle : les sondages nationaux de préférence sont du contexte, jamais de l’intention de vote; l’indépendant reçoit un prior large tiré de son propre historique électoral, qui ne se resserre que sur données locales.',
-    ctxLabel: 'Signal national — contexte seulement',
-    ctxCaveat: 'C’est une question de préférence nationale (« qui préféreriez-vous voir gagner »), pas un sondage des électeurs de Clacton. Les questions de préférence flattent systématiquement les candidatures de protestation. Ça informe l’humeur, pas le modèle.',
+    ipsosLabel: 'Humeur nationale — contexte seulement',
+    ipsosCaveat: "Question de préférence nationale, pas un sondage des électeurs de Clacton — ces questions flattent les candidatures de protestation. Ça bouge l'ambiance, pas le modèle.",
     baseLabel: 'Baseline 2024 — le siège laissé par Farage',
+    timelineLabel: 'Chronologie',
+    timeline: [
+      { date: '2026-07-07', text: "Farage démissionne ; le paiement de 5 M£ est signalé à la NCA le même jour." },
+      { date: '2026-07-07', text: 'Les grands partis annoncent le boycott en quelques heures.' },
+      { date: '2026-07-08', text: 'Count Binface se déclare. Les bookmakers écrasent ses cotes de ~500/1 à ~5/1.' },
+      { date: '2026-07-09', text: 'Ipsos : 33 % des Britanniques préfèrent une victoire Binface, contre 21 % pour Farage.' },
+      { date: '2026-07-10', text: 'Le Tendring District Council confirme le scrutin : 13 août 2026.' },
+      { date: '2026-07-17', text: 'Clôture des candidatures — liste finale.' },
+      { date: '2026-08-13', text: 'Jour du scrutin.' },
+    ],
+    sourcesLabel: 'Sources',
+    subscribeTitle: 'Alertes Clacton',
+    subscribeBody: "Mises à jour du modèle, mouvements de marché et le call final — dans l'infolettre Vote-Scope.",
+    subscribeCta: "S'abonner sur Substack →",
     keepDiggingEyebrow: 'Continuer à creuser',
     keepDiggingTitle: 'Plus du bureau UK.',
     keepDiggingBody: 'La projection de la générale, les 650 fiches de circonscription et le hub des sondages.',
@@ -69,20 +191,54 @@ const copy = {
     ],
   },
   es: {
-    kicker: 'Parcial del Reino Unido · fecha sin fijar',
-    headline: `${config.ridingName}.`,
-    dek: 'Nigel Farage renunció al escaño ganado en 2024. La contienda se perfila como Farage contra un único independiente — Count Binface — sin línea de base partidista para proyectar. Este desk sigue lo conocido y es explícito sobre lo que aún no puede proyectarse.',
-    knownLabel: 'Lo que se sabe',
-    known: [
-      ['Vacante', 'Farage renunció el 7 de julio de 2026. El writ no se ha presentado; no hay fecha de votación.'],
-      ['Los candidatos', 'Esperados: Nigel Farage (Reform UK) y un único independiente, Count Binface. Sin candidaturas confirmadas de los grandes partidos.'],
-      ['Por qué es difícil de modelar', 'Un independiente no tiene cuota de 2024, ni swing nacional aplicable, ni perfil de transferencias. La maquinaria habitual solo cubre un lado de la contienda.'],
+    kicker: 'Desk especial · parcial de Clacton · 13 de agosto de 2026',
+    headline: 'Farage vs Binface.',
+    dek: 'La parcial más extraña del Reino Unido: Farage renuncia en plena investigación y disputa su propio escaño; los cinco grandes partidos boicotean; el rival focal es Count Binface. Vote-Scope pone los números que el circo merece — una proyección Monte Carlo real, contrastada con Polymarket, Kalshi y las casas de apuestas.',
+    countdownKicker: 'Parcial de Clacton · día de votación',
+    snapshotLabel: `Snapshot — ejecución del modelo ${meta.run_date} · mercados ${marketsAsOf} UTC`,
+    snapFarage: 'Farage gana (Vote-Scope)',
+    snapBinface: 'Binface gana (Vote-Scope)',
+    snapPmFarage: 'Farage gana (Polymarket)',
+    snapBinfaceShare: 'Cuota Binface (mediana del modelo)',
+    modelLabel: 'La proyección de Vote-Scope',
+    modelIntro: `${model.n_sims.toLocaleString('es-ES')} simulaciones Monte Carlo de los flujos de votantes desde el resultado de 2024: cuánto de su bloque retiene Farage bajo investigación, adónde van los votantes huérfanos de cada partido que boicotea (o si se quedan en casa), cuánto se consolida el voto de protesta en Binface, y qué atrae el circo mediático. Aún no existe ninguna encuesta local — cada parámetro es un prior documentado y deliberadamente amplio; el modelo se recentra en cuanto haya encuestas de circunscripción.`,
+    modelRange: 'Cuotas proyectadas (percentil 10–90, mediana marcada)',
+    modelCaveat: 'Modelo fundamentals v0 — sin encuestas locales todavía. Lea las probabilidades como estructurales, no predictivas al decimal.',
+    pathLabel: 'Path to victory — ¿cómo podría ganar el cubo de basura?',
+    pathIntro: `Punto de partida: Vote-Scope da a Count Binface un ${fmtProb(model.p_binface_win)} % — los mercados dicen ${pmBinface != null ? fmtProb(pmBinface) : '—'} %. Para la sorpresa, varias cosas deben romperse a la vez. Probabilidades condicionales, de las mismas simulaciones:`,
+    pathOutro: 'Veredicto: muy improbable — pero es la elección donde lo improbable es más divertido de ver. Si Binface supera el 25 % mientras Farage cae hacia el 40 %, la noche electoral se pone interesante.',
+    marketsLabel: 'Mercados de predicción y casas de apuestas',
+    marketsIntro: 'Solo comparación externa — los precios de mercado nunca alimentan el modelo. Binface abrió alrededor de 500/1 y bajó a ~5/1 en días.',
+    thMarket: 'Mercado', thFarage: 'Farage / Reform', thBinface: 'Count Binface', thNote: 'Nota',
+    rowPmWinner: 'Polymarket — ganador', rowPmSecond: 'Polymarket — 2.º puesto', rowKalshi: 'Kalshi — ganador', rowBookies: 'Casas de apuestas (cuotas)',
+    secondNote: pmBinface2nd != null ? `Los mercados dan a Binface un ${fmtProb(pmBinface2nd)} % de acabar segundo.` : '',
+    bucketLabel: 'Cuota de Binface — modelo vs buckets de Polymarket',
+    bucketModel: 'Vote-Scope', bucketMarket: 'Polymarket',
+    improveNote: pmFarageImproves != null ? `Polymarket también da a Farage un ${fmtProb(pmFarageImproves)} % de superar su cuota de 2024 (46,2 %) — el modelo coincide, con ${fmtProb(model.p_farage_improves_2024)} %.` : '',
+    ctxLabel: 'Por qué existe esta parcial',
+    ctxBullets: [
+      'Farage renunció el 7 de julio de 2026 en plena investigación parlamentaria: un pago de 5 M£ de Christopher Harborne, posibles regalos en especie, presunto lobby cripto ante el Bank of England y declaraciones de propiedades — los 5 M£ también fueron reportados a la National Crime Agency.',
+      'Al renunciar y volver a presentarse, Farage busca un mandato fresco en el momento que ÉL elige — una suspensión posterior aún podría desencadenar una petición de revocatoria y otra parcial.',
+      'Labour, Conservadores, Lib Dems, Verdes y Restore Britain boicotean lo que Kemi Badenoch llama una «parcial falsa».',
+      'El precedente más cercano: Haltemprice & Howden 2008 — David Davis renunció para volver a presentarse y los grandes partidos se apartaron.',
     ],
-    noProjTitle: 'Por qué aún no hay proyección',
-    noProjBody: 'Vote-Scope publica números solo cuando significan algo. Hasta que exista al menos una encuesta de la circunscripción de Clacton, cualquier cifra para un independiente-sorpresa sería una conjetura disfrazada de probabilidad. Regla del modelo: las encuestas nacionales de preferencia son contexto, nunca intención de voto; el independiente recibe un prior amplio de su propio historial electoral, que solo se ajusta con datos locales.',
-    ctxLabel: 'Señal nacional — solo contexto',
-    ctxCaveat: 'Es una pregunta nacional de preferencia («a quién preferiría ver ganar»), no una encuesta de votantes de Clacton. Las preguntas de preferencia favorecen sistemáticamente a las candidaturas de protesta. Informa el ánimo, no el modelo.',
+    ipsosLabel: 'Ánimo nacional — solo contexto',
+    ipsosCaveat: 'Una pregunta nacional de preferencia, no una encuesta de votantes de Clacton — estas preguntas favorecen a las candidaturas de protesta. Mueve el ambiente, no el modelo.',
     baseLabel: 'Línea de base 2024 — el escaño que dejó Farage',
+    timelineLabel: 'Cronología',
+    timeline: [
+      { date: '2026-07-07', text: 'Farage renuncia; el pago de 5 M£ se reporta a la NCA el mismo día.' },
+      { date: '2026-07-07', text: 'Los grandes partidos anuncian el boicot en horas.' },
+      { date: '2026-07-08', text: 'Count Binface se declara. Las casas recortan sus cuotas de ~500/1 a ~5/1.' },
+      { date: '2026-07-09', text: 'Ipsos: el 33 % prefiere una victoria de Binface, frente al 21 % para Farage.' },
+      { date: '2026-07-10', text: 'El Tendring District Council confirma la votación: 13 de agosto de 2026.' },
+      { date: '2026-07-17', text: 'Cierre de candidaturas — lista final.' },
+      { date: '2026-08-13', text: 'Día de votación.' },
+    ],
+    sourcesLabel: 'Fuentes',
+    subscribeTitle: 'Alertas Clacton',
+    subscribeBody: 'Actualizaciones del modelo, movimientos de mercado y el call final — en el boletín de Vote-Scope.',
+    subscribeCta: 'Suscribirse en Substack →',
     keepDiggingEyebrow: 'Seguir cavando',
     keepDiggingTitle: 'Más del desk del Reino Unido.',
     keepDiggingBody: 'La proyección de las generales, las 650 fichas de circunscripción y el hub de encuestas.',
@@ -95,9 +251,21 @@ const copy = {
 }[lang];
 
 const t = copy;
+const scenarioCondKey = lang === 'fr' ? 'condition_fr' : lang === 'es' ? 'condition_es' : 'condition_en';
 const ctxPoll = config.contextPolls[0];
 const ctxQuestion = lang === 'fr' ? ctxPoll.question_fr : lang === 'es' ? ctxPoll.question_es : ctxPoll.question_en;
-const fmtPct = (v: number) => (lang === 'en' ? v.toFixed(1) : v.toFixed(1).replace('.', ','));
+
+const sources = [
+  { label: 'Wikipedia — 2026 Clacton by-election (date, candidats, boycott)', url: 'https://en.wikipedia.org/wiki/2026_Clacton_by-election' },
+  { label: 'BBC News — Clacton by-election to be held 13 August', url: 'https://www.bbc.com/news/articles/c15y85gkkx5o' },
+  { label: 'Ipsos — British public more likely to prefer Count Binface (8–9 July 2026, n=1000)', url: 'https://www.ipsos.com/en-uk/british-public-more-likely-prefer-count-binface-wins-clacton-election-nigel-farage' },
+  { label: 'Polymarket — Clacton by-election Winner', url: 'https://polymarket.com/event/clacton-by-election-winner-20260707143521303' },
+  { label: 'Polymarket — Clacton 2nd place', url: 'https://polymarket.com/event/clacton-by-election-2nd-place-20260707214539733' },
+  { label: 'Polymarket — Count Binface Vote %', url: 'https://polymarket.com/event/clacton-by-election-count-binface-vote-20260708142507718' },
+  { label: 'Kalshi — Clacton by-election winner', url: 'https://kalshi.com/markets/kxclactonbyelection/clacton-byelection-winner' },
+  { label: 'Oddschecker — Clacton by-election odds', url: 'https://www.oddschecker.com/insight/politics/20260708-clacton-by-election-odds-reform-heavy-favourites-to-win-seat' },
+  { label: 'The Independent — Binface odds slashed', url: 'https://www.the-independent.com/news/uk/politics/count-binface-nigel-farage-clacton-by-election-poll-b3012680.html' },
+];
 
 const breadcrumbUk = { en: 'U.K.', fr: 'UK', es: 'Reino Unido' }[lang];
 const jsonLd = [
@@ -107,6 +275,7 @@ const jsonLd = [
     name: config.title[lang].replace(' — Vote-Scope', ''),
     description: config.description[lang],
     headline: t.headline,
+    dateModified: meta.run_date,
     author: { '@type': 'Person', name: 'Kim Leclerc', url: 'https://kimleclerc.ca' },
     publisher: { '@type': 'Organization', name: 'Vote-Scope', url: 'https://vote-scope.com' },
     url: canonical,
@@ -121,6 +290,10 @@ const jsonLd = [
     ],
   },
 ];
+
+// Bornes des barres de fourchette (échelle commune 0–75 %).
+const SCALE_MAX = 75;
+const pc = (v: number) => `${Math.min(100, (v / SCALE_MAX) * 100)}%`;
 ---
 
 <Base
@@ -134,33 +307,159 @@ const jsonLd = [
   jsonLd={jsonLd}
 >
   <article class="ukbye">
+    <div class="container" style="padding-top:28px;">
+      <ElectionCountdown
+        targetDate={config.electionDate}
+        locale={lang}
+        kicker={t.countdownKicker}
+        client:visible
+      />
+    </div>
+
     <header class="ukbye-hero container">
       <p class="ukbye-kicker">{t.kicker}</p>
       <h1>{t.headline}</h1>
       <p class="ukbye-dek">{t.dek}</p>
     </header>
 
-    <section class="container" aria-labelledby="ukbye-known">
-      <p class="ukbye-label" id="ukbye-known">{t.knownLabel}</p>
-      <div class="ukbye-known-grid">
-        {t.known.map(([head, body]) => (
-          <div class="ukbye-card">
-            <strong>{head}</strong>
-            <p>{body}</p>
+    <section class="container" aria-labelledby="ukbye-snap">
+      <p class="ukbye-label" id="ukbye-snap">{t.snapshotLabel}</p>
+      <div class="ukbye-snap-grid">
+        <div class="ukbye-snap" style="--accent:#12B6CF">
+          <strong>{fmtProb(model.p_farage_win)}%</strong>
+          <span>{t.snapFarage}</span>
+        </div>
+        <div class="ukbye-snap" style="--accent:#1a1a1a">
+          <strong>{fmtProb(model.p_binface_win)}%</strong>
+          <span>{t.snapBinface}</span>
+        </div>
+        <div class="ukbye-snap" style="--accent:#5aaa8a">
+          <strong>{pmFarage != null ? `${fmtProb(pmFarage)}%` : '—'}</strong>
+          <span>{t.snapPmFarage}</span>
+        </div>
+        <div class="ukbye-snap" style="--accent:#c8a030">
+          <strong>{fmtPct(model.candidates.binface.share.q50)}%</strong>
+          <span>{t.snapBinfaceShare}</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="container" aria-labelledby="ukbye-model">
+      <p class="ukbye-label" id="ukbye-model">{t.modelLabel}</p>
+      <p class="ukbye-body-text">{t.modelIntro}</p>
+      <p class="ukbye-range-label">{t.modelRange}</p>
+      <div class="ukbye-ranges">
+        {candOrder.map((key) => {
+          const c = model.candidates[key];
+          const m = candMeta[key];
+          const tag = lang === 'fr' ? m.tag_fr : lang === 'es' ? m.tag_es : m.tag_en;
+          return (
+            <div class="ukbye-range-row">
+              <div class="ukbye-range-name">
+                <i style={`background:${m.color}`}></i>
+                <span>{m.name} <small>{tag}</small></span>
+              </div>
+              <div class="ukbye-range-track">
+                <div class="ukbye-range-band" style={`left:${pc(c.share.q10)};width:calc(${pc(c.share.q90)} - ${pc(c.share.q10)});background:${m.color}22;border-color:${m.color}`}></div>
+                <div class="ukbye-range-median" style={`left:${pc(c.share.q50)};background:${m.color}`}></div>
+              </div>
+              <div class="ukbye-range-nums">
+                <strong>{fmtPct(c.share.q50)}%</strong>
+                <small>[{fmtPct(c.share.q10, 0)}–{fmtPct(c.share.q90, 0)}]</small>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <p class="ukbye-ctx-caveat">{t.modelCaveat}</p>
+    </section>
+
+    <section class="container" aria-labelledby="ukbye-path">
+      <p class="ukbye-label" id="ukbye-path">{t.pathLabel}</p>
+      <p class="ukbye-body-text">{t.pathIntro}</p>
+      <div class="ukbye-path-grid">
+        {model.scenarios.map((s: any) => (
+          <div class="ukbye-path-card">
+            <p class="ukbye-path-cond">{s[scenarioCondKey]}</p>
+            <div class="ukbye-path-bar">
+              <div style={`width:${Math.min(100, s.p_binface_win * 100 * 4)}%;`}></div>
+            </div>
+            <p class="ukbye-path-p">
+              p(Binface) = <strong>{fmtProb(s.p_binface_win)}%</strong>
+            </p>
           </div>
         ))}
       </div>
+      <p class="ukbye-body-text ukbye-path-outro">{t.pathOutro}</p>
     </section>
 
-    <section class="container" aria-labelledby="ukbye-noproj">
-      <div class="ukbye-noproj">
-        <p class="ukbye-label" id="ukbye-noproj">{t.noProjTitle}</p>
-        <p>{t.noProjBody}</p>
+    <section class="container" aria-labelledby="ukbye-markets">
+      <p class="ukbye-label" id="ukbye-markets">{t.marketsLabel}</p>
+      <p class="ukbye-body-text">{t.marketsIntro}</p>
+      <div class="ukbye-table-wrap">
+        <table class="ukbye-table">
+          <thead>
+            <tr><th>{t.thMarket}</th><th>{t.thFarage}</th><th>{t.thBinface}</th><th>{t.thNote}</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><a href={pmWinner?.url}>{t.rowPmWinner}</a></td>
+              <td>{pmFarage != null ? `${fmtProb(pmFarage)}%` : '—'}</td>
+              <td>{pmBinface != null ? `${fmtProb(pmBinface)}%` : '—'}</td>
+              <td>{pmWinner?.volume ? `vol. $${Math.round(pmWinner.volume / 1000)}k` : ''}</td>
+            </tr>
+            <tr>
+              <td><a href={pmSecond?.url}>{t.rowPmSecond}</a></td>
+              <td>{pmFarage2nd != null ? `${fmtProb(pmFarage2nd)}%` : '—'}</td>
+              <td>{pmBinface2nd != null ? `${fmtProb(pmBinface2nd)}%` : '—'}</td>
+              <td>{t.secondNote}</td>
+            </tr>
+            <tr>
+              <td><a href={markets.kalshi?.farage?.url}>{t.rowKalshi}</a></td>
+              <td>{kalshiFarage != null ? `${fmtProb(kalshiFarage)}%` : '—'}</td>
+              <td>{kalshiBinface != null ? `${fmtProb(kalshiBinface)}%` : '—'}</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td><a href={bookies.source_url}>{t.rowBookies}</a></td>
+              <td>{bookies.farage_odds ?? '—'}</td>
+              <td>{bookies.binface_odds ?? '—'}</td>
+              <td>{lang === 'fr' ? bookies.note_fr : bookies.note_en}</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
+
+      <p class="ukbye-range-label">{t.bucketLabel}</p>
+      <div class="ukbye-buckets">
+        {bucketRows.map((b) => (
+          <div class="ukbye-bucket-row">
+            <span class="ukbye-bucket-name">{b.label}</span>
+            <div class="ukbye-bucket-track">
+              <div class="ukbye-bucket-model" style={`width:${b.model * 100}%`} title={`${t.bucketModel}: ${fmtProb(b.model)}%`}></div>
+              {b.market != null && (
+                <div class="ukbye-bucket-market" style={`left:${b.market * 100}%`} title={`${t.bucketMarket}: ${fmtProb(b.market)}%`}></div>
+              )}
+            </div>
+            <span class="ukbye-bucket-nums">
+              <strong>{fmtProb(b.model)}%</strong>
+              <small>{b.market != null ? `pm ${fmtProb(b.market)}%` : ''}</small>
+            </span>
+          </div>
+        ))}
+      </div>
+      {t.improveNote && <p class="ukbye-ctx-caveat">{t.improveNote}</p>}
     </section>
 
-    <section class="container" aria-labelledby="ukbye-ctx">
-      <p class="ukbye-label" id="ukbye-ctx">{t.ctxLabel}</p>
+    <section class="container" aria-labelledby="ukbye-ctx2">
+      <p class="ukbye-label" id="ukbye-ctx2">{t.ctxLabel}</p>
+      <ul class="ukbye-ctx-list">
+        {t.ctxBullets.map((b) => <li>{b}</li>)}
+      </ul>
+    </section>
+
+    <section class="container" aria-labelledby="ukbye-ipsos">
+      <p class="ukbye-label" id="ukbye-ipsos">{t.ipsosLabel}</p>
       <div class="ukbye-ctx-card">
         <p class="ukbye-ctx-question">{ctxQuestion}</p>
         <div class="ukbye-ctx-bars">
@@ -177,7 +476,7 @@ const jsonLd = [
         <p class="ukbye-ctx-meta">
           {ctxPoll.firm} · {ctxPoll.field_dates_label[lang]} · n={ctxPoll.sample_size}
         </p>
-        <p class="ukbye-ctx-caveat">{t.ctxCaveat}</p>
+        <p class="ukbye-ctx-caveat">{t.ipsosCaveat}</p>
       </div>
     </section>
 
@@ -205,6 +504,37 @@ const jsonLd = [
       </p>
     </section>
 
+    <section class="container" aria-labelledby="ukbye-timeline">
+      <p class="ukbye-label" id="ukbye-timeline">{t.timelineLabel}</p>
+      <ol class="ukbye-timeline">
+        {t.timeline.map((e) => (
+          <li>
+            <span class="ukbye-tl-date">{e.date}</span>
+            <span class="ukbye-tl-text">{e.text}</span>
+          </li>
+        ))}
+      </ol>
+    </section>
+
+    <section class="container">
+      <div class="ukbye-subscribe">
+        <div>
+          <p class="ukbye-label" style="margin-top:0;">{t.subscribeTitle}</p>
+          <p class="ukbye-body-text" style="margin-top:6px;">{t.subscribeBody}</p>
+        </div>
+        <a class="ukbye-subscribe-cta" href="https://leclercswarroom.substack.com/" rel="noopener">{t.subscribeCta}</a>
+      </div>
+    </section>
+
+    <section class="container" aria-labelledby="ukbye-sources">
+      <p class="ukbye-label" id="ukbye-sources">{t.sourcesLabel}</p>
+      <ol class="ukbye-sources">
+        {sources.map((s) => (
+          <li><a href={s.url} rel="noopener">{s.label}</a></li>
+        ))}
+      </ol>
+    </section>
+
     <KeepDigging
       eyebrow={t.keepDiggingEyebrow}
       title={t.keepDiggingTitle}
@@ -216,8 +546,8 @@ const jsonLd = [
 
 <style>
   .ukbye { padding-bottom: 64px; }
-  .ukbye .container { max-width: 880px; margin-inline: auto; padding-inline: 1.5rem; }
-  .ukbye-hero { padding-top: 56px; }
+  .ukbye .container { max-width: 920px; margin-inline: auto; padding-inline: 1.5rem; }
+  .ukbye-hero { padding-top: 40px; }
   .ukbye-kicker {
     font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em;
     text-transform: uppercase; color: var(--ink-3);
@@ -226,17 +556,61 @@ const jsonLd = [
     margin-top: 10px; font-family: var(--serif); font-weight: 420;
     font-size: clamp(42px, 7vw, 76px); letter-spacing: -0.02em; line-height: 0.98;
   }
-  .ukbye-dek { margin-top: 16px; max-width: 60ch; color: var(--ink-2); line-height: 1.6; font-size: 17px; }
+  .ukbye-dek { margin-top: 16px; max-width: 64ch; color: var(--ink-2); line-height: 1.6; font-size: 17px; }
   .ukbye-label {
     margin-top: 48px; font-family: var(--mono); font-size: 11px;
     letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-3);
   }
-  .ukbye-known-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 14px; }
-  .ukbye-card { border: 1px solid var(--rule); border-radius: 6px; background: var(--card); padding: 18px; }
-  .ukbye-card strong { font-family: var(--serif); font-size: 20px; font-weight: 430; }
-  .ukbye-card p { margin-top: 8px; color: var(--ink-2); line-height: 1.55; font-size: 14px; }
-  .ukbye-noproj { border-left: 3px solid var(--ink); padding: 4px 0 4px 18px; margin-top: 8px; }
-  .ukbye-noproj p:not(.ukbye-label) { margin-top: 10px; color: var(--ink-2); line-height: 1.65; max-width: 68ch; }
+  .ukbye-body-text { margin-top: 10px; max-width: 70ch; color: var(--ink-2); line-height: 1.65; }
+
+  .ukbye-snap-grid { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 14px; margin-top: 14px; }
+  .ukbye-snap {
+    border: 1px solid var(--rule); border-top: 3px solid var(--accent);
+    border-radius: 4px; background: var(--card); padding: 16px; display: grid; gap: 4px;
+  }
+  .ukbye-snap strong { font-family: var(--serif); font-size: 34px; font-weight: 430; letter-spacing: -0.01em; }
+  .ukbye-snap span { font-family: var(--mono); font-size: 11px; color: var(--ink-2); line-height: 1.4; }
+
+  .ukbye-range-label { margin-top: 22px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); }
+  .ukbye-ranges { margin-top: 12px; display: grid; gap: 12px; }
+  .ukbye-range-row { display: grid; grid-template-columns: 220px 1fr 110px; gap: 12px; align-items: center; }
+  .ukbye-range-name { display: flex; align-items: center; gap: 8px; font-size: 14px; }
+  .ukbye-range-name i { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+  .ukbye-range-name small { color: var(--ink-3); display: block; font-size: 11px; }
+  .ukbye-range-track { position: relative; height: 22px; background: var(--paper-3); border-radius: 3px; }
+  .ukbye-range-band { position: absolute; top: 3px; bottom: 3px; border-radius: 3px; border: 1px solid; }
+  .ukbye-range-median { position: absolute; top: 0; bottom: 0; width: 3px; border-radius: 2px; }
+  .ukbye-range-nums { text-align: right; font-family: var(--mono); font-size: 13px; }
+  .ukbye-range-nums small { display: block; color: var(--ink-3); font-size: 11px; }
+
+  .ukbye-path-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 14px; margin-top: 14px; }
+  .ukbye-path-card { border: 1px solid var(--rule); border-radius: 6px; background: var(--card); padding: 16px; }
+  .ukbye-path-cond { font-size: 14px; color: var(--ink); line-height: 1.5; min-height: 42px; }
+  .ukbye-path-bar { margin-top: 10px; height: 10px; background: var(--paper-3); border-radius: 3px; overflow: hidden; }
+  .ukbye-path-bar div { height: 100%; background: var(--ink); }
+  .ukbye-path-p { margin-top: 8px; font-family: var(--mono); font-size: 12px; color: var(--ink-2); }
+  .ukbye-path-outro { border-left: 3px solid var(--ink); padding-left: 14px; margin-top: 18px; font-style: italic; }
+
+  .ukbye-table-wrap { overflow-x: auto; margin-top: 14px; }
+  .ukbye-table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 560px; }
+  .ukbye-table th, .ukbye-table td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--rule-2); }
+  .ukbye-table th { font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); }
+  .ukbye-table td:nth-child(2), .ukbye-table td:nth-child(3) { font-family: var(--mono); }
+  .ukbye-table a { color: inherit; }
+  .ukbye-table td:nth-child(4) { color: var(--ink-3); font-size: 12px; }
+
+  .ukbye-buckets { margin-top: 12px; display: grid; gap: 8px; }
+  .ukbye-bucket-row { display: grid; grid-template-columns: 90px 1fr 120px; gap: 10px; align-items: center; }
+  .ukbye-bucket-name { font-family: var(--mono); font-size: 12px; color: var(--ink-2); }
+  .ukbye-bucket-track { position: relative; height: 14px; background: var(--paper-3); border-radius: 3px; }
+  .ukbye-bucket-model { height: 100%; background: var(--ink); border-radius: 3px; opacity: 0.85; }
+  .ukbye-bucket-market { position: absolute; top: -3px; bottom: -3px; width: 3px; background: #c94040; border-radius: 2px; }
+  .ukbye-bucket-nums { font-family: var(--mono); font-size: 12px; }
+  .ukbye-bucket-nums small { color: #c94040; margin-left: 6px; }
+
+  .ukbye-ctx-list { margin-top: 12px; padding-left: 18px; display: grid; gap: 10px; max-width: 74ch; }
+  .ukbye-ctx-list li { color: var(--ink-2); line-height: 1.6; }
+
   .ukbye-ctx-card { border: 1px solid var(--rule); border-radius: 6px; background: var(--card); padding: 20px; margin-top: 14px; }
   .ukbye-ctx-question { font-family: var(--serif); font-size: 19px; font-weight: 430; line-height: 1.25; }
   .ukbye-ctx-bars { margin-top: 16px; display: grid; gap: 10px; }
@@ -248,8 +622,9 @@ const jsonLd = [
   .ukbye-ctx-meta { margin-top: 12px; font-family: var(--mono); font-size: 11px; color: var(--ink-3); }
   .ukbye-ctx-caveat {
     margin-top: 10px; padding: 10px 12px; border: 1px dashed var(--rule);
-    border-radius: 4px; font-size: 13px; color: var(--ink-2); line-height: 1.5;
+    border-radius: 4px; font-size: 13px; color: var(--ink-2); line-height: 1.5; max-width: 74ch;
   }
+
   .ukbye-breakdown-bar { display: flex; height: 18px; border-radius: 3px; overflow: hidden; margin-top: 14px; }
   .ukbye-vote-grid { margin-top: 14px; display: grid; gap: 8px; }
   .ukbye-vote-row { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--ink-2); }
@@ -257,8 +632,34 @@ const jsonLd = [
   .ukbye-vote-dot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
   .ukbye-vote-party { flex: 1; }
   .ukbye-check { color: var(--ink); }
-  @media (max-width: 720px) {
-    .ukbye-known-grid { grid-template-columns: 1fr; }
+
+  .ukbye-timeline { margin-top: 14px; padding: 0; list-style: none; border-left: 2px solid var(--rule); }
+  .ukbye-timeline li { position: relative; padding: 0 0 16px 20px; }
+  .ukbye-timeline li::before {
+    content: ''; position: absolute; left: -6px; top: 5px;
+    width: 10px; height: 10px; border-radius: 50%; background: var(--ink); border: 2px solid var(--paper-3);
+  }
+  .ukbye-tl-date { font-family: var(--mono); font-size: 11px; color: var(--ink-3); display: block; }
+  .ukbye-tl-text { color: var(--ink-2); line-height: 1.5; font-size: 14px; }
+
+  .ukbye-subscribe {
+    margin-top: 24px; display: flex; align-items: center; justify-content: space-between;
+    gap: 20px; border: 1px solid var(--rule); border-radius: 6px; background: var(--card); padding: 20px 24px;
+  }
+  .ukbye-subscribe-cta {
+    flex: none; display: inline-flex; align-items: center; min-height: 42px;
+    padding: 11px 15px; border-radius: 3px; background: var(--ink); color: var(--paper-3);
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; text-decoration: none;
+  }
+  .ukbye-sources { margin-top: 12px; padding-left: 18px; display: grid; gap: 6px; }
+  .ukbye-sources li { font-size: 13px; color: var(--ink-2); }
+  .ukbye-sources a { color: inherit; }
+
+  @media (max-width: 780px) {
+    .ukbye-snap-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .ukbye-path-grid { grid-template-columns: 1fr; }
+    .ukbye-range-row { grid-template-columns: 130px 1fr 90px; }
     .ukbye-ctx-row { grid-template-columns: 104px 1fr 40px; }
+    .ukbye-subscribe { flex-direction: column; align-items: flex-start; }
   }
 </style>
