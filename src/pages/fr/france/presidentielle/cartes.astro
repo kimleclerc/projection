@@ -1,0 +1,31 @@
+---
+import EditorialLayout from '../../../../layouts/EditorialLayout.astro';
+import FrancePresidentialMaps2022 from '../../../../components/FrancePresidentialMaps2022.astro';
+
+const canonical = 'https://vote-scope.com/fr/france/presidentielle/cartes/';
+---
+<EditorialLayout
+  title="Cartes de l'élection présidentielle française 2022 par circonscription — résultats des deux tours, Vote-Scope"
+  description="La présidentielle française 2022 circonscription par circonscription : bloc et candidat en tête au premier tour, duel Macron / Le Pen au second tour. 566 circonscriptions, résultats officiels du ministère de l'Intérieur."
+  canonical={canonical}
+  lang="fr"
+  currentPage="france"
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={{
+    fr: canonical,
+    en: 'https://vote-scope.com/en/france/presidential/maps/',
+    es: 'https://vote-scope.com/es/france/presidencial/mapas/',
+  }}
+  jsonLd={[
+    {
+      '@context': 'https://schema.org',
+      '@type': 'CollectionPage',
+      name: 'Cartes de la présidentielle française 2022 par circonscription',
+      url: canonical,
+      inLanguage: 'fr',
+      isPartOf: { '@type': 'WebSite', name: 'Vote-Scope', url: 'https://vote-scope.com/' },
+    },
+  ]}
+>
+  <FrancePresidentialMaps2022 locale="fr" />
+</EditorialLayout>

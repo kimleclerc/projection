@@ -37,6 +37,15 @@ interface Props {
   /** clé de la propriété GeoJSON qui matche `riding_id` (défaut 'FEDNUM') */
   idProp?: string;
   baselineYear?: number;
+  /** 'winner' (défaut) = remplissage par parti/bloc gagnant, comportement historique.
+   *  'heat' = dégradé séquentiel d'une seule couleur selon `vote_mean[heatKey]`. */
+  mode?: 'winner' | 'heat';
+  /** Requis en mode 'heat' : clé dans `projection.vote_mean` à cartographier. */
+  heatKey?: string;
+  /** Requis en mode 'heat' : couleur de base du dégradé. */
+  heatColor?: string;
+  /** Borne haute de l'échelle en mode 'heat' (défaut = max observé sur `heatKey`). */
+  heatMax?: number;
 }
 
 interface LegendItem {
@@ -187,6 +196,101 @@ function buildAriaLabel(
     : `${name}: ${winnerLabel} (${pct}% probability)`;
 }
 
+// ── Mode 'heat' : dégradé séquentiel mono-couleur ─────────────────────────
+// fillOpacity varie linéairement de 0.12 (0 %) à 0.92 (heatMax), même formule
+// pour le remplissage des circonscriptions et les graduations de la légende.
+const HEAT_OPACITY_MIN = 0.12;
+const HEAT_OPACITY_MAX = 0.92;
+
+function heatOpacity(value: number, max: number): number {
+  if (!(max > 0)) return HEAT_OPACITY_MIN;
+  const t = Math.max(0, Math.min(1, value / max));
+  return HEAT_OPACITY_MIN + t * (HEAT_OPACITY_MAX - HEAT_OPACITY_MIN);
+}
+
+function hexToRgba(hex: string, alpha: number): string {
+  const m = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(hex.trim());
+  if (!m) return hex;
+  let h = m[1];
+  if (h.length === 3) {
+    h = h
+      .split('')
+      .map((c) => c + c)
+      .join('');
+  }
+  const r = parseInt(h.slice(0, 2), 16);
+  const g = parseInt(h.slice(2, 4), 16);
+  const b = parseInt(h.slice(4, 6), 16);
+  return `rgba(${r},${g},${b},${alpha})`;
+}
+
+const fmtPct1 = (v: number, locale: 'en' | 'fr') =>
+  `${v.toFixed(1).replace('.', locale === 'fr' ? ',' : '.')}%`;
+
+function buildHeatPopupHtml(
+  riding: RidingFull,
+  parties: MapParty[],
+  locale: 'en' | 'fr',
+  heatKey: string,
+  heatColor: string,
+): string {
+  const partyByKey = new Map(parties.map((p) => [p.key, p]));
+  const labelOf = (key: string) =>
+    partyByKey.get(key)?.[locale === 'fr' ? 'label_fr' : 'label_en'] ?? key;
+  const colorOf = (key: string) => partyByKey.get(key)?.color ?? '#888';
+
+  const name = locale === 'fr' ? riding.name_fr : riding.name_en;
+  const heatValue = riding.projection.vote_mean[heatKey] ?? 0;
+
+  const others = Object.entries(riding.projection.vote_mean)
+    .filter(([k, v]) => k !== heatKey && v >= 0.5)
+    .sort((a, b) => b[1] - a[1]);
+
+  const t = {
+    otherKeys: locale === 'fr' ? 'Autres' : 'Others',
+  };
+
+  const otherRows = others
+    .map(
+      ([k, v]) =>
+        `<div class="rm-pop-row"><span style="color:${colorOf(k)};font-weight:500;">${escapeHtml(labelOf(k))}</span><span class="rm-pop-num">${clampPct(v).toFixed(1)}%</span></div>`,
+    )
+    .join('');
+
+  const provinceTag = riding.province
+    ? `<span class="rm-pop-province">${escapeHtml(riding.province)}</span>`
+    : '';
+
+  return `
+    <div class="rm-pop">
+      <div class="rm-pop-head">
+        <h3 class="rm-pop-title">${escapeHtml(name)}</h3>
+        ${provinceTag}
+      </div>
+      <div class="rm-pop-heat-big" style="color:${heatColor};">
+        <span class="rm-pop-heat-label">${escapeHtml(labelOf(heatKey))}</span>
+        <span class="rm-pop-heat-value">${fmtPct1(clampPct(heatValue), locale)}</span>
+      </div>
+      <div class="rm-pop-eyebrow">${escapeHtml(t.otherKeys)}</div>
+      ${otherRows}
+    </div>`;
+}
+
+function buildHeatAriaLabel(
+  riding: RidingFull,
+  parties: MapParty[],
+  locale: 'en' | 'fr',
+  heatKey: string,
+): string {
+  const name = locale === 'fr' ? riding.name_fr : riding.name_en;
+  const partyByKey = new Map(parties.map((p) => [p.key, p]));
+  const label =
+    partyByKey.get(heatKey)?.[locale === 'fr' ? 'label_fr' : 'label_en'] ??
+    heatKey;
+  const value = fmtPct1(clampPct(riding.projection.vote_mean[heatKey] ?? 0), locale);
+  return locale === 'fr' ? `${name} : ${label} ${value}` : `${name}: ${label} ${value}`;
+}
+
 export default function RidingsMap({
   geoUrl,
   ridings,
@@ -196,6 +300,10 @@ export default function RidingsMap({
   zoom,
   idProp,
   baselineYear = 2025,
+  mode = 'winner',
+  heatKey,
+  heatColor,
+  heatMax,
 }: Props) {
   const mapRef = useRef<HTMLDivElement>(null);
   const [error, setError] = useState<string | null>(null);
@@ -233,6 +341,17 @@ export default function RidingsMap({
     });
   }
 
+  // Mode 'heat' : borne haute + 4 graduations de légende (0 → heatMax).
+  const heatMaxResolved =
+    mode === 'heat'
+      ? (heatMax ??
+        Math.max(0, ...ridings.map((r) => r.projection.vote_mean[heatKey ?? ''] ?? 0)))
+      : 0;
+  const heatStops =
+    mode === 'heat'
+      ? [0, heatMaxResolved / 3, (2 * heatMaxResolved) / 3, heatMaxResolved]
+      : [];
+
   useEffect(() => {
     let cancelled = false;
     let mapInstance: any = null;
@@ -258,6 +377,9 @@ export default function RidingsMap({
 .rm-pop-key { color: var(--ink-2, #555); }
 .rm-pop-num { font-weight: 500; color: var(--ink, #1a1a1a); font-variant-numeric: tabular-nums; }
 .rm-pop-sep { height: 1px; background: var(--rule, #e5e5e0); margin: 8px 0 4px; }
+.rm-pop-heat-big { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 6px; }
+.rm-pop-heat-label { font-family: var(--serif, Georgia, serif); font-size: 15px; font-weight: 500; }
+.rm-pop-heat-value { font-size: 22px; font-weight: 600; font-variant-numeric: tabular-nums; }
 `;
       document.head.appendChild(style);
     }
@@ -337,6 +459,15 @@ export default function RidingsMap({
           style(feature: any) {
             const id = String(feature?.properties?.[prop] ?? '');
             const riding = ridingById.get(id);
+            if (mode === 'heat') {
+              const value = riding ? riding.projection.vote_mean[heatKey ?? ''] ?? 0 : 0;
+              return {
+                fillColor: heatColor ?? '#888',
+                color: '#fff',
+                weight: 0.4,
+                fillOpacity: riding ? heatOpacity(value, heatMaxResolved) : HEAT_OPACITY_MIN,
+              };
+            }
             let fillColor = '#bbb';
             if (
               riding &&
@@ -357,6 +488,34 @@ export default function RidingsMap({
             const id = String(feature?.properties?.[prop] ?? '');
             const riding = ridingById.get(id);
             if (!riding) return;
+
+            if (mode === 'heat' && heatKey) {
+              layer.bindPopup(
+                buildHeatPopupHtml(riding, parties, locale, heatKey, heatColor ?? '#888'),
+                { maxWidth: 320, className: 'rm-popup' },
+              );
+              const partyByKey = new Map(parties.map((p) => [p.key, p]));
+              const heatLabel =
+                partyByKey.get(heatKey)?.[locale === 'fr' ? 'label_fr' : 'label_en'] ??
+                heatKey;
+              const heatValueStr = fmtPct1(
+                clampPct(riding.projection.vote_mean[heatKey] ?? 0),
+                locale,
+              );
+              const name = locale === 'fr' ? riding.name_fr : riding.name_en;
+              layer.bindTooltip(
+                `<strong>${escapeHtml(name)}</strong><br>${escapeHtml(String(heatLabel))} : ${heatValueStr}`,
+                { sticky: true, direction: 'top' },
+              );
+              const el = layer.getElement?.();
+              if (el && el.setAttribute) {
+                el.setAttribute('aria-label', buildHeatAriaLabel(riding, parties, locale, heatKey));
+                el.setAttribute('role', 'img');
+                el.setAttribute('tabindex', '-1');
+              }
+              return;
+            }
+
             layer.bindPopup(buildPopupHtml(riding, parties, locale, baselineYear), {
               maxWidth: 320,
               className: 'rm-popup',
@@ -414,7 +573,20 @@ export default function RidingsMap({
         }
       }
     };
-  }, [geoUrl, ridings, parties, locale, center, zoom, idProp, baselineYear]);
+  }, [
+    geoUrl,
+    ridings,
+    parties,
+    locale,
+    center,
+    zoom,
+    idProp,
+    baselineYear,
+    mode,
+    heatKey,
+    heatColor,
+    heatMaxResolved,
+  ]);
 
   const hint =
     locale === 'fr'
@@ -453,31 +625,51 @@ export default function RidingsMap({
           </div>
         )}
       </div>
-      <ul
-        class="pe-legend"
-        style="list-style:none;padding:0;margin:18px 0 0;display:flex;flex-wrap:wrap;gap:10px 18px;font-family:var(--mono,monospace);font-size:12px;"
-      >
-        {legendItems.map((item) => (
-          <li
-            key={item.key}
-            style="display:inline-flex;align-items:center;gap:8px;"
+      {mode === 'heat' ? (
+        <div
+          class="pe-heat-legend"
+          style="margin:18px 0 0;font-family:var(--mono,monospace);font-size:12px;max-width:360px;"
+        >
+          <div
+            class="pe-heat-gradient"
+            style={`height:10px;border-radius:3px;background:linear-gradient(to right, ${hexToRgba(heatColor ?? '#888', HEAT_OPACITY_MIN)}, ${hexToRgba(heatColor ?? '#888', HEAT_OPACITY_MAX)});`}
+          />
+          <div
+            class="pe-heat-ticks"
+            style="display:flex;justify-content:space-between;margin-top:6px;color:var(--ink-3,#888);"
           >
-            <span
-              class="pe-legend-swatch"
-              style={`display:inline-block;width:12px;height:12px;border-radius:3px;background:${item.color};`}
-            />
-            <span class="pe-legend-name" style="color:var(--ink-2,#333);">
-              {locale === 'fr' ? item.label_fr : item.label_en}
-            </span>
-            <span
-              class="pe-legend-value"
-              style="color:var(--ink-3,#888);margin-left:4px;"
+            {heatStops.map((v, i) => (
+              <span key={i}>{fmtPct1(v, locale)}</span>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <ul
+          class="pe-legend"
+          style="list-style:none;padding:0;margin:18px 0 0;display:flex;flex-wrap:wrap;gap:10px 18px;font-family:var(--mono,monospace);font-size:12px;"
+        >
+          {legendItems.map((item) => (
+            <li
+              key={item.key}
+              style="display:inline-flex;align-items:center;gap:8px;"
             >
-              {item.seats}
-            </span>
-          </li>
-        ))}
-      </ul>
+              <span
+                class="pe-legend-swatch"
+                style={`display:inline-block;width:12px;height:12px;border-radius:3px;background:${item.color};`}
+              />
+              <span class="pe-legend-name" style="color:var(--ink-2,#333);">
+                {locale === 'fr' ? item.label_fr : item.label_en}
+              </span>
+              <span
+                class="pe-legend-value"
+                style="color:var(--ink-3,#888);margin-left:4px;"
+              >
+                {item.seats}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }

@@ -54,6 +54,29 @@ const legCopy = {
   },
 }[locale];
 
+// Cartes 2022 — teaser vers les résultats réels par circonscription.
+const mapsHref = { fr: '/fr/france/presidentielle/cartes', en: '/en/france/presidential/maps', es: '/es/france/presidencial/mapas' }[locale];
+const mapsCopy = {
+  fr: {
+    eyebrow: 'Résultats officiels 2022',
+    title: 'La carte de 2022, circonscription par circonscription',
+    body: 'Bloc et candidat en tête au premier tour, duel Macron / Le Pen au second : les 566 circonscriptions, résultats réels du ministère de l’Intérieur.',
+    cta: 'Voir la carte',
+  },
+  en: {
+    eyebrow: 'Official 2022 results',
+    title: 'The 2022 map, constituency by constituency',
+    body: 'Leading bloc and leading candidate in round one, the Macron / Le Pen runoff in round two: all 566 constituencies, actual Ministry of the Interior results.',
+    cta: 'See the map',
+  },
+  es: {
+    eyebrow: 'Resultados oficiales de 2022',
+    title: 'El mapa de 2022, circunscripción por circunscripción',
+    body: 'Bloque y candidato en cabeza en la primera vuelta, el duelo Macron / Le Pen en la segunda: las 566 circunscripciones, resultados reales del ministerio del Interior.',
+    cta: 'Ver el mapa',
+  },
+}[locale];
+
 // Barrage Index — carte promo live vers l'instrument (web_data/fr-barrage).
 const bfi = (barrageLatest as any).bfi ?? {};
 const barrageHref = `/${locale}/france/indexes/barrage/`;
@@ -397,6 +420,16 @@ const C = COPY[locale];
       <h3 style="margin:0.25rem 0;">{legCopy.title}</h3>
       <p>{legCopy.body}</p>
       <footer style="margin-top:0.75rem;"><span class="cta-link">{legCopy.cta} →</span></footer>
+    </a>
+  </section>
+
+  <!-- CARTES 2022 (résultats réels par circonscription) -->
+  <section class="fr-section container" aria-label={mapsCopy.eyebrow}>
+    <a class="note-card" href={mapsHref} style="display:block;text-decoration:none;color:inherit;border-left:4px solid var(--bloc-centre, #b7860f);">
+      <p class="eyebrow">{mapsCopy.eyebrow}</p>
+      <h3 style="margin:0.25rem 0;">{mapsCopy.title}</h3>
+      <p>{mapsCopy.body}</p>
+      <footer style="margin-top:0.75rem;"><span class="cta-link">{mapsCopy.cta} →</span></footer>
     </a>
   </section>
 

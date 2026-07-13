@@ -1,0 +1,31 @@
+---
+import EditorialLayout from '../../../../layouts/EditorialLayout.astro';
+import FrancePresidentialMaps2022 from '../../../../components/FrancePresidentialMaps2022.astro';
+
+const canonical = 'https://vote-scope.com/en/france/presidential/maps/';
+---
+<EditorialLayout
+  title="Maps of the 2022 French presidential election by constituency — both rounds' results, Vote-Scope"
+  description="The 2022 French presidential election, constituency by constituency: leading bloc and leading candidate in round one, the Macron / Le Pen runoff in round two. 566 constituencies, official Ministry of the Interior results."
+  canonical={canonical}
+  lang="en"
+  currentPage="france"
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={{
+    en: canonical,
+    fr: 'https://vote-scope.com/fr/france/presidentielle/cartes/',
+    es: 'https://vote-scope.com/es/france/presidencial/mapas/',
+  }}
+  jsonLd={[
+    {
+      '@context': 'https://schema.org',
+      '@type': 'CollectionPage',
+      name: 'Maps of the 2022 French presidential election by constituency',
+      url: canonical,
+      inLanguage: 'en',
+      isPartOf: { '@type': 'WebSite', name: 'Vote-Scope', url: 'https://vote-scope.com/' },
+    },
+  ]}
+>
+  <FrancePresidentialMaps2022 locale="en" />
+</EditorialLayout>

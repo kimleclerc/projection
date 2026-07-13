@@ -1,0 +1,31 @@
+---
+import EditorialLayout from '../../../../layouts/EditorialLayout.astro';
+import FrancePresidentialMaps2022 from '../../../../components/FrancePresidentialMaps2022.astro';
+
+const canonical = 'https://vote-scope.com/es/france/presidencial/mapas/';
+---
+<EditorialLayout
+  title="Mapas de la elección presidencial francesa de 2022 por circunscripción — resultados de las dos vueltas, Vote-Scope"
+  description="La presidencial francesa de 2022, circunscripción por circunscripción: bloque y candidato en cabeza en la primera vuelta, el duelo Macron / Le Pen en la segunda. 566 circunscripciones, resultados oficiales del ministerio del Interior."
+  canonical={canonical}
+  lang="es"
+  currentPage="france"
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={{
+    es: canonical,
+    fr: 'https://vote-scope.com/fr/france/presidentielle/cartes/',
+    en: 'https://vote-scope.com/en/france/presidential/maps/',
+  }}
+  jsonLd={[
+    {
+      '@context': 'https://schema.org',
+      '@type': 'CollectionPage',
+      name: 'Mapas de la presidencial francesa de 2022 por circunscripción',
+      url: canonical,
+      inLanguage: 'es',
+      isPartOf: { '@type': 'WebSite', name: 'Vote-Scope', url: 'https://vote-scope.com/' },
+    },
+  ]}
+>
+  <FrancePresidentialMaps2022 locale="es" />
+</EditorialLayout>

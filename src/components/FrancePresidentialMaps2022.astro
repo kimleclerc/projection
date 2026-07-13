@@ -1,0 +1,97 @@
+---
+// Cartes présidentielle française 2022 par circonscription — résultats
+// RÉELS du ministère de l'Intérieur (pas une projection). Composant partagé
+// fr/en/es (pattern FranceLegislativeDesk : logique + markup une fois,
+// langue en prop).
+import fs from 'node:fs';
+import path from 'node:path';
+import PresidentialMaps from '../islands/PresidentialMaps.tsx';
+import {
+  FR_PRES_2022_META,
+  BLOC_PARTIES,
+  CANDIDATE_PARTIES,
+  ROUND2_PARTIES,
+  buildRound1BlocRidings,
+  buildRound1CandidateRidings,
+  buildRound2Ridings,
+} from '../lib/fr-pres-geo';
+
+type Locale = 'fr' | 'en' | 'es';
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+
+const blocRidings = buildRound1BlocRidings();
+const candidateRidings = buildRound1CandidateRidings();
+const round2Ridings = buildRound2Ridings();
+
+const geojsonPath = path.resolve(process.cwd(), 'web_data/france-legislative/ridings.geojson');
+const hasGeometry = fs.existsSync(geojsonPath) && blocRidings.length > 0;
+
+const franceHref = { fr: '/fr/france', en: '/en/france', es: '/es/france' }[locale];
+
+const copy = {
+  fr: {
+    eyebrow: 'Index des cartes · Présidentielle française',
+    title: "Les résultats de la présidentielle 2022, circonscription par circonscription.",
+    lede: '566 circonscriptions législatives, deux tours : bloc et candidat en tête au premier tour, duel Macron / Le Pen au second. Cliquez une couleur pour changer de vue.',
+    factReal: 'Ce sont les RÉSULTATS RÉELS du 1er et du 2d tour 2022 (ministère de l’Intérieur) — pas une projection pour 2027.',
+    overseas: 'Les 11 circonscriptions des Français de l’étranger n’ont pas de territoire cartographiable : absentes de la carte.',
+    deskCta: 'Voir la projection 2027 du desk présidentiel',
+  },
+  en: {
+    eyebrow: 'Map index · French presidential election',
+    title: 'The 2022 French presidential results, constituency by constituency.',
+    lede: '566 legislative constituencies, two rounds: leading bloc and leading candidate in round one, the Macron / Le Pen runoff in round two. Click a colour to switch views.',
+    factReal: 'These are the ACTUAL results of the 2022 first and second rounds (Ministry of the Interior) — not a projection for 2027.',
+    overseas: 'The 11 overseas-French constituencies have no mappable territory: absent from the map.',
+    deskCta: 'See the 2027 presidential desk projection',
+  },
+  es: {
+    eyebrow: 'Índice de mapas · Elección presidencial francesa',
+    title: 'Los resultados de la presidencial de 2022, circunscripción por circunscripción.',
+    lede: '566 circunscripciones legislativas, dos vueltas: bloque y candidato en cabeza en la primera vuelta, el duelo Macron / Le Pen en la segunda. Haz clic en un color para cambiar de vista.',
+    factReal: 'Estos son los RESULTADOS REALES de la primera y segunda vuelta de 2022 (ministerio del Interior) — no una proyección para 2027.',
+    overseas: 'Las 11 circunscripciones de los franceses en el extranjero no tienen territorio cartografiable: ausentes del mapa.',
+    deskCta: 'Ver la proyección 2027 del desk presidencial',
+  },
+}[locale];
+---
+<article class="fpm-page">
+  <header class="fpm-hero">
+    <div class="container">
+      <p class="eyebrow">{copy.eyebrow}</p>
+      <h1>{copy.title}</h1>
+      <p class="lede">{copy.lede}</p>
+    </div>
+  </header>
+
+  <section class="fpm-section container">
+    {hasGeometry ? (
+      <PresidentialMaps
+        blocRidings={blocRidings}
+        candidateRidings={candidateRidings}
+        round2Ridings={round2Ridings}
+        blocParties={BLOC_PARTIES}
+        candidateParties={CANDIDATE_PARTIES}
+        round2Parties={ROUND2_PARTIES}
+        locale={locale}
+        client:only="preact"
+      />
+    ) : (
+      <p class="fpm-note">—</p>
+    )}
+    <p class="fpm-note fpm-note-strong">{copy.factReal}</p>
+    <p class="fpm-note">{copy.overseas}</p>
+    <p class="fpm-note"><a href={franceHref}>{copy.deskCta} →</a></p>
+  </section>
+</article>
+
+<style>
+  .fpm-hero { padding: 80px 0 32px; border-bottom: 1px solid var(--rule); background: var(--paper); }
+  .fpm-hero h1 { margin: 8px 0 16px; font-family: var(--serif); font-size: clamp(36px, 4.6vw, 56px); font-weight: 420; letter-spacing: -0.02em; line-height: 1.05; max-width: 900px; }
+  .fpm-hero .lede { max-width: 760px; font-family: var(--serif); font-size: clamp(16px, 1.6vw, 19px); line-height: 1.55; color: var(--ink-2); }
+  .fpm-section { padding: 40px 0 64px; }
+  .fpm-note { font-family: var(--mono); font-size: 12px; color: var(--ink-3); line-height: 1.6; max-width: 640px; margin: 14px 0 0; }
+  .fpm-note-strong { color: var(--ink-2); font-weight: 500; }
+  .fpm-note a { color: inherit; }
+</style>
