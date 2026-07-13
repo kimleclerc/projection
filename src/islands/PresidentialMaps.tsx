@@ -141,6 +141,7 @@ export default function PresidentialMaps({
           center={[46.6, 2.4]}
           zoom={5}
           idProp="riding_id"
+          winnerThreshold={0}
         />
       )}
       {round === 1 && view === 'winner' && (
@@ -153,6 +154,7 @@ export default function PresidentialMaps({
           center={[46.6, 2.4]}
           zoom={5}
           idProp="riding_id"
+          winnerThreshold={0}
         />
       )}
       {round === 1 && view === 'candidate' && (

@@ -46,6 +46,10 @@ interface Props {
   heatColor?: string;
   /** Borne haute de l'échelle en mode 'heat' (défaut = max observé sur `heatKey`). */
   heatMax?: number;
+  /** Seuil de `p_winner` au-dessus duquel une circo est colorée par son vainqueur
+   *  (mode 'winner'). Défaut 0.5 = comportement projection historique. Passer 0
+   *  pour des RÉSULTATS réels où le vainqueur est une pluralité (< 50 %). */
+  winnerThreshold?: number;
 }
 
 interface LegendItem {
@@ -84,6 +88,7 @@ function buildPopupHtml(
   parties: MapParty[],
   locale: 'en' | 'fr',
   baselineYear: number,
+  winnerThreshold: number,
 ): string {
   const partyByKey = new Map(parties.map((p) => [p.key, p]));
   const labelOf = (key: string) =>
@@ -92,7 +97,7 @@ function buildPopupHtml(
 
   const name = locale === 'fr' ? riding.name_fr : riding.name_en;
   const winner = riding.projection.winner;
-  const isTossup = winner === 'tossup' || riding.projection.p_winner < 0.5;
+  const isTossup = winner === 'tossup' || riding.projection.p_winner < winnerThreshold;
   const winnerLabel = isTossup
     ? locale === 'fr'
       ? 'Indécis'
@@ -179,11 +184,12 @@ function buildAriaLabel(
   riding: RidingFull,
   parties: MapParty[],
   locale: 'en' | 'fr',
+  winnerThreshold: number,
 ): string {
   const name = locale === 'fr' ? riding.name_fr : riding.name_en;
   const partyByKey = new Map(parties.map((p) => [p.key, p]));
   const winner = riding.projection.winner;
-  const isTossup = winner === 'tossup' || riding.projection.p_winner < 0.5;
+  const isTossup = winner === 'tossup' || riding.projection.p_winner < winnerThreshold;
   const winnerLabel = isTossup
     ? locale === 'fr'
       ? 'indécis'
@@ -304,6 +310,7 @@ export default function RidingsMap({
   heatKey,
   heatColor,
   heatMax,
+  winnerThreshold = 0.5,
 }: Props) {
   const mapRef = useRef<HTMLDivElement>(null);
   const [error, setError] = useState<string | null>(null);
@@ -315,7 +322,7 @@ export default function RidingsMap({
   for (const p of parties) {
     const seats = ridings.filter(
       (r) =>
-        r.projection.winner === p.key && r.projection.p_winner >= 0.5,
+        r.projection.winner === p.key && r.projection.p_winner >= winnerThreshold,
     ).length;
     if (seats > 0) {
       legendItems.push({
@@ -329,7 +336,7 @@ export default function RidingsMap({
   }
   const tossupCount = ridings.filter(
     (r) =>
-      r.projection.winner === 'tossup' || r.projection.p_winner < 0.5,
+      r.projection.winner === 'tossup' || r.projection.p_winner < winnerThreshold,
   ).length;
   if (tossupCount > 0) {
     legendItems.push({
@@ -472,7 +479,7 @@ export default function RidingsMap({
             if (
               riding &&
               riding.projection.winner !== 'tossup' &&
-              riding.projection.p_winner >= 0.5
+              riding.projection.p_winner >= winnerThreshold
             ) {
               fillColor =
                 colorByParty.get(riding.projection.winner) ?? '#bbb';
@@ -516,7 +523,7 @@ export default function RidingsMap({
               return;
             }
 
-            layer.bindPopup(buildPopupHtml(riding, parties, locale, baselineYear), {
+            layer.bindPopup(buildPopupHtml(riding, parties, locale, baselineYear, winnerThreshold), {
               maxWidth: 320,
               className: 'rm-popup',
             });
@@ -524,7 +531,7 @@ export default function RidingsMap({
             const partyByKey = new Map(parties.map((p) => [p.key, p]));
             const winnerLabel =
               riding.projection.winner === 'tossup' ||
-              riding.projection.p_winner < 0.5
+              riding.projection.p_winner < winnerThreshold
                 ? locale === 'fr'
                   ? 'Indécis'
                   : 'Tossup'
@@ -542,7 +549,7 @@ export default function RidingsMap({
             if (el && el.setAttribute) {
               el.setAttribute(
                 'aria-label',
-                buildAriaLabel(riding, parties, locale),
+                buildAriaLabel(riding, parties, locale, winnerThreshold),
               );
               el.setAttribute('role', 'img');
               el.setAttribute('tabindex', '-1');
