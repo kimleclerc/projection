@@ -1,13 +1,108 @@
 {
   "meta": {
-    "generated_at": "2026-07-11T21:16:33.299937+00:00",
-    "run_date": "2026-07-11",
+    "generated_at": "2026-07-12T18:01:20.069093+00:00",
+    "run_date": "2026-07-12",
     "election_date": "2026-08-13",
     "riding_id": "E14001174",
     "riding_name": "Clacton",
-    "model_version": "v0-fundamentals",
+    "model_version": "v0.2-fundamentals-realfield",
     "has_local_polls": false,
     "n_sims": 50000,
+    "field": {
+      "as_of": "2026-07-12",
+      "field_final": false,
+      "notice_of_election": "2026-07-13",
+      "nominations_open": "2026-07-14",
+      "nominations_close": "2026-07-17",
+      "sopn_note_fr": "Liste définitive = Statement of Persons Nominated, publié par Tendring DC après le 17 juillet 16 h. À vérifier sur tendringdc.gov.uk et refléter ici (status='nominated', retirer les non-déposés, field_final=True).",
+      "sources": [
+        "https://www.tendringdc.gov.uk/news/date-set-for-clacton-constituency-by-election",
+        "https://whocanivotefor.co.uk/elections/parl.clacton.by.2026-08-13/clacton/",
+        "https://en.wikipedia.org/wiki/2026_Clacton_by-election",
+        "https://clactoncandidates.co.uk/candidates/"
+      ],
+      "candidates": [
+        {
+          "name": "Nigel Farage",
+          "party": "Reform UK",
+          "bucket": "farage",
+          "status": "announced"
+        },
+        {
+          "name": "Count Binface",
+          "party": "Count Binface Party",
+          "bucket": "binface",
+          "status": "announced"
+        },
+        {
+          "name": "Laurence Fox",
+          "party": "Reclaim",
+          "bucket": "fox",
+          "status": "announced"
+        },
+        {
+          "name": "Adham Alkhatip",
+          "party": "Forward Party",
+          "bucket": "others",
+          "status": "announced"
+        },
+        {
+          "name": "Kai Stephens",
+          "party": "British Democratic Party",
+          "bucket": "others",
+          "status": "announced"
+        },
+        {
+          "name": "Piers Corbyn",
+          "party": "Independent",
+          "bucket": "others",
+          "status": "announced"
+        },
+        {
+          "name": "Mr Fishfinger",
+          "party": "Independent",
+          "bucket": "others",
+          "status": "announced"
+        },
+        {
+          "name": "Luke Worley",
+          "party": "Independent",
+          "bucket": "others",
+          "status": "announced"
+        },
+        {
+          "name": "Ollie Granger",
+          "party": "Independent",
+          "bucket": "others",
+          "status": "announced"
+        },
+        {
+          "name": "Rob Pownall",
+          "party": "Independent",
+          "bucket": "others",
+          "status": "announced"
+        },
+        {
+          "name": "Remus Bell",
+          "party": "Independent",
+          "bucket": "others",
+          "status": "announced"
+        },
+        {
+          "name": "Marc Berger",
+          "party": "Independent",
+          "bucket": "others",
+          "status": "announced"
+        },
+        {
+          "name": "Rees Cowne",
+          "party": "Independent",
+          "bucket": "others",
+          "status": "announced"
+        }
+      ],
+      "expected_additional_note_fr": "Loony et Rejoin EU pressentis, aucun nom annoncé (Wikipedia)."
+    },
     "timetable": [
       {
         "date": "2026-07-13",
@@ -16,10 +111,16 @@
         "event_es": "Aviso de elección"
       },
       {
+        "date": "2026-07-14",
+        "event_en": "Nominations open",
+        "event_fr": "Ouverture du dépôt des candidatures",
+        "event_es": "Apertura de candidaturas"
+      },
+      {
         "date": "2026-07-17",
-        "event_en": "Nominations close — final candidate list",
-        "event_fr": "Clôture des candidatures — liste finale",
-        "event_es": "Cierre de candidaturas — lista final"
+        "event_en": "Nominations close 4pm — SoPN / final candidate list",
+        "event_fr": "Clôture des candidatures 16 h — SoPN / liste définitive",
+        "event_es": "Cierre de candidaturas 16 h — SoPN / lista definitiva"
       },
       {
         "date": "2026-07-28",
@@ -40,68 +141,86 @@
     "seed": 20260813,
     "candidates": {
       "farage": {
-        "p_win": 0.9861,
+        "p_win": 0.9406,
         "share": {
-          "q05": 44.96,
-          "q10": 48.68,
-          "q25": 54.33,
-          "q50": 59.69,
-          "q75": 64.22,
-          "q90": 67.73,
-          "q95": 69.66
+          "q05": 38.44,
+          "q10": 42.51,
+          "q25": 49.04,
+          "q50": 55.54,
+          "q75": 61.09,
+          "q90": 65.3,
+          "q95": 67.56
         },
-        "share_mean": 58.82
+        "share_mean": 54.6
       },
       "binface": {
-        "p_win": 0.0139,
+        "p_win": 0.0594,
         "share": {
-          "q05": 17.79,
-          "q10": 19.35,
-          "q25": 22.0,
-          "q50": 25.24,
-          "q75": 29.03,
-          "q90": 33.05,
-          "q95": 35.72
+          "q05": 18.45,
+          "q10": 20.28,
+          "q25": 23.54,
+          "q50": 27.78,
+          "q75": 32.7,
+          "q90": 37.81,
+          "q95": 40.99
         },
-        "share_mean": 25.82
+        "share_mean": 28.49
       },
       "fox": {
         "p_win": 0.0,
         "share": {
-          "q05": 2.48,
-          "q10": 3.22,
-          "q25": 4.62,
-          "q50": 6.58,
-          "q75": 9.02,
-          "q90": 11.74,
-          "q95": 13.65
+          "q05": 3.04,
+          "q10": 3.88,
+          "q25": 5.51,
+          "q50": 7.74,
+          "q75": 10.5,
+          "q90": 13.46,
+          "q95": 15.52
         },
-        "share_mean": 7.12
+        "share_mean": 8.31
       },
       "others": {
         "p_win": 0.0,
         "share": {
-          "q05": 4.67,
-          "q10": 5.41,
-          "q25": 6.72,
-          "q50": 8.21,
-          "q75": 9.72,
-          "q90": 11.09,
-          "q95": 11.93
+          "q05": 4.85,
+          "q10": 5.61,
+          "q25": 6.93,
+          "q50": 8.48,
+          "q75": 10.14,
+          "q90": 11.73,
+          "q95": 12.76
         },
-        "share_mean": 8.24
+        "share_mean": 8.6
       }
     },
-    "p_farage_win": 0.9861,
-    "p_binface_win": 0.0139,
-    "p_binface_second": 0.9851,
-    "p_farage_improves_2024": 0.9368,
+    "p_farage_win": 0.9406,
+    "p_binface_win": 0.0594,
+    "p_binface_second": 0.9383,
+    "p_farage_improves_2024": 0.8296,
     "binface_share_buckets": {
       "lt10": 0.0001,
-      "10_20": 0.1298,
-      "20_30": 0.6672,
-      "30_40": 0.1875,
-      "gte40": 0.0154
+      "10_20": 0.0907,
+      "20_30": 0.5333,
+      "30_40": 0.3132,
+      "gte40": 0.0626
+    },
+    "field": {
+      "as_of": "2026-07-12",
+      "field_final": false,
+      "nominations_close": "2026-07-17",
+      "n_candidates_announced": 13,
+      "n_micro_announced": 10,
+      "fox_present": true,
+      "n_micro_effective_mean": 9.01
+    },
+    "shock_diagnostics": {
+      "corr_shock_farage_retention": -0.426,
+      "corr_shock_ref_abstention": 0.151,
+      "corr_shock_binface_consolidation": 0.426,
+      "p_binface_win_coupled": 0.0594,
+      "p_binface_win_if_independent_shocks": 0.0302,
+      "joint_tail_ratio": 1.97,
+      "p_binface_win_top_decile_shock": 0.3308
     },
     "scenarios": [
       {
@@ -109,7 +228,7 @@
         "condition_fr": "Le scandale mord : Farage retient moins de ~70 % de son bloc 2024",
         "condition_en": "The scandal bites: Farage keeps less than ~70% of his 2024 bloc",
         "condition_es": "El escándalo golpea: Farage retiene menos del ~70 % de su bloque de 2024",
-        "p_binface_win": 0.056,
+        "p_binface_win": 0.232,
         "p_scenario": 0.25
       },
       {
@@ -117,7 +236,7 @@
         "condition_fr": "Le vote anti-Farage se consolide sur Binface (reports gauche/centre au sommet)",
         "condition_en": "The anti-Farage vote consolidates behind Binface (left/centre transfers at the top end)",
         "condition_es": "El voto anti-Farage se consolida en Binface (transferencias de izquierda/centro al máximo)",
-        "p_binface_win": 0.033,
+        "p_binface_win": 0.14,
         "p_scenario": 0.25
       },
       {
@@ -125,7 +244,7 @@
         "condition_fr": "Fox/Reclaim divise la droite radicale (score Fox dans le quartile haut)",
         "condition_en": "Fox/Reclaim splits the radical right (Fox score in the top quartile)",
         "condition_es": "Fox/Reclaim divide a la derecha radical (puntuación de Fox en el cuartil superior)",
-        "p_binface_win": 0.045,
+        "p_binface_win": 0.164,
         "p_scenario": 0.25
       },
       {
@@ -133,31 +252,47 @@
         "condition_fr": "Les électeurs orphelins (Lab/LD/Grn) se déplacent en masse",
         "condition_en": "Orphaned voters (Lab/LD/Grn) actually turn out in numbers",
         "condition_es": "Los votantes huérfanos (Lab/LD/Grn) acuden en masa",
-        "p_binface_win": 0.037,
+        "p_binface_win": 0.15,
         "p_scenario": 0.25
+      },
+      {
+        "id": "campaign_revelations",
+        "condition_fr": "Nouvelles révélations en campagne : les fonds non déclarés (Harborne/NCA, dons crypto) refont surface avant le 13 août",
+        "condition_en": "New revelations mid-campaign: the undeclared funds story (Harborne/NCA, crypto gifts) resurfaces before 13 August",
+        "condition_es": "Nuevas revelaciones en campaña: los fondos no declarados (Harborne/NCA, regalos cripto) resurgen antes del 13 de agosto",
+        "p_binface_win": 0.131,
+        "p_scenario": 0.35
+      },
+      {
+        "id": "pm_honeymoon",
+        "condition_fr": "Lune de miel du nouveau PM travailliste (investiture prévue le 17 juillet) : la démobilisation Reform mord",
+        "condition_en": "New Labour PM honeymoon (expected 17 July): Reform demobilisation bites",
+        "condition_es": "Luna de miel del nuevo primer ministro laborista (prevista el 17 de julio): la desmovilización de Reform golpea",
+        "p_binface_win": 0.066,
+        "p_scenario": 0.7
       },
       {
         "id": "perfect_storm",
         "condition_fr": "Tempête parfaite : effondrement Farage ET consolidation protestataire",
         "condition_en": "Perfect storm: Farage collapse AND protest consolidation",
         "condition_es": "Tormenta perfecta: colapso de Farage Y consolidación de la protesta",
-        "p_binface_win": 0.109,
-        "p_scenario": 0.075
+        "p_binface_win": 0.403,
+        "p_scenario": 0.084
       }
     ]
   },
   "markets": {
-    "as_of": "2026-07-11T21:15:04.211720+00:00",
+    "as_of": "2026-07-12T18:01:19.316171+00:00",
     "polymarket": {
       "clacton-by-election-winner-20260707143521303": {
         "title": "Clacton by-election Winner",
         "url": "https://polymarket.com/event/clacton-by-election-winner-20260707143521303",
-        "volume": 1654693.0,
+        "volume": 1844573.0,
         "markets": [
           {
             "question": "Will Nigel Farage win the Clacton by-election?",
-            "yes": 0.924,
-            "volume": 546438.0
+            "yes": 0.9245,
+            "volume": 593263.0
           },
           {
             "question": "Will Giles Watling win the Clacton by-election?",
@@ -191,8 +326,8 @@
           },
           {
             "question": "Will Count Binface win the Clacton by-election?",
-            "yes": 0.0655,
-            "volume": 1089057.0
+            "yes": 0.0575,
+            "volume": 1232112.0
           },
           {
             "question": "Will someone else win the Clacton by-election?",
@@ -204,12 +339,12 @@
       "clacton-by-election-2nd-place-20260707214539733": {
         "title": "Clacton by-election: 2nd place",
         "url": "https://polymarket.com/event/clacton-by-election-2nd-place-20260707214539733",
-        "volume": 52952.0,
+        "volume": 54255.0,
         "markets": [
           {
             "question": "Will Nigel Farage get second place in the Clacton by-election?",
-            "yes": 0.074,
-            "volume": 6539.0
+            "yes": 0.0735,
+            "volume": 6652.0
           },
           {
             "question": "Will Giles Watling get second place in the Clacton by-election?",
@@ -223,28 +358,28 @@
           },
           {
             "question": "Will Matthew Bensilum get second place in the Clacton by-election?",
-            "yes": 0.0175,
-            "volume": 1803.0
+            "yes": 0.0185,
+            "volume": 1807.0
           },
           {
             "question": "Will Natasha Osben get second place in the Clacton by-election?",
-            "yes": 0.014,
+            "yes": 0.017,
             "volume": 1471.0
           },
           {
             "question": "Will Tony Mack get second place in the Clacton by-election?",
-            "yes": 0.0085,
+            "yes": 0.0075,
             "volume": 760.0
           },
           {
             "question": "Will Andrew Pemberton get second place in the Clacton by-election?",
-            "yes": 0.0315,
-            "volume": 1351.0
+            "yes": 0.007,
+            "volume": 1370.0
           },
           {
             "question": "Will Count Binface get second place in the Clacton by-election?",
             "yes": 0.705,
-            "volume": 37679.0
+            "volume": 38847.0
           },
           {
             "question": "Will someone else get second place in the Clacton by-election?",
@@ -256,44 +391,44 @@
       "clacton-by-election-count-binface-vote-20260708142507718": {
         "title": "Clacton by-election: Count Binface Vote %",
         "url": "https://polymarket.com/event/clacton-by-election-count-binface-vote-20260708142507718",
-        "volume": 24283.0,
+        "volume": 38052.0,
         "markets": [
           {
             "question": "Will Count Binface win less than 10% of votes in the Clacton parliamentary by-election?",
-            "yes": 0.245,
-            "volume": 10022.0
+            "yes": 0.35,
+            "volume": 15127.0
           },
           {
             "question": "Will Count Binface win 10–20% of votes in the Clacton parliamentary by-election?",
-            "yes": 0.375,
-            "volume": 1241.0
+            "yes": 0.145,
+            "volume": 5770.0
           },
           {
             "question": "Will Count Binface win 20–30% of votes in the Clacton parliamentary by-election?",
-            "yes": 0.185,
-            "volume": 4062.0
+            "yes": 0.19,
+            "volume": 4528.0
           },
           {
             "question": "Will Count Binface win 30–40% of votes in the Clacton parliamentary by-election?",
-            "yes": 0.105,
-            "volume": 5206.0
+            "yes": 0.108,
+            "volume": 5773.0
           },
           {
             "question": "Will Count Binface win at least 40% of votes in the Clacton parliamentary by-election?",
-            "yes": 0.065,
-            "volume": 3752.0
+            "yes": 0.075,
+            "volume": 7253.0
           }
         ]
       },
       "will-nigel-farage-up-his-vote-share-in-clacton-20260707171746907": {
         "title": "Will Nigel Farage up his vote share in Clacton?",
         "url": "https://polymarket.com/event/will-nigel-farage-up-his-vote-share-in-clacton-20260707171746907",
-        "volume": 7322.0,
+        "volume": 8504.0,
         "markets": [
           {
             "question": "Will Nigel Farage up his vote share in Clacton?",
-            "yes": 0.925,
-            "volume": 7322.0
+            "yes": 0.92,
+            "volume": 8504.0
           }
         ]
       }
@@ -301,12 +436,12 @@
     "kalshi": {
       "farage": {
         "ticker": "KXCLACTONBYELECTION-26SEP01-RUK",
-        "last_price": 0.91,
+        "last_price": 0.9,
         "url": "https://kalshi.com/markets/kxclactonbyelection/clacton-byelection-winner"
       },
       "binface": {
         "ticker": "KXCLACTONBYELECTION-26SEP01-CBIN",
-        "last_price": 0.08,
+        "last_price": 0.09,
         "url": "https://kalshi.com/markets/kxclactonbyelection/clacton-byelection-winner"
       }
     },
@@ -325,6 +460,12 @@
       "p_farage": 0.9861,
       "p_binface": 0.0139,
       "binface_share_median": 25.24
+    },
+    {
+      "date": "2026-07-12",
+      "p_farage": 0.9406,
+      "p_binface": 0.0594,
+      "binface_share_median": 27.78
     }
   ]
 }
