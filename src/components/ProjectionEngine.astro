@@ -12,6 +12,8 @@ import ElectionCountdown from '../islands/ElectionCountdown.tsx';
 import KeepDigging from './KeepDigging.astro';
 import JurisdictionNav from './JurisdictionNav.astro';
 import { getNavEntry, type NavLang } from '../lib/jurisdiction-nav';
+import { partyMeta } from '../lib/riding-adapters/parties';
+import type { JurisdictionKey } from '../lib/riding-adapters/types';
 
 interface Props {
   jurisdiction: Jurisdiction;
@@ -54,6 +56,9 @@ const orderedParties = [...parties].sort(
 
 const totalSeats = meta.total_seats ?? jurisdiction.seatsTotal;
 const majorityThreshold = meta.majority_threshold ?? Math.floor(totalSeats / 2) + 1;
+const partyJurisdiction: JurisdictionKey = jurisdiction.id === 'federal'
+  ? 'federal-ca'
+  : jurisdiction.id as JurisdictionKey;
 
 // Build composition bar segments. Include every party present in the current
 // composition — independents created by a floor-crossing (e.g. ind, qc_ind)
@@ -111,6 +116,7 @@ const projectionSegments = orderedParties
     label_fr: p.label_fr,
     color: p.color,
     seats,
+    logo: partyMeta(partyJurisdiction, p.party).logo,
     pct: projectionTotal > 0 ? (seats / projectionTotal) * 100 : 0,
     p_majority: p.p_majority ?? 0,
     p_largest: p.p_largest ?? 0,
@@ -487,10 +493,9 @@ const keepDiggingLinks = (() => {
       {projectionSegments.map((s) => (
         <div class="pe-projection-card">
           <header>
-            <span
-              class="pe-projection-swatch"
-              style={`background:${s.color}`}
-            />
+            {s.logo
+              ? <img class="pe-projection-logo" src={`/party-logos/${s.logo}`} alt="" width="34" height="34" loading="lazy" decoding="async" />
+              : <span class="pe-projection-swatch" style={`background:${s.color}`} />}
             <span class="pe-projection-name">
               {locale === 'fr' ? s.label_fr : s.label_en}
             </span>
@@ -918,6 +923,13 @@ const keepDiggingLinks = (() => {
     width: 10px;
     height: 10px;
     border-radius: 2px;
+  }
+
+  .pe-projection-logo {
+    width: 34px;
+    height: 34px;
+    object-fit: contain;
+    flex: none;
   }
 
   .pe-projection-name {

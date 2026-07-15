@@ -82,8 +82,13 @@ export interface DeclaredCandidate {
   party_raw?: string;
   /** incumbent = sitting member re-running · challenger · open (no incumbent). */
   status?: 'incumbent' | 'challenger' | 'open';
-  /** Short factual portrait / occupation (1–2 sentences). */
+  /** Legacy French biography field. Prefer the localized bio_* fields below. */
   portrait?: string;
+  /** Candidate headshot supplied by the party or another named source. */
+  image_url?: string;
+  bio_fr?: string;
+  bio_en?: string;
+  bio_es?: string;
   source_url?: string;
 }
 

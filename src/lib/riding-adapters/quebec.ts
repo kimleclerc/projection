@@ -62,7 +62,9 @@ const members = membersSource as Record<string, RidingMember | undefined>;
 const candidatesByRiding = candidatesSource as Record<string, RidingCandidate[] | undefined>;
 const declared2026ByRiding = declared2026Source as Record<string, Array<{
   name: string; party_code: string; party_raw?: string;
-  portrait?: string; source_url?: string; status?: 'incumbent' | 'challenger' | 'open';
+  portrait?: string; image_url?: string;
+  bio_fr?: string; bio_en?: string; bio_es?: string;
+  source_url?: string; status?: 'incumbent' | 'challenger' | 'open';
 }> | undefined>;
 const ORIGIN = originSource as Record<string, RidingOriginEntry[] | undefined>;
 const SHAPES = shapesSource as Record<string, { path: string; viewBox: string } | undefined>;
@@ -189,6 +191,10 @@ function adaptOne(raw: RawRiding): RidingData {
       party_raw: c.party_raw,
       status: c.status,
       portrait: c.portrait || undefined,
+      image_url: c.image_url || undefined,
+      bio_fr: c.bio_fr || c.portrait || undefined,
+      bio_en: c.bio_en || undefined,
+      bio_es: c.bio_es || undefined,
       source_url: c.source_url || undefined,
     })),
     runDate: META.run_date,

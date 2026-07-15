@@ -53,6 +53,12 @@ const displayName = (n: string): string =>
   n === n.toUpperCase()
     ? n.toLowerCase().replace(/\b([a-zà-ÿ])/g, (m) => m.toUpperCase()).replace(/\bJr\b/g, 'Jr').replace(/\bIi+\b/gi, (m) => m.toUpperCase())
     : n;
+
+const localizedBio = (c: (typeof list)[number]): string | undefined => {
+  if (lang === 'fr') return c.bio_fr || c.portrait;
+  if (lang === 'es') return c.bio_es;
+  return c.bio_en;
+};
 ---
 
 <section class="slate">
@@ -65,22 +71,28 @@ const displayName = (n: string): string =>
         const meta = partyMeta(data.jurisdiction, c.party_code);
         const partyLabel = lang === 'fr' ? meta.label_fr : meta.label_en;
         const st = statusLabel(c.status);
+        const bio = localizedBio(c);
         return (
           <li class="cand" style={`--accent:${meta.color}`}>
             <div class="cand-top">
               <span class="cand-party">
                 {meta.logo
-                  ? <img class="cand-logo" src={`/party-logos/${meta.logo}.svg`} alt={(lang === 'fr' ? meta.full_fr : meta.full_en) ?? partyLabel} width="18" height="18" loading="lazy" decoding="async" />
+                  ? <img class="cand-logo" src={`/party-logos/${meta.logo}`} alt={(lang === 'fr' ? meta.full_fr : meta.full_en) ?? partyLabel} width="18" height="18" loading="lazy" decoding="async" />
                   : <span class="cand-swatch" aria-hidden="true"></span>}
                 {partyLabel}
               </span>
               {st && <span class={`cand-status is-${c.status}`}>{st}</span>}
             </div>
-            <p class="cand-name">{displayName(c.name)}</p>
-            {c.portrait && <p class="cand-portrait">{c.portrait}</p>}
-            {c.source_url && (
-              <a class="cand-src" href={c.source_url} target="_blank" rel="noopener nofollow">{T.source} ↗</a>
-            )}
+            <div class="cand-body">
+              {c.image_url && <img class="cand-photo" src={c.image_url} alt={displayName(c.name)} width="88" height="104" loading="lazy" decoding="async" />}
+              <div class="cand-copy">
+                <p class="cand-name">{displayName(c.name)}</p>
+                {bio && <p class="cand-portrait">{bio}</p>}
+                {c.source_url && (
+                  <a class="cand-src" href={c.source_url} target="_blank" rel="noopener nofollow">{T.source} ↗</a>
+                )}
+              </div>
+            </div>
           </li>
         );
       })}
@@ -110,7 +122,13 @@ const displayName = (n: string): string =>
   }
   .cand-status.is-incumbent { background: color-mix(in oklab, var(--accent) 14%, transparent); border-color: color-mix(in oklab, var(--accent) 40%, transparent); color: var(--ink); }
   .cand-name { margin: 0; font-family: var(--serif); font-size: 18px; color: var(--ink); line-height: 1.2; }
+  .cand-body { display: flex; align-items: flex-start; gap: 13px; }
+  .cand-copy { min-width: 0; }
+  .cand-photo { width: 88px; height: 104px; flex: none; border-radius: 6px; object-fit: cover; object-position: 50% 20%; background: var(--rule); }
   .cand-portrait { margin: 8px 0 0; font-size: 13.5px; line-height: 1.55; color: var(--ink-2); }
   .cand-src { display: inline-block; margin-top: 8px; font-family: var(--mono); font-size: 10px; letter-spacing: .04em; color: var(--ink-3); text-decoration: none; }
   .cand-src:hover { color: var(--ink); }
+  @media (max-width: 420px) {
+    .cand-photo { width: 72px; height: 88px; }
+  }
 </style>
