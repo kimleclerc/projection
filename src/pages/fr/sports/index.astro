@@ -13,7 +13,7 @@ import wcData from '../../../../web_data/sports/worldcup2026_latest.json';
 const hero = sportsData.hero;
 const boardMeta = sportsData.board_meta;
 const wcHero = wcData.hero;
-const wcTop3 = (wcData.board as Array<{ team: string; labels: Record<string, string>; p_champion: number }>).slice(0, 3);
+const wcTop3 = (wcData.board as Array<{ team: string; labels: Record<string, string>; p_champion: number }>).filter((t) => t.p_champion > 0);
 const wcMeta = wcData.board_meta;
 ---
 
@@ -57,22 +57,23 @@ const wcMeta = wcData.board_meta;
 
   <section class="content-band">
     <div class="container">
-      <p class="eyebrow">Coupe du monde 2026 · coup d’envoi le 11 juin</p>
-      <h2>Le tournoi est lancé.</h2>
+      <p class="eyebrow">Coupe du monde 2026 · finale · 19 juillet</p>
+      <h2>Espagne–Argentine. Les quatre-vingt-dix dernières minutes.</h2>
+      <p>L’Espagne atteint la finale sans avoir encaissé lors de ses deux derniers matchs. L’Argentine y arrive après avoir transformé un retard de 1–0 contre l’Angleterre en victoire de 2–1. L’une poursuit une deuxième étoile; la championne en titre, une quatrième.</p>
       <div class="content-grid-2" style="gap:1.5rem;margin-top:1rem;">
         {wcTop3.map((team, i) => (
           <div class="note-card" style="border-left:4px solid var(--red, #c33);">
-            <p class="eyebrow">{i === 0 ? 'Favori du tournoi' : i === 1 ? 'Deuxième' : 'Troisième'}</p>
+            <p class="eyebrow">{i === 0 ? 'Avantage du modèle' : 'Finaliste'}</p>
             <h3 style="font-size:1.6rem;margin:0.25rem 0;">{flagFor(team.team)} {team.labels.fr}</h3>
             <p style="font-size:1.6rem;font-weight:700;color:var(--red, #c33);">{team.p_champion}%</p>
           </div>
         ))}
       </div>
-      <p style="margin-top:1rem;">48 équipes · 50 000 simulations · mis à jour pendant tout le tournoi.</p>
+      <p style="margin-top:1rem;">102 matchs sur 104 terminés · 50 000 simulations · Argentine 53,59 % · Espagne 46,41 %.</p>
       <p style="margin-top:0.5rem;">
         <a href="/fr/sports/wc2026/" class="cta-link">Ouvrir le desk Coupe du monde →</a>
         &nbsp;·&nbsp;
-        <a href="/fr/sports/wc2026/#beat-the-model" class="cta-link">Jouer : bats le modèle →</a>
+        <a href="/fr/sports/wc2026/equipes/" class="cta-link">Histoires des équipes →</a>
       </p>
     </div>
   </section>
@@ -90,7 +91,7 @@ const wcMeta = wcData.board_meta;
       <a class="note-card" href="/fr/sports/wc2026/" style="text-decoration:none;color:inherit;">
         <p class="eyebrow">Tournoi international de football 2026</p>
         <h3>{wcHero.favorite_labels.fr} en tête — {wcHero.favorite_prob}%</h3>
-        <p>48 équipes · {wcMeta.n_sims.toLocaleString()} simulations · modèle de phase de groupes. Deuxième: {wcHero.runner_up_team.toUpperCase()}.</p>
+        <p>Finale : Argentine–Espagne · {wcMeta.n_sims.toLocaleString()} simulations conditionnées aux 102 matchs terminés.</p>
         <footer style="margin-top:1rem;">
           <span class="cta-link">Ouvrir le desk tournoi →</span>
         </footer>

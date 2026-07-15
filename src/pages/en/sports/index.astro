@@ -13,7 +13,7 @@ import wcData from '../../../../web_data/sports/worldcup2026_latest.json';
 const hero = sportsData.hero;
 const boardMeta = sportsData.board_meta;
 const wcHero = wcData.hero;
-const wcTop3 = (wcData.board as Array<{ team: string; labels: Record<string, string>; p_champion: number }>).slice(0, 3);
+const wcTop3 = (wcData.board as Array<{ team: string; labels: Record<string, string>; p_champion: number }>).filter((t) => t.p_champion > 0);
 const wcMeta = wcData.board_meta;
 ---
 
@@ -57,22 +57,23 @@ const wcMeta = wcData.board_meta;
 
   <section class="content-band">
     <div class="container">
-      <p class="eyebrow">World Cup 2026 · kicked off June 11</p>
-      <h2>The tournament is on.</h2>
+      <p class="eyebrow">World Cup 2026 · final · July 19</p>
+      <h2>Spain–Argentina. The last ninety minutes.</h2>
+      <p>Spain reached the final without conceding in its last two matches. Argentina arrived by turning a 1–0 deficit against England into a 2–1 semifinal win. One is chasing a second star; the defending champion is chasing a fourth.</p>
       <div class="content-grid-2" style="gap:1.5rem;margin-top:1rem;">
         {wcTop3.map((team, i) => (
           <div class="note-card" style="border-left:4px solid var(--red, #c33);">
-            <p class="eyebrow">{i === 0 ? 'Tournament favorite' : i === 1 ? 'Runner-up' : 'Third'}</p>
+            <p class="eyebrow">{i === 0 ? 'Model edge' : 'Finalist'}</p>
             <h3 style="font-size:1.6rem;margin:0.25rem 0;">{flagFor(team.team)} {team.labels.en}</h3>
             <p style="font-size:1.6rem;font-weight:700;color:var(--red, #c33);">{team.p_champion}%</p>
           </div>
         ))}
       </div>
-      <p style="margin-top:1rem;">48 teams · 50,000 simulations · updated through the tournament.</p>
+      <p style="margin-top:1rem;">102 of 104 matches complete · 50,000 simulations · Argentina 53.59% · Spain 46.41%.</p>
       <p style="margin-top:0.5rem;">
         <a href="/en/sports/wc2026/" class="cta-link">Open the World Cup desk →</a>
         &nbsp;·&nbsp;
-        <a href="/en/sports/wc2026/#beat-the-model" class="cta-link">Play: beat the model →</a>
+        <a href="/en/sports/wc2026/teams/" class="cta-link">Team stories →</a>
       </p>
     </div>
   </section>
@@ -91,7 +92,7 @@ const wcMeta = wcData.board_meta;
       <a class="note-card" href="/en/sports/wc2026/" style="text-decoration:none;color:inherit;">
         <p class="eyebrow">2026 international football tournament</p>
         <h3>{wcHero.favorite_labels.en} lead — {wcHero.favorite_prob}%</h3>
-        <p>48 teams · {wcMeta.n_sims.toLocaleString()} simulations · group stage model. Runner-up: {wcHero.runner_up_team.toUpperCase()}.</p>
+        <p>Final: Argentina vs Spain · {wcMeta.n_sims.toLocaleString()} simulations conditioned on 102 completed matches.</p>
         <footer style="margin-top:1rem;">
           <span class="cta-link">Open tournament desk →</span>
         </footer>

@@ -1,6 +1,6 @@
 ---
 import EditorialLayout from '../../../../layouts/EditorialLayout.astro';
-import WcCountry from '../../../../components/WcCountry.astro';
+import WcTeamJourney from '../../../../components/WcTeamJourney.astro';
 import { teamSlugs, getTeam, teamLabel, wcAlternates } from '../../../../lib/wc';
 
 export function getStaticPaths() {
@@ -44,5 +44,5 @@ const alts = wcAlternates(`/${country}`);
     },
   ]}
 >
-  <WcCountry lang="en" team={team} />
+  <WcTeamJourney lang="en" team={country!} />
 </EditorialLayout>

@@ -1,0 +1,198 @@
+---
+import wcData from '../../web_data/sports/worldcup2026_latest.json';
+import momentsData from '../../web_data/sports/worldcup2026_moments_i18n.json';
+import { flagFor } from '../lib/wc-flags';
+import WcBreadcrumb from './WcBreadcrumb.astro';
+import WcDisclaimer from './WcDisclaimer.astro';
+import { getTeam, label, PATH_SEG, wcBase, type Lang } from '../lib/wc';
+
+interface Props { lang: Lang; team: string; }
+const { lang, team: code } = Astro.props;
+const team = getTeam(code)!;
+const name = label(team.labels, lang, code);
+const story = (momentsData as Record<string, any>)[code]?.[lang];
+const storyMeta = (momentsData as Record<string, any>)[code];
+const protagonist = story?.protagonist ?? {};
+const protagonistName = protagonist.name ?? protagonist.nom ?? protagonist.nombre ?? '';
+const protagonistRole = protagonist.role ?? protagonist.rol ?? '';
+const protagonistFact = protagonist.fact ?? protagonist.fait ?? protagonist.hecho ?? '';
+const anecdote = story?.anecdote ?? {};
+const anecdoteText = anecdote.text ?? anecdote.texte ?? '';
+const schedule = (wcData.match_schedule ?? []) as any[];
+const bracket = (wcData.knockout_bracket ?? {}) as Record<string, any>;
+const roundOrder = ['r32', 'r16', 'qf', 'sf', 'final'];
+const roundLabel: Record<Lang, Record<string, string>> = {
+  en: { group_stage: 'Group stage', r32: 'Round of 32', r16: 'Round of 16', qf: 'Quarter-final', sf: 'Semi-final', final: 'Final' },
+  fr: { group_stage: 'Phase de groupes', r32: 'Seizièmes', r16: 'Huitièmes', qf: 'Quart de finale', sf: 'Demi-finale', final: 'Finale' },
+  es: { group_stage: 'Fase de grupos', r32: 'Dieciseisavos', r16: 'Octavos', qf: 'Cuartos de final', sf: 'Semifinal', final: 'Final' },
+};
+const groupMatches = schedule.filter((m) => m.stage === 'group_stage' && (m.home_team === code || m.away_team === code));
+const koMatches = roundOrder.flatMap((stage) => ((bracket[stage] ?? []) as any[]).filter((m) => m.team1 === code || m.team2 === code).map((m) => ({ ...m, stage })));
+const matches = [...groupMatches, ...koMatches];
+const groupStats = groupMatches.reduce((s, m) => {
+  const home = m.home_team === code;
+  const gf = Number(home ? m.home_score : m.away_score);
+  const ga = Number(home ? m.away_score : m.home_score);
+  if (!Number.isFinite(gf) || !Number.isFinite(ga)) return s;
+  s.gf += gf; s.ga += ga;
+  if (gf > ga) s.w += 1; else if (gf < ga) s.l += 1; else s.d += 1;
+  return s;
+}, { w: 0, d: 0, l: 0, gf: 0, ga: 0 });
+const lastPlayed = [...koMatches].reverse().find((m) => m.decided) ?? null;
+const finalist = (bracket.final ?? []).some((m: any) => !m.decided && (m.team1 === code || m.team2 === code));
+const eliminatedStage = lastPlayed && lastPlayed.winner !== code ? lastPlayed.stage : null;
+const reached = finalist ? 'final' : (eliminatedStage ?? (koMatches.length ? koMatches[koMatches.length - 1].stage : 'group_stage'));
+const fmtDate = (date?: string) => date ? new Intl.DateTimeFormat(lang, { day: 'numeric', month: 'long' }).format(new Date(`${date}T12:00:00`)) : '';
+const opponent = (m: any) => {
+  if (m.stage === 'group_stage') {
+    const opp = m.home_team === code ? m.away_team : m.home_team;
+    return label(getTeam(opp)?.labels, lang, opp);
+  }
+  const opp = m.team1 === code ? m.team2 : m.team1;
+  const labs = m.team1 === code ? m.team2_label : m.team1_label;
+  return label(labs, lang, opp);
+};
+const scoreFor = (m: any) => {
+  const score = m.stage === 'group_stage' ? [m.home_score, m.away_score] : m.score;
+  if (!score || score.some((v: any) => v == null)) return null;
+  const first = m.stage === 'group_stage' ? m.home_team === code : m.team1 === code;
+  return { gf: Number(score[first ? 0 : 1]), ga: Number(score[first ? 1 : 0]), pens: m.pens ?? null, won: m.winner ? m.winner === code : Number(score[first ? 0 : 1]) > Number(score[first ? 1 : 0]) };
+};
+const finalOpponent = finalist ? opponent((bracket.final ?? [])[0]) : '';
+const T = {
+  en: {
+    eyebrow: 'World Cup 2026 · the story so far', back: 'All teams', record: 'Group record', goals: 'Goals', path: 'Tournament journey',
+    title: finalist ? `${name} has one match left.` : `${name}'s World Cup story.`,
+    intro: finalist
+      ? `${name} survived a field of 48 and reached the final against ${finalOpponent}. The model now gives them a ${team.p_champion}% chance to finish the job.`
+      : `${name} began in Group ${team.group} and finished its 2026 run in the ${roundLabel.en[reached].toLowerCase()}. This is the route, match by match.`,
+    group: `In the group stage, ${name} went ${groupStats.w}-${groupStats.d}-${groupStats.l}, scoring ${groupStats.gf} and conceding ${groupStats.ga}.`,
+    next: 'Next', won: 'Win', lost: 'Loss', draw: 'Draw', pens: 'penalties', model: 'Current title chance',
+    narrative: 'The story', decisive: 'The turning point', protagonist: 'Defining figure', notebook: 'From the tournament notebook', sources: 'Sources', asOf: 'Reporting through',
+  },
+  fr: {
+    eyebrow: "Coupe du monde 2026 · l'histoire jusqu'ici", back: 'Toutes les équipes', record: 'Bilan de groupe', goals: 'Buts', path: 'Le parcours',
+    title: finalist ? `${name} n’a plus qu’un match.` : `L’histoire du Mondial de ${name}.`,
+    intro: finalist
+      ? `${name} a traversé un plateau de 48 équipes et atteint la finale contre ${finalOpponent}. Le modèle lui donne maintenant ${String(team.p_champion).replace('.', ',')} % de chances d’aller au bout.`
+      : `${name} a commencé dans le groupe ${team.group} et terminé son parcours 2026 en ${roundLabel.fr[reached].toLowerCase()}. Voici sa route, match après match.`,
+    group: `En phase de groupes, ${name} a signé un bilan de ${groupStats.w}-${groupStats.d}-${groupStats.l}, avec ${groupStats.gf} buts marqués et ${groupStats.ga} encaissés.`,
+    next: 'À venir', won: 'Victoire', lost: 'Défaite', draw: 'Nul', pens: 'tirs au but', model: 'Chance actuelle de titre',
+    narrative: 'Le récit', decisive: 'Le moment charnière', protagonist: 'Figure marquante', notebook: 'Dans le carnet du tournoi', sources: 'Sources', asOf: 'Informations arrêtées au',
+  },
+  es: {
+    eyebrow: 'Mundial 2026 · la historia hasta ahora', back: 'Todos los equipos', record: 'Balance de grupo', goals: 'Goles', path: 'El recorrido',
+    title: finalist ? `A ${name} le queda un partido.` : `La historia mundialista de ${name}.`,
+    intro: finalist
+      ? `${name} sobrevivió a un cuadro de 48 equipos y alcanzó la final contra ${finalOpponent}. El modelo le da ahora un ${String(team.p_champion).replace('.', ',')} % de opciones de completar la obra.`
+      : `${name} comenzó en el grupo ${team.group} y cerró su recorrido de 2026 en ${roundLabel.es[reached].toLowerCase()}. Esta fue su ruta, partido a partido.`,
+    group: `En la fase de grupos, ${name} terminó ${groupStats.w}-${groupStats.d}-${groupStats.l}, con ${groupStats.gf} goles a favor y ${groupStats.ga} en contra.`,
+    next: 'Próximo', won: 'Victoria', lost: 'Derrota', draw: 'Empate', pens: 'penaltis', model: 'Probabilidad actual de título',
+    narrative: 'La historia', decisive: 'El punto de inflexión', protagonist: 'Figura destacada', notebook: 'Del cuaderno del torneo', sources: 'Fuentes', asOf: 'Información hasta el',
+  },
+}[lang];
+---
+
+<article class="team-journey">
+  <header class="team-hero content-band">
+    <div class="container">
+      <WcBreadcrumb lang={lang} trail={[{ label: T.back, href: `${wcBase(lang)}/${PATH_SEG[lang].teams}/` }, { label: name }]} />
+      <p class="eyebrow">{T.eyebrow}</p>
+      <h1><span>{flagFor(code)}</span> {T.title}</h1>
+      <p class="team-dek">{T.intro}</p>
+      <div class="team-facts">
+        <div><strong>{groupStats.w}-{groupStats.d}-{groupStats.l}</strong><span>{T.record}</span></div>
+        <div><strong>{groupStats.gf}–{groupStats.ga}</strong><span>{T.goals}</span></div>
+        <div><strong>{team.p_champion}%</strong><span>{T.model}</span></div>
+      </div>
+    </div>
+  </header>
+
+  <section class="content-band">
+    <div class="container journey-copy">
+      {story ? (
+        <div class="editorial-story">
+          <p class="eyebrow">{T.narrative} · {story.stage}</p>
+          <p class="story-lede">{story.summary}</p>
+          <div class="story-cards">
+            <aside>
+              <span>{T.decisive}</span>
+              <p>{story.decisive_moment}</p>
+            </aside>
+            <aside>
+              <span>{T.protagonist}</span>
+              <h3>{protagonistName}</h3>
+              <small>{protagonistRole}</small>
+              <p>{protagonistFact}</p>
+            </aside>
+          </div>
+          {anecdoteText && (
+            <blockquote>
+              <span>{T.notebook}</span>
+              <p>{anecdoteText}</p>
+              {anecdote.source_url && <cite><a href={anecdote.source_url} rel="noreferrer">{T.sources} ↗</a></cite>}
+            </blockquote>
+          )}
+          <p class="story-date">{T.asOf} {storyMeta.cutoff_date}</p>
+        </div>
+      ) : <p>{T.group}</p>}
+      <h2>{T.path}</h2>
+      <ol class="match-story">
+        {matches.map((m) => {
+          const result = scoreFor(m);
+          const resultLabel = !result ? T.next : m.winner ? (result.won ? T.won : T.lost) : result.gf === result.ga ? T.draw : result.won ? T.won : T.lost;
+          return (
+            <li class:list={{ future: !result }}>
+              <div class="match-stage"><span>{roundLabel[lang][m.stage] ?? m.stage}</span><time>{fmtDate(m.date)}</time></div>
+              <div class="match-line">
+                <strong>{name}</strong>
+                <b>{result ? `${result.gf}–${result.ga}` : '—'}</b>
+                <strong>{opponent(m)}</strong>
+              </div>
+              <p>{resultLabel}{result?.pens ? ` · ${result.pens.join('–')} ${T.pens}` : ''}</p>
+            </li>
+          );
+        })}
+      </ol>
+    </div>
+  </section>
+  <WcDisclaimer lang={lang} />
+</article>
+
+<style>
+  .team-hero { border-top: 4px solid var(--accent); padding-block: clamp(3rem, 8vw, 7rem); }
+  .team-hero h1 { max-width: 14ch; margin: .5rem 0 1rem; font-family: var(--serif); font-size: clamp(3rem, 7vw, 6.5rem); font-weight: 500; line-height: .92; letter-spacing: -.04em; }
+  .team-hero h1 span { font-size: .55em; vertical-align: .15em; }
+  .team-dek { max-width: 62ch; font-size: clamp(1.05rem, 2vw, 1.35rem); line-height: 1.55; color: var(--ink-2); }
+  .team-facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); max-width: 760px; margin-top: 2.5rem; border-block: 1px solid var(--rule); }
+  .team-facts div { padding: 1rem; border-right: 1px solid var(--rule); }
+  .team-facts div:first-child { padding-left: 0; } .team-facts div:last-child { border: 0; }
+  .team-facts strong, .team-facts span { display: block; }
+  .team-facts strong { font: 2rem var(--serif); }
+  .team-facts span { margin-top: .25rem; font: .65rem var(--mono); color: var(--ink-3); text-transform: uppercase; letter-spacing: .08em; }
+  .journey-copy { max-width: 900px; }
+  .journey-copy > p { max-width: 66ch; font-size: 1.1rem; line-height: 1.65; }
+  .editorial-story { max-width: 820px; }
+  .story-lede { margin: .65rem 0 2rem; font-family: var(--serif); font-size: clamp(1.35rem, 2.5vw, 1.85rem); line-height: 1.45; }
+  .story-cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px; margin-block: 2rem; background: var(--rule); border: 1px solid var(--rule); }
+  .story-cards aside { padding: 1.35rem; background: var(--paper); }
+  .story-cards span, blockquote span { font: .65rem var(--mono); color: var(--accent); text-transform: uppercase; letter-spacing: .09em; }
+  .story-cards h3 { margin: .45rem 0 0; font-family: var(--serif); font-size: 1.55rem; }
+  .story-cards small { color: var(--ink-3); text-transform: uppercase; letter-spacing: .06em; }
+  .story-cards p { margin: .65rem 0 0; line-height: 1.55; }
+  blockquote { margin: 2rem 0; padding: 1.4rem 1.6rem; border-left: 4px solid var(--accent); background: color-mix(in srgb, var(--accent) 5%, transparent); }
+  blockquote p { margin: .55rem 0; font-size: 1.05rem; line-height: 1.6; }
+  blockquote cite { font: .7rem var(--mono); font-style: normal; }
+  .story-date { color: var(--ink-3); font: .68rem var(--mono); text-transform: uppercase; letter-spacing: .06em; }
+  .journey-copy h2 { margin-top: 3rem; font-family: var(--serif); font-size: 2.2rem; }
+  .match-story { list-style: none; padding: 0; margin: 1.5rem 0 0; display: grid; }
+  .match-story li { padding: 1.15rem 0; border-top: 1px solid var(--rule); }
+  .match-stage, .match-line { display: flex; align-items: baseline; gap: 1rem; }
+  .match-stage { justify-content: space-between; font: .67rem var(--mono); color: var(--ink-3); text-transform: uppercase; letter-spacing: .08em; }
+  .match-line { margin-top: .45rem; font-size: 1.05rem; }
+  .match-line strong { flex: 1; } .match-line strong:last-child { text-align: right; }
+  .match-line b { font: 1.6rem var(--serif); }
+  .match-story li > p { margin: .25rem 0 0; text-align: center; font: .65rem var(--mono); color: var(--accent); text-transform: uppercase; letter-spacing: .08em; }
+  .match-story .future { opacity: .72; }
+  @media (max-width: 560px) { .team-facts strong { font-size: 1.5rem; } .team-facts div { padding-inline: .6rem; } .story-cards { grid-template-columns: 1fr; } }
+</style>

@@ -174,30 +174,31 @@ if (liveSemi) {
 
 const alive = board.filter((t) => t.p_champion > 0);
 const aliveNames = joinList(alive.map((t) => n(t)));
+const finalSet = !liveSemi && throughFinal.length >= 2;
 
 const koHeading: Record<string, { eyebrow: string; title: string }> = {
-  en: { eyebrow: `The model's read — run ${runDate}`, title: 'The favorite, the finalist and the last semifinal.' },
-  fr: { eyebrow: `La lecture du modèle — run ${runDate}`, title: 'Le favori, le finaliste et la dernière demi-finale.' },
-  es: { eyebrow: `La lectura del modelo — corrida ${runDate}`, title: 'El favorito, el finalista y la última semifinal.' },
+  en: { eyebrow: `The model's read — run ${runDate}`, title: finalSet ? 'Forty-eight teams became two.' : 'The favorite, the finalist and the last semifinal.' },
+  fr: { eyebrow: `La lecture du modèle — run ${runDate}`, title: finalSet ? 'Quarante-huit équipes sont devenues deux.' : 'Le favori, le finaliste et la dernière demi-finale.' },
+  es: { eyebrow: `La lectura del modelo — corrida ${runDate}`, title: finalSet ? 'Cuarenta y ocho selecciones se convirtieron en dos.' : 'El favorito, el finalista y la última semifinal.' },
 };
 
 const koParagraphs: Record<string, string[]> = {
   en: [
-    `<strong>${n(fav)}</strong> is the model's favorite at ${pct(fav.p_champion)} to lift the trophy${favSemiText} — ahead of <strong>${n(second)}</strong> (${pct(second.p_champion)}) and <strong>${n(third)}</strong> (${pct(third.p_champion)}).`,
+    finalSet ? `<strong>${n(fav)}</strong> enters the final with the model's narrow edge at ${pct(fav.p_champion)}; <strong>${n(second)}</strong> is at ${pct(second.p_champion)}. This is no longer a field forecast. It is one match, with every previous result already locked in.` : `<strong>${n(fav)}</strong> is the model's favorite at ${pct(fav.p_champion)} to lift the trophy${favSemiText} — ahead of <strong>${n(second)}</strong> (${pct(second.p_champion)}) and <strong>${n(third)}</strong> (${pct(third.p_champion)}).`,
     liveSemiSentence.en,
     alive.length <= 4
       ? `A tournament that opened with 48 teams is down to its final ${alive.length}: ${aliveNames} are the only sides still alive.`
       : `From 48 teams, ${alive.length} are still alive with a path to the title.`,
   ],
   fr: [
-    `<strong>${n(fav)}</strong> est le favori du modèle à ${pct(fav.p_champion)} de soulever le trophée${favSemiText} — devant <strong>${n(second)}</strong> (${pct(second.p_champion)}) et <strong>${n(third)}</strong> (${pct(third.p_champion)}).`,
+    finalSet ? `<strong>${n(fav)}</strong> aborde la finale avec le mince avantage du modèle à ${pct(fav.p_champion)}; <strong>${n(second)}</strong> est à ${pct(second.p_champion)}. Ce n'est plus une projection sur un tableau entier : tout se joue sur un match, avec chaque résultat précédent déjà intégré.` : `<strong>${n(fav)}</strong> est le favori du modèle à ${pct(fav.p_champion)} de soulever le trophée${favSemiText} — devant <strong>${n(second)}</strong> (${pct(second.p_champion)}) et <strong>${n(third)}</strong> (${pct(third.p_champion)}).`,
     liveSemiSentence.fr,
     alive.length <= 4
       ? `Un tournoi ouvert à 48 équipes est réduit à ses ${alive.length} dernières : ${aliveNames} sont les seules encore en lice.`
       : `Sur 48 équipes, ${alive.length} sont encore en lice avec un chemin vers le titre.`,
   ],
   es: [
-    `<strong>${n(fav)}</strong> es el favorito del modelo con ${pct(fav.p_champion)} de levantar el trofeo${favSemiText} — por delante de <strong>${n(second)}</strong> (${pct(second.p_champion)}) y <strong>${n(third)}</strong> (${pct(third.p_champion)}).`,
+    finalSet ? `<strong>${n(fav)}</strong> llega a la final con la ligera ventaja del modelo, un ${pct(fav.p_champion)}; <strong>${n(second)}</strong> tiene un ${pct(second.p_champion)}. Ya no es un pronóstico de todo el cuadro: queda un partido y cada resultado anterior ya está incorporado.` : `<strong>${n(fav)}</strong> es el favorito del modelo con ${pct(fav.p_champion)} de levantar el trofeo${favSemiText} — por delante de <strong>${n(second)}</strong> (${pct(second.p_champion)}) y <strong>${n(third)}</strong> (${pct(third.p_champion)}).`,
     liveSemiSentence.es,
     alive.length <= 4
       ? `Un torneo que abrió con 48 equipos se reduce a sus ${alive.length} últimos: ${aliveNames} son los únicos que siguen con vida.`

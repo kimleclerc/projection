@@ -9,7 +9,6 @@ import WcBracket from '../../../components/WcBracket.astro';
 import WcLiveScores from '../../../islands/WcLiveScores';
 import AnimatedNumber from '../../../islands/AnimatedNumber';
 import WcEditorial from '../../../components/WcEditorial.astro';
-import WcBeatTheModel from '../../../islands/WcBeatTheModel';
 import AffiliateCard from '../../../components/AffiliateCard.astro';
 import { flagFor } from '../../../lib/wc-flags';
 import wcData from '../../../../web_data/sports/worldcup2026_latest.json';
@@ -35,8 +34,8 @@ const board = wcData.board as Array<{
 const hero = wcData.hero;
 const meta = wcData.board_meta;
 
-const topTeams = board.slice(0, 10);
-const topThree = board.slice(0, 3);
+const topTeams = board.filter((team) => team.p_champion > 0);
+const topThree = board.filter((team) => team.p_champion > 0);
 
 const byConf: Record<string, typeof board> = {};
 for (const t of topTeams) {
@@ -90,10 +89,10 @@ const winnerUrl = winnerEmbed?.url ?? undefined;
   ]}
 >
   <EditorialHero
-    eyebrow="Torneo internacional 2026"
-    title="¿Quién gana el torneo intercontinental 2026?"
-    promise="48 selecciones. 50,000 simulaciones. Probabilidades de paso por ronda, de la fase de grupos a la final."
-    question="¿El favorito domina de verdad, o es una ventaja estrecha en un cuadro de 48 equipos?"
+    eyebrow="Copa del Mundo 2026 · la final · 19 de julio"
+    title="España hizo que pareciera inevitable. Argentina hizo imposible apartar la mirada."
+    promise="España–Argentina. La campeona vigente contra un equipo que no encajó en sus dos últimos partidos. Tras 102 encuentros, el modelo ve una final 53,59–46,41."
+    question="¿Argentina completa el doblete o España recupera el mundo?"
     primaryHref="/es/sports/"
     primaryLabel="Hub deportivo"
     secondaryHref="/es/sports/nhl/"
@@ -103,16 +102,16 @@ const winnerUrl = winnerEmbed?.url ?? undefined;
   <!-- Favoritos -->
   <section class="content-band">
     <div class="container">
-      <p class="eyebrow">Principales favoritos — modelo al {meta.run_date}</p>
+      <p class="eyebrow">La final — modelo al {meta.run_date}</p>
       <div class="content-grid-2" style="gap:1.5rem;margin-top:1rem;">
         {topThree.map((team, i) => (
           <div class="note-card" style="border-left:4px solid var(--accent);">
             <p class="eyebrow">
-              {i === 0 ? 'Favorito del torneo' : i === 1 ? 'Segundo' : 'Tercero'}
+              {i === 0 ? 'Ventaja del modelo' : 'Finalista'}
               · {team.confederation} · Grupo {team.group}
               {team.is_host ? ' · Sede' : ''}
             </p>
-            <h3 style="font-size:1.75rem;margin:0.25rem 0;">{flagFor(team.team)} {team.labels.es}</h3>
+            <h3 style="font-size:1.75rem;margin:0.25rem 0;"><a href={`/es/sports/wc2026/${team.team}/`}>{flagFor(team.team)} {team.labels.es}</a></h3>
             <p style="font-size:2rem;font-weight:700;color:var(--accent);">
               <AnimatedNumber client:visible value={team.p_champion} decimals={2} suffix="%" />
             </p>
@@ -127,18 +126,11 @@ const winnerUrl = winnerEmbed?.url ?? undefined;
           </div>
         ))}
       </div>
+      <p style="margin-top:1rem;"><a class="cta-link" href="/es/sports/wc2026/equipos/">Explorar las historias de las 48 selecciones →</a></p>
     </div>
   </section>
 
   <WcEditorial lang="es" board={board} groups={wcData.groups} runDate={meta.run_date} bracket={wcData.knockout_bracket} />
-
-  <section class="content-band" id="beat-the-model">
-    <div class="container">
-      <p class="eyebrow">Minijuego</p>
-      <h2>Vence al modelo.</h2>
-      <WcBeatTheModel client:visible lang="es" board={board} />
-    </div>
-  </section>
 
   <!-- Live & recent scores -->
   <section class="content-band">
@@ -151,8 +143,8 @@ const winnerUrl = winnerEmbed?.url ?? undefined;
   <!-- Board top 10 -->
   <section class="content-band">
     <div class="container">
-      <p class="eyebrow">Top 10 — probabilidades de campeonato</p>
-      <h2>Board completo del torneo</h2>
+      <p class="eyebrow">Las dos últimas — probabilidades de título</p>
+      <h2>El tablero de la final</h2>
       <p style="margin-bottom:1.5rem;font-size:0.9rem;">
         Fase: {meta.tournament_phase.replace(/_/g, ' ')} ·
         {meta.n_sims.toLocaleString()} simulaciones ·
@@ -222,8 +214,8 @@ const winnerUrl = winnerEmbed?.url ?? undefined;
   {hostTeams.length > 0 && (
     <section class="content-band">
       <div class="container">
-        <p class="eyebrow">Naciones sede</p>
-        <h2>Cómo están posicionadas las sedes.</h2>
+        <p class="eyebrow">Naciones sede · su torneo</p>
+        <h2>Dónde terminaron las sedes.</h2>
         <div class="content-grid-2" style="gap:1rem;margin-top:1rem;">
           {hostTeams.map((team) => (
             <div class="note-card" style="border-left:4px solid var(--accent);">
