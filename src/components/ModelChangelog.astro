@@ -1,0 +1,66 @@
+---
+/**
+ * « Grandes mises à jour » — le journal des versions NOMMÉES du modèle, rendu
+ * sur la page méthodologie. Source unique : src/data/modelVersion.ts (le même
+ * registre qui alimente le badge). Renommer une version = un seul endroit.
+ * Les ajustements mineurs (« sous mises à jour ») restent dans le corps des
+ * sections de la page méthodologie.
+ */
+import { MODEL_RELEASES, type NavLang } from '../data/modelVersion';
+
+interface Props { locale: NavLang; }
+const { locale } = Astro.props;
+
+const T = {
+  fr: { kicker: 'Grandes mises à jour', title: 'Versions du modèle',
+    lede: "Le modèle porte un nom de version — pas un simple numéro. Un nouveau nom marque une mise à jour majeure : nouveau comportement du moteur, ou recalibration qui déplace les résultats. Les ajustements mineurs sont notés au fil des sections ci-dessus.",
+    current: 'Version actuelle' },
+  en: { kicker: 'Major updates', title: 'Model versions',
+    lede: 'The model carries a version name — not a bare number. A new name marks a major update: new engine behaviour, or a recalibration that moves results. Minor tweaks are noted through the sections above.',
+    current: 'Current release' },
+  es: { kicker: 'Grandes actualizaciones', title: 'Versiones del modelo',
+    lede: 'El modelo lleva un nombre de versión — no un simple número. Un nombre nuevo marca una actualización mayor: nuevo comportamiento del motor o una recalibración que desplaza los resultados. Los ajustes menores se anotan en las secciones anteriores.',
+    current: 'Versión actual' },
+}[locale];
+
+const fmtSince = (s: string) => {
+  const [y, m] = s.split('-');
+  const d = new Date(Number(y), Number(m) - 1, 1);
+  return d.toLocaleDateString(locale === 'fr' ? 'fr-FR' : locale === 'es' ? 'es-ES' : 'en-CA', { month: 'long', year: 'numeric' });
+};
+---
+
+<section class="mcl">
+  <p class="mcl-kicker">{T.kicker}</p>
+  <h2 class="mcl-title">{T.title}</h2>
+  <p class="mcl-lede">{T.lede}</p>
+  <ol class="mcl-list">
+    {MODEL_RELEASES.map((r, i) => (
+      <li class="mcl-item">
+        <div class="mcl-head">
+          <span class="mcl-name">{r.name}</span>
+          <span class="mcl-since">{fmtSince(r.since)}</span>
+          {i === 0 && <span class="mcl-current">{T.current}</span>}
+        </div>
+        <p class="mcl-note">{r.headline[locale]}</p>
+      </li>
+    ))}
+  </ol>
+</section>
+
+<style>
+  .mcl { max-width: 760px; margin: 56px auto 0; padding: 0 var(--gutter, 20px); }
+  .mcl-kicker { margin: 0 0 6px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-3); }
+  .mcl-title { margin: 0 0 10px; font-family: var(--serif); font-size: clamp(24px, 3vw, 32px); font-weight: 430; }
+  .mcl-lede { margin: 0 0 24px; color: var(--ink-2); font-size: 15px; line-height: 1.6; max-width: 640px; }
+  .mcl-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 14px; }
+  .mcl-item { border-left: 3px solid var(--ink); padding: 4px 0 4px 16px; }
+  .mcl-head { display: flex; align-items: baseline; flex-wrap: wrap; gap: 10px; }
+  .mcl-name { font-family: var(--serif); font-size: 20px; font-weight: 500; color: var(--ink); }
+  .mcl-since { font-family: var(--mono); font-size: 11px; color: var(--ink-3); text-transform: capitalize; }
+  .mcl-current {
+    font-family: var(--mono); font-size: 9px; letter-spacing: 0.06em; text-transform: uppercase;
+    padding: 2px 7px; border-radius: 999px; background: var(--ink); color: var(--paper-3);
+  }
+  .mcl-note { margin: 6px 0 0; color: var(--ink-2); font-size: 14px; line-height: 1.6; }
+</style>

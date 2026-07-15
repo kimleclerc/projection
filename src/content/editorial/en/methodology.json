@@ -2,10 +2,10 @@
   "locale": "en",
   "slug": "methodology",
   "title": "Methodology: How Our Election Projections Are Calculated — Vote-Scope",
-  "description": "How Vote-Scope projects seats: weighted poll aggregation, per-poll quality audits, house-effect corrections, a Bayesian BSTS model and up to 50,000 Monte Carlo simulations. Transparent and verifiable.",
+  "description": "How Vote-Scope projects seats: Bayesian BSTS poll aggregation, per-poll quality audits, measured house-effect corrections, correlations estimated from the data, and calibration published against past elections. Simulation only translates intentions into seats at the very end. Transparent and verifiable.",
   "eyebrow": "Methodology · Vote-Scope",
   "h1Html": "How we calculate<br><em>who's going to win</em>",
-  "intro": "Vote-Scope doesn't just display polls. Every poll is audited, weighted, corrected for bias, then fused into a Bayesian statistical model that feeds tens of thousands of full election simulations. Here is every stage of the machine — because a projection you can't inspect is worth nothing.",
+  "intro": "Vote-Scope doesn't just display polls — and it isn't one more Monte Carlo. What sets the model apart happens before the simulation: every poll is audited, weighted, then corrected for its actually-measured house effects, before being fused into a Bayesian state-space model (BSTS) whose between-party correlations are estimated from the data and whose accuracy is calibrated on past elections. Simulation only comes at the very end of the chain, to translate those intentions into seats. Here is every stage of the machine — because a projection you can't inspect is worth nothing.",
   "sections": [
     {
       "number": "01",
@@ -29,8 +29,8 @@
     },
     {
       "number": "05",
-      "title": "Monte Carlo: up to 50,000 simulated elections",
-      "bodyHtml": "<p>A national average doesn't produce seats. To translate votes into seats, we simulate the full election tens of thousands of times — <strong>50,000 simulations federally, 20,000 in Quebec</strong>. Each simulation draws a plausible national result from the BSTS distributions, respecting the <strong>cross-party correlation matrix</strong> estimated from the data: when one party rises, the model knows whom it is taking votes from.</p><p>That national result is then cascaded region by region using <strong>swing elasticities</strong>: each region and riding type (urban, rural) reacts differently to the same national movement, calibrated on past elections. Regional swing anchors on the polls' regional breakdowns when they exist, on history otherwise. Federally, by-election results serve as an extra local anchor. Riding-level noise completes the picture — because every riding has its surprises.</p><p>Published numbers are statistics over these simulations: the seat projection is the average, the 80% interval covers the central scenarios, and “majority probability: 90%” literally means the party wins a majority in 9 out of 10 simulations.</p>"
+      "title": "From votes to seats: the simulated election",
+      "bodyHtml": "<p>A national average doesn't produce seats. The Monte Carlo simulation isn't what sets the model apart — it's simply the translation tool: once intentions are estimated and corrected, we replay the full election tens of thousands of times — <strong>50,000 simulations federally, 20,000 in Quebec</strong>. Each simulation draws a plausible national result from the BSTS distributions, respecting the <strong>cross-party correlation matrix</strong> estimated from the data: when one party rises, the model knows whom it is taking votes from.</p><p>That national result is then cascaded region by region using <strong>swing elasticities</strong>: each region and riding type (urban, rural) reacts differently to the same national movement, calibrated on past elections. Regional swing anchors on the polls' regional breakdowns when they exist, on history otherwise. Federally, by-election results serve as an extra local anchor. Riding-level noise completes the picture — because every riding has its surprises.</p><p>Published numbers are statistics over these simulations: the seat projection is the average, the 80% interval covers the central scenarios, and “majority probability: 90%” literally means the party wins a majority in 9 out of 10 simulations.</p>"
     },
     {
       "number": "06",

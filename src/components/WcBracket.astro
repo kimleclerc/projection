@@ -1,24 +1,37 @@
 ---
-// Scaffold du tableau à élimination directe — tournoi mondial 2026.
+// Tableau à élimination directe — tournoi mondial 2026.
 // Composant partagé en/fr/es. Tant que la phase de groupes n'est pas terminée,
-// les appariements ne sont pas connus : on affiche la structure des 5 tours en
-// attente. Quand knockout_bracket se remplit (current_round != group_stage),
-// on affiche les équipes réelles par tour.
+// on affiche la structure des tours en attente. Dès que knockout_bracket se
+// remplit, on affiche les appariements réels : équipes, scores, tirs au but,
+// vainqueur, et probabilités de victoire pour les matchs à venir.
+// Les créneaux non résolus (ex. « W102 ») sont résolus vers l'équipe réelle
+// quand le match source est joué, sinon affichés « à déterminer ».
 // Langage générique (pays, « tournoi »), aucune marque officielle.
+import { flagFor } from '../lib/wc-flags';
+
 type Lang = 'en' | 'fr' | 'es';
 
-interface BracketSlot {
-  home?: Record<string, string> | string;
-  away?: Record<string, string> | string;
-  winner?: Record<string, string> | string;
+interface BracketMatch {
+  num?: number;
+  date?: string;
+  team1?: string | null;
+  team2?: string | null;
+  team1_label?: Record<string, string>;
+  team2_label?: Record<string, string>;
+  score?: [number, number] | null;
+  pens?: [number, number] | null;
+  winner?: string | null;
+  decided?: boolean;
+  win_probs?: Record<string, number>;
 }
 interface Bracket {
   current_round: string;
-  r32?: Record<string, BracketSlot> | BracketSlot[];
-  r16?: Record<string, BracketSlot> | BracketSlot[];
-  qf?: Record<string, BracketSlot> | BracketSlot[];
-  sf?: Record<string, BracketSlot> | BracketSlot[];
-  final?: Record<string, BracketSlot> | BracketSlot[] | BracketSlot;
+  r32?: BracketMatch[];
+  r16?: BracketMatch[];
+  qf?: BracketMatch[];
+  sf?: BracketMatch[];
+  final?: BracketMatch[];
+  third_place?: BracketMatch[];
 }
 
 interface Props {
@@ -33,22 +46,22 @@ const T: Record<Lang, Record<string, string>> = {
     eyebrow: 'Knockout bracket',
     heading: 'The road to the final',
     pending: 'The bracket is set once the group stage ends. 32 teams advance — the 12 group winners, 12 runners-up and the 8 best third-placed teams — into a single-elimination bracket.',
-    r32: 'Round of 32', r16: 'Round of 16', qf: 'Quarter-finals', sf: 'Semi-finals', final: 'Final',
-    matches: 'matches', tbd: 'To be determined',
+    r32: 'Round of 32', r16: 'Round of 16', qf: 'Quarter-finals', sf: 'Semi-finals', final: 'Final', third: 'Third place',
+    matches: 'matches', tbd: 'To be determined', pens: 'pens', toWin: 'to win', live: 'upcoming',
   },
   fr: {
     eyebrow: 'Tableau à élimination directe',
     heading: 'Le chemin vers la finale',
     pending: 'Le tableau se fixe à la fin de la phase de groupes. 32 équipes se qualifient — les 12 vainqueurs de groupe, 12 deuxièmes et les 8 meilleurs troisièmes — pour un tableau à élimination directe.',
-    r32: '16es de finale', r16: '8es de finale', qf: 'Quarts de finale', sf: 'Demi-finales', final: 'Finale',
-    matches: 'matchs', tbd: 'À déterminer',
+    r32: '16es de finale', r16: '8es de finale', qf: 'Quarts de finale', sf: 'Demi-finales', final: 'Finale', third: 'Petite finale',
+    matches: 'matchs', tbd: 'À déterminer', pens: 't.a.b.', toWin: 'de gagner', live: 'à venir',
   },
   es: {
     eyebrow: 'Cuadro eliminatorio',
     heading: 'El camino a la final',
     pending: 'El cuadro queda definido al terminar la fase de grupos. 32 selecciones avanzan — los 12 primeros de grupo, 12 segundos y los 8 mejores terceros — a un cuadro de eliminación directa.',
-    r32: 'Dieciseisavos', r16: 'Octavos', qf: 'Cuartos', sf: 'Semifinales', final: 'Final',
-    matches: 'partidos', tbd: 'Por determinar',
+    r32: 'Dieciseisavos', r16: 'Octavos', qf: 'Cuartos', sf: 'Semifinales', final: 'Final', third: 'Tercer puesto',
+    matches: 'partidos', tbd: 'Por determinar', pens: 'pen.', toWin: 'de ganar', live: 'próximo',
   },
 };
 const t = T[lang];
@@ -63,12 +76,80 @@ const rounds = [
 
 const isPending = !bracket || bracket.current_round === 'group_stage';
 
-const slotCount = (key: string): number => {
+// Index de tous les matchs par numéro, pour résoudre les créneaux « W101 » / « L101 ».
+const byNum = new Map<number, BracketMatch>();
+if (!isPending) {
+  for (const r of ['r32', 'r16', 'qf', 'sf', 'final', 'third_place'] as const) {
+    for (const m of (bracket as any)[r] ?? []) {
+      if (typeof m.num === 'number') byNum.set(m.num, m);
+    }
+  }
+}
+
+const lbl = (o: Record<string, string> | undefined): string =>
+  o?.[lang] ?? o?.en ?? '?';
+
+interface Slot {
+  code: string | null;
+  label: string;
+  flag: string;
+  score: number | null;
+  isWinner: boolean;
+  prob: number | null;
+  tbd: boolean;
+}
+
+// Résout un côté d'un match en équipe concrète (ou placeholder « à déterminer »).
+function slot(m: BracketMatch, side: 1 | 2): Slot {
+  let code = side === 1 ? m.team1 : m.team2;
+  let label = lbl(side === 1 ? m.team1_label : m.team2_label);
+
+  // Créneau non peuplé : tenter de résoudre « W<num> » / « L<num> ».
+  if (!code) {
+    const ref = /^([WL])(\d+)$/.exec(label);
+    if (ref) {
+      const src = byNum.get(Number(ref[2]));
+      if (src && src.decided && src.winner) {
+        const isW = ref[1] === 'W';
+        const winCode = src.winner;
+        const loseCode = src.team1 === winCode ? src.team2 : src.team1;
+        code = isW ? winCode : (loseCode ?? null);
+        if (code) {
+          label = code === src.team1 ? lbl(src.team1_label) : lbl(src.team2_label);
+        }
+      }
+    }
+  }
+
+  const tbd = !code;
+  const score = m.decided && m.score ? m.score[side - 1] : null;
+  const prob = !m.decided && code && m.win_probs && m.win_probs[code] != null
+    ? Math.round(m.win_probs[code] * 100)
+    : null;
+
+  return {
+    code: code ?? null,
+    label: tbd ? t.tbd : label,
+    flag: code ? flagFor(code) : '',
+    score,
+    isWinner: !!(m.winner && code && m.winner === code),
+    prob,
+    tbd,
+  };
+}
+
+function pensText(m: BracketMatch): string | null {
+  if (!m.pens) return null;
+  return `${t.pens} ${m.pens[0]}–${m.pens[1]}`;
+}
+
+// Matchs d'un tour (tableau vide → placeholders).
+function roundMatches(key: string): BracketMatch[] {
   const r = (bracket as any)?.[key];
-  if (Array.isArray(r)) return r.length;
-  if (r && typeof r === 'object') return Object.keys(r).length;
-  return 0;
-};
+  return Array.isArray(r) ? r : [];
+}
+
+const thirdPlace = (bracket?.third_place ?? [])[0];
 ---
 
 <section class="content-band">
@@ -80,7 +161,8 @@ const slotCount = (key: string): number => {
     )}
     <div class="wc-bracket">
       {rounds.map((r) => {
-        const filled = slotCount(r.key);
+        const matches = roundMatches(r.key);
+        const filled = matches.length;
         return (
           <div class="wc-round">
             <p class="wc-round-label">{r.label}</p>
@@ -88,14 +170,54 @@ const slotCount = (key: string): number => {
               {filled > 0 ? `${filled} ${t.matches}` : `${r.count} ${t.matches}`}
             </p>
             <div class="wc-round-slots">
-              {Array.from({ length: r.count }).map(() => (
-                <div class="wc-slot" aria-hidden="true"></div>
-              ))}
+              {filled > 0
+                ? matches.map((m) => {
+                    const a = slot(m, 1);
+                    const b = slot(m, 2);
+                    const pens = pensText(m);
+                    const upcoming = !m.decided;
+                    return (
+                      <div class={`wc-match${upcoming ? ' is-upcoming' : ''}`}>
+                        {[a, b].map((s) => (
+                          <div class={`wc-team${s.isWinner ? ' is-winner' : ''}${s.tbd ? ' is-tbd' : ''}`}>
+                            <span class="wc-flag">{s.flag}</span>
+                            <span class="wc-name">{s.label}</span>
+                            {s.score != null && <span class="wc-score">{s.score}</span>}
+                            {s.prob != null && <span class="wc-prob">{s.prob}%</span>}
+                          </div>
+                        ))}
+                        {pens && <p class="wc-pens">{pens}</p>}
+                        {upcoming && !a.tbd && !b.tbd && <p class="wc-tag">{t.live}</p>}
+                      </div>
+                    );
+                  })
+                : Array.from({ length: r.count }).map(() => (
+                    <div class="wc-slot" aria-hidden="true"></div>
+                  ))}
             </div>
           </div>
         );
       })}
     </div>
+
+    {thirdPlace && (() => {
+      const a = slot(thirdPlace, 1);
+      const b = slot(thirdPlace, 2);
+      return (
+        <div class="wc-third">
+          <p class="wc-round-label">{t.third}</p>
+          <div class={`wc-match${!thirdPlace.decided ? ' is-upcoming' : ''}`} style="max-width:220px;">
+            {[a, b].map((s) => (
+              <div class={`wc-team${s.isWinner ? ' is-winner' : ''}${s.tbd ? ' is-tbd' : ''}`}>
+                <span class="wc-flag">{s.flag}</span>
+                <span class="wc-name">{s.label}</span>
+                {s.score != null && <span class="wc-score">{s.score}</span>}
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    })()}
   </div>
 </section>
 
@@ -109,8 +231,8 @@ const slotCount = (key: string): number => {
     align-items: stretch;
   }
   .wc-round {
-    flex: 1 0 130px;
-    min-width: 130px;
+    flex: 1 0 160px;
+    min-width: 160px;
     display: flex;
     flex-direction: column;
   }
@@ -123,11 +245,46 @@ const slotCount = (key: string): number => {
     margin: 0;
   }
   .wc-round-count { font-size: 0.75rem; color: var(--ink-3, #888); margin: 0.1rem 0 0.5rem; }
-  .wc-round-slots { display: flex; flex-direction: column; gap: 6px; justify-content: space-around; flex: 1; }
+  .wc-round-slots { display: flex; flex-direction: column; gap: 8px; justify-content: space-around; flex: 1; }
+
   .wc-slot {
-    height: 18px;
+    height: 40px;
     border: 1px dashed var(--rule, #ccc);
-    border-radius: 3px;
+    border-radius: 4px;
     background: var(--surface-alt, #fafafa);
   }
+
+  .wc-match {
+    border: 1px solid var(--rule, #e2e2e2);
+    border-radius: 5px;
+    background: var(--surface, #fff);
+    overflow: hidden;
+  }
+  .wc-match.is-upcoming { border-style: dashed; border-color: var(--accent, #c00); }
+
+  .wc-team {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 8px;
+    font-size: 0.82rem;
+    line-height: 1.2;
+  }
+  .wc-team + .wc-team { border-top: 1px solid var(--rule, #eee); }
+  .wc-team.is-winner { font-weight: 700; background: color-mix(in srgb, var(--accent, #c00) 8%, transparent); }
+  .wc-team.is-tbd { color: var(--ink-3, #999); font-style: italic; }
+  .wc-flag { flex: 0 0 auto; }
+  .wc-name { flex: 1 1 auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .wc-score { flex: 0 0 auto; font-variant-numeric: tabular-nums; font-weight: 700; }
+  .wc-prob { flex: 0 0 auto; font-size: 0.72rem; color: var(--ink-3, #888); font-variant-numeric: tabular-nums; }
+
+  .wc-pens { margin: 0; padding: 2px 8px 4px; font-size: 0.68rem; color: var(--ink-3, #888); text-align: right; }
+  .wc-tag {
+    margin: 0; padding: 2px 8px 4px;
+    font-family: var(--mono, monospace);
+    font-size: 9px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--accent, #c00);
+  }
+
+  .wc-third { margin-top: 1.25rem; }
 </style>

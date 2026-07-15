@@ -1,0 +1,217 @@
+---
+// Page de compilation des sondages présidentiels France 2027 (fr/en/es).
+// Le modèle est par scénarios : un sondage = une firme × une date × un casting.
+// On liste chaque sondage publié, maison par maison — parts du 1er tour et
+// duels du 2d tour — l'équivalent présidentiel des pages « Sondages » des
+// autres juridictions. Données : web_data/france-presidential/polls.json.
+import JurisdictionNav from './JurisdictionNav.astro';
+import GooglePreferredSource from './GooglePreferredSource.astro';
+import pollsData from '../../web_data/france-presidential/polls.json';
+import { blocVar, blocLabel, fmtPct1, type Locale } from '../lib/fr-pres';
+
+interface Props { locale: Locale; }
+const { locale } = Astro.props;
+
+const data = pollsData as any;
+const cands = data.candidates as Record<string, { name: string; short_label: string; bloc: string }>;
+const firstRound = data.first_round as any[];
+const runoff = data.runoff as any[];
+
+const dateLocale = locale === 'fr' ? 'fr-FR' : locale === 'es' ? 'es-ES' : 'en-CA';
+const fmtDate = (iso: string | null): string =>
+  iso ? new Date(`${iso}T12:00:00`).toLocaleDateString(dateLocale, { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+
+const C = {
+  fr: {
+    eyebrow: 'Sondages · France · Présidentielle 2027',
+    h1: 'Sondages de la présidentielle.',
+    lede1: 'Chaque sondage publié sur la présidentielle 2027, maison par maison. Le modèle teste des castings : un sondage mesure une configuration de candidatures précise, pas une liste figée.',
+    lede2: 'Vote-Scope les agrège par scénario pour projeter le premier tour et les duels du second. Ci-dessous, la compilation brute — cliquez la source pour l’original.',
+    firstTitle: 'Premier tour',
+    firstHelp: (n: number) => `${n} sondages agrégés depuis 2023. Les deux premiers de chaque casting se qualifieraient.`,
+    runoffTitle: 'Second tour — duels',
+    runoffHelp: (n: number) => `${n} duels testés en tête-à-tête.`,
+    sample: 'éch.',
+    source: 'source',
+    vs: 'contre',
+  },
+  en: {
+    eyebrow: 'Polls · France · 2027 Presidential',
+    h1: 'Presidential polling.',
+    lede1: 'Every published poll on the 2027 French presidential race, pollster by pollster. The model tests lineups: a poll measures one specific candidate configuration, not a fixed list.',
+    lede2: 'Vote-Scope aggregates them by scenario to project the first round and the runoff. Below, the raw compilation — click the source for the original.',
+    firstTitle: 'First round',
+    firstHelp: (n: number) => `${n} polls aggregated since 2023. The top two in each lineup would advance.`,
+    runoffTitle: 'Runoff — head-to-heads',
+    runoffHelp: (n: number) => `${n} head-to-head matchups tested.`,
+    sample: 'n',
+    source: 'source',
+    vs: 'vs',
+  },
+  es: {
+    eyebrow: 'Sondeos · Francia · Presidencial 2027',
+    h1: 'Sondeos presidenciales.',
+    lede1: 'Cada sondeo publicado sobre la presidencial francesa de 2027, encuestadora por encuestadora. El modelo prueba combinaciones: un sondeo mide una configuración de candidaturas concreta, no una lista fija.',
+    lede2: 'Vote-Scope los agrega por escenario para proyectar la primera vuelta y la segunda. Abajo, la compilación en bruto — haz clic en la fuente para el original.',
+    firstTitle: 'Primera vuelta',
+    firstHelp: (n: number) => `${n} sondeos agregados desde 2023. Los dos primeros de cada combinación pasarían.`,
+    runoffTitle: 'Segunda vuelta — duelos',
+    runoffHelp: (n: number) => `${n} duelos probados mano a mano.`,
+    sample: 'm',
+    source: 'fuente',
+    vs: 'vs',
+  },
+}[locale];
+
+const nm = (id: string) => cands[id]?.short_label ?? cands[id]?.name ?? id;
+const bloc = (id: string) => cands[id]?.bloc ?? 'other';
+---
+
+<JurisdictionNav webKey="france" lang={locale} active="polls" />
+
+<article class="frp">
+  <header class="frp-head container">
+    <p class="eyebrow">{C.eyebrow}</p>
+    <h1>{C.h1}</h1>
+    <p class="frp-lede">{C.lede1}</p>
+    <p class="frp-lede frp-lede-2">{C.lede2}</p>
+  </header>
+
+  <!-- PREMIER TOUR -->
+  <section class="frp-section container" aria-labelledby="frp-first">
+    <h2 id="frp-first" class="frp-h2">{C.firstTitle}</h2>
+    <p class="frp-help">{C.firstHelp(firstRound.length)}</p>
+    <ul class="frp-list">
+      {firstRound.map((p) => {
+        const max = Math.max(...p.entries.map((e: any) => e.share), 1);
+        return (
+          <li class="frp-poll">
+            <div class="frp-poll-head">
+              <span class="frp-firm">{p.firm_name}</span>
+              <span class="frp-date">{fmtDate(p.release_date)}</span>
+              {p.sample_size && <span class="frp-n">{C.sample} {p.sample_size.toLocaleString(dateLocale)}</span>}
+              {p.source_url && <a class="frp-src" href={p.source_url} target="_blank" rel="noopener nofollow">{C.source} ↗</a>}
+            </div>
+            <ul class="frp-bars">
+              {p.entries.map((e: any, i: number) => (
+                <li class={`frp-bar-row${i < 2 ? ' is-top2' : ''}`}>
+                  <span class="frp-bar-name">
+                    <span class="frp-swatch" style={`background:${blocVar(bloc(e.id))}`} />
+                    {nm(e.id)}
+                  </span>
+                  <span class="frp-bar-track">
+                    <span class="frp-bar-fill" style={`width:${(e.share / max) * 100}%;background:${blocVar(bloc(e.id))}`} />
+                  </span>
+                  <span class="frp-bar-val">{fmtPct1(e.share, locale)}</span>
+                </li>
+              ))}
+            </ul>
+          </li>
+        );
+      })}
+    </ul>
+  </section>
+
+  <!-- SECOND TOUR -->
+  <section class="frp-section container" aria-labelledby="frp-runoff">
+    <h2 id="frp-runoff" class="frp-h2">{C.runoffTitle}</h2>
+    <p class="frp-help">{C.runoffHelp(runoff.length)}</p>
+    <ul class="frp-duels">
+      {runoff.map((d) => {
+        const leftWins = (d.left_share ?? 0) >= (d.right_share ?? 0);
+        return (
+          <li class="frp-duel">
+            <div class="frp-poll-head">
+              <span class="frp-firm">{d.firm_name}</span>
+              <span class="frp-date">{fmtDate(d.release_date)}</span>
+              {d.sample_size && <span class="frp-n">{C.sample} {d.sample_size.toLocaleString(dateLocale)}</span>}
+              {d.source_url && <a class="frp-src" href={d.source_url} target="_blank" rel="noopener nofollow">{C.source} ↗</a>}
+            </div>
+            <p class="frp-duel-line">
+              <span class={leftWins ? 'is-win' : ''}>
+                <span class="frp-swatch" style={`background:${blocVar(bloc(d.left_id))}`} />
+                {nm(d.left_id)} <b>{d.left_share != null ? fmtPct1(d.left_share, locale) : '—'}</b>
+              </span>
+              <span class="frp-vs">{C.vs}</span>
+              <span class={!leftWins ? 'is-win' : ''}>
+                <b>{d.right_share != null ? fmtPct1(d.right_share, locale) : '—'}</b> {nm(d.right_id)}
+                <span class="frp-swatch" style={`background:${blocVar(bloc(d.right_id))}`} />
+              </span>
+            </p>
+          </li>
+        );
+      })}
+    </ul>
+  </section>
+
+  <section class="frp-section container">
+    <GooglePreferredSource locale={locale} />
+  </section>
+</article>
+
+<style>
+  /* Palette de blocs — identique au desk présidentiel (validée dataviz). */
+  .frp {
+    --bloc-far_left: #6b1f2e; --bloc-left: #b0202a; --bloc-left_radical: #c1272d;
+    --bloc-left_populist: #d4602e; --bloc-left_social_dem: #e5567f; --bloc-greens: #4a9d5b;
+    --bloc-centre: #b7860f; --bloc-centre_right: #bf6d1f; --bloc-right: #3f82d6;
+    --bloc-sovereignist: #6d4c8a; --bloc-far_right: #2b4f8c; --bloc-other: var(--ink-3);
+    padding-block: 40px 96px;
+  }
+  :global(:root[data-theme='dark']) .frp {
+    --bloc-far_left: #a8474f; --bloc-left: #d24b52; --bloc-left_radical: #e0574f;
+    --bloc-left_populist: #e08a5a; --bloc-left_social_dem: #d5628a; --bloc-greens: #4fa460;
+    --bloc-centre: #b88d2c; --bloc-centre_right: #cc7f3e; --bloc-right: #5a95d8;
+    --bloc-sovereignist: #9c7ac0; --bloc-far_right: #3a6bb0;
+  }
+
+  .frp-head { max-width: 760px; padding-top: 40px; }
+  .frp-head h1 {
+    margin: 8px 0 16px; font-family: var(--serif);
+    font-size: clamp(34px, 5vw, 56px); font-weight: 420; letter-spacing: -0.02em; line-height: 1.02;
+  }
+  .frp-lede { max-width: 680px; margin: 0 0 12px; color: var(--ink-2); font-size: 16px; line-height: 1.6; }
+  .frp-lede-2 { color: var(--ink-3); }
+
+  .frp-section { max-width: 900px; margin-top: 48px; }
+  .frp-h2 { margin: 0 0 6px; font-family: var(--serif); font-size: clamp(24px, 3vw, 34px); font-weight: 430; }
+  .frp-help { margin: 0 0 20px; font-family: var(--mono); font-size: 12px; color: var(--ink-3); }
+
+  .frp-list, .frp-duels { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+  .frp-poll, .frp-duel {
+    border: 1px solid var(--rule); border-radius: 8px; background: var(--card); padding: 14px 16px;
+  }
+  .frp-poll-head {
+    display: flex; align-items: baseline; flex-wrap: wrap; gap: 6px 12px; margin-bottom: 12px;
+    font-family: var(--mono); font-size: 11px;
+  }
+  .frp-firm { font-size: 14px; font-weight: 600; color: var(--ink); font-family: var(--serif); }
+  .frp-date { color: var(--ink-2); }
+  .frp-n { color: var(--ink-3); }
+  .frp-src { margin-left: auto; color: var(--ink-3); text-decoration: none; letter-spacing: 0.04em; }
+  .frp-src:hover { color: var(--ink); }
+
+  .frp-bars { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 5px; }
+  .frp-bar-row { display: grid; grid-template-columns: minmax(96px, 1.1fr) 3fr auto; align-items: center; gap: 10px; }
+  .frp-bar-name { display: flex; align-items: center; gap: 7px; font-family: var(--mono); font-size: 12px; color: var(--ink-2); }
+  .frp-bar-row.is-top2 .frp-bar-name { color: var(--ink); font-weight: 600; }
+  .frp-swatch { width: 10px; height: 10px; border-radius: 2px; flex: none; }
+  .frp-bar-track { position: relative; height: 14px; background: var(--paper-2); border-radius: 3px; overflow: hidden; }
+  .frp-bar-fill { position: absolute; inset-block: 0; left: 0; border-radius: 3px; min-width: 2px; opacity: 0.9; }
+  .frp-bar-row.is-top2 .frp-bar-fill { opacity: 1; }
+  .frp-bar-val { font-family: var(--mono); font-size: 12px; color: var(--ink); font-variant-numeric: tabular-nums; min-width: 44px; text-align: right; }
+
+  .frp-duel-line {
+    margin: 0; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;
+    font-family: var(--mono); font-size: 13px; color: var(--ink-3);
+  }
+  .frp-duel-line > span { display: inline-flex; align-items: center; gap: 7px; }
+  .frp-duel-line .is-win { color: var(--ink); }
+  .frp-duel-line b { color: inherit; }
+  .frp-vs { color: var(--ink-4); font-size: 11px; }
+
+  @media (max-width: 560px) {
+    .frp-bar-row { grid-template-columns: 1fr auto; }
+    .frp-bar-track { display: none; }
+  }
+</style>

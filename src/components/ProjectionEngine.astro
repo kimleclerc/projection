@@ -1,5 +1,6 @@
 ---
 import type { Jurisdiction, Locale, ProjectionData } from '../data/jurisdictions';
+import { modelBadge } from '../data/modelVersion';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import ScenariosChart from '../islands/ScenariosChart.tsx';
@@ -169,11 +170,11 @@ const isFr = locale === "fr";
 const isEs = locale === "es";
 const t = {
   heroTagline: isFr
-    ? "Agrégation de sondages · Modèle BSTS · Simulations Monte Carlo"
+    ? "Agrégation bayésienne BSTS · Biais d’institut corrigés · Calibré sur le passé"
     : isEs
-    ? "Agregación de encuestas · Modelo BSTS · Simulaciones Monte Carlo"
-    : "Poll aggregation · BSTS model · Monte Carlo simulations",
-  modelBadge: isFr ? "Modèle v1" : isEs ? "Modelo v1" : "Model v1",
+    ? "Agregación bayesiana BSTS · Sesgos de encuestadora corregidos · Contrastado con el pasado"
+    : "Bayesian BSTS aggregation · Corrected house effects · Backtested",
+  modelBadge: modelBadge(locale),
   runDate: isFr
     ? `Dernier run : ${meta.run_date}`
     : isEs

@@ -1,0 +1,36 @@
+---
+import EditorialLayout from '../../../../layouts/EditorialLayout.astro';
+import FrancePollsPage from '../../../../components/FrancePollsPage.astro';
+import polls from '../../../../../web_data/france-presidential/polls.json';
+
+const meta = (polls as any).meta;
+const canonical = 'https://vote-scope.com/en/france/polls/';
+const alternates = {
+  en: canonical,
+  fr: 'https://vote-scope.com/fr/france/sondages/',
+  es: 'https://vote-scope.com/es/france/sondeos/',
+};
+---
+
+<EditorialLayout
+  title="France 2027 presidential polls — Vote-Scope compilation"
+  description={`Every published poll on the 2027 French presidential race, pollster by pollster: ${meta.n_first_round_polls} first-round polls and ${meta.n_runoff_polls} runoff head-to-heads, aggregated by Vote-Scope.`}
+  canonical={canonical}
+  lang="en"
+  currentPage="france"
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={alternates}
+  jsonLd={[{
+    '@context': 'https://schema.org',
+    '@type': 'Dataset',
+    name: 'France 2027 presidential polls',
+    description: 'Compilation of first-round and runoff polls for the 2027 French presidential election.',
+    url: canonical,
+    dateModified: meta.generated_at,
+    creator: { '@type': 'Person', name: 'Kim Leclerc', url: 'https://kimleclerc.ca' },
+    publisher: { '@type': 'Organization', name: 'Vote-Scope', url: 'https://vote-scope.com' },
+    isAccessibleForFree: true,
+  }]}
+>
+  <FrancePollsPage locale="en" />
+</EditorialLayout>

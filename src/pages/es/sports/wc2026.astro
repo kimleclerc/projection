@@ -130,7 +130,7 @@ const winnerUrl = winnerEmbed?.url ?? undefined;
     </div>
   </section>
 
-  <WcEditorial lang="es" board={board} groups={wcData.groups} runDate={meta.run_date} />
+  <WcEditorial lang="es" board={board} groups={wcData.groups} runDate={meta.run_date} bracket={wcData.knockout_bracket} />
 
   <section class="content-band" id="beat-the-model">
     <div class="container">
@@ -265,11 +265,11 @@ const winnerUrl = winnerEmbed?.url ?? undefined;
 
   <MethodologyNote
     title="50,000 simulaciones. De la fase de grupos al cuadro final."
-    body="El modelo del torneo internacional 2026 utiliza un enfoque ELO-blend: fortaleza de selección ajustada por confederación, combinada con un factor de ponderación calibrado en los mercados (α=0.65). Cada una de las 50,000 simulaciones recorre el cuadro completo de 48 selecciones de la fase de grupos a la final."
+    body="El modelo del torneo internacional 2026 combina la fortaleza de selección ajustada por confederación con una simulación de Montecarlo del cuadro completo de 48 selecciones. Una vez iniciado el torneo, se condiciona a los resultados reales: los partidos ya jugados quedan fijados y solo se resimula el resto del cuadro (50 000 veces), sin mezcla de mercado."
     bullets={[
       '48 selecciones en 12 grupos de 4 — los 2 primeros de cada grupo más los 8 mejores terceros avanzan.',
       'Fortaleza calculada sobre resultados internacionales recientes ponderados por calidad del rival.',
-      'Factor de blend α=0.65 calibrado contra los mercados de apuestas del torneo.',
+      'Durante el torneo, el modelo se condiciona a los resultados reales — sin mezcla de mercado en los partidos ya jugados.',
       'Fase de grupos: las probabilidades se actualizan a medida que se resuelven los partidos.',
     ]}
   />

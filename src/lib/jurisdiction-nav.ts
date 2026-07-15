@@ -48,6 +48,7 @@ export const SECTION_LABEL: Record<'projection' | 'polls', Record<NavLang, strin
 const GROUP_US = { en: 'United States', fr: 'États-Unis', es: 'EE. UU.' };
 const GROUP_CA = { en: 'Canada', fr: 'Canada', es: 'Canadá' };
 const GROUP_UK = { en: 'United Kingdom', fr: 'Royaume-Uni', es: 'Reino Unido' };
+const GROUP_FR = { en: 'France', fr: 'France', es: 'Francia' };
 
 /** Ordered — also drives the jurisdiction switcher list order. */
 export const JURISDICTION_NAV: JurisdictionNavEntry[] = [
@@ -113,6 +114,22 @@ export const JURISDICTION_NAV: JurisdictionNavEntry[] = [
       polls: { seg: SEG_POLLS },
       districts: { seg: { en: 'constituencies', fr: 'circonscriptions', es: 'circunscripciones' },
         label: { en: 'Constituencies', fr: 'Circonscriptions', es: 'Circunscripciones' } },
+    },
+  },
+  {
+    // Présidentielle française — modèle par scénarios (pas de projection par
+    // sièges), d'où l'onglet « Cartes » (résultats 2022) au lieu de districts.
+    // L'onglet « Sondages » s'ajoute avec la page de compilation dédiée.
+    webKey: 'france', langs: ['en', 'fr', 'es'], group: GROUP_FR,
+    label: { en: 'Presidential', fr: 'Présidentielle', es: 'Presidencial' },
+    base: { en: '/en/france', fr: '/fr/france', es: '/es/france' },
+    sections: {
+      projection: { seg: SEG_NONE },
+      polls: { seg: SEG_POLLS },
+      districts: {
+        seg: { en: 'presidential/maps', fr: 'presidentielle/cartes', es: 'presidencial/mapas' },
+        label: { en: 'Maps', fr: 'Cartes', es: 'Mapas' },
+      },
     },
   },
 ];

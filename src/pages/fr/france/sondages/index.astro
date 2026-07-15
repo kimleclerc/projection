@@ -1,0 +1,36 @@
+---
+import EditorialLayout from '../../../../layouts/EditorialLayout.astro';
+import FrancePollsPage from '../../../../components/FrancePollsPage.astro';
+import polls from '../../../../../web_data/france-presidential/polls.json';
+
+const meta = (polls as any).meta;
+const canonical = 'https://vote-scope.com/fr/france/sondages/';
+const alternates = {
+  en: 'https://vote-scope.com/en/france/polls/',
+  fr: canonical,
+  es: 'https://vote-scope.com/es/france/sondeos/',
+};
+---
+
+<EditorialLayout
+  title="Sondages présidentielle française 2027 — compilation Vote-Scope"
+  description={`Chaque sondage publié sur la présidentielle 2027, maison par maison : ${meta.n_first_round_polls} sondages de premier tour et ${meta.n_runoff_polls} duels de second tour, agrégés par Vote-Scope.`}
+  canonical={canonical}
+  lang="fr"
+  currentPage="france"
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={alternates}
+  jsonLd={[{
+    '@context': 'https://schema.org',
+    '@type': 'Dataset',
+    name: 'Sondages présidentielle France 2027',
+    description: 'Compilation des sondages de premier et second tour de la présidentielle française 2027.',
+    url: canonical,
+    dateModified: meta.generated_at,
+    creator: { '@type': 'Person', name: 'Kim Leclerc', url: 'https://kimleclerc.ca' },
+    publisher: { '@type': 'Organization', name: 'Vote-Scope', url: 'https://vote-scope.com' },
+    isAccessibleForFree: true,
+  }]}
+>
+  <FrancePollsPage locale="fr" />
+</EditorialLayout>

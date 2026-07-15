@@ -5,6 +5,8 @@
 // duel 2d tour), pas une projection par sièges.
 import ElectionCountdown from '../islands/ElectionCountdown.tsx';
 import FranceScenarioExplorer from '../islands/FranceScenarioExplorer.tsx';
+import JurisdictionNav from './JurisdictionNav.astro';
+import GooglePreferredSource from './GooglePreferredSource.astro';
 import KeepDigging from './KeepDigging.astro';
 import latest from '../../web_data/france-presidential/latest.json';
 import dataSheets from '../../web_data/france-presidential/data_sheets.json';
@@ -333,6 +335,8 @@ const COPY = {
 const C = COPY[locale];
 ---
 
+<JurisdictionNav webKey="france" lang={locale} active="projection" />
+
 <article class="fr-desk">
   <!-- HERO -->
   <header class="fr-hero container" aria-label={C.summaryLabel}>
@@ -461,6 +465,10 @@ const C = COPY[locale];
     <div class="fr-cta-row" style="margin-top:18px;">
       <a class="fr-cta" href={candBase}>{C.allCandidates} →</a>
     </div>
+  </section>
+
+  <section class="fr-section container">
+    <GooglePreferredSource locale={locale} />
   </section>
 
   <section class="fr-section container">

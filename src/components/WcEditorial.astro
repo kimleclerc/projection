@@ -26,18 +26,40 @@ interface GroupStanding {
   is_host: boolean;
 }
 
+interface BracketMatch {
+  num?: number;
+  date?: string;
+  team1?: string | null;
+  team2?: string | null;
+  team1_label?: Record<string, string>;
+  team2_label?: Record<string, string>;
+  score?: [number, number] | null;
+  winner?: string | null;
+  decided?: boolean;
+  win_probs?: Record<string, number>;
+}
+interface Bracket {
+  current_round: string;
+  sf?: BracketMatch[];
+  final?: BracketMatch[];
+}
+
 interface Props {
   lang: 'en' | 'fr' | 'es';
   board: BoardTeam[];
   groups: Record<string, { teams: string[]; standings: GroupStanding[] }>;
   runDate: string;
+  bracket?: Bracket;
 }
 
-const { lang, board, groups, runDate } = Astro.props;
+const { lang, board, groups, runDate, bracket } = Astro.props;
 
 const fav = board[0];
 const second = board[1];
 const third = board[2];
+
+// Le tournoi est-il entré en phase à élimination directe ?
+const knockout = !!bracket && bracket.current_round !== 'group_stage';
 
 // Dark horse: best semifinal odds among teams outside the top 6 championship ranks.
 const darkHorse = board.slice(6, 24).reduce((best, t) => (t.p_semifinal > best.p_semifinal ? t : best), board[6]);
@@ -89,14 +111,110 @@ const paragraphs: Record<string, string[]> = {
       : '',
   ],
 };
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Lecture « phase éliminatoire » : dérivée du bracket, remplace le récit de
+// phase de groupes dès que le tableau se remplit (demi-finales, finale…).
+const codeMap = new Map(board.map((t) => [t.team, t]));
+const nc = (code: string | null | undefined): string => {
+  const tt = code ? codeMap.get(code) : undefined;
+  return tt ? n(tt) : (code ? code.toUpperCase() : '?');
+};
+const conj: Record<string, string> = { en: 'and', fr: 'et', es: 'y' };
+const joinList = (items: string[]): string => {
+  if (items.length <= 1) return items[0] ?? '';
+  return `${items.slice(0, -1).join(', ')} ${conj[lang]} ${items[items.length - 1]}`;
+};
+const fmtDate = (d?: string): string =>
+  d ? new Intl.DateTimeFormat(lang, { day: 'numeric', month: 'long' }).format(new Date(`${d}T12:00:00`)) : '';
+
+const sf = bracket?.sf ?? [];
+const finalMatch = (bracket?.final ?? [])[0];
+const liveSemi = sf.find((m) => !m.decided);
+const doneSemis = sf.filter((m) => m.decided && m.winner);
+const throughFinal = doneSemis.map((m) => m.winner as string);
+
+// Résultat de la demi-finale du favori (pour raconter comment il a atteint la finale).
+const favSemi = doneSemis.find((m) => m.team1 === fav.team || m.team2 === fav.team);
+let favSemiText = '';
+if (favSemi && favSemi.score) {
+  const favIs1 = favSemi.team1 === fav.team;
+  const favScore = favSemi.score[favIs1 ? 0 : 1];
+  const oppScore = favSemi.score[favIs1 ? 1 : 0];
+  const oppCode = favIs1 ? favSemi.team2 : favSemi.team1;
+  const beat: Record<string, string> = {
+    en: `, already into the final after beating ${nc(oppCode)} ${favScore}–${oppScore} in the semifinals`,
+    fr: `, déjà en finale après avoir battu ${nc(oppCode)} ${favScore}–${oppScore} en demi-finale`,
+    es: `, ya en la final tras vencer a ${nc(oppCode)} por ${favScore}–${oppScore} en semifinales`,
+  };
+  favSemiText = beat[lang];
+}
+
+// Favori de la demi-finale encore à jouer.
+let liveSemiSentence: Record<string, string> = { en: '', fr: '', es: '' };
+if (liveSemi) {
+  const wp = liveSemi.win_probs ?? {};
+  const c1 = liveSemi.team1!, c2 = liveSemi.team2!;
+  const p1 = Math.round((wp[c1] ?? 0) * 100);
+  const p2 = Math.round((wp[c2] ?? 0) * 100);
+  const [favC, favP] = p1 >= p2 ? [c1, p1] : [c2, p2];
+  const opp = nc(throughFinal[0]);
+  liveSemiSentence = {
+    en: `The last ticket to the final goes through ${nc(c1)} vs ${nc(c2)} on ${fmtDate(liveSemi.date)}, with ${nc(favC)} a narrow favorite at ${pct(favP)}. The winner meets ${opp} in the final on ${fmtDate(finalMatch?.date)}.`,
+    fr: `Le dernier billet pour la finale se joue dans ${nc(c1)} contre ${nc(c2)} le ${fmtDate(liveSemi.date)}, avec ${nc(favC)} léger favori à ${pct(favP)}. Le vainqueur retrouve ${opp} en finale le ${fmtDate(finalMatch?.date)}.`,
+    es: `El último billete para la final se juega en ${nc(c1)} contra ${nc(c2)} el ${fmtDate(liveSemi.date)}, con ${nc(favC)} ligero favorito con ${pct(favP)}. El ganador se cruza con ${opp} en la final del ${fmtDate(finalMatch?.date)}.`,
+  };
+} else if (throughFinal.length >= 2) {
+  liveSemiSentence = {
+    en: `The final is set: ${nc(throughFinal[0])} vs ${nc(throughFinal[1])} on ${fmtDate(finalMatch?.date)}.`,
+    fr: `La finale est connue : ${nc(throughFinal[0])} contre ${nc(throughFinal[1])} le ${fmtDate(finalMatch?.date)}.`,
+    es: `La final está definida: ${nc(throughFinal[0])} contra ${nc(throughFinal[1])} el ${fmtDate(finalMatch?.date)}.`,
+  };
+}
+
+const alive = board.filter((t) => t.p_champion > 0);
+const aliveNames = joinList(alive.map((t) => n(t)));
+
+const koHeading: Record<string, { eyebrow: string; title: string }> = {
+  en: { eyebrow: `The model's read — run ${runDate}`, title: 'The favorite, the finalist and the last semifinal.' },
+  fr: { eyebrow: `La lecture du modèle — run ${runDate}`, title: 'Le favori, le finaliste et la dernière demi-finale.' },
+  es: { eyebrow: `La lectura del modelo — corrida ${runDate}`, title: 'El favorito, el finalista y la última semifinal.' },
+};
+
+const koParagraphs: Record<string, string[]> = {
+  en: [
+    `<strong>${n(fav)}</strong> is the model's favorite at ${pct(fav.p_champion)} to lift the trophy${favSemiText} — ahead of <strong>${n(second)}</strong> (${pct(second.p_champion)}) and <strong>${n(third)}</strong> (${pct(third.p_champion)}).`,
+    liveSemiSentence.en,
+    alive.length <= 4
+      ? `A tournament that opened with 48 teams is down to its final ${alive.length}: ${aliveNames} are the only sides still alive.`
+      : `From 48 teams, ${alive.length} are still alive with a path to the title.`,
+  ],
+  fr: [
+    `<strong>${n(fav)}</strong> est le favori du modèle à ${pct(fav.p_champion)} de soulever le trophée${favSemiText} — devant <strong>${n(second)}</strong> (${pct(second.p_champion)}) et <strong>${n(third)}</strong> (${pct(third.p_champion)}).`,
+    liveSemiSentence.fr,
+    alive.length <= 4
+      ? `Un tournoi ouvert à 48 équipes est réduit à ses ${alive.length} dernières : ${aliveNames} sont les seules encore en lice.`
+      : `Sur 48 équipes, ${alive.length} sont encore en lice avec un chemin vers le titre.`,
+  ],
+  es: [
+    `<strong>${n(fav)}</strong> es el favorito del modelo con ${pct(fav.p_champion)} de levantar el trofeo${favSemiText} — por delante de <strong>${n(second)}</strong> (${pct(second.p_champion)}) y <strong>${n(third)}</strong> (${pct(third.p_champion)}).`,
+    liveSemiSentence.es,
+    alive.length <= 4
+      ? `Un torneo que abrió con 48 equipos se reduce a sus ${alive.length} últimos: ${aliveNames} son los únicos que siguen con vida.`
+      : `De 48 equipos, ${alive.length} siguen vivos con camino al título.`,
+  ],
+};
+
+const H = knockout ? koHeading[lang] : heading[lang];
+const P = knockout ? koParagraphs[lang] : paragraphs[lang];
 ---
 
 <section class="content-band">
   <div class="container">
-    <p class="eyebrow">{heading[lang].eyebrow}</p>
-    <h2>{heading[lang].title}</h2>
+    <p class="eyebrow">{H.eyebrow}</p>
+    <h2>{H.title}</h2>
     <div class="wc-editorial">
-      {paragraphs[lang].filter(Boolean).map((p) => <p set:html={p} />)}
+      {P.filter(Boolean).map((p) => <p set:html={p} />)}
     </div>
   </div>
 </section>

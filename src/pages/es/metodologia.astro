@@ -2,6 +2,7 @@
 import { getEntry } from 'astro:content';
 import EditorialLayout from '../../layouts/EditorialLayout.astro';
 import EditorialStory from '../../components/EditorialStory.astro';
+import ModelChangelog from '../../components/ModelChangelog.astro';
 
 const entry = await getEntry('editorial', 'es/metodologia');
 if (!entry) throw new Error('Missing editorial entry: es/metodologia');
@@ -25,4 +26,5 @@ const d = entry.data;
   ]}
 >
   <EditorialStory entry={entry} />
+  <ModelChangelog locale="es" />
 </EditorialLayout>
