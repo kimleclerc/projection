@@ -88,7 +88,7 @@ const sigmaRaw = typeof meta.bridge_sigma_pts === 'number' ? meta.bridge_sigma_p
 const sigmaFr = sigmaRaw.replace('.', ',');
 const copy = {
   fr: {
-    kicker: 'France · Prochaines législatives', title: 'Les 577 circonscriptions, deux tours à la fois.',
+    kicker: 'France · Prochaines législatives', title: '577 élections. Une Assemblée.',
     dek: 'En cas de dissolution aujourd’hui : moteur Monte Carlo à deux tours, reports et désistements calibrés sur les 1 646 seconds tours de 2017-2024, projection ancrée au dernier sondage législatif direct.',
     waiting: 'Le moteur est prêt. La projection publique s’ouvrira après l’import et le backtest des scrutins 2017, 2022 et 2024.',
     majority: 'Majorité absolue : 289 sièges', nowcastTitle: 'Intentions de vote estimées — 1er tour',
@@ -107,7 +107,7 @@ const copy = {
     updated: 'Dernière mise à jour', anchor: 'Ancre sondagière',
   },
   en: {
-    kicker: 'France · Next legislative election', title: 'All 577 constituencies, two rounds at a time.',
+    kicker: 'France · Next legislative election', title: '577 races. One Assembly.',
     dek: 'If the Assembly were dissolved today: a two-round Monte Carlo engine, transfers and withdrawals calibrated on the 1,646 runoffs of 2017-2024, anchored to the last direct legislative poll.',
     waiting: 'The engine is ready. The public forecast opens after importing and backtesting the 2017, 2022 and 2024 elections.',
     majority: 'Absolute majority: 289 seats', nowcastTitle: 'Estimated first-round vote intentions',
@@ -126,7 +126,7 @@ const copy = {
     updated: 'Last updated', anchor: 'Polling anchor',
   },
   es: {
-    kicker: 'Francia · Próximas legislativas', title: 'Las 577 circunscripciones, dos vueltas a la vez.',
+    kicker: 'Francia · Próximas legislativas', title: '577 elecciones. Una Asamblea.',
     dek: 'Si la Asamblea se disolviera hoy: motor Monte Carlo de dos vueltas, transferencias y retiradas calibradas sobre las 1.646 segundas vueltas de 2017-2024, anclado a la última encuesta legislativa directa.',
     waiting: 'El motor está listo. La proyección pública se abrirá tras importar y validar las elecciones de 2017, 2022 y 2024.',
     majority: 'Mayoría absoluta: 289 escaños', nowcastTitle: 'Intención de voto estimada — 1.ª vuelta',
@@ -147,6 +147,23 @@ const copy = {
 }[locale];
 const labels = blocLabels[locale];
 const scCopy = scenarioCopy[locale];
+const heroFacts = {
+  fr: [
+    { value: '577', label: 'circonscriptions' },
+    { value: '2', label: 'tours simulés' },
+    { value: '289', label: 'sièges pour gouverner' },
+  ],
+  en: [
+    { value: '577', label: 'constituencies' },
+    { value: '2', label: 'rounds simulated' },
+    { value: '289', label: 'seats to govern' },
+  ],
+  es: [
+    { value: '577', label: 'circunscripciones' },
+    { value: '2', label: 'vueltas simuladas' },
+    { value: '289', label: 'escaños para gobernar' },
+  ],
+}[locale];
 
 const mapCopy = {
   fr: {
@@ -217,13 +234,22 @@ const topSeats = (sc: any) => sc.seats.filter((r: any) => ['far_right', 'left', 
 <JurisdictionNav webKey="france-legislative" lang={locale} active="projection" />
 <article class="leg-desk">
   <header class="leg-hero container">
-    <p class="leg-kicker">{copy.kicker}</p>
-    <h1>{copy.title}</h1>
-    <p class="leg-dek">{copy.dek}</p>
-    <div class="leg-meta">
-      <span>{copy.majority}</span>
-      <span>{copy.updated} : {meta.generated ?? '—'}</span>
-      <span>{copy.anchor} : {meta.anchor_midpoint ?? '—'}</span>
+    <div class="leg-hero-copy">
+      <p class="leg-kicker">{copy.kicker}</p>
+      <h1>{copy.title}</h1>
+      <p class="leg-dek">{copy.dek}</p>
+      <div class="leg-meta">
+        <span>{copy.updated} : {meta.generated ?? '—'}</span>
+        <span>{copy.anchor} : {meta.anchor_midpoint ?? '—'}</span>
+      </div>
+    </div>
+    <div class="leg-hero-facts" aria-label={copy.majority}>
+      {heroFacts.map((fact) => (
+        <div class="leg-hero-fact">
+          <strong>{fact.value}</strong>
+          <span>{fact.label}</span>
+        </div>
+      ))}
     </div>
   </header>
 
@@ -329,20 +355,31 @@ const topSeats = (sc: any) => sc.seats.filter((r: any) => ['far_right', 'left', 
     --bloc-far_left: #6b1f2e; --bloc-left: #b0202a; --bloc-greens: #4a9d5b;
     --bloc-centre: #b7860f; --bloc-right: #3f82d6; --bloc-sovereignist: #6d4c8a;
     --bloc-far_right: #2b4f8c; --bloc-other: var(--ink-3);
-    padding: clamp(3rem, 7vw, 7rem) 0;
+    padding: 0 0 clamp(3rem, 7vw, 7rem);
   }
   :global(:root[data-theme='dark']) .leg-desk {
     --bloc-far_left: #a8474f; --bloc-left: #d24b52; --bloc-greens: #4fa460;
     --bloc-centre: #b88d2c; --bloc-right: #5a95d8; --bloc-sovereignist: #9c7ac0;
     --bloc-far_right: #3a6bb0;
   }
-  .leg-hero { max-width: 920px; }
+  .leg-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1.45fr) minmax(260px, .55fr);
+    gap: clamp(2rem, 6vw, 7rem);
+    align-items: end;
+    padding-block: clamp(3rem, 8vw, 7.5rem) clamp(2.5rem, 6vw, 5rem);
+  }
+  .leg-hero-copy { max-width: 820px; }
   .leg-kicker, .leg-meta, .leg-method { font-family: var(--mono); }
   .leg-kicker { color: var(--accent); text-transform: uppercase; letter-spacing: .08em; font-size: .75rem; }
-  h1 { max-width: 18ch; font-family: var(--serif); font-size: clamp(2.5rem, 7vw, 5.8rem); line-height: .94; }
+  h1 { max-width: 13ch; margin: .45rem 0 1.25rem; font-family: var(--serif); font-size: clamp(3rem, 6.2vw, 6.4rem); font-weight: 500; letter-spacing: -.045em; line-height: .88; text-wrap: balance; }
   h2 { font-family: var(--serif); font-size: clamp(1.4rem, 3vw, 2rem); margin-bottom: 1.2rem; }
-  .leg-dek { max-width: 68ch; color: var(--ink-2); font-size: 1.15rem; }
+  .leg-dek { max-width: 62ch; margin: 0; color: var(--ink-2); font-size: clamp(1rem, 1.5vw, 1.2rem); line-height: 1.55; }
   .leg-meta { display: flex; flex-wrap: wrap; gap: .6rem 1.2rem; margin-top: 1.5rem; font-size: .75rem; color: var(--ink-3); }
+  .leg-hero-facts { border-top: 1px solid var(--ink); }
+  .leg-hero-fact { display: grid; grid-template-columns: 5.2rem 1fr; align-items: baseline; gap: 1rem; padding: 1rem 0; border-bottom: 1px solid var(--rule); }
+  .leg-hero-fact strong { font-family: var(--serif); font-size: clamp(2.1rem, 4vw, 3.5rem); font-weight: 500; line-height: .9; letter-spacing: -.035em; }
+  .leg-hero-fact span { font-family: var(--mono); font-size: .68rem; line-height: 1.35; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
   .leg-panel { margin-top: 3rem; padding-block: 2rem; border-block: 1px solid var(--rule); }
   .leg-waiting { display: flex; gap: 1rem; align-items: center; max-width: 760px; font-family: var(--serif); font-size: 1.35rem; }
   .leg-waiting span { font-size: 2rem; color: var(--accent); }
@@ -383,4 +420,14 @@ const topSeats = (sc: any) => sc.seats.filter((r: any) => ['far_right', 'left', 
   .leg-steps li::before { content: counter(step); position: absolute; left: 0; top: 0; width: 1.8rem; height: 1.8rem; border: 1px solid var(--rule); border-radius: 50%; display: grid; place-items: center; font-family: var(--mono); font-size: .8rem; color: var(--accent); }
   .leg-steps h3 { font-family: var(--serif); font-size: 1.15rem; margin: 0 0 .3rem; }
   .leg-steps p { color: var(--ink-2); font-size: .95rem; margin: 0; }
+  @media (max-width: 760px) {
+    .leg-hero { grid-template-columns: 1fr; gap: 2.5rem; }
+    h1 { font-size: clamp(3.2rem, 15vw, 5rem); }
+    .leg-hero-facts { display: grid; grid-template-columns: repeat(3, 1fr); }
+    .leg-hero-fact { display: block; padding: .9rem .5rem .9rem 0; border-right: 1px solid var(--rule); }
+    .leg-hero-fact:last-child { border-right: 0; padding-left: .6rem; }
+    .leg-hero-fact:nth-child(2) { padding-left: .6rem; }
+    .leg-hero-fact strong, .leg-hero-fact span { display: block; }
+    .leg-hero-fact span { margin-top: .45rem; }
+  }
 </style>

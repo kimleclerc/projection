@@ -8,6 +8,7 @@ import FranceScenarioExplorer from '../islands/FranceScenarioExplorer.tsx';
 import JurisdictionNav from './JurisdictionNav.astro';
 import GooglePreferredSource from './GooglePreferredSource.astro';
 import KeepDigging from './KeepDigging.astro';
+import PolymarketEmbed from './PolymarketEmbed.astro';
 import latest from '../../web_data/france-presidential/latest.json';
 import dataSheets from '../../web_data/france-presidential/data_sheets.json';
 import barrageLatest from '../../web_data/fr-barrage/latest.json';
@@ -76,6 +77,21 @@ const mapsCopy = {
     title: 'El mapa de 2022, circunscripción por circunscripción',
     body: 'Bloque y candidato en cabeza en la primera vuelta, el duelo Macron / Le Pen en la segunda: las 566 circunscripciones, resultados reales del ministerio del Interior.',
     cta: 'Ver el mapa',
+  },
+}[locale];
+
+const marketCopy = {
+  fr: {
+    title: 'Marché — vainqueur de la présidentielle française 2027',
+    subtitle: 'Probabilités implicites des traders, présentées comme repère indépendant du forecast Vote-Scope.',
+  },
+  en: {
+    title: 'Market — winner of the 2027 French presidential election',
+    subtitle: 'Trader-implied probabilities, shown as an independent benchmark beside the Vote-Scope forecast.',
+  },
+  es: {
+    title: 'Mercado — ganador de la elección presidencial francesa de 2027',
+    subtitle: 'Probabilidades implícitas de los operadores, como referencia independiente junto al pronóstico de Vote-Scope.',
   },
 }[locale];
 
@@ -395,6 +411,18 @@ const C = COPY[locale];
   <!-- INTRO SEO (auto-générée depuis le run) -->
   <section class="fr-section container fr-intro" aria-label={C.summaryLabel}>
     {introParagraphs.filter(Boolean).map((p) => <p>{p}</p>)}
+  </section>
+
+  <!-- MARCHÉ DE PRÉDICTION — même repère indépendant que les desks US/Canada -->
+  <section class="fr-section container fr-market" aria-label={marketCopy.title}>
+    <PolymarketEmbed
+      slug="next-french-presidential-election"
+      lang={locale}
+      eventUrl="https://polymarket.com/event/next-french-presidential-election"
+      title={marketCopy.title}
+      subtitle={marketCopy.subtitle}
+      height={520}
+    />
   </section>
 
   <!-- COMPTE À REBOURS -->
