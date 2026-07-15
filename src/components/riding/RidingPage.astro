@@ -32,7 +32,7 @@ interface Props {
 }
 
 const { data, lang } = Astro.props;
-const navWebKey = getNavEntryForRiding(data.jurisdiction)?.webKey;
+const navWebKey = data.navWebKey ?? getNavEntryForRiding(data.jurisdiction)?.webKey;
 ---
 
 {navWebKey && <JurisdictionNav webKey={navWebKey} lang={lang} active="districts" />}

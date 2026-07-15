@@ -159,6 +159,8 @@ export interface RidingData {
   id: string;                // numeric or alphanumeric ID, e.g. '35077'
   slug: string;              // URL-safe, e.g. '35077-orleans'
   jurisdiction: JurisdictionKey;
+  /** Override when one jurisdiction has election-specific navigation. */
+  navWebKey?: string;
   cycle: string;             // e.g. 'fed_46'
   name: { en: string; fr: string };
   province?: string;

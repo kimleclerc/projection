@@ -4,6 +4,7 @@ import path from 'node:path';
 import latest from '../../web_data/france-legislative/latest.json';
 import ridingsData from '../../web_data/france-legislative/ridings.json';
 import RidingsMap from '../islands/RidingsMap.tsx';
+import JurisdictionNav from './JurisdictionNav.astro';
 import { FR_LEG_PARTIES } from '../lib/riding-adapters/parties';
 type Locale = 'fr' | 'en' | 'es';
 interface Props { locale: Locale }
@@ -99,7 +100,7 @@ const copy = {
     caveats: [
       'Aucun sondage législatif direct depuis octobre 2025 : le niveau vient de cette ancre, le mouvement des sondages présidentiels (β=1, validé sur les fenêtres de co-observation disponibles).',
       'Le premier tour applique le vrai seuil de qualification (12,5 % des inscrits); le second simule reports et désistements calibrés sur 2017-2024.',
-      'Les désistements futurs sont inconnaissables : les trois scénarios encadrent le résultat, aucun n’est une prédiction.',
+      'Les désistements futurs sont inconnaissables : chaque scénario est une prévision conditionnelle, et leur ensemble délimite les issues plausibles.',
       'Participation supposée au niveau de 2024 (66,7 %). Une participation plus basse réduit les triangulaires et change la carte.',
       'Backtests publiés : 2022 (MAE 7,4 sièges in-sample) et 2024 (extrême droite à ±3 sièges in-sample; résidu gauche/centre documenté).',
     ],
@@ -118,7 +119,7 @@ const copy = {
     caveats: [
       'No direct legislative poll since October 2025: the level comes from that anchor, the movement from presidential polls (β=1, validated on the available co-observation windows).',
       'The first round applies the real qualification threshold (12.5% of registered voters); the runoff simulates transfers and withdrawals calibrated on 2017-2024.',
-      'Future withdrawals are unknowable: the three scenarios bracket the outcome — none is a prediction.',
+      'Future withdrawals are unknowable: each scenario is a conditional forecast, and together they define the range of plausible outcomes.',
       'Turnout assumed at the 2024 level (66.7%). Lower turnout means fewer three-way runoffs and a different map.',
       'Published backtests: 2022 (seat MAE 7.4 in-sample) and 2024 (far right within ±3 seats in-sample; left/centre residual documented).',
     ],
@@ -137,7 +138,7 @@ const copy = {
     caveats: [
       'Ninguna encuesta legislativa directa desde octubre de 2025: el nivel viene de esa ancla, el movimiento de las encuestas presidenciales (β=1, validado en las ventanas de co-observación disponibles).',
       'La primera vuelta aplica el umbral real de calificación (12,5 % del censo); la segunda simula transferencias y retiradas calibradas sobre 2017-2024.',
-      'Las retiradas futuras son incognoscibles: los tres escenarios acotan el resultado — ninguno es una predicción.',
+      'Las retiradas futuras son incognoscibles: cada escenario es un pronóstico condicional y, juntos, delimitan los resultados plausibles.',
       'Participación supuesta al nivel de 2024 (66,7 %). Menor participación significa menos triangulares y otro mapa.',
       'Backtests publicados: 2022 (MAE 7,4 escaños in-sample) y 2024 (extrema derecha a ±3 escaños in-sample; residuo izquierda/centro documentado).',
     ],
@@ -213,6 +214,7 @@ const circoSlug = (id: string, name: string) =>
 const pctInt = (v: number) => Math.round(v * 100);
 const topSeats = (sc: any) => sc.seats.filter((r: any) => ['far_right', 'left', 'centre', 'right'].includes(r.party));
 ---
+<JurisdictionNav webKey="france-legislative" lang={locale} active="projection" />
 <article class="leg-desk">
   <header class="leg-hero container">
     <p class="leg-kicker">{copy.kicker}</p>

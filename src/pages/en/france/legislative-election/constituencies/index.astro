@@ -2,6 +2,7 @@
 import EditorialLayout from '../../../../../layouts/EditorialLayout.astro';
 import { getAllFranceLegRidings } from '../../../../../lib/riding-adapters/france-legislative';
 import { partyMeta } from '../../../../../lib/riding-adapters/parties';
+import JurisdictionNav from '../../../../../components/JurisdictionNav.astro';
 
 const all = getAllFranceLegRidings()
   .slice()
@@ -29,6 +30,7 @@ const canonical = 'https://vote-scope.com/en/france/legislative-election/constit
     },
   ]}
 >
+  <JurisdictionNav webKey="france-legislative" lang="en" active="districts" />
   <section class="ridings-index-hero">
     <div class="container">
       <p class="eyebrow">Constituency index · France</p>

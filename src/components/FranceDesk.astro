@@ -195,7 +195,7 @@ const introParagraphs =
             : `Según nuestra agregación de ${nPolls} sondeos (ejecución del ${runDate}), en la combinación más sondeada que incluye a ${headlineName} (candidata de la Agrupación Nacional oficialmente declarada), ${heroLead.name} encabeza la primera vuelta con ${fmtPct1(heroLead.mean, locale)}, por delante de ${heroSecond.name} con ${fmtPct1(heroSecond.mean, locale)}. Ambos pasarían a la segunda vuelta.`
           : '',
         hDuel
-          ? `En segunda vuelta, nuestro modelo proyecta a ${duelWinnerName} en cabeza con ${fmtPct1(duelWinShare, locale)} frente a ${duelLoserName} (${fmtPct1(duelLoseShare, locale)}), estimado a partir de sondeos de duelo y transferencias históricas. Son promedios de simulación por combinación, no predicciones: la campaña de 2027 apenas comienza y el campo de ${nDeclared} candidaturas declaradas sigue cambiando.`
+          ? `En segunda vuelta, nuestro pronóstico sitúa a ${duelWinnerName} en cabeza con ${fmtPct1(duelWinShare, locale)} frente a ${duelLoserName} (${fmtPct1(duelLoseShare, locale)}), a partir de sondeos de duelo y transferencias históricas. Es nuestra mejor estimación central para esta combinación, dentro de un abanico de resultados plausibles; la campaña de 2027 apenas comienza y el campo de ${nDeclared} candidaturas declaradas sigue cambiando.`
           : '',
       ]
     : locale === 'fr'
@@ -206,7 +206,7 @@ const introParagraphs =
             : `D'après notre agrégation de ${nPolls} sondages (run du ${runDate}), dans le casting le plus testé incluant ${headlineName} (candidate du Rassemblement national officiellement déclarée), ${heroLead.name} mène le premier tour à ${fmtPct1(heroLead.mean, locale)}, devant ${heroSecond.name} à ${fmtPct1(heroSecond.mean, locale)}. Les deux se qualifieraient pour le second tour.`
           : '',
         hDuel
-          ? `Au second tour, notre modèle projette ${duelWinnerName} en tête à ${fmtPct1(duelWinShare, locale)} face à ${duelLoserName} (${fmtPct1(duelLoseShare, locale)}), estimé à partir des sondages de duel et des reports historiques. Ce sont des moyennes de simulation par casting, pas des prédictions : la campagne 2027 ne fait que commencer et le champ des ${nDeclared} candidatures déclarées continue d'évoluer.`
+          ? `Au second tour, notre forecast donne ${duelWinnerName} en tête à ${fmtPct1(duelWinShare, locale)} face à ${duelLoserName} (${fmtPct1(duelLoseShare, locale)}), à partir des sondages de duel et des reports historiques. C’est notre meilleure estimation centrale pour ce casting, entourée d’une plage d’issues plausibles; la campagne 2027 ne fait que commencer et le champ des ${nDeclared} candidatures déclarées continue d’évoluer.`
           : '',
       ]
     : [
@@ -216,7 +216,7 @@ const introParagraphs =
             : `Based on our aggregation of ${nPolls} polls (run of ${runDate}), in the most-polled lineup featuring ${headlineName} (the officially declared National Rally candidate), ${heroLead.name} leads the first round at ${fmtPct1(heroLead.mean, locale)}, ahead of ${heroSecond.name} at ${fmtPct1(heroSecond.mean, locale)}. Both would advance to the runoff.`
           : '',
         hDuel
-          ? `In the runoff, our model projects ${duelWinnerName} ahead at ${fmtPct1(duelWinShare, locale)} against ${duelLoserName} (${fmtPct1(duelLoseShare, locale)}), estimated from head-to-head polls and historical transfers. These are per-lineup simulation averages, not predictions: the 2027 campaign is just starting and the field of ${nDeclared} declared candidates keeps shifting.`
+          ? `In the runoff, our forecast has ${duelWinnerName} ahead at ${fmtPct1(duelWinShare, locale)} against ${duelLoserName} (${fmtPct1(duelLoseShare, locale)}), based on head-to-head polls and historical transfers. This is our best central estimate for that lineup, surrounded by a range of plausible outcomes; the 2027 campaign is just starting and the field of ${nDeclared} declared candidates keeps shifting.`
           : '',
       ];
 

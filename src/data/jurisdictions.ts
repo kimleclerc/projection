@@ -57,9 +57,9 @@ export const jurisdictions: Record<string, Jurisdiction> = {
     dataPath: 'federal',
     geoPath: 'federal',
     heroTitle: {
-      fr: 'Projection <em>fédérale</em>',
-      en: 'Federal <em>Projection</em>',
-      es: 'Proyección <em>federal</em>',
+      fr: 'Prévision <em>fédérale</em>',
+      en: 'Federal <em>Forecast</em>',
+      es: 'Pronóstico <em>federal</em>',
     },
     institution: {
       fr: 'Composition actuelle de la Chambre',
@@ -101,9 +101,9 @@ export const jurisdictions: Record<string, Jurisdiction> = {
     dataPath: 'ontario',
     geoPath: 'ontario',
     heroTitle: {
-      fr: 'Projection <em>ontarienne</em>',
-      en: 'Ontario <em>Projection</em>',
-      es: 'Proyección <em>de Ontario</em>',
+      fr: 'Prévision <em>ontarienne</em>',
+      en: 'Ontario <em>Forecast</em>',
+      es: 'Pronóstico <em>de Ontario</em>',
     },
     institution: {
       fr: 'Composition actuelle de l\'Assemblée législative',
@@ -146,9 +146,9 @@ export const jurisdictions: Record<string, Jurisdiction> = {
     dataPath: 'quebec',
     geoPath: 'quebec',
     heroTitle: {
-      fr: 'Projection <em>québécoise</em>',
-      en: 'Quebec <em>Projection</em>',
-      es: 'Proyección <em>de Quebec</em>',
+      fr: 'Prévision <em>québécoise</em>',
+      en: 'Quebec <em>Forecast</em>',
+      es: 'Pronóstico <em>de Quebec</em>',
     },
     institution: {
       fr: "Composition actuelle de l'Assemblée nationale",
@@ -282,9 +282,9 @@ export const jurisdictions: Record<string, Jurisdiction> = {
     dataPath: 'uk',
     geoPath: 'uk',
     heroTitle: {
-      fr: 'Projection <em>britannique</em>',
+      fr: 'Prévision <em>britannique</em>',
       en: 'U.K. <em>General Election</em>',
-      es: 'Proyección <em>británica</em>',
+      es: 'Pronóstico <em>británico</em>',
     },
     institution: {
       fr: 'Composition actuelle de la Chambre des communes',

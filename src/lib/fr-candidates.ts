@@ -155,7 +155,7 @@ export function candidateProse(c: CandidateProfile, locale: Locale): string[] {
   if (locale === 'es') {
     const p1 = `${c.name} (${party}) es ${phrase} en la elección presidencial francesa de 2027. Nuestras agregaciones lo/la prueban en ${c.activeScenarios} configuraciones de candidaturas, con una intención de voto en primera vuelta ${range} según la combinación.`;
     const p2 = bestDuel
-      ? `En segunda vuelta, en la combinación «${bestDuel.scenarioLabel}», nuestro modelo lo/la da ${bestDuel.wins ? 'ganador·a' : 'perdedor·a'} frente a ${bestDuel.opponentName} (${bestDuel.ownShare.toFixed(1).replace('.', ',')} % contra ${bestDuel.opponentShare.toFixed(1).replace('.', ',')} %). Son promedios de simulación por escenario, no predicciones.`
+      ? `En segunda vuelta, en la combinación «${bestDuel.scenarioLabel}», nuestro pronóstico lo/la da ${bestDuel.wins ? 'ganador·a' : 'perdedor·a'} frente a ${bestDuel.opponentName} (${bestDuel.ownShare.toFixed(1).replace('.', ',')} % contra ${bestDuel.opponentShare.toFixed(1).replace('.', ',')} %). Es nuestra mejor estimación central para este escenario, dentro de un abanico de resultados plausibles.`
       : '';
     return [p1, p2].filter(Boolean);
   }
@@ -163,13 +163,13 @@ export function candidateProse(c: CandidateProfile, locale: Locale): string[] {
   if (locale === 'fr') {
     const p1 = `${c.name} (${party}) est ${phrase} à l'élection présidentielle française de 2027. Nos agrégations le/la testent dans ${c.activeScenarios} configurations de candidatures, avec une intention de vote au premier tour ${range} selon le casting.`;
     const p2 = bestDuel
-      ? `Au second tour, dans le casting « ${bestDuel.scenarioLabel} », notre modèle ${bestDuel.wins ? 'le/la donne vainqueur' : 'le/la donne battu·e'} face à ${bestDuel.opponentName} (${bestDuel.ownShare.toFixed(1).replace('.', ',')} % contre ${bestDuel.opponentShare.toFixed(1).replace('.', ',')} %). Ces chiffres sont des moyennes de simulation par scénario, pas des prédictions.`
+      ? `Au second tour, dans le casting « ${bestDuel.scenarioLabel} », notre forecast ${bestDuel.wins ? 'le/la donne vainqueur' : 'le/la donne battu·e'} face à ${bestDuel.opponentName} (${bestDuel.ownShare.toFixed(1).replace('.', ',')} % contre ${bestDuel.opponentShare.toFixed(1).replace('.', ',')} %). C’est notre meilleure estimation centrale pour ce scénario, au sein d’une plage d’issues plausibles.`
       : '';
     return [p1, p2].filter(Boolean);
   }
   const p1 = `${c.name} (${party}) is ${phrase} in the 2027 French presidential election. Our aggregations test them across ${c.activeScenarios} candidate configurations, with a first-round voting intention ${range} depending on the lineup.`;
   const p2 = bestDuel
-    ? `In the runoff, in the "${bestDuel.scenarioLabel}" lineup, our model has them ${bestDuel.wins ? 'winning' : 'losing'} against ${bestDuel.opponentName} (${bestDuel.ownShare.toFixed(1)}% to ${bestDuel.opponentShare.toFixed(1)}%). These are per-lineup simulation averages, not predictions.`
+    ? `In the runoff, in the "${bestDuel.scenarioLabel}" lineup, our forecast has them ${bestDuel.wins ? 'winning' : 'losing'} against ${bestDuel.opponentName} (${bestDuel.ownShare.toFixed(1)}% to ${bestDuel.opponentShare.toFixed(1)}%). This is our best central estimate for that lineup, within a range of plausible outcomes.`
     : '';
   return [p1, p2].filter(Boolean);
 }

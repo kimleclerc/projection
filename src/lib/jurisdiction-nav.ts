@@ -41,7 +41,7 @@ const LABEL_RIDINGS = { en: 'Ridings', fr: 'Circonscriptions', es: 'Distritos' }
 
 /** Generic labels for sections whose wording doesn't vary by jurisdiction. */
 export const SECTION_LABEL: Record<'projection' | 'polls', Record<NavLang, string>> = {
-  projection: { en: 'Projection', fr: 'Projection', es: 'Proyección' },
+  projection: { en: 'Forecast', fr: 'Prévision', es: 'Pronóstico' },
   polls: { en: 'Polls', fr: 'Sondages', es: 'Sondeos' },
 };
 
@@ -129,6 +129,22 @@ export const JURISDICTION_NAV: JurisdictionNavEntry[] = [
       districts: {
         seg: { en: 'presidential/maps', fr: 'presidentielle/cartes', es: 'presidencial/mapas' },
         label: { en: 'Maps', fr: 'Cartes', es: 'Mapas' },
+      },
+    },
+  },
+  {
+    webKey: 'france-legislative', langs: ['en', 'fr', 'es'], group: GROUP_FR,
+    label: { en: 'Legislative', fr: 'Législatives', es: 'Legislativas' },
+    base: {
+      en: '/en/france/legislative-election',
+      fr: '/fr/france/legislatives',
+      es: '/es/france/legislativas',
+    },
+    sections: {
+      projection: { seg: SEG_NONE },
+      districts: {
+        seg: { en: 'constituencies', fr: 'circonscriptions', es: 'circunscripciones' },
+        label: { en: 'Constituencies', fr: 'Circonscriptions', es: 'Circunscripciones' },
       },
     },
   },

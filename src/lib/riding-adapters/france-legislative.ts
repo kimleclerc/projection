@@ -158,6 +158,7 @@ function adaptOne(raw: RawRiding): RidingData {
     id: raw.riding_id,
     slug,
     jurisdiction: 'france',
+    navWebKey: 'france-legislative',
     cycle: raw.projection.projection_cycle,
     name: { en: raw.name_en, fr: raw.name_fr },
     province: raw.province,
