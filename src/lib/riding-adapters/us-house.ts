@@ -19,7 +19,7 @@
  *   (slot pattern).
  */
 import type {
-  RidingData, RidingMember, RidingCandidate, RidingNeighbor, RidingPoll,
+  RidingData, RidingMember, DeclaredCandidate, RidingNeighbor, RidingPoll,
 } from './types';
 import { ridingSlug } from './types';
 import { partyMeta } from './parties';
@@ -153,18 +153,16 @@ function adaptMember(rid: string): RidingMember | undefined {
   };
 }
 
-/** Map FEC-format candidates to the unified RidingCandidate shape. */
-function adaptCandidates(rid: string): RidingCandidate[] | undefined {
+/** Map FEC-format filings to the declared-candidate slate. ICI status:
+ *  I = sitting incumbent · C = challenger · O = open-seat candidate. */
+function adaptDeclared(rid: string): DeclaredCandidate[] | undefined {
   const list = candidatesByRiding[rid];
   if (!list || list.length === 0) return undefined;
   return list.map((c) => ({
     name: c.name,
     party_code: c.party_code,
     party_raw: c.party_raw,
-    // FEC ICI='I' marks the candidate as the sitting incumbent in this seat —
-    // not "elected in the upcoming race", but closest editorial proxy until
-    // the race is run. Surfaced as a badge by CandidatesTable.
-    is_elected: c.ici_status === 'I',
+    status: c.ici_status === 'I' ? 'incumbent' : c.ici_status === 'O' ? 'open' : 'challenger',
   }));
 }
 
@@ -220,7 +218,7 @@ function adaptOne(raw: RawRiding): RidingData {
     },
     baseline,
     member: adaptMember(raw.riding_id),
-    candidates: adaptCandidates(raw.riding_id),
+    declaredCandidates: adaptDeclared(raw.riding_id),
     polls: adaptPolls(raw.riding_id),
     primaries: primariesByRiding[raw.riding_id],
     redistrictingImpact: redistrictingByRiding[raw.riding_id],

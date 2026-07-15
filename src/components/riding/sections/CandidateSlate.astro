@@ -1,0 +1,112 @@
+---
+/**
+ * CandidateSlate — the "who's running" electoral slate for the UPCOMING
+ * election. Distinct from CandidatesTable (which shows PAST results with
+ * votes/%). Party-forward, no vote columns: colour + party + candidate name +
+ * incumbent/challenger status + a short portrait. Used by US House/Senate 2026
+ * and Québec 2026. Driven by `data.declaredCandidates`.
+ */
+import type { RidingData } from '../../../lib/riding-adapters/types';
+import { partyMeta } from '../../../lib/riding-adapters/parties';
+
+interface Props {
+  data: RidingData;
+  lang: 'en' | 'fr' | 'es';
+}
+const { data, lang } = Astro.props;
+const list = data.declaredCandidates ?? [];
+if (list.length === 0) return null;
+
+const T = {
+  en: {
+    eyebrow: 'Who\'s running', title: 'The candidates',
+    lede: 'Declared and on-ballot candidates for the upcoming election.',
+    incumbent: 'Incumbent', challenger: 'Challenger', open: 'Open seat', source: 'source',
+  },
+  fr: {
+    eyebrow: 'Qui se présente', title: 'Les candidats',
+    lede: 'Candidats déclarés et confirmés sur les bulletins pour la prochaine élection.',
+    incumbent: 'Sortant·e', challenger: 'Aspirant·e', open: 'Siège ouvert', source: 'source',
+  },
+  es: {
+    eyebrow: 'Quién se presenta', title: 'Los candidatos',
+    lede: 'Candidatos declarados y confirmados en las papeletas para la próxima elección.',
+    incumbent: 'Titular', challenger: 'Aspirante', open: 'Escaño abierto', source: 'fuente',
+  },
+}[lang];
+
+const statusLabel = (s?: string): string | null =>
+  s === 'incumbent' ? T.incumbent : s === 'challenger' ? T.challenger : s === 'open' ? T.open : null;
+
+// Incumbents first, then by party label; stable within.
+const order = { incumbent: 0, challenger: 1, open: 2 } as Record<string, number>;
+const sorted = [...list].sort((a, b) => {
+  const s = (order[a.status ?? ''] ?? 3) - (order[b.status ?? ''] ?? 3);
+  if (s !== 0) return s;
+  const am = partyMeta(data.jurisdiction, a.party_code);
+  const bm = partyMeta(data.jurisdiction, b.party_code);
+  return (lang === 'fr' ? am.label_fr : am.label_en).localeCompare(lang === 'fr' ? bm.label_fr : bm.label_en);
+});
+
+// Title-case ALL-CAPS FEC names ("MOORE, FELIX BARRY" → "Moore, Felix Barry").
+const displayName = (n: string): string =>
+  n === n.toUpperCase()
+    ? n.toLowerCase().replace(/\b([a-zà-ÿ])/g, (m) => m.toUpperCase()).replace(/\bJr\b/g, 'Jr').replace(/\bIi+\b/gi, (m) => m.toUpperCase())
+    : n;
+---
+
+<section class="slate">
+  <div class="container">
+    <p class="eyebrow">{T.eyebrow}</p>
+    <h2>{T.title}</h2>
+    <p class="slate-lede">{T.lede}</p>
+    <ul class="slate-grid">
+      {sorted.map((c) => {
+        const meta = partyMeta(data.jurisdiction, c.party_code);
+        const partyLabel = lang === 'fr' ? meta.label_fr : meta.label_en;
+        const st = statusLabel(c.status);
+        return (
+          <li class="cand" style={`--accent:${meta.color}`}>
+            <div class="cand-top">
+              <span class="cand-party">
+                <span class="cand-swatch" aria-hidden="true"></span>{partyLabel}
+              </span>
+              {st && <span class={`cand-status is-${c.status}`}>{st}</span>}
+            </div>
+            <p class="cand-name">{displayName(c.name)}</p>
+            {c.portrait && <p class="cand-portrait">{c.portrait}</p>}
+            {c.source_url && (
+              <a class="cand-src" href={c.source_url} target="_blank" rel="noopener nofollow">{T.source} ↗</a>
+            )}
+          </li>
+        );
+      })}
+    </ul>
+  </div>
+</section>
+
+<style>
+  .slate { padding: 56px 0; border-bottom: 1px solid var(--rule); }
+  h2 { margin: 8px 0 6px; font-family: var(--serif); font-size: clamp(28px, 3.4vw, 40px); font-weight: 420; letter-spacing: -0.01em; }
+  .slate-lede { margin: 0 0 24px; color: var(--ink-2); font-size: 15px; max-width: 640px; }
+  .slate-grid {
+    list-style: none; margin: 0; padding: 0;
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px;
+  }
+  .cand {
+    border: 1px solid var(--rule); border-left: 4px solid var(--accent);
+    border-radius: 8px; background: var(--card); padding: 14px 16px;
+  }
+  .cand-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+  .cand-party { display: inline-flex; align-items: center; gap: 7px; font-family: var(--mono); font-size: 12px; color: var(--ink-2); }
+  .cand-swatch { width: 11px; height: 11px; border-radius: 2px; background: var(--accent); flex: none; }
+  .cand-status {
+    font-family: var(--mono); font-size: 9px; letter-spacing: .06em; text-transform: uppercase;
+    padding: 2px 7px; border-radius: 999px; border: 1px solid var(--rule); color: var(--ink-2); white-space: nowrap;
+  }
+  .cand-status.is-incumbent { background: color-mix(in oklab, var(--accent) 14%, transparent); border-color: color-mix(in oklab, var(--accent) 40%, transparent); color: var(--ink); }
+  .cand-name { margin: 0; font-family: var(--serif); font-size: 18px; color: var(--ink); line-height: 1.2; }
+  .cand-portrait { margin: 8px 0 0; font-size: 13.5px; line-height: 1.55; color: var(--ink-2); }
+  .cand-src { display: inline-block; margin-top: 8px; font-family: var(--mono); font-size: 10px; letter-spacing: .04em; color: var(--ink-3); text-decoration: none; }
+  .cand-src:hover { color: var(--ink); }
+</style>

@@ -14,7 +14,7 @@
  * comes in a follow-up.
  */
 import type {
-  RidingData, RidingMember, RidingCandidate, RidingNeighbor,
+  RidingData, RidingMember, DeclaredCandidate, RidingNeighbor,
 } from './types';
 import { ridingSlug } from './types';
 import { partyMeta } from './parties';
@@ -100,14 +100,14 @@ function buildNeighbors(raceId: string, region: string): RidingNeighbor[] {
   });
 }
 
-function adaptCandidates(raceId: string): RidingCandidate[] | undefined {
+function adaptDeclared(raceId: string): DeclaredCandidate[] | undefined {
   const list = candidatesByRace[raceId];
   if (!list || list.length === 0) return undefined;
   return list.map((c) => ({
     name: c.name,
     party_code: c.party_code,
     party_raw: c.party_raw,
-    is_elected: c.ici_status === 'I',
+    status: c.ici_status === 'I' ? 'incumbent' : c.ici_status === 'O' ? 'open' : 'challenger',
   }));
 }
 
@@ -162,7 +162,7 @@ function adaptOne(raw: RawRace): RidingData {
     },
     baseline,
     member: members[raw.riding_id],
-    candidates: adaptCandidates(raw.riding_id),
+    declaredCandidates: adaptDeclared(raw.riding_id),
     runDate: META.run_date,
     hasProjectionHistory: RACES_WITH_HISTORY.has(raw.riding_id),
     neighbors: buildNeighbors(raw.riding_id, raw.region),

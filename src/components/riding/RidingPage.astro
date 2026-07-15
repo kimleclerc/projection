@@ -20,6 +20,7 @@ import EditorialBlurb from './sections/EditorialBlurb.astro';
 import DataFreshness from './sections/DataFreshness.astro';
 import CurrentMember from './sections/CurrentMember.astro';
 import CandidatesTable from './sections/CandidatesTable.astro';
+import CandidateSlate from './sections/CandidateSlate.astro';
 import ProjectionHistory from './sections/ProjectionHistory.astro';
 import RegionalContext from './sections/RegionalContext.astro';
 import NeighborRidings from './sections/NeighborRidings.astro';
@@ -40,6 +41,7 @@ const navWebKey = getNavEntryForRiding(data.jurisdiction)?.webKey;
 <EditorialBlurb data={data} lang={lang} />
 {data.member && <CurrentMember data={data} lang={lang} />}
 {data.primaries && <PrimaryStatus data={data} lang={lang} />}
+{data.declaredCandidates && data.declaredCandidates.length > 0 && <CandidateSlate data={data} lang={lang} />}
 <ProjectionPanel data={data} lang={lang} />
 <VoteBars data={data} lang={lang} />
 {data.regionalContext && <RegionalContext data={data} lang={lang} />}

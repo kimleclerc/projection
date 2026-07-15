@@ -9,7 +9,7 @@
  * export_quebec_web.py (20/80 rule).
  */
 import type {
-  RidingData, RidingMember, RidingCandidate,
+  RidingData, RidingMember, RidingCandidate, DeclaredCandidate,
   RidingNeighbor, RidingDemographics,
 } from './types';
 import { ridingSlug } from './types';
@@ -17,6 +17,7 @@ import { partyMeta } from './parties';
 import ridingsSource from '../../../web_data/quebec/ridings.json';
 import membersSource from '../../../web_data/quebec/members.json';
 import candidatesSource from '../../../web_data/quebec/candidates_2022.json';
+import declared2026Source from '../../../web_data/quebec/candidates_2026.json';
 import originSource from '../../../web_data/quebec/origin.json';
 import shapesSource from '../../../web_data/quebec/shapes.json';
 import historyIndex from '../../../web_data/quebec/history/index.json';
@@ -59,6 +60,10 @@ const ridings = (ridingsSource as { ridings: RawRiding[]; meta: { run_date: stri
 const META = (ridingsSource as { meta: { run_date: string; total_seats?: number } }).meta;
 const members = membersSource as Record<string, RidingMember | undefined>;
 const candidatesByRiding = candidatesSource as Record<string, RidingCandidate[] | undefined>;
+const declared2026ByRiding = declared2026Source as Record<string, Array<{
+  name: string; party_code: string; party_raw?: string;
+  portrait?: string; source_url?: string; status?: 'incumbent' | 'challenger' | 'open';
+}> | undefined>;
 const ORIGIN = originSource as Record<string, RidingOriginEntry[] | undefined>;
 const SHAPES = shapesSource as Record<string, { path: string; viewBox: string } | undefined>;
 const CENTROIDS = centroidsSource as Record<string, { lon: number; lat: number } | undefined>;
@@ -178,6 +183,14 @@ function adaptOne(raw: RawRiding): RidingData {
     demographics: buildDemographics(),
     member: members[raw.riding_id],
     candidates: candidatesByRiding[raw.riding_id],
+    declaredCandidates: (declared2026ByRiding[raw.riding_id] ?? []).map((c): DeclaredCandidate => ({
+      name: c.name,
+      party_code: c.party_code,
+      party_raw: c.party_raw,
+      status: c.status,
+      portrait: c.portrait || undefined,
+      source_url: c.source_url || undefined,
+    })),
     runDate: META.run_date,
     hasProjectionHistory: RIDINGS_WITH_HISTORY.has(raw.riding_id),
     neighbors: buildNeighbors(raw.riding_id),

@@ -73,6 +73,20 @@ export interface RidingCandidate {
   occupation?: string;
 }
 
+/** A declared / on-ballot candidate for the UPCOMING election (no votes yet).
+ *  Rendered by CandidateSlate — the "who's running" electoral slate, distinct
+ *  from RidingCandidate (past results shown by CandidatesTable). */
+export interface DeclaredCandidate {
+  name: string;
+  party_code: string;
+  party_raw?: string;
+  /** incumbent = sitting member re-running · challenger · open (no incumbent). */
+  status?: 'incumbent' | 'challenger' | 'open';
+  /** Short factual portrait / occupation (1–2 sentences). */
+  portrait?: string;
+  source_url?: string;
+}
+
 export interface RidingMember {
   /** Current sitting member of the legislative body. */
   parliament?: number;
@@ -155,6 +169,7 @@ export interface RidingData {
   demographics?: RidingDemographics;
   member?: RidingMember;     // current sitting member
   candidates?: RidingCandidate[];  // candidates from the most recent general election (baseline cycle)
+  declaredCandidates?: DeclaredCandidate[];  // declared / on-ballot candidates for the UPCOMING election
   polls?: RidingPoll[];      // district-level polls → rows in the LocalPolls section (NYT model)
   neighbors?: RidingNeighbor[];
   regionalContext?: RegionalContext;
