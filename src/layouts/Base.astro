@@ -410,6 +410,7 @@ const languageLinks = (['en', 'fr', 'es'] as Locale[])
       outline-offset: 3px;
     }
     .mono    { font-family: var(--mono); }
+    .sr-only { position: absolute !important; width: 1px !important; height: 1px !important; padding: 0 !important; margin: -1px !important; overflow: hidden !important; clip: rect(0, 0, 0, 0) !important; white-space: nowrap !important; border: 0 !important; }
     .eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-3); font-weight: 500; }
     .container      { max-width: 1280px; margin: 0 auto; padding: 0 32px; }
     .container-wide { max-width: 1440px; margin: 0 auto; padding: 0 32px; }
@@ -444,7 +445,7 @@ const languageLinks = (['en', 'fr', 'es'] as Locale[])
     .nav-right { display: flex; align-items: center; gap: 10px; }
     .nav-cta { font-family: var(--mono); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; padding: 8px 14px; background: var(--ink); color: var(--paper-3); border-radius: 2px; display: inline-block; }
     /* Dark mode toggle */
-    .theme-toggle { background: none; border: 1px solid var(--rule); border-radius: 2px; padding: 7px 8px; cursor: pointer; color: var(--ink-3); line-height: 1; display: flex; align-items: center; justify-content: center; transition: color .15s, border-color .15s; }
+    .theme-toggle { min-width: 44px; min-height: 44px; background: none; border: 1px solid var(--rule); border-radius: 2px; padding: 7px 8px; cursor: pointer; color: var(--ink-3); line-height: 1; display: flex; align-items: center; justify-content: center; transition: color .15s, border-color .15s; }
     .theme-toggle:hover { color: var(--ink); border-color: var(--ink-3); }
     .theme-toggle .icon-sun  { display: none; }
     .theme-toggle .icon-moon { display: block; }
@@ -452,7 +453,7 @@ const languageLinks = (['en', 'fr', 'es'] as Locale[])
     [data-theme="dark"] .theme-toggle .icon-moon { display: none; }
     /* Lang toggle */
     .lang-switcher { display: inline-flex; gap: 6px; align-items: center; }
-    .lang-toggle { font-family: var(--mono); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); border: 1px solid var(--rule); border-radius: 2px; padding: 7px 10px; transition: color .15s, border-color .15s; }
+    .lang-toggle { min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); border: 1px solid var(--rule); border-radius: 2px; padding: 7px 10px; transition: color .15s, border-color .15s; }
     .lang-toggle:hover { color: var(--ink); border-color: var(--ink-3); }
 
     /* FOOTER */
@@ -517,14 +518,14 @@ const languageLinks = (['en', 'fr', 'es'] as Locale[])
 <body>
 <a class="skip-link" href="#main-content">{copy.skipLabel}</a>
 
-<nav class="nav">
+<nav class="nav" aria-label={lang === 'fr' ? 'Navigation principale' : lang === 'es' ? 'Navegación principal' : 'Primary navigation'}>
   <div class="container nav-inner">
     <a class="logo" href={copy.root}>
       <span class="logo-dot"></span>Vote-Scope
     </a>
     <div class="nav-links">
       {navLinks.map(link => (
-        <a href={link.href} class={currentPage === link.key ? 'current' : ''}>
+        <a href={link.href} class={currentPage === link.key ? 'current' : ''} aria-current={currentPage === link.key ? 'page' : undefined}>
           {link.label}
         </a>
       ))}

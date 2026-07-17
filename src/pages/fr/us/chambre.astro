@@ -2,9 +2,11 @@
 import EditorialLayout from '../../../layouts/EditorialLayout.astro';
 import RidingsCta from '../../../components/RidingsCta.astro';
 import ProjectionEngine from '../../../components/ProjectionEngine.astro';
+import RaceNarrative from '../../../components/RaceNarrative.astro';
 import PolymarketEmbed from '../../../components/PolymarketEmbed.astro';
 import { jurisdictions } from '../../../data/jurisdictions';
 import houseMeta from '../../../../web_data/us-house/latest.json';
+import { raceEditorial } from '../../../data/raceEditorial';
 
 const j = jurisdictions.usHouse;
 const canonical = 'https://vote-scope.com/fr/us/chambre';
@@ -47,7 +49,7 @@ const alternates = {
     },
   ]}
 >
-  <ProjectionEngine jurisdiction={j} locale="fr" />
+  <ProjectionEngine jurisdiction={j} locale="fr"><Fragment slot="narrative"><RaceNarrative locale="fr" {...raceEditorial.usHouse.fr} /></Fragment></ProjectionEngine>
   <div class="container" style="max-width:1080px;margin-inline:auto;padding-inline:1.5rem;">
     <PolymarketEmbed slug="will-the-democratic-party-control-the-house-after-the-2026-midterm-elections" title="Chambre 2026 — contrôle du parti" />
   </div>

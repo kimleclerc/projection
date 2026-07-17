@@ -1,6 +1,7 @@
 ---
 import EditorialLayout from '../../../layouts/EditorialLayout.astro';
 import EditorialHero from '../../../components/EditorialHero.astro';
+import RaceNarrative from '../../../components/RaceNarrative.astro';
 import MethodologyNote from '../../../components/MethodologyNote.astro';
 import PolymarketEmbed from '../../../components/PolymarketEmbed.astro';
 import WcGroupTables from '../../../components/WcGroupTables.astro';
@@ -12,6 +13,7 @@ import WcEditorial from '../../../components/WcEditorial.astro';
 import AffiliateCard from '../../../components/AffiliateCard.astro';
 import { flagFor } from '../../../lib/wc-flags';
 import wcData from '../../../../web_data/sports/worldcup2026_latest.json';
+import { raceEditorial } from '../../../data/raceEditorial';
 
 const board = wcData.board as Array<{
   team: string;
@@ -98,6 +100,7 @@ const winnerUrl = winnerEmbed?.url ?? undefined;
     secondaryHref="/es/sports/nhl/"
     secondaryLabel="Desk NHL"
   />
+  <RaceNarrative locale="es" {...raceEditorial.worldCup.es} />
 
   <!-- Favoritos -->
   <section class="content-band">
@@ -152,6 +155,7 @@ const winnerUrl = winnerEmbed?.url ?? undefined;
       </p>
       <div style="overflow-x:auto;">
         <table style="width:100%;border-collapse:collapse;font-size:0.9rem;">
+          <caption class="sr-only">Los diez primeros equipos y sus probabilidades de alcanzar cada fase</caption>
           <thead>
             <tr style="border-bottom:2px solid var(--rule,#ddd);text-align:left;">
               <th style="padding:8px 12px;">#</th>
