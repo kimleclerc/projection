@@ -6,7 +6,6 @@ import { resolve } from 'node:path';
 import ScenariosChart from '../islands/ScenariosChart.tsx';
 import VoteTrendChart from '../islands/VoteTrendChart.tsx';
 import RidingsMap from '../islands/RidingsMap.tsx';
-import GooglePreferredSource from './GooglePreferredSource.astro';
 import RidingTable from '../islands/RidingTable.tsx';
 import ElectionCountdown from '../islands/ElectionCountdown.tsx';
 import KeepDigging from './KeepDigging.astro';
@@ -14,6 +13,8 @@ import JurisdictionNav from './JurisdictionNav.astro';
 import { getNavEntry, type NavLang } from '../lib/jurisdiction-nav';
 import { partyMeta } from '../lib/riding-adapters/parties';
 import type { JurisdictionKey } from '../lib/riding-adapters/types';
+import polymarketData from '../../web_data/polymarket/latest.json';
+import clactonData from '../../web_data/uk-clacton-special/latest.json';
 
 interface Props {
   jurisdiction: Jurisdiction;
@@ -137,6 +138,64 @@ const second = bySeats[1];
 const partyLabel = (p: typeof lead) => (locale === 'fr' ? p.label_fr : p.label_en);
 const num = (v: number) => (locale === 'en' ? String(v) : String(v).replace('.', ','));
 const pMaj = Math.round(lead.p_majority * 100);
+const pct = (value: number) => `${Math.round(value * 100)}%`;
+const marketByJurisdiction: Record<string, { slug: string; label: Record<Locale, string> } | undefined> = {
+  'us-house': {
+    slug: 'will-the-democratic-party-control-the-house-after-the-2026-midterm-elections',
+    label: { en: 'Democrats · Polymarket', fr: 'Démocrates · Polymarket', es: 'Demócratas · Polymarket' },
+  },
+  'us-senate': {
+    slug: 'will-the-democratic-party-control-the-senate-after-the-2026-midterm-elections',
+    label: { en: 'Democrats · Polymarket', fr: 'Démocrates · Polymarket', es: 'Demócratas · Polymarket' },
+  },
+  quebec: {
+    slug: 'will-parti-qubcois-win-the-most-seats-in-the-2026-quebec-general-election',
+    label: { en: 'PQ · Polymarket', fr: 'PQ · Polymarket', es: 'PQ · Polymarket' },
+  },
+};
+const marketConfig = marketByJurisdiction[jurisdiction.id];
+const marketEntry = marketConfig
+  ? (polymarketData as any).markets?.[marketConfig.slug]
+  : null;
+const marketPrices = marketEntry?.outcomePrices
+  ? JSON.parse(marketEntry.outcomePrices)
+  : [];
+const marketValue = marketPrices.length ? `${Math.round(Number(marketPrices[0]) * 100)}%` : null;
+const clactonMarket = jurisdiction.id === 'uk'
+  ? `${Math.round(Number((clactonData as any).markets?.polymarket?.winner?.markets?.[0]?.outcomePrices?.[0] ?? .92) * 100)}%`
+  : null;
+const liveMarketValue = marketValue ?? clactonMarket;
+const liveMarketLabel = marketConfig?.label[locale] ?? (locale === 'fr' ? 'Farage à Clacton · marché' : locale === 'es' ? 'Farage en Clacton · mercado' : 'Farage in Clacton · market');
+const marketHref = marketConfig
+  ? `https://polymarket.com/${locale === 'en' ? '' : `${locale}/`}event/${marketConfig.slug}`
+  : locale === 'fr' ? '/fr/uk/byelections/clacton/' : locale === 'es' ? '/es/uk/byelections/clacton/' : '/en/uk/byelections/clacton/';
+const snapshotKicker = locale === 'fr' ? `TABLEAU DE COURSE · RUN ${meta.run_date}` : locale === 'es' ? `TABLERO DE CARRERA · ${meta.run_date}` : `RACE BOARD · RUN ${meta.run_date}`;
+const leadLabel = partyLabel(lead);
+const secondLabel = partyLabel(second);
+const headlineById: Record<string, Record<Locale, string>> = {
+  'us-house': {
+    en: `${leadLabel} lead by ${Math.abs(projectedSeatsFor(lead) - projectedSeatsFor(second))} seats. The market is more bullish.`,
+    fr: `${leadLabel} mène par ${Math.abs(projectedSeatsFor(lead) - projectedSeatsFor(second))} sièges. Le marché est plus tranché.`,
+    es: `${leadLabel} aventaja por ${Math.abs(projectedSeatsFor(lead) - projectedSeatsFor(second))} escaños. El mercado es más contundente.`,
+  },
+  'us-senate': {
+    en: `${leadLabel} have the map. The market sees a much tighter chamber.`,
+    fr: `${leadLabel} ont la carte. Le marché voit une chambre beaucoup plus serrée.`,
+    es: `${leadLabel} tienen el mapa. El mercado ve una cámara mucho más cerrada.`,
+  },
+  quebec: {
+    en: `The PQ is first. A majority is another election.`,
+    fr: `Le PQ est premier. La majorité, c’est une autre élection.`,
+    es: `El PQ va primero. La mayoría es otra elección.`,
+  },
+  uk: {
+    en: `Reform leads the old race. Burnham just started a new one.`,
+    fr: `Reform mène l’ancienne course. Burnham vient d’en ouvrir une nouvelle.`,
+    es: `Reform lidera la vieja carrera. Burnham acaba de abrir otra.`,
+  },
+};
+const snapshotHeadline = headlineById[jurisdiction.id]?.[locale]
+  ?? `${leadLabel}: ${projectedSeatsFor(lead)} ${locale === 'fr' ? 'sièges' : locale === 'es' ? 'escaños' : 'seats'}.`;
 const majorityPhrase =
   locale === 'fr'
     ? pMaj >= 99
@@ -176,10 +235,10 @@ const isFr = locale === "fr";
 const isEs = locale === "es";
 const t = {
   heroTagline: isFr
-    ? "Agrégation bayésienne BSTS · Biais d’institut corrigés · Calibré sur le passé"
+    ? "FORECAST VOTE-SCOPE · PROJECTION PROPRIÉTAIRE · AJUSTEMENTS EXCLUSIFS"
     : isEs
-    ? "Agregación bayesiana BSTS · Sesgos de encuestadora corregidos · Contrastado con el pasado"
-    : "Bayesian BSTS aggregation · Corrected house effects · Backtested",
+    ? "FORECAST VOTE-SCOPE · PROYECCIÓN PROPIETARIA · AJUSTES EXCLUSIVOS"
+    : "VOTE-SCOPE FORECAST · PROPRIETARY PROJECTION · EXCLUSIVE ADJUSTMENTS",
   modelBadge: modelBadge(locale),
   runDate: isFr
     ? `Dernier run : ${meta.run_date}`
@@ -418,11 +477,18 @@ const keepDiggingLinks = (() => {
       <span class="pe-badge pe-badge-strong">{t.modelBadge}</span>
       <span class="pe-badge">{meta.election_cycle}</span>
     </div>
-    <GooglePreferredSource locale={locale} />
   </header>
 
-  <section class="pe-section container pe-intro" aria-label={locale === 'fr' ? 'Résumé de la projection' : locale === 'es' ? 'Resumen de la proyección' : 'Projection summary'}>
-    {introParagraphs.map((p) => <p>{p}</p>)}
+  <section class="pe-section container pe-snapshot" aria-labelledby="pe-snapshot-title">
+    <p class="pe-snapshot-kicker">{snapshotKicker}</p>
+    <h2 id="pe-snapshot-title">{snapshotHeadline}</h2>
+    <div class="pe-snapshot-grid">
+      <article style={`--signal:${lead.color}`}><strong>{projectedSeatsFor(lead)}</strong><span>{leadLabel} · {locale === 'fr' ? 'sièges' : locale === 'es' ? 'escaños' : 'seats'}</span></article>
+      <article style={`--signal:${lead.color}`}><strong>{pct(lead.p_largest)}</strong><span>{leadLabel} · {locale === 'fr' ? 'finit premier' : locale === 'es' ? 'queda primero' : 'finishes first'}</span></article>
+      <article style={`--signal:${second.color}`}><strong>{projectedSeatsFor(second)}</strong><span>{secondLabel} · {locale === 'fr' ? 'sièges' : locale === 'es' ? 'escaños' : 'seats'}</span></article>
+      {liveMarketValue && <a class="pe-market-card" href={marketHref}><strong>{liveMarketValue}</strong><span>{liveMarketLabel} →</span></a>}
+    </div>
+    <p class="pe-snapshot-note">{locale === 'fr' ? `${meta.n_polls} sondages · ${meta.n_simulations.toLocaleString('fr-CA')} simulations · notre lecture exclusive de la course` : locale === 'es' ? `${meta.n_polls} encuestas · ${meta.n_simulations.toLocaleString('es-ES')} simulaciones · nuestra lectura exclusiva de la carrera` : `${meta.n_polls} polls · ${meta.n_simulations.toLocaleString('en-CA')} simulations · our exclusive read of the race`}</p>
   </section>
 
   {jurisdiction.electionDate && (
@@ -443,8 +509,6 @@ const keepDiggingLinks = (() => {
       />
     </section>
   )}
-
-  <slot name="narrative" />
 
   <!-- CURRENT COMPOSITION -->
   <section class="pe-section container" aria-labelledby="pe-composition-title">
@@ -568,6 +632,8 @@ const keepDiggingLinks = (() => {
     </div>
   </section>
 
+  <slot name="narrative" />
+
   <!-- MAP -->
   <section class="pe-section container" aria-labelledby="pe-map-title">
     <h2 id="pe-map-title" class="pe-section-title">{t.mapTitle}</h2>
@@ -614,28 +680,71 @@ const keepDiggingLinks = (() => {
 
 <style>
   .projection-engine {
-    padding-block: 64px 96px;
+    padding-block: 32px 96px;
   }
 
   /* HERO */
-  .pe-intro {
-    max-width: 760px;
+  .pe-snapshot { padding-top: 4px; margin-top: 28px; }
+  .pe-snapshot-kicker, .pe-snapshot-note {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--ink-3);
   }
-  .pe-intro p {
-    margin: 0 0 0.85rem;
-    line-height: 1.7;
-    font-size: 1.02rem;
+  .pe-snapshot h2 {
+    max-width: 980px;
+    margin: 10px 0 20px;
+    font-family: var(--serif);
+    font-size: clamp(36px, 4.3vw, 54px);
+    font-weight: 420;
+    line-height: .98;
+    letter-spacing: -.035em;
   }
+  .pe-snapshot-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .pe-snapshot-grid article, .pe-snapshot-grid a {
+    min-height: 116px;
+    padding: 18px 16px;
+    border: 1px solid var(--rule);
+    border-top: 3px solid var(--signal, var(--ink));
+    border-radius: 5px;
+    background: var(--card);
+    color: inherit;
+    text-decoration: none;
+  }
+  .pe-snapshot-grid strong {
+    display: block;
+    font-family: var(--serif);
+    font-size: clamp(42px, 5vw, 66px);
+    font-weight: 420;
+    line-height: 1;
+  }
+  .pe-snapshot-grid span {
+    display: block;
+    margin-top: 10px;
+    font-family: var(--mono);
+    font-size: 10px;
+    line-height: 1.35;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+  }
+  .pe-snapshot-grid .pe-market-card { --signal: #20a47a; }
+  .pe-snapshot-grid .pe-market-card:hover { transform: translateY(-2px); border-color: var(--ink-3); }
+  .pe-snapshot-note { margin-top: 12px; }
 
   .pe-hero {
     max-width: 1080px;
-    padding-bottom: 48px;
+    padding-bottom: 24px;
     border-bottom: 1px solid var(--rule);
   }
 
   .pe-title {
     font-family: var(--serif);
-    font-size: clamp(48px, 7vw, 84px);
+    font-size: clamp(44px, 5.4vw, 64px);
     font-weight: 420;
     letter-spacing: -0.02em;
     line-height: 1;
@@ -653,7 +762,7 @@ const keepDiggingLinks = (() => {
     letter-spacing: 0.1em;
     text-transform: uppercase;
     color: var(--ink-3);
-    margin: 0 0 24px;
+    margin: 0 0 14px;
   }
 
   .pe-meta {
@@ -663,7 +772,7 @@ const keepDiggingLinks = (() => {
     font-family: var(--mono);
     font-size: 12px;
     color: var(--ink-2);
-    margin-bottom: 22px;
+    margin-bottom: 14px;
   }
 
   .pe-meta span[aria-hidden] {
@@ -1094,5 +1203,10 @@ const keepDiggingLinks = (() => {
     font-size: 11px;
     padding: 6px 9px;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  }
+
+  @media (max-width: 800px) {
+    .pe-snapshot-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .pe-snapshot-grid article { min-height: 124px; }
   }
 </style>
