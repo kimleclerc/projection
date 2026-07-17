@@ -1,7 +1,7 @@
 ---
 import OnThisPage from './OnThisPage.astro';
 
-interface EventItem { date: string; title: string; body: string; status?: string }
+interface EventItem { date: string; title: string; body: string; status?: string; sourceHref?: string; sourceLabel?: string }
 interface LinkItem { href: string; label: string; detail?: string }
 interface Props {
   locale: 'en' | 'fr' | 'es';
@@ -14,10 +14,10 @@ interface Props {
 }
 const { locale, question, verdict, history, sinceRun, turningPoints, relatedIndexes = [] } = Astro.props;
 const t = locale === 'fr'
-  ? { history: 'Comment nous en sommes arrivés là', since: 'Depuis le dernier run', turns: 'Ce qui peut encore faire basculer la course', indexes: 'Indices liés', status: 'État du modèle' }
+  ? { history: 'Comment nous en sommes arrivés là', since: 'Ce qui vient de changer', turns: 'Ce qui peut encore faire basculer la course', indexes: 'Indices liés', status: 'Notre lecture' }
   : locale === 'es'
-    ? { history: 'Cómo llegamos hasta aquí', since: 'Desde la última actualización', turns: 'Qué todavía puede cambiar la carrera', indexes: 'Índices relacionados', status: 'Estado del modelo' }
-    : { history: 'How we got here', since: 'Since the last run', turns: 'What can still change the race', indexes: 'Related indexes', status: 'Model status' };
+    ? { history: 'Cómo llegamos hasta aquí', since: 'Lo que acaba de cambiar', turns: 'Qué todavía puede cambiar la carrera', indexes: 'Índices relacionados', status: 'Nuestra lectura' }
+    : { history: 'How we got here', since: 'What just changed', turns: 'What can still change the race', indexes: 'Related indexes', status: 'Our read' };
 const navItems = [
   { href: '#race-history', label: t.history },
   { href: '#since-last-run', label: t.since },
@@ -50,6 +50,7 @@ const navItems = [
         <h3>{event.title}</h3>
         <p>{event.body}</p>
         {event.status && <p class="event-status"><strong>{t.status}:</strong> {event.status}</p>}
+        {event.sourceHref && <p class="event-source"><a href={event.sourceHref}>{event.sourceLabel ?? 'Source'} →</a></p>}
       </article>
     ))}
   </div>
@@ -80,6 +81,7 @@ const navItems = [
   .event-card h3 { margin-top: 8px; font-family: var(--serif); font-size: 25px; font-weight: 430; line-height: 1.08; }
   .event-card > p:not(.event-date) { margin-top: 12px; color: var(--ink-2); line-height: 1.55; }
   .event-date, .event-status { font-family: var(--mono); font-size: 11px; letter-spacing: .06em; }
+  .event-source { font-family: var(--mono); font-size: 10px; letter-spacing: .06em; text-transform: uppercase; }
   .turning-list { max-width: 900px; margin: 24px 0 0 22px; }
   .turning-list li { padding: 12px 0 12px 10px; border-bottom: 1px solid var(--rule-2); color: var(--ink-2); font-size: 17px; line-height: 1.5; }
   .index-links { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; margin-top: 24px; }

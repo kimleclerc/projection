@@ -2,7 +2,6 @@
 import EditorialLayout from '../../../layouts/EditorialLayout.astro';
 import EditorialHero from '../../../components/EditorialHero.astro';
 import RaceNarrative from '../../../components/RaceNarrative.astro';
-import MethodologyNote from '../../../components/MethodologyNote.astro';
 import PolymarketEmbed from '../../../components/PolymarketEmbed.astro';
 import WcGroupTables from '../../../components/WcGroupTables.astro';
 import WcSchedule from '../../../components/WcSchedule.astro';
@@ -100,7 +99,6 @@ const winnerUrl = winnerEmbed?.url ?? undefined;
     secondaryHref="/fr/sports/nhl/"
     secondaryLabel="Desk NHL"
   />
-  <RaceNarrative locale="fr" {...raceEditorial.worldCup.fr} />
 
   <!-- Hero stats -->
   <section class="content-band">
@@ -134,6 +132,7 @@ const winnerUrl = winnerEmbed?.url ?? undefined;
   </section>
 
   <WcEditorial lang="fr" board={board} groups={wcData.groups} runDate={meta.run_date} bracket={wcData.knockout_bracket} />
+  <RaceNarrative locale="fr" {...raceEditorial.worldCup.fr} />
 
   <!-- Live & recent scores -->
   <section class="content-band">
@@ -258,17 +257,6 @@ const winnerUrl = winnerEmbed?.url ?? undefined;
       <PolymarketEmbed slug={winnerSlug} lang="fr" eventUrl={winnerUrl} title="Marché — Champion de la Coupe du Monde 2026" subtitle="Probabilité de victoire finale par pays" />
     </div>
   </section>
-
-  <MethodologyNote
-    title="50 000 simulations. De la phase de groupes au tableau final."
-    body="Le modèle du tournoi international 2026 combine la force d'équipe ajustée par confédération à une simulation Monte-Carlo du tableau complet à 48 équipes. Une fois le tournoi lancé, il se conditionne sur les résultats réels : les matchs joués sont verrouillés et seul le reste du tableau est resimulé (50 000 fois), sans mélange de marché."
-    bullets={[
-      '48 équipes en 12 groupes de 4 — top 2 par groupe + 8 meilleurs troisièmes passent.',
-      'Force calculée sur résultats internationaux récents pondérés par qualité adverse.',
-      'En cours de tournoi, le modèle se conditionne sur les résultats réels — aucun mélange de marché sur les matchs joués.',
-      'Phase de groupes: les probabilités se mettent à jour au fil des matchs.',
-    ]}
-  />
 
   <!-- Legal disclaimer — mandatory -->
   <section class="content-band" style="background:var(--surface-alt,#f8f8f8);padding-block:32px;">

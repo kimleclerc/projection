@@ -2,7 +2,6 @@
 import EditorialLayout from '../../../layouts/EditorialLayout.astro';
 import EditorialHero from '../../../components/EditorialHero.astro';
 import RaceNarrative from '../../../components/RaceNarrative.astro';
-import MethodologyNote from '../../../components/MethodologyNote.astro';
 import PolymarketEmbed from '../../../components/PolymarketEmbed.astro';
 import WcGroupTables from '../../../components/WcGroupTables.astro';
 import WcSchedule from '../../../components/WcSchedule.astro';
@@ -100,7 +99,6 @@ const winnerUrl = winnerEmbed?.url ?? undefined;
     secondaryHref="/es/sports/nhl/"
     secondaryLabel="Desk NHL"
   />
-  <RaceNarrative locale="es" {...raceEditorial.worldCup.es} />
 
   <!-- Favoritos -->
   <section class="content-band">
@@ -134,6 +132,7 @@ const winnerUrl = winnerEmbed?.url ?? undefined;
   </section>
 
   <WcEditorial lang="es" board={board} groups={wcData.groups} runDate={meta.run_date} bracket={wcData.knockout_bracket} />
+  <RaceNarrative locale="es" {...raceEditorial.worldCup.es} />
 
   <!-- Live & recent scores -->
   <section class="content-band">
@@ -258,17 +257,6 @@ const winnerUrl = winnerEmbed?.url ?? undefined;
       <PolymarketEmbed slug={winnerSlug} lang="es" eventUrl={winnerUrl} title="Mercado — Campeón de la Copa del Mundo 2026" subtitle="Probabilidad de victoria por país" />
     </div>
   </section>
-
-  <MethodologyNote
-    title="50,000 simulaciones. De la fase de grupos al cuadro final."
-    body="El modelo del torneo internacional 2026 combina la fortaleza de selección ajustada por confederación con una simulación de Montecarlo del cuadro completo de 48 selecciones. Una vez iniciado el torneo, se condiciona a los resultados reales: los partidos ya jugados quedan fijados y solo se resimula el resto del cuadro (50 000 veces), sin mezcla de mercado."
-    bullets={[
-      '48 selecciones en 12 grupos de 4 — los 2 primeros de cada grupo más los 8 mejores terceros avanzan.',
-      'Fortaleza calculada sobre resultados internacionales recientes ponderados por calidad del rival.',
-      'Durante el torneo, el modelo se condiciona a los resultados reales — sin mezcla de mercado en los partidos ya jugados.',
-      'Fase de grupos: las probabilidades se actualizan a medida que se resuelven los partidos.',
-    ]}
-  />
 
   <!-- Aviso legal — obligatorio -->
   <section class="content-band" style="background:var(--surface-alt,#f8f8f8);padding-block:32px;">
