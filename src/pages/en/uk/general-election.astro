@@ -2,9 +2,11 @@
 import EditorialLayout from '../../../layouts/EditorialLayout.astro';
 import RidingsCta from '../../../components/RidingsCta.astro';
 import ProjectionEngine from '../../../components/ProjectionEngine.astro';
+import RaceNarrative from '../../../components/RaceNarrative.astro';
 import PolymarketEmbed from '../../../components/PolymarketEmbed.astro';
 import { jurisdictions } from '../../../data/jurisdictions';
 import ukMeta from '../../../../web_data/uk/latest.json';
+import { raceEditorial } from '../../../data/raceEditorial';
 
 const j = jurisdictions.uk;
 const canonical = 'https://vote-scope.com/en/uk/general-election/';
@@ -48,7 +50,7 @@ const alternates = {
     },
   ]}
 >
-  <ProjectionEngine jurisdiction={j} locale="en" />
+  <ProjectionEngine jurisdiction={j} locale="en"><Fragment slot="narrative"><RaceNarrative locale="en" {...raceEditorial.uk.en} /></Fragment></ProjectionEngine>
   <div class="container" style="max-width:1080px;margin-inline:auto;padding-inline:1.5rem;">
     <!-- TODO: when UK general-election Polymarket emerges, set slug here -->
     <PolymarketEmbed slug={null} />

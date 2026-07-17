@@ -2,8 +2,10 @@
 import EditorialLayout from '../../../layouts/EditorialLayout.astro';
 import RidingsCta from '../../../components/RidingsCta.astro';
 import ProjectionEngine from '../../../components/ProjectionEngine.astro';
+import RaceNarrative from '../../../components/RaceNarrative.astro';
 import { jurisdictions } from '../../../data/jurisdictions';
 import quebecMeta from '../../../../web_data/quebec/latest.json';
+import { raceEditorial } from '../../../data/raceEditorial';
 
 const j = jurisdictions.quebec;
 const canonical = 'https://vote-scope.com/fr/canada/quebec';
@@ -47,7 +49,7 @@ const alternates = {
     },
   ]}
 >
-  <ProjectionEngine jurisdiction={j} locale="fr" />
+  <ProjectionEngine jurisdiction={j} locale="fr"><Fragment slot="narrative"><RaceNarrative locale="fr" {...raceEditorial.quebec.fr} /></Fragment></ProjectionEngine>
   <RidingsCta
     eyebrow="Profil par circonscription"
     title="Plonger dans une circonscription précise"
@@ -56,4 +58,3 @@ const alternates = {
     cta="Parcourir les 127 circonscriptions →"
   />
 </EditorialLayout>
-

@@ -317,6 +317,11 @@ const fmtSign = (v: number) =>
   v > 0 ? `+${v.toFixed(1)}` : v.toFixed(1);
 const trendArrow = (dir: 'up' | 'down' | 'flat') =>
   dir === 'up' ? '▲' : dir === 'down' ? '▼' : '▬';
+const trendLabel = (dir: 'up' | 'down' | 'flat') => {
+  if (locale === 'fr') return dir === 'up' ? 'En hausse de' : dir === 'down' ? 'En baisse de' : 'Stable à';
+  if (locale === 'es') return dir === 'up' ? 'Sube' : dir === 'down' ? 'Baja' : 'Estable en';
+  return dir === 'up' ? 'Up' : dir === 'down' ? 'Down' : 'Flat at';
+};
 
 const keepDiggingLinks = (() => {
   const prefix = locale === 'fr' ? '/fr' : locale === 'es' ? '/es' : '/en';
@@ -439,6 +444,8 @@ const keepDiggingLinks = (() => {
     </section>
   )}
 
+  <slot name="narrative" />
+
   <!-- CURRENT COMPOSITION -->
   <section class="pe-section container" aria-labelledby="pe-composition-title">
     <h2 id="pe-composition-title" class="pe-section-title">{t.composition}</h2>
@@ -502,7 +509,7 @@ const keepDiggingLinks = (() => {
             {typeof s.trend_7d === 'number' && (
               <span
                 class={`pe-projection-trend pe-projection-trend--${s.trend_direction}`}
-                aria-label={`${s.trend_direction} ${s.trend_7d}`}
+                aria-label={`${trendLabel(s.trend_direction)} ${Math.abs(s.trend_7d)}`}
               >
                 {trendArrow(s.trend_direction)}{' '}
                 {fmtSign(s.trend_7d)}

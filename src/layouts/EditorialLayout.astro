@@ -237,16 +237,41 @@ const {
   }
 
   .signal-ticker {
-    overflow: hidden;
+    display: flex;
+    align-items: stretch;
     border-bottom: 1px solid var(--rule);
     background: var(--ink);
     color: var(--paper-3);
   }
 
+  .signal-viewport { overflow: hidden; flex: 1; min-width: 0; }
+
   .signal-track {
     display: flex;
     width: max-content;
     animation: signal-scroll 55s linear infinite;
+  }
+
+  .signal-list { display: flex; width: max-content; }
+
+  .signal-pause {
+    position: relative;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 8px 12px;
+    border: 0;
+    border-right: 1px solid color-mix(in oklab, var(--paper-3) 24%, transparent);
+    background: var(--ink);
+    color: var(--paper-3);
+    cursor: pointer;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
   }
 
   .signal-item {
@@ -276,10 +301,20 @@ const {
     to { transform: translateX(-50%); }
   }
 
+  .signal-ticker.is-paused .signal-track,
+  .signal-ticker:hover .signal-track,
+  .signal-ticker:focus-within .signal-track { animation-play-state: paused; }
+
   @media (prefers-reduced-motion: reduce) {
     .signal-track {
       animation: none;
     }
+    .signal-list[aria-hidden="true"] { display: none; }
+    .signal-viewport { overflow-x: auto; }
+  }
+
+  @media (max-width: 700px) {
+    .signal-pause span:last-child { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
   }
 
   @media (max-width: 920px) {

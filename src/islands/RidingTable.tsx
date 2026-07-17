@@ -344,6 +344,11 @@ export default function RidingTable({
 
       <div class="rt-table-wrap">
         <table class="rt-table">
+          <caption class="sr-only">
+            {locale === 'fr'
+              ? 'Projection détaillée par circonscription'
+              : 'Detailed projection by electoral district'}
+          </caption>
           <thead>
             <tr>
               <th

@@ -1,0 +1,26 @@
+---
+interface Item { href: string; label: string }
+interface Props { locale: 'en' | 'fr' | 'es'; items: Item[] }
+const { locale, items } = Astro.props;
+const title = locale === 'fr' ? 'Sur cette page' : locale === 'es' ? 'En esta página' : 'On this page';
+---
+
+<nav class="on-this-page" aria-label={title}>
+  <details>
+    <summary>{title}</summary>
+    <ul>
+      {items.map((item) => <li><a href={item.href}>{item.label}</a></li>)}
+    </ul>
+  </details>
+</nav>
+
+<style>
+  .on-this-page { margin: 0 auto; max-width: 1280px; padding: 0 32px; }
+  details { border-block: 1px solid var(--rule); padding: 14px 0; }
+  summary { cursor: pointer; font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; }
+  ul { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 12px; list-style: none; }
+  a { color: var(--ink-2); text-decoration: underline; text-decoration-color: var(--rule); text-underline-offset: 3px; }
+  a:hover { color: var(--ink); text-decoration-color: var(--ink); }
+  @media (min-width: 820px) { details[open] ul, ul { display: flex; } details > summary { list-style: none; } }
+  @media (max-width: 600px) { .on-this-page { padding-inline: 18px; } }
+</style>

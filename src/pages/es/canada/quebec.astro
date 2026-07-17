@@ -2,9 +2,11 @@
 import EditorialLayout from '../../../layouts/EditorialLayout.astro';
 import RidingsCta from '../../../components/RidingsCta.astro';
 import ProjectionEngine from '../../../components/ProjectionEngine.astro';
+import RaceNarrative from '../../../components/RaceNarrative.astro';
 import PolymarketEmbed from '../../../components/PolymarketEmbed.astro';
 import { jurisdictions } from '../../../data/jurisdictions';
 import quebecMeta from '../../../../web_data/quebec/latest.json';
+import { raceEditorial } from '../../../data/raceEditorial';
 
 const j = jurisdictions.quebec;
 const canonical = 'https://vote-scope.com/es/canada/quebec';
@@ -48,7 +50,7 @@ const alternates = {
     },
   ]}
 >
-  <ProjectionEngine jurisdiction={j} locale="es" />
+  <ProjectionEngine jurisdiction={j} locale="es"><Fragment slot="narrative"><RaceNarrative locale="es" {...raceEditorial.quebec.es} /></Fragment></ProjectionEngine>
   <RidingsCta
     eyebrow="Perfil por distrito"
     title="Profundiza en un distrito específico"
@@ -60,4 +62,3 @@ const alternates = {
     <PolymarketEmbed slug={null} />
   </div>
 </EditorialLayout>
-

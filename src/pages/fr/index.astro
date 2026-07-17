@@ -4,6 +4,7 @@ import EditorialHero from '../../components/EditorialHero.astro';
 import InstrumentGrid from '../../components/InstrumentGrid.astro';
 import MarketCheck from '../../components/MarketCheck.astro';
 import MethodologyNote from '../../components/MethodologyNote.astro';
+import IdentityMark from '../../components/IdentityMark.astro';
 import SignalTicker from '../../islands/SignalTicker';
 import AnimatedNumber from '../../islands/AnimatedNumber';
 import { desks, editorialPhilosophy, instruments } from '../../data/editorial';
@@ -115,7 +116,7 @@ const liveSignals: Record<string, string> = {
   <section class="content-band" style="background:var(--surface-alt,#f9f7f2);padding:2rem 0;">
     <div class="container" style="display:flex;align-items:center;gap:2rem;flex-wrap:wrap;">
       <div>
-        <p class="eyebrow" style="margin-bottom:0.25rem;">Chiffre du jour</p>
+        <p class="eyebrow" style="margin-bottom:0.25rem;display:flex;align-items:center;gap:.6rem;"><IdentityMark src="/assets/identity/lame-duck.png" label="Canard boiteux" size={36} /> Chiffre du jour</p>
         <div style={`font-size:3.5rem;font-weight:800;color:${ldi.zone_color};line-height:1;`}>
           <AnimatedNumber client:visible value={ldi.score} decimals={1} />
           <span style="font-size:1.25rem;font-weight:400;color:var(--text);"> /100</span>
@@ -134,7 +135,7 @@ const liveSignals: Record<string, string> = {
     </div>
   </section>
 
-  <SignalTicker client:idle signals={signals} />
+  <SignalTicker client:idle signals={signals} locale="fr" />
 
   <section class="content-band">
     <div class="container">

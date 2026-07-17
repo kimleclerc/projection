@@ -127,9 +127,16 @@ export default function ElectionCountdown({
           {t.datePrefix} {electionDate}
         </span>
       </div>
-      <div class="election-countdown-grid" role="timer" aria-live="polite">
+      <p class="sr-only" aria-live="polite">
+        {remaining?.done
+          ? t.done
+          : remaining
+            ? `${remaining.days} ${t.days}, ${remaining.hours} ${t.hours}, ${remaining.minutes} ${t.minutes}`
+            : ''}
+      </p>
+      <div class="election-countdown-grid" role="timer" aria-label={t.live}>
         {cells.map(([value, label]) => (
-          <div class="election-countdown-cell">
+          <div class="election-countdown-cell" aria-hidden={label === t.seconds ? 'true' : undefined}>
             <strong>{value}</strong>
             <span>{label}</span>
           </div>
