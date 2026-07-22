@@ -1,6 +1,7 @@
 ---
 import EditorialLayout from '../../../../../layouts/EditorialLayout.astro';
 import RidingPage from '../../../../../components/riding/RidingPage.astro';
+import FL20PrimaryPanel from '../../../../../components/FL20PrimaryPanel.astro';
 import { getAllUSHouseRidings } from '../../../../../lib/riding-adapters/us-house';
 
 export function getStaticPaths() {
@@ -11,11 +12,23 @@ export function getStaticPaths() {
 }
 
 const { data } = Astro.props;
+const isFl20 = data.id === '12020' || data.slug === 'fl-20';
+// FL-20 is vacant and the generic primary feed mixes incomparable scenarios.
+// Keep the published general-election projection, but prevent stale incumbent
+// and synthetic primary-leader blocks from contradicting the local desk.
+const pageData: typeof data = isFl20 ? {
+  ...data,
+  member: undefined,
+  primaries: undefined,
+  declaredCandidates: data.declaredCandidates
+    ?.filter((candidate) => !candidate.name.toLowerCase().includes('cherfilus'))
+    .map((candidate) => ({ ...candidate, status: 'open' as const })),
+} : data;
 const canonical = `https://vote-scope.com/fr/us/chambre/districts/${data.slug}/`;
 const alternateEn = `https://vote-scope.com/en/us/house/districts/${data.slug}/`;
 const alternateEs = `https://vote-scope.com/es/us/house/distritos/${data.slug}/`;
-const title = `${data.name.fr || data.name.en} — Projection Chambre des représentants — Vote-Scope`;
-const description = `Projection Vote-Scope pour ${data.name.fr || data.name.en} (${data.province || 'États-Unis'}) : parts de voix par parti, représentant·e en fonction, candidat·e·s 2026, course primaire.`;
+const title = isFl20 ? 'Sondages de la primaire démocrate FL‑20 et projection — Vote-Scope' : `${data.name.fr || data.name.en} — Projection Chambre des représentants — Vote-Scope`;
+const description = isFl20 ? 'Sondages, candidatures, contexte du redécoupage et projection générale Vote-Scope pour FL‑20, mis à jour le 22 juillet 2026.' : `Projection Vote-Scope pour ${data.name.fr || data.name.en} (${data.province || 'États-Unis'}) : parts de voix par parti, représentant·e en fonction, candidat·e·s 2026, course primaire.`;
 ---
 
 <EditorialLayout
@@ -45,7 +58,23 @@ const description = `Projection Vote-Scope pour ${data.name.fr || data.name.en} 
         { '@type': 'ListItem', position: 5, name: data.name.fr || data.name.en, item: canonical },
       ],
     },
+    ...(isFl20 ? [{
+      '@context': 'https://schema.org',
+      '@type': 'Dataset',
+      name: 'Sondages de la primaire démocrate dans FL-20',
+      description,
+      url: canonical,
+      dateModified: '2026-07-22',
+      creator: { '@type': 'Person', name: 'Kim Leclerc', url: 'https://kimleclerc.ca' },
+      publisher: { '@type': 'Organization', name: 'Vote-Scope', url: 'https://vote-scope.com' },
+      copyrightHolder: { '@type': 'Organization', name: 'Vote-Scope', url: 'https://vote-scope.com' },
+      license: 'https://vote-scope.com/fr/conditions/',
+      isAccessibleForFree: true,
+      distribution: { '@type': 'DataDownload', contentUrl: 'https://vote-scope.com/web_data/us-house/fl-20-primary.json', encodingFormat: 'application/json' },
+    }] : []),
   ]}
 >
-  <RidingPage data={data} lang="fr" />
+  <RidingPage data={pageData} lang="fr">
+    {isFl20 && <FL20PrimaryPanel slot="local-feature" lang="fr" demVote={data.parties.find((party) => party.code === 'us_dem')?.vote_mean_pct ?? 0} demWinProb={data.parties.find((party) => party.code === 'us_dem')?.win_prob ?? 0} runDate={data.runDate} />}
+  </RidingPage>
 </EditorialLayout>

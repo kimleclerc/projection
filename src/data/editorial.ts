@@ -72,7 +72,7 @@ export const desks: Record<'en' | 'fr' | 'es', Desk[]> = {
       question: 'Where is the Canadian map stable, and where is it only pretending?',
       description:
         'Federal, Quebec, Ontario, by-elections, riding risk, and the path from public polls to seat pressure.',
-      href: '/en/canada/',
+      href: '/es/canada/',
       signal: 'Canada Goose Index is now live',
     },
     {
@@ -98,12 +98,12 @@ export const desks: Record<'en' | 'fr' | 'es', Desk[]> = {
     {
       id: 'sports',
       name: 'Sports Scope',
-      eyebrow: 'World Cup + NHL',
-      question: 'Who has the cleanest path, and who is riding a fragile streak?',
+      eyebrow: 'Sports model archive',
+      question: 'What did the models see before the trophies were awarded?',
       description:
         'A sportier desk for playoff paths, goalie volatility, live scores, market checks, and tournament chaos.',
       href: '/en/sports/',
-      signal: 'World Cup semi-finals: live conditioned simulations',
+      signal: 'Spain won the 2026 World Cup; the full model record remains public',
     },
   ],
   fr: [
@@ -150,12 +150,12 @@ export const desks: Record<'en' | 'fr' | 'es', Desk[]> = {
     {
       id: 'sports',
       name: 'Sports Scope',
-      eyebrow: 'Coupe du monde + NHL',
-      question: 'Qui a le chemin le plus propre, et qui vit sur une séquence fragile?',
+      eyebrow: 'Archives des modèles sportifs',
+      question: 'Qu’avaient vu les modèles avant la remise des trophées?',
       description:
         'Une verticale plus sportive pour chemins de séries, volatilité des gardiens, scores live, marchés et chaos de tournoi.',
       href: '/fr/sports/',
-      signal: 'Demi-finales de la Coupe du monde : simulations conditionnées en direct',
+      signal: 'L’Espagne a gagné le Mondial 2026; le bilan complet du modèle reste public',
     },
   ],
   es: [
@@ -202,12 +202,12 @@ export const desks: Record<'en' | 'fr' | 'es', Desk[]> = {
     {
       id: 'sports',
       name: 'Sports Scope',
-      eyebrow: 'Copa del Mundo + NHL',
-      question: '¿Quién tiene el camino más despejado y quién vive de una racha frágil?',
+      eyebrow: 'Archivo de modelos deportivos',
+      question: '¿Qué vieron los modelos antes de que se entregaran los trofeos?',
       description:
         'Una vertical más deportiva para caminos de playoff, volatilidad de porteros, marcadores en vivo, mercados y caos de torneo.',
       href: '/es/sports/',
-      signal: 'Semifinales del Mundial: simulaciones condicionadas en vivo',
+      signal: 'España ganó el Mundial 2026; el registro completo del modelo sigue público',
     },
   ],
 };
