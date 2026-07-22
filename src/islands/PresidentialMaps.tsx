@@ -1,5 +1,7 @@
-import { useMemo, useState } from 'preact/hooks';
+import { useMemo } from 'preact/hooks';
 import RidingsMap, { type MapParty, type RidingFull } from './RidingsMap';
+import { useUrlParam } from './lib/urlState';
+import CopyLink from './lib/CopyLink';
 
 type Locale = 'fr' | 'en' | 'es';
 
@@ -57,9 +59,21 @@ export default function PresidentialMaps({
   const t = COPY[locale];
   const mapLocale: 'en' | 'fr' = locale === 'en' ? 'en' : 'fr';
 
-  const [round, setRound] = useState<1 | 2>(1);
-  const [view, setView] = useState<'winner' | 'candidate'>('winner');
-  const [candidate, setCandidate] = useState<string>(candidateParties[0]?.key ?? '');
+  // Permaliens : ?tour=1|2, ?view=winner|candidate, ?candidate=<clé>
+  // (URL propre sur l'état par défaut : 1er tour, bloc en tête).
+  const [tour, setTour] = useUrlParam<'1' | '2'>('tour', '1', (v) => v === '1' || v === '2');
+  const [view, setView] = useUrlParam<'winner' | 'candidate'>(
+    'view',
+    'winner',
+    (v) => v === 'winner' || v === 'candidate',
+  );
+  const [candidate, setCandidate] = useUrlParam(
+    'candidate',
+    candidateParties[0]?.key ?? '',
+    (v) => candidateParties.some((p) => p.key === v),
+  );
+  const round: 1 | 2 = tour === '2' ? 2 : 1;
+  const setRound = (r: 1 | 2) => setTour(r === 2 ? '2' : '1');
 
   const candidateColor = useMemo(
     () => candidateParties.find((p) => p.key === candidate)?.color ?? '#888888',
@@ -129,6 +143,9 @@ export default function PresidentialMaps({
             </select>
           </label>
         )}
+        <span style="margin-left:auto">
+          <CopyLink locale={locale} anchor="maps" />
+        </span>
       </div>
 
       {round === 2 && (

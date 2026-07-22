@@ -1,5 +1,6 @@
-import { useState } from 'preact/hooks';
 import { GooseSvg } from './birds';
+import { useUrlParam } from './lib/urlState';
+import CopyLink from './lib/CopyLink';
 
 /* GooseMeter — Preact island for the Canada Goose Index (Bernache) hero meter.
  *
@@ -191,7 +192,12 @@ function AltitudeView({ value, zones, locale }: { value: number; zones: GooseZon
 
 /* ─── Main component ─────────────────────────────────────────────────────────*/
 export default function GooseMeter({ score, locale, zones, defaultView = 'gauge', qualityNote }: Props) {
-  const [view, setView] = useState<'gauge' | 'altitude'>(defaultView);
+  // Permalien : ?view=gauge|altitude (URL propre sur la vue par défaut).
+  const [view, setView] = useUrlParam<'gauge' | 'altitude'>(
+    'view',
+    defaultView,
+    (v) => v === 'gauge' || v === 'altitude',
+  );
   const value = clampScore(score);
   const safeZones = zones.length > 0 ? zones : DEFAULT_ZONES;
 
@@ -224,6 +230,9 @@ export default function GooseMeter({ score, locale, zones, defaultView = 'gauge'
         <span>{T.grounded[locale]}</span>
         {qualityNote && <span style="color:var(--blue)">{qualityNote}</span>}
         <span>{T.honking[locale]}</span>
+      </div>
+      <div style="display:flex;justify-content:center;margin-top:10px">
+        <CopyLink locale={locale} anchor="meter" />
       </div>
     </div>
   );
