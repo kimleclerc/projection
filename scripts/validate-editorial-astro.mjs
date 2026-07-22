@@ -84,12 +84,14 @@ check(
 
 check(
   'Indexes catalog includes priority instruments',
+  // Liste alignée sur le catalogue vivant (2026-07) : les instruments hockey
+  // (Cup Path, Goalie Volatility) et Majority Fragility/Model-vs-Market sont retirés.
   fileIncludes('src/data/editorial.ts', [
     'Lame-Duck Index',
-    'Majority Fragility Index',
-    'Model vs Market Gap',
-    'Cup Path Index',
-    'Goalie Volatility Index',
+    'Canada Goose Index',
+    'CUSMA Showdown',
+    'Fraser Interim Index',
+    'Barrage Index',
   ])
 );
 
