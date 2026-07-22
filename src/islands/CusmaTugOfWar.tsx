@@ -1,5 +1,6 @@
 import { GooseSvg, DuckSvg } from './birds';
 import type { ShowdownZone, ShowdownLocale } from '../data/cusmaShowdown';
+import CopyLink from './lib/CopyLink';
 
 interface Props {
   gap: number;
@@ -83,6 +84,9 @@ export default function CusmaTugOfWar({ gap, zones, leader, label, locale }: Pro
         <div class="eyebrow" style="color:var(--ink-3)">{T.gap[locale]}</div>
         <div class="score" style={`color:${leaderColor}`}>{gap > 0 ? `+${gap}` : gap}</div>
         <div class="label" style={`color:${leaderColor}`}>{label}</div>
+      </div>
+      <div style="display:flex;justify-content:center;margin-top:10px">
+        <CopyLink locale={locale} anchor="meter" />
       </div>
     </div>
   );

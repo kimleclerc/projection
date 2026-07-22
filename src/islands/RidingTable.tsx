@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from 'preact/hooks';
 import type { RidingFull, MapParty } from './RidingsMap';
+import { readUrlParam, setUrlParam } from './lib/urlState';
+import CopyLink from './lib/CopyLink';
 
 interface Props {
   ridings: RidingFull[];
@@ -87,7 +89,20 @@ export default function RidingTable({
 
   useEffect(() => {
     injectStyles();
+    // Permalien : ?q=<recherche> restauré au mount.
+    const q = readUrlParam('q');
+    if (q) setSearch(q);
   }, []);
+
+  // Miroir de la recherche dans l'URL, avec un léger debounce pour rester
+  // sous la limite de fréquence de replaceState (Safari) pendant la frappe.
+  useEffect(() => {
+    const id = setTimeout(
+      () => setUrlParam('q', search.trim() ? search : null),
+      300,
+    );
+    return () => clearTimeout(id);
+  }, [search]);
 
   const partyByKey = useMemo(
     () => new Map(parties.map((p) => [p.key, p])),
@@ -340,6 +355,7 @@ export default function RidingTable({
           </button>
         )}
         <span class="rt-meta">{t.showing(filtered.length, ridings.length)}</span>
+        <CopyLink locale={locale} anchor="pe-table-title" />
       </div>
 
       <div class="rt-table-wrap">

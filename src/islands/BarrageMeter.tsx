@@ -1,4 +1,5 @@
-import { useState } from 'preact/hooks';
+import { useUrlParam } from './lib/urlState';
+import CopyLink from './lib/CopyLink';
 
 /* BarrageMeter — Preact island for the Barrage Index (Front républicain) hero meter.
  *
@@ -276,7 +277,12 @@ function DamView({ value, zones, locale }: { value: number; zones: BarrageZone[]
 
 /* ─── Main component ─────────────────────────────────────────────────────────*/
 export default function BarrageMeter({ score, locale, zones, defaultView = 'gauge', qualityNote }: Props) {
-  const [view, setView] = useState<'gauge' | 'dam'>(defaultView);
+  // Permalien : ?view=gauge|dam (URL propre sur la vue par défaut).
+  const [view, setView] = useUrlParam<'gauge' | 'dam'>(
+    'view',
+    defaultView,
+    (v) => v === 'gauge' || v === 'dam',
+  );
   const value = clampScore(score);
   const safeZones = zones.length > 0 ? zones : DEFAULT_ZONES;
 
@@ -309,6 +315,9 @@ export default function BarrageMeter({ score, locale, zones, defaultView = 'gaug
         <span>{T.breached[locale]}</span>
         {qualityNote && <span style="color:var(--blue)">{qualityNote}</span>}
         <span>{T.solid[locale]}</span>
+      </div>
+      <div style="display:flex;justify-content:center;margin-top:10px">
+        <CopyLink locale={locale} anchor="meter" />
       </div>
     </div>
   );

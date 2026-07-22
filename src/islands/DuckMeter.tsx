@@ -1,4 +1,5 @@
-import { useState } from 'preact/hooks';
+import { useUrlParam } from './lib/urlState';
+import CopyLink from './lib/CopyLink';
 
 /* DuckMeter — Preact island for the lame-duck index hero meter.
  *
@@ -386,7 +387,12 @@ function WaterlineView({ value, zones, locale }: { value: number; zones: DuckZon
 
 /* ─── Main component ─────────────────────────────────────────────────────── */
 export default function DuckMeter({ score, locale, zones, defaultView = 'gauge', qualityNote }: Props) {
-  const [view, setView] = useState<'gauge' | 'bathtub' | 'waterline'>(defaultView);
+  // Permalien : ?view=gauge|bathtub|waterline (URL propre sur la vue par défaut).
+  const [view, setView] = useUrlParam<'gauge' | 'bathtub' | 'waterline'>(
+    'view',
+    defaultView,
+    (v) => v === 'gauge' || v === 'bathtub' || v === 'waterline',
+  );
   const value = clampScore(score);
   const safeZones = zones.length > 0 ? zones : DEFAULT_ZONES;
 
@@ -421,6 +427,9 @@ export default function DuckMeter({ score, locale, zones, defaultView = 'gauge',
         <span>{T.fullPower[locale]}</span>
         {qualityNote && <span style="color:var(--duck-deep)">{qualityNote}</span>}
         <span>{T.fullyLame[locale]}</span>
+      </div>
+      <div style="display:flex;justify-content:center;margin-top:10px">
+        <CopyLink locale={locale} anchor="meter" />
       </div>
     </div>
   );

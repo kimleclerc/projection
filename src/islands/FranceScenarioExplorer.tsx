@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'preact/hooks';
+import { useMemo } from 'preact/hooks';
 import {
   blocVar,
   blocLabel,
@@ -6,6 +6,8 @@ import {
   type Locale,
   type ScenarioCard,
 } from '../lib/fr-pres';
+import { useUrlParam } from './lib/urlState';
+import CopyLink from './lib/CopyLink';
 
 interface Props {
   scenarios: ScenarioCard[];
@@ -56,7 +58,12 @@ const COPY = {
 
 export default function FranceScenarioExplorer({ scenarios, locale }: Props) {
   const t = COPY[locale];
-  const [selectedId, setSelectedId] = useState(scenarios[0]?.id ?? '');
+  // Permalien : ?scenario=<scenario_id> (URL propre sur le scénario par défaut).
+  const [selectedId, setSelectedId] = useUrlParam(
+    'scenario',
+    scenarios[0]?.id ?? '',
+    (v) => scenarios.some((s) => s.id === v),
+  );
   const current = useMemo(
     () => scenarios.find((s) => s.id === selectedId) ?? scenarios[0],
     [scenarios, selectedId],
@@ -165,6 +172,10 @@ export default function FranceScenarioExplorer({ scenarios, locale }: Props) {
           <p class="fse-empty">{t.noDuel}</p>
         )}
       </section>
+
+      <div style="display:flex;justify-content:flex-end;margin-top:12px">
+        <CopyLink locale={locale} anchor="fr-explorer" />
+      </div>
     </div>
   );
 }
