@@ -55,6 +55,9 @@ const copy = {
     votes: 'vote',
     seats: 'seats',
     compositionLabel: `Commons today — ${compTotal} of ${meta.total_seats} GB seats tracked`,
+    transitionTitle: 'Burnham is now prime minister — and the cabinet reset is real.',
+    transitionBody: 'Andy Burnham entered Downing Street on 20 July. John Healey moved to the Treasury, Wes Streeting to Defence, Angela Rayner returned to Housing and Miatta Fahnbulleh took Energy. The political regime has changed; the model waits for several post-transition polls before treating any bounce as durable.',
+    transitionCta: 'Official ministerial appointments →',
     byeLabel: 'By-elections',
     clactonKicker: 'Live race · polling day 13 August',
     clactonTitle: 'Farage vs Binface.',
@@ -63,7 +66,7 @@ const copy = {
     clactonCta: 'Open the special desk →',
     resolvedLabel: '2026 by-elections — called and settled',
     cards: [
-      { href: '/en/uk/general-election/', eyebrow: 'General election projection', title: 'U.K. General Election', body: '650-seat projection. Bayesian poll aggregation, 50,000 Monte Carlo simulations, seat-level probabilities.', cta: 'Open projection →' },
+      { href: '/en/uk/general-election/', eyebrow: 'General election projection', title: 'U.K. General Election', body: `650-seat projection. Bayesian poll aggregation, ${meta.n_simulations.toLocaleString('en-GB')} Monte Carlo simulations, seat-level probabilities.`, cta: 'Open projection →' },
       { href: '/en/uk/constituencies/', eyebrow: 'Constituency profiles', title: '650 Westminster constituencies', body: 'A page for every seat: projection, sitting MP, 2024 result, ONS demographics and neighbouring seats.', cta: 'Explore all 650 →' },
       { href: '/en/uk/polls/', eyebrow: 'Polling hub', title: 'Every poll, weighted', body: 'The full U.K. polling series that feeds the model — firm, dates, sample and weight, poll by poll.', cta: 'Open the polls hub →' },
     ],
@@ -72,7 +75,7 @@ const copy = {
       "The British electoral map rewards granularity: tactical voting, regional swings and third-party dynamics shift individual seats in ways national polls can't predict. Vote-Scope projects every seat, so you can see exactly where the contest lives.",
     methodBullets: [
       'Polling aggregation uses a Bayesian BSTS model with region-level adjustments.',
-      '50,000 Monte Carlo simulations produce seat distributions and win probabilities.',
+      `${meta.n_simulations.toLocaleString('en-GB')} Monte Carlo simulations produce seat distributions and win probabilities.`,
       'Commons composition reflects resolved by-elections and current vacancies — not just the 2024 result.',
       'By-elections get dedicated race desks — Clacton runs on its own Monte Carlo engine, with markets shown as external comparison.',
     ],
@@ -91,6 +94,9 @@ const copy = {
     votes: 'voix',
     seats: 'sièges',
     compositionLabel: `Les Communes aujourd'hui — ${compTotal} des ${meta.total_seats} sièges GB suivis`,
+    transitionTitle: 'Burnham est premier ministre — et le remaniement est majeur.',
+    transitionBody: 'Andy Burnham est entré au 10 Downing Street le 20 juillet. John Healey passe aux Finances, Wes Streeting à la Défense, Angela Rayner revient au Logement et Miatta Fahnbulleh prend l’Énergie. Le régime politique a changé; le modèle attend plusieurs sondages post-transition avant de traiter un rebond comme durable.',
+    transitionCta: 'Nominations ministérielles officielles →',
     byeLabel: 'Partielles',
     clactonKicker: 'Course en direct · scrutin le 13 août',
     clactonTitle: 'Farage vs Binface.',
@@ -99,7 +105,7 @@ const copy = {
     clactonCta: 'Ouvrir le desk spécial →',
     resolvedLabel: 'Partielles 2026 — jugées et réglées',
     cards: [
-      { href: '/fr/uk/general-election/', eyebrow: 'Projection de la générale', title: 'Générale britannique', body: 'Projection des 650 sièges. Agrégation bayésienne des sondages, 50 000 simulations Monte Carlo, probabilités par siège.', cta: 'Ouvrir la projection →' },
+      { href: '/fr/uk/general-election/', eyebrow: 'Projection de la générale', title: 'Générale britannique', body: `Projection des 650 sièges. Agrégation bayésienne des sondages, ${meta.n_simulations.toLocaleString('fr-FR')} simulations Monte Carlo, probabilités par siège.`, cta: 'Ouvrir la projection →' },
       { href: '/fr/uk/circonscriptions/', eyebrow: 'Fiches de circonscription', title: '650 circonscriptions de Westminster', body: 'Une page par siège : projection, député en poste, résultat 2024, démographie ONS et sièges voisins.', cta: 'Explorer les 650 →' },
       { href: '/fr/uk/sondages/', eyebrow: 'Hub des sondages', title: 'Chaque sondage, pondéré', body: 'La série complète des sondages UK qui alimente le modèle — firme, dates, échantillon et poids, sondage par sondage.', cta: 'Ouvrir le hub →' },
     ],
@@ -108,7 +114,7 @@ const copy = {
       'La carte électorale britannique récompense la granularité : vote tactique, swings régionaux et dynamiques de tiers partis déplacent des sièges individuels que les sondages nationaux ne voient pas. Vote-Scope projette chaque siège.',
     methodBullets: [
       'Agrégation des sondages par modèle bayésien BSTS avec ajustements régionaux.',
-      '50 000 simulations Monte Carlo produisent distributions de sièges et probabilités de victoire.',
+      `${meta.n_simulations.toLocaleString('fr-FR')} simulations Monte Carlo produisent distributions de sièges et probabilités de victoire.`,
       'La composition des Communes reflète les partielles résolues et les vacances en cours — pas seulement le résultat 2024.',
       'Les partielles ont leurs desks dédiés — Clacton tourne sur son propre moteur Monte Carlo, marchés affichés en comparaison externe.',
     ],
@@ -127,6 +133,9 @@ const copy = {
     votes: 'voto',
     seats: 'escaños',
     compositionLabel: `Los Comunes hoy — ${compTotal} de los ${meta.total_seats} escaños GB seguidos`,
+    transitionTitle: 'Burnham ya es primer ministro — y el gabinete cambió de verdad.',
+    transitionBody: 'Andy Burnham entró en Downing Street el 20 de julio. John Healey pasó al Tesoro, Wes Streeting a Defensa, Angela Rayner volvió a Vivienda y Miatta Fahnbulleh asumió Energía. Cambió el régimen político; el modelo espera varias encuestas posteriores antes de tratar cualquier rebote como duradero.',
+    transitionCta: 'Nombramientos ministeriales oficiales →',
     byeLabel: 'Parciales',
     clactonKicker: 'Contienda en vivo · votación el 13 de agosto',
     clactonTitle: 'Farage vs Binface.',
@@ -135,7 +144,7 @@ const copy = {
     clactonCta: 'Abrir el desk especial →',
     resolvedLabel: 'Parciales de 2026 — resueltas',
     cards: [
-      { href: '/es/uk/general-election/', eyebrow: 'Proyección de las generales', title: 'Generales británicas', body: 'Proyección de 650 escaños. Agregación bayesiana de encuestas, 50 000 simulaciones Monte Carlo, probabilidades por escaño.', cta: 'Abrir la proyección →' },
+      { href: '/es/uk/general-election/', eyebrow: 'Proyección de las generales', title: 'Generales británicas', body: `Proyección de 650 escaños. Agregación bayesiana de encuestas, ${meta.n_simulations.toLocaleString('es-ES')} simulaciones Monte Carlo, probabilidades por escaño.`, cta: 'Abrir la proyección →' },
       { href: '/es/uk/circunscripciones/', eyebrow: 'Fichas de circunscripción', title: '650 circunscripciones de Westminster', body: 'Una página por escaño: proyección, diputado en ejercicio, resultado 2024, demografía ONS y escaños vecinos.', cta: 'Explorar las 650 →' },
       { href: '/es/uk/sondeos/', eyebrow: 'Hub de encuestas', title: 'Cada encuesta, ponderada', body: 'La serie completa de encuestas del Reino Unido que alimenta el modelo — casa, fechas, muestra y peso.', cta: 'Abrir el hub →' },
     ],
@@ -144,7 +153,7 @@ const copy = {
       'El mapa electoral británico premia la granularidad: voto táctico, swings regionales y terceras fuerzas mueven escaños que las encuestas nacionales no ven. Vote-Scope proyecta cada escaño.',
     methodBullets: [
       'Agregación de encuestas con un modelo bayesiano BSTS y ajustes regionales.',
-      '50 000 simulaciones Monte Carlo producen distribuciones de escaños y probabilidades.',
+      `${meta.n_simulations.toLocaleString('es-ES')} simulaciones Monte Carlo producen distribuciones de escaños y probabilidades.`,
       'La composición de los Comunes refleja parciales resueltas y vacantes actuales — no solo el resultado de 2024.',
       'Las parciales tienen desks dedicados — Clacton corre en su propio motor Monte Carlo, con mercados como comparación externa.',
     ],
@@ -207,6 +216,17 @@ const dateLabel = (iso: string) => {
     secondaryHref={`/${locale}/indexes/`}
     secondaryLabel={t.allIndexes}
   />
+
+  <section class="content-band">
+    <div class="container">
+      <article class="note-card" style="max-width:900px;border-left:4px solid var(--blue);">
+        <p class="eyebrow">20 JUL 2026 · DOWNING STREET</p>
+        <h2 style="font-family:var(--serif);font-size:clamp(1.7rem,3vw,2.5rem);margin:.4rem 0 1rem;">{t.transitionTitle}</h2>
+        <p>{t.transitionBody}</p>
+        <p style="margin-top:1rem;"><a class="cta-link" href="https://www.gov.uk/government/news/ministerial-appointments-july-2026" rel="noreferrer">{t.transitionCta}</a></p>
+      </article>
+    </div>
+  </section>
 
   <section class="content-band ukdesk-topline-band">
     <div class="container">

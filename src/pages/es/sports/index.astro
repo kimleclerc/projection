@@ -7,14 +7,9 @@ import AnimatedNumber from '../../../islands/AnimatedNumber';
 import PolymarketEmbed from '../../../components/PolymarketEmbed.astro';
 
 import sportsData from '../../../../web_data/sports/latest.json';
-import { flagFor } from '../../../lib/wc-flags';
-import wcData from '../../../../web_data/sports/worldcup2026_latest.json';
 
 const hero = sportsData.hero;
 const boardMeta = sportsData.board_meta;
-const wcHero = wcData.hero;
-const wcTop3 = (wcData.board as Array<{ team: string; labels: Record<string, string>; p_champion: number }>).filter((t) => t.p_champion > 0);
-const wcMeta = wcData.board_meta;
 ---
 
 <EditorialLayout
@@ -57,21 +52,11 @@ const wcMeta = wcData.board_meta;
 
   <section class="content-band">
     <div class="container">
-      <p class="eyebrow">Copa del Mundo 2026 · final · 19 de julio</p>
-      <h2>España–Argentina. Los últimos noventa minutos.</h2>
-      <p>España llega sin encajar en sus dos últimos partidos. Argentina lo hace tras convertir un 1–0 en contra ante Inglaterra en una victoria 2–1. Una busca su segunda estrella; la campeona vigente, la cuarta.</p>
-      <div class="content-grid-2" style="gap:1.5rem;margin-top:1rem;">
-        {wcTop3.map((team, i) => (
-          <div class="note-card" style="border-left:4px solid var(--red, #c33);">
-            <p class="eyebrow">{i === 0 ? 'Ventaja del modelo' : 'Finalista'}</p>
-            <h3 style="font-size:1.6rem;margin:0.25rem 0;">{flagFor(team.team)} {team.labels.es}</h3>
-            <p style="font-size:1.6rem;font-weight:700;color:var(--red, #c33);">{team.p_champion}%</p>
-          </div>
-        ))}
-      </div>
-      <p style="margin-top:1rem;">102 de 104 partidos terminados · 50.000 simulaciones · Argentina 53,59 % · España 46,41 %.</p>
+      <p class="eyebrow">Copa del Mundo 2026 · terminada · 19 de julio</p>
+      <h2>España es campeona del mundo.</h2>
+      <p>España venció 1–0 a Argentina tras la prórroga. El archivo conserva todo el registro del modelo: España primera al inicio con 7,36%, pero Argentina ligeramente favorita en el último run previo, 53,59–46,41.</p>
       <p style="margin-top:0.5rem;">
-        <a href="/es/sports/wc2026/" class="cta-link">Abrir el desk de la Copa del Mundo →</a>
+        <a href="/es/sports/wc2026/" class="cta-link">Abrir el archivo del Mundial →</a>
         &nbsp;·&nbsp;
         <a href="/es/sports/wc2026/equipos/" class="cta-link">Historias de las selecciones →</a>
       </p>
@@ -91,10 +76,10 @@ const wcMeta = wcData.board_meta;
       </div>
       <a class="note-card" href="/es/sports/wc2026/" style="text-decoration:none;color:inherit;">
         <p class="eyebrow">Torneo internacional de fútbol 2026</p>
-        <h3>{wcHero.favorite_labels.es} lidera — {wcHero.favorite_prob}%</h3>
-        <p>Final: Argentina–España · {wcMeta.n_sims.toLocaleString()} simulaciones condicionadas a 102 partidos terminados.</p>
+        <h3>🇪🇸 España — campeona del mundo 2026</h3>
+        <p>Final: España 1–0 Argentina tras la prórroga · instantáneas inicial y previa a la final archivadas.</p>
         <footer style="margin-top:1rem;">
-          <span class="cta-link">Abrir desk del torneo →</span>
+          <span class="cta-link">Abrir archivo del torneo →</span>
         </footer>
       </a>
     </div>

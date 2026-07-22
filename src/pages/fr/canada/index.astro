@@ -195,7 +195,7 @@ const onMaj = Math.round(onTop.p_majority * 100);
     bullets={[
       "Les sondages proviennent de firmes enregistr&#xe9;es aupr&#xe8;s d&#x27;&#xc9;lections Canada et sont pond&#xe9;r&#xe9;s selon la r&#xe9;cence, la taille de l&#x27;&#xe9;chantillon et le bilan de chaque firme.",
       "Les probabilit&#xe9;s par circonscription sont conditionn&#xe9;es aux mouvements nationaux et r&#xe9;gionaux, puis r&#xe9;agr&#xe9;g&#xe9;es en distributions totales de si&#xe8;ges.",
-      "Les seuils de majorit&#xe9; sont mod&#xe9;lis&#xe9;s explicitement&#xa0;: f&#xe9;d&#xe9;ral &#xe0; 172/338, Qu&#xe9;bec &#xe0; 64/127, Ontario &#xe0; 63/124.",
+      `Les seuils de majorité sont modélisés explicitement : fédéral à ${federalData.meta.majority_threshold}/${federalData.meta.total_seats}, Québec à 64/127, Ontario à ${ontarioData.meta.majority_threshold}/${ontarioData.meta.total_seats}.`,
       "Les projections de partielles utilisent un mod&#xe8;le de fondamentaux &#x2014; titularit&#xe9;, marge historique, donn&#xe9;es d&#xe9;mographiques &#x2014; mis &#xe0; jour au fil de la campagne.",
     ]}
   />

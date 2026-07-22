@@ -196,7 +196,7 @@ const onMaj = Math.round(onTop.p_majority * 100);
     bullets={[
       'Polls are sourced from Elections Canada-registered firms and weighted by recency, sample size, and firm track record.',
       'Riding-level probabilities are conditioned on national and regional swings, then re-aggregated to total seat distributions.',
-      'Majority thresholds are modeled explicitly: federal at 172/338, Quebec at 64/127, Ontario at 63/124.',
+      `Majority thresholds are modeled explicitly: federal at ${federalData.meta.majority_threshold}/${federalData.meta.total_seats}, Quebec at 64/127, Ontario at ${ontarioData.meta.majority_threshold}/${ontarioData.meta.total_seats}.`,
       'By-election projections use a fundamentals model — incumbency, margin history, demographics — updated as campaign data arrives.',
     ]}
   />

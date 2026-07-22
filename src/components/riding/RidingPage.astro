@@ -39,6 +39,7 @@ const navWebKey = data.navWebKey ?? getNavEntryForRiding(data.jurisdiction)?.web
 <Hero data={data} lang={lang} />
 <RidingQuestion data={data} lang={lang} />
 <EditorialBlurb data={data} lang={lang} />
+<slot name="local-feature" />
 {data.member && <CurrentMember data={data} lang={lang} />}
 {data.primaries && <PrimaryStatus data={data} lang={lang} />}
 {data.declaredCandidates && data.declaredCandidates.length > 0 && <CandidateSlate data={data} lang={lang} />}

@@ -1,0 +1,69 @@
+---
+import desk from '../../web_data/us-house/fl-20-primary.json';
+
+interface Props { lang: 'en' | 'fr'; demVote: number; demWinProb: number; runDate?: string }
+const { lang, demVote, demWinProb, runDate } = Astro.props;
+const isFr = lang === 'fr';
+const latest = desk.poll_questions.find((poll) => poll.question_id === desk.meta.featured_question_id)!;
+const candidates = latest.answers;
+const sources = isFr ? [
+  ['Greffier de la Chambre — vacance', 'https://clerk.house.gov/member_info/vacancies/fl20-vacant-office-press-release.pdf'],
+  ['Département de la Justice — acte d’accusation', 'https://www.justice.gov/opa/pr/south-florida-congresswoman-charged-stealing-5-million-fema-funds-and-making-illegal'],
+  ['Floride — calendrier électoral', 'https://dos.fl.gov/elections/for-voters/election-dates/'],
+  ['Sénat de Floride — redécoupage 2026', 'https://www.flsenate.gov/Session/Redistricting/Congressional'],
+  ['Suivi officiel des candidats', 'https://dos.elections.myflorida.com/candidates/downloadcanlist.asp'],
+] : [
+  ['House Clerk — vacancy notice', 'https://clerk.house.gov/member_info/vacancies/fl20-vacant-office-press-release.pdf'],
+  ['Justice Department — indictment release', 'https://www.justice.gov/opa/pr/south-florida-congresswoman-charged-stealing-5-million-fema-funds-and-making-illegal'],
+  ['Florida — election dates', 'https://dos.fl.gov/elections/for-voters/election-dates/'],
+  ['Florida Senate — 2026 redistricting', 'https://www.flsenate.gov/Session/Redistricting/Congressional'],
+  ['Official candidate tracking', 'https://dos.elections.myflorida.com/candidates/downloadcanlist.asp'],
+];
+---
+
+  <section class="container fl20" aria-labelledby="fl20-primary-title">
+    <header class="desk-head">
+      <p class="kicker">{isFr ? 'Bureau des primaires · mis à jour le 22 juillet' : 'Primary desk · updated July 22'}</p>
+      <h2 id="fl20-primary-title">{isFr ? 'La bataille démocrate qui redéfinit FL‑20' : 'The Democratic battle reshaping FL‑20'}</h2>
+      <p>{isFr ? 'Une démission, une nouvelle carte et l’arrivée de Debbie Wasserman Schultz ont transformé une circonscription sûre en primaire nationale — sans que quelques sondages commandités suffisent à prévoir le résultat.' : 'A resignation, a new map and Debbie Wasserman Schultz’s entry turned a safe seat into a national primary story — without making a thin set of sponsored polls predictive.'}</p>
+    </header>
+    <section class="status-grid" aria-label={isFr ? 'Repères' : 'Race markers'}>
+      <article><span>{isFr ? 'Primaire fermée' : 'Closed primary'}</span><strong>{isFr ? '18 août 2026' : 'August 18, 2026'}</strong><p>{isFr ? 'La date vise la nomination régulière pour le prochain Congrès.' : 'This is the regular nomination for the next Congress.'}</p></article>
+      <article><span>{isFr ? 'Élection partielle' : 'Special election'}</span><strong>{isFr ? 'Date à déterminer' : 'Date TBD'}</strong><p>{isFr ? 'Elle comblera séparément le mandat actuel devenu vacant.' : 'It will separately fill the vacant remainder of the current term.'}</p></article>
+      <article><span>{isFr ? 'Projection générale publiée' : 'Published general-election model'}</span><strong>{(demWinProb * 100).toFixed(0)}% {isFr ? 'victoire dém.' : 'Dem. win'}</strong><p>{demVote.toFixed(1)}% {isFr ? 'voix dém.' : 'Dem. vote'} · {runDate}</p></article>
+    </section>
+
+    <section class="story">
+      <div>
+        <p class="kicker">{isFr ? 'Ce qui a changé' : 'What changed'}</p>
+        <h2>{isFr ? 'Une vacance et une nouvelle géographie politique' : 'A vacancy and a new political geography'}</h2>
+      </div>
+      <div class="copy">
+        <p>{isFr ? 'Sheila Cherfilus‑McCormick a démissionné le 21 avril. Son bureau demeure ouvert sous l’autorité du greffier, mais le district n’a plus de vote à la Chambre. Le département de la Justice l’avait accusée dans une affaire alléguant le détournement de fonds FEMA liés à un contrat de vaccination contre la COVID‑19; les accusations sont des allégations et elle est présumée innocente.' : 'Sheila Cherfilus‑McCormick resigned on April 21. Her office remains open under the Clerk, but the district has no voting representation in the House. The Justice Department had charged her in a case alleging theft of FEMA funds tied to a COVID‑19 vaccination contract; the charges are allegations and she is presumed innocent.'}</p>
+        <p>{isFr ? 'Le plan de redécoupage 2026 adopté à la suite de la session spéciale convoquée par Ron DeSantis a éliminé l’ancien siège de Debbie Wasserman Schultz. Son choix de se présenter dans FL‑20, district historiquement noir, a provoqué une contestation sur la représentation et le pouvoir politique local. Elijah Manley, Dale Holness et Luther Campbell comptent parmi ses principaux rivaux.' : 'The 2026 map enacted after the special session called by Ron DeSantis eliminated Debbie Wasserman Schultz’s former seat. Her decision to run in FL‑20, a historically Black district, prompted a debate over representation and local political power. Elijah Manley, Dale Holness and Luther Campbell are among her principal rivals.'}</p>
+      </div>
+    </section>
+
+    <section class="poll" id="poll">
+      <header>
+        <div><p class="kicker">{isFr ? 'Dernier bulletin complet publié' : 'Latest published full ballot'}</p><h2>{isFr ? 'Wasserman Schultz devant, course encore peu mesurée' : 'Wasserman Schultz leads a still-thinly-polled race'}</h2></div>
+        <p class="method">{latest.pollster.replaceAll('_', ' ')}<br />{latest.field_start}–{latest.field_end} · n={latest.sample_size} {latest.population.toUpperCase()}</p>
+      </header>
+      <div class="bars">
+        {candidates.map((candidate) => <div class:list={['bar-row', candidate.party === 'NONE' && 'undecided']}><span>{candidate.candidate}</span><div class="track"><i style={`width:${candidate.pct}%`}></i></div><strong>{candidate.pct}%</strong></div>)}
+      </div>
+      <p class="poll-note">{isFr ? 'Lecture Vote‑Scope : bureau de sondages, pas prévision de primaire. Une seule question complète post-redécoupage et une publication EMC commandée par la campagne Wasserman Schultz (52 %, détails des autres candidats non publiés) ne permettent pas un modèle robuste.' : 'Vote‑Scope assessment: polling desk, not a primary forecast. One complete post-redistricting ballot and an EMC release commissioned by the Wasserman Schultz campaign (52%, other candidates’ detail unpublished) are not enough for a robust model.'}</p>
+      <a class="source-link" href={latest.source} rel="noreferrer">{isFr ? 'Source du sondage →' : 'Poll source →'}</a>
+    </section>
+
+    <section class="sources">
+      <h2>{isFr ? 'Sources et méthode' : 'Sources and method'}</h2>
+      <p>{isFr ? 'Données arrêtées au 22 juillet 2026. Les onze questions du fichier incluent des scénarios et des face-à-face; elles ne sont donc pas moyennées comme onze sondages indépendants.' : 'Data current through July 22, 2026. The eleven questions in the file include scenarios and head-to-head matchups, so they are not averaged as eleven independent polls.'}</p>
+      <ul>{sources.map(([label, href]) => <li><a href={href} rel="noreferrer">{label}</a></li>)}</ul>
+      <a class="download" href="/web_data/us-house/fl-20-primary.json">{isFr ? 'Télécharger les données JSON' : 'Download JSON data'}</a>
+    </section>
+  </section>
+
+<style>
+  .fl20{max-width:1080px;margin-inline:auto;padding:64px 1.5rem 80px}.desk-head{max-width:850px;padding-bottom:48px;border-bottom:1px solid var(--rule)}.desk-head>p:last-child{font:430 19px/1.6 var(--serif);color:var(--ink-2)}.status-grid{display:grid;grid-template-columns:repeat(3,1fr);border-left:1px solid var(--rule);margin-top:48px}.status-grid article{padding:22px;border:1px solid var(--rule);border-left:0;background:var(--card)}.status-grid span,.kicker,.method{font:10px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}.status-grid strong{display:block;margin:12px 0 8px;font:430 27px/1.05 var(--serif)}.status-grid p,.copy p,.sources p,.poll-note{color:var(--ink-2);line-height:1.65}.story{display:grid;grid-template-columns:.8fr 1.2fr;gap:70px;padding:80px 0;border-bottom:1px solid var(--rule)}h2{margin:12px 0 0;font:420 clamp(34px,5vw,58px)/.98 var(--serif);letter-spacing:-.025em}.copy p:first-child{margin-top:0}.poll{padding:72px 0;border-bottom:1px solid var(--rule)}.poll header{display:flex;justify-content:space-between;gap:36px;align-items:end}.method{text-align:right;line-height:1.7}.bars{margin:40px 0 28px;display:grid;gap:14px}.bar-row{display:grid;grid-template-columns:minmax(150px,250px) 1fr 50px;align-items:center;gap:14px}.bar-row span{font:430 19px var(--serif)}.bar-row strong{font:600 15px var(--mono);text-align:right}.track{height:14px;background:var(--paper-2);border:1px solid var(--rule)}.track i{display:block;height:100%;background:var(--blue);min-width:2px}.bar-row.undecided .track i{background:var(--ink-3)}.poll-note{max-width:820px}.source-link,.download,.sources a{color:var(--blue);text-decoration:underline;text-underline-offset:3px}.sources{padding:72px 0}.sources p{max-width:760px}.sources ul{columns:2;padding-left:20px;margin:28px 0}.sources li{margin-bottom:10px}.download{font:11px var(--mono);letter-spacing:.08em;text-transform:uppercase}@media(max-width:760px){.status-grid,.story{grid-template-columns:1fr}.story{gap:28px}.poll header{display:block}.method{text-align:left;margin-top:20px}.bar-row{grid-template-columns:120px 1fr 42px}.sources ul{columns:1}}
+</style>

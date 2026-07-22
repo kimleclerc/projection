@@ -194,7 +194,7 @@ const onMaj = Math.round(onTop.p_majority * 100);
     bullets={[
       "Los sondeos provienen de firmas registradas ante Elecciones Canadá y se ponderan por reciencia, tamaño de muestra y trayectoria de cada firma.",
       "Las probabilidades por distrito están condicionadas a movimientos nacionales y regionales, y luego se reagregan en distribuciones totales de escaños.",
-      "Los umbrales de mayoría se modelan explícitamente: federal a 172/338, Quebec a 64/127, Ontario a 63/124.",
+      `Los umbrales de mayoría se modelan explícitamente: federal a ${federalData.meta.majority_threshold}/${federalData.meta.total_seats}, Quebec a 64/127, Ontario a ${ontarioData.meta.majority_threshold}/${ontarioData.meta.total_seats}.`,
       "Las proyecciones de extraordinarias usan un modelo de fundamentos — titularidad, margen histórico, datos demográficos — actualizado durante la campaña.",
     ]}
   />

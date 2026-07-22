@@ -10,19 +10,15 @@ import AnimatedNumber from '../../islands/AnimatedNumber';
 import { desks, editorialPhilosophy, instruments } from '../../data/editorial';
 
 import ldiData from '../../../web_data/us-lame-duck/latest.json';
-import wcHome from '../../../web_data/sports/worldcup2026_latest.json';
 import bfiData from '../../../web_data/fr-barrage/latest.json';
 import frLegData from '../../../web_data/france-legislative/latest.json';
 import clactonData from '../../../web_data/uk-clacton-special/latest.json';
 import gooseData from '../../../web_data/ca-canada-goose/latest.json';
 import cusmaData from '../../../web_data/cusma-showdown/latest.json';
-import { flagFor } from '../../lib/wc-flags';
 
 const philosophy = editorialPhilosophy.fr;
 const ldi = ldiData.ldi;
 const deltaSign = ldi.delta_7d >= 0 ? '+' : '';
-const wcFav = wcHome.hero;
-const wcFavName = `${flagFor(wcFav.favorite_team)} ${wcFav.favorite_labels.fr}`.trim();
 const bfi = (bfiData as any).bfi;
 const legCentral = (frLegData as any).scenarios.find((s: any) => s.id === (frLegData as any).meta.central_scenario);
 const pMajRN = Math.round((legCentral?.p_majority_far_right ?? 0) * 100);
@@ -32,7 +28,7 @@ const cusma = (cusmaData as any).showdown;
 
 // Le bandeau ne porte que des chiffres du site — jamais de promesses.
 const signals = [
-  { label: 'Coupe du monde 2026', value: `${wcFavName} favorite — ${wcFav.favorite_prob} %`, href: '/fr/sports/wc2026/' },
+  { label: 'Coupe du monde 2026', value: '🇪🇸 Espagne championne — 1–0 a.p.', href: '/fr/sports/wc2026/' },
   { label: 'Indice Barrage', value: `${bfi.score}/100 · ${bfi.label_fr}`, href: '/fr/france/indexes/barrage/' },
   { label: 'Législatives FR', value: `p(majorité RN) ${pMajRN} % si front 2024`, href: '/fr/france/legislatives' },
   { label: 'Partielle Clacton', value: `Farage ${pFarage} % — scrutin le 13 août`, href: '/fr/uk/byelections/clacton/' },
@@ -47,7 +43,7 @@ const liveSignals: Record<string, string> = {
   canada: `Bernache ${goose.score}/100 · ACEUM ${cusma.gap > 0 ? '+' : ''}${cusma.gap}`,
   france: `p(majorité RN) ${pMajRN} % si front 2024 · Barrage ${bfi.score}/100`,
   uk: `Clacton : Farage ${pFarage} % — 13 août`,
-  sports: `${wcFavName} favorite à ${wcFav.favorite_prob} % — finale`,
+  sports: '🇪🇸 Espagne championne · archive du modèle',
 };
 ---
 
@@ -98,16 +94,14 @@ const liveSignals: Record<string, string> = {
   <section class="content-band" style="border-top:4px solid var(--red, #c33);">
     <div class="container" style="display:flex;align-items:center;gap:2rem;flex-wrap:wrap;">
       <div>
-        <p class="eyebrow" style="margin-bottom:0.25rem;">Coupe du monde 2026 — desk en direct</p>
-        <h2 style="margin:0;">Un match. Un trophée. Espagne–Argentine.</h2>
-        <p style="font-size:1.5rem;font-weight:700;margin-top:0.5rem;">{wcFavName} — {wcFav.favorite_prob}%</p>
+        <p class="eyebrow" style="margin-bottom:0.25rem;">Coupe du monde 2026 — archive finale</p>
+        <h2 style="margin:0;">L’Espagne est championne du monde.</h2>
+        <p style="font-size:1.5rem;font-weight:700;margin-top:0.5rem;">🇪🇸 Espagne 1–0 Argentine · après prolongation</p>
       </div>
       <div style="flex:1;min-width:220px;">
-        <p>L’Argentine a remonté l’Angleterre; l’Espagne a fermé la porte à la France. Après 102 matchs, la première Coupe du monde à 48 équipes tient dans une finale presque à pile ou face — sept points seulement séparent les deux équipes dans 50 000 simulations.</p>
+        <p>L’Espagne remporte la première Coupe du monde à 48 équipes. L’archive conserve les deux lectures du modèle : Espagne première à l’ouverture (7,36 %), mais Argentine légèrement favorite au dernier run avant la finale, 53,59–46,41.</p>
         <p style="margin-top:0.75rem;">
-          <a href="/fr/sports/wc2026/" class="cta-link">Ouvrir le desk Coupe du monde →</a>
-          &nbsp;·&nbsp;
-          <a href="/fr/sports/wc2026/#beat-the-model" class="cta-link">Bats le modèle →</a>
+          <a href="/fr/sports/wc2026/" class="cta-link">Ouvrir l’archive Coupe du monde →</a>
         </p>
       </div>
     </div>
