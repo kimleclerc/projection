@@ -17,17 +17,17 @@ import satori from 'satori';
 import { Resvg } from '@resvg/resvg-js';
 
 // --- brand palette (light card, matches site --paper/--ink) ---------------
-const PAPER = '#f5f1e8';
-const CARD = '#fffdf6';
-const INK = '#1a1814';
-const INK_2 = '#3a3530';
-const INK_3 = '#6a635a';
-const RULE = '#d8d3c8';
+export const PAPER = '#f5f1e8';
+export const CARD = '#fffdf6';
+export const INK = '#1a1814';
+export const INK_2 = '#3a3530';
+export const INK_3 = '#6a635a';
+export const RULE = '#d8d3c8';
 
 const ROOT = process.cwd();
 const FONT = (rel: string) => fs.readFileSync(path.join(ROOT, 'node_modules', rel));
 
-const FONTS = [
+export const FONTS = [
   { name: 'Newsreader', data: FONT('@fontsource/newsreader/files/newsreader-latin-400-normal.woff'), weight: 400 as const, style: 'normal' as const },
   { name: 'Newsreader', data: FONT('@fontsource/newsreader/files/newsreader-latin-600-normal.woff'), weight: 600 as const, style: 'normal' as const },
   { name: 'JetBrains Mono', data: FONT('@fontsource/jetbrains-mono/files/jetbrains-mono-latin-400-normal.woff'), weight: 400 as const, style: 'normal' as const },
@@ -35,8 +35,8 @@ const FONTS = [
 ];
 
 // --- tiny hyperscript for satori (React-element-shaped objects) -----------
-type Node = { type: string; props: Record<string, unknown> };
-function el(
+export type Node = { type: string; props: Record<string, unknown> };
+export function el(
   type: string,
   style: Record<string, unknown>,
   children?: Node | Node[] | string,
