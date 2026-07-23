@@ -1,0 +1,56 @@
+/* Design tokens + base — extraits de Base.astro pour être partagés avec le
+ * layout Embed (iframes) sans embarquer nav/footer. Toute retouche de palette
+ * se fait ICI, elle s'applique au site ET aux embeds. */
+
+/* ── DESIGN TOKENS ───────────────────────────────────────────────── */
+:root {
+  /* Light (default) */
+  --ink:    #1a1814; --ink-2: #3a3530; --ink-3: #6a635a; --ink-4: #9a9288;
+  --rule:   #d8d3c8; --rule-2: #e8e3d8;
+  --paper:  #f5f1e8; --paper-2: #ede8db; --paper-3: #faf7ef; --card: #fffdf6;
+  --blue:   oklch(0.42 0.13 255); --blue-soft: oklch(0.55 0.10 255); --blue-tint: oklch(0.93 0.03 255);
+  --red:    oklch(0.52 0.18 25);  --red-soft:  oklch(0.62 0.14 25);  --red-tint:  oklch(0.94 0.03 25);
+  --duck:      oklch(0.87 0.17 92);
+  --duck-deep: oklch(0.78 0.18 75);
+  --beak:      oklch(0.72 0.19 55);
+  --water:     oklch(0.72 0.07 220);
+  --water-deep: oklch(0.55 0.09 230);
+  /* Fontsource variable font families */
+  --serif: "Newsreader Variable", Georgia, serif;
+  --sans:  "Geist Variable", -apple-system, system-ui, sans-serif;
+  --mono:  "JetBrains Mono Variable", ui-monospace, monospace;
+}
+
+/* Dark mode overrides */
+[data-theme="dark"] {
+  --ink:    #ede8de; --ink-2: #c8c3b8; --ink-3: #8a857c; --ink-4: #5a5550;
+  --rule:   #2e2a24; --rule-2: #252118;
+  --paper:  #14120e; --paper-2: #1a1710; --paper-3: #0f0e0a; --card: #1e1b14;
+  --blue:   oklch(0.72 0.14 255); --blue-soft: oklch(0.62 0.12 255); --blue-tint: oklch(0.22 0.05 255);
+  --red:    oklch(0.72 0.16 25);  --red-soft:  oklch(0.65 0.13 25);  --red-tint:  oklch(0.24 0.05 25);
+  --duck:      oklch(0.82 0.17 92);
+  --duck-deep: oklch(0.74 0.18 75);
+  --water:     oklch(0.35 0.07 230);
+  --water-deep: oklch(0.28 0.09 235);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: inherit; text-decoration: none; }
+a:focus-visible, button:focus-visible, input:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 3px;
+}
+.mono    { font-family: var(--mono); }
+.sr-only { position: absolute !important; width: 1px !important; height: 1px !important; padding: 0 !important; margin: -1px !important; overflow: hidden !important; clip: rect(0, 0, 0, 0) !important; white-space: nowrap !important; border: 0 !important; }
+.eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-3); font-weight: 500; }
+.container      { max-width: 1280px; margin: 0 auto; padding: 0 32px; }
+.container-wide { max-width: 1440px; margin: 0 auto; padding: 0 32px; }
+hr.rule { height: 1px; background: var(--rule); border: 0; }

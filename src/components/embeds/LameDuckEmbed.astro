@@ -1,0 +1,29 @@
+---
+// Embed iframe du Lame-Duck Index — jauge seule, layout minimal.
+import '../../styles/lame-duck.css';
+import Embed from '../../layouts/Embed.astro';
+import DuckMeter from '../../islands/DuckMeter.tsx';
+import { getLameDuckData } from '../../data/lameDuck';
+
+type Locale = 'en' | 'fr' | 'es';
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+
+const data = getLameDuckData(locale);
+const title = { fr: 'Lame-Duck Index — Vote-Scope', en: 'Lame-Duck Index — Vote-Scope', es: 'Lame-Duck Index — Vote-Scope' }[locale];
+---
+<Embed title={title} lang={locale} backPath={`/${locale}/us/indexes/lame-duck/`}>
+  <div class="embed-meter">
+    <DuckMeter
+      score={data.ldi.score}
+      locale={locale}
+      zones={data.zones}
+      qualityNote={data.computed.dataQualityLabel[locale] ?? data.computed.dataQualityLabel.en}
+      client:load
+    />
+  </div>
+</Embed>
+
+<style>
+  .embed-meter { max-width: 460px; margin: 0 auto; }
+</style>

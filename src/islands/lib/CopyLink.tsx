@@ -18,7 +18,7 @@ const LABELS = {
   copied: { fr: 'Lien copié', en: 'Link copied', es: 'Enlace copiado' },
 } as const;
 
-function injectStyles() {
+export function injectStyles() {
   if (typeof document === 'undefined' || document.getElementById('cl-style')) return;
   const s = document.createElement('style');
   s.id = 'cl-style';

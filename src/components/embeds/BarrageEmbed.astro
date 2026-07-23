@@ -1,0 +1,31 @@
+---
+// Embed iframe du Barrage Index — jauge seule (vue barrage par défaut,
+// comme la page complète), layout minimal.
+import '../../styles/lame-duck.css';
+import Embed from '../../layouts/Embed.astro';
+import BarrageMeter from '../../islands/BarrageMeter.tsx';
+import { getBarrageData } from '../../data/barrage';
+
+type Locale = 'en' | 'fr' | 'es';
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+
+const data = getBarrageData(locale);
+const title = 'Barrage Index — Vote-Scope';
+---
+<Embed title={title} lang={locale} backPath={`/${locale}/france/indexes/barrage/`}>
+  <div class="embed-meter">
+    <BarrageMeter
+      score={data.bfi.score}
+      locale={locale}
+      zones={data.zones}
+      defaultView="dam"
+      qualityNote={data.computed.dataQualityLabel[locale] ?? data.computed.dataQualityLabel.en}
+      client:load
+    />
+  </div>
+</Embed>
+
+<style>
+  .embed-meter { max-width: 460px; margin: 0 auto; }
+</style>

@@ -1,0 +1,93 @@
+---
+// Layout embed — coquille minimale pour les modules intégrables en iframe
+// (phase 2 partage/embed). Pas de nav ni footer : tokens + fonts + le module
+// + une attribution discrète vers la page complète. noindex (le sitemap
+// exclut déjà /embed/) ; thème contrôlable par l'intégrateur via ?theme=.
+import '@fontsource-variable/newsreader/opsz.css';
+import '@fontsource-variable/newsreader/opsz-italic.css';
+import '@fontsource-variable/geist/wght.css';
+import '@fontsource-variable/jetbrains-mono/wght.css';
+import '../styles/tokens.css';
+
+type Locale = 'en' | 'fr' | 'es';
+
+interface Props {
+  title: string;
+  lang: Locale;
+  /** Chemin de la page complète du module (attribution), ex. /fr/us/indexes/lame-duck */
+  backPath: string;
+}
+
+const { title, lang, backPath } = Astro.props;
+
+const backLabel: Record<Locale, string> = {
+  fr: 'Voir le module complet sur Vote-Scope',
+  en: 'See the full module on Vote-Scope',
+  es: 'Ver el módulo completo en Vote-Scope',
+};
+---
+<!doctype html>
+<html lang={lang} data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>{title}</title>
+    <script is:inline>
+      // Thème : ?theme=dark|light (choix de l'intégrateur) > préférence
+      // enregistrée sur vote-scope.com > préférence système.
+      (function () {
+        var q = new URLSearchParams(location.search).get('theme');
+        var saved = null;
+        try { saved = localStorage.getItem('vs-theme'); } catch (e) {}
+        var system = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        var theme = (q === 'dark' || q === 'light') ? q : (saved || system);
+        document.documentElement.setAttribute('data-theme', theme);
+      })();
+    </script>
+  </head>
+  <body class="embed-body">
+    <main class="embed-main">
+      <slot />
+    </main>
+    <footer class="embed-attribution">
+      <a href={`https://vote-scope.com${backPath}`} target="_blank" rel="noopener">
+        <span class="embed-logo-dot" aria-hidden="true"></span>
+        Vote-Scope · {backLabel[lang]} →
+      </a>
+    </footer>
+  </body>
+</html>
+
+<style is:global>
+  .embed-body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: var(--paper);
+  }
+  .embed-main {
+    flex: 1;
+    padding: 16px 16px 8px;
+  }
+  .embed-attribution {
+    padding: 8px 16px 12px;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.03em;
+    color: var(--ink-3);
+  }
+  .embed-attribution a {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .embed-attribution a:hover { color: var(--ink); }
+  .embed-logo-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 2px;
+    background: var(--red);
+    display: inline-block;
+  }
+</style>

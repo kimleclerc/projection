@@ -1,0 +1,30 @@
+---
+// Embed iframe de l'explorateur de scénarios présidentiels — mêmes vedettes
+// que le desk (logique partagée src/lib/fr-explorer), layout minimal.
+// Le permalien ?scenario= fonctionne dans l'iframe (lecture au mount).
+import '../../styles/fse.css';
+import Embed from '../../layouts/Embed.astro';
+import FranceScenarioExplorer from '../../islands/FranceScenarioExplorer.tsx';
+import latest from '../../../web_data/france-presidential/latest.json';
+import dataSheets from '../../../web_data/france-presidential/data_sheets.json';
+import type { FrScenario, Locale } from '../../lib/fr-pres';
+import { pickHeroScenario, buildExplorerCards } from '../../lib/fr-explorer';
+
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+
+const scenarios = (latest as any).scenarios as FrScenario[];
+const defaultId = (latest as any).default_scenario_id as string;
+const candidates = ((dataSheets as any).candidates ?? []) as any[];
+const { heroId } = pickHeroScenario(scenarios, candidates, defaultId);
+const explorerScenarios = buildExplorerCards(scenarios, heroId, locale);
+
+const title = {
+  fr: 'Explorateur de scénarios — Présidentielle 2027 — Vote-Scope',
+  en: 'Scenario explorer — 2027 French presidential — Vote-Scope',
+  es: 'Explorador de escenarios — Presidencial francesa 2027 — Vote-Scope',
+}[locale];
+---
+<Embed title={title} lang={locale} backPath={`/${locale}/france/#fr-explorer`}>
+  <FranceScenarioExplorer scenarios={explorerScenarios} locale={locale} client:load />
+</Embed>

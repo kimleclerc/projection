@@ -1,0 +1,46 @@
+---
+// Embed iframe des cartes présidentielle 2022 — l'îlot PresidentialMaps seul
+// (Leaflet importé dynamiquement côté client, geojson servi même origine).
+// Les permaliens ?tour=/?view=/?candidate= fonctionnent dans l'iframe.
+import Embed from '../../layouts/Embed.astro';
+import PresidentialMaps from '../../islands/PresidentialMaps.tsx';
+import {
+  BLOC_PARTIES,
+  CANDIDATE_PARTIES,
+  ROUND2_PARTIES,
+  buildRound1BlocRidings,
+  buildRound1CandidateRidings,
+  buildRound2Ridings,
+} from '../../lib/fr-pres-geo';
+
+type Locale = 'fr' | 'en' | 'es';
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+
+const blocRidings = buildRound1BlocRidings();
+const candidateRidings = buildRound1CandidateRidings();
+const round2Ridings = buildRound2Ridings();
+
+const backPath = {
+  fr: '/fr/france/presidentielle/cartes/',
+  en: '/en/france/presidential/maps/',
+  es: '/es/france/presidencial/mapas/',
+}[locale];
+const title = {
+  fr: 'Cartes présidentielle 2022 — Vote-Scope',
+  en: '2022 presidential maps — Vote-Scope',
+  es: 'Mapas presidencial 2022 — Vote-Scope',
+}[locale];
+---
+<Embed title={title} lang={locale} backPath={backPath}>
+  <PresidentialMaps
+    blocRidings={blocRidings}
+    candidateRidings={candidateRidings}
+    round2Ridings={round2Ridings}
+    blocParties={BLOC_PARTIES}
+    candidateParties={CANDIDATE_PARTIES}
+    round2Parties={ROUND2_PARTIES}
+    locale={locale}
+    client:only="preact"
+  />
+</Embed>

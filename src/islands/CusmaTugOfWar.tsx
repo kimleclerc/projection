@@ -1,6 +1,7 @@
 import { GooseSvg, DuckSvg } from './birds';
 import type { ShowdownZone, ShowdownLocale } from '../data/cusmaShowdown';
 import CopyLink from './lib/CopyLink';
+import EmbedCode from './lib/EmbedCode';
 
 interface Props {
   gap: number;
@@ -8,6 +9,8 @@ interface Props {
   leader: 'canada' | 'us' | 'even';
   label: string;
   locale: ShowdownLocale;
+  /** Chemin de la page embed — affiche le bouton « Intégrer » quand fourni. */
+  embedPath?: string;
 }
 
 const T = {
@@ -25,7 +28,7 @@ function zoneLabel(z: ShowdownZone, locale: ShowdownLocale): string {
 /* Diverging "tug of war": domain −100..+100 mapped to x 60..540 (center 300).
  * Duck holds the left (U.S./red), goose holds the right (Canada/blue). The knot
  * sits at the current gap; the rope fills from centre toward the leader. */
-export default function CusmaTugOfWar({ gap, zones, leader, label, locale }: Props) {
+export default function CusmaTugOfWar({ gap, zones, leader, label, locale, embedPath }: Props) {
   const clamped = Math.max(-100, Math.min(100, gap));
   const xOf = (g: number) => 300 + (g / 100) * 240;
   const knotX = xOf(clamped);
@@ -85,8 +88,9 @@ export default function CusmaTugOfWar({ gap, zones, leader, label, locale }: Pro
         <div class="score" style={`color:${leaderColor}`}>{gap > 0 ? `+${gap}` : gap}</div>
         <div class="label" style={`color:${leaderColor}`}>{label}</div>
       </div>
-      <div style="display:flex;justify-content:center;margin-top:10px">
+      <div style="display:flex;justify-content:center;gap:8px;margin-top:10px">
         <CopyLink locale={locale} anchor="meter" />
+        {embedPath && <EmbedCode locale={locale} embedPath={embedPath} height={560} />}
       </div>
     </div>
   );
