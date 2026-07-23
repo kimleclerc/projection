@@ -8,10 +8,13 @@ import {
 } from '../lib/fr-pres';
 import { useUrlParam } from './lib/urlState';
 import CopyLink from './lib/CopyLink';
+import EmbedCode from './lib/EmbedCode';
 
 interface Props {
   scenarios: ScenarioCard[];
   locale: Locale;
+  /** Chemin de la page embed — affiche le bouton « Intégrer » quand fourni. */
+  embedPath?: string;
 }
 
 const COPY = {
@@ -56,7 +59,7 @@ const COPY = {
   },
 } as const;
 
-export default function FranceScenarioExplorer({ scenarios, locale }: Props) {
+export default function FranceScenarioExplorer({ scenarios, locale, embedPath }: Props) {
   const t = COPY[locale];
   // Permalien : ?scenario=<scenario_id> (URL propre sur le scénario par défaut).
   const [selectedId, setSelectedId] = useUrlParam(
@@ -173,8 +176,9 @@ export default function FranceScenarioExplorer({ scenarios, locale }: Props) {
         )}
       </section>
 
-      <div style="display:flex;justify-content:flex-end;margin-top:12px">
+      <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:12px">
         <CopyLink locale={locale} anchor="fr-explorer" />
+        {embedPath && <EmbedCode locale={locale} embedPath={embedPath} height={620} />}
       </div>
     </div>
   );

@@ -1,0 +1,29 @@
+---
+// Embed iframe du Canada Goose Index — jauge seule, layout minimal.
+import '../../styles/lame-duck.css';
+import Embed from '../../layouts/Embed.astro';
+import GooseMeter from '../../islands/GooseMeter.tsx';
+import { getCanadaGooseData } from '../../data/canadaGoose';
+
+type Locale = 'en' | 'fr' | 'es';
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+
+const data = getCanadaGooseData();
+const title = 'Canada Goose Index — Vote-Scope';
+---
+<Embed title={title} lang={locale} backPath={`/${locale}/canada/indexes/canada-goose/`}>
+  <div class="embed-meter">
+    <GooseMeter
+      score={data.cgi.score}
+      locale={locale}
+      zones={data.zones}
+      qualityNote={data.computed.dataQualityLabel[locale] ?? data.computed.dataQualityLabel.en}
+      client:load
+    />
+  </div>
+</Embed>
+
+<style>
+  .embed-meter { max-width: 460px; margin: 0 auto; }
+</style>

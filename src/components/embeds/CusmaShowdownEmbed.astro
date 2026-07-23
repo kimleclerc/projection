@@ -1,0 +1,35 @@
+---
+// Embed iframe du bras de fer ACEUM — corde à tirer seule, layout minimal.
+import '../../styles/lame-duck.css';
+import Embed from '../../layouts/Embed.astro';
+import CusmaTugOfWar from '../../islands/CusmaTugOfWar.tsx';
+import { getCusmaShowdownData, showdownLabel } from '../../data/cusmaShowdown';
+
+type Locale = 'en' | 'fr' | 'es';
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+
+const data = getCusmaShowdownData();
+const gapLabel = showdownLabel(data.showdown, locale);
+const title = {
+  fr: 'Bras de fer ACEUM — Vote-Scope',
+  en: 'CUSMA Showdown — Vote-Scope',
+  es: 'Pulso del T-MEC — Vote-Scope',
+}[locale];
+---
+<Embed title={title} lang={locale} backPath={`/${locale}/indexes/cusma-showdown/`}>
+  <div class="embed-meter">
+    <CusmaTugOfWar
+      gap={data.showdown.gap}
+      zones={data.zones}
+      leader={data.showdown.leader}
+      label={gapLabel}
+      locale={locale}
+      client:load
+    />
+  </div>
+</Embed>
+
+<style>
+  .embed-meter { max-width: 680px; margin: 0 auto; }
+</style>

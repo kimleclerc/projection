@@ -1,6 +1,7 @@
 import { GooseSvg } from './birds';
 import { useUrlParam } from './lib/urlState';
 import CopyLink from './lib/CopyLink';
+import EmbedCode from './lib/EmbedCode';
 
 /* GooseMeter — Preact island for the Canada Goose Index (Bernache) hero meter.
  *
@@ -28,6 +29,8 @@ interface Props {
   zones: GooseZone[];
   defaultView?: 'gauge' | 'altitude';
   qualityNote?: string;
+  /** Chemin de la page embed — affiche le bouton « Intégrer » quand fourni. */
+  embedPath?: string;
 }
 
 const T = {
@@ -191,7 +194,7 @@ function AltitudeView({ value, zones, locale }: { value: number; zones: GooseZon
 }
 
 /* ─── Main component ─────────────────────────────────────────────────────────*/
-export default function GooseMeter({ score, locale, zones, defaultView = 'gauge', qualityNote }: Props) {
+export default function GooseMeter({ score, locale, zones, defaultView = 'gauge', qualityNote, embedPath }: Props) {
   // Permalien : ?view=gauge|altitude (URL propre sur la vue par défaut).
   const [view, setView] = useUrlParam<'gauge' | 'altitude'>(
     'view',
@@ -231,8 +234,9 @@ export default function GooseMeter({ score, locale, zones, defaultView = 'gauge'
         {qualityNote && <span style="color:var(--blue)">{qualityNote}</span>}
         <span>{T.honking[locale]}</span>
       </div>
-      <div style="display:flex;justify-content:center;margin-top:10px">
+      <div style="display:flex;justify-content:center;gap:8px;margin-top:10px">
         <CopyLink locale={locale} anchor="meter" />
+        {embedPath && <EmbedCode locale={locale} embedPath={embedPath} height={560} />}
       </div>
     </div>
   );

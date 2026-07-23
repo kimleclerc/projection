@@ -2,6 +2,7 @@ import { useMemo } from 'preact/hooks';
 import RidingsMap, { type MapParty, type RidingFull } from './RidingsMap';
 import { useUrlParam } from './lib/urlState';
 import CopyLink from './lib/CopyLink';
+import EmbedCode from './lib/EmbedCode';
 
 type Locale = 'fr' | 'en' | 'es';
 
@@ -14,6 +15,8 @@ interface Props {
   round2Parties: MapParty[];
   locale: Locale;
   geoUrl?: string;
+  /** Chemin de la page embed — affiche le bouton « Intégrer » quand fourni. */
+  embedPath?: string;
 }
 
 const COPY: Record<Locale, {
@@ -55,6 +58,7 @@ export default function PresidentialMaps({
   round2Parties,
   locale,
   geoUrl = '/web_data/france-legislative/ridings.geojson',
+  embedPath,
 }: Props) {
   const t = COPY[locale];
   const mapLocale: 'en' | 'fr' = locale === 'en' ? 'en' : 'fr';
@@ -143,8 +147,9 @@ export default function PresidentialMaps({
             </select>
           </label>
         )}
-        <span style="margin-left:auto">
+        <span style="margin-left:auto;display:inline-flex;gap:8px">
           <CopyLink locale={locale} anchor="maps" />
+          {embedPath && <EmbedCode locale={locale} embedPath={embedPath} height={640} />}
         </span>
       </div>
 

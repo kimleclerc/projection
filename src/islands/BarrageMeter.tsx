@@ -1,5 +1,6 @@
 import { useUrlParam } from './lib/urlState';
 import CopyLink from './lib/CopyLink';
+import EmbedCode from './lib/EmbedCode';
 
 /* BarrageMeter — Preact island for the Barrage Index (Front républicain) hero meter.
  *
@@ -28,6 +29,8 @@ interface Props {
   zones: BarrageZone[];
   defaultView?: 'gauge' | 'dam';
   qualityNote?: string;
+  /** Chemin de la page embed — affiche le bouton « Intégrer » quand fourni. */
+  embedPath?: string;
 }
 
 const T = {
@@ -276,7 +279,7 @@ function DamView({ value, zones, locale }: { value: number; zones: BarrageZone[]
 }
 
 /* ─── Main component ─────────────────────────────────────────────────────────*/
-export default function BarrageMeter({ score, locale, zones, defaultView = 'gauge', qualityNote }: Props) {
+export default function BarrageMeter({ score, locale, zones, defaultView = 'gauge', qualityNote, embedPath }: Props) {
   // Permalien : ?view=gauge|dam (URL propre sur la vue par défaut).
   const [view, setView] = useUrlParam<'gauge' | 'dam'>(
     'view',
@@ -316,8 +319,9 @@ export default function BarrageMeter({ score, locale, zones, defaultView = 'gaug
         {qualityNote && <span style="color:var(--blue)">{qualityNote}</span>}
         <span>{T.solid[locale]}</span>
       </div>
-      <div style="display:flex;justify-content:center;margin-top:10px">
+      <div style="display:flex;justify-content:center;gap:8px;margin-top:10px">
         <CopyLink locale={locale} anchor="meter" />
+        {embedPath && <EmbedCode locale={locale} embedPath={embedPath} height={560} />}
       </div>
     </div>
   );

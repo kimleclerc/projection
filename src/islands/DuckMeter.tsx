@@ -1,5 +1,6 @@
 import { useUrlParam } from './lib/urlState';
 import CopyLink from './lib/CopyLink';
+import EmbedCode from './lib/EmbedCode';
 
 /* DuckMeter — Preact island for the lame-duck index hero meter.
  *
@@ -36,6 +37,8 @@ interface Props {
   defaultView?: 'gauge' | 'bathtub' | 'waterline';
   /** Footer note (data quality, e.g. '✓ All real data'). */
   qualityNote?: string;
+  /** Chemin de la page embed — affiche le bouton « Intégrer » quand fourni. */
+  embedPath?: string;
 }
 
 const T = {
@@ -386,7 +389,7 @@ function WaterlineView({ value, zones, locale }: { value: number; zones: DuckZon
 }
 
 /* ─── Main component ─────────────────────────────────────────────────────── */
-export default function DuckMeter({ score, locale, zones, defaultView = 'gauge', qualityNote }: Props) {
+export default function DuckMeter({ score, locale, zones, defaultView = 'gauge', qualityNote, embedPath }: Props) {
   // Permalien : ?view=gauge|bathtub|waterline (URL propre sur la vue par défaut).
   const [view, setView] = useUrlParam<'gauge' | 'bathtub' | 'waterline'>(
     'view',
@@ -428,8 +431,9 @@ export default function DuckMeter({ score, locale, zones, defaultView = 'gauge',
         {qualityNote && <span style="color:var(--duck-deep)">{qualityNote}</span>}
         <span>{T.fullyLame[locale]}</span>
       </div>
-      <div style="display:flex;justify-content:center;margin-top:10px">
+      <div style="display:flex;justify-content:center;gap:8px;margin-top:10px">
         <CopyLink locale={locale} anchor="meter" />
+        {embedPath && <EmbedCode locale={locale} embedPath={embedPath} height={560} />}
       </div>
     </div>
   );
