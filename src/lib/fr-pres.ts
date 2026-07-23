@@ -58,6 +58,27 @@ export function blocVar(bloc: string): string {
   return `var(--bloc-${b})`;
 }
 
+/** Hexa des blocs pour les rendus hors-DOM (cartes og satori) — à garder en
+ * phase avec les variables --bloc-* du <style> de FranceDesk.astro. */
+const BLOC_HEX: Record<string, string> = {
+  far_left: '#6b1f2e',
+  left: '#b0202a',
+  left_radical: '#c1272d',
+  left_populist: '#d4602e',
+  left_social_dem: '#e5567f',
+  greens: '#4a9d5b',
+  centre: '#b7860f',
+  centre_right: '#bf6d1f',
+  right: '#3f82d6',
+  sovereignist: '#6d4c8a',
+  far_right: '#2b4f8c',
+  other: '#6a635a',
+};
+
+export function blocHex(bloc: string): string {
+  return BLOC_HEX[bloc] ?? BLOC_HEX.other;
+}
+
 export function blocLabel(bloc: string, locale: Locale): string {
   const b = (BLOC_ORDER as string[]).includes(bloc) ? (bloc as Bloc) : 'other';
   return BLOC_LABELS[b][locale];
