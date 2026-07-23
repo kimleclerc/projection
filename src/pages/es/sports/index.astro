@@ -7,14 +7,21 @@ import AnimatedNumber from '../../../islands/AnimatedNumber';
 import PolymarketEmbed from '../../../components/PolymarketEmbed.astro';
 
 import sportsData from '../../../../web_data/sports/latest.json';
+import mlbData from '../../../../web_data/sports/mlb2026_latest.json';
+import { teamLabel, fmtProb, type MlbData } from '../../../lib/mlb';
 
 const hero = sportsData.hero;
 const boardMeta = sportsData.board_meta;
+
+const mlb = mlbData as unknown as MlbData;
+const mlbByCode = new Map(mlb.board.map((t) => [t.code, t]));
+const mlbFav = mlbByCode.get(mlb.hero.favorite.code)!;
+const mlbJays = mlbByCode.get(mlb.hero.canadian_focus.code);
 ---
 
 <EditorialLayout
-  title="Sports Scope — proyecciones NHL y Copa del Mundo — Vote-Scope"
-  description="Proyecta caminos al campeonato NHL, sigue la volatilidad de porteros y compara diferencias entre modelo y mercado en cada ronda. Actualizado diariamente — Vote-Scope."
+  title="Sports Scope — proyecciones MLB, NHL y Copa del Mundo — Vote-Scope"
+  description="Proyecta caminos a la Serie Mundial de MLB y a la Stanley Cup, sigue la volatilidad de porteros y compara diferencias entre modelo y mercado. Actualizado diariamente — Vote-Scope."
   canonical="https://vote-scope.com/es/sports/"
   lang="es"
   currentPage="sports"
@@ -43,12 +50,27 @@ const boardMeta = sportsData.board_meta;
     title="¿Quién tiene el camino más despejado y quién vive de una racha frágil?"
     promise="Un desk más deportivo: caminos de serie, volatilidad de porteros, marcadores en vivo, controles de mercado y caos de torneo."
     question="¿El favorito está realmente construido para la siguiente ronda?"
-    primaryHref="/es/sports/wc2026/"
-    primaryLabel="Desk Copa del Mundo"
-    secondaryHref="/en/indexes/"
-    secondaryLabel="Todos los instrumentos"
+    primaryHref="/es/sports/mlb/"
+    primaryLabel="Desk MLB"
+    secondaryHref="/es/sports/wc2026/"
+    secondaryLabel="Archivo Copa del Mundo"
   />
 
+  <section class="content-band">
+    <div class="container">
+      <p class="eyebrow">MLB 2026 · desk en vivo · run nocturno</p>
+      <h2>{mlbFav.emoji} {teamLabel(mlbFav, 'es')} lideran la carrera por la Serie Mundial con {fmtProb(mlbFav.p_ws, 'es')}.</h2>
+      <p>
+        Los 30 equipos, {mlb.board_meta.sims.toLocaleString('es-ES')} simulaciones cada noche — probabilidades de postemporada, división, banderín y título.
+        {mlbJays && (
+          <>Pulso canadiense: los {teamLabel(mlbJays, 'es')} están en <strong>{fmtProb(mlbJays.p_series, 'es')}</strong> de alcanzar la postemporada.</>
+        )}
+      </p>
+      <p style="margin-top:0.5rem;">
+        <a href="/es/sports/mlb/" class="cta-link">Abrir el desk MLB →</a>
+      </p>
+    </div>
+  </section>
 
   <section class="content-band">
     <div class="container">
@@ -112,9 +134,10 @@ const boardMeta = sportsData.board_meta;
   />
 
   <MethodologyNote
-    title="Dos desks deportivos. Un mismo estándar."
-    body="Cup Path y Goalie Volatility comparten el mismo pipeline Monte Carlo: los resultados de series se simulan 50,000 veces por ciclo, con el desempeño del portero como multiplicador de volatilidad en la probabilidad de victoria de cada equipo."
+    title="Tres desks deportivos. Un mismo estándar."
+    body="MLB, Copa del Mundo y NHL comparten la misma disciplina Monte Carlo: los resultados se simulan miles de veces por ciclo, condicionados a los resultados reales según avanza la temporada."
     bullets={[
+      'MLB 2026: 30 equipos, 10,000 simulaciones nocturnas — fuerza pythagenpat y enfrentamientos log5 sobre cada partido restante, datos de la MLB Stats API.',
       'NHL Cup Path: 50,000 simulaciones por ronda de playoffs, actualizadas tras cada resultado de serie. La capa de volatilidad del portero se condiciona en el porcentaje de paradas reciente y el estado de lesiones.',
       'Modelo de fase de grupos WC2026: simulación de 48 selecciones con 50,000 corridas, usando clasificación FIFA, forma reciente y ventaja de local.',
       'El historial es público: cada ciclo del modelo publicado y cada pronóstico de serie están archivados y son verificables.',

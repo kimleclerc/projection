@@ -48,6 +48,8 @@ export interface CardEntry {
   label: string;
   color: string;
   value: number;
+  /** Affichage de la valeur (défaut : entier arrondi). Ex. « 22,7 % ». */
+  valueText?: string;
 }
 
 export interface PollCardInput {
@@ -84,9 +86,9 @@ export async function renderPollCard(input: PollCardInput): Promise<Buffer> {
         }, ''),
       ]),
       el('div', {
-        display: 'flex', width: 96, justifyContent: 'flex-end',
+        display: 'flex', width: e.valueText ? 150 : 96, justifyContent: 'flex-end',
         fontFamily: 'Newsreader', fontWeight: 600, fontSize: 44, color: INK,
-      }, e.value.toFixed(0)),
+      }, e.valueText ?? e.value.toFixed(0)),
     ]),
   );
 
