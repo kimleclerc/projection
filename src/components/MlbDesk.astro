@@ -1,0 +1,298 @@
+---
+// Desk MLB 2026 — composant partagé fr/en/es (pattern FranceDesk : logique +
+// markup une seule fois, langue en prop). Hero favori Série mondiale + angle
+// Blue Jays, tableau triable des 30 équipes (îlot), classements par division,
+// méta transparente (10 000 sims, pythagenpat+log5, MLB Stats API).
+import EditorialHero from './EditorialHero.astro';
+import MethodologyNote from './MethodologyNote.astro';
+import AnimatedNumber from '../islands/AnimatedNumber';
+import MlbBoard, { type MlbBoardRow } from '../islands/MlbBoard';
+import mlbData from '../../web_data/sports/mlb2026_latest.json';
+import {
+  teamLabel,
+  fmtProb,
+  fmtNum1,
+  fmtRunTimestamp,
+  DIVISION_LABELS,
+  DIVISION_ORDER,
+  LEAGUE_LABELS,
+  type MlbData,
+  type MlbLeague,
+  type MlbLocale,
+} from '../lib/mlb';
+
+interface Props {
+  locale: MlbLocale;
+}
+const { locale } = Astro.props;
+
+const data = mlbData as unknown as MlbData;
+const board = data.board;
+const meta = data.board_meta;
+
+const byCode = new Map(board.map((t) => [t.code, t]));
+const byWs = [...board].sort((a, b) => b.p_ws - a.p_ws);
+const favorite = byCode.get(data.hero.favorite.code) ?? byWs[0];
+const runnerUp = byWs.find((t) => t.code !== favorite.code)!;
+const jays = byCode.get(data.hero.canadian_focus.code);
+
+const rows: MlbBoardRow[] = board.map((t) => ({
+  code: t.code,
+  label: teamLabel(t, locale),
+  league: t.league,
+  division: t.division,
+  color: t.color,
+  emoji: t.emoji,
+  wins: t.wins,
+  losses: t.losses,
+  streak: t.streak,
+  exp_wins: t.exp_wins,
+  p_series: t.p_series,
+  p_division: t.p_division,
+  p_bye: t.p_bye,
+  p_pennant: t.p_pennant,
+  p_ws: t.p_ws,
+}));
+
+const leagues: MlbLeague[] = ['AL', 'NL'];
+const runStamp = fmtRunTimestamp(meta.data_fetched_at, locale);
+const sims = meta.sims.toLocaleString(locale === 'en' ? 'en-US' : locale === 'fr' ? 'fr-CA' : 'es-ES');
+
+const t = {
+  fr: {
+    heroEyebrow: 'Desk MLB · saison 2026',
+    heroTitle: 'Qui a le chemin le plus net vers la Série mondiale ?',
+    heroPromise: `${sims} simulations Monte-Carlo chaque nuit. Forces pythagenpat, affrontements log5, ${meta.remaining_games} matchs restants au calendrier.`,
+    heroQuestion: `Et les Blue Jays — les séries sont-elles encore à portée à ${fmtProb(jays?.p_series ?? 0, 'fr')} ?`,
+    primaryLabel: 'Hub sports',
+    secondaryLabel: 'Desk LNH',
+    favEyebrow: 'Favori Série mondiale',
+    runnerEyebrow: 'Poursuivant',
+    jaysEyebrow: 'Focus canadien',
+    pennant: 'Championnat',
+    division: 'Division',
+    series: 'Séries',
+    ws: 'Série mondiale',
+    record: 'Fiche',
+    expWins: 'victoires attendues',
+    asOf: `Lecture du ${runStamp}`,
+    boardEyebrow: 'Le tableau des 30',
+    boardTitle: 'Chaque équipe, chaque probabilité.',
+    boardHelp: 'Cliquez un en-tête pour trier — séries, division ou Série mondiale. Filtres AL/NL et tri voyagent dans le lien.',
+    standingsEyebrow: 'Classements',
+    standingsTitle: 'Six divisions, deux ligues.',
+    metaLine: `${sims} simulations · modèle ${meta.model} · ${meta.remaining_games} matchs restants · source ${meta.source} · run du ${runStamp}`,
+    methodTitle: 'Le modèle est pythagenpat + log5, v0.1.',
+    methodBody: `Le desk MLB simule le reste de la saison ${data.season} ${sims} fois chaque nuit. La force de chaque équipe vient de son différentiel de points via pythagenpat ; chaque match restant est tranché par la règle log5 de Bill James, puis les départages de division et de laissez-passer appliquent les règles MLB.`,
+    methodBullets: [
+      'Pythagenpat estime le vrai niveau d’une équipe à partir des points marqués et accordés — plus stable que la fiche seule.',
+      `Log5 convertit deux forces en probabilité de victoire match par match, sur les ${meta.remaining_games} matchs restants.`,
+      'Séries, division, laissez-passer, championnat et Série mondiale sont comptés sur les mêmes simulations — les colonnes sont cohérentes entre elles.',
+      `Données ${meta.source}, rafraîchies chaque nuit ; le run affiché date du ${runStamp}.`,
+    ],
+  },
+  en: {
+    heroEyebrow: 'MLB Desk · 2026 season',
+    heroTitle: 'Who has the cleanest path to the World Series?',
+    heroPromise: `${sims} Monte Carlo simulations nightly. Pythagenpat strength, log5 matchups, ${meta.remaining_games} games left on the schedule.`,
+    heroQuestion: `And the Blue Jays — are the playoffs still in reach at ${fmtProb(jays?.p_series ?? 0, 'en')}?`,
+    primaryLabel: 'Sports hub',
+    secondaryLabel: 'NHL desk',
+    favEyebrow: 'World Series favorite',
+    runnerEyebrow: 'Runner-up',
+    jaysEyebrow: 'Canadian focus',
+    pennant: 'Pennant',
+    division: 'Division',
+    series: 'Playoffs',
+    ws: 'World Series',
+    record: 'Record',
+    expWins: 'expected wins',
+    asOf: `Reading as of ${runStamp}`,
+    boardEyebrow: 'The board of 30',
+    boardTitle: 'Every team, every probability.',
+    boardHelp: 'Click a header to sort — playoffs, division or World Series. AL/NL filter and sort travel in the link.',
+    standingsEyebrow: 'Standings',
+    standingsTitle: 'Six divisions, two leagues.',
+    metaLine: `${sims} simulations · model ${meta.model} · ${meta.remaining_games} games remaining · source ${meta.source} · run of ${runStamp}`,
+    methodTitle: 'The model is pythagenpat + log5, v0.1.',
+    methodBody: `The MLB desk simulates the rest of the ${data.season} season ${sims} times nightly. Team strength comes from run differential via pythagenpat; every remaining game is decided by Bill James's log5 rule, then division and bye tiebreakers follow MLB rules.`,
+    methodBullets: [
+      'Pythagenpat estimates a team’s true level from runs scored and allowed — steadier than the record alone.',
+      `Log5 turns two strengths into a game-by-game win probability, across the ${meta.remaining_games} remaining games.`,
+      'Playoffs, division, bye, pennant and World Series are counted on the same simulations — the columns are mutually consistent.',
+      `Data from ${meta.source}, refreshed nightly; the displayed run is from ${runStamp}.`,
+    ],
+  },
+  es: {
+    heroEyebrow: 'Desk MLB · temporada 2026',
+    heroTitle: '¿Quién tiene el camino más limpio hacia la Serie Mundial?',
+    heroPromise: `${sims} simulaciones Monte Carlo cada noche. Fuerza pythagenpat, enfrentamientos log5, ${meta.remaining_games} partidos restantes en el calendario.`,
+    heroQuestion: `¿Y los Blue Jays — la postemporada sigue al alcance con ${fmtProb(jays?.p_series ?? 0, 'es')}?`,
+    primaryLabel: 'Hub deportivo',
+    secondaryLabel: 'Desk NHL',
+    favEyebrow: 'Favorito a la Serie Mundial',
+    runnerEyebrow: 'Perseguidor',
+    jaysEyebrow: 'Foco canadiense',
+    pennant: 'Banderín',
+    division: 'División',
+    series: 'Postemporada',
+    ws: 'Serie Mundial',
+    record: 'Récord',
+    expWins: 'victorias esperadas',
+    asOf: `Lectura del ${runStamp}`,
+    boardEyebrow: 'El tablero de los 30',
+    boardTitle: 'Cada equipo, cada probabilidad.',
+    boardHelp: 'Haz clic en un encabezado para ordenar — postemporada, división o Serie Mundial. El filtro AL/NL y el orden viajan en el enlace.',
+    standingsEyebrow: 'Posiciones',
+    standingsTitle: 'Seis divisiones, dos ligas.',
+    metaLine: `${sims} simulaciones · modelo ${meta.model} · ${meta.remaining_games} partidos restantes · fuente ${meta.source} · run del ${runStamp}`,
+    methodTitle: 'El modelo es pythagenpat + log5, v0.1.',
+    methodBody: `El desk MLB simula el resto de la temporada ${data.season} ${sims} veces cada noche. La fuerza de cada equipo sale de su diferencial de carreras vía pythagenpat; cada partido restante se decide con la regla log5 de Bill James, y los desempates de división y bye siguen las reglas de MLB.`,
+    methodBullets: [
+      'Pythagenpat estima el nivel real de un equipo a partir de carreras anotadas y permitidas — más estable que el récord solo.',
+      `Log5 convierte dos fuerzas en probabilidad de victoria partido a partido, sobre los ${meta.remaining_games} partidos restantes.`,
+      'Postemporada, división, bye, banderín y Serie Mundial se cuentan sobre las mismas simulaciones — las columnas son coherentes entre sí.',
+      `Datos de ${meta.source}, actualizados cada noche; el run mostrado es del ${runStamp}.`,
+    ],
+  },
+}[locale];
+
+const sportsBase = `/${locale}/sports`;
+const embedPath = `/${locale}/embed/mlb`;
+
+// Cartes hero : favori, poursuivant, Blue Jays (l'angle canadien du desk).
+const heroCards = [
+  { team: favorite, eyebrow: t.favEyebrow },
+  { team: runnerUp, eyebrow: t.runnerEyebrow },
+  ...(jays && jays.code !== favorite.code && jays.code !== runnerUp.code
+    ? [{ team: jays, eyebrow: t.jaysEyebrow }]
+    : []),
+];
+---
+
+<EditorialHero
+  eyebrow={t.heroEyebrow}
+  title={t.heroTitle}
+  promise={t.heroPromise}
+  question={t.heroQuestion}
+  primaryHref={`${sportsBase}/`}
+  primaryLabel={t.primaryLabel}
+  secondaryHref={`${sportsBase}/nhl/`}
+  secondaryLabel={t.secondaryLabel}
+/>
+
+<!-- Cartes hero : favori + poursuivant + Blue Jays -->
+<section class="content-band">
+  <div class="container">
+    <p class="eyebrow">{t.asOf}</p>
+    <div class="content-grid-2" style="gap:1.5rem;margin-top:1rem;">
+      {heroCards.map(({ team, eyebrow }) => (
+        <div class="note-card" style={`border-left:4px solid ${team.color};`}>
+          <p class="eyebrow">{eyebrow} · {team.league} {DIVISION_LABELS[team.division][locale]}</p>
+          <h3 style="font-size:1.6rem;margin:0.25rem 0;">
+            {team.emoji} {teamLabel(team, locale)}
+          </h3>
+          <p style="font-size:2rem;font-weight:700;color:var(--accent);">
+            <AnimatedNumber client:visible value={Number((team.p_ws * 100).toFixed(1))} decimals={1} suffix="%" />
+          </p>
+          <p style="font-size:0.9rem;">
+            {t.pennant}: <strong>{fmtProb(team.p_pennant, locale)}</strong> ·
+            {t.division}: <strong>{fmtProb(team.p_division, locale)}</strong> ·
+            {t.series}: <strong>{fmtProb(team.p_series, locale)}</strong>
+          </p>
+          <p style="font-size:0.85rem;margin-top:0.5rem;color:var(--text-muted);">
+            {t.record}: {team.wins}-{team.losses} · {fmtNum1(team.exp_wins, locale)} {t.expWins}
+          </p>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<!-- Tableau des 30 (îlot triable, permaliens ?league= / ?sort=) -->
+<section class="content-band" id="mlb-board">
+  <div class="container">
+    <p class="eyebrow">{t.boardEyebrow}</p>
+    <h2>{t.boardTitle}</h2>
+    <p style="margin-bottom:1.5rem;font-size:0.9rem;">{t.boardHelp}</p>
+    <MlbBoard client:visible rows={rows} locale={locale} embedPath={embedPath} />
+  </div>
+</section>
+
+<!-- Classements par division -->
+<section class="content-band">
+  <div class="container">
+    <p class="eyebrow">{t.standingsEyebrow}</p>
+    <h2>{t.standingsTitle}</h2>
+    <div class="content-grid-2" style="gap:1.5rem;margin-top:1rem;">
+      {leagues.map((league) => (
+        <div>
+          <h3 style="margin-bottom:0.75rem;">{LEAGUE_LABELS[league][locale]}</h3>
+          {DIVISION_ORDER.map((division) => (
+            <div class="note-card" style="margin-bottom:1rem;">
+              <p class="eyebrow">{league} {DIVISION_LABELS[division][locale]}</p>
+              <table class="mlb-standings">
+                <tbody>
+                  {data.standings[league][division].map((code, i) => {
+                    const team = byCode.get(code);
+                    if (!team) return null;
+                    return (
+                      <tr>
+                        <td class="mlb-standings-rank">{i + 1}</td>
+                        <td class="mlb-standings-team">
+                          <span class="mlb-standings-bar" style={`background:${team.color};`}></span>
+                          {team.emoji} {teamLabel(team, locale)}
+                        </td>
+                        <td class="mlb-standings-num">{team.wins}-{team.losses}</td>
+                        <td class="mlb-standings-num">{fmtProb(team.p_division, locale)}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          ))}
+        </div>
+      ))}
+    </div>
+    <p style="margin-top:0.5rem;font-size:0.82rem;color:var(--ink-3);">{t.division} % — {t.metaLine}</p>
+  </div>
+</section>
+
+<MethodologyNote title={t.methodTitle} body={t.methodBody} bullets={t.methodBullets} />
+
+<style>
+  .mlb-standings {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+    font-variant-numeric: tabular-nums;
+  }
+  .mlb-standings td {
+    padding: 5px 6px;
+    border-bottom: 1px solid color-mix(in oklab, var(--rule, #ddd) 60%, transparent);
+  }
+  .mlb-standings tr:last-child td { border-bottom: none; }
+  .mlb-standings-rank {
+    width: 1.5em;
+    color: var(--ink-3, #888);
+    font-family: var(--mono, monospace);
+    font-size: 0.8rem;
+  }
+  .mlb-standings-team { white-space: nowrap; }
+  .mlb-standings-bar {
+    display: inline-block;
+    width: 4px;
+    height: 0.95em;
+    border-radius: 2px;
+    margin-right: 7px;
+    vertical-align: middle;
+  }
+  .mlb-standings-num {
+    text-align: right;
+    color: var(--ink-2, #555);
+    font-family: var(--mono, monospace);
+    font-size: 0.82rem;
+    white-space: nowrap;
+  }
+</style>

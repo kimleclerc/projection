@@ -7,14 +7,21 @@ import AnimatedNumber from '../../../islands/AnimatedNumber';
 import PolymarketEmbed from '../../../components/PolymarketEmbed.astro';
 
 import sportsData from '../../../../web_data/sports/latest.json';
+import mlbData from '../../../../web_data/sports/mlb2026_latest.json';
+import { teamLabel, fmtProb, type MlbData } from '../../../lib/mlb';
 
 const hero = sportsData.hero;
 const boardMeta = sportsData.board_meta;
+
+const mlb = mlbData as unknown as MlbData;
+const mlbByCode = new Map(mlb.board.map((t) => [t.code, t]));
+const mlbFav = mlbByCode.get(mlb.hero.favorite.code)!;
+const mlbJays = mlbByCode.get(mlb.hero.canadian_focus.code);
 ---
 
 <EditorialLayout
-  title="Sports Scope — NHL & World Cup Forecasts — Vote-Scope"
-  description="Projects NHL Cup paths, tracks goalie volatility, and compares model vs market gaps for every playoff round. Updated daily — Vote-Scope."
+  title="Sports Scope — MLB, NHL & World Cup Forecasts — Vote-Scope"
+  description="Projects MLB World Series paths and NHL Cup runs, tracks goalie volatility, and compares model vs market gaps. Updated daily — Vote-Scope."
   canonical="https://vote-scope.com/en/sports/"
   lang="en"
   currentPage="sports"
@@ -43,12 +50,27 @@ const boardMeta = sportsData.board_meta;
     title="Who has the cleanest path, and who is riding a fragile streak?"
     promise="A sportier desk for playoff paths, goalie volatility, live scores, market checks, and tournament chaos."
     question="Is the favorite actually built for the next round?"
-    primaryHref="/en/sports/wc2026/"
-    primaryLabel="World Cup desk"
-    secondaryHref="/en/sports/nhl/"
-    secondaryLabel="NHL desk"
+    primaryHref="/en/sports/mlb/"
+    primaryLabel="MLB desk"
+    secondaryHref="/en/sports/wc2026/"
+    secondaryLabel="World Cup archive"
   />
 
+  <section class="content-band">
+    <div class="container">
+      <p class="eyebrow">MLB 2026 · live desk · nightly run</p>
+      <h2>{mlbFav.emoji} {teamLabel(mlbFav, 'en')} lead the World Series race at {fmtProb(mlbFav.p_ws, 'en')}.</h2>
+      <p>
+        All 30 teams, {mlb.board_meta.sims.toLocaleString('en-US')} simulations a night — playoffs, division, pennant and championship odds.
+        {mlbJays && (
+          <>Canadian check: the {teamLabel(mlbJays, 'en')} sit at <strong>{fmtProb(mlbJays.p_series, 'en')}</strong> to make the playoffs.</>
+        )}
+      </p>
+      <p style="margin-top:0.5rem;">
+        <a href="/en/sports/mlb/" class="cta-link">Open the MLB desk →</a>
+      </p>
+    </div>
+  </section>
 
   <section class="content-band">
     <div class="container">
@@ -112,9 +134,10 @@ const boardMeta = sportsData.board_meta;
   />
 
   <MethodologyNote
-    title="Two sports desks. One standard."
-    body="World Cup and NHL share the same Monte Carlo pipeline: outcomes are simulated 50,000 times per run, conditioned on real results as the tournament unfolds."
+    title="Three sports desks. One standard."
+    body="MLB, World Cup and NHL share the same Monte Carlo discipline: outcomes are simulated thousands of times per run, conditioned on real results as the season unfolds."
     bullets={[
+      'MLB 2026: 30 teams, 10,000 nightly simulations — pythagenpat strength and log5 matchups over every remaining game, data from the MLB Stats API.',
       'World Cup 2026: 48 teams, 50,000 simulations conditioned on real results (FIFA rankings, recent form, home advantage), updated after every match through the final.',
       'NHL Cup Path: 50,000 simulations per playoff round, updated after each series result. Goalie volatility layer conditions on recent save percentage and injury status.',
       'Track record is public: every published model run and series call is archived and verifiable.',

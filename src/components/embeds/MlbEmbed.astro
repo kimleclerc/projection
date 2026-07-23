@@ -1,0 +1,42 @@
+---
+// Embed iframe du tableau MLB — mêmes 30 équipes que le desk (îlot MlbBoard),
+// layout minimal avec attribution. Les permaliens ?league= et ?sort=
+// fonctionnent dans l'iframe (lecture au mount par urlState).
+import Embed from '../../layouts/Embed.astro';
+import MlbBoard, { type MlbBoardRow } from '../../islands/MlbBoard';
+import mlbData from '../../../web_data/sports/mlb2026_latest.json';
+import { teamLabel, type MlbData, type MlbLocale } from '../../lib/mlb';
+
+interface Props {
+  locale: MlbLocale;
+}
+const { locale } = Astro.props;
+
+const data = mlbData as unknown as MlbData;
+const rows: MlbBoardRow[] = data.board.map((t) => ({
+  code: t.code,
+  label: teamLabel(t, locale),
+  league: t.league,
+  division: t.division,
+  color: t.color,
+  emoji: t.emoji,
+  wins: t.wins,
+  losses: t.losses,
+  streak: t.streak,
+  exp_wins: t.exp_wins,
+  p_series: t.p_series,
+  p_division: t.p_division,
+  p_bye: t.p_bye,
+  p_pennant: t.p_pennant,
+  p_ws: t.p_ws,
+}));
+
+const title = {
+  fr: 'Tableau MLB 2026 — Série mondiale — Vote-Scope',
+  en: '2026 MLB board — World Series — Vote-Scope',
+  es: 'Tablero MLB 2026 — Serie Mundial — Vote-Scope',
+}[locale];
+---
+<Embed title={title} lang={locale} backPath={`/${locale}/sports/mlb/#mlb-board`}>
+  <MlbBoard rows={rows} locale={locale} client:load />
+</Embed>

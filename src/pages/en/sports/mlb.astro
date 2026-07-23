@@ -1,0 +1,44 @@
+---
+import EditorialLayout from '../../../layouts/EditorialLayout.astro';
+import MlbDesk from '../../../components/MlbDesk.astro';
+import mlbData from '../../../../web_data/sports/mlb2026_latest.json';
+
+const meta = mlbData.board_meta;
+const canonical = 'https://vote-scope.com/en/sports/mlb/';
+---
+
+<EditorialLayout
+  title="MLB 2026 World Series Forecast — Vote-Scope"
+  description={`Projects all 30 MLB teams' path to the 2026 World Series — playoffs, division, pennant and championship probabilities. ${meta.sims.toLocaleString('en-US')} simulations updated nightly — Vote-Scope.`}
+  canonical={canonical}
+  lang="en"
+  currentPage="sports"
+  ogImage="https://vote-scope.com/og/mlb-desk/en.png"
+  alternates={{ en: canonical, fr: 'https://vote-scope.com/fr/sports/mlb/', es: 'https://vote-scope.com/es/sports/mlb/' }}
+  jsonLd={[
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Dataset',
+      name: 'MLB 2026 World Series Forecast',
+      description: `World Series probability model for all 30 MLB teams: ${meta.sims.toLocaleString('en-US')} simulations per run, ${meta.model}, data from ${meta.source}.`,
+      url: canonical,
+      dateModified: mlbData.generated_at,
+      creator: { '@type': 'Person', name: 'Kim Leclerc', url: 'https://kimleclerc.ca' },
+      publisher: { '@type': 'Organization', name: 'Vote-Scope', url: 'https://vote-scope.com' },
+      isAccessibleForFree: true,
+      license: 'https://vote-scope.com/en/terms/',
+      distribution: { '@type': 'DataDownload', contentUrl: 'https://vote-scope.com/web_data/sports/mlb2026_latest.json', encodingFormat: 'application/json' },
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: 'https://vote-scope.com/en/' },
+        { '@type': 'ListItem', position: 2, name: 'Sports Scope', item: 'https://vote-scope.com/en/sports/' },
+        { '@type': 'ListItem', position: 3, name: 'MLB', item: canonical },
+      ],
+    },
+  ]}
+>
+  <MlbDesk locale="en" />
+</EditorialLayout>

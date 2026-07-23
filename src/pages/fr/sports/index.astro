@@ -7,14 +7,21 @@ import AnimatedNumber from '../../../islands/AnimatedNumber';
 import PolymarketEmbed from '../../../components/PolymarketEmbed.astro';
 
 import sportsData from '../../../../web_data/sports/latest.json';
+import mlbData from '../../../../web_data/sports/mlb2026_latest.json';
+import { teamLabel, fmtProb, type MlbData } from '../../../lib/mlb';
 
 const hero = sportsData.hero;
 const boardMeta = sportsData.board_meta;
+
+const mlb = mlbData as unknown as MlbData;
+const mlbByCode = new Map(mlb.board.map((t) => [t.code, t]));
+const mlbFav = mlbByCode.get(mlb.hero.favorite.code)!;
+const mlbJays = mlbByCode.get(mlb.hero.canadian_focus.code);
 ---
 
 <EditorialLayout
-  title="Sports Scope — projections LNH et Coupe du monde — Vote-Scope"
-  description="Projette les chemins de Coupe NHL, suit la volatilité des gardiens et compare les écarts modèle-marché à chaque ronde. Mis à jour quotidiennement — Vote-Scope."
+  title="Sports Scope — projections MLB, LNH et Coupe du monde — Vote-Scope"
+  description="Projette les chemins vers la Série mondiale MLB et la Coupe Stanley, suit la volatilité des gardiens et compare les écarts modèle-marché. Mis à jour quotidiennement — Vote-Scope."
   canonical="https://vote-scope.com/fr/sports/"
   lang="fr"
   currentPage="sports"
@@ -43,12 +50,27 @@ const boardMeta = sportsData.board_meta;
     title="Qui a le chemin le plus propre, et qui vit sur une séquence fragile?"
     promise="Une verticale plus sportive pour chemins de séries, volatilité des gardiens, scores live, marchés et chaos de tournoi."
     question="Le favori est-il vraiment construit pour la prochaine ronde?"
-    primaryHref="/fr/sports/wc2026/"
-    primaryLabel="Desk Coupe du monde"
-    secondaryHref="/fr/sports/nhl/"
-    secondaryLabel="Desk NHL"
+    primaryHref="/fr/sports/mlb/"
+    primaryLabel="Desk MLB"
+    secondaryHref="/fr/sports/wc2026/"
+    secondaryLabel="Archive Coupe du monde"
   />
 
+  <section class="content-band">
+    <div class="container">
+      <p class="eyebrow">MLB 2026 · desk live · run nocturne</p>
+      <h2>{mlbFav.emoji} {teamLabel(mlbFav, 'fr')} mènent la course à la Série mondiale à {fmtProb(mlbFav.p_ws, 'fr')}.</h2>
+      <p>
+        Les 30 équipes, {mlb.board_meta.sims.toLocaleString('fr-CA')} simulations chaque nuit — probabilités de séries, de division, de championnat et de titre.
+        {mlbJays && (
+          <>Pouls canadien : les {teamLabel(mlbJays, 'fr')} sont à <strong>{fmtProb(mlbJays.p_series, 'fr')}</strong> de faire les séries.</>
+        )}
+      </p>
+      <p style="margin-top:0.5rem;">
+        <a href="/fr/sports/mlb/" class="cta-link">Ouvrir le desk MLB →</a>
+      </p>
+    </div>
+  </section>
 
   <section class="content-band">
     <div class="container">
@@ -111,9 +133,10 @@ const boardMeta = sportsData.board_meta;
   />
 
   <MethodologyNote
-    title="Deux desks sport. Un seul standard."
-    body="Coupe du monde et LNH partagent le même pipeline Monte Carlo : les résultats sont simulés 50 000 fois par cycle, conditionnés aux résultats réels au fil du tournoi."
+    title="Trois desks sport. Un seul standard."
+    body="MLB, Coupe du monde et LNH partagent la même discipline Monte Carlo : les résultats sont simulés des milliers de fois par cycle, conditionnés aux résultats réels au fil de la saison."
     bullets={[
+      "MLB 2026 : 30 équipes, 10 000 simulations nocturnes — forces pythagenpat et affrontements log5 sur chaque match restant, données MLB Stats API.",
       "Coupe du monde 2026 : 48 équipes, 50 000 simulations conditionnées aux résultats réels (classement FIFA, forme récente, avantage du terrain), mises à jour à chaque match jusqu'à la finale.",
       "NHL Cup Path: 50 000 simulations par ronde éliminatoire, mis à jour après chaque résultat de série. La couche volatilité des gardiens est conditionnée sur le taux d'arrêts récent et le statut des blessures.",
       "Le bilan est public: chaque cycle de modèle publié et chaque appel de série sont archivés et vérifiables.",
