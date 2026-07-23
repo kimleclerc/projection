@@ -274,6 +274,18 @@ export const instruments: Record<'en' | 'fr' | 'es', Instrument[]> = {
       cadence: 'As data lands',
       metric: 'Current score from web_data/fr-barrage/latest.json',
     },
+    {
+      id: 'candidate-barometer',
+      name: 'Candidate Barometer',
+      family: 'Movement',
+      question: 'Do Quebec parties give women their winnable ridings, or just their lost ones?',
+      description:
+        'Tracks the race to 127 candidacies and, party by party, whether women candidates get the ridings where the party is actually competitive. Calibrated on 2018 (a real glass cliff) and 2022 (none).',
+      href: '/en/canada/quebec/candidate-barometer/',
+      status: 'live',
+      cadence: 'As nominations land',
+      metric: 'Placement gap from web_data/quebec/equity/qc_2026.json',
+    },
   ],
   fr: [
     {
@@ -336,6 +348,18 @@ export const instruments: Record<'en' | 'fr' | 'es', Instrument[]> = {
       cadence: 'Au fil des données',
       metric: 'Score courant depuis web_data/fr-barrage/latest.json',
     },
+    {
+      id: 'candidate-barometer',
+      name: 'Baromètre des candidatures',
+      family: 'Movement',
+      question: 'Les partis québécois donnent-ils aux femmes leurs comtés gagnables, ou leurs comtés perdus?',
+      description:
+        "Suit la course aux 127 candidatures et, par parti, si les candidates obtiennent les comtés où le parti est réellement compétitif. Calibré sur 2018 (un vrai précipice de verre) et 2022 (aucun).",
+      href: '/fr/canada/quebec/barometre-candidatures/',
+      status: 'live',
+      cadence: 'Au fil des nominations',
+      metric: 'Écart de placement depuis web_data/quebec/equity/qc_2026.json',
+    },
   ],
   es: [
     {
@@ -385,6 +409,18 @@ export const instruments: Record<'en' | 'fr' | 'es', Instrument[]> = {
       status: 'live',
       cadence: 'Según llegan los datos',
       metric: 'Puntuación actual desde web_data/fr-barrage/latest.json',
+    },
+    {
+      id: 'candidate-barometer',
+      name: 'Barómetro de candidaturas',
+      family: 'Movement',
+      question: '¿Los partidos de Quebec dan a las mujeres sus distritos ganables o solo los perdidos?',
+      description:
+        'Sigue la carrera hacia 127 candidaturas y, partido por partido, si las candidatas obtienen los distritos donde el partido es realmente competitivo. Calibrado con 2018 (un verdadero precipicio de cristal) y 2022 (ninguno).',
+      href: '/es/canada/quebec/barometro-candidaturas/',
+      status: 'live',
+      cadence: 'Según llegan las candidaturas',
+      metric: 'Brecha de colocación desde web_data/quebec/equity/qc_2026.json',
     },
   ],
 };
