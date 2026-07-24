@@ -1,0 +1,287 @@
+---
+import EditorialLayout from '../layouts/EditorialLayout.astro';
+import { QC_PARTIES } from '../lib/riding-adapters/parties';
+import {
+  EQUITY_PARTIES,
+  EQUITY_STRINGS,
+  EQUITY_REFS,
+  placementVerdict,
+  type EquityData,
+  type EquityLocale,
+} from '../data/quebecEquity';
+
+interface Props {
+  data: EquityData;
+  locale: EquityLocale;
+  canonicalPath: string;
+}
+const { data, locale, canonicalPath } = Astro.props;
+const t = EQUITY_STRINGS[locale];
+const { current } = data;
+
+const base = `https://vote-scope.com${canonicalPath}`;
+const alternates = {
+  fr: 'https://vote-scope.com/fr/canada/quebec/barometre-candidatures/',
+  en: 'https://vote-scope.com/en/canada/quebec/candidate-barometer/',
+  es: 'https://vote-scope.com/es/canada/quebec/barometro-candidaturas/',
+};
+
+// Décimale localisée (virgule en fr/es).
+const num = (v: number, d = 1) => {
+  const s = v.toFixed(d);
+  return locale === 'en' ? s : s.replace('.', ',');
+};
+const signed = (v: number, d = 1) => (v > 0 ? '+' : v < 0 ? '−' : '') + num(Math.abs(v), d);
+const pFmt = (p: number) => (p < 0.001 ? (locale === 'en' ? '<0.001' : '<0,001') : num(p, 3));
+
+const party = (code: string) => QC_PARTIES[code] ?? { label_fr: code.toUpperCase(), label_en: code.toUpperCase(), color: '#888' };
+const plabel = (code: string) => {
+  const m = party(code) as any;
+  return locale === 'fr' ? m.label_fr : m.label_en;
+};
+
+// Course aux 127 : partis triés par nombre de candidatures.
+const race = EQUITY_PARTIES
+  .map((code) => ({ code, ...current.nominations[code] }))
+  .sort((a, b) => b.n - a.n);
+const objectif = current.objectif_sieges;
+
+// Parité + placement par parti (ordre de la course).
+const rows = race.map(({ code }) => {
+  const pc = current.partis[code]?.parite_comptable;
+  const pl = current.partis[code]?.placement;
+  return { code, pc, pl, verdict: placementVerdict(pl, locale) };
+});
+
+const pooled = current.pooled;
+---
+
+<EditorialLayout
+  title={`${t.title} — Vote-Scope`}
+  description={t.lede}
+  canonical={base}
+  lang={locale}
+  currentPage="canada"
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={alternates}
+  jsonLd={[
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Dataset',
+      name: t.title,
+      description: t.lede,
+      url: base,
+      dateModified: current.meta?.generated_at,
+      creator: { '@type': 'Person', name: 'Kim Leclerc', url: 'https://kimleclerc.ca' },
+      publisher: { '@type': 'Organization', name: 'Vote-Scope', url: 'https://vote-scope.com' },
+      isAccessibleForFree: true,
+    },
+  ]}
+>
+  <article class="eq">
+    <header class="eq-hero">
+      <p class="eq-kicker">{t.kicker}</p>
+      <h1>{t.title}</h1>
+      <p class="eq-lede">{t.lede}</p>
+      <p class="eq-asof">
+        {t.asOf} {data.asOfLabel}
+        {current.provisoire && (
+          <span class="eq-flag" title={t.provisoireWhy}>{t.provisoire}</span>
+        )}
+      </p>
+    </header>
+
+    {/* ── Course aux 127 candidatures ─────────────────────────── */}
+    <section class="eq-sec">
+      <h2>{t.trackTitle}</h2>
+      <p class="eq-sub">{t.trackLede}</p>
+      <div class="eq-race">
+        {race.map((r) => (
+          <div class="eq-race-row">
+            <span class="eq-race-label" style={`color:${party(r.code).color}`}>{plabel(r.code)}</span>
+            <div class="eq-race-track">
+              <div class="eq-race-fill" style={`width:${r.pct_complet}%;background:${party(r.code).color}`}></div>
+            </div>
+            <span class="eq-race-count">
+              <strong>{r.n}</strong><span class="eq-race-obj">/{objectif}</span>
+              <span class="eq-race-rem">· {r.restant} {t.trackRemaining}</span>
+            </span>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    {/* ── Deux mesures par parti ──────────────────────────────── */}
+    <section class="eq-sec">
+      <div class="eq-two">
+        <div>
+          <h2>{t.parityTitle}</h2>
+          <p class="eq-sub">{t.parityLede}</p>
+        </div>
+        <div>
+          <h2>{t.placementTitle}</h2>
+          <p class="eq-sub">{t.placementLede}</p>
+        </div>
+      </div>
+
+      <div class="eq-cards">
+        {rows.map((r) => (
+          <div class="eq-card">
+            <div class="eq-card-head">
+              <span class="eq-dot" style={`background:${party(r.code).color}`}></span>
+              <span class="eq-card-party">{plabel(r.code)}</span>
+            </div>
+            <div class="eq-card-body">
+              <div class="eq-metric">
+                <div class="eq-metric-num">{r.pc ? num(r.pc.pct_femmes) : '—'}<span>%</span></div>
+                <div class="eq-metric-lab">{t.women} · {t.target} {num(current.meta?.target_women ? current.meta.target_women * 100 : 50.2)} %</div>
+                <div class="eq-parity-bar">
+                  <div class="eq-parity-target" style={`left:${current.meta?.target_women ? current.meta.target_women * 100 : 50.2}%`}></div>
+                  <div class="eq-parity-fill" style={`width:${r.pc?.pct_femmes ?? 0}%;background:${party(r.code).color}`}></div>
+                </div>
+              </div>
+
+              <div class="eq-metric">
+                {r.pl && r.pl.n_femmes >= 5 && r.pl.n_hommes >= 5 ? (
+                  <>
+                    <div class={`eq-metric-num eq-${r.verdict.tone}`}>{signed(r.pl.ecart_pts)}<span>pts</span></div>
+                    <div class="eq-metric-lab">
+                      {t.placementCI} [{signed(r.pl.ic95[0])}, {signed(r.pl.ic95[1])}] · {t.placementP} {pFmt(r.pl.p_permutation)}
+                    </div>
+                    <div class="eq-gap-axis">
+                      <div class="eq-gap-zero"></div>
+                      <div
+                        class={`eq-gap-mark eq-${r.verdict.tone}`}
+                        style={`left:${Math.max(2, Math.min(98, 50 + r.pl.ecart_pts))}%`}
+                      ></div>
+                    </div>
+                    <div class={`eq-verdict eq-${r.verdict.tone}`}>{r.verdict.label}</div>
+                  </>
+                ) : (
+                  <>
+                    <div class="eq-metric-num eq-thin">—</div>
+                    <div class="eq-metric-lab">{r.verdict.label}</div>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <p class="eq-pool">
+        <strong>{t.poolTitle}.</strong>{' '}
+        {t.poolBody(signed(pooled.ecart_pts), pFmt(pooled.p_permutation_stratifiee), String(pooled.n))}
+      </p>
+    </section>
+
+    {/* ── Backtests / calibration ─────────────────────────────── */}
+    <section class="eq-sec eq-backtest">
+      <h2>{t.backtestTitle}</h2>
+      <p class="eq-sub">{t.backtestLede}</p>
+      <div class="eq-bt-grid">
+        <div class="eq-bt-card"><span class="eq-bt-year">2018</span><p>{t.backtest2018}</p></div>
+        <div class="eq-bt-card"><span class="eq-bt-year">2022</span><p>{t.backtest2022}</p></div>
+      </div>
+    </section>
+
+    {/* ── Méthode + fondement académique ──────────────────────── */}
+    <section class="eq-sec eq-metho">
+      <div class="eq-two">
+        <div>
+          <h3>{t.methoTitle}</h3>
+          <p>{t.methoBody}</p>
+        </div>
+        <div>
+          <h3>{t.academicTitle}</h3>
+          <p>{t.academicBody}</p>
+          <p class="eq-refs-title">{t.refs}</p>
+          <ul class="eq-refs">
+            {EQUITY_REFS.map((r) => <li>{r}</li>)}
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <a class="eq-cta" href={t.ridingsHref}>{t.ridingsCta}</a>
+  </article>
+</EditorialLayout>
+
+<style>
+  .eq { max-width: 62rem; margin: 0 auto; padding: 0 1.1rem 4rem; color: var(--ink); }
+  .eq-hero { padding: 1.5rem 0 1rem; border-bottom: 1px solid var(--rule); }
+  .eq-kicker { font: 600 0.72rem/1 var(--mono); letter-spacing: 0.09em; text-transform: uppercase; color: var(--ink-3); margin: 0 0 0.7rem; }
+  .eq h1 { font: 700 clamp(1.8rem, 4vw, 2.7rem)/1.08 var(--serif); margin: 0 0 0.6rem; letter-spacing: -0.01em; }
+  .eq-lede { font: 400 1.05rem/1.5 var(--serif); color: var(--ink-2); max-width: 46rem; margin: 0; }
+  .eq-asof { font: 500 0.8rem/1 var(--mono); color: var(--ink-3); margin: 0.9rem 0 0; display: flex; align-items: center; gap: 0.6rem; }
+  .eq-flag { background: #b4531f; color: #fff; padding: 0.2rem 0.5rem; border-radius: 3px; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.05em; }
+
+  .eq-sec { padding: 2rem 0; border-bottom: 1px solid var(--rule); }
+  .eq-sec h2 { font: 700 1.35rem/1.15 var(--serif); margin: 0 0 0.35rem; }
+  .eq-sub { font: 400 0.92rem/1.5 var(--serif); color: var(--ink-2); margin: 0 0 1.2rem; max-width: 44rem; }
+
+  /* Course aux 127 */
+  .eq-race { display: flex; flex-direction: column; gap: 0.7rem; }
+  .eq-race-row { display: grid; grid-template-columns: 3rem 1fr auto; align-items: center; gap: 0.8rem; }
+  .eq-race-label { font: 700 0.85rem/1 var(--mono); }
+  .eq-race-track { height: 1.35rem; background: var(--paper-2); border-radius: 3px; overflow: hidden; }
+  .eq-race-fill { height: 100%; border-radius: 3px; transition: width 0.4s ease; min-width: 2px; }
+  .eq-race-count { font: 400 0.82rem/1 var(--mono); color: var(--ink-3); white-space: nowrap; }
+  .eq-race-count strong { font-size: 1rem; color: var(--ink); }
+  .eq-race-obj { color: var(--ink-3); }
+  .eq-race-rem { color: var(--ink-4); margin-left: 0.3rem; }
+
+  /* Deux mesures */
+  .eq-two { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 1.4rem; }
+  .eq-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: 0.9rem; }
+  .eq-card { background: var(--card); border: 1px solid var(--rule); border-radius: 8px; padding: 1rem; }
+  .eq-card-head { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.9rem; }
+  .eq-dot { width: 0.7rem; height: 0.7rem; border-radius: 50%; }
+  .eq-card-party { font: 700 0.95rem/1 var(--mono); }
+  .eq-card-body { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .eq-metric-num { font: 700 1.5rem/1 var(--serif); }
+  .eq-metric-num span { font-size: 0.8rem; color: var(--ink-3); margin-left: 0.15rem; font-weight: 400; }
+  .eq-metric-lab { font: 400 0.68rem/1.3 var(--mono); color: var(--ink-3); margin: 0.35rem 0 0.5rem; }
+
+  .eq-parity-bar { position: relative; height: 0.5rem; background: var(--paper-2); border-radius: 3px; overflow: visible; }
+  .eq-parity-fill { height: 100%; border-radius: 3px; }
+  .eq-parity-target { position: absolute; top: -2px; bottom: -2px; width: 2px; background: var(--ink); opacity: 0.5; z-index: 2; }
+
+  .eq-gap-axis { position: relative; height: 0.9rem; }
+  .eq-gap-zero { position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: var(--ink-4); }
+  .eq-gap-mark { position: absolute; top: 50%; width: 0.65rem; height: 0.65rem; border-radius: 50%; transform: translate(-50%, -50%); }
+
+  .eq-verdict { font: 600 0.72rem/1 var(--mono); margin-top: 0.4rem; text-transform: uppercase; letter-spacing: 0.03em; }
+  .eq-bad { color: #c0392b; } .eq-gap-mark.eq-bad, .eq-metric-num.eq-bad { background: #c0392b; }
+  .eq-good { color: #1f8a4c; } .eq-gap-mark.eq-good, .eq-metric-num.eq-good { background: #1f8a4c; }
+  .eq-neutral { color: var(--ink-3); } .eq-gap-mark.eq-neutral { background: var(--ink-3); }
+  .eq-thin { color: var(--ink-4); }
+  .eq-metric-num.eq-bad, .eq-metric-num.eq-good { -webkit-text-fill-color: currentColor; background: none; }
+  .eq-metric-num.eq-bad { color: #c0392b; } .eq-metric-num.eq-good { color: #1f8a4c; }
+
+  .eq-pool { font: 400 0.95rem/1.55 var(--serif); color: var(--ink-2); background: var(--paper-2); border-radius: 8px; padding: 1rem 1.2rem; margin: 1.4rem 0 0; }
+  .eq-pool strong { color: var(--ink); }
+
+  /* Backtests */
+  .eq-bt-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .eq-bt-card { background: var(--card); border: 1px solid var(--rule); border-left: 3px solid var(--ink-3); border-radius: 6px; padding: 1rem 1.1rem; }
+  .eq-bt-year { font: 700 1.1rem/1 var(--mono); color: var(--ink); display: block; margin-bottom: 0.5rem; }
+  .eq-bt-card p { font: 400 0.9rem/1.5 var(--serif); color: var(--ink-2); margin: 0; }
+
+  /* Méthode */
+  .eq-metho h3 { font: 700 1.05rem/1.2 var(--serif); margin: 0 0 0.5rem; }
+  .eq-metho p { font: 400 0.9rem/1.55 var(--serif); color: var(--ink-2); margin: 0 0 0.7rem; }
+  .eq-refs-title { font: 600 0.72rem/1 var(--mono); text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-3); margin-top: 1rem; }
+  .eq-refs { list-style: none; padding: 0; margin: 0.5rem 0 0; }
+  .eq-refs li { font: 400 0.78rem/1.45 var(--mono); color: var(--ink-3); margin-bottom: 0.5rem; padding-left: 0.8rem; border-left: 2px solid var(--rule-2); }
+
+  .eq-cta { display: inline-block; margin-top: 1.8rem; font: 600 0.9rem/1 var(--mono); color: var(--ink); text-decoration: none; border-bottom: 2px solid var(--ink); padding-bottom: 0.25rem; }
+  .eq-cta:hover { color: var(--ink-2); }
+
+  @media (max-width: 40rem) {
+    .eq-two, .eq-bt-grid { grid-template-columns: 1fr; gap: 1.2rem; }
+    .eq-card-body { grid-template-columns: 1fr; }
+    .eq-race-row { grid-template-columns: 2.6rem 1fr; }
+    .eq-race-count { grid-column: 2; text-align: right; }
+  }
+</style>
