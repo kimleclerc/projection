@@ -1,0 +1,49 @@
+---
+import EditorialLayout from '../../../layouts/EditorialLayout.astro';
+import UsPresidentDesk from '../../../components/UsPresidentDesk.astro';
+import latest from '../../../../web_data/us-president/latest.json';
+
+const meta = (latest as any).meta;
+const canonical = 'https://vote-scope.com/fr/us/presidentielle';
+const alternates = {
+  en: 'https://vote-scope.com/en/us/president',
+  fr: canonical,
+  es: 'https://vote-scope.com/es/us/presidencial',
+};
+---
+
+<EditorialLayout
+  title="Présidentielle américaine 2028 — Primaire invisible et collège électoral — Vote-Scope"
+  description={`Agrégat pondéré qualité des sondages de primaire de la présidentielle US 2028 (DEM et REP), scénarios de champ, premiers États et carte du collège électoral. ${meta.n_primary_polls} sondages, run du ${meta.run_date}.`}
+  canonical={canonical}
+  lang="fr"
+  currentPage="us"
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={alternates}
+  jsonLd={[
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Dataset',
+      name: 'Présidentielle US 2028 — Primaire invisible',
+      description: 'Agrégat pondéré qualité des sondages de primaire 2028 et cadre du collège électoral.',
+      url: canonical,
+      dateModified: meta.run_date,
+      creator: { '@type': 'Person', name: 'Kim Leclerc', url: 'https://kimleclerc.ca' },
+      publisher: { '@type': 'Organization', name: 'Vote-Scope', url: 'https://vote-scope.com' },
+      license: 'https://vote-scope.com/fr/terms/',
+      isAccessibleForFree: true,
+      distribution: { '@type': 'DataDownload', contentUrl: 'https://vote-scope.com/web_data/us-president/latest.json', encodingFormat: 'application/json' },
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: 'https://vote-scope.com/fr/' },
+        { '@type': 'ListItem', position: 2, name: 'États-Unis', item: 'https://vote-scope.com/fr/us/' },
+        { '@type': 'ListItem', position: 3, name: 'Présidentielle', item: canonical },
+      ],
+    },
+  ]}
+>
+  <UsPresidentDesk locale="fr" />
+</EditorialLayout>

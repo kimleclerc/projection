@@ -11,6 +11,7 @@ import ldiData from '../../../../web_data/us-lame-duck/latest.json';
 import houseData from '../../../../web_data/us-house/latest.json';
 import senateData from '../../../../web_data/us-senate/latest.json';
 import showdownData from '../../../../web_data/cusma-showdown/latest.json';
+import presData from '../../../../web_data/us-president/latest.json';
 
 const ldi = ldiData.ldi;
 const houseDem = (houseData.parties as Array<{party:string;seats_projected:number;p_majority:number;label_en:string;color:string}>).find((p) => p.party === 'us_dem')!;
@@ -20,6 +21,10 @@ const senateRep = (senateData.parties as Array<{party:string;seats_mean:number;p
 
 const specials = Object.values(specialElections);
 const deltaSign = ldi.delta_7d >= 0 ? '+' : '';
+const presRep = (presData as any).primary.rep;
+const presDem = (presData as any).primary.dem;
+const presRepLead = presRep.standings.find((s: any) => s.status !== 'ineligible') ?? presRep.standings[0];
+const presDemLead = presDem.standings.find((s: any) => s.status !== 'ineligible') ?? presDem.standings[0];
 ---
 
 <EditorialLayout
@@ -95,6 +100,15 @@ const deltaSign = ldi.delta_7d >= 0 ? '+' : '';
             </p>
             <p>Probabilidad de mayoría D: <strong>{Math.round(senateDem.p_majority * 100)}%</strong></p>
             <a href="/es/us/senate/" class="cta-link" style="font-size:0.85rem;">Proyección Senado →</a>
+          </div>
+          <div class="note-card" style={`border-left:4px solid ${presRep.color};`}>
+            <p class="eyebrow">Presidencial 2028 · Primaria invisible</p>
+            <p>
+              REP <strong>{presRepLead.short_label} {presRepLead.share.toFixed(0)} %</strong> ·
+              DEM <strong>{presDemLead.short_label} {presDemLead.share.toFixed(0)} %</strong>
+            </p>
+            <p style="font-size:0.85rem;">Campos de primarias + mapa del colegio electoral.</p>
+            <a href="/es/us/presidencial/" class="cta-link" style="font-size:0.85rem;">Desk presidencial →</a>
           </div>
           <div class="note-card" style={`border-left:4px solid ${showdownData.showdown.zone_color};`}>
             <p class="eyebrow">Duelo T-MEC</p>

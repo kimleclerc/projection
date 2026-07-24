@@ -1,0 +1,2420 @@
+{
+  "meta": {
+    "run_date": "2026-07-23",
+    "election_cycle": "us_pres_2028",
+    "election_date": "2028-11-07",
+    "phase": "invisible_primary",
+    "mode": "primary_standings_v0",
+    "n_primary_polls": 296,
+    "n_general_polls": 80,
+    "ec_total": 538,
+    "ec_majority": 270,
+    "half_life_days": 30.0,
+    "pipeline_version": "0.2",
+    "weighting": {
+      "components": [
+        "recency",
+        "sample_size",
+        "firm_quality",
+        "intra_firm_decay",
+        "concentration_cap"
+      ],
+      "half_life_days": 30.0,
+      "intra_firm_window_days": 45,
+      "concentration_multiplier": 1.25,
+      "note": "Moyenne pondérée qualité (pas de BSTS : champ primaire à candidats changeants). BSTS/preprocessor réservés à la Phase C (affrontement général, 2 partis fixes)."
+    },
+    "population_correction": {
+      "enabled": false,
+      "reference_population": "lv",
+      "self_test_shift_adults_10d": 0.0,
+      "note": "Effet fixe adults/rv/lv gaté (jamais hardcodé). Activation conditionnée à backtest_us_pres_population.py."
+    }
+  },
+  "primary": {
+    "dem": {
+      "party": "us_dem",
+      "label_en": "Democratic",
+      "label_fr": "Démocrate",
+      "label_es": "Demócrata",
+      "color": "#1f77d0",
+      "n_candidates": 34,
+      "n_polls": 135,
+      "undecided_other": 15.32,
+      "standings": [
+        {
+          "candidate_id": "dem_k_harris",
+          "name": "Kamala Harris",
+          "short_label": "Harris",
+          "lane": "establishment",
+          "status": "probable",
+          "is_incumbent_family": false,
+          "share": 27.45,
+          "poll_count": 123,
+          "trend": -0.55,
+          "floor": 4.0,
+          "ceiling": 67.0,
+          "notes": {
+            "fr": "Ancienne vice-présidente et candidate démocrate de 2024. Fréquemment en tête des sondages primaires.",
+            "en": "Former vice-president and 2024 Democratic nominee. Frequently leads primary polling.",
+            "es": "Exvicepresidenta y candidata demócrata de 2024. Suele liderar los sondeos de las primarias."
+          },
+          "rank": 1
+        },
+        {
+          "candidate_id": "dem_g_newsom",
+          "name": "Gavin Newsom",
+          "short_label": "Newsom",
+          "lane": "establishment",
+          "status": "probable",
+          "is_incumbent_family": false,
+          "share": 17.58,
+          "poll_count": 126,
+          "trend": -1.75,
+          "floor": 4.0,
+          "ceiling": 51.87,
+          "notes": {
+            "fr": "Gouverneur de Californie, testé comme prétendant de premier plan.",
+            "en": "Governor of California, polled as a leading contender.",
+            "es": "Gobernador de California, sondeado como aspirante destacado."
+          },
+          "rank": 2
+        },
+        {
+          "candidate_id": "dem_p_buttigieg",
+          "name": "Pete Buttigieg",
+          "short_label": "Buttigieg",
+          "lane": "moderate",
+          "status": "testing",
+          "is_incumbent_family": false,
+          "share": 11.52,
+          "poll_count": 115,
+          "trend": -0.45,
+          "floor": 3.5,
+          "ceiling": 31.5,
+          "notes": {
+            "fr": "Ancien secrétaire aux Transports, régulièrement testé.",
+            "en": "Former transportation secretary, regularly polled.",
+            "es": "Exsecretario de Transporte, sondeado con regularidad."
+          },
+          "rank": 3
+        },
+        {
+          "candidate_id": "dem_a_ocasio_cortez",
+          "name": "Alexandria Ocasio-Cortez",
+          "short_label": "Ocasio-Cortez",
+          "lane": "progressive",
+          "status": "testing",
+          "is_incumbent_family": false,
+          "share": 10.25,
+          "poll_count": 124,
+          "trend": -1.44,
+          "floor": 0.9,
+          "ceiling": 43.0,
+          "notes": {
+            "fr": "Représentante de New York, figure de l'aile progressiste.",
+            "en": "New York representative, standard-bearer of the progressive wing.",
+            "es": "Representante de Nueva York, referente del ala progresista."
+          },
+          "rank": 4
+        },
+        {
+          "candidate_id": "dem_b_sanders",
+          "name": "Bernie Sanders",
+          "short_label": "Sanders",
+          "lane": "progressive",
+          "status": "testing",
+          "is_incumbent_family": false,
+          "share": 8.19,
+          "poll_count": 15,
+          "trend": null,
+          "floor": 1.2,
+          "ceiling": 14.0,
+          "notes": {
+            "fr": "Sénateur du Vermont, figure de la gauche.",
+            "en": "Senator from Vermont, figure of the left.",
+            "es": "Senador de Vermont, referente de la izquierda."
+          },
+          "rank": 5
+        },
+        {
+          "candidate_id": "dem_j_shapiro",
+          "name": "Josh Shapiro",
+          "short_label": "Shapiro",
+          "lane": "moderate",
+          "status": "testing",
+          "is_incumbent_family": false,
+          "share": 6.13,
+          "poll_count": 117,
+          "trend": 0.68,
+          "floor": 1.0,
+          "ceiling": 15.66,
+          "notes": {
+            "fr": "Gouverneur de Pennsylvanie, profil d'État charnière.",
+            "en": "Governor of Pennsylvania, swing-state profile.",
+            "es": "Gobernador de Pensilvania, perfil de estado bisagra."
+          },
+          "rank": 6
+        },
+        {
+          "candidate_id": "dem_m_kelly",
+          "name": "Mark Kelly",
+          "short_label": "Kelly",
+          "lane": "moderate",
+          "status": "testing",
+          "is_incumbent_family": false,
+          "share": 5.18,
+          "poll_count": 52,
+          "trend": -0.41,
+          "floor": 0.4,
+          "ceiling": 10.1,
+          "notes": {
+            "fr": "Sénateur de l'Arizona.",
+            "en": "Senator from Arizona.",
+            "es": "Senador de Arizona."
+          },
+          "rank": 7
+        },
+        {
+          "candidate_id": "dem_z_mamdani",
+          "name": "Zohran Mamdani",
+          "short_label": "Mamdani",
+          "lane": "progressive",
+          "status": "testing",
+          "is_incumbent_family": false,
+          "share": 4.0,
+          "poll_count": 2,
+          "trend": null,
+          "floor": 4.0,
+          "ceiling": 4.0,
+          "notes": {
+            "fr": "Personnalité progressiste new-yorkaise, apparue récemment dans les sondages.",
+            "en": "New York progressive figure, recently appearing in polls.",
+            "es": "Figura progresista de Nueva York, aparecida recientemente en los sondeos."
+          },
+          "rank": 8
+        },
+        {
+          "candidate_id": "dem_j_ossoff",
+          "name": "Jon Ossoff",
+          "short_label": "Ossoff",
+          "lane": "unaligned",
+          "status": "testing",
+          "is_incumbent_family": false,
+          "share": 3.84,
+          "poll_count": 33,
+          "trend": 2.16,
+          "floor": 0.12,
+          "ceiling": 12.6,
+          "notes": {
+            "fr": "Testé dans les sondages primaires démocrates ; pas de candidature déclarée.",
+            "en": "Polled in Democratic primary surveys; no declared candidacy.",
+            "es": "Sondeado en las primarias demócratas; sin candidatura declarada."
+          },
+          "rank": 9
+        },
+        {
+          "candidate_id": "dem_c_booker",
+          "name": "Cory A. Booker",
+          "short_label": "Booker",
+          "lane": "establishment",
+          "status": "testing",
+          "is_incumbent_family": false,
+          "share": 3.66,
+          "poll_count": 84,
+          "trend": -0.64,
+          "floor": 1.0,
+          "ceiling": 34.0,
+          "notes": {
+            "fr": "Sénateur du New Jersey.",
+            "en": "Senator from New Jersey.",
+            "es": "Senador de Nueva Jersey."
+          },
+          "rank": 10
+        },
+        {
+          "candidate_id": "dem_j_pritzker",
+          "name": "J.B. Pritzker",
+          "short_label": "Pritzker",
+          "lane": "establishment",
+          "status": "testing",
+          "is_incumbent_family": false,
+          "share": 3.53,
+          "poll_count": 101,
+          "trend": 0.19,
+          "floor": 0.1,
+          "ceiling": 9.0,
+          "notes": {
+            "fr": "Gouverneur de l'Illinois.",
+            "en": "Governor of Illinois.",
+            "es": "Gobernador de Illinois."
+          },
+          "rank": 11
+        },
+        {
+          "candidate_id": "dem_a_beshear",
+          "name": "Andy Beshear",
+          "short_label": "Beshear",
+          "lane": "moderate",
+          "status": "testing",
+          "is_incumbent_family": false,
+          "share": 3.32,
+          "poll_count": 77,
+          "trend": 0.17,
+          "floor": 0.3,
+          "ceiling": 8.5,
+          "notes": {
+            "fr": "Gouverneur du Kentucky, démocrate en État conservateur.",
+            "en": "Governor of Kentucky, a Democrat in a red state.",
+            "es": "Gobernador de Kentucky, demócrata en un estado republicano."
+          },
+          "rank": 12
+        },
+        {
+          "candidate_id": "dem_e_warren",
+          "name": "Elizabeth Warren",
+          "short_label": "Warren",
+          "lane": "unaligned",
+          "status": "testing",
+          "is_incumbent_family": false,
+          "share": 3.17,
+          "poll_count": 10,
+          "trend": null,
+          "floor": 2.0,
+          "ceiling": 4.0,
+          "notes": {
+            "fr": "Testé dans les sondages primaires démocrates ; pas de candidature déclarée.",
+            "en": "Polled in Democratic primary surveys; no declared candidacy.",
+            "es": "Sondeado en las primarias demócratas; sin candidatura declarada."
+          },
+          "rank": 13
+        },
+        {
+          "candidate_id": "dem_g_whitmer",
+          "name": "Gretchen Whitmer",
+          "short_label": "Whitmer",
+          "lane": "moderate",
+          "status": "testing",
+          "is_incumbent_family": false,
+          "share": 2.28,
+          "poll_count": 96,
+          "trend": 0.56,
+          "floor": 0.0,
+          "ceiling": 20.9,
+          "notes": {
+            "fr": "Gouverneure du Michigan.",
+            "en": "Governor of Michigan.",
+            "es": "Gobernadora de Michigan."
+          },
+          "rank": 14
+        },
+        {
+          "candidate_id": "dem_t_walz",
+          "name": "Tim Walz",
+          "short_label": "Walz",
+          "lane": "progressive",
+          "status": "testing",
+          "is_incumbent_family": false,
+          "share": 1.82,
+          "poll_count": 68,
+          "trend": -0.05,
+          "floor": 0.0,
+          "ceiling": 15.0,
+          "notes": {
+            "fr": "Gouverneur du Minnesota, colistier démocrate de 2024.",
+            "en": "Governor of Minnesota, 2024 Democratic running mate.",
+            "es": "Gobernador de Minnesota, compañero de fórmula demócrata en 2024."
+          },
+          "rank": 15
+        },
+        {
+          "candidate_id": "dem_t_gabbard",
+          "name": "Tulsi Gabbard",
+          "short_label": "Gabbard",
+          "lane": "unaligned",
+          "status": "testing",
+          "is_incumbent_family": false,
+          "share": 1.8,
+          "poll_count": 6,
+          "trend": null,
+          "floor": 0.5,
+          "ceiling": 5.0,
+          "notes": {
+            "fr": "Testé dans les sondages primaires démocrates ; pas de candidature déclarée.",
+            "en": "Polled in Democratic primary surveys; no declared candidacy.",
+            "es": "Sondeado en las primarias demócratas; sin candidatura declarada."
+          },
+          "rank": 16
+        },
+        {
+          "candidate_id": "dem_m_cuban",
+          "name": "Mark Cuban",
+          "short_label": "Cuban",
+          "lane": "unaligned",
+          "status": "testing",
+          "is_incumbent_family": false,
+          "share": 1.5,
+          "poll_count": 21,
+          "trend": null,
+          "floor": 0.0,
+          "ceiling": 4.0,
+          "notes": {
+            "fr": "Testé dans les sondages primaires démocrates ; pas de candidature déclarée.",
+            "en": "Polled in Democratic primary surveys; no declared candidacy.",
+            "es": "Sondeado en las primarias demócratas; sin candidatura declarada."
+          },
+          "rank": 17
+        },
+        {
+          "candidate_id": "dem_s_smith",
+          "name": "Stephen A. Smith",
+          "short_label": "Smith",
+          "lane": "unaligned",
+          "status": "testing",
+          "is_incumbent_family": false,
+          "share": 1.3,
+          "poll_count": 47,
+          "trend": -0.66,
+          "floor": 0.0,
+          "ceiling": 9.0,
+          "notes": {
+            "fr": "Testé dans les sondages primaires démocrates ; pas de candidature déclarée.",
+            "en": "Polled in Democratic primary surveys; no declared candidacy.",
+            "es": "Sondeado en las primarias demócratas; sin candidatura declarada."
+          },
+          "rank": 18
+        },
+        {
+          "candidate_id": "dem_j_stewart",
+          "name": "Jon Stewart",
+          "short_label": "Stewart",
+          "lane": "unaligned",
+          "status": "testing",
+          "is_incumbent_family": false,
+          "share": 1.3,
+          "poll_count": 22,
+          "trend": -0.48,
+          "floor": 0.5,
+          "ceiling": 3.0,
+          "notes": {
+            "fr": "Testé dans les sondages primaires démocrates ; pas de candidature déclarée.",
+            "en": "Polled in Democratic primary surveys; no declared candidacy.",
+            "es": "Sondeado en las primarias demócratas; sin candidatura declarada."
+          },
+          "rank": 19
+        },
+        {
+          "candidate_id": "dem_w_moore",
+          "name": "Wes Moore",
+          "short_label": "Moore",
+          "lane": "establishment",
+          "status": "testing",
+          "is_incumbent_family": false,
+          "share": 1.06,
+          "poll_count": 74,
+          "trend": -0.05,
+          "floor": 0.0,
+          "ceiling": 4.0,
+          "notes": {
+            "fr": "Gouverneur du Maryland.",
+            "en": "Governor of Maryland.",
+            "es": "Gobernador de Maryland."
+          },
+          "rank": 20
+        },
+        {
+          "candidate_id": "dem_r_khanna",
+          "name": "Ro Khanna",
+          "short_label": "Khanna",
+          "lane": "unaligned",
+          "status": "testing",
+          "is_incumbent_family": false,
+          "share": 0.95,
+          "poll_count": 27,
+          "trend": 0.18,
+          "floor": 0.0,
+          "ceiling": 3.0,
+          "notes": {
+            "fr": "Testé dans les sondages primaires démocrates ; pas de candidature déclarée.",
+            "en": "Polled in Democratic primary surveys; no declared candidacy.",
+            "es": "Sondeado en las primarias demócratas; sin candidatura declarada."
+          },
+          "rank": 21
+        },
+        {
+          "candidate_id": "dem_a_klobuchar",
+          "name": "Amy Klobuchar",
+          "short_label": "Klobuchar",
+          "lane": "unaligned",
+          "status": "testing",
+          "is_incumbent_family": false,
+          "share": 0.94,
+          "poll_count": 38,
+          "trend": -0.74,
+          "floor": 0.0,
+          "ceiling": 6.0,
+          "notes": {
+            "fr": "Testé dans les sondages primaires démocrates ; pas de candidature déclarée.",
+            "en": "Polled in Democratic primary surveys; no declared candidacy.",
+            "es": "Sondeado en las primarias demócratas; sin candidatura declarada."
+          },
+          "rank": 22
+        },
+        {
+          "candidate_id": "dem_r_cooper",
+          "name": "Roy A. Cooper",
+          "short_label": "Cooper",
+          "lane": "unaligned",
+          "status": "testing",
+          "is_incumbent_family": false,
+          "share": 0.94,
+          "poll_count": 16,
+          "trend": -2.5,
+          "floor": 0.0,
+          "ceiling": 3.0,
+          "notes": {
+            "fr": "Testé dans les sondages primaires démocrates ; pas de candidature déclarée.",
+            "en": "Polled in Democratic primary surveys; no declared candidacy.",
+            "es": "Sondeado en las primarias demócratas; sin candidatura declarada."
+          },
+          "rank": 23
+        },
+        {
+          "candidate_id": "dem_j_fetterman",
+          "name": "John Fetterman",
+          "short_label": "Fetterman",
+          "lane": "unaligned",
+          "status": "testing",
+          "is_incumbent_family": false,
+          "share": 0.78,
+          "poll_count": 32,
+          "trend": 0.13,
+          "floor": 0.0,
+          "ceiling": 2.0,
+          "notes": {
+            "fr": "Testé dans les sondages primaires démocrates ; pas de candidature déclarée.",
+            "en": "Polled in Democratic primary surveys; no declared candidacy.",
+            "es": "Sondeado en las primarias demócratas; sin candidatura declarada."
+          },
+          "rank": 24
+        },
+        {
+          "candidate_id": "dem_r_warnock",
+          "name": "Raphael Warnock",
+          "short_label": "Warnock",
+          "lane": "unaligned",
+          "status": "testing",
+          "is_incumbent_family": false,
+          "share": 0.77,
+          "poll_count": 37,
+          "trend": -0.25,
+          "floor": 0.0,
+          "ceiling": 2.0,
+          "notes": {
+            "fr": "Testé dans les sondages primaires démocrates ; pas de candidature déclarée.",
+            "en": "Polled in Democratic primary surveys; no declared candidacy.",
+            "es": "Sondeado en las primarias demócratas; sin candidatura declarada."
+          },
+          "rank": 25
+        },
+        {
+          "candidate_id": "dem_r_emanuel",
+          "name": "Rahm Emanuel",
+          "short_label": "Emanuel",
+          "lane": "unaligned",
+          "status": "testing",
+          "is_incumbent_family": false,
+          "share": 0.49,
+          "poll_count": 43,
+          "trend": -0.43,
+          "floor": 0.0,
+          "ceiling": 2.0,
+          "notes": {
+            "fr": "Testé dans les sondages primaires démocrates ; pas de candidature déclarée.",
+            "en": "Polled in Democratic primary surveys; no declared candidacy.",
+            "es": "Sondeado en las primarias demócratas; sin candidatura declarada."
+          },
+          "rank": 26
+        },
+        {
+          "candidate_id": "dem_c_murphy",
+          "name": "Christopher S. Murphy",
+          "short_label": "Murphy",
+          "lane": "unaligned",
+          "status": "testing",
+          "is_incumbent_family": false,
+          "share": 0.49,
+          "poll_count": 31,
+          "trend": 0.17,
+          "floor": 0.0,
+          "ceiling": 2.0,
+          "notes": {
+            "fr": "Testé dans les sondages primaires démocrates ; pas de candidature déclarée.",
+            "en": "Polled in Democratic primary surveys; no declared candidacy.",
+            "es": "Sondeado en las primarias demócratas; sin candidatura declarada."
+          },
+          "rank": 27
+        },
+        {
+          "candidate_id": "dem_p_murphy",
+          "name": "Philip Murphy",
+          "short_label": "Murphy",
+          "lane": "unaligned",
+          "status": "testing",
+          "is_incumbent_family": false,
+          "share": 0.46,
+          "poll_count": 18,
+          "trend": -1.0,
+          "floor": 0.0,
+          "ceiling": 1.0,
+          "notes": {
+            "fr": "Testé dans les sondages primaires démocrates ; pas de candidature déclarée.",
+            "en": "Polled in Democratic primary surveys; no declared candidacy.",
+            "es": "Sondeado en las primarias demócratas; sin candidatura declarada."
+          },
+          "rank": 28
+        },
+        {
+          "candidate_id": "dem_j_crockett",
+          "name": "Jasmine Crockett",
+          "short_label": "Crockett",
+          "lane": "unaligned",
+          "status": "testing",
+          "is_incumbent_family": false,
+          "share": 0.29,
+          "poll_count": 27,
+          "trend": 0.0,
+          "floor": 0.0,
+          "ceiling": 5.0,
+          "notes": {
+            "fr": "Testé dans les sondages primaires démocrates ; pas de candidature déclarée.",
+            "en": "Polled in Democratic primary surveys; no declared candidacy.",
+            "es": "Sondeado en las primarias demócratas; sin candidatura declarada."
+          },
+          "rank": 29
+        },
+        {
+          "candidate_id": "dem_r_gallego",
+          "name": "Ruben Gallego",
+          "short_label": "Gallego",
+          "lane": "unaligned",
+          "status": "testing",
+          "is_incumbent_family": false,
+          "share": 0.23,
+          "poll_count": 33,
+          "trend": 0.22,
+          "floor": 0.0,
+          "ceiling": 1.4,
+          "notes": {
+            "fr": "Testé dans les sondages primaires démocrates ; pas de candidature déclarée.",
+            "en": "Polled in Democratic primary surveys; no declared candidacy.",
+            "es": "Sondeado en las primarias demócratas; sin candidatura declarada."
+          },
+          "rank": 30
+        },
+        {
+          "candidate_id": "dem_j_polis",
+          "name": "Jared Polis",
+          "short_label": "Polis",
+          "lane": "unaligned",
+          "status": "testing",
+          "is_incumbent_family": false,
+          "share": 0.12,
+          "poll_count": 43,
+          "trend": -0.25,
+          "floor": 0.0,
+          "ceiling": 1.0,
+          "notes": {
+            "fr": "Testé dans les sondages primaires démocrates ; pas de candidature déclarée.",
+            "en": "Polled in Democratic primary surveys; no declared candidacy.",
+            "es": "Sondeado en las primarias demócratas; sin candidatura declarada."
+          },
+          "rank": 31
+        },
+        {
+          "candidate_id": "dem_b_orourke",
+          "name": "Beto O’Rourke",
+          "short_label": "O’Rourke",
+          "lane": "unaligned",
+          "status": "testing",
+          "is_incumbent_family": false,
+          "share": 0.0,
+          "poll_count": 17,
+          "trend": 0.0,
+          "floor": 0.0,
+          "ceiling": 3.0,
+          "notes": {
+            "fr": "Testé dans les sondages primaires démocrates ; pas de candidature déclarée.",
+            "en": "Polled in Democratic primary surveys; no declared candidacy.",
+            "es": "Sondeado en las primarias demócratas; sin candidatura declarada."
+          },
+          "rank": 32
+        },
+        {
+          "candidate_id": "dem_d_patrick",
+          "name": "Deval L. Patrick",
+          "short_label": "Patrick",
+          "lane": "unaligned",
+          "status": "testing",
+          "is_incumbent_family": false,
+          "share": 0.0,
+          "poll_count": 17,
+          "trend": 0.0,
+          "floor": 0.0,
+          "ceiling": 1.0,
+          "notes": {
+            "fr": "Testé dans les sondages primaires démocrates ; pas de candidature déclarée.",
+            "en": "Polled in Democratic primary surveys; no declared candidacy.",
+            "es": "Sondeado en las primarias demócratas; sin candidatura declarada."
+          },
+          "rank": 33
+        },
+        {
+          "candidate_id": "dem_s_fain",
+          "name": "Shawn Fain",
+          "short_label": "Fain",
+          "lane": "unaligned",
+          "status": "testing",
+          "is_incumbent_family": false,
+          "share": 0.0,
+          "poll_count": 2,
+          "trend": null,
+          "floor": 0.0,
+          "ceiling": 0.0,
+          "notes": {
+            "fr": "Testé dans les sondages primaires démocrates ; pas de candidature déclarée.",
+            "en": "Polled in Democratic primary surveys; no declared candidacy.",
+            "es": "Sondeado en las primarias demócratas; sin candidatura declarada."
+          },
+          "rank": 34
+        }
+      ]
+    },
+    "rep": {
+      "party": "us_rep",
+      "label_en": "Republican",
+      "label_fr": "Républicain",
+      "label_es": "Republicano",
+      "color": "#c62828",
+      "n_candidates": 34,
+      "n_polls": 120,
+      "undecided_other": 12.73,
+      "standings": [
+        {
+          "candidate_id": "rep_j_vance",
+          "name": "JD Vance",
+          "short_label": "Vance",
+          "lane": "maga",
+          "status": "probable",
+          "is_incumbent_family": true,
+          "share": 40.4,
+          "poll_count": 120,
+          "trend": 1.98,
+          "floor": 1.0,
+          "ceiling": 74.0,
+          "notes": {
+            "fr": "Vice-président en exercice, favori nettement dominant des sondages primaires républicains.",
+            "en": "Sitting vice-president, dominant front-runner in Republican primary polling.",
+            "es": "Vicepresidente en ejercicio, claro favorito en los sondeos de las primarias republicanas."
+          },
+          "rank": 1
+        },
+        {
+          "candidate_id": "rep_m_rubio",
+          "name": "Marco Rubio",
+          "short_label": "Rubio",
+          "lane": "establishment",
+          "status": "testing",
+          "is_incumbent_family": true,
+          "share": 20.38,
+          "poll_count": 118,
+          "trend": -1.32,
+          "floor": 0.8,
+          "ceiling": 45.4,
+          "notes": {
+            "fr": "Secrétaire d'État, testé comme prétendant de premier plan.",
+            "en": "Secretary of state, polled as a leading contender.",
+            "es": "Secretario de Estado, sondeado como aspirante destacado."
+          },
+          "rank": 2
+        },
+        {
+          "candidate_id": "rep_d_trump_jr",
+          "name": "Donald Trump Jr.",
+          "short_label": "Trump Jr.",
+          "lane": "maga",
+          "status": "testing",
+          "is_incumbent_family": true,
+          "share": 11.05,
+          "poll_count": 71,
+          "trend": -2.09,
+          "floor": 0.0,
+          "ceiling": 31.0,
+          "notes": {
+            "fr": "Donald Trump Jr., testé dans plusieurs sondages primaires.",
+            "en": "Donald Trump Jr., polled in several primary surveys.",
+            "es": "Donald Trump Jr., sondeado en varias encuestas de primarias."
+          },
+          "rank": 3
+        },
+        {
+          "candidate_id": "rep_r_desantis",
+          "name": "Ron DeSantis",
+          "short_label": "DeSantis",
+          "lane": "maga",
+          "status": "testing",
+          "is_incumbent_family": true,
+          "share": 7.3,
+          "poll_count": 112,
+          "trend": -1.01,
+          "floor": 0.0,
+          "ceiling": 27.0,
+          "notes": {
+            "fr": "Gouverneur de Floride, candidat de 2024.",
+            "en": "Governor of Florida, 2024 candidate.",
+            "es": "Gobernador de Florida, candidato en 2024."
+          },
+          "rank": 4
+        },
+        {
+          "candidate_id": "rep_r_kennedy",
+          "name": "Robert F. Kennedy",
+          "short_label": "Kennedy",
+          "lane": "maga",
+          "status": "testing",
+          "is_incumbent_family": true,
+          "share": 3.95,
+          "poll_count": 56,
+          "trend": 0.08,
+          "floor": 0.0,
+          "ceiling": 10.2,
+          "notes": {
+            "fr": "Robert F. Kennedy Jr., secrétaire à la Santé.",
+            "en": "Robert F. Kennedy Jr., health secretary.",
+            "es": "Robert F. Kennedy Jr., secretario de Salud."
+          },
+          "rank": 5
+        },
+        {
+          "candidate_id": "rep_t_cruz",
+          "name": "Ted Cruz",
+          "short_label": "Cruz",
+          "lane": "maga",
+          "status": "testing",
+          "is_incumbent_family": true,
+          "share": 3.14,
+          "poll_count": 81,
+          "trend": 0.76,
+          "floor": 0.0,
+          "ceiling": 8.8,
+          "notes": {
+            "fr": "Sénateur du Texas.",
+            "en": "Senator from Texas.",
+            "es": "Senador de Texas."
+          },
+          "rank": 6
+        },
+        {
+          "candidate_id": "rep_n_haley",
+          "name": "Nikki Haley",
+          "short_label": "Haley",
+          "lane": "establishment",
+          "status": "testing",
+          "is_incumbent_family": true,
+          "share": 3.03,
+          "poll_count": 86,
+          "trend": -0.33,
+          "floor": 0.5,
+          "ceiling": 19.0,
+          "notes": {
+            "fr": "Ancienne ambassadrice à l'ONU, finaliste des primaires de 2024.",
+            "en": "Former UN ambassador, 2024 primary runner-up.",
+            "es": "Exembajadora ante la ONU, finalista de las primarias de 2024."
+          },
+          "rank": 7
+        },
+        {
+          "candidate_id": "rep_v_ramaswamy",
+          "name": "Vivek G. Ramaswamy",
+          "short_label": "Ramaswamy",
+          "lane": "maga",
+          "status": "testing",
+          "is_incumbent_family": true,
+          "share": 2.34,
+          "poll_count": 92,
+          "trend": 0.27,
+          "floor": 0.0,
+          "ceiling": 18.0,
+          "notes": {
+            "fr": "Entrepreneur, candidat de 2024.",
+            "en": "Entrepreneur, 2024 candidate.",
+            "es": "Empresario, candidato en 2024."
+          },
+          "rank": 8
+        },
+        {
+          "candidate_id": "rep_t_carlson",
+          "name": "Tucker Swanson McNear Carlson",
+          "short_label": "Carlson",
+          "lane": "maga",
+          "status": "testing",
+          "is_incumbent_family": true,
+          "share": 2.17,
+          "poll_count": 40,
+          "trend": -0.5,
+          "floor": 0.6,
+          "ceiling": 6.0,
+          "notes": {
+            "fr": "Animateur et figure médiatique conservatrice.",
+            "en": "Conservative media host and figure.",
+            "es": "Presentador y figura mediática conservadora."
+          },
+          "rank": 9
+        },
+        {
+          "candidate_id": "rep_r_paul",
+          "name": "Rand Paul",
+          "short_label": "Paul",
+          "lane": "unaligned",
+          "status": "testing",
+          "is_incumbent_family": true,
+          "share": 2.17,
+          "poll_count": 9,
+          "trend": 0.33,
+          "floor": 0.3,
+          "ceiling": 8.0,
+          "notes": {
+            "fr": "Testé dans les sondages primaires républicains ; pas de candidature déclarée.",
+            "en": "Polled in Republican primary surveys; no declared candidacy.",
+            "es": "Sondeado en las primarias republicanas; sin candidatura declarada."
+          },
+          "rank": 10
+        },
+        {
+          "candidate_id": "rep_m_pence",
+          "name": "Mike Pence",
+          "short_label": "Pence",
+          "lane": "unaligned",
+          "status": "testing",
+          "is_incumbent_family": true,
+          "share": 1.85,
+          "poll_count": 9,
+          "trend": null,
+          "floor": 1.0,
+          "ceiling": 4.0,
+          "notes": {
+            "fr": "Testé dans les sondages primaires républicains ; pas de candidature déclarée.",
+            "en": "Polled in Republican primary surveys; no declared candidacy.",
+            "es": "Sondeado en las primarias republicanas; sin candidatura declarada."
+          },
+          "rank": 11
+        },
+        {
+          "candidate_id": "rep_s_sanders",
+          "name": "Sarah Huckabee Sanders",
+          "short_label": "Sanders",
+          "lane": "unaligned",
+          "status": "testing",
+          "is_incumbent_family": true,
+          "share": 1.64,
+          "poll_count": 47,
+          "trend": 0.55,
+          "floor": 0.0,
+          "ceiling": 8.0,
+          "notes": {
+            "fr": "Testé dans les sondages primaires républicains ; pas de candidature déclarée.",
+            "en": "Polled in Republican primary surveys; no declared candidacy.",
+            "es": "Sondeado en las primarias republicanas; sin candidatura declarada."
+          },
+          "rank": 12
+        },
+        {
+          "candidate_id": "rep_t_massie",
+          "name": "Thomas Massie",
+          "short_label": "Massie",
+          "lane": "unaligned",
+          "status": "testing",
+          "is_incumbent_family": true,
+          "share": 1.55,
+          "poll_count": 10,
+          "trend": 0.72,
+          "floor": 0.59,
+          "ceiling": 2.5,
+          "notes": {
+            "fr": "Testé dans les sondages primaires républicains ; pas de candidature déclarée.",
+            "en": "Polled in Republican primary surveys; no declared candidacy.",
+            "es": "Sondeado en las primarias republicanas; sin candidatura declarada."
+          },
+          "rank": 13
+        },
+        {
+          "candidate_id": "rep_b_kemp",
+          "name": "Brian Kemp",
+          "short_label": "Kemp",
+          "lane": "unaligned",
+          "status": "testing",
+          "is_incumbent_family": true,
+          "share": 1.39,
+          "poll_count": 24,
+          "trend": 0.8,
+          "floor": 0.0,
+          "ceiling": 2.3,
+          "notes": {
+            "fr": "Testé dans les sondages primaires républicains ; pas de candidature déclarée.",
+            "en": "Polled in Republican primary surveys; no declared candidacy.",
+            "es": "Sondeado en las primarias republicanas; sin candidatura declarada."
+          },
+          "rank": 14
+        },
+        {
+          "candidate_id": "rep_t_gabbard",
+          "name": "Tulsi Gabbard",
+          "short_label": "Gabbard",
+          "lane": "unaligned",
+          "status": "testing",
+          "is_incumbent_family": true,
+          "share": 1.38,
+          "poll_count": 54,
+          "trend": 0.09,
+          "floor": 0.0,
+          "ceiling": 8.0,
+          "notes": {
+            "fr": "Testé dans les sondages primaires républicains ; pas de candidature déclarée.",
+            "en": "Polled in Republican primary surveys; no declared candidacy.",
+            "es": "Sondeado en las primarias republicanas; sin candidatura declarada."
+          },
+          "rank": 15
+        },
+        {
+          "candidate_id": "rep_g_abbott",
+          "name": "Greg Abbott",
+          "short_label": "Abbott",
+          "lane": "unaligned",
+          "status": "testing",
+          "is_incumbent_family": true,
+          "share": 1.35,
+          "poll_count": 31,
+          "trend": -0.54,
+          "floor": 0.0,
+          "ceiling": 3.0,
+          "notes": {
+            "fr": "Testé dans les sondages primaires républicains ; pas de candidature déclarée.",
+            "en": "Polled in Republican primary surveys; no declared candidacy.",
+            "es": "Sondeado en las primarias republicanas; sin candidatura declarada."
+          },
+          "rank": 16
+        },
+        {
+          "candidate_id": "rep_m_greene",
+          "name": "Marjorie Taylor Greene",
+          "short_label": "Greene",
+          "lane": "unaligned",
+          "status": "testing",
+          "is_incumbent_family": true,
+          "share": 1.21,
+          "poll_count": 15,
+          "trend": 0.45,
+          "floor": 0.0,
+          "ceiling": 3.2,
+          "notes": {
+            "fr": "Testé dans les sondages primaires républicains ; pas de candidature déclarée.",
+            "en": "Polled in Republican primary surveys; no declared candidacy.",
+            "es": "Sondeado en las primarias republicanas; sin candidatura declarada."
+          },
+          "rank": 17
+        },
+        {
+          "candidate_id": "rep_t_cotton",
+          "name": "Tom Cotton",
+          "short_label": "Cotton",
+          "lane": "unaligned",
+          "status": "testing",
+          "is_incumbent_family": true,
+          "share": 1.13,
+          "poll_count": 27,
+          "trend": -0.2,
+          "floor": 0.0,
+          "ceiling": 2.0,
+          "notes": {
+            "fr": "Testé dans les sondages primaires républicains ; pas de candidature déclarée.",
+            "en": "Polled in Republican primary surveys; no declared candidacy.",
+            "es": "Sondeado en las primarias republicanas; sin candidatura declarada."
+          },
+          "rank": 18
+        },
+        {
+          "candidate_id": "rep_j_hawley",
+          "name": "Josh Hawley",
+          "short_label": "Hawley",
+          "lane": "unaligned",
+          "status": "testing",
+          "is_incumbent_family": true,
+          "share": 1.01,
+          "poll_count": 39,
+          "trend": -0.62,
+          "floor": 0.0,
+          "ceiling": 4.0,
+          "notes": {
+            "fr": "Testé dans les sondages primaires républicains ; pas de candidature déclarée.",
+            "en": "Polled in Republican primary surveys; no declared candidacy.",
+            "es": "Sondeado en las primarias republicanas; sin candidatura declarada."
+          },
+          "rank": 19
+        },
+        {
+          "candidate_id": "rep_m_pompeo",
+          "name": "Mike Pompeo",
+          "short_label": "Pompeo",
+          "lane": "unaligned",
+          "status": "testing",
+          "is_incumbent_family": true,
+          "share": 1.0,
+          "poll_count": 2,
+          "trend": null,
+          "floor": 1.0,
+          "ceiling": 1.0,
+          "notes": {
+            "fr": "Testé dans les sondages primaires républicains ; pas de candidature déclarée.",
+            "en": "Polled in Republican primary surveys; no declared candidacy.",
+            "es": "Sondeado en las primarias republicanas; sin candidatura declarada."
+          },
+          "rank": 20
+        },
+        {
+          "candidate_id": "rep_b_donalds",
+          "name": "Byron Donalds",
+          "short_label": "Donalds",
+          "lane": "unaligned",
+          "status": "testing",
+          "is_incumbent_family": true,
+          "share": 1.0,
+          "poll_count": 2,
+          "trend": null,
+          "floor": 1.0,
+          "ceiling": 1.0,
+          "notes": {
+            "fr": "Testé dans les sondages primaires républicains ; pas de candidature déclarée.",
+            "en": "Polled in Republican primary surveys; no declared candidacy.",
+            "es": "Sondeado en las primarias republicanas; sin candidatura declarada."
+          },
+          "rank": 21
+        },
+        {
+          "candidate_id": "rep_r_scott",
+          "name": "Rick Scott",
+          "short_label": "Scott",
+          "lane": "unaligned",
+          "status": "testing",
+          "is_incumbent_family": true,
+          "share": 0.98,
+          "poll_count": 17,
+          "trend": 0.0,
+          "floor": 0.0,
+          "ceiling": 2.0,
+          "notes": {
+            "fr": "Testé dans les sondages primaires républicains ; pas de candidature déclarée.",
+            "en": "Polled in Republican primary surveys; no declared candidacy.",
+            "es": "Sondeado en las primarias republicanas; sin candidatura declarada."
+          },
+          "rank": 22
+        },
+        {
+          "candidate_id": "rep_s_bessent",
+          "name": "Scott Bessent",
+          "short_label": "Bessent",
+          "lane": "unaligned",
+          "status": "testing",
+          "is_incumbent_family": true,
+          "share": 0.91,
+          "poll_count": 9,
+          "trend": null,
+          "floor": 0.0,
+          "ceiling": 1.0,
+          "notes": {
+            "fr": "Testé dans les sondages primaires républicains ; pas de candidature déclarée.",
+            "en": "Polled in Republican primary surveys; no declared candidacy.",
+            "es": "Sondeado en las primarias republicanas; sin candidatura declarada."
+          },
+          "rank": 23
+        },
+        {
+          "candidate_id": "rep_t_scott",
+          "name": "Tim Scott",
+          "short_label": "Scott",
+          "lane": "unaligned",
+          "status": "testing",
+          "is_incumbent_family": true,
+          "share": 0.88,
+          "poll_count": 71,
+          "trend": -0.06,
+          "floor": 0.0,
+          "ceiling": 5.0,
+          "notes": {
+            "fr": "Testé dans les sondages primaires républicains ; pas de candidature déclarée.",
+            "en": "Polled in Republican primary surveys; no declared candidacy.",
+            "es": "Sondeado en las primarias republicanas; sin candidatura declarada."
+          },
+          "rank": 24
+        },
+        {
+          "candidate_id": "rep_g_youngkin",
+          "name": "Glenn Youngkin",
+          "short_label": "Youngkin",
+          "lane": "establishment",
+          "status": "testing",
+          "is_incumbent_family": true,
+          "share": 0.87,
+          "poll_count": 84,
+          "trend": 0.08,
+          "floor": 0.0,
+          "ceiling": 4.0,
+          "notes": {
+            "fr": "Gouverneur de Virginie.",
+            "en": "Governor of Virginia.",
+            "es": "Gobernador de Virginia."
+          },
+          "rank": 25
+        },
+        {
+          "candidate_id": "rep_s_bannon",
+          "name": "Steve Bannon",
+          "short_label": "Bannon",
+          "lane": "unaligned",
+          "status": "testing",
+          "is_incumbent_family": true,
+          "share": 0.73,
+          "poll_count": 36,
+          "trend": 0.19,
+          "floor": 0.0,
+          "ceiling": 2.0,
+          "notes": {
+            "fr": "Testé dans les sondages primaires républicains ; pas de candidature déclarée.",
+            "en": "Polled in Republican primary surveys; no declared candidacy.",
+            "es": "Sondeado en las primarias republicanas; sin candidatura declarada."
+          },
+          "rank": 26
+        },
+        {
+          "candidate_id": "rep_k_britt",
+          "name": "Katie Britt",
+          "short_label": "Britt",
+          "lane": "unaligned",
+          "status": "testing",
+          "is_incumbent_family": true,
+          "share": 0.73,
+          "poll_count": 9,
+          "trend": null,
+          "floor": 0.0,
+          "ceiling": 1.0,
+          "notes": {
+            "fr": "Testé dans les sondages primaires républicains ; pas de candidature déclarée.",
+            "en": "Polled in Republican primary surveys; no declared candidacy.",
+            "es": "Sondeado en las primarias republicanas; sin candidatura declarada."
+          },
+          "rank": 27
+        },
+        {
+          "candidate_id": "rep_k_noem",
+          "name": "Kristi Noem",
+          "short_label": "Noem",
+          "lane": "unaligned",
+          "status": "testing",
+          "is_incumbent_family": true,
+          "share": 0.35,
+          "poll_count": 60,
+          "trend": -0.67,
+          "floor": 0.0,
+          "ceiling": 8.0,
+          "notes": {
+            "fr": "Testé dans les sondages primaires républicains ; pas de candidature déclarée.",
+            "en": "Polled in Republican primary surveys; no declared candidacy.",
+            "es": "Sondeado en las primarias republicanas; sin candidatura declarada."
+          },
+          "rank": 28
+        },
+        {
+          "candidate_id": "rep_e_trump",
+          "name": "Eric Trump",
+          "short_label": "Trump",
+          "lane": "unaligned",
+          "status": "testing",
+          "is_incumbent_family": true,
+          "share": 0.24,
+          "poll_count": 2,
+          "trend": null,
+          "floor": 0.0,
+          "ceiling": 6.0,
+          "notes": {
+            "fr": "Testé dans les sondages primaires républicains ; pas de candidature déclarée.",
+            "en": "Polled in Republican primary surveys; no declared candidacy.",
+            "es": "Sondeado en las primarias republicanas; sin candidatura declarada."
+          },
+          "rank": 29
+        },
+        {
+          "candidate_id": "rep_s_cox",
+          "name": "Spencer J. Cox",
+          "short_label": "Cox",
+          "lane": "unaligned",
+          "status": "testing",
+          "is_incumbent_family": true,
+          "share": 0.17,
+          "poll_count": 6,
+          "trend": -0.5,
+          "floor": 0.0,
+          "ceiling": 1.0,
+          "notes": {
+            "fr": "Testé dans les sondages primaires républicains ; pas de candidature déclarée.",
+            "en": "Polled in Republican primary surveys; no declared candidacy.",
+            "es": "Sondeado en las primarias republicanas; sin candidatura declarada."
+          },
+          "rank": 30
+        },
+        {
+          "candidate_id": "rep_e_stefanik",
+          "name": "Elise M. Stefanik",
+          "short_label": "Stefanik",
+          "lane": "unaligned",
+          "status": "testing",
+          "is_incumbent_family": true,
+          "share": 0.13,
+          "poll_count": 33,
+          "trend": -0.13,
+          "floor": 0.0,
+          "ceiling": 1.0,
+          "notes": {
+            "fr": "Testé dans les sondages primaires républicains ; pas de candidature déclarée.",
+            "en": "Polled in Republican primary surveys; no declared candidacy.",
+            "es": "Sondeado en las primarias republicanas; sin candidatura declarada."
+          },
+          "rank": 31
+        },
+        {
+          "candidate_id": "rep_d_burgum",
+          "name": "Doug Burgum",
+          "short_label": "Burgum",
+          "lane": "unaligned",
+          "status": "testing",
+          "is_incumbent_family": true,
+          "share": 0.03,
+          "poll_count": 21,
+          "trend": 0.0,
+          "floor": 0.0,
+          "ceiling": 1.0,
+          "notes": {
+            "fr": "Testé dans les sondages primaires républicains ; pas de candidature déclarée.",
+            "en": "Polled in Republican primary surveys; no declared candidacy.",
+            "es": "Sondeado en las primarias republicanas; sin candidatura declarada."
+          },
+          "rank": 32
+        },
+        {
+          "candidate_id": "rep_l_hogan",
+          "name": "Larry Hogan",
+          "short_label": "Hogan",
+          "lane": "unaligned",
+          "status": "testing",
+          "is_incumbent_family": true,
+          "share": 0.0,
+          "poll_count": 17,
+          "trend": 0.0,
+          "floor": 0.0,
+          "ceiling": 1.0,
+          "notes": {
+            "fr": "Testé dans les sondages primaires républicains ; pas de candidature déclarée.",
+            "en": "Polled in Republican primary surveys; no declared candidacy.",
+            "es": "Sondeado en las primarias republicanas; sin candidatura declarada."
+          },
+          "rank": 33
+        },
+        {
+          "candidate_id": "rep_l_zeldin",
+          "name": "Lee M. Zeldin",
+          "short_label": "Zeldin",
+          "lane": "unaligned",
+          "status": "testing",
+          "is_incumbent_family": true,
+          "share": 0.0,
+          "poll_count": 2,
+          "trend": 0.0,
+          "floor": 0.0,
+          "ceiling": 0.0,
+          "notes": {
+            "fr": "Testé dans les sondages primaires républicains ; pas de candidature déclarée.",
+            "en": "Polled in Republican primary surveys; no declared candidacy.",
+            "es": "Sondeado en las primarias republicanas; sin candidatura declarada."
+          },
+          "rank": 34
+        }
+      ]
+    },
+    "early_states": {
+      "NH": {
+        "us_dem": {
+          "n_polls": 10,
+          "top": [
+            {
+              "candidate_id": "dem_p_buttigieg",
+              "short_label": "Buttigieg",
+              "share": 24.23,
+              "poll_count": 8
+            },
+            {
+              "candidate_id": "dem_a_ocasio_cortez",
+              "short_label": "Ocasio-Cortez",
+              "share": 19.08,
+              "poll_count": 7
+            },
+            {
+              "candidate_id": "dem_g_newsom",
+              "short_label": "Newsom",
+              "share": 9.72,
+              "poll_count": 8
+            },
+            {
+              "candidate_id": "dem_b_sanders",
+              "short_label": "Sanders",
+              "share": 5.97,
+              "poll_count": 4
+            },
+            {
+              "candidate_id": "dem_m_kelly",
+              "short_label": "Kelly",
+              "share": 5.95,
+              "poll_count": 5
+            }
+          ]
+        },
+        "us_rep": {
+          "n_polls": 9,
+          "top": [
+            {
+              "candidate_id": "rep_j_vance",
+              "short_label": "Vance",
+              "share": 38.23,
+              "poll_count": 9
+            },
+            {
+              "candidate_id": "rep_m_rubio",
+              "short_label": "Rubio",
+              "share": 24.29,
+              "poll_count": 9
+            },
+            {
+              "candidate_id": "rep_d_trump_jr",
+              "short_label": "Trump Jr.",
+              "share": 15.3,
+              "poll_count": 1
+            },
+            {
+              "candidate_id": "rep_n_haley",
+              "short_label": "Haley",
+              "share": 7.87,
+              "poll_count": 8
+            },
+            {
+              "candidate_id": "rep_r_desantis",
+              "short_label": "DeSantis",
+              "share": 6.1,
+              "poll_count": 9
+            }
+          ]
+        }
+      },
+      "SC": {
+        "us_rep": {
+          "n_polls": 1,
+          "top": [
+            {
+              "candidate_id": "rep_j_vance",
+              "short_label": "Vance",
+              "share": 46.0,
+              "poll_count": 1
+            },
+            {
+              "candidate_id": "rep_n_haley",
+              "short_label": "Haley",
+              "share": 12.0,
+              "poll_count": 1
+            },
+            {
+              "candidate_id": "rep_d_trump_jr",
+              "short_label": "Trump Jr.",
+              "share": 8.0,
+              "poll_count": 1
+            },
+            {
+              "candidate_id": "rep_r_desantis",
+              "short_label": "DeSantis",
+              "share": 6.0,
+              "poll_count": 1
+            },
+            {
+              "candidate_id": "rep_t_scott",
+              "short_label": "Scott",
+              "share": 5.0,
+              "poll_count": 1
+            }
+          ]
+        }
+      },
+      "NV": {
+        "us_dem": {
+          "n_polls": 1,
+          "top": [
+            {
+              "candidate_id": "dem_g_newsom",
+              "short_label": "Newsom",
+              "share": 36.9,
+              "poll_count": 1
+            },
+            {
+              "candidate_id": "dem_p_buttigieg",
+              "short_label": "Buttigieg",
+              "share": 18.9,
+              "poll_count": 1
+            },
+            {
+              "candidate_id": "dem_a_ocasio_cortez",
+              "short_label": "Ocasio-Cortez",
+              "share": 8.9,
+              "poll_count": 1
+            },
+            {
+              "candidate_id": "dem_k_harris",
+              "short_label": "Harris",
+              "share": 6.0,
+              "poll_count": 1
+            },
+            {
+              "candidate_id": "dem_a_beshear",
+              "short_label": "Beshear",
+              "share": 3.6,
+              "poll_count": 1
+            }
+          ]
+        },
+        "us_rep": {
+          "n_polls": 1,
+          "top": [
+            {
+              "candidate_id": "rep_j_vance",
+              "short_label": "Vance",
+              "share": 63.3,
+              "poll_count": 1
+            },
+            {
+              "candidate_id": "rep_m_rubio",
+              "short_label": "Rubio",
+              "share": 6.7,
+              "poll_count": 1
+            },
+            {
+              "candidate_id": "rep_r_desantis",
+              "short_label": "DeSantis",
+              "share": 5.8,
+              "poll_count": 1
+            },
+            {
+              "candidate_id": "rep_v_ramaswamy",
+              "short_label": "Ramaswamy",
+              "share": 3.6,
+              "poll_count": 1
+            },
+            {
+              "candidate_id": "rep_r_kennedy",
+              "short_label": "Kennedy",
+              "share": 2.2,
+              "poll_count": 1
+            }
+          ]
+        }
+      }
+    },
+    "scenarios": [
+      {
+        "scenario_id": "dem_full_field",
+        "party": "us_dem",
+        "featured": true,
+        "display_order": 1,
+        "label": {
+          "en": "Democrats — open field",
+          "fr": "Démocrates — champ ouvert",
+          "es": "Demócratas — campo abierto"
+        },
+        "description": "Champ complet des principaux prétendants démocrates sondés.",
+        "leader": "Harris",
+        "field": [
+          {
+            "candidate_id": "dem_k_harris",
+            "short_label": "Harris",
+            "name": "Kamala Harris",
+            "lane": "establishment",
+            "raw_share": 27.45,
+            "renorm_share": 33.31
+          },
+          {
+            "candidate_id": "dem_g_newsom",
+            "short_label": "Newsom",
+            "name": "Gavin Newsom",
+            "lane": "establishment",
+            "raw_share": 17.58,
+            "renorm_share": 21.33
+          },
+          {
+            "candidate_id": "dem_p_buttigieg",
+            "short_label": "Buttigieg",
+            "name": "Pete Buttigieg",
+            "lane": "moderate",
+            "raw_share": 11.52,
+            "renorm_share": 13.98
+          },
+          {
+            "candidate_id": "dem_a_ocasio_cortez",
+            "short_label": "Ocasio-Cortez",
+            "name": "Alexandria Ocasio-Cortez",
+            "lane": "progressive",
+            "raw_share": 10.25,
+            "renorm_share": 12.44
+          },
+          {
+            "candidate_id": "dem_j_shapiro",
+            "short_label": "Shapiro",
+            "name": "Josh Shapiro",
+            "lane": "moderate",
+            "raw_share": 6.13,
+            "renorm_share": 7.44
+          },
+          {
+            "candidate_id": "dem_c_booker",
+            "short_label": "Booker",
+            "name": "Cory A. Booker",
+            "lane": "establishment",
+            "raw_share": 3.66,
+            "renorm_share": 4.44
+          },
+          {
+            "candidate_id": "dem_j_pritzker",
+            "short_label": "Pritzker",
+            "name": "J.B. Pritzker",
+            "lane": "establishment",
+            "raw_share": 3.53,
+            "renorm_share": 4.28
+          },
+          {
+            "candidate_id": "dem_g_whitmer",
+            "short_label": "Whitmer",
+            "name": "Gretchen Whitmer",
+            "lane": "moderate",
+            "raw_share": 2.28,
+            "renorm_share": 2.77
+          }
+        ]
+      },
+      {
+        "scenario_id": "dem_no_harris",
+        "party": "us_dem",
+        "featured": true,
+        "display_order": 2,
+        "label": {
+          "en": "Democrats — without Harris",
+          "fr": "Démocrates — sans Harris",
+          "es": "Demócratas — sin Harris"
+        },
+        "description": "Reclassement si l'ancienne candidate de 2024 ne se présente pas.",
+        "leader": "Newsom",
+        "field": [
+          {
+            "candidate_id": "dem_g_newsom",
+            "short_label": "Newsom",
+            "name": "Gavin Newsom",
+            "lane": "establishment",
+            "raw_share": 17.58,
+            "renorm_share": 31.99
+          },
+          {
+            "candidate_id": "dem_p_buttigieg",
+            "short_label": "Buttigieg",
+            "name": "Pete Buttigieg",
+            "lane": "moderate",
+            "raw_share": 11.52,
+            "renorm_share": 20.96
+          },
+          {
+            "candidate_id": "dem_a_ocasio_cortez",
+            "short_label": "Ocasio-Cortez",
+            "name": "Alexandria Ocasio-Cortez",
+            "lane": "progressive",
+            "raw_share": 10.25,
+            "renorm_share": 18.65
+          },
+          {
+            "candidate_id": "dem_j_shapiro",
+            "short_label": "Shapiro",
+            "name": "Josh Shapiro",
+            "lane": "moderate",
+            "raw_share": 6.13,
+            "renorm_share": 11.16
+          },
+          {
+            "candidate_id": "dem_c_booker",
+            "short_label": "Booker",
+            "name": "Cory A. Booker",
+            "lane": "establishment",
+            "raw_share": 3.66,
+            "renorm_share": 6.66
+          },
+          {
+            "candidate_id": "dem_j_pritzker",
+            "short_label": "Pritzker",
+            "name": "J.B. Pritzker",
+            "lane": "establishment",
+            "raw_share": 3.53,
+            "renorm_share": 6.42
+          },
+          {
+            "candidate_id": "dem_g_whitmer",
+            "short_label": "Whitmer",
+            "name": "Gretchen Whitmer",
+            "lane": "moderate",
+            "raw_share": 2.28,
+            "renorm_share": 4.15
+          }
+        ]
+      },
+      {
+        "scenario_id": "rep_full_field",
+        "party": "us_rep",
+        "featured": true,
+        "display_order": 3,
+        "label": {
+          "en": "Republicans — open field",
+          "fr": "Républicains — champ ouvert",
+          "es": "Republicanos — campo abierto"
+        },
+        "description": "Champ complet des principaux prétendants républicains sondés.",
+        "leader": "Vance",
+        "field": [
+          {
+            "candidate_id": "rep_j_vance",
+            "short_label": "Vance",
+            "name": "JD Vance",
+            "lane": "maga",
+            "raw_share": 40.4,
+            "renorm_share": 51.57
+          },
+          {
+            "candidate_id": "rep_m_rubio",
+            "short_label": "Rubio",
+            "name": "Marco Rubio",
+            "lane": "establishment",
+            "raw_share": 20.38,
+            "renorm_share": 26.01
+          },
+          {
+            "candidate_id": "rep_r_desantis",
+            "short_label": "DeSantis",
+            "name": "Ron DeSantis",
+            "lane": "maga",
+            "raw_share": 7.3,
+            "renorm_share": 9.32
+          },
+          {
+            "candidate_id": "rep_t_cruz",
+            "short_label": "Cruz",
+            "name": "Ted Cruz",
+            "lane": "maga",
+            "raw_share": 3.14,
+            "renorm_share": 4.01
+          },
+          {
+            "candidate_id": "rep_n_haley",
+            "short_label": "Haley",
+            "name": "Nikki Haley",
+            "lane": "establishment",
+            "raw_share": 3.03,
+            "renorm_share": 3.87
+          },
+          {
+            "candidate_id": "rep_v_ramaswamy",
+            "short_label": "Ramaswamy",
+            "name": "Vivek G. Ramaswamy",
+            "lane": "maga",
+            "raw_share": 2.34,
+            "renorm_share": 2.99
+          },
+          {
+            "candidate_id": "rep_t_scott",
+            "short_label": "Scott",
+            "name": "Tim Scott",
+            "lane": "unaligned",
+            "raw_share": 0.88,
+            "renorm_share": 1.12
+          },
+          {
+            "candidate_id": "rep_g_youngkin",
+            "short_label": "Youngkin",
+            "name": "Glenn Youngkin",
+            "lane": "establishment",
+            "raw_share": 0.87,
+            "renorm_share": 1.11
+          }
+        ]
+      },
+      {
+        "scenario_id": "rep_no_vance",
+        "party": "us_rep",
+        "featured": true,
+        "display_order": 4,
+        "label": {
+          "en": "Republicans — without Vance",
+          "fr": "Républicains — sans Vance",
+          "es": "Republicanos — sin Vance"
+        },
+        "description": "Reclassement si le vice-président en exercice ne se présente pas.",
+        "leader": "Rubio",
+        "field": [
+          {
+            "candidate_id": "rep_m_rubio",
+            "short_label": "Rubio",
+            "name": "Marco Rubio",
+            "lane": "establishment",
+            "raw_share": 20.38,
+            "renorm_share": 53.72
+          },
+          {
+            "candidate_id": "rep_r_desantis",
+            "short_label": "DeSantis",
+            "name": "Ron DeSantis",
+            "lane": "maga",
+            "raw_share": 7.3,
+            "renorm_share": 19.24
+          },
+          {
+            "candidate_id": "rep_t_cruz",
+            "short_label": "Cruz",
+            "name": "Ted Cruz",
+            "lane": "maga",
+            "raw_share": 3.14,
+            "renorm_share": 8.28
+          },
+          {
+            "candidate_id": "rep_n_haley",
+            "short_label": "Haley",
+            "name": "Nikki Haley",
+            "lane": "establishment",
+            "raw_share": 3.03,
+            "renorm_share": 7.99
+          },
+          {
+            "candidate_id": "rep_v_ramaswamy",
+            "short_label": "Ramaswamy",
+            "name": "Vivek G. Ramaswamy",
+            "lane": "maga",
+            "raw_share": 2.34,
+            "renorm_share": 6.17
+          },
+          {
+            "candidate_id": "rep_t_scott",
+            "short_label": "Scott",
+            "name": "Tim Scott",
+            "lane": "unaligned",
+            "raw_share": 0.88,
+            "renorm_share": 2.32
+          },
+          {
+            "candidate_id": "rep_g_youngkin",
+            "short_label": "Youngkin",
+            "name": "Glenn Youngkin",
+            "lane": "establishment",
+            "raw_share": 0.87,
+            "renorm_share": 2.29
+          }
+        ]
+      }
+    ]
+  },
+  "electoral_college": {
+    "status": "awaiting_general_polls",
+    "total": 538,
+    "majority": 270,
+    "n_units": 56,
+    "units": [
+      {
+        "unit_id": "AL",
+        "state": "AL",
+        "name_en": "Alabama",
+        "name_fr": "Alabama",
+        "kind": "statewide",
+        "ec_votes": 9,
+        "allocation": "winner_take_all",
+        "baseline_2024_winner": "us_rep"
+      },
+      {
+        "unit_id": "AK",
+        "state": "AK",
+        "name_en": "Alaska",
+        "name_fr": "Alaska",
+        "kind": "statewide",
+        "ec_votes": 3,
+        "allocation": "winner_take_all",
+        "baseline_2024_winner": "us_rep"
+      },
+      {
+        "unit_id": "AZ",
+        "state": "AZ",
+        "name_en": "Arizona",
+        "name_fr": "Arizona",
+        "kind": "statewide",
+        "ec_votes": 11,
+        "allocation": "winner_take_all",
+        "baseline_2024_winner": "us_rep"
+      },
+      {
+        "unit_id": "AR",
+        "state": "AR",
+        "name_en": "Arkansas",
+        "name_fr": "Arkansas",
+        "kind": "statewide",
+        "ec_votes": 6,
+        "allocation": "winner_take_all",
+        "baseline_2024_winner": "us_rep"
+      },
+      {
+        "unit_id": "CA",
+        "state": "CA",
+        "name_en": "California",
+        "name_fr": "Californie",
+        "kind": "statewide",
+        "ec_votes": 54,
+        "allocation": "winner_take_all",
+        "baseline_2024_winner": "us_dem"
+      },
+      {
+        "unit_id": "CO",
+        "state": "CO",
+        "name_en": "Colorado",
+        "name_fr": "Colorado",
+        "kind": "statewide",
+        "ec_votes": 10,
+        "allocation": "winner_take_all",
+        "baseline_2024_winner": "us_dem"
+      },
+      {
+        "unit_id": "CT",
+        "state": "CT",
+        "name_en": "Connecticut",
+        "name_fr": "Connecticut",
+        "kind": "statewide",
+        "ec_votes": 7,
+        "allocation": "winner_take_all",
+        "baseline_2024_winner": "us_dem"
+      },
+      {
+        "unit_id": "DE",
+        "state": "DE",
+        "name_en": "Delaware",
+        "name_fr": "Delaware",
+        "kind": "statewide",
+        "ec_votes": 3,
+        "allocation": "winner_take_all",
+        "baseline_2024_winner": "us_dem"
+      },
+      {
+        "unit_id": "DC",
+        "state": "DC",
+        "name_en": "District of Columbia",
+        "name_fr": "District de Columbia",
+        "kind": "statewide",
+        "ec_votes": 3,
+        "allocation": "winner_take_all",
+        "baseline_2024_winner": "us_dem"
+      },
+      {
+        "unit_id": "FL",
+        "state": "FL",
+        "name_en": "Florida",
+        "name_fr": "Floride",
+        "kind": "statewide",
+        "ec_votes": 30,
+        "allocation": "winner_take_all",
+        "baseline_2024_winner": "us_rep"
+      },
+      {
+        "unit_id": "GA",
+        "state": "GA",
+        "name_en": "Georgia",
+        "name_fr": "Géorgie",
+        "kind": "statewide",
+        "ec_votes": 16,
+        "allocation": "winner_take_all",
+        "baseline_2024_winner": "us_rep"
+      },
+      {
+        "unit_id": "HI",
+        "state": "HI",
+        "name_en": "Hawaii",
+        "name_fr": "Hawaï",
+        "kind": "statewide",
+        "ec_votes": 4,
+        "allocation": "winner_take_all",
+        "baseline_2024_winner": "us_dem"
+      },
+      {
+        "unit_id": "ID",
+        "state": "ID",
+        "name_en": "Idaho",
+        "name_fr": "Idaho",
+        "kind": "statewide",
+        "ec_votes": 4,
+        "allocation": "winner_take_all",
+        "baseline_2024_winner": "us_rep"
+      },
+      {
+        "unit_id": "IL",
+        "state": "IL",
+        "name_en": "Illinois",
+        "name_fr": "Illinois",
+        "kind": "statewide",
+        "ec_votes": 19,
+        "allocation": "winner_take_all",
+        "baseline_2024_winner": "us_dem"
+      },
+      {
+        "unit_id": "IN",
+        "state": "IN",
+        "name_en": "Indiana",
+        "name_fr": "Indiana",
+        "kind": "statewide",
+        "ec_votes": 11,
+        "allocation": "winner_take_all",
+        "baseline_2024_winner": "us_rep"
+      },
+      {
+        "unit_id": "IA",
+        "state": "IA",
+        "name_en": "Iowa",
+        "name_fr": "Iowa",
+        "kind": "statewide",
+        "ec_votes": 6,
+        "allocation": "winner_take_all",
+        "baseline_2024_winner": "us_rep"
+      },
+      {
+        "unit_id": "KS",
+        "state": "KS",
+        "name_en": "Kansas",
+        "name_fr": "Kansas",
+        "kind": "statewide",
+        "ec_votes": 6,
+        "allocation": "winner_take_all",
+        "baseline_2024_winner": "us_rep"
+      },
+      {
+        "unit_id": "KY",
+        "state": "KY",
+        "name_en": "Kentucky",
+        "name_fr": "Kentucky",
+        "kind": "statewide",
+        "ec_votes": 8,
+        "allocation": "winner_take_all",
+        "baseline_2024_winner": "us_rep"
+      },
+      {
+        "unit_id": "LA",
+        "state": "LA",
+        "name_en": "Louisiana",
+        "name_fr": "Louisiane",
+        "kind": "statewide",
+        "ec_votes": 8,
+        "allocation": "winner_take_all",
+        "baseline_2024_winner": "us_rep"
+      },
+      {
+        "unit_id": "ME-AL",
+        "state": "ME",
+        "name_en": "Maine (at-large)",
+        "name_fr": "Maine (bloc général)",
+        "kind": "at_large",
+        "ec_votes": 2,
+        "allocation": "winner_take_all",
+        "baseline_2024_winner": "us_dem"
+      },
+      {
+        "unit_id": "ME-1",
+        "state": "ME",
+        "name_en": "Maine CD-1",
+        "name_fr": "Maine district 1",
+        "kind": "district",
+        "ec_votes": 1,
+        "allocation": "winner_take_all",
+        "baseline_2024_winner": "us_dem"
+      },
+      {
+        "unit_id": "ME-2",
+        "state": "ME",
+        "name_en": "Maine CD-2",
+        "name_fr": "Maine district 2",
+        "kind": "district",
+        "ec_votes": 1,
+        "allocation": "winner_take_all",
+        "baseline_2024_winner": "us_rep"
+      },
+      {
+        "unit_id": "MD",
+        "state": "MD",
+        "name_en": "Maryland",
+        "name_fr": "Maryland",
+        "kind": "statewide",
+        "ec_votes": 10,
+        "allocation": "winner_take_all",
+        "baseline_2024_winner": "us_dem"
+      },
+      {
+        "unit_id": "MA",
+        "state": "MA",
+        "name_en": "Massachusetts",
+        "name_fr": "Massachusetts",
+        "kind": "statewide",
+        "ec_votes": 11,
+        "allocation": "winner_take_all",
+        "baseline_2024_winner": "us_dem"
+      },
+      {
+        "unit_id": "MI",
+        "state": "MI",
+        "name_en": "Michigan",
+        "name_fr": "Michigan",
+        "kind": "statewide",
+        "ec_votes": 15,
+        "allocation": "winner_take_all",
+        "baseline_2024_winner": "us_rep"
+      },
+      {
+        "unit_id": "MN",
+        "state": "MN",
+        "name_en": "Minnesota",
+        "name_fr": "Minnesota",
+        "kind": "statewide",
+        "ec_votes": 10,
+        "allocation": "winner_take_all",
+        "baseline_2024_winner": "us_dem"
+      },
+      {
+        "unit_id": "MS",
+        "state": "MS",
+        "name_en": "Mississippi",
+        "name_fr": "Mississippi",
+        "kind": "statewide",
+        "ec_votes": 6,
+        "allocation": "winner_take_all",
+        "baseline_2024_winner": "us_rep"
+      },
+      {
+        "unit_id": "MO",
+        "state": "MO",
+        "name_en": "Missouri",
+        "name_fr": "Missouri",
+        "kind": "statewide",
+        "ec_votes": 10,
+        "allocation": "winner_take_all",
+        "baseline_2024_winner": "us_rep"
+      },
+      {
+        "unit_id": "MT",
+        "state": "MT",
+        "name_en": "Montana",
+        "name_fr": "Montana",
+        "kind": "statewide",
+        "ec_votes": 4,
+        "allocation": "winner_take_all",
+        "baseline_2024_winner": "us_rep"
+      },
+      {
+        "unit_id": "NE-AL",
+        "state": "NE",
+        "name_en": "Nebraska (at-large)",
+        "name_fr": "Nebraska (bloc général)",
+        "kind": "at_large",
+        "ec_votes": 2,
+        "allocation": "winner_take_all",
+        "baseline_2024_winner": "us_rep"
+      },
+      {
+        "unit_id": "NE-1",
+        "state": "NE",
+        "name_en": "Nebraska CD-1",
+        "name_fr": "Nebraska district 1",
+        "kind": "district",
+        "ec_votes": 1,
+        "allocation": "winner_take_all",
+        "baseline_2024_winner": "us_rep"
+      },
+      {
+        "unit_id": "NE-2",
+        "state": "NE",
+        "name_en": "Nebraska CD-2",
+        "name_fr": "Nebraska district 2",
+        "kind": "district",
+        "ec_votes": 1,
+        "allocation": "winner_take_all",
+        "baseline_2024_winner": "us_dem"
+      },
+      {
+        "unit_id": "NE-3",
+        "state": "NE",
+        "name_en": "Nebraska CD-3",
+        "name_fr": "Nebraska district 3",
+        "kind": "district",
+        "ec_votes": 1,
+        "allocation": "winner_take_all",
+        "baseline_2024_winner": "us_rep"
+      },
+      {
+        "unit_id": "NV",
+        "state": "NV",
+        "name_en": "Nevada",
+        "name_fr": "Nevada",
+        "kind": "statewide",
+        "ec_votes": 6,
+        "allocation": "winner_take_all",
+        "baseline_2024_winner": "us_rep"
+      },
+      {
+        "unit_id": "NH",
+        "state": "NH",
+        "name_en": "New Hampshire",
+        "name_fr": "New Hampshire",
+        "kind": "statewide",
+        "ec_votes": 4,
+        "allocation": "winner_take_all",
+        "baseline_2024_winner": "us_dem"
+      },
+      {
+        "unit_id": "NJ",
+        "state": "NJ",
+        "name_en": "New Jersey",
+        "name_fr": "New Jersey",
+        "kind": "statewide",
+        "ec_votes": 14,
+        "allocation": "winner_take_all",
+        "baseline_2024_winner": "us_dem"
+      },
+      {
+        "unit_id": "NM",
+        "state": "NM",
+        "name_en": "New Mexico",
+        "name_fr": "Nouveau-Mexique",
+        "kind": "statewide",
+        "ec_votes": 5,
+        "allocation": "winner_take_all",
+        "baseline_2024_winner": "us_dem"
+      },
+      {
+        "unit_id": "NY",
+        "state": "NY",
+        "name_en": "New York",
+        "name_fr": "New York",
+        "kind": "statewide",
+        "ec_votes": 28,
+        "allocation": "winner_take_all",
+        "baseline_2024_winner": "us_dem"
+      },
+      {
+        "unit_id": "NC",
+        "state": "NC",
+        "name_en": "North Carolina",
+        "name_fr": "Caroline du Nord",
+        "kind": "statewide",
+        "ec_votes": 16,
+        "allocation": "winner_take_all",
+        "baseline_2024_winner": "us_rep"
+      },
+      {
+        "unit_id": "ND",
+        "state": "ND",
+        "name_en": "North Dakota",
+        "name_fr": "Dakota du Nord",
+        "kind": "statewide",
+        "ec_votes": 3,
+        "allocation": "winner_take_all",
+        "baseline_2024_winner": "us_rep"
+      },
+      {
+        "unit_id": "OH",
+        "state": "OH",
+        "name_en": "Ohio",
+        "name_fr": "Ohio",
+        "kind": "statewide",
+        "ec_votes": 17,
+        "allocation": "winner_take_all",
+        "baseline_2024_winner": "us_rep"
+      },
+      {
+        "unit_id": "OK",
+        "state": "OK",
+        "name_en": "Oklahoma",
+        "name_fr": "Oklahoma",
+        "kind": "statewide",
+        "ec_votes": 7,
+        "allocation": "winner_take_all",
+        "baseline_2024_winner": "us_rep"
+      },
+      {
+        "unit_id": "OR",
+        "state": "OR",
+        "name_en": "Oregon",
+        "name_fr": "Oregon",
+        "kind": "statewide",
+        "ec_votes": 8,
+        "allocation": "winner_take_all",
+        "baseline_2024_winner": "us_dem"
+      },
+      {
+        "unit_id": "PA",
+        "state": "PA",
+        "name_en": "Pennsylvania",
+        "name_fr": "Pennsylvanie",
+        "kind": "statewide",
+        "ec_votes": 19,
+        "allocation": "winner_take_all",
+        "baseline_2024_winner": "us_rep"
+      },
+      {
+        "unit_id": "RI",
+        "state": "RI",
+        "name_en": "Rhode Island",
+        "name_fr": "Rhode Island",
+        "kind": "statewide",
+        "ec_votes": 4,
+        "allocation": "winner_take_all",
+        "baseline_2024_winner": "us_dem"
+      },
+      {
+        "unit_id": "SC",
+        "state": "SC",
+        "name_en": "South Carolina",
+        "name_fr": "Caroline du Sud",
+        "kind": "statewide",
+        "ec_votes": 9,
+        "allocation": "winner_take_all",
+        "baseline_2024_winner": "us_rep"
+      },
+      {
+        "unit_id": "SD",
+        "state": "SD",
+        "name_en": "South Dakota",
+        "name_fr": "Dakota du Sud",
+        "kind": "statewide",
+        "ec_votes": 3,
+        "allocation": "winner_take_all",
+        "baseline_2024_winner": "us_rep"
+      },
+      {
+        "unit_id": "TN",
+        "state": "TN",
+        "name_en": "Tennessee",
+        "name_fr": "Tennessee",
+        "kind": "statewide",
+        "ec_votes": 11,
+        "allocation": "winner_take_all",
+        "baseline_2024_winner": "us_rep"
+      },
+      {
+        "unit_id": "TX",
+        "state": "TX",
+        "name_en": "Texas",
+        "name_fr": "Texas",
+        "kind": "statewide",
+        "ec_votes": 40,
+        "allocation": "winner_take_all",
+        "baseline_2024_winner": "us_rep"
+      },
+      {
+        "unit_id": "UT",
+        "state": "UT",
+        "name_en": "Utah",
+        "name_fr": "Utah",
+        "kind": "statewide",
+        "ec_votes": 6,
+        "allocation": "winner_take_all",
+        "baseline_2024_winner": "us_rep"
+      },
+      {
+        "unit_id": "VT",
+        "state": "VT",
+        "name_en": "Vermont",
+        "name_fr": "Vermont",
+        "kind": "statewide",
+        "ec_votes": 3,
+        "allocation": "winner_take_all",
+        "baseline_2024_winner": "us_dem"
+      },
+      {
+        "unit_id": "VA",
+        "state": "VA",
+        "name_en": "Virginia",
+        "name_fr": "Virginie",
+        "kind": "statewide",
+        "ec_votes": 13,
+        "allocation": "winner_take_all",
+        "baseline_2024_winner": "us_dem"
+      },
+      {
+        "unit_id": "WA",
+        "state": "WA",
+        "name_en": "Washington",
+        "name_fr": "Washington",
+        "kind": "statewide",
+        "ec_votes": 12,
+        "allocation": "winner_take_all",
+        "baseline_2024_winner": "us_dem"
+      },
+      {
+        "unit_id": "WV",
+        "state": "WV",
+        "name_en": "West Virginia",
+        "name_fr": "Virginie-Occidentale",
+        "kind": "statewide",
+        "ec_votes": 4,
+        "allocation": "winner_take_all",
+        "baseline_2024_winner": "us_rep"
+      },
+      {
+        "unit_id": "WI",
+        "state": "WI",
+        "name_en": "Wisconsin",
+        "name_fr": "Wisconsin",
+        "kind": "statewide",
+        "ec_votes": 10,
+        "allocation": "winner_take_all",
+        "baseline_2024_winner": "us_rep"
+      },
+      {
+        "unit_id": "WY",
+        "state": "WY",
+        "name_en": "Wyoming",
+        "name_fr": "Wyoming",
+        "kind": "statewide",
+        "ec_votes": 3,
+        "allocation": "winner_take_all",
+        "baseline_2024_winner": "us_rep"
+      }
+    ],
+    "baseline_2024": {
+      "year": 2024,
+      "kind": "reference_baseline",
+      "totals": {
+        "us_rep": 312,
+        "us_dem": 226
+      },
+      "winner": "us_rep",
+      "note_fr": "Résultat certifié 2024 — référence, PAS une projection 2028.",
+      "note_en": "Certified 2024 result — reference baseline, NOT a 2028 projection.",
+      "note_es": "Resultado certificado de 2024 — referencia, NO una proyección de 2028."
+    },
+    "projection": null,
+    "note": "Cadre livré (Phase C). Carte de référence 2024 affichée ; aucune projection d'affrontement 2028 tant que les sondages ne s'accumulent pas (attendu à partir de 2027)."
+  },
+  "previous_runs": []
+}
