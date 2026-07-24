@@ -1,0 +1,312 @@
+---
+// Desk présidentiel US 2028 — composant partagé fr/en/es (pattern FranceDesk :
+// logique + markup + style une seule fois, langue en prop). Produit actuel :
+// « primaire invisible » (agrégat pondéré qualité par parti) + carte du collège
+// électoral (référence 2024). La projection d'affrontement 2028 viendra en
+// Phase C quand les sondages s'accumuleront.
+import JurisdictionNav from './JurisdictionNav.astro';
+import KeepDigging from './KeepDigging.astro';
+import GooglePreferredSource from './GooglePreferredSource.astro';
+import PolymarketEmbed from './PolymarketEmbed.astro';
+import UsPrimaryStandings from '../islands/UsPrimaryStandings.tsx';
+import UsElectoralMap from '../islands/UsElectoralMap.tsx';
+import latest from '../../web_data/us-president/latest.json';
+import {
+  partyVar,
+  fmtPct1,
+  methodHref,
+  type UsPresPayload,
+  type Locale,
+} from '../lib/us-pres';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+
+const data = latest as unknown as UsPresPayload;
+const meta = data.meta;
+const dem = data.primary.dem;
+const rep = data.primary.rep;
+const scenarios = data.primary.scenarios;
+const earlyStates = data.primary.early_states;
+const ec = data.electoral_college;
+
+const runDate = meta.run_date;
+const nPolls = meta.n_primary_polls;
+const demLead = dem.standings[0];
+const repLead = rep.standings[0];
+
+const EARLY_ORDER = ['IA', 'NH', 'SC', 'NV'];
+const earlyList = EARLY_ORDER.filter((s) => earlyStates[s]);
+
+const dateLocale = locale === 'fr' ? 'fr-FR' : locale === 'es' ? 'es-ES' : 'en-CA';
+const electionLong = new Date(`${meta.election_date}T00:00:00`).toLocaleDateString(dateLocale, {
+  year: 'numeric', month: 'long', day: 'numeric',
+});
+
+// ── Prose SEO auto-générée depuis le run (comme le desk France/Québec) ────────
+const intro =
+  locale === 'fr'
+    ? [
+        `Nous sommes à mi-2026 : la présidentielle américaine de 2028 en est à sa « primaire invisible » — la course aux soutiens, aux financements et à la notoriété, bien avant le moindre vote. D'après notre agrégat pondéré qualité de ${nPolls} sondages nationaux de primaire (run du ${runDate}), ${repLead?.name} domine le champ républicain à ${fmtPct1(repLead?.share ?? 0, locale)}, tandis que ${demLead?.name} mène un champ démocrate bien plus ouvert à ${fmtPct1(demLead?.share ?? 0, locale)}.`,
+        `La carte du collège électoral ci-dessous montre le résultat certifié de 2024 (Trump 312 / Harris 226) comme point de référence — PAS une projection 2028. Le modèle d'affrontement général se branchera quand les sondages Démocrate-contre-Républicain s'accumuleront, à partir de 2027.`,
+      ]
+    : locale === 'es'
+    ? [
+        `Estamos a mediados de 2026: la elección presidencial estadounidense de 2028 está en su «primaria invisible» — la carrera por apoyos, financiación y notoriedad, mucho antes de cualquier voto. Según nuestra media ponderada por calidad de ${nPolls} sondeos nacionales de primarias (ejecución del ${runDate}), ${repLead?.name} domina el campo republicano con ${fmtPct1(repLead?.share ?? 0, locale)}, mientras que ${demLead?.name} encabeza un campo demócrata mucho más abierto con ${fmtPct1(demLead?.share ?? 0, locale)}.`,
+        `El mapa del colegio electoral que sigue muestra el resultado certificado de 2024 (Trump 312 / Harris 226) como referencia — NO una proyección de 2028. El modelo de enfrentamiento general se activará cuando se acumulen los sondeos demócrata-contra-republicano, a partir de 2027.`,
+      ]
+    : [
+        `It is mid-2026: the 2028 U.S. presidential race is in its "invisible primary" — the contest for endorsements, money and name recognition, long before a single vote. Based on our quality-weighted aggregate of ${nPolls} national primary polls (run of ${runDate}), ${repLead?.name} dominates the Republican field at ${fmtPct1(repLead?.share ?? 0, locale)}, while ${demLead?.name} leads a far more open Democratic field at ${fmtPct1(demLead?.share ?? 0, locale)}.`,
+        `The electoral-college map below shows the certified 2024 result (Trump 312 / Harris 226) as a reference point — NOT a 2028 projection. The general-election model switches on once Democrat-versus-Republican matchup polling accumulates, from 2027.`,
+      ];
+
+const C = {
+  fr: {
+    kicker: 'Présidentielle 2028 · Primaire invisible',
+    titleA: 'La Maison-Blanche se joue dès ',
+    titleEm: '2028',
+    dek: 'Bien avant le premier vote, la course se mesure aux soutiens et aux sondages de primaire. Voici où en sont les champs démocrate et républicain — et la carte du collège électoral.',
+    runOf: `Run du ${runDate}`,
+    pollsAgg: `${nPolls} sondages de primaire`,
+    weighting: 'Pondération qualité',
+    standingsTitle: 'Primaires 2028 — où en sont les champs',
+    scenariosTitle: 'Scénarios de champ',
+    scenariosHelp: 'Et si une figure dominante ne se présentait pas ? Parts renormalisées parmi les candidats actifs du scénario.',
+    leads: 'en tête',
+    earlyTitle: 'Premiers États',
+    earlyHelp: 'Iowa, New Hampshire, Caroline du Sud, Nevada — les premières échéances du calendrier.',
+    ecTitle: 'Le collège électoral',
+    marketTitle: 'Marché — présidentielle US 2028',
+    marketSub: 'Probabilités implicites des traders, repère indépendant du forecast Vote-Scope.',
+    ctaMethod: 'Méthodologie',
+    kdEyebrow: 'Continuer à creuser',
+    kdTitle: 'La projection continue ailleurs.',
+    kdBody: 'Comparez les autres instruments Vote-Scope en attendant l’ouverture de la campagne 2028.',
+    kdLinks: [
+      { href: '/fr/us/', label: 'Bureau États-Unis', detail: 'Chambre, Sénat, index' },
+      { href: '/fr/us/indexes/lame-duck/', label: 'Index canard boiteux', detail: 'Pression pré-électorale' },
+      { href: '/fr/france/', label: 'Présidentielle France', detail: 'Modèle par scénarios' },
+      { href: '/fr/', label: 'Tous les bureaux', detail: 'Tous les instruments' },
+    ],
+  },
+  en: {
+    kicker: '2028 Presidential · Invisible primary',
+    titleA: 'The White House race begins in ',
+    titleEm: '2028',
+    dek: 'Long before the first vote, the race is measured in endorsements and primary polling. Here is where the Democratic and Republican fields stand — and the electoral-college map.',
+    runOf: `Run of ${runDate}`,
+    pollsAgg: `${nPolls} primary polls`,
+    weighting: 'Quality-weighted',
+    standingsTitle: '2028 primaries — where the fields stand',
+    scenariosTitle: 'Field scenarios',
+    scenariosHelp: 'What if a dominant figure doesn’t run? Shares renormalized among the scenario’s active candidates.',
+    leads: 'leads',
+    earlyTitle: 'Early states',
+    earlyHelp: 'Iowa, New Hampshire, South Carolina, Nevada — the first contests on the calendar.',
+    ecTitle: 'The electoral college',
+    marketTitle: 'Market — 2028 U.S. presidential',
+    marketSub: 'Trader-implied probabilities, an independent benchmark beside the Vote-Scope forecast.',
+    ctaMethod: 'Methodology',
+    kdEyebrow: 'Keep digging',
+    kdTitle: 'The projection keeps going.',
+    kdBody: 'Compare the other Vote-Scope instruments while the 2028 campaign gets going.',
+    kdLinks: [
+      { href: '/en/us/', label: 'United States desk', detail: 'House, Senate, indexes' },
+      { href: '/en/us/indexes/lame-duck/', label: 'Lame-Duck Index', detail: 'Pre-election drag' },
+      { href: '/en/france/', label: 'French presidential', detail: 'Scenario model' },
+      { href: '/en/', label: 'All desks', detail: 'Every instrument' },
+    ],
+  },
+  es: {
+    kicker: 'Presidencial 2028 · Primaria invisible',
+    titleA: 'La Casa Blanca se decide desde ',
+    titleEm: '2028',
+    dek: 'Mucho antes del primer voto, la carrera se mide en apoyos y sondeos de primarias. Aquí está la situación de los campos demócrata y republicano — y el mapa del colegio electoral.',
+    runOf: `Ejecución del ${runDate}`,
+    pollsAgg: `${nPolls} sondeos de primarias`,
+    weighting: 'Ponderado por calidad',
+    standingsTitle: 'Primarias 2028 — cómo están los campos',
+    scenariosTitle: 'Escenarios de campo',
+    scenariosHelp: '¿Y si una figura dominante no se presenta? Cuotas renormalizadas entre los candidatos activos del escenario.',
+    leads: 'encabeza',
+    earlyTitle: 'Primeros estados',
+    earlyHelp: 'Iowa, Nueva Hampshire, Carolina del Sur, Nevada — las primeras citas del calendario.',
+    ecTitle: 'El colegio electoral',
+    marketTitle: 'Mercado — presidencial EE. UU. 2028',
+    marketSub: 'Probabilidades implícitas de los operadores, referencia independiente junto al pronóstico de Vote-Scope.',
+    ctaMethod: 'Metodología',
+    kdEyebrow: 'Seguir explorando',
+    kdTitle: 'La proyección continúa.',
+    kdBody: 'Compare los demás instrumentos de Vote-Scope mientras arranca la campaña de 2028.',
+    kdLinks: [
+      { href: '/es/us/', label: 'Mesa de EE. UU.', detail: 'Cámara, Senado, índices' },
+      { href: '/es/us/indexes/lame-duck/', label: 'Índice Lame-Duck', detail: 'Presión preelectoral' },
+      { href: '/es/france/', label: 'Presidencial de Francia', detail: 'Modelo por escenarios' },
+      { href: '/es/', label: 'Todas las mesas', detail: 'Todos los instrumentos' },
+    ],
+  },
+}[locale];
+
+const stateNameByAbbr: Record<string, string> = {};
+for (const u of ec.units) stateNameByAbbr[u.state] = locale === 'fr' ? u.name_fr : u.name_en;
+---
+
+<JurisdictionNav webKey="us-president" lang={locale} active="projection" />
+
+<article class="up-desk">
+  <header class="up-hero container">
+    <p class="up-kicker">{C.kicker}</p>
+    <h1 class="up-title">{C.titleA}<em>{C.titleEm}</em>.</h1>
+    <p class="up-dek">{C.dek}</p>
+    <div class="up-meta">
+      <span>{C.runOf}</span><span aria-hidden="true">·</span>
+      <span>{C.pollsAgg}</span><span aria-hidden="true">·</span>
+      <span>{C.weighting}</span>
+    </div>
+    <div class="up-hero-cards">
+      {[{ b: rep, lead: repLead }, { b: dem, lead: demLead }].map(({ b, lead }) => (
+        <div class="up-hero-card" style={`border-left:3px solid ${partyVar(b.party)}`}>
+          <span class="up-hc-party">{locale === 'fr' ? b.label_fr : locale === 'es' ? b.label_es : b.label_en}</span>
+          <span class="up-hc-lead">{lead?.name} <b>{fmtPct1(lead?.share ?? 0, locale)}</b></span>
+          <span class="up-hc-sub">{C.leads}</span>
+        </div>
+      ))}
+    </div>
+    <div class="up-cta-row">
+      <a class="up-cta" href={methodHref(locale)}>{C.ctaMethod} →</a>
+    </div>
+  </header>
+
+  <section class="up-section container up-intro">
+    {intro.map((p) => <p>{p}</p>)}
+  </section>
+
+  <section class="up-section container">
+    <h2 class="up-section-title">{C.standingsTitle}</h2>
+    <div class="up-card">
+      <UsPrimaryStandings dem={dem} rep={rep} locale={locale} client:visible />
+    </div>
+  </section>
+
+  <section class="up-section container">
+    <h2 class="up-section-title">{C.scenariosTitle}</h2>
+    <p class="up-section-help">{C.scenariosHelp}</p>
+    <div class="up-scenarios">
+      {scenarios.map((s) => (
+        <div class="up-scen" style={`border-top:3px solid ${partyVar(s.party)}`}>
+          <p class="up-scen-label">{s.label[locale]}</p>
+          <ol class="up-scen-field">
+            {s.field.slice(0, 5).map((f, i) => (
+              <li>
+                <span class="up-scen-rank">{i + 1}</span>
+                <span class="up-scen-name">{f.short_label}</span>
+                <span class="up-scen-track"><span class="up-scen-fill" style={`width:${f.renorm_share}%;background:${partyVar(s.party)}`} /></span>
+                <span class="up-scen-pct">{fmtPct1(f.renorm_share, locale)}</span>
+              </li>
+            ))}
+          </ol>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  {earlyList.length > 0 && (
+    <section class="up-section container">
+      <h2 class="up-section-title">{C.earlyTitle}</h2>
+      <p class="up-section-help">{C.earlyHelp}</p>
+      <div class="up-early">
+        {earlyList.map((st) => (
+          <div class="up-early-card">
+            <p class="up-early-state">{stateNameByAbbr[st] ?? st}</p>
+            {(['us_rep', 'us_dem'] as const).map((party) =>
+              earlyStates[st][party] ? (
+                <div class="up-early-party">
+                  <span class="up-sw" style={`background:${partyVar(party)}`} />
+                  <span class="up-early-top">{earlyStates[st][party].top[0]?.short_label}</span>
+                  <span class="up-early-pct">{fmtPct1(earlyStates[st][party].top[0]?.share ?? 0, locale)}</span>
+                </div>
+              ) : null
+            )}
+          </div>
+        ))}
+      </div>
+    </section>
+  )}
+
+  <section class="up-section container">
+    <h2 class="up-section-title">{C.ecTitle}</h2>
+    <div class="up-card">
+      <UsElectoralMap frame={ec} locale={locale} client:visible />
+    </div>
+  </section>
+
+  <section class="up-section container" aria-label={C.marketTitle}>
+    <PolymarketEmbed
+      slug="will-gavin-newsom-win-the-2028-us-presidential-election"
+      lang={locale}
+      title={C.marketTitle}
+      subtitle={C.marketSub}
+    />
+  </section>
+
+  <section class="up-section container">
+    <GooglePreferredSource locale={locale} />
+  </section>
+
+  <section class="up-section container">
+    <KeepDigging eyebrow={C.kdEyebrow} title={C.kdTitle} body={C.kdBody} links={C.kdLinks} />
+  </section>
+</article>
+
+<style>
+  .up-desk {
+    --dem: #1f77d0;
+    --rep: #c62828;
+    padding-block: 64px 96px;
+  }
+  :global(:root[data-theme='dark']) .up-desk {
+    --dem: #4a9be0;
+    --rep: #e05a5a;
+  }
+  .up-hero { max-width: 1080px; padding-bottom: 40px; border-bottom: 1px solid var(--rule); }
+  .up-kicker { margin: 0 0 16px; font-family: var(--mono); font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-3); }
+  .up-title { margin: 0 0 18px; font-family: var(--serif); font-size: clamp(44px, 6.5vw, 78px); font-weight: 420; letter-spacing: -0.02em; line-height: 1; }
+  .up-title em { font-style: italic; color: var(--ink-2); }
+  .up-dek { max-width: 680px; margin: 0 0 22px; color: var(--ink-2); font-size: 17px; line-height: 1.6; }
+  .up-meta { display: flex; flex-wrap: wrap; gap: 8px 14px; font-family: var(--mono); font-size: 12px; color: var(--ink-2); }
+  .up-meta span[aria-hidden] { color: var(--rule); }
+  .up-hero-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-top: 26px; }
+  .up-hero-card { display: flex; flex-direction: column; gap: 4px; border: 1px solid var(--rule); border-radius: 6px; background: var(--card); padding: 14px 16px; }
+  .up-hc-party { font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-3); }
+  .up-hc-lead { font-family: var(--serif); font-size: 22px; color: var(--ink); }
+  .up-hc-lead b { color: var(--ink); }
+  .up-hc-sub { font-family: var(--mono); font-size: 11px; color: var(--ink-3); }
+  .up-cta-row { display: flex; gap: 10px; margin-top: 24px; }
+  .up-cta { display: inline-flex; align-items: center; padding: 9px 16px; border: 1px solid var(--rule); border-radius: 999px; font-family: var(--mono); font-size: 12px; letter-spacing: 0.04em; color: var(--ink-2); text-decoration: none; transition: border-color 0.15s, color 0.15s; }
+  .up-cta:hover { border-color: var(--ink); color: var(--ink); }
+  .up-section { max-width: 1080px; margin-top: 56px; }
+  .up-intro { max-width: 760px; }
+  .up-intro p { margin: 0 0 0.85rem; color: var(--ink-2); font-size: 1.02rem; line-height: 1.7; }
+  .up-section-title { margin: 0 0 12px; font-family: var(--serif); font-size: clamp(26px, 3vw, 38px); font-weight: 430; letter-spacing: -0.01em; line-height: 1.05; }
+  .up-section-help { max-width: 640px; margin: 0 0 22px; color: var(--ink-3); font-family: var(--mono); font-size: 12px; line-height: 1.6; }
+  .up-card { border: 1px solid var(--rule); border-radius: 8px; background: var(--card); padding: 20px; }
+  .up-scenarios { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
+  .up-scen { border: 1px solid var(--rule); border-radius: 8px; background: var(--card); padding: 16px; }
+  .up-scen-label { margin: 0 0 12px; font-family: var(--serif); font-size: 16px; color: var(--ink); }
+  .up-scen-field { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+  .up-scen-field li { display: flex; align-items: center; gap: 8px; }
+  .up-scen-rank { font-family: var(--mono); font-size: 10px; color: var(--ink-3); width: 14px; }
+  .up-scen-name { font-family: var(--mono); font-size: 12px; color: var(--ink-2); width: 84px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .up-scen-track { flex: 1; height: 7px; border-radius: 4px; background: var(--rule); overflow: hidden; }
+  .up-scen-fill { display: block; height: 100%; border-radius: 4px; }
+  .up-scen-pct { font-family: var(--mono); font-size: 11px; color: var(--ink); width: 42px; text-align: right; }
+  .up-early { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
+  .up-early-card { border: 1px solid var(--rule); border-radius: 8px; background: var(--card); padding: 14px; }
+  .up-early-state { margin: 0 0 10px; font-family: var(--serif); font-size: 15px; color: var(--ink); }
+  .up-early-party { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
+  .up-early-top { font-family: var(--mono); font-size: 12px; color: var(--ink-2); }
+  .up-early-pct { margin-left: auto; font-family: var(--mono); font-size: 12px; color: var(--ink); }
+  .up-sw { width: 11px; height: 11px; border-radius: 3px; flex: none; }
+</style>

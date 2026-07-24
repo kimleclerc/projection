@@ -75,6 +75,17 @@ export const JURISDICTION_NAV: JurisdictionNavEntry[] = [
     },
   },
   {
+    // Présidentielle US — desk « primaire invisible » (agrégat par parti) +
+    // carte du collège électoral. Pas de projection par sièges : projection
+    // uniquement pour l'instant.
+    webKey: 'us-president', langs: ['en', 'fr', 'es'], group: GROUP_US,
+    label: { en: 'President', fr: 'Présidentielle', es: 'Presidencial' },
+    base: { en: '/en/us/president', fr: '/fr/us/presidentielle', es: '/es/us/presidencial' },
+    sections: {
+      projection: { seg: SEG_NONE },
+    },
+  },
+  {
     webKey: 'federal', langs: ['en', 'fr', 'es'], group: GROUP_CA,
     label: { en: 'Federal', fr: 'Fédéral', es: 'Federal' },
     base: { en: '/en/canada/federal', fr: '/fr/canada/federal', es: '/es/canada/federal' },
