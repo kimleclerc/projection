@@ -23,8 +23,8 @@ const specials = Object.values(specialElections);
 const deltaSign = ldi.delta_7d >= 0 ? '+' : '';
 const presRep = (presData as any).primary.rep;
 const presDem = (presData as any).primary.dem;
-const presRepLead = presRep.standings[0];
-const presDemLead = presDem.standings[0];
+const presRepLead = presRep.standings.find((s: any) => s.status !== 'ineligible') ?? presRep.standings[0];
+const presDemLead = presDem.standings.find((s: any) => s.status !== 'ineligible') ?? presDem.standings[0];
 ---
 
 <EditorialLayout

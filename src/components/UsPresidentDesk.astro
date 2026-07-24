@@ -34,8 +34,11 @@ const ec = data.electoral_college;
 
 const runDate = meta.run_date;
 const nPolls = meta.n_primary_polls;
-const demLead = dem.standings[0];
-const repLead = rep.standings[0];
+// Le « favori » affiché (hero + prose) est le premier candidat ÉLIGIBLE : Trump
+// est inclus dans la liste (drapeau inéligible + note 3e mandat) mais ne coiffe
+// pas le titre à la place du vrai favori du champ, Vance. (Directive Kim.)
+const demLead = dem.standings.find((s) => s.status !== 'ineligible') ?? dem.standings[0];
+const repLead = rep.standings.find((s) => s.status !== 'ineligible') ?? rep.standings[0];
 
 const EARLY_ORDER = ['IA', 'NH', 'SC', 'NV'];
 const earlyList = EARLY_ORDER.filter((s) => earlyStates[s]);

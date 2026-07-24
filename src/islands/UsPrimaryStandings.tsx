@@ -23,6 +23,8 @@ const COPY = {
     undecided: 'Indécis / autre',
     help: 'Moyenne pondérée qualité des sondages nationaux de primaire (récence, taille, effet-maison, décote intra-firme, cap de concentration). Part par candidat parmi les sondages qui le testent — pas un champ renormalisé.',
     lead: 'en tête',
+    inelig: 'Le 22e amendement interdit un troisième mandat à Trump, mais les sondeurs testent l’hypothèse trop souvent pour l’omettre — son chiffre est la moyenne des seuls sondages qui l’incluent (donc non comparable au reste du champ). Voir la',
+    ineligLink: 'proposition de troisième mandat',
   },
   en: {
     dem: 'Democrats', rep: 'Republicans',
@@ -30,6 +32,8 @@ const COPY = {
     undecided: 'Undecided / other',
     help: 'Quality-weighted average of national primary polls (recency, sample size, house effect, intra-firm decay, concentration cap). Per-candidate share across the polls that test them — not a renormalized field.',
     lead: 'leads',
+    inelig: 'The 22nd Amendment bars Trump from a third term, but pollsters test the scenario too often to omit — his figure is the average of only the polls that include him (so not comparable to the rest of the field). See the',
+    ineligLink: 'third-term proposal',
   },
   es: {
     dem: 'Demócratas', rep: 'Republicanos',
@@ -37,8 +41,12 @@ const COPY = {
     undecided: 'Indecisos / otro',
     help: 'Media ponderada por calidad de los sondeos nacionales de primarias (recencia, tamaño, efecto casa, descuento intrafirma, tope de concentración). Cuota por candidato entre los sondeos que lo miden — no un campo renormalizado.',
     lead: 'encabeza',
+    inelig: 'La 22.ª enmienda prohíbe a Trump un tercer mandato, pero los sondeos miden el escenario demasiado a menudo como para omitirlo — su cifra es la media de solo los sondeos que lo incluyen (no comparable con el resto del campo). Ver la',
+    ineligLink: 'propuesta de tercer mandato',
   },
 };
+
+const THIRD_TERM_URL = 'https://en.wikipedia.org/wiki/Donald_Trump_third_term_proposal';
 
 function Trend({ v }: { v: number | null }) {
   if (v === null || Math.abs(v) < 0.15) return <span class="ups-trend ups-flat">→</span>;
@@ -83,7 +91,9 @@ export default function UsPrimaryStandings({ dem, rep, locale, maxRows = 12 }: P
               <span class="ups-name">{r.name}</span>
               <span class="ups-lane">{laneLabel(r.lane, locale)}</span>
               <span class={`ups-status is-${r.status}`}>{statusLabel(r.status, locale)}</span>
-              <span class="ups-share">{fmtPct1(r.share, locale)}</span>
+              <span class="ups-share">
+                {fmtPct1(r.share, locale)}{r.status === 'ineligible' && <sup class="ups-dagger">‡</sup>}
+              </span>
               <Trend v={r.trend} />
             </div>
             <div class="ups-track">
@@ -97,6 +107,13 @@ export default function UsPrimaryStandings({ dem, rep, locale, maxRows = 12 }: P
       {block.undecided_other != null && (
         <p class="ups-undecided">
           {t.undecided}: <b>{fmtPct1(block.undecided_other, locale)}</b>
+        </p>
+      )}
+
+      {rows.some((r) => r.status === 'ineligible') && (
+        <p class="ups-caveat">
+          <span class="ups-caveat-mark">‡</span> {t.inelig}{' '}
+          <a href={THIRD_TERM_URL} target="_blank" rel="noopener noreferrer">{t.ineligLink}</a>.
         </p>
       )}
 
@@ -117,6 +134,13 @@ export default function UsPrimaryStandings({ dem, rep, locale, maxRows = 12 }: P
         .ups-lane { font-family:var(--mono); font-size:9px; letter-spacing:.05em; text-transform:uppercase; color:var(--ink-3); }
         .ups-status { font-family:var(--mono); font-size:9px; letter-spacing:.05em; text-transform:uppercase; padding:2px 7px; border-radius:999px; border:1px solid var(--rule); color:var(--ink-2); }
         .ups-status.is-probable { background:var(--blue-tint); border-color:var(--blue-soft); color:var(--blue); }
+        .ups-status.is-ineligible { background:rgba(217,119,6,.12); border-color:rgba(217,119,6,.45); color:#b45309; }
+        :global(:root[data-theme='dark']) .ups-status.is-ineligible { color:#f0b072; }
+        .ups-dagger { color:#b45309; font-size:9px; margin-left:1px; }
+        :global(:root[data-theme='dark']) .ups-dagger { color:#f0b072; }
+        .ups-caveat { font-family:var(--mono); font-size:11px; line-height:1.6; color:var(--ink-3); margin-top:14px; padding-top:12px; border-top:1px solid var(--rule); max-width:640px; }
+        .ups-caveat-mark { color:#b45309; font-weight:700; }
+        .ups-caveat a { color:var(--ink-2); text-decoration:underline; }
         .ups-share { margin-left:auto; font-family:var(--mono); font-size:14px; font-weight:600; color:var(--ink); }
         .ups-trend { font-family:var(--mono); font-size:11px; min-width:44px; text-align:right; }
         .ups-up { color:#2e7d32; } .ups-down { color:#c62828; } .ups-flat { color:var(--ink-3); }
