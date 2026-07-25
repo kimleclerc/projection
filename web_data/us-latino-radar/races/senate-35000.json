@@ -1,0 +1,615 @@
+{
+  "office": "senate",
+  "riding_id": "35000",
+  "slug": "new-mexico",
+  "name": "New Mexico",
+  "state": "NM",
+  "rank": 10,
+  "score": 46.1,
+  "eligibility": {
+    "eligible": true,
+    "latino_cvap_threshold": true,
+    "verified_candidate": true,
+    "mobilization_signal": false
+  },
+  "projection": {
+    "winner": "us_dem",
+    "p_winner": 0.9956,
+    "win_prob": {
+      "us_dem": 0.9956,
+      "us_rep": 0.0044,
+      "us_oth": 0.0
+    },
+    "vote_mean": {
+      "us_dem": 57.15,
+      "us_rep": 40.2,
+      "us_oth": 2.66
+    },
+    "mean_margin": 16.97,
+    "rating": {
+      "code": "solid_dem",
+      "side": "dem",
+      "label_en": "Solid Democrat",
+      "label_fr": "Démocrate solide"
+    },
+    "current_party": "us_dem"
+  },
+  "movement_7d": {
+    "delta_probability_points": 0.1,
+    "comparison_date": "2026-07-14"
+  },
+  "components": [
+    {
+      "key": "latino_electorate",
+      "labels": {
+        "fr": "Électorat latino",
+        "en": "Latino electorate",
+        "es": "Electorado latino"
+      },
+      "score": 85.3,
+      "weight": 20,
+      "raw_value": 42.673,
+      "unit": "percent of CVAP",
+      "source": {
+        "label": "U.S. Census CVAP 2020-2024 ACS",
+        "url": "https://www2.census.gov/programs-surveys/decennial/rdo/datasets/2024/2024-cvap/CVAP_2020-2024_ACS_csv_files.zip",
+        "as_of": "2026-07-24",
+        "confidence": "official"
+      },
+      "detail": {
+        "latino_cvap": 662817,
+        "cvap_total": 1553239
+      }
+    },
+    {
+      "key": "competitiveness",
+      "labels": {
+        "fr": "Compétitivité",
+        "en": "Competitiveness",
+        "es": "Competitividad"
+      },
+      "score": 0.9,
+      "weight": 20,
+      "raw_value": 99.56,
+      "unit": "favorite probability",
+      "source": {
+        "label": "Vote-Scope model",
+        "url": "/web_data/us-senate/latest.json",
+        "as_of": "2026-07-22",
+        "confidence": "model"
+      },
+      "detail": {}
+    },
+    {
+      "key": "flip_probability",
+      "labels": {
+        "fr": "Probabilité de basculement",
+        "en": "Flip probability",
+        "es": "Probabilidad de cambio"
+      },
+      "score": 0.4,
+      "weight": 15,
+      "raw_value": 0.43999999999999595,
+      "unit": "percent",
+      "source": {
+        "label": "Vote-Scope model",
+        "url": "/web_data/us-senate/latest.json",
+        "as_of": "2026-07-22",
+        "confidence": "model"
+      },
+      "detail": {
+        "current_party": "us_dem"
+      }
+    },
+    {
+      "key": "candidate_representation",
+      "labels": {
+        "fr": "Représentation des candidats",
+        "en": "Candidate representation",
+        "es": "Representación de candidatos"
+      },
+      "score": 100.0,
+      "weight": 15,
+      "raw_value": 1,
+      "unit": "verified candidates",
+      "source": {
+        "label": "U.S. House History — Hispanic-American members of the 119th Congress",
+        "url": "https://history.house.gov/Exhibitions-and-Publications/HAIC/Historical-Data/Hispanic-American-Representatives%2C-Senators%2C-Delegates%2C-and-Resident-Commissioners-by-Congress/",
+        "as_of": "2026-07-24",
+        "confidence": "reviewed"
+      },
+      "detail": {}
+    },
+    {
+      "key": "control_importance",
+      "labels": {
+        "fr": "Importance du contrôle",
+        "en": "Control importance",
+        "es": "Importancia para el control"
+      },
+      "score": 100.0,
+      "weight": 10,
+      "raw_value": 100.0,
+      "unit": "normalized pivotality",
+      "source": {
+        "label": "Vote-Scope model",
+        "url": "/web_data/us-senate/latest.json",
+        "as_of": "2026-07-22",
+        "confidence": "model"
+      },
+      "detail": {
+        "method": "counterfactual Monte Carlo from published race probabilities"
+      }
+    },
+    {
+      "key": "recent_dynamics",
+      "labels": {
+        "fr": "Dynamique récente",
+        "en": "Recent movement",
+        "es": "Dinámica reciente"
+      },
+      "score": 0.7,
+      "weight": 10,
+      "raw_value": 0.1,
+      "unit": "probability points over at least 7 days",
+      "source": {
+        "label": "Vote-Scope model",
+        "url": "/web_data/us-senate/latest.json",
+        "as_of": "2026-07-22",
+        "confidence": "model"
+      },
+      "detail": {
+        "comparison_date": "2026-07-14"
+      }
+    },
+    {
+      "key": "mobilization",
+      "labels": {
+        "fr": "Mobilisation probable",
+        "en": "Likely mobilization",
+        "es": "Movilización probable"
+      },
+      "score": 37.4,
+      "weight": 10,
+      "raw_value": 62.25,
+      "unit": "public proxy score",
+      "source": {
+        "label": "U.S. Census CPS Voting Supplement 2024",
+        "url": "https://www2.census.gov/programs-surveys/cps/tables/p20/587/vote04b_2024.xlsx",
+        "as_of": "2026-07-24",
+        "confidence": "official; state estimate"
+      },
+      "detail": {
+        "public_proxy": 62.25,
+        "editorial_signal": 0.0,
+        "latino_turnout_state_pct": "59.9",
+        "latino_cvap_growth_state_pct": "-2.09"
+      }
+    }
+  ],
+  "reason_keys": [
+    "latino_electorate",
+    "candidate_representation"
+  ],
+  "candidates": [
+    {
+      "fec_id": "S0NM00058",
+      "name": "Ben Ray Lujan",
+      "party": "us_dem",
+      "party_labels": {
+        "fr": "Démocrate",
+        "en": "Democratic",
+        "es": "Demócrata"
+      },
+      "incumbency": "I",
+      "filing_status": "C",
+      "ballot_status": "qualified_general",
+      "ballot_source": {
+        "url": "https://electionresults.sos.nm.gov/resultsSW.aspx?map=CTY&type=FED",
+        "label": "New Mexico Secretary of State — certified 2026 primary results",
+        "certified_on": "2026-06-23",
+        "confidence": "official"
+      },
+      "latino_verified": true,
+      "identity_source": {
+        "url": "https://history.house.gov/Exhibitions-and-Publications/HAIC/Historical-Data/Hispanic-American-Representatives%2C-Senators%2C-Delegates%2C-and-Resident-Commissioners-by-Congress/",
+        "label": "U.S. House History — Hispanic-American members of the 119th Congress",
+        "verified_on": "2026-07-24",
+        "verified_by": "Vote-Scope"
+      }
+    },
+    {
+      "fec_id": "S6NM01145",
+      "name": "Matt Dodson",
+      "party": "us_dem",
+      "party_labels": {
+        "fr": "Démocrate",
+        "en": "Democratic",
+        "es": "Demócrata"
+      },
+      "incumbency": "C",
+      "filing_status": "C",
+      "ballot_status": "fec_filing",
+      "ballot_source": null,
+      "latino_verified": false,
+      "identity_source": null
+    },
+    {
+      "fec_id": "S6NM01186",
+      "name": "Larry E Marker",
+      "party": "us_rep",
+      "party_labels": {
+        "fr": "Républicain",
+        "en": "Republican",
+        "es": "Republicano"
+      },
+      "incumbency": "C",
+      "filing_status": "C",
+      "ballot_status": "qualified_general",
+      "ballot_source": {
+        "url": "https://electionresults.sos.nm.gov/resultsSW.aspx?map=CTY&type=FED",
+        "label": "New Mexico Secretary of State — certified 2026 primary results",
+        "certified_on": "2026-06-23",
+        "confidence": "official"
+      },
+      "latino_verified": false,
+      "identity_source": null
+    }
+  ],
+  "history": [
+    {
+      "date": "2026-03-24",
+      "vote_mean": {
+        "us_dem": 56.74,
+        "us_rep": 40.61,
+        "us_oth": 2.65
+      },
+      "win_prob": {
+        "us_dem": 0.9921,
+        "us_rep": 0.0079
+      }
+    },
+    {
+      "date": "2026-03-25",
+      "vote_mean": {
+        "us_dem": 56.8,
+        "us_rep": 40.55,
+        "us_oth": 2.65
+      },
+      "win_prob": {
+        "us_dem": 0.9928,
+        "us_rep": 0.0072
+      }
+    },
+    {
+      "date": "2026-03-27",
+      "vote_mean": {
+        "us_dem": 56.74,
+        "us_rep": 40.61,
+        "us_oth": 2.65
+      },
+      "win_prob": {
+        "us_dem": 0.9921,
+        "us_rep": 0.0079
+      }
+    },
+    {
+      "date": "2026-03-28",
+      "vote_mean": {
+        "us_dem": 56.74,
+        "us_rep": 40.61,
+        "us_oth": 2.65
+      },
+      "win_prob": {
+        "us_dem": 0.9921,
+        "us_rep": 0.0079
+      }
+    },
+    {
+      "date": "2026-03-30",
+      "vote_mean": {
+        "us_dem": 56.74,
+        "us_rep": 40.61,
+        "us_oth": 2.65
+      },
+      "win_prob": {
+        "us_dem": 0.9921,
+        "us_rep": 0.0079
+      }
+    },
+    {
+      "date": "2026-03-31",
+      "vote_mean": {
+        "us_dem": 45.25,
+        "us_rep": 47.54,
+        "us_oth": 6.11
+      },
+      "win_prob": {
+        "us_dem": 0.3795,
+        "us_rep": 0.6205
+      }
+    },
+    {
+      "date": "2026-04-01",
+      "vote_mean": {
+        "us_dem": 56.74,
+        "us_rep": 40.61,
+        "us_oth": 2.65
+      },
+      "win_prob": {
+        "us_dem": 0.9921,
+        "us_rep": 0.0079
+      }
+    },
+    {
+      "date": "2026-04-02",
+      "vote_mean": {
+        "us_dem": 56.74,
+        "us_rep": 40.61,
+        "us_oth": 2.65
+      },
+      "win_prob": {
+        "us_dem": 0.9921,
+        "us_rep": 0.0079
+      }
+    },
+    {
+      "date": "2026-04-06",
+      "vote_mean": {
+        "us_dem": 56.74,
+        "us_rep": 40.61,
+        "us_oth": 2.65
+      },
+      "win_prob": {
+        "us_dem": 0.9921,
+        "us_rep": 0.0079
+      }
+    },
+    {
+      "date": "2026-04-10",
+      "vote_mean": {
+        "us_dem": 56.74,
+        "us_rep": 40.61,
+        "us_oth": 2.65
+      },
+      "win_prob": {
+        "us_dem": 0.9921,
+        "us_rep": 0.0079
+      }
+    },
+    {
+      "date": "2026-04-16",
+      "vote_mean": {
+        "us_dem": 52.42,
+        "us_rep": 44.93,
+        "us_oth": 2.65
+      },
+      "win_prob": {
+        "us_dem": 0.8762,
+        "us_rep": 0.1238
+      }
+    },
+    {
+      "date": "2026-04-21",
+      "vote_mean": {
+        "us_dem": 56.74,
+        "us_rep": 40.61,
+        "us_oth": 2.66
+      },
+      "win_prob": {
+        "us_dem": 0.9931,
+        "us_rep": 0.0069
+      }
+    },
+    {
+      "date": "2026-04-29",
+      "vote_mean": {
+        "us_dem": 56.74,
+        "us_rep": 40.61,
+        "us_oth": 2.65
+      },
+      "win_prob": {
+        "us_dem": 0.9921,
+        "us_rep": 0.0079
+      }
+    },
+    {
+      "date": "2026-05-12",
+      "vote_mean": {
+        "us_dem": 56.74,
+        "us_rep": 40.61,
+        "us_oth": 2.65
+      },
+      "win_prob": {
+        "us_dem": 0.9921,
+        "us_rep": 0.0079
+      }
+    },
+    {
+      "date": "2026-05-19",
+      "vote_mean": {
+        "us_dem": 56.74,
+        "us_rep": 40.61,
+        "us_oth": 2.65
+      },
+      "win_prob": {
+        "us_dem": 0.9921,
+        "us_rep": 0.0079
+      }
+    },
+    {
+      "date": "2026-05-26",
+      "vote_mean": {
+        "us_dem": 56.74,
+        "us_rep": 40.61,
+        "us_oth": 2.65
+      },
+      "win_prob": {
+        "us_dem": 0.9921,
+        "us_rep": 0.0079
+      }
+    },
+    {
+      "date": "2026-06-01",
+      "vote_mean": {
+        "us_dem": 56.74,
+        "us_rep": 40.61,
+        "us_oth": 2.65
+      },
+      "win_prob": {
+        "us_dem": 0.9921,
+        "us_rep": 0.0079
+      }
+    },
+    {
+      "date": "2026-06-04",
+      "vote_mean": {
+        "us_dem": 56.74,
+        "us_rep": 40.61,
+        "us_oth": 2.65
+      },
+      "win_prob": {
+        "us_dem": 0.9921,
+        "us_rep": 0.0079
+      }
+    },
+    {
+      "date": "2026-06-08",
+      "vote_mean": {
+        "us_dem": 56.74,
+        "us_rep": 40.61,
+        "us_oth": 2.65
+      },
+      "win_prob": {
+        "us_dem": 0.9921,
+        "us_rep": 0.0079
+      }
+    },
+    {
+      "date": "2026-06-16",
+      "vote_mean": {
+        "us_dem": 56.74,
+        "us_rep": 40.61,
+        "us_oth": 2.65
+      },
+      "win_prob": {
+        "us_dem": 0.9921,
+        "us_rep": 0.0079
+      }
+    },
+    {
+      "date": "2026-06-30",
+      "vote_mean": {
+        "us_dem": 56.74,
+        "us_rep": 40.61,
+        "us_oth": 2.65
+      },
+      "win_prob": {
+        "us_dem": 0.9921,
+        "us_rep": 0.0079
+      }
+    },
+    {
+      "date": "2026-07-06",
+      "vote_mean": {
+        "us_dem": 57.15,
+        "us_rep": 40.2,
+        "us_oth": 2.65
+      },
+      "win_prob": {
+        "us_dem": 0.9946,
+        "us_rep": 0.0054
+      }
+    },
+    {
+      "date": "2026-07-07",
+      "vote_mean": {
+        "us_dem": 57.15,
+        "us_rep": 40.2,
+        "us_oth": 2.65
+      },
+      "win_prob": {
+        "us_dem": 0.9946,
+        "us_rep": 0.0054
+      }
+    },
+    {
+      "date": "2026-07-14",
+      "vote_mean": {
+        "us_dem": 57.15,
+        "us_rep": 40.2,
+        "us_oth": 2.65
+      },
+      "win_prob": {
+        "us_dem": 0.9946,
+        "us_rep": 0.0054
+      }
+    },
+    {
+      "date": "2026-07-22",
+      "vote_mean": {
+        "us_dem": 57.15,
+        "us_rep": 40.2,
+        "us_oth": 2.66
+      },
+      "win_prob": {
+        "us_dem": 0.9956,
+        "us_rep": 0.0044
+      }
+    }
+  ],
+  "sources": [
+    {
+      "label": "U.S. Census CVAP 2020-2024 ACS",
+      "url": "https://www2.census.gov/programs-surveys/decennial/rdo/datasets/2024/2024-cvap/CVAP_2020-2024_ACS_csv_files.zip",
+      "as_of": "2026-07-24",
+      "confidence": "official"
+    },
+    {
+      "label": "Vote-Scope model",
+      "url": "/web_data/us-senate/latest.json",
+      "as_of": "2026-07-22",
+      "confidence": "model"
+    },
+    {
+      "label": "U.S. Census CPS Voting Supplement 2024",
+      "url": "https://www2.census.gov/programs-surveys/cps/tables/p20/587/vote04b_2024.xlsx",
+      "as_of": "2026-07-24",
+      "confidence": "official; state estimate"
+    },
+    {
+      "label": "U.S. House History — Hispanic-American members of the 119th Congress",
+      "url": "https://history.house.gov/Exhibitions-and-Publications/HAIC/Historical-Data/Hispanic-American-Representatives%2C-Senators%2C-Delegates%2C-and-Resident-Commissioners-by-Congress/",
+      "as_of": "2026-07-24",
+      "confidence": "reviewed"
+    },
+    {
+      "label": "New Mexico Secretary of State — certified 2026 primary results",
+      "url": "https://electionresults.sos.nm.gov/resultsSW.aspx?map=CTY&type=FED",
+      "as_of": "2026-06-23",
+      "confidence": "official; certified primary result"
+    }
+  ],
+  "data_completeness": {
+    "score": 100,
+    "required_fields_present": true,
+    "candidate_registry_reviewed": true,
+    "mobilization_signal_reviewed": false
+  },
+  "urls": {
+    "fr": "/fr/us/radar-latino/senat/new-mexico/",
+    "en": "/en/us/latino-radar/senate/new-mexico/",
+    "es": "/es/us/radar-latino/senado/new-mexico/"
+  },
+  "projection_urls": {
+    "fr": "/fr/us/senat/",
+    "en": "/en/us/senate/",
+    "es": "/es/us/senate/"
+  },
+  "social_cards": {
+    "fr": "/og/latino-radar/senate-new-mexico-fr.png",
+    "en": "/og/latino-radar/senate-new-mexico-en.png",
+    "es": "/og/latino-radar/senate-new-mexico-es.png"
+  },
+  "run_date": "2026-07-22"
+}

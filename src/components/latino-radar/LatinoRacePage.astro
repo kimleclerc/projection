@@ -1,0 +1,100 @@
+---
+import EditorialLayout from '../../layouts/EditorialLayout.astro';
+import { partyLabel, radarCopy, radarRoots, type RadarLocale } from '../../data/latinoRadar';
+import '../../styles/latino-radar.css';
+
+const { locale, race } = Astro.props as { locale: RadarLocale; race: any };
+const copy = radarCopy[locale];
+const winner = race.projection.winner;
+const latino = race.components.find((item: any) => item.key === 'latino_electorate');
+const history = race.history.filter((item: any) => item.win_prob?.us_dem != null);
+const points = history.map((item: any, index: number) => {
+  const x = history.length === 1 ? 50 : (index / (history.length - 1)) * 100;
+  const y = 100 - item.win_prob.us_dem * 100;
+  return `${x},${y}`;
+}).join(' ');
+const canonical = `https://vote-scope.com${race.urls[locale]}`;
+const alternates = Object.fromEntries(Object.entries(race.urls).map(([key, value]) => [key, `https://vote-scope.com${value}`])) as any;
+---
+<EditorialLayout
+  title={`${race.name} · ${copy.title} — Vote-Scope`}
+  description={`${race.name}: ${copy.breakdown}, ${copy.projection.toLowerCase()} et ${copy.history.toLowerCase()}.`}
+  canonical={canonical}
+  lang={locale}
+  currentPage="usa-hub"
+  alternates={alternates}
+  ogImage={`https://vote-scope.com${race.social_cards[locale]}`}
+  ogType="article"
+  jsonLd={[
+    { '@context':'https://schema.org', '@type':'AnalysisNewsArticle', headline:`${race.name} · ${copy.title}`, dateModified:race.run_date, inLanguage:locale, image:`https://vote-scope.com${race.social_cards[locale]}` },
+    { '@context':'https://schema.org', '@type':'BreadcrumbList', itemListElement:[
+      { '@type':'ListItem', position:1, name:copy.title, item:`https://vote-scope.com${radarRoots[locale]}` },
+      { '@type':'ListItem', position:2, name:race.name, item:canonical },
+    ]},
+  ]}
+>
+  <main class="latino-radar radar-detail">
+    <div class="radar-container">
+      <a class="radar-breadcrumb" href={radarRoots[locale]}>← {copy.back}</a>
+      <p class="radar-eyebrow" style="margin-top:46px">{race.office === 'house' ? copy.house : copy.senate} · #{race.rank}</p>
+      <h1>{race.name}</h1>
+      <p class="radar-dek">{race.reason_keys.map((key: string) => race.components.find((item: any) => item.key === key)?.labels[locale]).filter(Boolean).join(' · ')}</p>
+
+      <section class="race-summary">
+        <div><span>{copy.score}</span><strong>{race.score.toFixed(1)}/100</strong></div>
+        <div><span>{copy.model}</span><strong class={winner === 'us_dem' ? 'party-dem' : 'party-rep'}>{partyLabel(winner, locale)} {Math.round(race.projection.p_winner * 100)}%</strong></div>
+        <div><span>{copy.cvap}</span><strong>{latino.raw_value.toFixed(1)}%</strong></div>
+        <div><span>{copy.movement}</span><strong>{race.movement_7d.delta_probability_points > 0 ? '+' : ''}{race.movement_7d.delta_probability_points.toFixed(1)}</strong></div>
+      </section>
+
+      <div class="race-layout">
+        <div>
+          <section>
+            <p class="radar-kicker">{copy.breakdown}</p>
+            <h2>{copy.breakdown}</h2>
+            <div class="score-components">
+              {race.components.map((component: any) => <article class="score-component">
+                <div><h3>{component.labels[locale]}</h3><small>{component.weight}% · {component.source.confidence}</small></div>
+                <div class="score-track" aria-label={`${component.score} sur 100`}><div class="score-fill" style={`width:${component.score}%`}></div></div>
+                <div class="score-number">{component.score.toFixed(1)}</div>
+              </article>)}
+            </div>
+          </section>
+          <section class="history-block">
+            <p class="radar-kicker">{copy.history}</p>
+            <h2>{copy.history}</h2>
+            {history.length > 1 ? <svg class="history-chart" viewBox="0 -5 100 115" preserveAspectRatio="none" role="img" aria-label={copy.history}>
+              <line class="grid" x1="0" y1="50" x2="100" y2="50" />
+              <polyline class="line" points={points} />
+              <text x="0" y="110">{history[0].date}</text>
+              <text x="100" y="110" text-anchor="end">{history.at(-1).date}</text>
+            </svg> : <p>{copy.noHistory}</p>}
+          </section>
+        </div>
+
+        <aside class="race-aside">
+          <section>
+            <p class="radar-kicker">{copy.candidatesTitle}</p>
+            <h2>{copy.candidatesTitle}</h2>
+            {race.candidates.map((candidate: any) => <div class="candidate">
+              <strong>{candidate.name}</strong>
+              <span>{candidate.party_labels[locale]} · FEC {candidate.fec_id}</span>
+              <small class={candidate.latino_verified ? 'verified-mark' : ''}>{candidate.latino_verified ? `✓ ${copy.verified}` : copy.unverified}</small>
+            </div>)}
+          </section>
+          <section>
+            <p class="radar-kicker">{copy.sources}</p>
+            <h2>{copy.sources}</h2>
+            <ul class="source-list">
+              {race.sources.map((source: any) => <li><a href={source.url || undefined}>{source.label}</a> · {source.as_of}</li>)}
+            </ul>
+            <div class="race-actions">
+              <a href={race.projection_urls[locale]}>{copy.fullProjection} →</a>
+              <a href={race.social_cards[locale]} download>{copy.social} ↓</a>
+            </div>
+          </section>
+        </aside>
+      </div>
+    </div>
+  </main>
+</EditorialLayout>

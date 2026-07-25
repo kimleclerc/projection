@@ -1,0 +1,85 @@
+---
+import EditorialLayout from '../../layouts/EditorialLayout.astro';
+import LatinoRadarTable from '../../islands/LatinoRadarTable';
+import { radarCopy, radarRoots, type RadarLocale } from '../../data/latinoRadar';
+import '../../styles/latino-radar.css';
+import radarData from '../../../web_data/us-latino-radar/latest.json';
+
+const { locale } = Astro.props as { locale: RadarLocale };
+const copy = radarCopy[locale];
+const weights = radarData.meta.weights;
+const title = `${copy.title} — Vote-Scope`;
+const canonical = `https://vote-scope.com${radarRoots[locale]}`;
+const alternates = {
+  fr: `https://vote-scope.com${radarRoots.fr}`,
+  en: `https://vote-scope.com${radarRoots.en}`,
+  es: `https://vote-scope.com${radarRoots.es}`,
+};
+---
+<EditorialLayout
+  title={title}
+  description={copy.dek}
+  canonical={canonical}
+  lang={locale}
+  currentPage="usa-hub"
+  alternates={alternates}
+  ogImage={`https://vote-scope.com/og/latino-radar/house-ca-22-${locale}.png`}
+  jsonLd={{
+    '@context': 'https://schema.org',
+    '@type': 'Dataset',
+    name: copy.title,
+    description: copy.dek,
+    url: canonical,
+    inLanguage: locale,
+    dateModified: radarData.meta.run_date,
+    creator: { '@type': 'Organization', name: 'Vote-Scope' },
+  }}
+>
+  <main class="latino-radar">
+    <header class="radar-hero">
+      <div class="radar-container">
+        <p class="radar-eyebrow">{copy.eyebrow}</p>
+        <h1>{copy.title}</h1>
+        <p class="radar-dek">{copy.dek}</p>
+        <p class="radar-explainer">{copy.explainer}</p>
+        <p class="radar-updated">{copy.updated} · {radarData.meta.run_date} · {radarData.meta.cvap_vintage}</p>
+      </div>
+    </header>
+
+    <section class="radar-signal-grid" aria-label="National signals">
+      <div class="radar-signal"><span>{copy.house}</span><strong>{radarData.national_signals.house.eligible_races}</strong><p>{copy.racesWord} · {copy.averageIndex} {radarData.national_signals.house.average_index}</p></div>
+      <div class="radar-signal"><span>{copy.senate}</span><strong>{radarData.national_signals.senate.eligible_races}</strong><p>{copy.racesWord} · {copy.averageIndex} {radarData.national_signals.senate.average_index}</p></div>
+      <div class="radar-signal"><span>{copy.president}</span><strong>2028</strong><p>{copy.preliminary}</p></div>
+    </section>
+
+    <section class="radar-ranking">
+      <div class="radar-container">
+        <div class="radar-section-head">
+          <h2>{copy.race}</h2>
+          <p>{copy.rankingIntro(radarData.meta.race_count)}</p>
+        </div>
+        <LatinoRadarTable client:load races={radarData.races} locale={locale} />
+        <noscript>
+          <ul class="radar-nojs">
+            {radarData.races.map((race) => <li><a href={race.urls[locale]}>#{race.rank} · {race.name} · {race.score}/100</a></li>)}
+          </ul>
+        </noscript>
+      </div>
+    </section>
+
+    <section class="radar-method">
+      <div class="radar-container radar-method-grid">
+        <h2>{copy.methodology}</h2>
+        <div>
+          <p>{copy.methodologyBody}</p>
+          <div class="radar-weights">
+            {Object.entries(weights).map(([key, weight]) => {
+              const component = radarData.races[0]?.components.find((item) => item.key === key);
+              return <div class="radar-weight"><strong>{weight}%</strong><span>{component?.labels[locale] ?? key}</span></div>;
+            })}
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</EditorialLayout>
