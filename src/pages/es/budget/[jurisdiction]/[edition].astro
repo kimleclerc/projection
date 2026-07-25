@@ -1,0 +1,60 @@
+---
+import EditorialLayout from '../../../../layouts/EditorialLayout.astro';
+import BudgetDesk from '../../../../components/BudgetDesk.astro';
+import { ALL } from '../../../../lib/budget-data';
+import { t, editionTitle, JURISDICTION_LABEL, budgetEdition } from '../../../../lib/budget';
+
+export function getStaticPaths() {
+  return ALL.map((d) => ({ params: { jurisdiction: d.slug, edition: d.edition }, props: { data: d } }));
+}
+
+const { data } = Astro.props;
+const locale = 'es' as const;
+const jur = JURISDICTION_LABEL[data.slug]?.[locale] ?? data.slug;
+const heading = editionTitle(data, locale);
+const canonical = `https://vote-scope.com${budgetEdition(locale, data.slug, data.edition)}`;
+const alternates = {
+  en: `https://vote-scope.com${budgetEdition('en', data.slug, data.edition)}`,
+  fr: `https://vote-scope.com${budgetEdition('fr', data.slug, data.edition)}`,
+  es: canonical,
+};
+const desc = `Análisis independiente del ${heading} (${jur}): las cifras, los sectores y lo que cambia para usted. Presentado por ${data.minister}. Sin afiliación gubernamental.`;
+---
+
+<EditorialLayout
+  title={`${heading} — ${jur} · Análisis independiente — Vote-Scope`}
+  description={desc}
+  canonical={canonical}
+  lang="es"
+  currentPage="budget"
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={alternates}
+  jsonLd={[
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Article',
+      headline: `${heading} — ${jur}: análisis independiente`,
+      description: desc,
+      url: canonical,
+      inLanguage: 'es',
+      datePublished: t(data.date_tabled, 'es'),
+      dateModified: data.meta.ingested_at,
+      author: { '@type': 'Person', name: 'Kim Leclerc', url: 'https://kimleclerc.ca' },
+      publisher: { '@type': 'Organization', name: 'Vote-Scope', url: 'https://vote-scope.com' },
+      isAccessibleForFree: true,
+      about: `${heading}, ${jur}`,
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: 'https://vote-scope.com/es/' },
+        { '@type': 'ListItem', position: 2, name: 'Budget', item: 'https://vote-scope.com/es/budget/' },
+        { '@type': 'ListItem', position: 3, name: jur, item: `https://vote-scope.com/es/budget/${data.slug}/` },
+        { '@type': 'ListItem', position: 4, name: heading, item: canonical },
+      ],
+    },
+  ]}
+>
+  <BudgetDesk data={data} locale="es" />
+</EditorialLayout>

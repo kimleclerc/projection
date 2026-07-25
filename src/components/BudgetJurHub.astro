@@ -1,0 +1,70 @@
+---
+// Hub d'une juridiction — /{lang}/budget/{slug}/. Index self-canonical qui
+// LISTE les éditions (pas le contenu de la dernière → évite le duplicate).
+import KeepDigging from './KeepDigging.astro';
+import { editionsFor } from '../lib/budget-data';
+import {
+  t, UI, JURISDICTION_LABEL, TYPE_LABEL, editionTitle, budgetEdition, budgetHub,
+  type Locale,
+} from '../lib/budget';
+
+interface Props { slug: string; locale: Locale }
+const { slug, locale } = Astro.props;
+const editions = editionsFor(slug);
+const jur = JURISDICTION_LABEL[slug]?.[locale] ?? slug;
+
+const COPY = {
+  fr: { kicker: 'Analyse fiscale indépendante', all: 'Toutes les éditions', tabled: 'Déposé', back: 'Tous les budgets' },
+  en: { kicker: 'Independent fiscal analysis', all: 'All editions', tabled: 'Tabled', back: 'All budgets' },
+  es: { kicker: 'Análisis fiscal independiente', all: 'Todas las ediciones', tabled: 'Presentado', back: 'Todos los presupuestos' },
+}[locale];
+---
+
+<article class="bj">
+  <nav class="bj-crumb container" aria-label="Breadcrumb">
+    <a href={budgetHub(locale)}>Budget</a> <span aria-hidden="true">/</span> <span>{jur}</span>
+  </nav>
+  <header class="bj-hero container">
+    <p class="bj-kicker">{COPY.kicker}</p>
+    <h1 class="bj-title">{jur} — {COPY.all}</h1>
+  </header>
+
+  <section class="bj-list container">
+    {editions.map((d) => (
+      <a class="bj-item" href={budgetEdition(locale, d.slug, d.edition)}>
+        <span class="bj-item-title">{editionTitle(d, locale)}</span>
+        <span class="bj-item-type">{TYPE_LABEL[d.type][locale]}</span>
+        {t(d.date_tabled, locale) && <span class="bj-item-date">{COPY.tabled} {t(d.date_tabled, locale)}</span>}
+        <span class="bj-item-cta">→</span>
+      </a>
+    ))}
+  </section>
+
+  <section class="bj-section container">
+    <KeepDigging
+      eyebrow={locale === 'fr' ? 'Continuer' : locale === 'es' ? 'Seguir' : 'Keep going'}
+      title={COPY.back}
+      body={locale === 'fr' ? 'Les budgets des autres juridictions.' : locale === 'es' ? 'Los presupuestos de las demás jurisdicciones.' : 'Budgets from the other jurisdictions.'}
+      links={[{ href: budgetHub(locale), label: COPY.back, detail: 'Canada · Ontario · Québec' }]}
+    />
+  </section>
+</article>
+
+<style>
+  .bj { padding-block: 40px 96px; }
+  .bj-crumb { max-width: 1080px; margin-bottom: 24px; font-family: var(--mono); font-size: 11px; color: var(--ink-3); }
+  .bj-crumb a { color: var(--ink-2); text-decoration: none; }
+  .bj-crumb a:hover { color: var(--ink); }
+  .bj-crumb span[aria-hidden] { color: var(--rule); margin: 0 4px; }
+  .bj-hero { max-width: 1080px; padding-bottom: 32px; border-bottom: 1px solid var(--rule); }
+  .bj-kicker { margin: 0 0 14px; font-family: var(--mono); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); }
+  .bj-title { margin: 0; font-family: var(--serif); font-size: clamp(36px, 5vw, 60px); font-weight: 420; letter-spacing: -.02em; line-height: 1.02; }
+  .bj-list { max-width: 1080px; margin-top: 32px; display: flex; flex-direction: column; gap: 10px; }
+  .bj-item { position: relative; display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 16px; border: 1px solid var(--rule); border-radius: 8px; background: var(--card); padding: 18px 22px; text-decoration: none; transition: border-color .15s; }
+  .bj-item:hover { border-color: var(--ink); }
+  .bj-item-title { font-family: var(--serif); font-size: 20px; color: var(--ink); }
+  .bj-item-type { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-3); border: 1px solid var(--rule); border-radius: 999px; padding: 2px 8px; }
+  .bj-item-date { font-family: var(--mono); font-size: 12px; color: var(--ink-3); }
+  .bj-item-cta { margin-left: auto; color: var(--ink-3); }
+  .bj-section { max-width: 1080px; margin-top: 52px; }
+</style>

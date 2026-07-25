@@ -1,0 +1,27 @@
+---
+import EditorialLayout from '../../../../layouts/EditorialLayout.astro';
+import BudgetJurHub from '../../../../components/BudgetJurHub.astro';
+import { jurisdictions } from '../../../../lib/budget-data';
+import { JURISDICTION_LABEL } from '../../../../lib/budget';
+
+export function getStaticPaths() {
+  return jurisdictions().map((slug) => ({ params: { jurisdiction: slug }, props: { slug } }));
+}
+const { slug } = Astro.props;
+const locale = 'en' as const;
+const jur = JURISDICTION_LABEL[slug]?.[locale] ?? slug;
+const canonical = `https://vote-scope.com/en/budget/${slug}/`;
+const alternates = { en: canonical, fr: `https://vote-scope.com/fr/budget/${slug}/`, es: `https://vote-scope.com/es/budget/${slug}/` };
+---
+<EditorialLayout
+  title={`${jur} Budgets — Independent Analysis — Vote-Scope`}
+  description={`Every ${jur} budget and economic update, analyzed independently — the numbers, sectors and concrete impact. Archives kept, one page per edition.`}
+  canonical={canonical}
+  lang="en"
+  currentPage="budget"
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={alternates}
+  jsonLd={[{ '@context': 'https://schema.org', '@type': 'CollectionPage', name: `${jur} Budgets`, url: canonical, inLanguage: 'en' }]}
+>
+  <BudgetJurHub slug={slug} locale="en" />
+</EditorialLayout>
