@@ -1,0 +1,554 @@
+{
+  "office": "house",
+  "riding_id": "06050",
+  "slug": "ca-50",
+  "name": "CA-50",
+  "state": "CA",
+  "rank": 108,
+  "score": 20.4,
+  "eligibility": {
+    "eligible": true,
+    "latino_cvap_threshold": true,
+    "verified_candidate": false,
+    "mobilization_signal": false
+  },
+  "projection": {
+    "winner": "us_dem",
+    "p_winner": 1.0,
+    "win_prob": {
+      "us_dem": 1.0,
+      "us_rep": 0.0,
+      "us_oth": 0.0
+    },
+    "vote_mean": {
+      "us_dem": 63.29,
+      "us_rep": 36.71,
+      "us_oth": 0.0
+    },
+    "mean_margin": 26.58,
+    "rating": {
+      "code": "solid_dem",
+      "side": "dem",
+      "label_en": "Solid Democrat",
+      "label_fr": "Démocrate solide"
+    },
+    "current_party": "us_dem"
+  },
+  "movement_7d": {
+    "delta_probability_points": 0.0,
+    "comparison_date": "2026-07-15"
+  },
+  "components": [
+    {
+      "key": "latino_electorate",
+      "labels": {
+        "fr": "Électorat latino",
+        "en": "Latino electorate",
+        "es": "Electorado latino"
+      },
+      "score": 37.1,
+      "weight": 20,
+      "raw_value": 18.54,
+      "unit": "percent of CVAP",
+      "source": {
+        "label": "U.S. Census CVAP 2020-2024 ACS",
+        "url": "https://www2.census.gov/programs-surveys/decennial/rdo/datasets/2024/2024-cvap/CVAP_2020-2024_ACS_csv_files.zip",
+        "as_of": "2026-07-24",
+        "confidence": "official"
+      },
+      "detail": {
+        "latino_cvap": 103070,
+        "cvap_total": 555944
+      }
+    },
+    {
+      "key": "competitiveness",
+      "labels": {
+        "fr": "Compétitivité",
+        "en": "Competitiveness",
+        "es": "Competitividad"
+      },
+      "score": 0.0,
+      "weight": 20,
+      "raw_value": 100.0,
+      "unit": "favorite probability",
+      "source": {
+        "label": "Vote-Scope model",
+        "url": "/web_data/us-house/latest.json",
+        "as_of": "2026-07-22",
+        "confidence": "model"
+      },
+      "detail": {}
+    },
+    {
+      "key": "flip_probability",
+      "labels": {
+        "fr": "Probabilité de basculement",
+        "en": "Flip probability",
+        "es": "Probabilidad de cambio"
+      },
+      "score": 0.0,
+      "weight": 15,
+      "raw_value": 0.0,
+      "unit": "percent",
+      "source": {
+        "label": "Vote-Scope model",
+        "url": "/web_data/us-house/latest.json",
+        "as_of": "2026-07-22",
+        "confidence": "model"
+      },
+      "detail": {
+        "current_party": "us_dem"
+      }
+    },
+    {
+      "key": "candidate_representation",
+      "labels": {
+        "fr": "Représentation des candidats",
+        "en": "Candidate representation",
+        "es": "Representación de candidatos"
+      },
+      "score": 0.0,
+      "weight": 15,
+      "raw_value": 0,
+      "unit": "verified candidates",
+      "source": {
+        "label": "Vote-Scope reviewed identity registry",
+        "url": "",
+        "as_of": "2026-07-24",
+        "confidence": "no verified candidate in registry"
+      },
+      "detail": {}
+    },
+    {
+      "key": "control_importance",
+      "labels": {
+        "fr": "Importance du contrôle",
+        "en": "Control importance",
+        "es": "Importancia para el control"
+      },
+      "score": 100.0,
+      "weight": 10,
+      "raw_value": 100.0,
+      "unit": "normalized pivotality",
+      "source": {
+        "label": "Vote-Scope model",
+        "url": "/web_data/us-house/latest.json",
+        "as_of": "2026-07-22",
+        "confidence": "model"
+      },
+      "detail": {
+        "method": "counterfactual Monte Carlo from published race probabilities"
+      }
+    },
+    {
+      "key": "recent_dynamics",
+      "labels": {
+        "fr": "Dynamique récente",
+        "en": "Recent movement",
+        "es": "Dinámica reciente"
+      },
+      "score": 0.0,
+      "weight": 10,
+      "raw_value": 0.0,
+      "unit": "probability points over at least 7 days",
+      "source": {
+        "label": "Vote-Scope model",
+        "url": "/web_data/us-house/latest.json",
+        "as_of": "2026-07-22",
+        "confidence": "model"
+      },
+      "detail": {
+        "comparison_date": "2026-07-15"
+      }
+    },
+    {
+      "key": "mobilization",
+      "labels": {
+        "fr": "Mobilisation probable",
+        "en": "Likely mobilization",
+        "es": "Movilización probable"
+      },
+      "score": 30.1,
+      "weight": 10,
+      "raw_value": 50.2,
+      "unit": "public proxy score",
+      "source": {
+        "label": "U.S. Census CPS Voting Supplement 2024",
+        "url": "https://www2.census.gov/programs-surveys/cps/tables/p20/587/vote04b_2024.xlsx",
+        "as_of": "2026-07-24",
+        "confidence": "official; state estimate"
+      },
+      "detail": {
+        "public_proxy": 50.2,
+        "editorial_signal": 0.0,
+        "latino_turnout_state_pct": "54.9",
+        "latino_cvap_growth_state_pct": "2.33"
+      }
+    }
+  ],
+  "reason_keys": [
+    "control_importance",
+    "latino_electorate"
+  ],
+  "candidates": [
+    {
+      "fec_id": "H6CA50290",
+      "name": "Aishwarya Mitra",
+      "party": "us_dem",
+      "party_labels": {
+        "fr": "Démocrate",
+        "en": "Democratic",
+        "es": "Demócrata"
+      },
+      "incumbency": "C",
+      "filing_status": "C",
+      "ballot_status": "fec_filing",
+      "ballot_source": null,
+      "latino_verified": false,
+      "identity_source": null
+    },
+    {
+      "fec_id": "H0CA52091",
+      "name": "Jerlilia Ms. Ryans",
+      "party": "us_dem",
+      "party_labels": {
+        "fr": "Démocrate",
+        "en": "Democratic",
+        "es": "Demócrata"
+      },
+      "incumbency": "O",
+      "filing_status": "C",
+      "ballot_status": "fec_filing",
+      "ballot_source": null,
+      "latino_verified": false,
+      "identity_source": null
+    },
+    {
+      "fec_id": "H2CA52089",
+      "name": "Scott Peters",
+      "party": "us_dem",
+      "party_labels": {
+        "fr": "Démocrate",
+        "en": "Democratic",
+        "es": "Demócrata"
+      },
+      "incumbency": "I",
+      "filing_status": "C",
+      "ballot_status": "fec_filing",
+      "ballot_source": null,
+      "latino_verified": false,
+      "identity_source": null
+    }
+  ],
+  "history": [
+    {
+      "date": "2026-03-24",
+      "vote_mean": {
+        "us_dem": 60.26,
+        "us_rep": 27.08,
+        "us_oth": 0.12
+      },
+      "win_prob": {
+        "us_dem": 1.0
+      }
+    },
+    {
+      "date": "2026-03-25",
+      "vote_mean": {
+        "us_dem": 60.17,
+        "us_rep": 27.11,
+        "us_oth": 0.11
+      },
+      "win_prob": {
+        "us_dem": 1.0
+      }
+    },
+    {
+      "date": "2026-03-27",
+      "vote_mean": {
+        "us_dem": 63.71,
+        "us_rep": 27.9,
+        "us_oth": 0.69
+      },
+      "win_prob": {
+        "us_dem": 1.0
+      }
+    },
+    {
+      "date": "2026-03-28",
+      "vote_mean": {
+        "us_dem": 69.0,
+        "us_rep": 31.67,
+        "us_oth": 0.77
+      },
+      "win_prob": {
+        "us_dem": 1.0
+      }
+    },
+    {
+      "date": "2026-03-30",
+      "vote_mean": {
+        "us_dem": 68.13,
+        "us_rep": 31.39,
+        "us_oth": 1.55
+      },
+      "win_prob": {
+        "us_dem": 1.0
+      }
+    },
+    {
+      "date": "2026-03-31",
+      "vote_mean": {
+        "us_dem": 68.08,
+        "us_rep": 31.38,
+        "us_oth": 1.68
+      },
+      "win_prob": {
+        "us_dem": 1.0
+      }
+    },
+    {
+      "date": "2026-04-01",
+      "vote_mean": {
+        "us_dem": 69.06,
+        "us_rep": 31.2,
+        "us_oth": 1.0
+      },
+      "win_prob": {
+        "us_dem": 1.0
+      }
+    },
+    {
+      "date": "2026-04-02",
+      "vote_mean": {
+        "us_dem": 69.17,
+        "us_rep": 31.15,
+        "us_oth": 1.07
+      },
+      "win_prob": {
+        "us_dem": 1.0
+      }
+    },
+    {
+      "date": "2026-04-06",
+      "vote_mean": {
+        "us_dem": 70.27,
+        "us_rep": 33.2
+      },
+      "win_prob": {
+        "us_dem": 1.0
+      }
+    },
+    {
+      "date": "2026-04-10",
+      "vote_mean": {
+        "us_dem": 68.71,
+        "us_rep": 34.78
+      },
+      "win_prob": {
+        "us_dem": 1.0
+      }
+    },
+    {
+      "date": "2026-04-16",
+      "vote_mean": {
+        "us_dem": 69.9,
+        "us_rep": 33.63
+      },
+      "win_prob": {
+        "us_dem": 1.0
+      }
+    },
+    {
+      "date": "2026-04-21",
+      "vote_mean": {
+        "us_dem": 69.88,
+        "us_rep": 33.66
+      },
+      "win_prob": {
+        "us_dem": 1.0
+      }
+    },
+    {
+      "date": "2026-04-29",
+      "vote_mean": {
+        "us_dem": 69.68,
+        "us_rep": 33.75
+      },
+      "win_prob": {
+        "us_dem": 1.0
+      }
+    },
+    {
+      "date": "2026-05-12",
+      "vote_mean": {
+        "us_dem": 68.71,
+        "us_rep": 31.29
+      },
+      "win_prob": {
+        "us_dem": 1.0
+      }
+    },
+    {
+      "date": "2026-05-19",
+      "vote_mean": {
+        "us_dem": 68.54,
+        "us_rep": 31.46
+      },
+      "win_prob": {
+        "us_dem": 1.0
+      }
+    },
+    {
+      "date": "2026-05-26",
+      "vote_mean": {
+        "us_dem": 59.64,
+        "us_rep": 40.35,
+        "us_oth": 0.01
+      },
+      "win_prob": {
+        "us_dem": 1.0
+      }
+    },
+    {
+      "date": "2026-06-01",
+      "vote_mean": {
+        "us_dem": 59.68,
+        "us_rep": 40.22,
+        "us_oth": 0.1
+      },
+      "win_prob": {
+        "us_dem": 1.0
+      }
+    },
+    {
+      "date": "2026-06-04",
+      "vote_mean": {
+        "us_dem": 57.05,
+        "us_rep": 39.72,
+        "us_oth": 3.23
+      },
+      "win_prob": {
+        "us_dem": 1.0
+      }
+    },
+    {
+      "date": "2026-06-08",
+      "vote_mean": {
+        "us_dem": 57.36,
+        "us_rep": 40.57,
+        "us_oth": 2.08
+      },
+      "win_prob": {
+        "us_dem": 1.0
+      }
+    },
+    {
+      "date": "2026-06-16",
+      "vote_mean": {
+        "us_dem": 58.43,
+        "us_rep": 41.05,
+        "us_oth": 0.52
+      },
+      "win_prob": {
+        "us_dem": 1.0
+      }
+    },
+    {
+      "date": "2026-06-30",
+      "vote_mean": {
+        "us_dem": 58.79,
+        "us_rep": 40.99,
+        "us_oth": 0.23
+      },
+      "win_prob": {
+        "us_dem": 1.0
+      }
+    },
+    {
+      "date": "2026-07-07",
+      "vote_mean": {
+        "us_dem": 59.39,
+        "us_rep": 40.46,
+        "us_oth": 0.15
+      },
+      "win_prob": {
+        "us_dem": 1.0
+      }
+    },
+    {
+      "date": "2026-07-14",
+      "vote_mean": {
+        "us_dem": 57.65,
+        "us_rep": 42.18,
+        "us_oth": 0.16
+      },
+      "win_prob": {
+        "us_dem": 1.0
+      }
+    },
+    {
+      "date": "2026-07-15",
+      "vote_mean": {
+        "us_dem": 62.2,
+        "us_rep": 37.8
+      },
+      "win_prob": {
+        "us_dem": 1.0
+      }
+    },
+    {
+      "date": "2026-07-22",
+      "vote_mean": {
+        "us_dem": 63.29,
+        "us_rep": 36.71
+      },
+      "win_prob": {
+        "us_dem": 1.0
+      }
+    }
+  ],
+  "sources": [
+    {
+      "label": "U.S. Census CVAP 2020-2024 ACS",
+      "url": "https://www2.census.gov/programs-surveys/decennial/rdo/datasets/2024/2024-cvap/CVAP_2020-2024_ACS_csv_files.zip",
+      "as_of": "2026-07-24",
+      "confidence": "official"
+    },
+    {
+      "label": "Vote-Scope model",
+      "url": "/web_data/us-house/latest.json",
+      "as_of": "2026-07-22",
+      "confidence": "model"
+    },
+    {
+      "label": "U.S. Census CPS Voting Supplement 2024",
+      "url": "https://www2.census.gov/programs-surveys/cps/tables/p20/587/vote04b_2024.xlsx",
+      "as_of": "2026-07-24",
+      "confidence": "official; state estimate"
+    }
+  ],
+  "data_completeness": {
+    "score": 100,
+    "required_fields_present": true,
+    "candidate_registry_reviewed": false,
+    "mobilization_signal_reviewed": false
+  },
+  "urls": {
+    "fr": "/fr/us/radar-latino/chambre/ca-50/",
+    "en": "/en/us/latino-radar/house/ca-50/",
+    "es": "/es/us/radar-latino/camara/ca-50/"
+  },
+  "projection_urls": {
+    "fr": "/fr/us/chambre/",
+    "en": "/en/us/house/",
+    "es": "/es/us/house/"
+  },
+  "social_cards": {
+    "fr": "/og/latino-radar/house-ca-50-fr.png",
+    "en": "/og/latino-radar/house-ca-50-en.png",
+    "es": "/og/latino-radar/house-ca-50-es.png"
+  },
+  "run_date": "2026-07-22"
+}

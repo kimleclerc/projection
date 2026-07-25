@@ -1,0 +1,563 @@
+{
+  "office": "house",
+  "riding_id": "48015",
+  "slug": "tx-15",
+  "name": "TX-15",
+  "state": "TX",
+  "rank": 61,
+  "score": 32.0,
+  "eligibility": {
+    "eligible": true,
+    "latino_cvap_threshold": true,
+    "verified_candidate": true,
+    "mobilization_signal": false
+  },
+  "projection": {
+    "winner": "us_rep",
+    "p_winner": 0.9999,
+    "win_prob": {
+      "us_dem": 0.0001,
+      "us_rep": 0.9999,
+      "us_oth": 0.0
+    },
+    "vote_mean": {
+      "us_dem": 47.05,
+      "us_rep": 52.95,
+      "us_oth": 0.0
+    },
+    "mean_margin": 5.9,
+    "rating": {
+      "code": "lean_rep",
+      "side": "rep",
+      "label_en": "Lean Republican",
+      "label_fr": "Avantage républicain"
+    },
+    "current_party": "us_rep"
+  },
+  "movement_7d": {
+    "delta_probability_points": -0.01,
+    "comparison_date": "2026-07-15"
+  },
+  "components": [
+    {
+      "key": "latino_electorate",
+      "labels": {
+        "fr": "Électorat latino",
+        "en": "Latino electorate",
+        "es": "Electorado latino"
+      },
+      "score": 100.0,
+      "weight": 20,
+      "raw_value": 74.62,
+      "unit": "percent of CVAP",
+      "source": {
+        "label": "U.S. Census CVAP 2020-2024 ACS",
+        "url": "https://www2.census.gov/programs-surveys/decennial/rdo/datasets/2024/2024-cvap/CVAP_2020-2024_ACS_csv_files.zip",
+        "as_of": "2026-07-24",
+        "confidence": "official"
+      },
+      "detail": {
+        "latino_cvap": 339596,
+        "cvap_total": 455101
+      }
+    },
+    {
+      "key": "competitiveness",
+      "labels": {
+        "fr": "Compétitivité",
+        "en": "Competitiveness",
+        "es": "Competitividad"
+      },
+      "score": 0.0,
+      "weight": 20,
+      "raw_value": 99.99,
+      "unit": "favorite probability",
+      "source": {
+        "label": "Vote-Scope model",
+        "url": "/web_data/us-house/latest.json",
+        "as_of": "2026-07-22",
+        "confidence": "model"
+      },
+      "detail": {}
+    },
+    {
+      "key": "flip_probability",
+      "labels": {
+        "fr": "Probabilité de basculement",
+        "en": "Flip probability",
+        "es": "Probabilidad de cambio"
+      },
+      "score": 0.0,
+      "weight": 15,
+      "raw_value": 0.009999999999998899,
+      "unit": "percent",
+      "source": {
+        "label": "Vote-Scope model",
+        "url": "/web_data/us-house/latest.json",
+        "as_of": "2026-07-22",
+        "confidence": "model"
+      },
+      "detail": {
+        "current_party": "us_rep"
+      }
+    },
+    {
+      "key": "candidate_representation",
+      "labels": {
+        "fr": "Représentation des candidats",
+        "en": "Candidate representation",
+        "es": "Representación de candidatos"
+      },
+      "score": 70.0,
+      "weight": 15,
+      "raw_value": 1,
+      "unit": "verified candidates",
+      "source": {
+        "label": "U.S. House History — Hispanic-American members of the 119th Congress",
+        "url": "https://history.house.gov/Exhibitions-and-Publications/HAIC/Historical-Data/Hispanic-American-Representatives%2C-Senators%2C-Delegates%2C-and-Resident-Commissioners-by-Congress/",
+        "as_of": "2026-07-24",
+        "confidence": "reviewed"
+      },
+      "detail": {}
+    },
+    {
+      "key": "control_importance",
+      "labels": {
+        "fr": "Importance du contrôle",
+        "en": "Control importance",
+        "es": "Importancia para el control"
+      },
+      "score": 0.0,
+      "weight": 10,
+      "raw_value": 0.0,
+      "unit": "normalized pivotality",
+      "source": {
+        "label": "Vote-Scope model",
+        "url": "/web_data/us-house/latest.json",
+        "as_of": "2026-07-22",
+        "confidence": "model"
+      },
+      "detail": {
+        "method": "counterfactual Monte Carlo from published race probabilities"
+      }
+    },
+    {
+      "key": "recent_dynamics",
+      "labels": {
+        "fr": "Dynamique récente",
+        "en": "Recent movement",
+        "es": "Dinámica reciente"
+      },
+      "score": 0.1,
+      "weight": 10,
+      "raw_value": -0.01,
+      "unit": "probability points over at least 7 days",
+      "source": {
+        "label": "Vote-Scope model",
+        "url": "/web_data/us-house/latest.json",
+        "as_of": "2026-07-22",
+        "confidence": "model"
+      },
+      "detail": {
+        "comparison_date": "2026-07-15"
+      }
+    },
+    {
+      "key": "mobilization",
+      "labels": {
+        "fr": "Mobilisation probable",
+        "en": "Likely mobilization",
+        "es": "Movilización probable"
+      },
+      "score": 14.6,
+      "weight": 10,
+      "raw_value": 24.31,
+      "unit": "public proxy score",
+      "source": {
+        "label": "U.S. Census CPS Voting Supplement 2024",
+        "url": "https://www2.census.gov/programs-surveys/cps/tables/p20/587/vote04b_2024.xlsx",
+        "as_of": "2026-07-24",
+        "confidence": "official; state estimate"
+      },
+      "detail": {
+        "public_proxy": 24.31,
+        "editorial_signal": 0.0,
+        "latino_turnout_state_pct": "44.5",
+        "latino_cvap_growth_state_pct": "3.92"
+      }
+    }
+  ],
+  "reason_keys": [
+    "latino_electorate",
+    "candidate_representation"
+  ],
+  "candidates": [
+    {
+      "fec_id": "H0TX15124",
+      "name": "Monica De La Cruz",
+      "party": "us_rep",
+      "party_labels": {
+        "fr": "Républicain",
+        "en": "Republican",
+        "es": "Republicano"
+      },
+      "incumbency": "I",
+      "filing_status": "C",
+      "ballot_status": "active_primary",
+      "ballot_source": null,
+      "latino_verified": true,
+      "identity_source": {
+        "url": "https://history.house.gov/Exhibitions-and-Publications/HAIC/Historical-Data/Hispanic-American-Representatives%2C-Senators%2C-Delegates%2C-and-Resident-Commissioners-by-Congress/",
+        "label": "U.S. House History — Hispanic-American members of the 119th Congress",
+        "verified_on": "2026-07-24",
+        "verified_by": "Vote-Scope"
+      }
+    },
+    {
+      "fec_id": "H6TX15238",
+      "name": "Ada Cuellar",
+      "party": "us_dem",
+      "party_labels": {
+        "fr": "Démocrate",
+        "en": "Democratic",
+        "es": "Demócrata"
+      },
+      "incumbency": "C",
+      "filing_status": "C",
+      "ballot_status": "fec_filing",
+      "ballot_source": null,
+      "latino_verified": false,
+      "identity_source": null
+    },
+    {
+      "fec_id": "H6TX15246",
+      "name": "Bobby Pulido",
+      "party": "us_dem",
+      "party_labels": {
+        "fr": "Démocrate",
+        "en": "Democratic",
+        "es": "Demócrata"
+      },
+      "incumbency": "C",
+      "filing_status": "C",
+      "ballot_status": "fec_filing",
+      "ballot_source": null,
+      "latino_verified": false,
+      "identity_source": null
+    }
+  ],
+  "history": [
+    {
+      "date": "2026-03-24",
+      "vote_mean": {
+        "us_dem": 38.44,
+        "us_rep": 50.42,
+        "us_oth": 0.11
+      },
+      "win_prob": {
+        "us_rep": 1.0
+      }
+    },
+    {
+      "date": "2026-03-25",
+      "vote_mean": {
+        "us_dem": 38.36,
+        "us_rep": 50.44,
+        "us_oth": 0.09
+      },
+      "win_prob": {
+        "us_rep": 1.0
+      }
+    },
+    {
+      "date": "2026-03-27",
+      "vote_mean": {
+        "us_dem": 41.5,
+        "us_rep": 51.15,
+        "us_oth": 0.61
+      },
+      "win_prob": {
+        "us_rep": 1.0
+      }
+    },
+    {
+      "date": "2026-03-28",
+      "vote_mean": {
+        "us_dem": 46.2,
+        "us_rep": 54.5,
+        "us_oth": 0.68
+      },
+      "win_prob": {
+        "us_dem": 0.0007,
+        "us_rep": 0.9993
+      }
+    },
+    {
+      "date": "2026-03-30",
+      "vote_mean": {
+        "us_dem": 44.8,
+        "us_rep": 55.21,
+        "us_oth": 1.04
+      },
+      "win_prob": {
+        "us_rep": 1.0
+      }
+    },
+    {
+      "date": "2026-03-31",
+      "vote_mean": {
+        "us_dem": 44.76,
+        "us_rep": 55.21,
+        "us_oth": 1.12
+      },
+      "win_prob": {
+        "us_rep": 1.0
+      }
+    },
+    {
+      "date": "2026-04-01",
+      "vote_mean": {
+        "us_dem": 45.41,
+        "us_rep": 55.09,
+        "us_oth": 0.68
+      },
+      "win_prob": {
+        "us_rep": 1.0
+      }
+    },
+    {
+      "date": "2026-04-02",
+      "vote_mean": {
+        "us_dem": 45.49,
+        "us_rep": 55.05,
+        "us_oth": 0.72
+      },
+      "win_prob": {
+        "us_rep": 1.0
+      }
+    },
+    {
+      "date": "2026-04-06",
+      "vote_mean": {
+        "us_dem": 46.22,
+        "us_rep": 56.42
+      },
+      "win_prob": {
+        "us_rep": 1.0
+      }
+    },
+    {
+      "date": "2026-04-10",
+      "vote_mean": {
+        "us_dem": 45.18,
+        "us_rep": 57.47
+      },
+      "win_prob": {
+        "us_rep": 1.0
+      }
+    },
+    {
+      "date": "2026-04-16",
+      "vote_mean": {
+        "us_dem": 45.98,
+        "us_rep": 56.71
+      },
+      "win_prob": {
+        "us_rep": 1.0
+      }
+    },
+    {
+      "date": "2026-04-21",
+      "vote_mean": {
+        "us_dem": 45.96,
+        "us_rep": 56.73
+      },
+      "win_prob": {
+        "us_rep": 1.0
+      }
+    },
+    {
+      "date": "2026-04-29",
+      "vote_mean": {
+        "us_dem": 47.3,
+        "us_rep": 56.13
+      },
+      "win_prob": {
+        "us_rep": 1.0
+      }
+    },
+    {
+      "date": "2026-05-12",
+      "vote_mean": {
+        "us_dem": 47.09,
+        "us_rep": 52.91
+      },
+      "win_prob": {
+        "us_dem": 0.0158,
+        "us_rep": 0.9842
+      }
+    },
+    {
+      "date": "2026-05-19",
+      "vote_mean": {
+        "us_dem": 46.92,
+        "us_rep": 53.08
+      },
+      "win_prob": {
+        "us_dem": 0.0067,
+        "us_rep": 0.9933
+      }
+    },
+    {
+      "date": "2026-05-26",
+      "vote_mean": {
+        "us_dem": 44.0,
+        "us_rep": 56.0
+      },
+      "win_prob": {
+        "us_rep": 1.0
+      }
+    },
+    {
+      "date": "2026-06-01",
+      "vote_mean": {
+        "us_dem": 44.06,
+        "us_rep": 55.94
+      },
+      "win_prob": {
+        "us_rep": 1.0
+      }
+    },
+    {
+      "date": "2026-06-04",
+      "vote_mean": {
+        "us_dem": 43.03,
+        "us_rep": 56.63,
+        "us_oth": 0.33
+      },
+      "win_prob": {
+        "us_rep": 1.0
+      }
+    },
+    {
+      "date": "2026-06-08",
+      "vote_mean": {
+        "us_dem": 42.95,
+        "us_rep": 56.84,
+        "us_oth": 0.21
+      },
+      "win_prob": {
+        "us_rep": 1.0
+      }
+    },
+    {
+      "date": "2026-06-16",
+      "vote_mean": {
+        "us_dem": 43.33,
+        "us_rep": 56.67
+      },
+      "win_prob": {
+        "us_rep": 1.0
+      }
+    },
+    {
+      "date": "2026-06-30",
+      "vote_mean": {
+        "us_dem": 43.48,
+        "us_rep": 56.52
+      },
+      "win_prob": {
+        "us_rep": 1.0
+      }
+    },
+    {
+      "date": "2026-07-07",
+      "vote_mean": {
+        "us_dem": 45.06,
+        "us_rep": 54.94
+      },
+      "win_prob": {
+        "us_rep": 1.0
+      }
+    },
+    {
+      "date": "2026-07-14",
+      "vote_mean": {
+        "us_dem": 44.02,
+        "us_rep": 55.98
+      },
+      "win_prob": {
+        "us_rep": 1.0
+      }
+    },
+    {
+      "date": "2026-07-15",
+      "vote_mean": {
+        "us_dem": 46.41,
+        "us_rep": 53.59
+      },
+      "win_prob": {
+        "us_rep": 1.0
+      }
+    },
+    {
+      "date": "2026-07-22",
+      "vote_mean": {
+        "us_dem": 47.05,
+        "us_rep": 52.95
+      },
+      "win_prob": {
+        "us_dem": 0.0001,
+        "us_rep": 0.9999
+      }
+    }
+  ],
+  "sources": [
+    {
+      "label": "U.S. Census CVAP 2020-2024 ACS",
+      "url": "https://www2.census.gov/programs-surveys/decennial/rdo/datasets/2024/2024-cvap/CVAP_2020-2024_ACS_csv_files.zip",
+      "as_of": "2026-07-24",
+      "confidence": "official"
+    },
+    {
+      "label": "Vote-Scope model",
+      "url": "/web_data/us-house/latest.json",
+      "as_of": "2026-07-22",
+      "confidence": "model"
+    },
+    {
+      "label": "U.S. Census CPS Voting Supplement 2024",
+      "url": "https://www2.census.gov/programs-surveys/cps/tables/p20/587/vote04b_2024.xlsx",
+      "as_of": "2026-07-24",
+      "confidence": "official; state estimate"
+    },
+    {
+      "label": "U.S. House History — Hispanic-American members of the 119th Congress",
+      "url": "https://history.house.gov/Exhibitions-and-Publications/HAIC/Historical-Data/Hispanic-American-Representatives%2C-Senators%2C-Delegates%2C-and-Resident-Commissioners-by-Congress/",
+      "as_of": "2026-07-24",
+      "confidence": "reviewed"
+    }
+  ],
+  "data_completeness": {
+    "score": 100,
+    "required_fields_present": true,
+    "candidate_registry_reviewed": true,
+    "mobilization_signal_reviewed": false
+  },
+  "urls": {
+    "fr": "/fr/us/radar-latino/chambre/tx-15/",
+    "en": "/en/us/latino-radar/house/tx-15/",
+    "es": "/es/us/radar-latino/camara/tx-15/"
+  },
+  "projection_urls": {
+    "fr": "/fr/us/chambre/",
+    "en": "/en/us/house/",
+    "es": "/es/us/house/"
+  },
+  "social_cards": {
+    "fr": "/og/latino-radar/house-tx-15-fr.png",
+    "en": "/og/latino-radar/house-tx-15-en.png",
+    "es": "/og/latino-radar/house-tx-15-es.png"
+  },
+  "run_date": "2026-07-22"
+}

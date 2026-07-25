@@ -1,0 +1,11 @@
+---
+import fs from 'node:fs';
+import path from 'node:path';
+import LatinoRacePage from '../../../../../components/latino-radar/LatinoRacePage.astro';
+export function getStaticPaths() {
+  const dir = path.resolve('web_data/us-latino-radar/races');
+  return fs.readdirSync(dir).map((file) => JSON.parse(fs.readFileSync(path.join(dir,file),'utf8'))).map((race) => ({ params:{ office:race.office, slug:race.slug }, props:{ race } }));
+}
+const { race } = Astro.props;
+---
+<LatinoRacePage locale="en" race={race} />
