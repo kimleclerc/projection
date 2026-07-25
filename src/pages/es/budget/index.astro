@@ -1,0 +1,19 @@
+---
+import EditorialLayout from '../../../layouts/EditorialLayout.astro';
+import BudgetHub from '../../../components/BudgetHub.astro';
+
+const canonical = 'https://vote-scope.com/es/budget/';
+const alternates = { en: 'https://vote-scope.com/en/budget/', fr: 'https://vote-scope.com/fr/budget/', es: canonical };
+---
+<EditorialLayout
+  title="Presupuestos, descifrados — Análisis fiscal independiente — Vote-Scope"
+  description="Análisis independiente y multilingüe de los presupuestos federales y provinciales de Canadá y las actualizaciones económicas — cifras, sectores e impacto concreto. Sin afiliación gubernamental."
+  canonical={canonical}
+  lang="es"
+  currentPage="budget"
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={alternates}
+  jsonLd={[{ '@context': 'https://schema.org', '@type': 'CollectionPage', name: 'Presupuestos — análisis fiscal independiente', url: canonical, inLanguage: 'es' }]}
+>
+  <BudgetHub locale="es" />
+</EditorialLayout>

@@ -1,0 +1,242 @@
+---
+// Desk Budget — analyse fiscale indépendante (Lab-incubateur). Composant partagé
+// fr/en/es, event-scopé. Palette neutre (non partisane). Reçoit un objet budget
+// (web_data/budget/{slug}/{edition}.json) + la locale.
+import KeepDigging from './KeepDigging.astro';
+import GooglePreferredSource from './GooglePreferredSource.astro';
+import BudgetSectors from '../islands/BudgetSectors.tsx';
+import BudgetForYou from '../islands/BudgetForYou.tsx';
+import {
+  t, UI, JURISDICTION_LABEL, TYPE_LABEL, editionTitle, budgetJur, methodHref,
+  type BudgetData, type Locale,
+} from '../lib/budget';
+
+interface Props { data: BudgetData; locale: Locale }
+const { data, locale } = Astro.props;
+
+const jur = JURISDICTION_LABEL[data.slug]?.[locale] ?? data.slug;
+const heading = editionTitle(data, locale);
+const dek = t(data.title_full, locale) || t(data.title, locale);
+const lead = data.key_numbers[0];
+const topSector = data.sectors.find((s) => s.priority === 'high') ?? data.sectors[0];
+
+// Prose SEO auto (change à chaque édition/juridiction) — texte réel au-dessus
+// des chiffres, ce que les moteurs et les IA citent.
+const intro = {
+  fr: [
+    `${heading} (${jur}) a été déposé par ${data.minister}${data.premier ? `, sous ${data.premier}` : ''}. Cette analyse indépendante en dégage les chiffres, les secteurs et l'impact concret — sans affiliation gouvernementale.`,
+    lead ? `Chiffre d'ouverture : ${t(lead.label, locale)} à ${lead.value}${t(lead.note, locale) ? ` (${t(lead.note, locale)})` : ''}.` : '',
+    topSector ? `Le thème structurant : ${t(topSector.title, locale)}. ${t(topSector.summary, locale)}` : '',
+  ],
+  en: [
+    `${heading} (${jur}) was tabled by ${data.minister}${data.premier ? `, under ${data.premier}` : ''}. This independent analysis pulls out the numbers, the sectors and the concrete impact — with no government affiliation.`,
+    lead ? `Headline figure: ${t(lead.label, locale)} at ${lead.value}${t(lead.note, locale) ? ` (${t(lead.note, locale)})` : ''}.` : '',
+    topSector ? `The organizing theme: ${t(topSector.title, locale)}. ${t(topSector.summary, locale)}` : '',
+  ],
+  es: [
+    `${heading} (${jur}) fue presentado por ${data.minister}${data.premier ? `, bajo ${data.premier}` : ''}. Este análisis independiente extrae las cifras, los sectores y el impacto concreto — sin afiliación gubernamental.`,
+    lead ? `Cifra de apertura: ${t(lead.label, locale)} en ${lead.value}${t(lead.note, locale) ? ` (${t(lead.note, locale)})` : ''}.` : '',
+    topSector ? `El tema estructurante: ${t(topSector.title, locale)}. ${t(topSector.summary, locale)}` : '',
+  ],
+}[locale].filter(Boolean);
+
+const dir = (d: string) => (d === 'up' ? '▲' : d === 'down' ? '▼' : '');
+---
+
+<article class="bd">
+  <nav class="bd-crumb container" aria-label="Breadcrumb">
+    <a href={`/${locale}/budget/`}>Budget</a> <span aria-hidden="true">/</span>
+    <a href={budgetJur(locale, data.slug)}>{jur}</a> <span aria-hidden="true">/</span>
+    <span>{heading}</span>
+  </nav>
+  <header class="bd-hero container">
+    <p class="bd-kicker">{jur} · {UI.eyebrowIndep[locale]}</p>
+    <h1 class="bd-title">{heading}</h1>
+    <p class="bd-dek">{dek}</p>
+    <div class="bd-meta">
+      <span>{UI.minister[locale]}: <b>{data.minister}</b></span>
+      {data.premier && (<><span aria-hidden="true">·</span><span>{data.premier}</span></>)}
+      {t(data.date_tabled, locale) && (<><span aria-hidden="true">·</span><span>{UI.tabled[locale]} {t(data.date_tabled, locale)}</span></>)}
+    </div>
+    <p class="bd-disclaimer">{UI.disclaimer[locale]}</p>
+    <div class="bd-cta-row">
+      <a class="bd-cta" href={budgetJur(locale, data.slug)}>{UI.otherBudgets[locale]} →</a>
+      <a class="bd-cta" href={methodHref(locale)}>{locale === 'fr' ? 'Méthodologie' : locale === 'es' ? 'Metodología' : 'Methodology'} →</a>
+    </div>
+  </header>
+
+  <section class="bd-section container bd-intro">
+    {intro.map((p) => <p>{p}</p>)}
+  </section>
+
+  {data.quote && (
+    <section class="bd-section container">
+      <blockquote class="bd-quote">
+        <p>« {t(data.quote.text, locale)} »</p>
+        <cite>— {data.quote.author}{t(data.quote.role, locale) ? `, ${t(data.quote.role, locale)}` : ''}</cite>
+      </blockquote>
+    </section>
+  )}
+
+  {data.key_numbers.length > 0 && (
+    <section class="bd-section container">
+      <h2 class="bd-section-title">{UI.keyNumbers[locale]}</h2>
+      <div class="bd-nums">
+        {data.key_numbers.map((n) => (
+          <div class={`bd-num dir-${n.direction}`}>
+            <span class="bd-num-label">{t(n.label, locale)}</span>
+            <span class="bd-num-value">{n.value} <span class="bd-num-dir">{dir(n.direction)}</span></span>
+            {t(n.note, locale) && <span class="bd-num-note">{t(n.note, locale)}</span>}
+            {t(n.change, locale) && <span class="bd-num-change">{t(n.change, locale)}</span>}
+          </div>
+        ))}
+      </div>
+    </section>
+  )}
+
+  {data.sectors.length > 0 && (
+    <section class="bd-section container">
+      <h2 class="bd-section-title">{UI.sectors[locale]}</h2>
+      <BudgetSectors sectors={data.sectors} locale={locale} client:visible />
+    </section>
+  )}
+
+  {data.audiences.length > 0 && (
+    <section class="bd-section container">
+      <h2 class="bd-section-title">{UI.forYou[locale]}</h2>
+      <BudgetForYou audiences={data.audiences} locale={locale} client:visible />
+    </section>
+  )}
+
+  {data.stakeholders.length > 0 && (
+    <section class="bd-section container">
+      <h2 class="bd-section-title">{UI.stakeholders[locale]}</h2>
+      <div class="bd-stake">
+        {data.stakeholders.map((s) => (
+          <article class="bd-stake-card">
+            <h3>{t(s.title, locale)}</h3>
+            <p class="bd-stake-summary">{t(s.summary, locale)}</p>
+            {s.issues.length > 0 && (
+              <ul>{s.issues.map((i) => <li>{t(i, locale)}</li>)}</ul>
+            )}
+          </article>
+        ))}
+      </div>
+    </section>
+  )}
+
+  {data.comparison && data.comparison.items.length > 0 && (
+    <section class="bd-section container">
+      <h2 class="bd-section-title">{UI.comparison[locale]}</h2>
+      <div class="bd-compare-wrap">
+        <table class="bd-compare">
+          <tbody>
+            {data.comparison.items.map((it) => (
+              <tr>
+                <th scope="row">{t(it.label, locale)}</th>
+                <td class="bd-before">{t(it.before, locale)}</td>
+                <td class="bd-arrow">→</td>
+                <td class={`bd-after dir-${it.direction}`}>{t(it.after, locale)} {dir(it.direction)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  )}
+
+  {data.glossary.length > 0 && (
+    <section class="bd-section container">
+      <h2 class="bd-section-title">{UI.glossary[locale]}</h2>
+      <div class="bd-gloss">
+        {data.glossary.map((g) => (
+          <details class="bd-gloss-item">
+            <summary>{t(g.term, locale)}</summary>
+            <p>{t(g.definition, locale)}</p>
+          </details>
+        ))}
+      </div>
+    </section>
+  )}
+
+  {data.sources && (data.sources.plan || data.sources.brief) && (
+    <section class="bd-section container">
+      <h2 class="bd-section-title">{UI.sources[locale]}</h2>
+      <div class="bd-sources">
+        {data.sources.brief && <a class="bd-src" href={data.sources.brief} target="_blank" rel="noopener">{UI.briefLabel[locale]} ↗</a>}
+        {data.sources.plan && <a class="bd-src" href={data.sources.plan} target="_blank" rel="noopener">{UI.planLabel[locale]} ↗</a>}
+      </div>
+    </section>
+  )}
+
+  <section class="bd-section container">
+    <GooglePreferredSource locale={locale} />
+  </section>
+
+  <section class="bd-section container">
+    <KeepDigging
+      eyebrow={locale === 'fr' ? 'Continuer à creuser' : locale === 'es' ? 'Seguir explorando' : 'Keep digging'}
+      title={locale === 'fr' ? 'D’autres budgets, d’autres desks.' : locale === 'es' ? 'Otros presupuestos, otras mesas.' : 'More budgets, more desks.'}
+      body={locale === 'fr' ? 'Toutes les éditions par juridiction, et les autres instruments Vote-Scope.' : locale === 'es' ? 'Todas las ediciones por jurisdicción, y los demás instrumentos de Vote-Scope.' : 'Every edition by jurisdiction, plus the other Vote-Scope instruments.'}
+      links={[
+        { href: budgetJur(locale, data.slug), label: `${jur} — ${UI.allEditions[locale]}`, detail: TYPE_LABEL[data.type][locale] },
+        { href: `/${locale}/budget/`, label: locale === 'fr' ? 'Tous les budgets' : locale === 'es' ? 'Todos los presupuestos' : 'All budgets', detail: 'Canada · Ontario · Québec' },
+        { href: `/${locale}/`, label: locale === 'fr' ? 'Tous les bureaux' : locale === 'es' ? 'Todas las mesas' : 'All desks', detail: 'Vote-Scope' },
+      ]}
+    />
+  </section>
+</article>
+
+<style>
+  .bd { padding-block: 40px 96px; }
+  .bd-crumb { max-width: 1080px; margin-bottom: 24px; font-family: var(--mono); font-size: 11px; color: var(--ink-3); }
+  .bd-crumb a { color: var(--ink-2); text-decoration: none; }
+  .bd-crumb a:hover { color: var(--ink); }
+  .bd-crumb span[aria-hidden] { color: var(--rule); margin: 0 4px; }
+  .bd-hero { max-width: 1080px; padding-bottom: 40px; border-bottom: 1px solid var(--rule); }
+  .bd-kicker { margin: 0 0 16px; font-family: var(--mono); font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-3); }
+  .bd-title { margin: 0 0 16px; font-family: var(--serif); font-size: clamp(40px, 6vw, 72px); font-weight: 420; letter-spacing: -0.02em; line-height: 1.02; }
+  .bd-dek { max-width: 720px; margin: 0 0 20px; color: var(--ink-2); font-size: 18px; line-height: 1.5; font-family: var(--serif); font-style: italic; }
+  .bd-meta { display: flex; flex-wrap: wrap; gap: 8px 14px; font-family: var(--mono); font-size: 12px; color: var(--ink-2); }
+  .bd-meta span[aria-hidden] { color: var(--rule); }
+  .bd-disclaimer { margin: 16px 0 0; font-family: var(--mono); font-size: 11px; color: var(--ink-3); }
+  .bd-cta-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
+  .bd-cta { display: inline-flex; align-items: center; padding: 9px 16px; border: 1px solid var(--rule); border-radius: 999px; font-family: var(--mono); font-size: 12px; color: var(--ink-2); text-decoration: none; transition: border-color .15s, color .15s; }
+  .bd-cta:hover { border-color: var(--ink); color: var(--ink); }
+  .bd-section { max-width: 1080px; margin-top: 52px; }
+  .bd-intro { max-width: 760px; }
+  .bd-intro p { margin: 0 0 0.85rem; color: var(--ink-2); font-size: 1.02rem; line-height: 1.7; }
+  .bd-section-title { margin: 0 0 18px; font-family: var(--serif); font-size: clamp(24px, 3vw, 34px); font-weight: 430; letter-spacing: -0.01em; }
+  .bd-quote { margin: 0; border-left: 3px solid var(--ink); padding-left: 20px; max-width: 760px; }
+  .bd-quote p { font-family: var(--serif); font-size: 22px; line-height: 1.4; color: var(--ink); margin: 0 0 8px; }
+  .bd-quote cite { font-family: var(--mono); font-size: 12px; color: var(--ink-3); font-style: normal; }
+  .bd-nums { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+  .bd-num { border: 1px solid var(--rule); border-radius: 8px; background: var(--card); padding: 16px; display: flex; flex-direction: column; gap: 4px; }
+  .bd-num-label { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: .05em; color: var(--ink-3); }
+  .bd-num-value { font-family: var(--serif); font-size: 26px; color: var(--ink); }
+  .bd-num.dir-down .bd-num-dir { color: #c62828; } .bd-num.dir-up .bd-num-dir { color: #2e7d32; }
+  .bd-num-dir { font-size: 14px; }
+  .bd-num-note { font-size: 12px; color: var(--ink-2); line-height: 1.45; }
+  .bd-num-change { font-family: var(--mono); font-size: 11px; color: var(--ink-3); }
+  .bd-stake { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
+  .bd-stake-card { border: 1px solid var(--rule); border-radius: 8px; background: var(--card); padding: 18px; }
+  .bd-stake-card h3 { margin: 0 0 8px; font-family: var(--serif); font-size: 17px; color: var(--ink); }
+  .bd-stake-summary { margin: 0 0 10px; color: var(--ink-2); font-size: 14px; line-height: 1.6; }
+  .bd-stake-card ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; }
+  .bd-stake-card li { font-size: 13px; line-height: 1.55; color: var(--ink-2); }
+  .bd-compare-wrap { overflow-x: auto; }
+  .bd-compare { width: 100%; border-collapse: collapse; }
+  .bd-compare th, .bd-compare td { padding: 10px 12px; border-bottom: 1px solid var(--rule); text-align: left; font-size: 14px; }
+  .bd-compare th { font-family: var(--serif); color: var(--ink); font-weight: 500; }
+  .bd-before { font-family: var(--mono); font-size: 13px; color: var(--ink-3); }
+  .bd-arrow { color: var(--ink-3); width: 24px; text-align: center; }
+  .bd-after { font-family: var(--mono); font-size: 13px; color: var(--ink); font-weight: 600; }
+  .bd-after.dir-down { color: #c62828; } .bd-after.dir-up { color: #2e7d32; }
+  .bd-gloss { display: flex; flex-direction: column; gap: 6px; max-width: 820px; }
+  .bd-gloss-item { border: 1px solid var(--rule); border-radius: 6px; background: var(--card); padding: 12px 16px; }
+  .bd-gloss-item summary { font-family: var(--serif); font-size: 15px; color: var(--ink); cursor: pointer; }
+  .bd-gloss-item p { margin: 10px 0 0; font-size: 14px; line-height: 1.6; color: var(--ink-2); }
+  .bd-sources { display: flex; flex-wrap: wrap; gap: 12px; }
+  .bd-src { font-family: var(--mono); font-size: 12px; color: var(--ink-2); text-decoration: none; border: 1px solid var(--rule); border-radius: 999px; padding: 8px 14px; }
+  .bd-src:hover { border-color: var(--ink); color: var(--ink); }
+</style>

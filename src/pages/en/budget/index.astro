@@ -1,0 +1,19 @@
+---
+import EditorialLayout from '../../../layouts/EditorialLayout.astro';
+import BudgetHub from '../../../components/BudgetHub.astro';
+
+const canonical = 'https://vote-scope.com/en/budget/';
+const alternates = { en: canonical, fr: 'https://vote-scope.com/fr/budget/', es: 'https://vote-scope.com/es/budget/' };
+---
+<EditorialLayout
+  title="Budgets, Decoded — Independent Fiscal Analysis — Vote-Scope"
+  description="Independent, multilingual analysis of Canadian federal and provincial budgets and economic updates — numbers, sectors and concrete impact. Not affiliated with any government."
+  canonical={canonical}
+  lang="en"
+  currentPage="budget"
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={alternates}
+  jsonLd={[{ '@context': 'https://schema.org', '@type': 'CollectionPage', name: 'Budgets — Independent Fiscal Analysis', url: canonical, inLanguage: 'en' }]}
+>
+  <BudgetHub locale="en" />
+</EditorialLayout>

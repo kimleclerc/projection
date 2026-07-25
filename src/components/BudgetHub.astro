@@ -1,0 +1,72 @@
+---
+// Hub Budget (top) — /{lang}/budget/. Liste les juridictions, chacune avec son
+// édition la plus récente. C'est aussi la cible du lien « Lab » du footer perso.
+import KeepDigging from './KeepDigging.astro';
+import { jurisdictions, editionsFor, latestFor } from '../lib/budget-data';
+import {
+  t, UI, JURISDICTION_LABEL, TYPE_LABEL, editionTitle, budgetJur, budgetEdition,
+  type Locale,
+} from '../lib/budget';
+
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+const jurs = jurisdictions();
+
+const COPY = {
+  fr: { kicker: 'Lab · Analyse fiscale', title: 'Budgets, décodés', dek: 'Analyse indépendante et bilingue des budgets et mises à jour économiques — chiffres, secteurs et impact concret, une page par édition, archives conservées.', editions: 'éditions' },
+  en: { kicker: 'Lab · Fiscal analysis', title: 'Budgets, decoded', dek: 'Independent, multilingual analysis of budgets and economic updates — numbers, sectors and concrete impact, one page per edition, archives kept.', editions: 'editions' },
+  es: { kicker: 'Lab · Análisis fiscal', title: 'Presupuestos, descifrados', dek: 'Análisis independiente y multilingüe de presupuestos y actualizaciones económicas — cifras, sectores e impacto concreto, una página por edición, archivos conservados.', editions: 'ediciones' },
+}[locale];
+---
+
+<article class="bh">
+  <header class="bh-hero container">
+    <p class="bh-kicker">{COPY.kicker}</p>
+    <h1 class="bh-title">{COPY.title}</h1>
+    <p class="bh-dek">{COPY.dek}</p>
+  </header>
+
+  <section class="bh-grid container">
+    {jurs.map((slug) => {
+      const editions = editionsFor(slug);
+      const latest = latestFor(slug)!;
+      const jur = JURISDICTION_LABEL[slug]?.[locale] ?? slug;
+      return (
+        <a class="bh-card" href={budgetJur(locale, slug)}>
+          <p class="bh-card-jur">{jur}</p>
+          <p class="bh-card-latest">{editionTitle(latest, locale)}</p>
+          <p class="bh-card-count">{editions.length} {COPY.editions}</p>
+          <span class="bh-card-cta">→</span>
+        </a>
+      );
+    })}
+  </section>
+
+  <section class="bh-section container">
+    <KeepDigging
+      eyebrow={locale === 'fr' ? 'Le Lab' : locale === 'es' ? 'El Lab' : 'The Lab'}
+      title={locale === 'fr' ? 'Des expériences qui deviennent des desks.' : locale === 'es' ? 'Experimentos que se vuelven mesas.' : 'Experiments that graduate into desks.'}
+      body={locale === 'fr' ? 'Le budget est une expérience du Lab Vote-Scope : du contenu éditorial solide à côté des projections électorales.' : locale === 'es' ? 'El presupuesto es un experimento del Lab de Vote-Scope: contenido editorial sólido junto a las proyecciones electorales.' : 'Budget is a Vote-Scope Lab experiment: solid editorial content alongside the election projections.'}
+      links={[
+        { href: `/${locale}/us/president/`, label: locale === 'fr' ? 'Présidentielle US 2028' : locale === 'es' ? 'Presidencial EE. UU. 2028' : 'US Presidential 2028', detail: 'Desk' },
+        { href: `/${locale}/`, label: locale === 'fr' ? 'Tous les bureaux' : locale === 'es' ? 'Todas las mesas' : 'All desks', detail: 'Vote-Scope' },
+      ]}
+    />
+  </section>
+</article>
+
+<style>
+  .bh { padding-block: 64px 96px; }
+  .bh-hero { max-width: 1080px; padding-bottom: 40px; border-bottom: 1px solid var(--rule); }
+  .bh-kicker { margin: 0 0 16px; font-family: var(--mono); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); }
+  .bh-title { margin: 0 0 16px; font-family: var(--serif); font-size: clamp(44px, 6.5vw, 76px); font-weight: 420; letter-spacing: -.02em; line-height: 1; }
+  .bh-dek { max-width: 680px; margin: 0; color: var(--ink-2); font-size: 17px; line-height: 1.6; }
+  .bh-grid { max-width: 1080px; margin-top: 40px; display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
+  .bh-card { position: relative; border: 1px solid var(--rule); border-radius: 10px; background: var(--card); padding: 22px; text-decoration: none; transition: border-color .15s, transform .15s; }
+  .bh-card:hover { border-color: var(--ink); transform: translateY(-2px); }
+  .bh-card-jur { margin: 0 0 10px; font-family: var(--serif); font-size: 24px; color: var(--ink); }
+  .bh-card-latest { margin: 0 0 4px; font-family: var(--mono); font-size: 13px; color: var(--ink-2); }
+  .bh-card-count { margin: 0; font-family: var(--mono); font-size: 11px; color: var(--ink-3); }
+  .bh-card-cta { position: absolute; top: 22px; right: 22px; color: var(--ink-3); font-size: 18px; }
+  .bh-section { max-width: 1080px; margin-top: 56px; }
+</style>
