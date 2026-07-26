@@ -1,17 +1,23 @@
 ---
+// Une seule route sert les deux familles : les partielles résolues (archives)
+// et les partielles en attente (desk de projection).
 import CanadaByelectionEngine from '../../../../components/CanadaByelectionEngine.astro';
+import CanadaByelectionRaceDesk from '../../../../components/CanadaByelectionRaceDesk.astro';
 import { canadaByelections } from '../../../../data/canadaByelections';
+import { canadaByelectionRaces } from '../../../../data/canadaByelectionRaces';
 
 export function getStaticPaths() {
-  return Object.values(canadaByelections)
+  const resolved = Object.values(canadaByelections)
     .filter((config) => config.paths.fr)
-    .map((config) => ({
-      params: { slug: config.slug },
-      props: { config },
-    }));
+    .map((config) => ({ params: { slug: config.slug }, props: { config, pending: false } }));
+  const pending = Object.values(canadaByelectionRaces)
+    .map((config) => ({ params: { slug: config.slug }, props: { config, pending: true } }));
+  return [...resolved, ...pending];
 }
 
-const { config } = Astro.props;
+const { config, pending } = Astro.props;
 ---
 
-<CanadaByelectionEngine lang="fr" config={config} />
+{pending
+  ? <CanadaByelectionRaceDesk lang="fr" config={config as any} />
+  : <CanadaByelectionEngine lang="fr" config={config as any} />}

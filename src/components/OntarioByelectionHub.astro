@@ -1,0 +1,205 @@
+---
+// Hub des partielles ontariennes — scrutin attendu le 3 septembre 2026.
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import Base from '../layouts/Base.astro';
+import KeepDigging from './KeepDigging.astro';
+import { ontarioByelectionRaces } from '../data/ontarioByelectionRaces';
+import type { ByelectionRaceLocale } from '../data/canadaByelectionRaces';
+
+interface Props { lang: ByelectionRaceLocale }
+const { lang } = Astro.props;
+
+const index = JSON.parse(
+  readFileSync(resolve(process.cwd(), 'web_data', 'ontario-byelections', 'latest.json'), 'utf-8'),
+);
+const byRiding = new Map<string, any>((index.pending ?? []).map((p: any) => [p.slug, p]));
+
+const PARTY_LABEL: Record<string, Record<ByelectionRaceLocale, string>> = {
+  on_pc: { en: 'Progressive Conservative', fr: 'Progressiste-conservateur', es: 'Progresista Conservador' },
+  on_lib: { en: 'Ontario Liberal', fr: 'Libéral de l’Ontario', es: 'Liberal de Ontario' },
+  on_ndp: { en: 'Ontario NDP', fr: 'NPD de l’Ontario', es: 'NPD de Ontario' },
+  on_grn: { en: 'Ontario Green', fr: 'Vert de l’Ontario', es: 'Verde de Ontario' },
+};
+const PARTY_COLOR: Record<string, string> = {
+  on_pc: '#1A4782', on_lib: '#D71920', on_ndp: '#F58220', on_grn: '#3D9B35',
+};
+const fmtProb = (p: number) => {
+  const v = p * 100;
+  if (v >= 99.5) return '> 99';
+  if (v < 0.5) return '< 1';
+  return v.toFixed(0);
+};
+
+const races = Object.values(ontarioByelectionRaces);
+
+const t = {
+  en: {
+    title: 'Ontario By-Elections — September 3, 2026 — Vote-Scope',
+    description:
+      'Three Ontario by-elections expected September 3, 2026: Hamilton East—Stoney Creek, Scarborough Southwest and York—Simcoe. Vote-Scope measures what each departing MPP was personally worth.',
+    kicker: 'Ontario Desk · By-elections',
+    h1: 'Three seats, three departures.',
+    dek: 'Doug Ford is expected to issue the writs on August 5 for votes on September 3. Two of the three seats are Progressive Conservative, and both are being defended without the member who won them — one of them amid the hotel controversy that cost him his cabinet post.',
+    label: 'Expected — September 3, 2026',
+    favorite: 'Favourite',
+    view: 'View forecast →',
+    noResidual: 'No by-election turnout residual is applied to these races. The only one Vote-Scope has measured comes from the April 2026 federal by-elections; transposing it to a provincial contest would be an assumption rather than a measurement.',
+    keepEyebrow: 'Keep digging',
+    keepTitle: 'More from the Ontario Desk.',
+    keepBody: 'The provincial projection, the riding profiles, and the polling hub.',
+    proj: 'Ontario projection',
+    fed: 'Federal by-elections',
+  },
+  fr: {
+    title: 'Partielles ontariennes — 3 septembre 2026 — Vote-Scope',
+    description:
+      'Trois partielles ontariennes attendues le 3 septembre 2026 : Hamilton-Est—Stoney Creek, Scarborough-Sud-Ouest et York—Simcoe. Vote-Scope mesure ce que valait personnellement chaque députée ou député sortant.',
+    kicker: 'Bureau Ontario · Partielles',
+    h1: 'Trois sièges, trois départs.',
+    dek: 'Doug Ford devrait émettre les brefs le 5 août pour des scrutins le 3 septembre. Deux des trois sièges sont progressistes-conservateurs, et tous deux se défendent sans la personne qui les a gagnés — dont l’un dans la controverse des hôtels qui lui a coûté son poste au cabinet.',
+    label: 'Attendues — 3 septembre 2026',
+    favorite: 'Favori',
+    view: 'Voir la projection →',
+    noResidual: 'Aucun résidu de participation n’est appliqué à ces courses. Le seul que Vote-Scope a mesuré provient des partielles fédérales d’avril 2026; le transposer à un scrutin provincial relèverait de l’hypothèse et non de la mesure.',
+    keepEyebrow: 'Continuer à creuser',
+    keepTitle: 'Plus du bureau Ontario.',
+    keepBody: 'La projection provinciale, les fiches de circonscription et le hub des sondages.',
+    proj: 'Projection ontarienne',
+    fed: 'Partielles fédérales',
+  },
+  es: {
+    title: 'Parciales de Ontario — 3 de septiembre de 2026 — Vote-Scope',
+    description:
+      'Tres parciales de Ontario previstas para el 3 de septiembre de 2026: Hamilton East—Stoney Creek, Scarborough Southwest y York—Simcoe. Vote-Scope mide cuánto valía personalmente cada diputado saliente.',
+    kicker: 'Oficina Ontario · Parciales',
+    h1: 'Tres escaños, tres salidas.',
+    dek: 'Se espera que Doug Ford emita los decretos el 5 de agosto para votar el 3 de septiembre. Dos de los tres escaños son progresistas conservadores, y ambos se defienden sin quien los ganó — uno de ellos en medio de la controversia de los hoteles que le costó su puesto en el gabinete.',
+    label: 'Previstas — 3 de septiembre de 2026',
+    favorite: 'Favorito',
+    view: 'Ver proyección →',
+    noResidual: 'No se aplica ningún residuo de participación a estas carreras. El único que Vote-Scope ha medido proviene de las parciales federales de abril de 2026; trasladarlo a una contienda provincial sería una suposición y no una medición.',
+    keepEyebrow: 'Seguir cavando',
+    keepTitle: 'Más del desk de Ontario.',
+    keepBody: 'La proyección provincial, las fichas de circunscripción y el hub de encuestas.',
+    proj: 'Proyección de Ontario',
+    fed: 'Parciales federales',
+  },
+}[lang];
+
+const canonical = `https://vote-scope.com/${lang}/canada/ontario/byelections/`;
+---
+
+<Base
+  title={t.title}
+  description={t.description}
+  canonical={canonical}
+  lang={lang}
+  currentPage="canada"
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={{
+    en: 'https://vote-scope.com/en/canada/ontario/byelections/',
+    fr: 'https://vote-scope.com/fr/canada/ontario/byelections/',
+    es: 'https://vote-scope.com/es/canada/ontario/byelections/',
+  }}
+  jsonLd={[
+    { '@context': 'https://schema.org', '@type': 'CollectionPage', name: t.title.replace(' — Vote-Scope', ''), url: canonical, inLanguage: lang },
+    { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: `https://vote-scope.com/${lang}/` },
+      { '@type': 'ListItem', position: 2, name: 'Ontario', item: `https://vote-scope.com/${lang}/canada/ontario/` },
+      { '@type': 'ListItem', position: 3, name: t.kicker, item: canonical },
+    ]},
+  ]}
+>
+  <article class="onhub">
+    <header class="onhub-hero container">
+      <p class="onhub-kicker">{t.kicker}</p>
+      <h1>{t.h1}</h1>
+      <p class="onhub-dek">{t.dek}</p>
+    </header>
+
+    <section class="container">
+      <p class="onhub-label">{t.label}</p>
+      <div class="onhub-grid">
+        {races.map((race) => {
+          const d = byRiding.get(race.slug);
+          const fav = d?.favorite;
+          return (
+            <a href={race.paths[lang]} class="onhub-card" style={`--accent:${PARTY_COLOR[fav] ?? 'var(--rule)'}`}>
+              <span class="onhub-card-kicker">{d?.riding_name_fr ?? race.slug}</span>
+              <h2>{race.headline[lang]}</h2>
+              <p class="onhub-card-dek">{race.dek[lang]}</p>
+              {fav && (
+                <p class="onhub-card-fav">
+                  {t.favorite} · <strong style={`color:${PARTY_COLOR[fav]}`}>{PARTY_LABEL[fav]?.[lang] ?? fav}</strong>
+                  {' '}{fmtProb(d.favorite_probability)} %
+                </p>
+              )}
+              <span class="onhub-card-cta">{t.view}</span>
+            </a>
+          );
+        })}
+      </div>
+      <p class="onhub-note">{t.noResidual}</p>
+    </section>
+
+    <KeepDigging
+      eyebrow={t.keepEyebrow}
+      title={t.keepTitle}
+      body={t.keepBody}
+      links={[
+        { href: `/${lang}/canada/ontario/`, label: t.proj },
+        { href: `/${lang}/canada/byelections/`, label: t.fed },
+      ]}
+    />
+  </article>
+</Base>
+
+<style>
+  .onhub { padding-bottom: 64px; }
+  .onhub .container { max-width: 1080px; margin-inline: auto; padding-inline: 1.5rem; }
+  .onhub-hero { padding-top: 56px; padding-bottom: 40px; border-bottom: 1px solid var(--rule); }
+  .onhub-kicker {
+    font-family: var(--mono); font-size: 12px; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--ink-3);
+  }
+  .onhub-hero h1 {
+    margin-top: 14px; max-width: 800px; font-family: var(--serif); font-weight: 420;
+    font-size: clamp(38px, 6vw, 68px); letter-spacing: -0.02em; line-height: 1;
+  }
+  .onhub-dek { margin-top: 16px; max-width: 68ch; color: var(--ink-2); font-size: 17px; line-height: 1.6; }
+  .onhub-label {
+    margin-top: 48px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--ink-3);
+    border-bottom: 1px solid var(--rule); padding-bottom: 10px;
+  }
+  .onhub-grid {
+    margin-top: 20px; display: grid; gap: 18px;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  }
+  .onhub-card {
+    display: flex; flex-direction: column; gap: 10px;
+    border: 1px solid var(--rule); border-top: 3px solid var(--accent, var(--rule));
+    border-radius: 6px; background: var(--card); padding: 22px;
+    color: var(--ink); text-decoration: none; transition: border-color 0.15s;
+  }
+  .onhub-card:hover { border-color: var(--ink-3); }
+  .onhub-card-kicker {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--ink-3);
+  }
+  .onhub-card h2 {
+    margin: 0; font-family: var(--serif); font-size: 22px; font-weight: 430;
+    letter-spacing: -0.01em; line-height: 1.15;
+  }
+  .onhub-card-dek { flex: 1; margin: 0; color: var(--ink-2); font-size: 14px; line-height: 1.55; }
+  .onhub-card-fav { margin: 0; font-family: var(--mono); font-size: 12px; color: var(--ink-2); }
+  .onhub-card-cta {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--ink-3);
+  }
+  .onhub-note {
+    margin-top: 24px; padding: 12px 14px; border: 1px dashed var(--rule);
+    border-radius: 4px; font-size: 13px; color: var(--ink-2); line-height: 1.55; max-width: 76ch;
+  }
+</style>

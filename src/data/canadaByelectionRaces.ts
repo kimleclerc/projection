@@ -1,0 +1,522 @@
+// Partielles fédérales en attente — 45e législature.
+//
+// Même contrat que specialElections.ts, mais UNIFORME dans les trois langues :
+// aucune locale n'est un repli d'une autre, aucune page n'est noindex faute de
+// traduction. Les chiffres du modèle ne sont JAMAIS écrits ici — ils viennent
+// de web_data/<dataPath>/latest.json au build, produit par
+// export_fed_byelections_web.py côté moteur.
+
+export type ByelectionRaceLocale = 'en' | 'fr' | 'es';
+type L<T> = Record<ByelectionRaceLocale, T>;
+
+/** Statut d'une course : le bref est déposé ou non. */
+export type ByelectionRaceStatus = 'vacant_pending_writ' | 'expected';
+
+export interface ByelectionRaceConfig {
+  slug: string;
+  ridingId: string;
+  dataPath: string;
+  currentPage: string;
+  status: ByelectionRaceStatus;
+  /** null tant que le décret n'est pas pris. */
+  electionDate: string | null;
+  vacancyDate: string | null;
+  province: string;
+  title: L<string>;
+  description: L<string>;
+  kicker: L<string>;
+  headline: L<string>;
+  dek: L<string>;
+  /** Pourquoi cette partielle a lieu. */
+  why: L<string[]>;
+  /** Ce que le modèle fait de particulier ici. */
+  modelNote: L<string>;
+  paths: Record<ByelectionRaceLocale, string>;
+  /**
+   * Rattachement du desk. Absents, ces champs retombent sur le fédéral —
+   * l'Ontario les fournit pour pointer vers son propre hub et sa projection.
+   */
+  hubPath?: L<string>;
+  hubLabel?: L<string>;
+  projectionPath?: L<string>;
+  projectionLabel?: L<string>;
+  /** Niveau 2 du fil d'Ariane (« Canada », « Ontario »…). */
+  sectionLabel?: L<string>;
+  sectionPath?: L<string>;
+}
+
+const WIKI = 'https://en.wikipedia.org/wiki/By-elections_to_the_45th_Canadian_Parliament';
+
+export const canadaByelectionRaces = {
+  'chicoutimi-le-fjord': {
+    slug: 'chicoutimi-le-fjord',
+    ridingId: '24018',
+    dataPath: 'canada-byelection-chicoutimi-le-fjord',
+    currentPage: 'canada',
+    status: 'vacant_pending_writ',
+    electionDate: null,
+    vacancyDate: '2026-07-07',
+    province: 'QC',
+    title: {
+      en: 'Chicoutimi—Le Fjord By-Election: What Richard Martel Was Worth — Vote-Scope',
+      fr: 'Partielle de Chicoutimi—Le Fjord : ce que valait Richard Martel — Vote-Scope',
+      es: 'Parcial de Chicoutimi—Le Fjord: cuánto valía Richard Martel — Vote-Scope',
+    },
+    description: {
+      en: 'Richard Martel took his Senate seat — and his personal vote with him. A local Pallas poll shows a three-way tie. Vote-Scope measures what the former Saguenéens coach was actually worth, and why the poll misses the Liberal star candidate.',
+      fr: 'Richard Martel part au Sénat et emporte son vote personnel. Un sondage local Pallas montre une égalité à trois. Vote-Scope mesure ce que valait vraiment l’ancien entraîneur des Saguenéens, et pourquoi le sondage rate la candidature vedette libérale.',
+      es: 'Richard Martel se va al Senado y se lleva su voto personal. Una encuesta local de Pallas muestra un triple empate. Vote-Scope mide cuánto valía el exentrenador de los Saguenéens y por qué la encuesta no capta a la candidata estrella liberal.',
+    },
+    kicker: {
+      en: 'Federal by-election · Quebec · writ pending',
+      fr: 'Partielle fédérale · Québec · en attente du bref',
+      es: 'Parcial federal · Quebec · a la espera del decreto',
+    },
+    headline: {
+      en: 'The coach is gone.',
+      fr: 'L’entraîneur s’en va.',
+      es: 'El entrenador se va.',
+    },
+    dek: {
+      en: 'Before Richard Martel, this seat gave the Conservatives exactly the Quebec average — no premium at all. He turned it into a 20-point personal fortress. Now he is a senator, and the only local poll shows the Bloc, the Liberals and the Conservatives separated by four points.',
+      fr: 'Avant Richard Martel, ce siège donnait aux conservateurs exactement la moyenne québécoise — aucune prime. Il en a fait une forteresse personnelle de 20 points. Le voilà sénateur, et le seul sondage local place le Bloc, les libéraux et les conservateurs en quatre points.',
+      es: 'Antes de Richard Martel, este escaño daba a los conservadores exactamente la media quebequesa — ninguna prima. Él lo convirtió en una fortaleza personal de 20 puntos. Ahora es senador, y la única encuesta local sitúa al Bloque, los liberales y los conservadores en cuatro puntos.',
+    },
+    why: {
+      en: [
+        'Richard Martel was appointed to the Senate; the seat became vacant on July 7, 2026.',
+        'In 2015, before Martel, the Conservative share here sat 0.2 points BELOW the Quebec-wide Conservative vote. The riding had no conservative lean of its own.',
+        'With Martel on the ballot the gap swung to +20.5 points (2019), +21.5 (2021) and +9.9 (2025). The former Chicoutimi Saguenéens head coach was the premium.',
+        'The Pallas poll of July 18 puts the Conservatives at 26% — down 7.7 points from their 2025 result, almost exactly the personal vote measured from the historical record.',
+        'The poll was taken before the Liberals named Daniel Gobeil, president of the Quebec milk producers’ federation, on July 24 — a supply-management candidacy at the height of the trade talks with Washington.',
+      ],
+      fr: [
+        'Richard Martel est nommé au Sénat; le siège devient vacant le 7 juillet 2026.',
+        'En 2015, avant Martel, le vote conservateur ici était 0,2 point SOUS la moyenne conservatrice québécoise. La circonscription n’avait aucun penchant conservateur propre.',
+        'Avec Martel sur le bulletin, l’écart bondit à +20,5 points (2019), +21,5 (2021) et +9,9 (2025). L’ancien entraîneur-chef des Saguenéens de Chicoutimi, c’était la prime.',
+        'Le sondage Pallas du 18 juillet donne 26 % aux conservateurs — 7,7 points sous leur résultat de 2025, soit presque exactement le vote personnel mesuré dans l’historique.',
+        'Le sondage est antérieur à l’annonce, le 24 juillet, de Daniel Gobeil comme candidat libéral : le président de la fédération des producteurs de lait du Québec, une candidature de gestion de l’offre en pleines négociations commerciales avec Washington.',
+      ],
+      es: [
+        'Richard Martel fue nombrado senador; el escaño quedó vacante el 7 de julio de 2026.',
+        'En 2015, antes de Martel, el voto conservador aquí estaba 0,2 puntos POR DEBAJO de la media conservadora quebequesa. La circunscripción no tenía inclinación conservadora propia.',
+        'Con Martel en la papeleta la brecha saltó a +20,5 puntos (2019), +21,5 (2021) y +9,9 (2025). El exentrenador de los Saguenéens de Chicoutimi era la prima.',
+        'La encuesta de Pallas del 18 de julio da 26 % a los conservadores — 7,7 puntos menos que su resultado de 2025, casi exactamente el voto personal medido en el histórico.',
+        'La encuesta es anterior al anuncio, el 24 de julio, de Daniel Gobeil como candidato liberal: el presidente de la federación de productores de leche de Quebec, una candidatura de gestión de la oferta en plena negociación comercial con Washington.',
+      ],
+    },
+    modelNote: {
+      en: 'This is the only one of the seven races with a constituency poll, so the poll re-centres the projection. Neither the personal-vote correction nor the by-election turnout residual is applied on top: a poll asking voters about this by-election already carries both effects, and applying them again would double-count.',
+      fr: 'C’est la seule des sept courses dotée d’un sondage de circonscription : il re-centre donc la projection. Ni la correction du vote personnel ni le résidu de participation ne s’ajoutent par-dessus — un sondage qui interroge les électeurs sur CETTE partielle porte déjà les deux effets, et les réappliquer serait un double comptage.',
+      es: 'Es la única de las siete carreras con una encuesta de circunscripción, así que la encuesta recentra la proyección. Ni la corrección del voto personal ni el residuo de participación se aplican encima: una encuesta que pregunta por ESTA parcial ya contiene ambos efectos, y volver a aplicarlos sería contarlos dos veces.',
+    },
+    paths: {
+      en: '/en/canada/byelections/chicoutimi-le-fjord/',
+      fr: '/fr/canada/byelections/chicoutimi-le-fjord/',
+      es: '/es/canada/byelections/chicoutimi-le-fjord/',
+    },
+  },
+
+  'rosemont-la-petite-patrie': {
+    slug: 'rosemont-la-petite-patrie',
+    ridingId: '24065',
+    dataPath: 'canada-byelection-rosemont-la-petite-patrie',
+    currentPage: 'canada',
+    status: 'expected',
+    electionDate: null,
+    vacancyDate: null,
+    province: 'QC',
+    title: {
+      en: 'Rosemont—La Petite-Patrie By-Election: The Last NDP Seat in Quebec — Vote-Scope',
+      fr: 'Partielle de Rosemont—La Petite-Patrie : le dernier siège NPD du Québec — Vote-Scope',
+      es: 'Parcial de Rosemont—La Petite-Patrie: el último escaño del NPD en Quebec — Vote-Scope',
+    },
+    description: {
+      en: 'Alexandre Boulerice held 40.5% while his party polled 4.5% province-wide. Vote-Scope separates the man from the riding — and finds a progressive floor that does not leave with him.',
+      fr: 'Alexandre Boulerice tenait 40,5 % pendant que son parti récoltait 4,5 % au Québec. Vote-Scope sépare l’homme de la circonscription — et trouve un socle progressiste qui ne part pas avec lui.',
+      es: 'Alexandre Boulerice mantenía 40,5 % mientras su partido lograba 4,5 % en Quebec. Vote-Scope separa al hombre de la circunscripción — y encuentra un suelo progresista que no se va con él.',
+    },
+    kicker: {
+      en: 'Federal by-election · Quebec · expected',
+      fr: 'Partielle fédérale · Québec · anticipée',
+      es: 'Parcial federal · Quebec · prevista',
+    },
+    headline: {
+      en: 'One man, one seat.',
+      fr: 'Un homme, un siège.',
+      es: 'Un hombre, un escaño.',
+    },
+    dek: {
+      en: 'Alexandre Boulerice was the last New Democrat in Quebec, and very nearly the last New Democrat vote: 40.5% here against 4.5% province-wide. He is leaving to run for Québec solidaire. The question is how much of that vote was ever his party’s.',
+      fr: 'Alexandre Boulerice était le dernier néo-démocrate du Québec, et presque le dernier vote néo-démocrate : 40,5 % ici contre 4,5 % dans la province. Il part se présenter pour Québec solidaire. Reste à savoir quelle part de ce vote a jamais appartenu à son parti.',
+      es: 'Alexandre Boulerice era el último neodemócrata de Quebec, y casi el último voto neodemócrata: 40,5 % aquí frente a 4,5 % en la provincia. Se va a presentarse por Québec solidaire. La pregunta es qué parte de ese voto fue alguna vez de su partido.',
+    },
+    why: {
+      en: [
+        'Boulerice has sat as an independent since April 27, 2026 and will run for Québec solidaire in Gouin at the Quebec general election.',
+        'The naive comparison — 40.5% here against 4.5% for the NDP across Quebec — overstates the personal effect, because it lumps central Montreal in with the regions.',
+        'The right control group is the neighbouring, comparable ridings, which gave the NDP 18.6% (Laurier—Sainte-Marie), 16.1% (Papineau) and 12.8% (Hochelaga—Rosemont-Est) with no star on the ballot.',
+        'The local progressive base is real: Québec solidaire won all four overlapping provincial ridings in 2022, including Gouin at 59.4% — its strongest seat in Quebec. That vote does not transfer to the NDP one-for-one, but it rules out collapsing them to the provincial average.',
+        'Left uncorrected, the general-election model still carries the NDP near 44% here — the personal vote of a candidate who is not running.',
+      ],
+      fr: [
+        'Boulerice siège comme indépendant depuis le 27 avril 2026 et sera candidat de Québec solidaire dans Gouin à la générale québécoise.',
+        'La comparaison naïve — 40,5 % ici contre 4,5 % pour le NPD au Québec — surestime l’effet personnel, parce qu’elle mélange le centre de Montréal et les régions.',
+        'Le bon groupe de contrôle, ce sont les voisines comparables, qui donnent au NPD 18,6 % (Laurier—Sainte-Marie), 16,1 % (Papineau) et 12,8 % (Hochelaga—Rosemont-Est) sans vedette au bulletin.',
+        'Le socle progressiste local est réel : Québec solidaire remporte les quatre circonscriptions provinciales recouvrantes en 2022, dont Gouin à 59,4 % — son meilleur siège au Québec. Ce vote n’est pas transférable au NPD un pour un, mais il interdit de rabattre le parti sur la moyenne provinciale.',
+        'Sans correction, le modèle de générale porte encore le NPD près de 44 % ici — le vote personnel d’un candidat qui ne se présente pas.',
+      ],
+      es: [
+        'Boulerice es diputado independiente desde el 27 de abril de 2026 y será candidato de Québec solidaire en Gouin en las generales quebequesas.',
+        'La comparación ingenua — 40,5 % aquí frente al 4,5 % del NPD en Quebec — exagera el efecto personal, porque mezcla el centro de Montreal con las regiones.',
+        'El grupo de control correcto son las circunscripciones vecinas comparables, que dan al NPD 18,6 % (Laurier—Sainte-Marie), 16,1 % (Papineau) y 12,8 % (Hochelaga—Rosemont-Est) sin estrella en la papeleta.',
+        'El suelo progresista local es real: Québec solidaire ganó las cuatro circunscripciones provinciales solapadas en 2022, incluida Gouin con 59,4 % — su mejor escaño en Quebec. Ese voto no se transfiere al NPD uno a uno, pero impide reducirlo a la media provincial.',
+        'Sin corregir, el modelo de generales todavía sitúa al NPD cerca del 44 % aquí — el voto personal de un candidato que no se presenta.',
+      ],
+    },
+    modelNote: {
+      en: 'The personal-vote correction here is capped at 18 points — under half of Boulerice’s own 2025 vote, because an effect larger than half stops being a personal vote and becomes the whole seat attributed to one person — and floored at 19%, so the local progressive base survives his departure. Orphaned votes are transferred on ideological lines rather than in proportion to each party’s local strength, which would have handed the Conservatives votes they were never going to receive.',
+      fr: 'La correction du vote personnel est plafonnée à 18 points — moins de la moitié du vote de Boulerice lui-même, parce qu’un effet supérieur à la moitié cesse d’être un vote personnel pour devenir le siège entier attribué à une personne — et bornée par un plancher de 19 %, pour que le socle progressiste local survive à son départ. Les votes orphelins sont reportés selon des affinités idéologiques et non au prorata des forces locales, ce qui aurait donné aux conservateurs des voix qu’ils n’auraient jamais reçues.',
+      es: 'La corrección del voto personal está limitada a 18 puntos — menos de la mitad del voto del propio Boulerice, porque un efecto superior a la mitad deja de ser voto personal y pasa a ser el escaño entero atribuido a una persona — y con un suelo del 19 %, para que la base progresista local sobreviva a su marcha. Los votos huérfanos se transfieren por afinidad ideológica y no en proporción a la fuerza local, lo que habría dado a los conservadores votos que nunca iban a recibir.',
+    },
+    paths: {
+      en: '/en/canada/byelections/rosemont-la-petite-patrie/',
+      fr: '/fr/canada/byelections/rosemont-la-petite-patrie/',
+      es: '/es/canada/byelections/rosemont-la-petite-patrie/',
+    },
+  },
+
+  'saint-hyacinthe-bagot-acton': {
+    slug: 'saint-hyacinthe-bagot-acton',
+    ridingId: '24066',
+    dataPath: 'canada-byelection-saint-hyacinthe-bagot-acton',
+    currentPage: 'canada',
+    status: 'vacant_pending_writ',
+    electionDate: null,
+    vacancyDate: null,
+    province: 'QC',
+    title: {
+      en: 'Saint-Hyacinthe—Bagot—Acton By-Election Forecast — Vote-Scope',
+      fr: 'Partielle de Saint-Hyacinthe—Bagot—Acton : projection — Vote-Scope',
+      es: 'Parcial de Saint-Hyacinthe—Bagot—Acton: proyección — Vote-Scope',
+    },
+    description: {
+      en: 'Simon-Pierre Savard-Tremblay left for provincial politics. The Bloc lean here is structural rather than personal — but the by-election turnout residual narrows the race.',
+      fr: 'Simon-Pierre Savard-Tremblay part vers la politique provinciale. Le penchant bloquiste ici est structurel plus que personnel — mais le résidu de participation resserre la course.',
+      es: 'Simon-Pierre Savard-Tremblay se va a la política provincial. La inclinación bloquista aquí es estructural más que personal — pero el residuo de participación estrecha la carrera.',
+    },
+    kicker: {
+      en: 'Federal by-election · Quebec · writ pending',
+      fr: 'Partielle fédérale · Québec · en attente du bref',
+      es: 'Parcial federal · Quebec · a la espera del decreto',
+    },
+    headline: {
+      en: 'A Bloc seat, not a Bloc star.',
+      fr: 'Un siège bloquiste, pas une vedette bloquiste.',
+      es: 'Un escaño bloquista, no una estrella bloquista.',
+    },
+    dek: {
+      en: 'Simon-Pierre Savard-Tremblay is running for the Parti Québécois in Saint-Hyacinthe this October. Unlike Chicoutimi, the departing member is not the reason his party wins here: the Bloc premium predates him.',
+      fr: 'Simon-Pierre Savard-Tremblay sera candidat du Parti québécois dans Saint-Hyacinthe en octobre. Contrairement à Chicoutimi, le député sortant n’est pas la raison des victoires de son parti ici : la prime bloquiste lui est antérieure.',
+      es: 'Simon-Pierre Savard-Tremblay se presenta por el Parti Québécois en Saint-Hyacinthe en octubre. A diferencia de Chicoutimi, el diputado saliente no es la razón por la que su partido gana aquí: la prima bloquista es anterior a él.',
+    },
+    why: {
+      en: [
+        'Savard-Tremblay is leaving the Commons to stand for the Parti Québécois in Saint-Hyacinthe at the Quebec general election expected in October 2026.',
+        'The Bloc ran 4.8 points ahead of its Quebec-wide score here in 2015 — before he was elected. The lean belongs to the riding, not to him.',
+        'The correction applied is therefore small, and deliberately conservative.',
+        'The vacancy date still has to be confirmed with the Chief Electoral Officer.',
+      ],
+      fr: [
+        'Savard-Tremblay quitte les Communes pour se présenter sous la bannière du Parti québécois dans Saint-Hyacinthe à la générale québécoise attendue en octobre 2026.',
+        'Le Bloc devançait ici sa moyenne québécoise de 4,8 points dès 2015 — avant son élection. Le penchant appartient à la circonscription, pas à lui.',
+        'La correction appliquée est donc faible, et volontairement prudente.',
+        'La date de vacance reste à confirmer auprès du directeur général des élections.',
+      ],
+      es: [
+        'Savard-Tremblay deja los Comunes para presentarse por el Parti Québécois en Saint-Hyacinthe en las generales quebequesas previstas para octubre de 2026.',
+        'El Bloque aventajaba aquí su media quebequesa en 4,8 puntos ya en 2015 — antes de su elección. La inclinación pertenece a la circunscripción, no a él.',
+        'La corrección aplicada es por tanto pequeña, y deliberadamente prudente.',
+        'La fecha de vacante aún debe confirmarse con el director general de elecciones.',
+      ],
+    },
+    modelNote: {
+      en: 'No constituency poll exists, so the projection starts from the riding’s current general-election projection and adds the by-election turnout residual measured on April 13, 2026.',
+      fr: 'Aucun sondage de circonscription n’existe : la projection part donc de la projection générale courante du siège et y ajoute le résidu de participation mesuré le 13 avril 2026.',
+      es: 'No existe encuesta de circunscripción, así que la proyección parte de la proyección general actual del escaño y añade el residuo de participación medido el 13 de abril de 2026.',
+    },
+    paths: {
+      en: '/en/canada/byelections/saint-hyacinthe-bagot-acton/',
+      fr: '/fr/canada/byelections/saint-hyacinthe-bagot-acton/',
+      es: '/es/canada/byelections/saint-hyacinthe-bagot-acton/',
+    },
+  },
+
+  'beaches-east-york': {
+    slug: 'beaches-east-york',
+    ridingId: '35007',
+    dataPath: 'canada-byelection-beaches-east-york',
+    currentPage: 'canada',
+    status: 'vacant_pending_writ',
+    electionDate: null,
+    vacancyDate: '2026-07-07',
+    province: 'ON',
+    title: {
+      en: 'Beaches—East York By-Election Forecast — Vote-Scope',
+      fr: 'Partielle de Beaches—East York : projection — Vote-Scope',
+      es: 'Parcial de Beaches—East York: proyección — Vote-Scope',
+    },
+    description: {
+      en: 'Nate Erskine-Smith resigned on July 7, 2026. A safe Liberal seat in east Toronto, where the by-election turnout residual widens rather than narrows the margin.',
+      fr: 'Nate Erskine-Smith a démissionné le 7 juillet 2026. Un siège libéral sûr dans l’est de Toronto, où le résidu de participation élargit la marge au lieu de la réduire.',
+      es: 'Nate Erskine-Smith renunció el 7 de julio de 2026. Un escaño liberal seguro en el este de Toronto, donde el residuo de participación amplía el margen en lugar de reducirlo.',
+    },
+    kicker: {
+      en: 'Federal by-election · Ontario · writ pending',
+      fr: 'Partielle fédérale · Ontario · en attente du bref',
+      es: 'Parcial federal · Ontario · a la espera del decreto',
+    },
+    headline: {
+      en: 'Safe, and getting safer.',
+      fr: 'Sûr, et de plus en plus sûr.',
+      es: 'Seguro, y cada vez más seguro.',
+    },
+    dek: {
+      en: 'Erskine-Smith ran well ahead of his party, but he was doing it in a seat that was already strongly Liberal before he arrived. The correction is small — and the by-election turnout pattern pushes the Liberals further ahead, not back.',
+      fr: 'Erskine-Smith devançait nettement son parti, mais dans un siège déjà fortement libéral avant lui. La correction est faible — et la participation en partielle pousse les libéraux plus haut, pas plus bas.',
+      es: 'Erskine-Smith superaba con creces a su partido, pero en un escaño ya fuertemente liberal antes de su llegada. La corrección es pequeña — y el patrón de participación en parciales empuja a los liberales más arriba, no más abajo.',
+    },
+    why: {
+      en: [
+        'Nate Erskine-Smith resigned his seat effective July 7, 2026.',
+        'The Liberals already ran 4.3 points ahead of their Ontario score here in 2015, before he became the member — most of the gap is the riding, not the man.',
+        'On April 13, 2026, the Conservative vote fell about 3 points below what the national swing alone would predict, while the Liberal vote rose by about as much.',
+      ],
+      fr: [
+        'Nate Erskine-Smith a démissionné, avec effet le 7 juillet 2026.',
+        'Les libéraux devançaient déjà leur score ontarien de 4,3 points ici en 2015, avant qu’il devienne député — l’essentiel de l’écart tient à la circonscription, pas à l’homme.',
+        'Le 13 avril 2026, le vote conservateur est tombé environ 3 points sous ce que le seul swing national prédisait, pendant que le vote libéral montait d’autant.',
+      ],
+      es: [
+        'Nate Erskine-Smith renunció a su escaño con efecto el 7 de julio de 2026.',
+        'Los liberales ya aventajaban su marca ontariana en 4,3 puntos aquí en 2015, antes de que él fuera diputado — la mayor parte de la brecha es la circunscripción, no el hombre.',
+        'El 13 de abril de 2026, el voto conservador cayó unos 3 puntos por debajo de lo que predecía el swing nacional, mientras el voto liberal subía otro tanto.',
+      ],
+    },
+    modelNote: {
+      en: 'Baseline from the riding’s current general-election projection, minus a small personal-vote correction, plus the measured by-election turnout residual.',
+      fr: 'Base tirée de la projection générale courante du siège, moins une faible correction de vote personnel, plus le résidu de participation mesuré.',
+      es: 'Base tomada de la proyección general actual del escaño, menos una pequeña corrección de voto personal, más el residuo de participación medido.',
+    },
+    paths: {
+      en: '/en/canada/byelections/beaches-east-york/',
+      fr: '/fr/canada/byelections/beaches-east-york/',
+      es: '/es/canada/byelections/beaches-east-york/',
+    },
+  },
+
+  'north-vancouver-capilano': {
+    slug: 'north-vancouver-capilano',
+    ridingId: '59022',
+    dataPath: 'canada-byelection-north-vancouver-capilano',
+    currentPage: 'canada',
+    status: 'vacant_pending_writ',
+    electionDate: null,
+    vacancyDate: '2026-06-22',
+    province: 'BC',
+    title: {
+      en: 'North Vancouver—Capilano By-Election Forecast — Vote-Scope',
+      fr: 'Partielle de North Vancouver—Capilano : projection — Vote-Scope',
+      es: 'Parcial de North Vancouver—Capilano: proyección — Vote-Scope',
+    },
+    description: {
+      en: 'Jonathan Wilkinson left for the Canadian embassy to the European Union. A comfortable Liberal seat on the North Shore, redrawn in 2023 and short on history.',
+      fr: 'Jonathan Wilkinson part à l’ambassade du Canada auprès de l’Union européenne. Un siège libéral confortable de la rive nord, redécoupé en 2023 et pauvre en historique.',
+      es: 'Jonathan Wilkinson se va a la embajada de Canadá ante la Unión Europea. Un escaño liberal cómodo en la North Shore, redibujado en 2023 y con poco histórico.',
+    },
+    kicker: {
+      en: 'Federal by-election · British Columbia · writ pending',
+      fr: 'Partielle fédérale · Colombie-Britannique · en attente du bref',
+      es: 'Parcial federal · Columbia Británica · a la espera del decreto',
+    },
+    headline: {
+      en: 'An ambassador’s vacancy.',
+      fr: 'La vacance d’un ambassadeur.',
+      es: 'La vacante de un embajador.',
+    },
+    dek: {
+      en: 'The Chief Electoral Officer was notified of Wilkinson’s resignation on June 22, 2026. The seat only exists in its current form since the 2023 redistribution, which leaves one election of history to work from — so the personal-vote correction stays deliberately cautious.',
+      fr: 'Le directeur général des élections a été avisé de la démission de Wilkinson le 22 juin 2026. Le siège n’existe sous sa forme actuelle que depuis le redécoupage de 2023, ce qui ne laisse qu’une élection d’historique — la correction du vote personnel reste donc volontairement prudente.',
+      es: 'El director general de elecciones fue notificado de la renuncia de Wilkinson el 22 de junio de 2026. El escaño solo existe en su forma actual desde la redistribución de 2023, lo que deja una sola elección de histórico — la corrección del voto personal se mantiene deliberadamente prudente.',
+    },
+    why: {
+      en: [
+        'Jonathan Wilkinson was appointed Canadian Ambassador to the European Union; the Chief Electoral Officer was notified of his resignation on June 22, 2026.',
+        'The Liberals ran 17.2 points ahead of their British Columbia score here in 2025 — but with the seat redrawn in 2023 there is no pre-incumbent period to separate the man from the map.',
+        'With only one observation, the correction applied is small by design.',
+      ],
+      fr: [
+        'Jonathan Wilkinson est nommé ambassadeur du Canada auprès de l’Union européenne; le directeur général des élections a été avisé de sa démission le 22 juin 2026.',
+        'Les libéraux devançaient ici leur score de Colombie-Britannique de 17,2 points en 2025 — mais le siège ayant été redécoupé en 2023, aucune période pré-titulaire ne permet de séparer l’homme de la carte.',
+        'Avec une seule observation, la correction appliquée est faible à dessein.',
+      ],
+      es: [
+        'Jonathan Wilkinson fue nombrado embajador de Canadá ante la Unión Europea; el director general de elecciones fue notificado de su renuncia el 22 de junio de 2026.',
+        'Los liberales aventajaban aquí su marca de Columbia Británica en 17,2 puntos en 2025 — pero al haberse redibujado el escaño en 2023, no hay periodo previo al titular para separar al hombre del mapa.',
+        'Con una sola observación, la corrección aplicada es pequeña por diseño.',
+      ],
+    },
+    modelNote: {
+      en: 'Baseline from the riding’s current general-election projection, minus a cautious personal-vote correction, plus the measured by-election turnout residual.',
+      fr: 'Base tirée de la projection générale courante du siège, moins une correction prudente de vote personnel, plus le résidu de participation mesuré.',
+      es: 'Base tomada de la proyección general actual del escaño, menos una corrección prudente de voto personal, más el residuo de participación medido.',
+    },
+    paths: {
+      en: '/en/canada/byelections/north-vancouver-capilano/',
+      fr: '/fr/canada/byelections/north-vancouver-capilano/',
+      es: '/es/canada/byelections/north-vancouver-capilano/',
+    },
+  },
+
+  'laurier-sainte-marie': {
+    slug: 'laurier-sainte-marie',
+    ridingId: '24037',
+    dataPath: 'canada-byelection-laurier-sainte-marie',
+    currentPage: 'canada',
+    status: 'expected',
+    electionDate: null,
+    vacancyDate: null,
+    province: 'QC',
+    title: {
+      en: 'Laurier—Sainte-Marie By-Election Forecast — Vote-Scope',
+      fr: 'Partielle de Laurier—Sainte-Marie : projection — Vote-Scope',
+      es: 'Parcial de Laurier—Sainte-Marie: proyección — Vote-Scope',
+    },
+    description: {
+      en: 'Steven Guilbeault says he will resign in the summer of 2026 to fight climate change outside Parliament. The seat was below the Liberal average before he took it.',
+      fr: 'Steven Guilbeault annonce sa démission à l’été 2026 pour militer sur le climat hors du Parlement. Le siège était sous la moyenne libérale avant lui.',
+      es: 'Steven Guilbeault anunció que renunciará en el verano de 2026 para luchar contra el cambio climático fuera del Parlamento. El escaño estaba por debajo de la media liberal antes de él.',
+    },
+    kicker: {
+      en: 'Federal by-election · Quebec · expected',
+      fr: 'Partielle fédérale · Québec · anticipée',
+      es: 'Parcial federal · Quebec · prevista',
+    },
+    headline: {
+      en: 'Leaving to campaign elsewhere.',
+      fr: 'Partir militer ailleurs.',
+      es: 'Irse a militar a otra parte.',
+    },
+    dek: {
+      en: 'In 2015, before Guilbeault, the Liberals here ran 12.3 points BELOW their Quebec average. He turned that into a lead. A real but modest share of the seat is personal — and the vacancy is not yet effective.',
+      fr: 'En 2015, avant Guilbeault, les libéraux faisaient ici 12,3 points SOUS leur moyenne québécoise. Il en a fait une avance. Une part réelle mais modeste du siège est personnelle — et la vacance n’est pas encore effective.',
+      es: 'En 2015, antes de Guilbeault, los liberales aquí quedaban 12,3 puntos POR DEBAJO de su media quebequesa. Él lo convirtió en ventaja. Una parte real pero modesta del escaño es personal — y la vacante aún no es efectiva.',
+    },
+    why: {
+      en: [
+        'Guilbeault announced he intends to resign his seat during the summer of 2026 to work on climate change outside Parliament.',
+        'Liberal share versus the Quebec-wide Liberal vote: −12.3 points in 2015 (before him), +6.8 in 2019, +2.8 in 2021, +8.4 in 2025.',
+        'Because the seat started well below the party average, a real but modest part of the current lead is personal.',
+        'No writ can issue until the resignation actually takes effect.',
+      ],
+      fr: [
+        'Guilbeault a annoncé son intention de démissionner à l’été 2026 pour travailler sur les changements climatiques hors du Parlement.',
+        'Part libérale par rapport au vote libéral québécois : −12,3 points en 2015 (avant lui), +6,8 en 2019, +2,8 en 2021, +8,4 en 2025.',
+        'Le siège partant nettement sous la moyenne du parti, une part réelle mais modeste de l’avance actuelle est personnelle.',
+        'Aucun bref ne peut être émis avant que la démission prenne effet.',
+      ],
+      es: [
+        'Guilbeault anunció su intención de renunciar en el verano de 2026 para trabajar sobre el cambio climático fuera del Parlamento.',
+        'Cuota liberal frente al voto liberal quebequés: −12,3 puntos en 2015 (antes de él), +6,8 en 2019, +2,8 en 2021, +8,4 en 2025.',
+        'Al partir el escaño muy por debajo de la media del partido, una parte real pero modesta de la ventaja actual es personal.',
+        'No puede emitirse decreto hasta que la renuncia sea efectiva.',
+      ],
+    },
+    modelNote: {
+      en: 'Baseline from the riding’s current general-election projection, minus a modest personal-vote correction, plus the measured by-election turnout residual.',
+      fr: 'Base tirée de la projection générale courante du siège, moins une correction modeste de vote personnel, plus le résidu de participation mesuré.',
+      es: 'Base tomada de la proyección general actual del escaño, menos una corrección modesta de voto personal, más el residuo de participación medido.',
+    },
+    paths: {
+      en: '/en/canada/byelections/laurier-sainte-marie/',
+      fr: '/fr/canada/byelections/laurier-sainte-marie/',
+      es: '/es/canada/byelections/laurier-sainte-marie/',
+    },
+  },
+
+  'yorkton-melville': {
+    slug: 'yorkton-melville',
+    ridingId: '47014',
+    dataPath: 'canada-byelection-yorkton-melville',
+    currentPage: 'canada',
+    status: 'expected',
+    electionDate: null,
+    vacancyDate: null,
+    province: 'SK',
+    title: {
+      en: 'Yorkton—Melville By-Election Forecast — Vote-Scope',
+      fr: 'Partielle de Yorkton—Melville : projection — Vote-Scope',
+      es: 'Parcial de Yorkton—Melville: proyección — Vote-Scope',
+    },
+    description: {
+      en: 'Cathay Wagantall resigns effective August 31, 2026, leaving the safest seat of the seven: the Conservatives took 77% here in 2025.',
+      fr: 'Cathay Wagantall démissionne le 31 août 2026, laissant le siège le plus sûr des sept : les conservateurs y ont fait 77 % en 2025.',
+      es: 'Cathay Wagantall renuncia con efecto el 31 de agosto de 2026, dejando el escaño más seguro de los siete: los conservadores lograron 77 % aquí en 2025.',
+    },
+    kicker: {
+      en: 'Federal by-election · Saskatchewan · expected',
+      fr: 'Partielle fédérale · Saskatchewan · anticipée',
+      es: 'Parcial federal · Saskatchewan · prevista',
+    },
+    headline: {
+      en: 'The safest of the seven.',
+      fr: 'Le plus sûr des sept.',
+      es: 'El más seguro de los siete.',
+    },
+    dek: {
+      en: 'Rural Saskatchewan at its most Conservative. The seat ran ahead of the provincial Conservative score before Wagantall was ever elected, so almost none of the margin is personal — and almost nothing about this race is in doubt.',
+      fr: 'La Saskatchewan rurale dans sa version la plus conservatrice. Le siège devançait le score conservateur provincial avant même l’élection de Wagantall : presque rien de la marge n’est personnel — et presque rien de cette course n’est incertain.',
+      es: 'La Saskatchewan rural en su versión más conservadora. El escaño aventajaba la marca conservadora provincial antes incluso de la elección de Wagantall: casi nada del margen es personal — y casi nada de esta carrera está en duda.',
+    },
+    why: {
+      en: [
+        'Cathay Wagantall announced her resignation, effective August 31, 2026.',
+        'Conservative share versus the Saskatchewan-wide Conservative vote: +10.5 points in 2015, before she was elected. The premium is structural.',
+        'The Conservatives took 77% here in 2025 — the largest margin among the seven pending or expected by-elections.',
+      ],
+      fr: [
+        'Cathay Wagantall a annoncé sa démission, effective le 31 août 2026.',
+        'Part conservatrice par rapport au vote conservateur saskatchewanais : +10,5 points en 2015, avant son élection. La prime est structurelle.',
+        'Les conservateurs ont fait 77 % ici en 2025 — la plus large marge des sept partielles en attente ou anticipées.',
+      ],
+      es: [
+        'Cathay Wagantall anunció su renuncia, efectiva el 31 de agosto de 2026.',
+        'Cuota conservadora frente al voto conservador de Saskatchewan: +10,5 puntos en 2015, antes de su elección. La prima es estructural.',
+        'Los conservadores lograron 77 % aquí en 2025 — el mayor margen de las siete parciales pendientes o previstas.',
+      ],
+    },
+    modelNote: {
+      en: 'Baseline from the riding’s current general-election projection, minus a small personal-vote correction, plus the measured by-election turnout residual — which works against the Conservatives even in a seat this safe.',
+      fr: 'Base tirée de la projection générale courante du siège, moins une faible correction de vote personnel, plus le résidu de participation mesuré — qui joue contre les conservateurs même dans un siège aussi sûr.',
+      es: 'Base tomada de la proyección general actual del escaño, menos una pequeña corrección de voto personal, más el residuo de participación medido — que juega en contra de los conservadores incluso en un escaño tan seguro.',
+    },
+    paths: {
+      en: '/en/canada/byelections/yorkton-melville/',
+      fr: '/fr/canada/byelections/yorkton-melville/',
+      es: '/es/canada/byelections/yorkton-melville/',
+    },
+  },
+} satisfies Record<string, ByelectionRaceConfig>;
+
+export type CanadaByelectionRaceKey = keyof typeof canadaByelectionRaces;
+
+export const byelectionSourceUrl = WIKI;
+
+export function byelectionRaceAlternates(config: ByelectionRaceConfig) {
+  return Object.fromEntries(
+    Object.entries(config.paths).map(([locale, path]) => [
+      locale,
+      `https://vote-scope.com${path}`,
+    ]),
+  ) as Record<ByelectionRaceLocale, string>;
+}

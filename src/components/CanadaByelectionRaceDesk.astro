@@ -1,0 +1,436 @@
+---
+// Desk d'une partielle fédérale en attente.
+// Reprend la structure du desk de Clacton (UkByelectionDesk.astro) : compte à
+// rebours, fourchettes de projection, contexte, sources — mais les chiffres
+// viennent du moteur (export_fed_byelections_web.py), jamais du markup.
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import Base from '../layouts/Base.astro';
+import KeepDigging from './KeepDigging.astro';
+import ElectionCountdown from '../islands/ElectionCountdown.tsx';
+import {
+  byelectionRaceAlternates,
+  byelectionSourceUrl,
+  type ByelectionRaceConfig,
+  type ByelectionRaceLocale,
+} from '../data/canadaByelectionRaces';
+
+interface Props {
+  lang: ByelectionRaceLocale;
+  config: ByelectionRaceConfig;
+}
+
+const { lang, config } = Astro.props;
+const canonical = `https://vote-scope.com${config.paths[lang]}`;
+const alternates = byelectionRaceAlternates(config);
+
+const data = JSON.parse(
+  readFileSync(resolve(process.cwd(), 'web_data', config.dataPath, 'latest.json'), 'utf-8'),
+);
+const candidates = (data.candidates ?? []) as any[];
+const summary = data.summary ?? {};
+const byel = data.byelection ?? {};
+const lastResult = data.benchmarks?.last_result ?? {};
+const localPoll = byel.local_poll ?? null;
+const personalVote = byel.personal_vote_applied ?? null;
+const turnoutResidual = byel.turnout_residual_applied ?? null;
+
+const nf = lang === 'en' ? 'en-CA' : lang === 'es' ? 'es-ES' : 'fr-CA';
+const fmtPct = (v: number, d = 1) =>
+  lang === 'en' ? v.toFixed(d) : v.toFixed(d).replace('.', ',');
+/** Aucune course n'est certaine : on ne publie jamais 100 %. */
+const fmtProb = (p: number) => {
+  const v = p * 100;
+  if (v >= 99.5) return '> 99';
+  if (v < 0.5) return '< 1';
+  return fmtPct(v, v < 10 ? 1 : 0);
+};
+/** « pallas » → « Pallas ». */
+const titleCase = (s: string) =>
+  String(s ?? '').replace(/(^|[\s\-—])(\p{Ll})/gu, (_, a, b) => a + b.toUpperCase());
+
+const shown = candidates.filter((c) => c.projected_vote_mean >= 1 || c.first_place_probability >= 0.01);
+const SCALE_MAX = Math.min(100, Math.max(50, Math.ceil(Math.max(...shown.map((c: any) => c.vote_quantiles?.q90 ?? c.projected_vote_mean)) / 10) * 10 + 5));
+const pc = (v: number) => `${Math.min(100, (v / SCALE_MAX) * 100)}%`;
+
+const partyLabel = (c: any) => c.party_label?.[lang] ?? c.party;
+
+const t = {
+  en: {
+    statusPending: 'Seat vacant · writ not yet issued',
+    statusExpected: 'Resignation announced · seat not yet vacant',
+    forecast: 'The Vote-Scope forecast',
+    rangeLabel: 'Projected vote share (10th–90th percentile, median marked)',
+    winLabel: 'Chance of winning',
+    why: 'Why this by-election exists',
+    howLabel: 'How this projection is built',
+    baseline2025: '2025 result — the seat as it was won',
+    pollLabel: 'The local poll',
+    pollCaveat: 'A single firm, a single wave, sample size unpublished. Treated with wide uncertainty.',
+    pollPredates: 'Fielded before the Liberal candidate was announced, so it cannot reflect that candidacy.',
+    personalLabel: 'Personal vote removed',
+    personalBody: (p: string, pts: number, member: string) =>
+      `${pts} points stripped from the ${p} baseline — the share that belonged to ${member} rather than to the party.`,
+    floorLabel: 'floor',
+    turnoutLabel: 'By-election turnout residual',
+    turnoutBody: 'Measured on April 13, 2026: at equal national swing, the Conservative vote fell about 3 points further and the Liberal vote rose by about as much. Opposition voters stay home; government voters turn out.',
+    noDate: 'No polling day yet',
+    noDateBody: 'Under the Canada Elections Act the writ must issue between 11 and 180 days after the Speaker notifies the Chief Electoral Officer of the vacancy.',
+    sources: 'Sources',
+    keepEyebrow: 'Keep digging',
+    keepTitle: 'More from the Canada Desk.',
+    keepBody: 'All pending by-elections, the federal projection, and the ridings behind it.',
+    allByelections: 'All by-elections',
+    federal: 'Canada federal projection',
+  },
+  fr: {
+    statusPending: 'Siège vacant · bref non encore émis',
+    statusExpected: 'Démission annoncée · siège pas encore vacant',
+    forecast: 'La projection Vote-Scope',
+    rangeLabel: 'Parts projetées (10e–90e percentile, médiane marquée)',
+    winLabel: 'Probabilité de gagner',
+    why: 'Pourquoi cette partielle existe',
+    howLabel: 'Comment cette projection est construite',
+    baseline2025: 'Résultat de 2025 — le siège tel qu’il a été gagné',
+    pollLabel: 'Le sondage local',
+    pollCaveat: 'Une seule firme, une seule vague, taille d’échantillon non publiée. Traité avec une incertitude large.',
+    pollPredates: 'Terrain antérieur à l’annonce du candidat libéral : le sondage ne peut pas refléter cette candidature.',
+    personalLabel: 'Vote personnel retiré',
+    personalBody: (p: string, pts: number, member: string) =>
+      `${pts} points retirés de la base ${p} — la part qui appartenait à ${member} et non au parti.`,
+    floorLabel: 'plancher',
+    turnoutLabel: 'Résidu de participation en partielle',
+    turnoutBody: 'Mesuré le 13 avril 2026 : à swing national égal, le vote conservateur recule encore d’environ 3 points et le vote libéral progresse d’autant. L’électorat d’opposition reste à la maison; celui du gouvernement se déplace.',
+    noDate: 'Pas encore de date de scrutin',
+    noDateBody: 'Selon la Loi électorale du Canada, le bref doit être émis entre 11 et 180 jours après que le président de la Chambre a avisé le directeur général des élections de la vacance.',
+    sources: 'Sources',
+    keepEyebrow: 'Continuer à creuser',
+    keepTitle: 'Plus du bureau Canada.',
+    keepBody: 'Toutes les partielles en attente, la projection fédérale et les circonscriptions derrière elle.',
+    allByelections: 'Toutes les partielles',
+    federal: 'Projection fédérale',
+  },
+  es: {
+    statusPending: 'Escaño vacante · decreto aún no emitido',
+    statusExpected: 'Renuncia anunciada · escaño aún no vacante',
+    forecast: 'La proyección de Vote-Scope',
+    rangeLabel: 'Cuotas proyectadas (percentil 10–90, mediana marcada)',
+    winLabel: 'Probabilidad de ganar',
+    why: 'Por qué existe esta parcial',
+    howLabel: 'Cómo se construye esta proyección',
+    baseline2025: 'Resultado de 2025 — el escaño tal como se ganó',
+    pollLabel: 'La encuesta local',
+    pollCaveat: 'Una sola firma, una sola ola, tamaño de muestra no publicado. Tratada con amplia incertidumbre.',
+    pollPredates: 'Realizada antes del anuncio del candidato liberal, así que no puede reflejar esa candidatura.',
+    personalLabel: 'Voto personal retirado',
+    personalBody: (p: string, pts: number, member: string) =>
+      `${pts} puntos retirados de la base ${p} — la parte que pertenecía a ${member} y no al partido.`,
+    floorLabel: 'suelo',
+    turnoutLabel: 'Residuo de participación en parciales',
+    turnoutBody: 'Medido el 13 de abril de 2026: a igual swing nacional, el voto conservador cae unos 3 puntos más y el liberal sube otro tanto. El electorado opositor se queda en casa; el del gobierno acude.',
+    noDate: 'Aún sin fecha de votación',
+    noDateBody: 'Según la Ley Electoral de Canadá, el decreto debe emitirse entre 11 y 180 días después de que el presidente de la Cámara notifique la vacante al director general de elecciones.',
+    sources: 'Fuentes',
+    keepEyebrow: 'Seguir cavando',
+    keepTitle: 'Más del desk de Canadá.',
+    keepBody: 'Todas las parciales pendientes, la proyección federal y las circunscripciones detrás.',
+    allByelections: 'Todas las parciales',
+    federal: 'Proyección federal de Canadá',
+  },
+}[lang];
+
+const statusLabel = config.status === 'vacant_pending_writ' ? t.statusPending : t.statusExpected;
+
+// Rattachement : fédéral par défaut, surchargeable par juridiction.
+const hubPath = config.hubPath?.[lang] ?? `/${lang}/canada/byelections/`;
+const hubLabel = config.hubLabel?.[lang] ?? t.allByelections;
+const projectionPath = config.projectionPath?.[lang] ?? `/${lang}/canada/federal/`;
+const projectionLabel = config.projectionLabel?.[lang] ?? t.federal;
+const sectionLabel = config.sectionLabel?.[lang] ?? 'Canada';
+const sectionPath = config.sectionPath?.[lang] ?? `/${lang}/canada/`;
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    name: config.title[lang].replace(' — Vote-Scope', ''),
+    description: config.description[lang],
+    headline: config.headline[lang],
+    dateModified: data.meta?.run_date,
+    author: { '@type': 'Person', name: 'Kim Leclerc', url: 'https://kimleclerc.ca' },
+    publisher: { '@type': 'Organization', name: 'Vote-Scope', url: 'https://vote-scope.com' },
+    url: canonical,
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: `https://vote-scope.com/${lang}/` },
+      { '@type': 'ListItem', position: 2, name: sectionLabel, item: `https://vote-scope.com${sectionPath}` },
+      { '@type': 'ListItem', position: 3, name: hubLabel, item: `https://vote-scope.com${hubPath}` },
+      { '@type': 'ListItem', position: 4, name: data.district?.name ?? config.slug, item: canonical },
+    ],
+  },
+];
+
+const lastShares = Object.entries(lastResult.shares ?? {})
+  .map(([p, v]) => ({ party: p, pct: Number(v) }))
+  .filter((x) => x.pct >= 1)
+  .sort((a, b) => b.pct - a.pct);
+const colorFor = (party: string) =>
+  candidates.find((c: any) => c.party_code === party)?.color ?? '#9a938a';
+const labelFor = (party: string) =>
+  candidates.find((c: any) => c.party_code === party)?.party_label?.[lang] ?? party.toUpperCase();
+---
+
+<Base
+  title={config.title[lang]}
+  description={config.description[lang]}
+  canonical={canonical}
+  currentPage={config.currentPage}
+  lang={lang}
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={alternates}
+  jsonLd={jsonLd}
+>
+  <article class="cabye">
+    {config.electionDate && (
+      <div class="container" style="padding-top:28px;">
+        <ElectionCountdown targetDate={config.electionDate} locale={lang} kicker={config.kicker[lang]} client:visible />
+      </div>
+    )}
+
+    <header class="cabye-hero container">
+      <p class="cabye-kicker">{config.kicker[lang]}</p>
+      <h1>{config.headline[lang]}</h1>
+      <p class="cabye-dek">{config.dek[lang]}</p>
+      <p class="cabye-status">{statusLabel}</p>
+    </header>
+
+    <section class="container" aria-labelledby="cabye-forecast">
+      <p class="cabye-label" id="cabye-forecast">{t.forecast}</p>
+      <p class="cabye-range-label">{t.rangeLabel}</p>
+      <div class="cabye-ranges">
+        {shown.map((c: any) => (
+          <div class="cabye-range-row">
+            <div class="cabye-range-name">
+              <i style={`background:${c.color}`}></i>
+              <span>
+                {c.candidate_declared ? c.name : partyLabel(c)}
+                {c.candidate_declared && <small>{partyLabel(c)}</small>}
+              </span>
+            </div>
+            <div class="cabye-range-track">
+              <div
+                class="cabye-range-band"
+                style={`left:${pc(c.vote_quantiles?.q10 ?? c.projected_vote_mean)};width:calc(${pc(c.vote_quantiles?.q90 ?? c.projected_vote_mean)} - ${pc(c.vote_quantiles?.q10 ?? c.projected_vote_mean)});background:${c.color}22;border-color:${c.color}`}
+              ></div>
+              <div class="cabye-range-median" style={`left:${pc(c.vote_quantiles?.q50 ?? c.projected_vote_mean)};background:${c.color}`}></div>
+            </div>
+            <div class="cabye-range-nums">
+              <strong>{fmtPct(c.projected_vote_mean)} %</strong>
+              <small>{t.winLabel}: {fmtProb(c.first_place_probability)} %</small>
+            </div>
+          </div>
+        ))}
+      </div>
+      <p class="cabye-caveat">{config.modelNote[lang]}</p>
+    </section>
+
+    {localPoll && (
+      <section class="container" aria-labelledby="cabye-poll">
+        <p class="cabye-label" id="cabye-poll">{t.pollLabel}</p>
+        <div class="cabye-card">
+          <div class="cabye-ctx-bars">
+            {Object.entries(localPoll.shares ?? {})
+              .map(([p, v]) => ({ p, v: Number(v) }))
+              .sort((a, b) => b.v - a.v)
+              .map(({ p, v }) => (
+                <div class="cabye-ctx-row">
+                  <span class="cabye-ctx-name">{labelFor(p)}</span>
+                  <div class="cabye-ctx-track">
+                    <div class="cabye-ctx-fill" style={`width:${v}%;background:${colorFor(p)};`} />
+                  </div>
+                  <strong class="cabye-ctx-pct">{fmtPct(v, 0)} %</strong>
+                </div>
+              ))}
+          </div>
+          <p class="cabye-meta">
+            {titleCase(localPoll.firm)} · {localPoll.field_end ?? localPoll.release_date}
+            {localPoll.sample_size ? ` · n=${localPoll.sample_size}` : ''}
+          </p>
+          <p class="cabye-caveat">{t.pollCaveat}</p>
+          {byel.star_candidate?.announced_after_poll && (
+            <p class="cabye-caveat">{t.pollPredates}</p>
+          )}
+        </div>
+      </section>
+    )}
+
+    <section class="container" aria-labelledby="cabye-how">
+      <p class="cabye-label" id="cabye-how">{t.howLabel}</p>
+      <div class="cabye-adjust-grid">
+        {personalVote && (
+          <div class="cabye-adjust">
+            <p class="cabye-adjust-title">{t.personalLabel}</p>
+            <p class="cabye-adjust-body">
+              {t.personalBody(labelFor(personalVote.party), personalVote.points, personalVote.member ?? '')}
+            </p>
+            <p class="cabye-adjust-num">
+              {fmtPct(personalVote.before)} % → <strong>{fmtPct(personalVote.after)} %</strong>
+              {personalVote.floor ? ` · ${t.floorLabel} ${fmtPct(personalVote.floor, 0)} %` : ''}
+            </p>
+          </div>
+        )}
+        {turnoutResidual && (
+          <div class="cabye-adjust">
+            <p class="cabye-adjust-title">{t.turnoutLabel}</p>
+            <p class="cabye-adjust-body">{t.turnoutBody}</p>
+            <p class="cabye-adjust-num">
+              {Object.entries(turnoutResidual)
+                .map(([p, v]) => `${labelFor(p)} ${Number(v) > 0 ? '+' : ''}${fmtPct(Number(v))}`)
+                .join(' · ')}
+            </p>
+          </div>
+        )}
+      </div>
+    </section>
+
+    {lastShares.length > 0 && (
+      <section class="container" aria-labelledby="cabye-2025">
+        <p class="cabye-label" id="cabye-2025">{t.baseline2025}</p>
+        <div class="cabye-breakdown-bar">
+          {lastShares.map((s) => (
+            <div style={`width:${s.pct}%;background:${colorFor(s.party)};`} title={`${labelFor(s.party)}: ${fmtPct(s.pct)} %`} />
+          ))}
+        </div>
+        <div class="cabye-vote-grid">
+          {lastShares.map((s) => (
+            <div class="cabye-vote-row">
+              <div class="cabye-vote-dot" style={`background:${colorFor(s.party)}`} />
+              <span class="cabye-vote-party">{labelFor(s.party)}</span>
+              <strong>{fmtPct(s.pct)} %</strong>
+            </div>
+          ))}
+        </div>
+        {lastResult.turnout_pct && (
+          <p class="cabye-meta">{fmtPct(lastResult.turnout_pct)} %</p>
+        )}
+      </section>
+    )}
+
+    <section class="container" aria-labelledby="cabye-why">
+      <p class="cabye-label" id="cabye-why">{t.why}</p>
+      <ul class="cabye-list">
+        {config.why[lang].map((b) => <li>{b}</li>)}
+      </ul>
+    </section>
+
+    {!config.electionDate && (
+      <section class="container">
+        <div class="cabye-card">
+          <p class="cabye-adjust-title">{t.noDate}</p>
+          <p class="cabye-adjust-body">{t.noDateBody}</p>
+        </div>
+      </section>
+    )}
+
+    <section class="container" aria-labelledby="cabye-sources">
+      <p class="cabye-label" id="cabye-sources">{t.sources}</p>
+      <ol class="cabye-sources">
+        <li><a href={byelectionSourceUrl} rel="noopener">By-elections to the 45th Canadian Parliament — Wikipedia</a></li>
+        {localPoll?.source_url && (
+          <li><a href={localPoll.source_url} rel="noopener">{titleCase(localPoll.firm)} — {data.district?.name ?? config.slug} ({localPoll.field_end ?? localPoll.release_date})</a></li>
+        )}
+        <li><a href="https://www.elections.ca/" rel="noopener">Elections Canada</a></li>
+      </ol>
+    </section>
+
+    <KeepDigging
+      eyebrow={t.keepEyebrow}
+      title={t.keepTitle}
+      body={t.keepBody}
+      links={[
+        { href: hubPath, label: hubLabel },
+        { href: projectionPath, label: projectionLabel },
+      ]}
+    />
+  </article>
+</Base>
+
+<style>
+  .cabye { padding-bottom: 64px; }
+  .cabye .container { max-width: 920px; margin-inline: auto; padding-inline: 1.5rem; }
+  .cabye-hero { padding-top: 40px; }
+  .cabye-kicker {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--ink-3);
+  }
+  .cabye-hero h1 {
+    margin-top: 10px; font-family: var(--serif); font-weight: 420;
+    font-size: clamp(40px, 6.5vw, 72px); letter-spacing: -0.02em; line-height: 1;
+  }
+  .cabye-dek { margin-top: 16px; max-width: 64ch; color: var(--ink-2); line-height: 1.6; font-size: 17px; }
+  .cabye-status {
+    margin-top: 14px; display: inline-block; padding: 6px 12px; border-radius: 3px;
+    border: 1px solid var(--rule); background: var(--card);
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--ink-2);
+  }
+  .cabye-label {
+    margin-top: 48px; font-family: var(--mono); font-size: 11px;
+    letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-3);
+  }
+  .cabye-range-label {
+    margin-top: 16px; font-family: var(--mono); font-size: 11px;
+    letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3);
+  }
+  .cabye-ranges { margin-top: 12px; display: grid; gap: 12px; }
+  .cabye-range-row { display: grid; grid-template-columns: 210px 1fr 130px; gap: 12px; align-items: center; }
+  .cabye-range-name { display: flex; align-items: center; gap: 8px; font-size: 14px; }
+  .cabye-range-name i { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+  .cabye-range-name small { color: var(--ink-3); display: block; font-size: 11px; }
+  .cabye-range-track { position: relative; height: 22px; background: var(--paper-3); border-radius: 3px; }
+  .cabye-range-band { position: absolute; top: 3px; bottom: 3px; border-radius: 3px; border: 1px solid; }
+  .cabye-range-median { position: absolute; top: 0; bottom: 0; width: 3px; border-radius: 2px; }
+  .cabye-range-nums { text-align: right; font-family: var(--mono); font-size: 13px; }
+  .cabye-range-nums small { display: block; color: var(--ink-3); font-size: 11px; }
+
+  .cabye-card { border: 1px solid var(--rule); border-radius: 6px; background: var(--card); padding: 20px; margin-top: 14px; }
+  .cabye-ctx-bars { display: grid; gap: 10px; }
+  .cabye-ctx-row { display: grid; grid-template-columns: 140px 1fr 52px; align-items: center; gap: 10px; }
+  .cabye-ctx-name { font-size: 13px; color: var(--ink-2); }
+  .cabye-ctx-track { height: 14px; background: var(--paper-3); border-radius: 3px; overflow: hidden; }
+  .cabye-ctx-fill { height: 100%; }
+  .cabye-ctx-pct { font-family: var(--mono); font-size: 12px; text-align: right; }
+  .cabye-meta { margin-top: 12px; font-family: var(--mono); font-size: 11px; color: var(--ink-3); }
+  .cabye-caveat {
+    margin-top: 10px; padding: 10px 12px; border: 1px dashed var(--rule);
+    border-radius: 4px; font-size: 13px; color: var(--ink-2); line-height: 1.5; max-width: 74ch;
+  }
+
+  .cabye-adjust-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 14px; margin-top: 14px; }
+  .cabye-adjust { border: 1px solid var(--rule); border-radius: 6px; background: var(--card); padding: 18px; }
+  .cabye-adjust-title { font-family: var(--serif); font-size: 18px; font-weight: 430; letter-spacing: -0.01em; }
+  .cabye-adjust-body { margin-top: 8px; color: var(--ink-2); font-size: 14px; line-height: 1.55; }
+  .cabye-adjust-num { margin-top: 10px; font-family: var(--mono); font-size: 12px; color: var(--ink-2); }
+
+  .cabye-breakdown-bar { display: flex; height: 18px; border-radius: 3px; overflow: hidden; margin-top: 14px; gap: 2px; }
+  .cabye-vote-grid { margin-top: 14px; display: grid; gap: 8px; max-width: 520px; }
+  .cabye-vote-row { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--ink-2); }
+  .cabye-vote-dot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+  .cabye-vote-party { flex: 1; }
+
+  .cabye-list { margin-top: 12px; padding-left: 18px; display: grid; gap: 10px; max-width: 74ch; }
+  .cabye-list li { color: var(--ink-2); line-height: 1.6; }
+
+  .cabye-sources { margin-top: 12px; padding-left: 18px; display: grid; gap: 6px; }
+  .cabye-sources li { font-size: 13px; color: var(--ink-2); }
+  .cabye-sources a { color: inherit; }
+
+  @media (max-width: 780px) {
+    .cabye-adjust-grid { grid-template-columns: 1fr; }
+    .cabye-range-row { grid-template-columns: 120px 1fr 100px; }
+    .cabye-ctx-row { grid-template-columns: 104px 1fr 44px; }
+  }
+</style>

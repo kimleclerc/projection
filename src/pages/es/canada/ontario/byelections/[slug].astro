@@ -1,0 +1,15 @@
+---
+import CanadaByelectionRaceDesk from '../../../../../components/CanadaByelectionRaceDesk.astro';
+import { ontarioByelectionRaces } from '../../../../../data/ontarioByelectionRaces';
+
+export function getStaticPaths() {
+  return Object.values(ontarioByelectionRaces).map((config) => ({
+    params: { slug: config.slug },
+    props: { config },
+  }));
+}
+
+const { config } = Astro.props;
+---
+
+<CanadaByelectionRaceDesk lang="es" config={config as any} />

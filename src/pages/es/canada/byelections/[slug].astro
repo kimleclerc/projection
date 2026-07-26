@@ -1,0 +1,17 @@
+---
+// Les archives de partielles résolues n'existent qu'en EN/FR; l'espagnol sert
+// les courses en attente, uniformément traduites.
+import CanadaByelectionRaceDesk from '../../../../components/CanadaByelectionRaceDesk.astro';
+import { canadaByelectionRaces } from '../../../../data/canadaByelectionRaces';
+
+export function getStaticPaths() {
+  return Object.values(canadaByelectionRaces).map((config) => ({
+    params: { slug: config.slug },
+    props: { config },
+  }));
+}
+
+const { config } = Astro.props;
+---
+
+<CanadaByelectionRaceDesk lang="es" config={config as any} />

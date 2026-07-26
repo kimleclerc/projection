@@ -1,0 +1,249 @@
+---
+// Hub des partielles fédérales — courses en attente d'abord, archives ensuite.
+// Uniforme dans les trois langues : aucune locale n'est renvoyée vers une autre.
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import Base from '../layouts/Base.astro';
+import KeepDigging from './KeepDigging.astro';
+import { canadaByelections } from '../data/canadaByelections';
+import {
+  canadaByelectionRaces,
+  type ByelectionRaceLocale,
+} from '../data/canadaByelectionRaces';
+
+interface Props {
+  lang: ByelectionRaceLocale;
+}
+const { lang } = Astro.props;
+
+const index = JSON.parse(
+  readFileSync(resolve(process.cwd(), 'web_data', 'canada-byelections', 'latest.json'), 'utf-8'),
+);
+const pendingData = new Map<string, any>(
+  (index.pending ?? []).map((p: any) => [p.slug, p]),
+);
+
+const PARTY_LABEL: Record<string, Record<ByelectionRaceLocale, string>> = {
+  lib: { en: 'Liberal', fr: 'Libéral', es: 'Liberal' },
+  con: { en: 'Conservative', fr: 'Conservateur', es: 'Conservador' },
+  ndp: { en: 'NDP', fr: 'NPD', es: 'NPD' },
+  bq: { en: 'Bloc Québécois', fr: 'Bloc québécois', es: 'Bloque Quebequés' },
+  grn: { en: 'Green', fr: 'Vert', es: 'Verde' },
+};
+const PARTY_COLOR: Record<string, string> = {
+  lib: '#D71920', con: '#1A4782', ndp: '#F58220', bq: '#33B2CC', grn: '#3D9B35',
+};
+
+const fmtProb = (p: number) => {
+  const v = p * 100;
+  if (v >= 99.5) return '> 99';
+  if (v < 0.5) return '< 1';
+  return v.toFixed(0);
+};
+
+const races = Object.values(canadaByelectionRaces);
+const pendingWrit = races.filter((r) => r.status === 'vacant_pending_writ');
+const expected = races.filter((r) => r.status === 'expected');
+const archives = Object.values(canadaByelections);
+
+const t = {
+  en: {
+    title: 'Canada By-Elections — Seven Pending Races — Vote-Scope',
+    description:
+      'Seven federal by-elections are coming: four seats already vacant and three announced. Vote-Scope projects each one, measuring what each departing MP was personally worth.',
+    kicker: 'Canada Desk · By-elections',
+    h1: 'Seven seats, seven personal votes.',
+    dek: 'Four seats are vacant and waiting on a writ; three more members have announced their departure. The common thread is measurement: how much of each seat belonged to the party, and how much belonged to the person who is leaving.',
+    pendingLabel: 'Seats vacant — writ pending',
+    expectedLabel: 'Announced — seat not yet vacant',
+    archiveLabel: 'Resolved — April 13, 2026',
+    archiveDek: 'Three by-elections, three correct calls.',
+    favorite: 'Favourite',
+    pollBadge: 'Local poll',
+    view: 'View forecast →',
+    viewArchive: 'View result →',
+    keepEyebrow: 'Keep digging',
+    keepTitle: 'More from the Canada Desk.',
+    keepBody: 'The federal projection, the provincial models, and the track record behind these calls.',
+    federal: 'Canada federal projection',
+    track: 'Track record',
+  },
+  fr: {
+    title: 'Partielles fédérales — sept courses en attente — Vote-Scope',
+    description:
+      'Sept partielles fédérales s’annoncent : quatre sièges déjà vacants et trois départs annoncés. Vote-Scope projette chaque course en mesurant ce que valait personnellement chaque député sortant.',
+    kicker: 'Bureau Canada · Partielles',
+    h1: 'Sept sièges, sept votes personnels.',
+    dek: 'Quatre sièges sont vacants et attendent un bref; trois autres députés ont annoncé leur départ. Le fil conducteur est une mesure : quelle part du siège appartenait au parti, et quelle part appartenait à la personne qui s’en va.',
+    pendingLabel: 'Sièges vacants — bref en attente',
+    expectedLabel: 'Départ annoncé — siège pas encore vacant',
+    archiveLabel: 'Résolues — 13 avril 2026',
+    archiveDek: 'Trois partielles, trois appels justes.',
+    favorite: 'Favori',
+    pollBadge: 'Sondage local',
+    view: 'Voir la projection →',
+    viewArchive: 'Voir le résultat →',
+    keepEyebrow: 'Continuer à creuser',
+    keepTitle: 'Plus du bureau Canada.',
+    keepBody: 'La projection fédérale, les modèles provinciaux et le bilan derrière ces appels.',
+    federal: 'Projection fédérale',
+    track: 'Bilan des prévisions',
+  },
+  es: {
+    title: 'Parciales federales de Canadá — siete carreras pendientes — Vote-Scope',
+    description:
+      'Se avecinan siete parciales federales: cuatro escaños ya vacantes y tres salidas anunciadas. Vote-Scope proyecta cada carrera midiendo cuánto valía personalmente cada diputado saliente.',
+    kicker: 'Oficina Canadá · Parciales',
+    h1: 'Siete escaños, siete votos personales.',
+    dek: 'Cuatro escaños están vacantes a la espera de un decreto; otros tres diputados han anunciado su salida. El hilo común es una medición: qué parte del escaño era del partido y qué parte era de la persona que se va.',
+    pendingLabel: 'Escaños vacantes — decreto pendiente',
+    expectedLabel: 'Salida anunciada — escaño aún no vacante',
+    archiveLabel: 'Resueltas — 13 de abril de 2026',
+    archiveDek: 'Tres parciales, tres aciertos.',
+    favorite: 'Favorito',
+    pollBadge: 'Encuesta local',
+    view: 'Ver proyección →',
+    viewArchive: 'Ver resultado →',
+    keepEyebrow: 'Seguir cavando',
+    keepTitle: 'Más del desk de Canadá.',
+    keepBody: 'La proyección federal, los modelos provinciales y el historial detrás de estos pronósticos.',
+    federal: 'Proyección federal de Canadá',
+    track: 'Historial',
+  },
+}[lang];
+
+const canonical = `https://vote-scope.com/${lang}/canada/byelections/`;
+---
+
+<Base
+  title={t.title}
+  description={t.description}
+  canonical={canonical}
+  lang={lang}
+  currentPage="canada"
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={{
+    en: 'https://vote-scope.com/en/canada/byelections/',
+    fr: 'https://vote-scope.com/fr/canada/byelections/',
+    es: 'https://vote-scope.com/es/canada/byelections/',
+  }}
+  jsonLd={[
+    { '@context': 'https://schema.org', '@type': 'CollectionPage', name: t.title.replace(' — Vote-Scope', ''), url: canonical, inLanguage: lang },
+    { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: `https://vote-scope.com/${lang}/` },
+      { '@type': 'ListItem', position: 2, name: 'Canada', item: `https://vote-scope.com/${lang}/canada/` },
+      { '@type': 'ListItem', position: 3, name: t.kicker, item: canonical },
+    ]},
+  ]}
+>
+  <article class="byhub">
+    <header class="byhub-hero container">
+      <p class="byhub-kicker">{t.kicker}</p>
+      <h1>{t.h1}</h1>
+      <p class="byhub-dek">{t.dek}</p>
+    </header>
+
+    {[{ label: t.pendingLabel, list: pendingWrit }, { label: t.expectedLabel, list: expected }].map((group) => (
+      <section class="container">
+        <p class="byhub-label">{group.label}</p>
+        <div class="byhub-grid">
+          {group.list.map((race) => {
+            const d = pendingData.get(race.slug);
+            const fav = d?.favorite;
+            return (
+              <a href={race.paths[lang]} class="byhub-card" style={`--accent:${PARTY_COLOR[fav] ?? 'var(--rule)'}`}>
+                <span class="byhub-card-kicker">{race.province}</span>
+                <h2>{d?.riding_name_fr ?? race.slug}</h2>
+                <p class="byhub-card-dek">{race.headline[lang]}</p>
+                {fav && (
+                  <p class="byhub-card-fav">
+                    {t.favorite} · <strong style={`color:${PARTY_COLOR[fav]}`}>{PARTY_LABEL[fav]?.[lang] ?? fav.toUpperCase()}</strong>
+                    {' '}{fmtProb(d.favorite_probability)} %
+                  </p>
+                )}
+                {d?.has_local_poll && <span class="byhub-badge">{t.pollBadge}</span>}
+                <span class="byhub-card-cta">{t.view}</span>
+              </a>
+            );
+          })}
+        </div>
+      </section>
+    ))}
+
+    <section class="container">
+      <p class="byhub-label">{t.archiveLabel}</p>
+      <p class="byhub-archive-dek">{t.archiveDek}</p>
+      <div class="byhub-grid">
+        {archives.map((config) => (
+          <a href={(config.paths as any)[lang] ?? config.paths.en} class="byhub-card byhub-card--archive">
+            <span class="byhub-card-kicker">{config.kicker}</span>
+            <h2>{config.headline}</h2>
+            <span class="byhub-card-cta">{t.viewArchive}</span>
+          </a>
+        ))}
+      </div>
+    </section>
+
+    <KeepDigging
+      eyebrow={t.keepEyebrow}
+      title={t.keepTitle}
+      body={t.keepBody}
+      links={[
+        { href: `/${lang}/canada/federal/`, label: t.federal },
+        { href: `/${lang}/track-record/`, label: t.track },
+      ]}
+    />
+  </article>
+</Base>
+
+<style>
+  .byhub { padding-bottom: 64px; }
+  .byhub .container { max-width: 1080px; margin-inline: auto; padding-inline: 1.5rem; }
+  .byhub-hero { padding-top: 56px; padding-bottom: 40px; border-bottom: 1px solid var(--rule); }
+  .byhub-kicker {
+    font-family: var(--mono); font-size: 12px; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--ink-3);
+  }
+  .byhub-hero h1 {
+    margin-top: 14px; max-width: 800px; font-family: var(--serif); font-weight: 420;
+    font-size: clamp(38px, 6vw, 68px); letter-spacing: -0.02em; line-height: 1;
+  }
+  .byhub-dek { margin-top: 16px; max-width: 68ch; color: var(--ink-2); font-size: 17px; line-height: 1.6; }
+  .byhub-label {
+    margin-top: 48px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--ink-3);
+    border-bottom: 1px solid var(--rule); padding-bottom: 10px;
+  }
+  .byhub-archive-dek { margin-top: 12px; color: var(--ink-2); font-size: 15px; }
+  .byhub-grid {
+    margin-top: 20px; display: grid; gap: 18px;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  }
+  .byhub-card {
+    position: relative; display: flex; flex-direction: column; gap: 10px;
+    border: 1px solid var(--rule); border-top: 3px solid var(--accent, var(--rule));
+    border-radius: 6px; background: var(--card); padding: 22px;
+    color: var(--ink); text-decoration: none; transition: border-color 0.15s;
+  }
+  .byhub-card:hover { border-color: var(--ink-3); }
+  .byhub-card--archive { border-top-color: var(--rule); opacity: 0.86; }
+  .byhub-card-kicker {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--ink-3);
+  }
+  .byhub-card h2 {
+    margin: 0; font-family: var(--serif); font-size: 22px; font-weight: 430;
+    letter-spacing: -0.01em; line-height: 1.15;
+  }
+  .byhub-card-dek { flex: 1; margin: 0; color: var(--ink-2); font-size: 14px; line-height: 1.55; }
+  .byhub-card-fav { margin: 0; font-family: var(--mono); font-size: 12px; color: var(--ink-2); }
+  .byhub-badge {
+    align-self: flex-start; padding: 3px 8px; border-radius: 3px;
+    border: 1px solid var(--rule); font-family: var(--mono); font-size: 10px;
+    letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3);
+  }
+  .byhub-card-cta {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--ink-3);
+  }
+</style>
