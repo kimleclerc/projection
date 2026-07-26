@@ -57,6 +57,7 @@ const partyLabel = (c: any) => c.party_label?.[lang] ?? c.party;
 
 const t = {
   en: {
+    statusScheduled: 'Writ issued · polling day set',
     statusPending: 'Seat vacant · writ not yet issued',
     statusExpected: 'Resignation announced · seat not yet vacant',
     forecast: 'The Vote-Scope forecast',
@@ -66,7 +67,8 @@ const t = {
     howLabel: 'How this projection is built',
     baseline2025: '2025 result — the seat as it was won',
     pollLabel: 'The local poll',
-    pollCaveat: 'A single firm, a single wave, sample size unpublished. Treated with wide uncertainty.',
+    pollCaveat: 'A single firm, a single wave. Sample size, margin of error and collection method were never published. Treated with wide uncertainty.',
+    undecidedNote: (u: string) => `The published toplines include ${u} % undecided; they are redistributed in proportion to expressed intentions, no breakdown having been released.`,
     pollPredates: 'Fielded before the Liberal candidate was announced, so it cannot reflect that candidacy.',
     personalLabel: 'Personal vote removed',
     personalBody: (p: string, pts: number, member: string) =>
@@ -84,6 +86,7 @@ const t = {
     federal: 'Canada federal projection',
   },
   fr: {
+    statusScheduled: 'Bref émis · date de scrutin fixée',
     statusPending: 'Siège vacant · bref non encore émis',
     statusExpected: 'Démission annoncée · siège pas encore vacant',
     forecast: 'La projection Vote-Scope',
@@ -93,7 +96,8 @@ const t = {
     howLabel: 'Comment cette projection est construite',
     baseline2025: 'Résultat de 2025 — le siège tel qu’il a été gagné',
     pollLabel: 'Le sondage local',
-    pollCaveat: 'Une seule firme, une seule vague, taille d’échantillon non publiée. Traité avec une incertitude large.',
+    pollCaveat: 'Une seule firme, une seule vague. Taille d’échantillon, marge d’erreur et mode de collecte n’ont jamais été publiés. Traité avec une incertitude large.',
+    undecidedNote: (u: string) => `Les parts publiées incluent ${u} % d’indécis; ils sont redistribués au prorata des intentions exprimées, faute de ventilation diffusée.`,
     pollPredates: 'Terrain antérieur à l’annonce du candidat libéral : le sondage ne peut pas refléter cette candidature.',
     personalLabel: 'Vote personnel retiré',
     personalBody: (p: string, pts: number, member: string) =>
@@ -111,6 +115,7 @@ const t = {
     federal: 'Projection fédérale',
   },
   es: {
+    statusScheduled: 'Decreto emitido · fecha de votación fijada',
     statusPending: 'Escaño vacante · decreto aún no emitido',
     statusExpected: 'Renuncia anunciada · escaño aún no vacante',
     forecast: 'La proyección de Vote-Scope',
@@ -120,7 +125,8 @@ const t = {
     howLabel: 'Cómo se construye esta proyección',
     baseline2025: 'Resultado de 2025 — el escaño tal como se ganó',
     pollLabel: 'La encuesta local',
-    pollCaveat: 'Una sola firma, una sola ola, tamaño de muestra no publicado. Tratada con amplia incertidumbre.',
+    pollCaveat: 'Una sola firma, una sola ola. El tamaño de muestra, el margen de error y el método de recogida nunca se publicaron. Tratada con amplia incertidumbre.',
+    undecidedNote: (u: string) => `Las cuotas publicadas incluyen un ${u} % de indecisos; se redistribuyen en proporción a las intenciones expresadas, al no haberse difundido ningún desglose.`,
     pollPredates: 'Realizada antes del anuncio del candidato liberal, así que no puede reflejar esa candidatura.',
     personalLabel: 'Voto personal retirado',
     personalBody: (p: string, pts: number, member: string) =>
@@ -139,7 +145,11 @@ const t = {
   },
 }[lang];
 
-const statusLabel = config.status === 'vacant_pending_writ' ? t.statusPending : t.statusExpected;
+const statusLabel = config.status === 'scheduled'
+  ? t.statusScheduled
+  : config.status === 'vacant_pending_writ'
+    ? t.statusPending
+    : t.statusExpected;
 
 // Rattachement : fédéral par défaut, surchargeable par juridiction.
 const hubPath = config.hubPath?.[lang] ?? `/${lang}/canada/byelections/`;
@@ -255,10 +265,22 @@ const labelFor = (party: string) =>
                 </div>
               ))}
           </div>
+          {localPoll.undecided != null && (
+            <div class="cabye-ctx-row cabye-ctx-row--und">
+              <span class="cabye-ctx-name">{lang === 'fr' ? 'Indécis' : lang === 'es' ? 'Indecisos' : 'Undecided'}</span>
+              <div class="cabye-ctx-track">
+                <div class="cabye-ctx-fill" style={`width:${localPoll.undecided}%;background:#9a938a;`} />
+              </div>
+              <strong class="cabye-ctx-pct">{fmtPct(localPoll.undecided, 0)} %</strong>
+            </div>
+          )}
           <p class="cabye-meta">
             {titleCase(localPoll.firm)} · {localPoll.field_end ?? localPoll.release_date}
             {localPoll.sample_size ? ` · n=${localPoll.sample_size}` : ''}
           </p>
+          {localPoll.undecided != null && (
+            <p class="cabye-caveat">{t.undecidedNote(fmtPct(localPoll.undecided, 0))}</p>
+          )}
           <p class="cabye-caveat">{t.pollCaveat}</p>
           {byel.star_candidate?.announced_after_poll && (
             <p class="cabye-caveat">{t.pollPredates}</p>
@@ -403,6 +425,7 @@ const labelFor = (party: string) =>
   .cabye-ctx-track { height: 14px; background: var(--paper-3); border-radius: 3px; overflow: hidden; }
   .cabye-ctx-fill { height: 100%; }
   .cabye-ctx-pct { font-family: var(--mono); font-size: 12px; text-align: right; }
+  .cabye-ctx-row--und { margin-top: 6px; padding-top: 10px; border-top: 1px dashed var(--rule); opacity: 0.85; }
   .cabye-meta { margin-top: 12px; font-family: var(--mono); font-size: 11px; color: var(--ink-3); }
   .cabye-caveat {
     margin-top: 10px; padding: 10px 12px; border: 1px dashed var(--rule);

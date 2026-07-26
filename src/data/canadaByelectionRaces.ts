@@ -10,7 +10,7 @@ export type ByelectionRaceLocale = 'en' | 'fr' | 'es';
 type L<T> = Record<ByelectionRaceLocale, T>;
 
 /** Statut d'une course : le bref est déposé ou non. */
-export type ByelectionRaceStatus = 'vacant_pending_writ' | 'expected';
+export type ByelectionRaceStatus = 'scheduled' | 'vacant_pending_writ' | 'expected';
 
 export interface ByelectionRaceConfig {
   slug: string;
@@ -53,8 +53,8 @@ export const canadaByelectionRaces = {
     ridingId: '24018',
     dataPath: 'canada-byelection-chicoutimi-le-fjord',
     currentPage: 'canada',
-    status: 'vacant_pending_writ',
-    electionDate: null,
+    status: 'scheduled',
+    electionDate: '2026-08-31',
     vacancyDate: '2026-07-07',
     province: 'QC',
     title: {
@@ -68,9 +68,9 @@ export const canadaByelectionRaces = {
       es: 'Richard Martel se va al Senado y se lleva su voto personal. Una encuesta local de Pallas muestra un triple empate. Vote-Scope mide cuánto valía el exentrenador de los Saguenéens y por qué la encuesta no capta a la candidata estrella liberal.',
     },
     kicker: {
-      en: 'Federal by-election · Quebec · writ pending',
-      fr: 'Partielle fédérale · Québec · en attente du bref',
-      es: 'Parcial federal · Quebec · a la espera del decreto',
+      en: 'Federal by-election · Quebec · August 31, 2026',
+      fr: 'Partielle fédérale · Québec · 31 août 2026',
+      es: 'Parcial federal · Quebec · 31 de agosto de 2026',
     },
     headline: {
       en: 'The coach is gone.',
@@ -257,8 +257,8 @@ export const canadaByelectionRaces = {
     ridingId: '35007',
     dataPath: 'canada-byelection-beaches-east-york',
     currentPage: 'canada',
-    status: 'vacant_pending_writ',
-    electionDate: null,
+    status: 'scheduled',
+    electionDate: '2026-08-31',
     vacancyDate: '2026-07-07',
     province: 'ON',
     title: {
@@ -272,9 +272,9 @@ export const canadaByelectionRaces = {
       es: 'Nate Erskine-Smith renunció el 7 de julio de 2026. Un escaño liberal seguro en el este de Toronto, donde el residuo de participación amplía el margen en lugar de reducirlo.',
     },
     kicker: {
-      en: 'Federal by-election · Ontario · writ pending',
-      fr: 'Partielle fédérale · Ontario · en attente du bref',
-      es: 'Parcial federal · Ontario · a la espera del decreto',
+      en: 'Federal by-election · Ontario · August 31, 2026',
+      fr: 'Partielle fédérale · Ontario · 31 août 2026',
+      es: 'Parcial federal · Ontario · 31 de agosto de 2026',
     },
     headline: {
       en: 'Safe, and getting safer.',
@@ -320,8 +320,8 @@ export const canadaByelectionRaces = {
     ridingId: '59022',
     dataPath: 'canada-byelection-north-vancouver-capilano',
     currentPage: 'canada',
-    status: 'vacant_pending_writ',
-    electionDate: null,
+    status: 'scheduled',
+    electionDate: '2026-08-31',
     vacancyDate: '2026-06-22',
     province: 'BC',
     title: {
@@ -335,9 +335,9 @@ export const canadaByelectionRaces = {
       es: 'Jonathan Wilkinson se va a la embajada de Canadá ante la Unión Europea. Un escaño liberal cómodo en la North Shore, redibujado en 2023 y con poco histórico.',
     },
     kicker: {
-      en: 'Federal by-election · British Columbia · writ pending',
-      fr: 'Partielle fédérale · Colombie-Britannique · en attente du bref',
-      es: 'Parcial federal · Columbia Británica · a la espera del decreto',
+      en: 'Federal by-election · British Columbia · August 31, 2026',
+      fr: 'Partielle fédérale · Colombie-Britannique · 31 août 2026',
+      es: 'Parcial federal · Columbia Británica · 31 de agosto de 2026',
     },
     headline: {
       en: 'An ambassador’s vacancy.',
