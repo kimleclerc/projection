@@ -34,6 +34,7 @@ const DESKS = {
   quebec:      { label: 'Quebec',    json: 'web_data/quebec/latest.json',             kind: 'projection' },
   'us-house':  { label: 'US House',  json: 'web_data/us-house/latest.json',           kind: 'projection' },
   'us-senate': { label: 'US Senate', json: 'web_data/us-senate/latest.json',          kind: 'projection' },
+  france:      { label: 'France présidentielle', json: 'web_data/france-presidential/latest.json', kind: 'france-pres' },
   mlb:         { label: 'MLB',       json: 'web_data/sports/mlb2026_latest.json',      kind: 'mlb' },
 };
 
@@ -130,6 +131,46 @@ function validate(desk, data) {
         if (!inRange(tm[k], 0, 1)) errors.push(`${who}: ${k} hors [0,1] (${JSON.stringify(tm[k])})`);
       }
     }
+  } else if (desk.kind === 'france-pres') {
+    // Desk par scénarios : meta + catalogue de scénarios + scénario par défaut
+    // dont le 1er tour somme ~100 % et les p_top2 sont des probabilités.
+    const meta = data.meta ?? {};
+    runId = meta.run_date;
+    if (!isIsoDate(runId)) errors.push(`meta.run_date absent ou mal formé : ${JSON.stringify(runId)}`);
+    if (isIsoDate(runId)) {
+      const tomorrow = new Date(Date.now() + 36 * 3600 * 1000).toISOString().slice(0, 10);
+      if (runId.slice(0, 10) > tomorrow) errors.push(`meta.run_date dans le futur : ${runId}`);
+    }
+    if (!finite(meta.n_first_round_polls) || meta.n_first_round_polls < 0) errors.push(`meta.n_first_round_polls invalide : ${JSON.stringify(meta.n_first_round_polls)}`);
+    if (!finite(meta.n_simulations) || meta.n_simulations <= 0) errors.push(`meta.n_simulations invalide : ${JSON.stringify(meta.n_simulations)}`);
+
+    const scenarios = data.scenarios;
+    if (!Array.isArray(scenarios) || scenarios.length === 0) {
+      errors.push('data.scenarios vide ou absent');
+    } else {
+      const defId = data.default_scenario_id;
+      const def = scenarios.find((s) => s?.scenario?.scenario_id === defId);
+      if (!defId || !def) {
+        errors.push(`default_scenario_id introuvable dans scenarios : ${JSON.stringify(defId)}`);
+      } else {
+        const q = def.qualification;
+        if (!Array.isArray(q) || q.length === 0) {
+          errors.push('scénario par défaut sans qualification');
+        } else {
+          let sum = 0;
+          for (const c of q) {
+            const who = c.candidate_name ?? c.candidate_id ?? '?';
+            if (finite(c.first_round_mean)) {
+              if (!inRange(c.first_round_mean, 0, 100)) errors.push(`${who}: first_round_mean hors [0,100] (${JSON.stringify(c.first_round_mean)})`);
+              sum += c.first_round_mean;
+            }
+            if (c.p_top2 != null && !inRange(c.p_top2, 0, 1)) errors.push(`${who}: p_top2 hors [0,1] (${JSON.stringify(c.p_top2)})`);
+          }
+          // Les parts du 1er tour du scénario par défaut doivent sommer ~100 %.
+          if (Math.abs(sum - 100) > 5) errors.push(`somme first_round_mean=${sum.toFixed(1)} du scénario par défaut s'écarte de 100 (>5)`);
+        }
+      }
+    }
   }
   return { runId, errors };
 }
@@ -149,9 +190,10 @@ function committedRunId() {
     // défaut 1 Mo d'execSync, ce qui ferait échouer silencieusement le git show.
     const raw = execSync(`git show HEAD:${desk.json}`, { cwd: ROOT, encoding: 'utf-8', maxBuffer: 64 * 1024 * 1024, stdio: ['ignore', 'pipe', 'ignore'] });
     const prev = JSON.parse(raw);
-    return desk.kind === 'projection'
-      ? prev.meta?.run_date
-      : (prev.board_meta?.data_fetched_at ?? prev.generated_at);
+    return desk.kind === 'mlb'
+      ? (prev.board_meta?.data_fetched_at ?? prev.generated_at)
+      : prev.meta?.run_date; // projection + france-pres
+
   } catch {
     return null; // fichier non suivi / premier run
   }

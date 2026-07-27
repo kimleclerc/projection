@@ -47,8 +47,11 @@ cron peut donc traiter tout `≠0` comme « à regarder ».
 
 ## Desks enregistrés
 
-`federal`, `ontario`, `quebec`, `us-house`, `us-senate`, `mlb`.
-Ajouter un desk = une ligne dans le registre `DESKS` en tête du script.
+`federal`, `ontario`, `quebec`, `us-house`, `us-senate` (kind `projection`),
+`france` (kind `france-pres` — desk par scénarios : valide `run_date`, le
+scénario par défaut, sa somme de 1er tour ≈ 100 % et les `p_top2`), `mlb`
+(kind `mlb`). Ajouter un desk = une ligne dans le registre `DESKS` en tête du
+script (et un bloc dans `validate()` si le schéma diffère).
 
 ## Branchement moteur (pilote : Federal)
 
