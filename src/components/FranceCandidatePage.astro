@@ -4,6 +4,8 @@
 // page). Contenu factuel + data-driven → texte SEO qui s'auto-alimente.
 import { blocVar, blocLabel, statusLabel, fmtPct1, franceBase, franceCandBase, type Locale } from '../lib/fr-pres';
 import { candidateProse, slugify, getAllCandidates, type CandidateProfile } from '../lib/fr-candidates';
+import ContextualBookShelf from './ContextualBookShelf.astro';
+import { contextualBooks } from '../data/contextualBooks';
 
 interface Props {
   candidate: CandidateProfile;
@@ -20,6 +22,7 @@ const others = getAllCandidates().filter((x) => x.id !== c.id);
 const sameBloc = others.filter((x) => x.bloc === c.bloc).slice(0, 3);
 const topOthers = others.filter((x) => x.bloc !== c.bloc).slice(0, 4);
 const related = [...sameBloc, ...topOthers].slice(0, 5);
+const hasCandidateBooks = contextualBooks.some((book) => book.candidateIds?.includes(c.id));
 
 const base = franceBase(locale);
 const candBase = franceCandBase(locale);
@@ -106,6 +109,12 @@ const C = COPY[locale];
     {bio && <p class="frc-bio">{bio}</p>}
     {prose.map((p) => <p>{p}</p>)}
   </section>
+
+  {hasCandidateBooks && (
+    <section class="frc-section container">
+      <ContextualBookShelf lang={locale} candidateId={c.id} candidateName={c.name} limit={2} />
+    </section>
+  )}
 
   <!-- FOURCHETTE 1er TOUR -->
   <section class="frc-section container" aria-labelledby="frc-polling">

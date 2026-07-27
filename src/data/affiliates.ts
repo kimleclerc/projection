@@ -22,6 +22,8 @@ export interface AffiliatePartner {
     fr: { kicker: string; title: string; body: string; cta: string };
     es: { kicker: string; title: string; body: string; cta: string };
   };
+  /** Optional general-purpose pitch for placements outside a specific editorial vertical. */
+  evergreenCopy?: AffiliatePartner['copy'];
 }
 
 export const affiliates: Record<string, AffiliatePartner> = {
@@ -47,6 +49,26 @@ export const affiliates: Record<string, AffiliatePartner> = {
         title: '¿Siguiendo los partidos desde el extranjero este verano?',
         body: 'Una VPN mantiene tu conexión privada en el Wi-Fi de hoteles y estadios mientras viajas por el torneo. NordVPN es el servicio que usamos por su velocidad.',
         cta: 'Obtener NordVPN',
+      },
+    },
+    evergreenCopy: {
+      en: {
+        kicker: 'Partner · Secure browsing',
+        title: 'Follow the news on a more private connection.',
+        body: 'NordVPN helps protect your connection on public Wi-Fi, whether you are checking live results at home, at work, or while travelling.',
+        cta: 'Explore NordVPN',
+      },
+      fr: {
+        kicker: 'Partenaire · Navigation sécurisée',
+        title: 'Suivez l’actualité avec une connexion plus privée.',
+        body: 'NordVPN aide à protéger votre connexion sur les réseaux Wi-Fi publics, que vous consultiez les résultats à la maison, au travail ou en voyage.',
+        cta: 'Découvrir NordVPN',
+      },
+      es: {
+        kicker: 'Socio · Navegación segura',
+        title: 'Sigue la actualidad con una conexión más privada.',
+        body: 'NordVPN ayuda a proteger tu conexión en redes Wi-Fi públicas, ya sea que consultes resultados en casa, en el trabajo o mientras viajas.',
+        cta: 'Descubrir NordVPN',
       },
     },
   },
@@ -86,9 +108,9 @@ export const affiliates: Record<string, AffiliatePartner> = {
  *
  * - `tag`: the US Associates tracking ID (looks like `something-20`), from
  *   the Associates Central dashboard. Empty = every Amazon placement hidden.
- * - `oneLinkScriptSrc`: the OneLink script URL from Associates Central →
- *   Tools → OneLink (looks like `//z-na.amazon-adsystem.com/widgets/onejs?MarketPlace=US&adInstanceId=...`).
- *   Optional but needed for the CA/FR/UK/IT rerouting to actually happen.
+ * - `oneLinkScriptSrc`: retained only for legacy OneLink configurations that
+ *   still provide a script. The simplified account-level OneLink setup used
+ *   here redirects eligible US text links without an on-site script.
  *
  * Amazon program rules already handled by the components: the mandatory
  * earnings statement is rendered on every page with Amazon links and on the
@@ -97,6 +119,7 @@ export const affiliates: Record<string, AffiliatePartner> = {
  */
 export const amazon = {
   tag: 'votescope05-20',
+  // Intentionally empty: simplified OneLink is enabled in Associates Central.
   oneLinkScriptSrc: '',
 };
 
@@ -108,9 +131,9 @@ export const amazonSearch = (q: string): string =>
 
 /** Mandatory Amazon Associates earnings statement — exact program wording per locale. */
 export const amazonDisclosure: Record<'en' | 'fr' | 'es', string> = {
-  en: 'As an Amazon Associate, Vote-Scope earns from qualifying purchases.',
-  fr: 'En tant que Partenaire Amazon, Vote-Scope réalise un bénéfice sur les achats remplissant les conditions requises.',
-  es: 'En calidad de Afiliado de Amazon, Vote-Scope obtiene ingresos por las compras adscritas que cumplen los requisitos aplicables.',
+  en: 'As an Amazon Associate I earn from qualifying purchases.',
+  fr: 'En tant que Partenaire Amazon, je réalise un bénéfice sur les achats remplissant les conditions requises.',
+  es: 'En calidad de Afiliado de Amazon, obtengo ingresos por las compras adscritas que cumplen los requisitos aplicables.',
 };
 
 export const disclosurePath: Record<'en' | 'fr' | 'es', string> = {

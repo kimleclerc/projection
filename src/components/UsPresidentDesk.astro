@@ -8,6 +8,7 @@ import JurisdictionNav from './JurisdictionNav.astro';
 import KeepDigging from './KeepDigging.astro';
 import GooglePreferredSource from './GooglePreferredSource.astro';
 import PolymarketEmbed from './PolymarketEmbed.astro';
+import ContextualBookShelf from './ContextualBookShelf.astro';
 import UsPrimaryStandings from '../islands/UsPrimaryStandings.tsx';
 import UsElectoralMap from '../islands/UsElectoralMap.tsx';
 import latest from '../../web_data/us-president/latest.json';
@@ -213,6 +214,10 @@ for (const u of ec.units) stateNameByAbbr[u.state] = locale === 'fr' ? u.name_fr
         </div>
       ))}
     </div>
+  </section>
+
+  <section class="up-section container">
+    <ContextualBookShelf lang={locale} context="us-president" />
   </section>
 
   {earlyList.length > 0 && (

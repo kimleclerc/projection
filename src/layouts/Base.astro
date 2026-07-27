@@ -415,8 +415,45 @@ const languageLinks = (['en', 'fr', 'es'] as Locale[])
     .footer-col h4 { font-family: var(--mono); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); margin: 0 0 14px; font-weight: 500; }
     .footer-col a { display: block; color: var(--ink-2); font-size: 14px; padding: 4px 0; }
     .footer-col a:hover { color: var(--ink); }
-    .coffee-btn { display: inline-flex; align-items: center; margin-top: 16px; padding: 8px 16px; border: 1px solid var(--rule); border-radius: 6px; font-family: var(--mono); font-size: 13px; letter-spacing: .02em; color: var(--ink); background: var(--paper); transition: background .15s, border-color .15s; }
-    .coffee-btn:hover { background: var(--paper-2); border-color: var(--ink-3); color: var(--ink); }
+    .coffee-btn {
+      display: inline-grid;
+      grid-template-columns: 38px 1fr;
+      align-items: center;
+      gap: 10px;
+      min-width: 220px;
+      margin-top: 18px;
+      padding: 10px 14px 10px 11px;
+      border: 1px solid #c89716;
+      border-radius: 7px;
+      color: #17130a;
+      background: #ffdd57;
+      box-shadow: 0 3px 0 #c89716;
+      text-decoration: none;
+      transition: transform .15s, box-shadow .15s, background .15s;
+    }
+    .coffee-btn:hover {
+      transform: translateY(-1px);
+      background: #ffe475;
+      box-shadow: 0 5px 0 #c89716;
+      color: #17130a;
+    }
+    .coffee-btn svg {
+      width: 38px;
+      height: 38px;
+      padding: 7px;
+      border-radius: 50%;
+      background: rgb(255 255 255 / .48);
+    }
+    .coffee-btn-copy { display: flex; flex-direction: column; line-height: 1.15; }
+    .coffee-btn-copy strong { font-family: var(--serif); font-size: 17px; font-weight: 650; }
+    .coffee-btn-copy small {
+      margin-top: 4px;
+      font-family: var(--mono);
+      font-size: 8px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      opacity: .72;
+    }
     .footer-bottom { padding-top: 22px; border-top: 1px solid var(--rule); display: flex; justify-content: space-between; font-size: 13px; color: var(--ink-3); font-family: var(--mono); }
 
     @media (max-width: 900px) {
@@ -520,7 +557,15 @@ const languageLinks = (['en', 'fr', 'es'] as Locale[])
           {copy.footerDescription}
         </p>
         <a class="coffee-btn" href="https://buymeacoffee.com/kimleclerc" target="_blank" rel="noopener">
-          {copy.coffeeLabel}
+          <svg viewBox="0 0 32 32" fill="none" aria-hidden="true">
+            <path d="M7 10h16v8.5A7.5 7.5 0 0 1 15.5 26h-1A7.5 7.5 0 0 1 7 18.5V10Z" fill="currentColor"/>
+            <path d="M23 13h2.2a3.8 3.8 0 0 1 0 7.6H23" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M11 5.5c0 1.5 1.5 1.5 1.5 3M17 5.5c0 1.5 1.5 1.5 1.5 3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <span class="coffee-btn-copy">
+            <strong>{copy.coffeeLabel}</strong>
+            <small>{lang === 'fr' ? 'Soutenir les projections indépendantes' : lang === 'es' ? 'Apoyar proyecciones independientes' : 'Support independent forecasts'}</small>
+          </span>
         </a>
         {footerPartner && (
           <p style="font-size:12px;color:var(--ink-3);margin-top:12px;">
