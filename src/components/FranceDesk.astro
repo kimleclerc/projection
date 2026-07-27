@@ -10,6 +10,7 @@ import JurisdictionNav from './JurisdictionNav.astro';
 import GooglePreferredSource from './GooglePreferredSource.astro';
 import KeepDigging from './KeepDigging.astro';
 import PolymarketEmbed from './PolymarketEmbed.astro';
+import ContextualBookShelf from './ContextualBookShelf.astro';
 import latest from '../../web_data/france-presidential/latest.json';
 import dataSheets from '../../web_data/france-presidential/data_sheets.json';
 import barrageLatest from '../../web_data/fr-barrage/latest.json';
@@ -463,6 +464,10 @@ const C = COPY[locale];
     <div class="fr-cta-row" style="margin-top:18px;">
       <a class="fr-cta" href={candBase}>{C.allCandidates} →</a>
     </div>
+  </section>
+
+  <section class="fr-section container">
+    <ContextualBookShelf lang={locale} context="france-president" />
   </section>
 
   <section class="fr-section container">

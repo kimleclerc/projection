@@ -2,9 +2,9 @@
  * Curated Amazon picks for the Library page.
  *
  * Three link kinds, in priority order:
- * - `url`: full-length SiteStripe link (amazon.com + tag + linkId). MUST be
- *   long-form, never amzn.to: the OneLink script only localizes amazon.com
- *   links, so short links would not credit CA/FR/UK/IT purchases.
+ * - `url`: SiteStripe link. Full amazon.com links are preferred so the
+ *   destination and tracking tag remain directly auditable; account-level
+ *   OneLink handles eligible international redirection.
  * - `asin`: direct product link built with the tag.
  * - `search`: an Amazon search query (safe fallback for seasonal items like
  *   jerseys where editions change every cycle).

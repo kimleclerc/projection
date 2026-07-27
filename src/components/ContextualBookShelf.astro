@@ -1,0 +1,266 @@
+---
+import {
+  amazon,
+  amazonDp,
+  amazonSearch,
+  amazonDisclosure,
+  disclosurePath,
+} from '../data/affiliates';
+import {
+  contextualBooks,
+  type BookContext,
+  type BookLocale,
+} from '../data/contextualBooks';
+
+interface Props {
+  lang: BookLocale;
+  context?: BookContext;
+  candidateId?: string;
+  candidateName?: string;
+  limit?: number;
+}
+
+const {
+  lang,
+  context,
+  candidateId,
+  candidateName = '',
+  limit = 4,
+} = Astro.props;
+
+const live = amazon.tag.trim() !== '';
+const books = live
+  ? contextualBooks
+      .filter((book) =>
+        candidateId
+          ? book.candidateIds?.includes(candidateId)
+          : context
+            ? book.contexts.includes(context)
+            : false,
+      )
+      .slice(0, limit)
+  : [];
+const displayCandidateName = books[0]?.author ?? candidateName;
+
+const copy = {
+  en: {
+    kicker: 'Books from the race',
+    title: candidateName
+      ? `Books by ${displayCandidateName}`
+      : context === 'clacton'
+        ? 'Read the people on the ballot.'
+        : 'Read the people in the race.',
+    body: 'Written by people tracked on this page. Inclusion is contextual, not an endorsement.',
+    cta: 'View on Amazon',
+    paid: 'paid link',
+    disclosure: 'How we disclose',
+  },
+  fr: {
+    kicker: 'Livres de la course',
+    title: candidateName
+      ? `Les livres de ${displayCandidateName}`
+      : context === 'clacton'
+        ? 'Lire les personnes sur le bulletin.'
+        : 'Lire les personnes derrière la course.',
+    body: 'Des ouvrages écrits par les personnes suivies sur cette page. Leur présence ne constitue pas un appui.',
+    cta: 'Voir sur Amazon',
+    paid: 'lien rémunéré',
+    disclosure: 'Notre politique de divulgation',
+  },
+  es: {
+    kicker: 'Libros de la contienda',
+    title: candidateName
+      ? `Libros de ${displayCandidateName}`
+      : context === 'clacton'
+        ? 'Leer a las personas en la papeleta.'
+        : 'Leer a las personas de la contienda.',
+    body: 'Obras escritas por personas seguidas en esta página. Su inclusión no supone un respaldo.',
+    cta: 'Ver en Amazon',
+    paid: 'enlace remunerado',
+    disclosure: 'Cómo lo divulgamos',
+  },
+}[lang];
+
+const linkFor = (book: (typeof contextualBooks)[number]) =>
+  book.asin ? amazonDp(book.asin) : amazonSearch(book.search ?? `${book.title} ${book.author}`);
+---
+
+{books.length > 0 && (
+  <aside class="race-books" data-affiliate-placement={candidateId ? 'candidate-profile' : context}>
+    <div class="race-books-head">
+      <div>
+        <p class="race-books-kicker">{copy.kicker}</p>
+        <h2>{copy.title}</h2>
+      </div>
+      <p>{copy.body}</p>
+    </div>
+    <div class="race-books-grid">
+      {books.map((book) => (
+        <article class="race-book">
+          <div class="race-book-cover" style={`--book-accent:${book.accent}`} aria-hidden="true">
+            <span class="race-book-rule"></span>
+            <strong>{book.title}</strong>
+            <small>{book.author}</small>
+          </div>
+          <div class="race-book-copy">
+            <h3>{book.title}</h3>
+            <p class="race-book-author">{book.author}</p>
+            <p class="race-book-note">{book.note[lang]}</p>
+            <a
+              href={linkFor(book)}
+              target="_blank"
+              rel="sponsored noopener"
+              data-affiliate-partner="amazon"
+              data-affiliate-product={book.id}
+            >
+              {copy.cta} → <small>({copy.paid})</small>
+            </a>
+          </div>
+        </article>
+      ))}
+    </div>
+    <p class="race-books-disclosure">
+      {amazonDisclosure[lang]}
+      <a href={disclosurePath[lang]}>{copy.disclosure}</a>
+    </p>
+  </aside>
+)}
+
+<style>
+  .race-books {
+    border-block: 1px solid var(--rule);
+    padding-block: 28px;
+  }
+  .race-books-head {
+    display: grid;
+    grid-template-columns: minmax(220px, .9fr) minmax(280px, 1.1fr);
+    gap: 28px;
+    align-items: end;
+  }
+  .race-books-kicker {
+    margin: 0 0 7px;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .race-books-head h2 {
+    margin: 0;
+    font-family: var(--serif);
+    font-size: clamp(25px, 3vw, 36px);
+    font-weight: 430;
+    line-height: 1.05;
+  }
+  .race-books-head > p {
+    max-width: 58ch;
+    margin: 0;
+    color: var(--ink-2);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  .race-books-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 14px;
+    margin-top: 22px;
+  }
+  .race-book {
+    display: grid;
+    grid-template-columns: 92px 1fr;
+    gap: 15px;
+    min-width: 0;
+    border: 1px solid var(--rule);
+    border-radius: 7px;
+    background: var(--card);
+    padding: 14px;
+  }
+  .race-book-cover {
+    position: relative;
+    display: flex;
+    min-height: 132px;
+    flex-direction: column;
+    justify-content: flex-end;
+    overflow: hidden;
+    border-radius: 3px 7px 7px 3px;
+    background:
+      linear-gradient(145deg, color-mix(in oklab, var(--book-accent) 82%, white), var(--book-accent));
+    box-shadow: 5px 6px 0 color-mix(in oklab, var(--book-accent) 22%, transparent);
+    color: white;
+    padding: 12px 10px;
+  }
+  .race-book-cover::before {
+    content: '';
+    position: absolute;
+    inset: 0 auto 0 7px;
+    width: 1px;
+    background: rgb(255 255 255 / .32);
+  }
+  .race-book-rule {
+    position: absolute;
+    inset: 12px 10px auto;
+    height: 2px;
+    background: rgb(255 255 255 / .75);
+  }
+  .race-book-cover strong {
+    position: relative;
+    font-family: var(--serif);
+    font-size: 14px;
+    line-height: 1.05;
+  }
+  .race-book-cover small {
+    position: relative;
+    margin-top: 7px;
+    font-family: var(--mono);
+    font-size: 7px;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+  }
+  .race-book-copy h3 {
+    margin: 1px 0 2px;
+    font-family: var(--serif);
+    font-size: 18px;
+    line-height: 1.1;
+  }
+  .race-book-author {
+    margin: 0;
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .race-book-note {
+    margin: 9px 0;
+    color: var(--ink-2);
+    font-size: 12px;
+    line-height: 1.5;
+  }
+  .race-book-copy a {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--red);
+    text-decoration: none;
+  }
+  .race-book-copy a:hover { text-decoration: underline; }
+  .race-book-copy a small {
+    font-size: 9px;
+    font-weight: 500;
+  }
+  .race-books-disclosure {
+    margin: 16px 0 0;
+    font-size: 11px;
+    color: var(--ink-3);
+    line-height: 1.5;
+  }
+  .race-books-disclosure a {
+    margin-left: 5px;
+    color: inherit;
+    text-decoration: underline;
+  }
+  @media (max-width: 620px) {
+    .race-books-head { grid-template-columns: 1fr; gap: 10px; }
+    .race-books-grid { grid-template-columns: 1fr; }
+  }
+</style>
