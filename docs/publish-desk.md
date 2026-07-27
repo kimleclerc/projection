@@ -71,6 +71,14 @@ node scripts/publish-desk.mjs federal
 desk : France ou UK national tournent aux sondages, pas chaque nuit — le skip
 sur `run_date` inchangé gère ça sans configuration.
 
+## Branchement cron (côté moteur)
+
+La passerelle `../models/publish_gate.sh <desk> [juris]` enchaîne
+`publish_web.py` + ce garde-fou après un run moteur. Le patron cron par desk
+(heures échelonnées, commandes de run à confirmer) est dans
+`../models/PUBLISH_CRON.md`. Le nightly MLB (`../models/mlb/update_nightly_mlb.sh`)
+l'utilise déjà. UK reste manuel (desk Tier B, hors registre auto).
+
 ## Vérifié
 
 - Skip sur run inchangé (federal, mlb).
