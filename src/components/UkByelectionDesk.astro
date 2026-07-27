@@ -6,6 +6,7 @@
 // affichés en COMPARAISON — jamais des entrées du modèle.
 import Base from '../layouts/Base.astro';
 import KeepDigging from './KeepDigging.astro';
+import ContextualBookShelf from './ContextualBookShelf.astro';
 import ElectionCountdown from '../islands/ElectionCountdown.tsx';
 import special from '../../web_data/uk-clacton-special/latest.json';
 import {
@@ -391,6 +392,10 @@ const pc = (v: number) => `${Math.min(100, (v / SCALE_MAX) * 100)}%`;
         ))}
       </div>
       <p class="ukbye-body-text ukbye-path-outro">{t.pathOutro}</p>
+    </section>
+
+    <section class="container">
+      <ContextualBookShelf lang={lang} context="clacton" />
     </section>
 
     <section class="container" aria-labelledby="ukbye-markets">

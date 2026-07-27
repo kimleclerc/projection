@@ -5,6 +5,7 @@ import MarketCheck from '../../../components/MarketCheck.astro';
 import MethodologyNote from '../../../components/MethodologyNote.astro';
 import AnimatedNumber from '../../../islands/AnimatedNumber';
 import PolymarketEmbed from '../../../components/PolymarketEmbed.astro';
+import AffiliateCard from '../../../components/AffiliateCard.astro';
 import { specialElections } from '../../../data/specialElections';
 
 import ldiData from '../../../../web_data/us-lame-duck/latest.json';
@@ -72,6 +73,12 @@ const presDemLead = presDem.standings.find((s: any) => s.status !== 'ineligible'
         <p>The House and Senate races where Latino electoral weight, competitiveness, and control of Congress intersect — ranked on a 100-point scale.</p>
         <p><a href="/en/us/latino-radar/" class="cta-link">Open the radar →</a></p>
       </div>
+    </div>
+  </section>
+
+  <section class="content-band">
+    <div class="container">
+      <AffiliateCard partner="proton" lang="en" visual placement="us-desk" />
     </div>
   </section>
 
