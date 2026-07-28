@@ -1,0 +1,152 @@
+{
+  "meta": {
+    "updated": "2026-07-27",
+    "_readme": "Registre canonique des appels RÉSOLUS de Vote-Scope, avec preuve d'antériorité (commit git public AVANT le résultat). Source figée : chaque entrée est un fait historique immuable, jamais reconstruit depuis un latest.json qui mute. Règle de comptage : les domaines 'sport' et 'election' sont comptés SÉPARÉMENT (jamais additionnés). Le volume de marché n'est jamais une métrique de tête — la valeur est proba modèle vs proba marché au même instant + calibration. Textes trilingues fr/en/es dans chaque entrée.",
+    "counting_rule": "sport et election comptés séparément, jamais additionnés",
+    "domains": ["sport", "election"]
+  },
+  "calls": [
+    {
+      "id": "wc-2026-champion",
+      "domain": "sport",
+      "sport": "football",
+      "competition": { "en": "2026 FIFA World Cup", "fr": "Coupe du monde 2026", "es": "Mundial 2026" },
+      "call_type": "tournament_winner",
+      "timing": { "en": "Pre-tournament — before the first match", "fr": "Avant le tournoi — avant le 1er match", "es": "Antes del torneo — antes del primer partido" },
+      "model_snapshot": {
+        "run_date": "2026-04-22",
+        "subject": "Spain",
+        "subject_prob": 7.43,
+        "rank": 1,
+        "field_size": 48,
+        "runner_up": "France",
+        "runner_up_prob": 7.11,
+        "third": "England",
+        "third_prob": 5.76,
+        "n_simulations": 50000
+      },
+      "market": {
+        "available": false,
+        "note": {
+          "en": "Only a live market link was archived; the market price at the snapshot was not frozen. (Fixed going forward — see resolved-calls schema.)",
+          "fr": "Seul un lien de marché vivant était archivé ; le prix de marché à l'instant du snapshot n'a pas été figé. (Corrigé pour le futur.)",
+          "es": "Solo se archivó un enlace de mercado en vivo; el precio de mercado en ese instante no quedó congelado. (Corregido a futuro.)"
+        }
+      },
+      "proof": {
+        "commit": "53dfff1b",
+        "commit_date": "2026-05-28",
+        "note": {
+          "en": "Spain ranked first (7.43%) was public two weeks before the June 11 kickoff.",
+          "fr": "Espagne en tête (7,43 %) était public deux semaines avant le coup d'envoi du 11 juin.",
+          "es": "España primera (7,43 %) era público dos semanas antes del inicio del 11 de junio."
+        }
+      },
+      "result": {
+        "status": "correct",
+        "date": "2026-07-19",
+        "outcome": {
+          "en": "Spain beat Argentina 1–0 after extra time to become the first 48-team World Cup champion.",
+          "fr": "L'Espagne a battu l'Argentine 1–0 après prolongation, première championne du Mondial à 48 équipes.",
+          "es": "España venció 1–0 a Argentina tras la prórroga, primera campeona del Mundial de 48 selecciones."
+        }
+      },
+      "final_volume_note": {
+        "en": "Associated-market reach was in the billions, but it is market-making churn, not conviction — shown as context only, never as a headline.",
+        "fr": "La portée des marchés associés se comptait en milliards, mais c'est du churn de tenue de marché, pas de la conviction — contexte seulement, jamais en titre.",
+        "es": "El alcance de los mercados asociados era de miles de millones, pero es churn de creación de mercado, no convicción — solo contexto, nunca titular."
+      },
+      "links": {
+        "votescope": { "en": "/en/sports/wc2026/", "fr": "/fr/sports/wc2026/", "es": "/es/sports/wc2026/" },
+        "polymarket": "https://polymarket.com/event/world-cup-winner"
+      },
+      "text": {
+        "title": {
+          "en": "2026 World Cup — pre-tournament favourite",
+          "fr": "Coupe du monde 2026 — favori d'avant-tournoi",
+          "es": "Mundial 2026 — favorito antes del torneo"
+        },
+        "call": {
+          "en": "Before a single match, Vote-Scope ranked Spain the most likely champion of 48 teams (7.43%).",
+          "fr": "Avant le moindre match, Vote-Scope plaçait l'Espagne en tête des 48 équipes (7,43 %).",
+          "es": "Antes de jugarse un solo partido, Vote-Scope situaba a España como la campeona más probable entre 48 selecciones (7,43 %)."
+        },
+        "result": {
+          "en": "Spain won 1–0 over Argentina after extra time. ✓",
+          "fr": "L'Espagne l'a emporté 1–0 sur l'Argentine après prolongation. ✓",
+          "es": "España ganó 1–0 a Argentina tras la prórroga. ✓"
+        }
+      }
+    },
+    {
+      "id": "nhl-2026-cup-edge",
+      "domain": "sport",
+      "sport": "hockey",
+      "competition": { "en": "2026 Stanley Cup", "fr": "Coupe Stanley 2026", "es": "Stanley Cup 2026" },
+      "call_type": "model_vs_market_edge",
+      "timing": { "en": "Final — series tied 2–2", "fr": "Finale — série égale 2-2", "es": "Final — serie empatada 2-2" },
+      "model_snapshot": {
+        "run_date": "2026-06-11",
+        "subject": "Carolina Hurricanes",
+        "subject_prob": 66.68,
+        "opponent": "Vegas Golden Knights",
+        "opponent_prob": 33.32,
+        "context": {
+          "en": "This is an in-series model-vs-market edge, NOT a pre-final favourite call: before the final the model saw a near-tie leaning Vegas.",
+          "fr": "Ceci est un edge modèle-vs-marché en cours de série, PAS un appel de favori d'avant-finale : avant la finale le modèle voyait une quasi-égalité penchant Vegas.",
+          "es": "Esto es una ventaja modelo-vs-mercado dentro de la serie, NO un pronóstico de favorito antes de la final: antes de la final el modelo veía un casi empate inclinado a Vegas."
+        }
+      },
+      "market": {
+        "available": true,
+        "subject_price": 36.36,
+        "opponent_price": 33.6,
+        "edge_points": 30.3,
+        "note": {
+          "en": "At 2–2 the market saw a coin flip (~36%); the model was +30 points on Carolina.",
+          "fr": "À 2-2 le marché voyait un pile ou face (~36 %) ; le modèle était +30 points sur Carolina.",
+          "es": "Con 2-2 el mercado veía un volado (~36 %); el modelo estaba +30 puntos en Carolina."
+        }
+      },
+      "proof": {
+        "commit": "f9a506b3",
+        "commit_date": "2026-06-11",
+        "note": {
+          "en": "The 2–2 snapshot was public three days before Carolina won on June 14.",
+          "fr": "Le snapshot à 2-2 était public trois jours avant la victoire de Carolina le 14 juin.",
+          "es": "El snapshot con 2-2 era público tres días antes de la victoria de Carolina el 14 de junio."
+        }
+      },
+      "result": {
+        "status": "correct",
+        "date": "2026-06-14",
+        "outcome": {
+          "en": "Carolina won the series and the Cup — the model beat the market.",
+          "fr": "Carolina a remporté la série et la Coupe — le modèle a battu le marché.",
+          "es": "Carolina ganó la serie y la Copa — el modelo le ganó al mercado."
+        }
+      },
+      "final_volume_note": null,
+      "links": {
+        "votescope": { "en": "/en/sports/nhl/", "fr": "/fr/sports/nhl/", "es": "/es/sports/nhl/" }
+      },
+      "text": {
+        "title": {
+          "en": "2026 Stanley Cup — model vs market at 2–2",
+          "fr": "Coupe Stanley 2026 — modèle vs marché à 2-2",
+          "es": "Stanley Cup 2026 — modelo vs mercado con 2-2"
+        },
+        "call": {
+          "en": "With the final tied 2–2, Vote-Scope gave Carolina 66.7% while the market saw a coin flip (~36%).",
+          "fr": "Finale à égalité 2-2, Vote-Scope donnait Carolina à 66,7 % quand le marché voyait un pile ou face (~36 %).",
+          "es": "Con la final 2-2, Vote-Scope daba a Carolina un 66,7 % mientras el mercado veía un volado (~36 %)."
+        },
+        "result": {
+          "en": "Carolina won the Cup. The model beat the market. ✓",
+          "fr": "Carolina a remporté la Coupe. Le modèle a battu le marché. ✓",
+          "es": "Carolina ganó la Copa. El modelo le ganó al mercado. ✓"
+        }
+      }
+    }
+  ]
+}
