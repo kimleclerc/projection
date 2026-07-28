@@ -31,9 +31,10 @@ interface Call {
     available: boolean;
     subject_price?: number;
     edge_points?: number;
+    volume_usd?: number;
     note?: Record<Locale, string>;
   };
-  proof: { commit: string; commit_date: string; note: Record<Locale, string> };
+  proof: { commit?: string; commit_date: string; note: Record<Locale, string> };
   result: { status: string; date: string; outcome: Record<Locale, string> };
   links: { votescope?: Record<Locale, string> };
   text: {
@@ -53,21 +54,28 @@ const t = {
     resolved: 'resolved calls', accuracy: 'accuracy', model: 'Model', market: 'Market',
     edge: 'edge', notFrozen: 'market not frozen at the snapshot', public: 'Public',
     verify: 'commit', result: 'Result', domainLabel: { sport: 'Sports Scope', election: 'Elections' } as Record<string, string>,
+    confidence: 'Confidence', reach: 'market reach',
     fmtPct: (v: number) => `${v}%`,
   },
   fr: {
     resolved: 'appels résolus', accuracy: 'exactitude', model: 'Modèle', market: 'Marché',
     edge: 'écart', notFrozen: 'marché non figé à l’instant', public: 'Public le',
     verify: 'commit', result: 'Résultat', domainLabel: { sport: 'Sports Scope', election: 'Élections' } as Record<string, string>,
+    confidence: 'Confiance', reach: 'portée marché',
     fmtPct: (v: number) => `${String(v).replace('.', ',')} %`,
   },
   es: {
     resolved: 'llamadas resueltas', accuracy: 'exactitud', model: 'Modelo', market: 'Mercado',
     edge: 'ventaja', notFrozen: 'mercado no congelado en el instante', public: 'Público el',
     verify: 'commit', result: 'Resultado', domainLabel: { sport: 'Sports Scope', election: 'Elecciones' } as Record<string, string>,
+    confidence: 'Confianza', reach: 'alcance de mercado',
     fmtPct: (v: number) => `${String(v).replace('.', ',')} %`,
   },
 }[locale];
+
+// Volume marché compact ($3.8M / $373K) — contexte, jamais additionné.
+const fmtUsd = (v: number): string =>
+  v >= 1_000_000 ? `$${(v / 1_000_000).toFixed(1)}M` : v >= 1_000 ? `$${Math.round(v / 1000)}K` : `$${v}`;
 
 const groups = domains.map((d) => {
   const calls = all.filter((c) => c.domain === d);
@@ -101,7 +109,7 @@ const groups = domains.map((d) => {
               <p class="rc-card-call">{c.text.call[locale]}</p>
 
               <div class="rc-vs">
-                <span class="rc-vs-model">{`${t.model} `}<strong>{t.fmtPct(m.subject_prob)}</strong></span>
+                <span class="rc-vs-model">{`${c.domain === 'election' ? t.confidence : t.model} `}<strong>{t.fmtPct(m.subject_prob)}</strong></span>
                 {mk.available && mk.subject_price != null ? (
                   <>
                     <span class="rc-vs-sep">·</span>
@@ -110,6 +118,8 @@ const groups = domains.map((d) => {
                       <span class="rc-vs-edge">{`${t.edge} +${t.fmtPct(mk.edge_points)}`}</span>
                     )}
                   </>
+                ) : mk.volume_usd != null ? (
+                  <span class="rc-vs-nofreeze">{`· ${t.reach} ${fmtUsd(mk.volume_usd)}`}</span>
                 ) : (
                   <span class="rc-vs-nofreeze">{`· ${t.notFrozen}`}</span>
                 )}
@@ -118,7 +128,9 @@ const groups = domains.map((d) => {
               <p class="rc-card-result">{c.text.result[locale]}</p>
 
               <footer class="rc-card-foot">
-                <span class="rc-proof">{`${t.public} ${c.proof.commit_date} · ${t.verify} ${c.proof.commit}`}</span>
+                <span class="rc-proof">{c.proof.commit
+                  ? `${t.public} ${c.proof.commit_date} · ${t.verify} ${c.proof.commit}`
+                  : c.proof.note[locale]}</span>
                 {page && <a class="rc-link" href={page}>↗</a>}
               </footer>
             </article>
