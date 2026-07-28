@@ -3,16 +3,27 @@
     "updated": "2026-07-27",
     "_readme": "Registre canonique des appels RÉSOLUS de Vote-Scope, avec preuve d'antériorité (commit git public AVANT le résultat). Source figée : chaque entrée est un fait historique immuable, jamais reconstruit depuis un latest.json qui mute. Règle de comptage : les domaines 'sport' et 'election' sont comptés SÉPARÉMENT (jamais additionnés). Le volume de marché n'est jamais une métrique de tête — la valeur est proba modèle vs proba marché au même instant + calibration. Textes trilingues fr/en/es dans chaque entrée.",
     "counting_rule": "sport et election comptés séparément, jamais additionnés",
-    "domains": ["sport", "election"]
+    "domains": [
+      "sport",
+      "election"
+    ]
   },
   "calls": [
     {
       "id": "wc-2026-champion",
       "domain": "sport",
       "sport": "football",
-      "competition": { "en": "2026 FIFA World Cup", "fr": "Coupe du monde 2026", "es": "Mundial 2026" },
+      "competition": {
+        "en": "2026 FIFA World Cup",
+        "fr": "Coupe du monde 2026",
+        "es": "Mundial 2026"
+      },
       "call_type": "tournament_winner",
-      "timing": { "en": "Pre-tournament — before the first match", "fr": "Avant le tournoi — avant le 1er match", "es": "Antes del torneo — antes del primer partido" },
+      "timing": {
+        "en": "Pre-tournament — before the first match",
+        "fr": "Avant le tournoi — avant le 1er match",
+        "es": "Antes del torneo — antes del primer partido"
+      },
       "model_snapshot": {
         "run_date": "2026-04-22",
         "subject": "Spain",
@@ -57,7 +68,11 @@
         "es": "El alcance de los mercados asociados era de miles de millones, pero es churn de creación de mercado, no convicción — solo contexto, nunca titular."
       },
       "links": {
-        "votescope": { "en": "/en/sports/wc2026/", "fr": "/fr/sports/wc2026/", "es": "/es/sports/wc2026/" },
+        "votescope": {
+          "en": "/en/sports/wc2026/",
+          "fr": "/fr/sports/wc2026/",
+          "es": "/es/sports/wc2026/"
+        },
         "polymarket": "https://polymarket.com/event/world-cup-winner"
       },
       "text": {
@@ -82,9 +97,17 @@
       "id": "nhl-2026-cup-edge",
       "domain": "sport",
       "sport": "hockey",
-      "competition": { "en": "2026 Stanley Cup", "fr": "Coupe Stanley 2026", "es": "Stanley Cup 2026" },
+      "competition": {
+        "en": "2026 Stanley Cup",
+        "fr": "Coupe Stanley 2026",
+        "es": "Stanley Cup 2026"
+      },
       "call_type": "model_vs_market_edge",
-      "timing": { "en": "Final — series tied 2–2", "fr": "Finale — série égale 2-2", "es": "Final — serie empatada 2-2" },
+      "timing": {
+        "en": "Final — series tied 2–2",
+        "fr": "Finale — série égale 2-2",
+        "es": "Final — serie empatada 2-2"
+      },
       "model_snapshot": {
         "run_date": "2026-06-11",
         "subject": "Carolina Hurricanes",
@@ -128,7 +151,11 @@
       },
       "final_volume_note": null,
       "links": {
-        "votescope": { "en": "/en/sports/nhl/", "fr": "/fr/sports/nhl/", "es": "/es/sports/nhl/" }
+        "votescope": {
+          "en": "/en/sports/nhl/",
+          "fr": "/fr/sports/nhl/",
+          "es": "/es/sports/nhl/"
+        }
       },
       "text": {
         "title": {
@@ -151,111 +178,413 @@
     {
       "id": "ga14-runoff-2026",
       "domain": "election",
-      "competition": { "en": "Georgia's 14th · runoff", "fr": "14e de Géorgie · runoff", "es": "Distrito 14 de Georgia · segunda vuelta" },
+      "flag": "🇺🇸",
+      "competition": {
+        "en": "Georgia's 14th · runoff",
+        "fr": "14e de Géorgie · runoff",
+        "es": "Distrito 14 de Georgia · segunda vuelta"
+      },
       "call_type": "race_winner",
-      "timing": { "en": "Called before the April 7 runoff", "fr": "Appelé avant le runoff du 7 avril", "es": "Anticipado antes de la segunda vuelta del 7 de abril" },
-      "model_snapshot": { "subject": "Clay Fuller", "subject_prob": 95.8 },
-      "market": { "available": false, "volume_usd": 3787366, "note": { "en": "Associated market reach; context only, not summed with sports.", "fr": "Portée des marchés associés ; contexte seulement, non additionné au sport.", "es": "Alcance de los mercados asociados; solo contexto, no sumado con deportes." } },
-      "proof": { "commit_date": "2026-04-07", "note": { "en": "Call published before the vote.", "fr": "Appel publié avant le vote.", "es": "Pronóstico publicado antes de la votación." } },
-      "result": { "status": "correct", "date": "2026-04-07", "outcome": { "en": "Fuller elected, roughly 55% to 45%.", "fr": "Fuller élu, environ 55 % contre 45 %.", "es": "Fuller elegido, alrededor de 55 % contra 45 %." } },
-      "links": { "votescope": { "en": "/en/us/specials/ga14-runoff/", "fr": "/fr/us/specials/ga14-runoff/", "es": "/es/us/specials/ga14-runoff/" } },
+      "timing": {
+        "en": "Called before the April 7 runoff",
+        "fr": "Appelé avant le runoff du 7 avril",
+        "es": "Anticipado antes de la segunda vuelta del 7 de abril"
+      },
+      "model_snapshot": {
+        "subject": "Clay Fuller",
+        "subject_prob": 95.8
+      },
+      "market": {
+        "available": false,
+        "volume_usd": 3787366,
+        "note": {
+          "en": "Associated market reach; context only, not summed with sports.",
+          "fr": "Portée des marchés associés ; contexte seulement, non additionné au sport.",
+          "es": "Alcance de los mercados asociados; solo contexto, no sumado con deportes."
+        }
+      },
+      "proof": {
+        "commit_date": "2026-04-07",
+        "note": {
+          "en": "Call published before the vote.",
+          "fr": "Appel publié avant le vote.",
+          "es": "Pronóstico publicado antes de la votación."
+        }
+      },
+      "result": {
+        "status": "correct",
+        "date": "2026-04-07",
+        "outcome": {
+          "en": "Fuller elected, roughly 55% to 45%.",
+          "fr": "Fuller élu, environ 55 % contre 45 %.",
+          "es": "Fuller elegido, alrededor de 55 % contra 45 %."
+        }
+      },
+      "links": {
+        "votescope": {
+          "en": "/en/us/specials/ga14-runoff/",
+          "fr": "/fr/us/specials/ga14-runoff/",
+          "es": "/es/us/specials/ga14-runoff/"
+        }
+      },
       "text": {
-        "title": { "en": "GA-14 special runoff", "fr": "Élection spéciale GA-14", "es": "Segunda vuelta especial GA-14" },
-        "call": { "en": "Clay Fuller (R) wins.", "fr": "Clay Fuller (R) gagne.", "es": "Clay Fuller (R) gana." },
-        "result": { "en": "Fuller elected, ~55–45. ✓", "fr": "Fuller élu, ~55–45. ✓", "es": "Fuller elegido, ~55–45. ✓" }
+        "title": {
+          "en": "GA-14 special runoff",
+          "fr": "Élection spéciale GA-14",
+          "es": "Segunda vuelta especial GA-14"
+        },
+        "call": {
+          "en": "Clay Fuller (R) wins.",
+          "fr": "Clay Fuller (R) gagne.",
+          "es": "Clay Fuller (R) gana."
+        },
+        "result": {
+          "en": "Fuller elected, ~55–45. ✓",
+          "fr": "Fuller élu, ~55–45. ✓",
+          "es": "Fuller elegido, ~55–45. ✓"
+        }
       }
     },
     {
       "id": "university-rosedale-2026",
       "domain": "election",
-      "competition": { "en": "Toronto · Liberal hold", "fr": "Toronto · maintien libéral", "es": "Toronto · retención liberal" },
+      "flag": "🇨🇦",
+      "competition": {
+        "en": "Toronto · Liberal hold",
+        "fr": "Toronto · maintien libéral",
+        "es": "Toronto · retención liberal"
+      },
       "call_type": "race_winner",
-      "timing": { "en": "Called before the April 13 vote", "fr": "Appelé avant le vote du 13 avril", "es": "Anticipado antes de la votación del 13 de abril" },
-      "model_snapshot": { "subject": "Liberals", "subject_prob": 100.0 },
-      "market": { "available": false, "volume_usd": 64985 },
-      "proof": { "commit_date": "2026-04-13", "note": { "en": "Call published before the vote.", "fr": "Appel publié avant le vote.", "es": "Pronóstico publicado antes de la votación." } },
-      "result": { "status": "correct", "date": "2026-04-13", "outcome": { "en": "Liberal win confirmed.", "fr": "Victoire libérale confirmée.", "es": "Victoria liberal confirmada." } },
-      "links": { "votescope": { "en": "/en/canada/federal/", "fr": "/fr/canada/federal/", "es": "/es/canada/federal/" } },
+      "timing": {
+        "en": "Called before the April 13 vote",
+        "fr": "Appelé avant le vote du 13 avril",
+        "es": "Anticipado antes de la votación del 13 de abril"
+      },
+      "model_snapshot": {
+        "subject": "Liberals",
+        "subject_prob": 100.0
+      },
+      "market": {
+        "available": false,
+        "volume_usd": 64985
+      },
+      "proof": {
+        "commit_date": "2026-04-13",
+        "note": {
+          "en": "Call published before the vote.",
+          "fr": "Appel publié avant le vote.",
+          "es": "Pronóstico publicado antes de la votación."
+        }
+      },
+      "result": {
+        "status": "correct",
+        "date": "2026-04-13",
+        "outcome": {
+          "en": "Liberal win confirmed.",
+          "fr": "Victoire libérale confirmée.",
+          "es": "Victoria liberal confirmada."
+        }
+      },
+      "links": {
+        "votescope": {
+          "en": "/en/canada/federal/",
+          "fr": "/fr/canada/federal/",
+          "es": "/es/canada/federal/"
+        }
+      },
       "text": {
-        "title": { "en": "Federal by-election · University—Rosedale", "fr": "Partielle fédérale · University—Rosedale", "es": "Parcial federal · University—Rosedale" },
-        "call": { "en": "Liberals hold University—Rosedale.", "fr": "Les libéraux conservent University—Rosedale.", "es": "Los liberales retienen University—Rosedale." },
-        "result": { "en": "Liberal win confirmed. ✓", "fr": "Victoire libérale confirmée. ✓", "es": "Victoria liberal confirmada. ✓" }
+        "title": {
+          "en": "Federal by-election · University—Rosedale",
+          "fr": "Partielle fédérale · University—Rosedale",
+          "es": "Parcial federal · University—Rosedale"
+        },
+        "call": {
+          "en": "Liberals hold University—Rosedale.",
+          "fr": "Les libéraux conservent University—Rosedale.",
+          "es": "Los liberales retienen University—Rosedale."
+        },
+        "result": {
+          "en": "Liberal win confirmed. ✓",
+          "fr": "Victoire libérale confirmée. ✓",
+          "es": "Victoria liberal confirmada. ✓"
+        }
       }
     },
     {
       "id": "scarborough-southwest-2026",
       "domain": "election",
-      "competition": { "en": "Toronto · Liberal hold", "fr": "Toronto · maintien libéral", "es": "Toronto · retención liberal" },
+      "flag": "🇨🇦",
+      "competition": {
+        "en": "Toronto · Liberal hold",
+        "fr": "Toronto · maintien libéral",
+        "es": "Toronto · retención liberal"
+      },
       "call_type": "race_winner",
-      "timing": { "en": "Called before the April 13 vote", "fr": "Appelé avant le vote du 13 avril", "es": "Anticipado antes de la votación del 13 de abril" },
-      "model_snapshot": { "subject": "Liberals", "subject_prob": 100.0 },
-      "market": { "available": false, "volume_usd": 46597 },
-      "proof": { "commit_date": "2026-04-13", "note": { "en": "Call published before the vote.", "fr": "Appel publié avant le vote.", "es": "Pronóstico publicado antes de la votación." } },
-      "result": { "status": "correct", "date": "2026-04-13", "outcome": { "en": "Liberal win confirmed.", "fr": "Victoire libérale confirmée.", "es": "Victoria liberal confirmada." } },
-      "links": { "votescope": { "en": "/en/canada/federal/", "fr": "/fr/canada/federal/", "es": "/es/canada/federal/" } },
+      "timing": {
+        "en": "Called before the April 13 vote",
+        "fr": "Appelé avant le vote du 13 avril",
+        "es": "Anticipado antes de la votación del 13 de abril"
+      },
+      "model_snapshot": {
+        "subject": "Liberals",
+        "subject_prob": 100.0
+      },
+      "market": {
+        "available": false,
+        "volume_usd": 46597
+      },
+      "proof": {
+        "commit_date": "2026-04-13",
+        "note": {
+          "en": "Call published before the vote.",
+          "fr": "Appel publié avant le vote.",
+          "es": "Pronóstico publicado antes de la votación."
+        }
+      },
+      "result": {
+        "status": "correct",
+        "date": "2026-04-13",
+        "outcome": {
+          "en": "Liberal win confirmed.",
+          "fr": "Victoire libérale confirmée.",
+          "es": "Victoria liberal confirmada."
+        }
+      },
+      "links": {
+        "votescope": {
+          "en": "/en/canada/federal/",
+          "fr": "/fr/canada/federal/",
+          "es": "/es/canada/federal/"
+        }
+      },
       "text": {
-        "title": { "en": "Federal by-election · Scarborough Southwest", "fr": "Partielle fédérale · Scarborough Southwest", "es": "Parcial federal · Scarborough Southwest" },
-        "call": { "en": "Liberals hold Scarborough Southwest.", "fr": "Les libéraux conservent Scarborough Southwest.", "es": "Los liberales retienen Scarborough Southwest." },
-        "result": { "en": "Liberal win confirmed. ✓", "fr": "Victoire libérale confirmée. ✓", "es": "Victoria liberal confirmada. ✓" }
+        "title": {
+          "en": "Federal by-election · Scarborough Southwest",
+          "fr": "Partielle fédérale · Scarborough Southwest",
+          "es": "Parcial federal · Scarborough Southwest"
+        },
+        "call": {
+          "en": "Liberals hold Scarborough Southwest.",
+          "fr": "Les libéraux conservent Scarborough Southwest.",
+          "es": "Los liberales retienen Scarborough Southwest."
+        },
+        "result": {
+          "en": "Liberal win confirmed. ✓",
+          "fr": "Victoire libérale confirmée. ✓",
+          "es": "Victoria liberal confirmada. ✓"
+        }
       }
     },
     {
       "id": "terrebonne-2026",
       "domain": "election",
-      "competition": { "en": "Quebec · Liberal gain over the Bloc", "fr": "Québec · gain libéral sur le Bloc", "es": "Quebec · ganancia liberal sobre el Bloque" },
+      "flag": "🇨🇦",
+      "competition": {
+        "en": "Quebec · Liberal gain over the Bloc",
+        "fr": "Québec · gain libéral sur le Bloc",
+        "es": "Quebec · ganancia liberal sobre el Bloque"
+      },
       "call_type": "race_winner",
-      "timing": { "en": "Called before the April 13 vote", "fr": "Appelé avant le vote du 13 avril", "es": "Anticipado antes de la votación del 13 de abril" },
-      "model_snapshot": { "subject": "Tatiana Auguste (Liberal)", "subject_prob": 63.0 },
-      "market": { "available": false, "volume_usd": 373231 },
-      "proof": { "commit_date": "2026-04-13", "note": { "en": "Call published before the vote.", "fr": "Appel publié avant le vote.", "es": "Pronóstico publicado antes de la votación." } },
-      "result": { "status": "correct", "date": "2026-04-13", "outcome": { "en": "Liberal win confirmed — a gain over the Bloc.", "fr": "Victoire libérale confirmée — un gain sur le Bloc.", "es": "Victoria liberal confirmada — una ganancia sobre el Bloque." } },
-      "links": { "votescope": { "en": "/en/canada/federal/", "fr": "/fr/canada/federal/", "es": "/es/canada/federal/" } },
+      "timing": {
+        "en": "Called before the April 13 vote",
+        "fr": "Appelé avant le vote du 13 avril",
+        "es": "Anticipado antes de la votación del 13 de abril"
+      },
+      "model_snapshot": {
+        "subject": "Tatiana Auguste (Liberal)",
+        "subject_prob": 63.0
+      },
+      "market": {
+        "available": false,
+        "volume_usd": 373231
+      },
+      "proof": {
+        "commit_date": "2026-04-13",
+        "note": {
+          "en": "Call published before the vote.",
+          "fr": "Appel publié avant le vote.",
+          "es": "Pronóstico publicado antes de la votación."
+        }
+      },
+      "result": {
+        "status": "correct",
+        "date": "2026-04-13",
+        "outcome": {
+          "en": "Liberal win confirmed — a gain over the Bloc.",
+          "fr": "Victoire libérale confirmée — un gain sur le Bloc.",
+          "es": "Victoria liberal confirmada — una ganancia sobre el Bloque."
+        }
+      },
+      "links": {
+        "votescope": {
+          "en": "/en/canada/federal/",
+          "fr": "/fr/canada/federal/",
+          "es": "/es/canada/federal/"
+        }
+      },
       "text": {
-        "title": { "en": "Federal by-election · Terrebonne", "fr": "Partielle fédérale · Terrebonne", "es": "Parcial federal · Terrebonne" },
-        "call": { "en": "Tatiana Auguste and the Liberals win Terrebonne.", "fr": "Tatiana Auguste et les libéraux gagnent Terrebonne.", "es": "Tatiana Auguste y los liberales ganan Terrebonne." },
-        "result": { "en": "Liberal win confirmed. ✓", "fr": "Victoire libérale confirmée. ✓", "es": "Victoria liberal confirmada. ✓" }
+        "title": {
+          "en": "Federal by-election · Terrebonne",
+          "fr": "Partielle fédérale · Terrebonne",
+          "es": "Parcial federal · Terrebonne"
+        },
+        "call": {
+          "en": "Tatiana Auguste and the Liberals win Terrebonne.",
+          "fr": "Tatiana Auguste et les libéraux gagnent Terrebonne.",
+          "es": "Tatiana Auguste y los liberales ganan Terrebonne."
+        },
+        "result": {
+          "en": "Liberal win confirmed. ✓",
+          "fr": "Victoire libérale confirmée. ✓",
+          "es": "Victoria liberal confirmada. ✓"
+        }
       }
     },
     {
       "id": "nj11-special-2026",
       "domain": "election",
-      "competition": { "en": "New Jersey · Democratic hold", "fr": "New Jersey · maintien démocrate", "es": "Nueva Jersey · retención demócrata" },
+      "flag": "🇺🇸",
+      "competition": {
+        "en": "New Jersey · Democratic hold",
+        "fr": "New Jersey · maintien démocrate",
+        "es": "Nueva Jersey · retención demócrata"
+      },
       "call_type": "race_winner",
-      "timing": { "en": "Called before the April 16 vote", "fr": "Appelé avant le vote du 16 avril", "es": "Anticipado antes de la votación del 16 de abril" },
-      "model_snapshot": { "subject": "Analilia Mejia", "subject_prob": 100.0 },
-      "market": { "available": false, "volume_usd": 363148 },
-      "proof": { "commit_date": "2026-04-16", "note": { "en": "Call published before the vote.", "fr": "Appel publié avant le vote.", "es": "Pronóstico publicado antes de la votación." } },
-      "result": { "status": "correct", "date": "2026-04-16", "outcome": { "en": "Mejia elected, 60.2% to 39.8%.", "fr": "Mejia élue, 60,2 % contre 39,8 %.", "es": "Mejia elegida, 60,2 % contra 39,8 %." } },
-      "links": { "votescope": { "en": "/en/us/specials/nj11-special/", "fr": "/fr/us/specials/nj11-special/", "es": "/es/us/specials/nj11-special/" } },
+      "timing": {
+        "en": "Called before the April 16 vote",
+        "fr": "Appelé avant le vote du 16 avril",
+        "es": "Anticipado antes de la votación del 16 de abril"
+      },
+      "model_snapshot": {
+        "subject": "Analilia Mejia",
+        "subject_prob": 100.0
+      },
+      "market": {
+        "available": false,
+        "volume_usd": 363148
+      },
+      "proof": {
+        "commit_date": "2026-04-16",
+        "note": {
+          "en": "Call published before the vote.",
+          "fr": "Appel publié avant le vote.",
+          "es": "Pronóstico publicado antes de la votación."
+        }
+      },
+      "result": {
+        "status": "correct",
+        "date": "2026-04-16",
+        "outcome": {
+          "en": "Mejia elected, 60.2% to 39.8%.",
+          "fr": "Mejia élue, 60,2 % contre 39,8 %.",
+          "es": "Mejia elegida, 60,2 % contra 39,8 %."
+        }
+      },
+      "links": {
+        "votescope": {
+          "en": "/en/us/specials/nj11-special/",
+          "fr": "/fr/us/specials/nj11-special/",
+          "es": "/es/us/specials/nj11-special/"
+        }
+      },
       "text": {
-        "title": { "en": "U.S. House special · NJ-11", "fr": "Partielle US House · NJ-11", "es": "Especial Cámara EE. UU. · NJ-11" },
-        "call": { "en": "Analilia Mejia (D) wins NJ-11.", "fr": "Analilia Mejia (D) gagne NJ-11.", "es": "Analilia Mejia (D) gana NJ-11." },
-        "result": { "en": "Mejia elected, 60.2–39.8. ✓", "fr": "Mejia élue, 60,2–39,8. ✓", "es": "Mejia elegida, 60,2–39,8. ✓" }
+        "title": {
+          "en": "U.S. House special · NJ-11",
+          "fr": "Partielle US House · NJ-11",
+          "es": "Especial Cámara EE. UU. · NJ-11"
+        },
+        "call": {
+          "en": "Analilia Mejia (D) wins NJ-11.",
+          "fr": "Analilia Mejia (D) gagne NJ-11.",
+          "es": "Analilia Mejia (D) gana NJ-11."
+        },
+        "result": {
+          "en": "Mejia elected, 60.2–39.8. ✓",
+          "fr": "Mejia élue, 60,2–39,8. ✓",
+          "es": "Mejia elegida, 60,2–39,8. ✓"
+        }
       }
     },
     {
       "id": "liberal-majority-2026",
       "domain": "election",
-      "competition": { "en": "Government status · April 13", "fr": "Statut du gouvernement · 13 avril", "es": "Estatus del gobierno · 13 de abril" },
+      "flag": "🇨🇦",
+      "competition": {
+        "en": "Government status · April 13",
+        "fr": "Statut du gouvernement · 13 avril",
+        "es": "Estatus del gobierno · 13 de abril"
+      },
       "call_type": "chamber_status",
-      "timing": { "en": "Called before the April 13 by-elections", "fr": "Appelé avant les partielles du 13 avril", "es": "Anticipado antes de las parciales del 13 de abril" },
-      "model_snapshot": { "subject": "Liberal majority", "subject_prob": 99.8 },
-      "market": { "available": false, "volume_usd": 217020 },
-      "proof": { "commit_date": "2026-04-13", "note": { "en": "Call published before the vote.", "fr": "Appel publié avant le vote.", "es": "Pronóstico publicado antes de la votación." } },
-      "result": { "status": "correct", "date": "2026-04-13", "outcome": { "en": "Liberal majority confirmed after the by-elections.", "fr": "Majorité libérale confirmée après les partielles.", "es": "Mayoría liberal confirmada tras las parciales." } },
-      "links": { "votescope": { "en": "/en/canada/federal/", "fr": "/fr/canada/federal/", "es": "/es/canada/federal/" } },
+      "timing": {
+        "en": "Called before the April 13 by-elections",
+        "fr": "Appelé avant les partielles du 13 avril",
+        "es": "Anticipado antes de las parciales del 13 de abril"
+      },
+      "model_snapshot": {
+        "subject": "Liberal majority",
+        "subject_prob": 99.8
+      },
+      "market": {
+        "available": false,
+        "volume_usd": 217020
+      },
+      "proof": {
+        "commit_date": "2026-04-13",
+        "note": {
+          "en": "Call published before the vote.",
+          "fr": "Appel publié avant le vote.",
+          "es": "Pronóstico publicado antes de la votación."
+        }
+      },
+      "result": {
+        "status": "correct",
+        "date": "2026-04-13",
+        "outcome": {
+          "en": "Liberal majority confirmed after the by-elections.",
+          "fr": "Majorité libérale confirmée après les partielles.",
+          "es": "Mayoría liberal confirmada tras las parciales."
+        }
+      },
+      "links": {
+        "votescope": {
+          "en": "/en/canada/federal/",
+          "fr": "/fr/canada/federal/",
+          "es": "/es/canada/federal/"
+        }
+      },
       "text": {
-        "title": { "en": "Federal Canada · Liberal majority after the by-elections", "fr": "Canada fédéral · majorité libérale après les partielles", "es": "Canadá federal · mayoría liberal tras las parciales" },
-        "call": { "en": "Liberals reach majority status after the by-elections.", "fr": "Les libéraux atteignent la majorité après les partielles.", "es": "Los liberales alcanzan la mayoría tras las parciales." },
-        "result": { "en": "Liberal majority confirmed. ✓", "fr": "Majorité libérale confirmée. ✓", "es": "Mayoría liberal confirmada. ✓" }
+        "title": {
+          "en": "Federal Canada · Liberal majority after the by-elections",
+          "fr": "Canada fédéral · majorité libérale après les partielles",
+          "es": "Canadá federal · mayoría liberal tras las parciales"
+        },
+        "call": {
+          "en": "Liberals reach majority status after the by-elections.",
+          "fr": "Les libéraux atteignent la majorité après les partielles.",
+          "es": "Los liberales alcanzan la mayoría tras las parciales."
+        },
+        "result": {
+          "en": "Liberal majority confirmed. ✓",
+          "fr": "Majorité libérale confirmée. ✓",
+          "es": "Mayoría liberal confirmada. ✓"
+        }
       }
     },
     {
       "id": "ca1-special-2026",
       "domain": "election",
-      "competition": { "en": "California · Republican hold", "fr": "Californie · maintien républicain", "es": "California · retención republicana" },
+      "flag": "🇺🇸",
+      "competition": {
+        "en": "California · Republican hold",
+        "fr": "Californie · maintien républicain",
+        "es": "California · retención republicana"
+      },
       "call_type": "race_winner",
-      "timing": { "en": "Called before the June 2 vote", "fr": "Appelé avant le vote du 2 juin", "es": "Anticipado antes de la votación del 2 de junio" },
+      "timing": {
+        "en": "Called before the June 2 vote",
+        "fr": "Appelé avant le vote du 2 juin",
+        "es": "Anticipado antes de la votación del 2 de junio"
+      },
       "model_snapshot": {
         "subject": "James Gallagher",
         "subject_prob": 95.7,
@@ -265,14 +594,50 @@
           "es": "El pronóstico del ganador fue correcto; nótese que el modelo favorecía una segunda vuelta (98,5 %), pero Gallagher ganó en primera — ganador correcto, formato inesperado."
         }
       },
-      "market": { "available": false, "volume_usd": 29927 },
-      "proof": { "commit_date": "2026-06-02", "note": { "en": "Call published before the vote.", "fr": "Appel publié avant le vote.", "es": "Pronóstico publicado antes de la votación." } },
-      "result": { "status": "correct", "date": "2026-06-02", "outcome": { "en": "Gallagher elected outright, roughly 62%.", "fr": "Gallagher élu au premier tour, environ 62 %.", "es": "Gallagher elegido en primera vuelta, alrededor de 62 %." } },
-      "links": { "votescope": { "en": "/en/us/specials/ca1-special/", "fr": "/fr/us/specials/ca1-special/", "es": "/es/us/specials/ca1-special/" } },
+      "market": {
+        "available": false,
+        "volume_usd": 29927
+      },
+      "proof": {
+        "commit_date": "2026-06-02",
+        "note": {
+          "en": "Call published before the vote.",
+          "fr": "Appel publié avant le vote.",
+          "es": "Pronóstico publicado antes de la votación."
+        }
+      },
+      "result": {
+        "status": "correct",
+        "date": "2026-06-02",
+        "outcome": {
+          "en": "Gallagher elected outright, roughly 62%.",
+          "fr": "Gallagher élu au premier tour, environ 62 %.",
+          "es": "Gallagher elegido en primera vuelta, alrededor de 62 %."
+        }
+      },
+      "links": {
+        "votescope": {
+          "en": "/en/us/specials/ca1-special/",
+          "fr": "/fr/us/specials/ca1-special/",
+          "es": "/es/us/specials/ca1-special/"
+        }
+      },
       "text": {
-        "title": { "en": "U.S. House special · CA-1", "fr": "Partielle US House · CA-1", "es": "Especial Cámara EE. UU. · CA-1" },
-        "call": { "en": "James Gallagher (R) wins CA-1.", "fr": "James Gallagher (R) gagne CA-1.", "es": "James Gallagher (R) gana CA-1." },
-        "result": { "en": "Gallagher elected outright, ~62%. ✓", "fr": "Gallagher élu au premier tour, ~62 %. ✓", "es": "Gallagher elegido en primera vuelta, ~62 %. ✓" }
+        "title": {
+          "en": "U.S. House special · CA-1",
+          "fr": "Partielle US House · CA-1",
+          "es": "Especial Cámara EE. UU. · CA-1"
+        },
+        "call": {
+          "en": "James Gallagher (R) wins CA-1.",
+          "fr": "James Gallagher (R) gagne CA-1.",
+          "es": "James Gallagher (R) gana CA-1."
+        },
+        "result": {
+          "en": "Gallagher elected outright, ~62%. ✓",
+          "fr": "Gallagher élu au premier tour, ~62 %. ✓",
+          "es": "Gallagher elegido en primera vuelta, ~62 %. ✓"
+        }
       }
     }
   ]
