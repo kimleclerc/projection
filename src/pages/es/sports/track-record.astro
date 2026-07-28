@@ -2,6 +2,7 @@
 import EditorialLayout from '../../../layouts/EditorialLayout.astro';
 import EditorialHero from '../../../components/EditorialHero.astro';
 import KeepDigging from '../../../components/KeepDigging.astro';
+import ResolvedCalls from '../../../components/ResolvedCalls.astro';
 import AnimatedNumber from '../../../islands/AnimatedNumber.tsx';
 
 import sportsData from '../../../../web_data/sports/latest.json';
@@ -100,14 +101,12 @@ const nTeams = board.length;
 
   <section class="content-band">
     <div class="container">
-      <p class="section-label">Próximamente</p>
-      <div class="coming-soon-box">
-        <h2>Los pronósticos de series resueltos aparecerán aquí.</h2>
-        <p>
-          A medida que avancen los playoffs NHL 2026, cada pronóstico de serie — el ganador elegido por el modelo antes de la serie y el resultado real — quedará registrado en este archivo. El formato sigue el del historial político: una fila por pronóstico, confianza indicada, resultado marcado como correcto o fallido.
-        </p>
-      </div>
+      <p class="section-label">Pronósticos resueltos</p>
+      <p style="max-width:680px;color:var(--ink-2);font-size:15px;line-height:1.65;margin:0 0 4px;">
+        Cada pronóstico se congela desde el historial git que prueba que fue público antes del resultado — probabilidad del modelo frente al mercado en el mismo instante. El alcance de los mercados es contexto, nunca un titular; deportes y elecciones se cuentan por separado.
+      </p>
     </div>
+    <ResolvedCalls locale="es" domain="sport" />
   </section>
 
   <div class="container" style="max-width: 1080px; margin-bottom: 80px;">
