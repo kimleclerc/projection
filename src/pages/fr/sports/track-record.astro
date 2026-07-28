@@ -2,6 +2,7 @@
 import EditorialLayout from '../../../layouts/EditorialLayout.astro';
 import EditorialHero from '../../../components/EditorialHero.astro';
 import KeepDigging from '../../../components/KeepDigging.astro';
+import ResolvedCalls from '../../../components/ResolvedCalls.astro';
 import AnimatedNumber from '../../../islands/AnimatedNumber.tsx';
 
 import sportsData from '../../../../web_data/sports/latest.json';
@@ -100,14 +101,12 @@ const nTeams = board.length;
 
   <section class="content-band">
     <div class="container">
-      <p class="section-label">À venir</p>
-      <div class="coming-soon-box">
-        <h2>Les appels de séries résolus apparaîtront ici.</h2>
-        <p>
-          Au fil de l'avancement des éliminatoires NHL 2026, chaque appel de série — le choix du gagnant avant la série et le résultat réel — sera archivé ici. Le format reprend celui de l'historique politique : une ligne par appel, confiance affichée, résultat marqué correct ou raté.
-        </p>
-      </div>
+      <p class="section-label">Appels résolus</p>
+      <p style="max-width:680px;color:var(--ink-2);font-size:15px;line-height:1.65;margin:0 0 4px;">
+        Chaque appel est figé depuis l'historique git qui prouve son antériorité au résultat — proba du modèle face au marché au même instant. La portée des marchés est un contexte, jamais un titre ; sports et élections sont comptés séparément.
+      </p>
     </div>
+    <ResolvedCalls locale="fr" domain="sport" />
   </section>
 
   <div class="container" style="max-width: 1080px; margin-bottom: 80px;">
@@ -129,7 +128,7 @@ const nTeams = board.length;
         {
           href: '/fr/track-record/',
           label: 'Historique politique',
-          detail: '6 sur 6 · Appels vérifiés',
+          detail: '7 sur 7 · Appels vérifiés',
         },
       ]}
     />

@@ -6,19 +6,33 @@ import KeepDigging from '../../components/KeepDigging.astro';
 import CalibrationSection from '../../components/CalibrationSection.astro';
 import AnimatedNumber from '../../islands/AnimatedNumber.tsx';
 
+import resolvedCalls from '../../../web_data/resolved-calls.json';
+
+const LOCALE = 'fr' as const;
+
 const dataPath = resolve(process.cwd(), 'web_data', 'track-record', 'predictions.json');
 const data = JSON.parse(readFileSync(dataPath, 'utf-8'));
+const metaExtra = data.meta;
+const note = metaExtra[`note_${LOCALE}`] ?? metaExtra.note_en;
+const upcoming = data.upcoming as Array<{ flag: string; title_fr: string; title_en: string; date: string }>;
 
-interface Prediction {
-  flag: string; title_fr: string; subtitle_fr: string; date: string;
-  confidence: number; call_fr: string; result_fr: string; correct: boolean;
-  status: string; markets: Array<{ volume_usd: number }>;
-}
-interface UpcomingItem { flag: string; title_fr: string; date: string; }
-
-const meta = data.meta;
-const predictions: Prediction[] = data.predictions;
-const upcoming: UpcomingItem[] = data.upcoming;
+const electionCalls = (resolvedCalls.calls as any[]).filter((c) => c.domain === 'election');
+const predictions = electionCalls.map((c) => ({
+  flag: c.flag as string,
+  title: c.text.title[LOCALE] as string,
+  subtitle: c.competition[LOCALE] as string,
+  date: c.result.date as string,
+  confidence: c.model_snapshot.subject_prob as number,
+  call: c.text.call[LOCALE] as string,
+  result: c.result.outcome[LOCALE] as string,
+  correct: c.result.status === 'correct',
+  status: c.result.status as string,
+  volume: (c.market?.volume_usd ?? 0) as number,
+}));
+const resolvedCount = predictions.filter((p) => p.correct).length;
+const totalCount = predictions.length;
+const accuracyPct = Math.round((resolvedCount / totalCount) * 100);
+const netVolume = predictions.reduce((s, p) => s + p.volume, 0);
 
 function fmtCurrency(n: number) {
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(2)} M$`;
@@ -57,10 +71,10 @@ function fmtDate(iso: string) {
 >
   <article class="track-page">
     <header class="track-hero container">
-      <p class="track-kicker">Appels vérifiés · Mise à jour du {fmtDate(meta.last_updated)}</p>
+      <p class="track-kicker">Appels vérifiés · Mise à jour du {fmtDate(metaExtra.last_updated)}</p>
       <h1>Chaque call.<br />Chaque résultat.</h1>
       <p class="track-dek">
-        {meta.note_fr}
+        {note}
       </p>
     </header>
 
@@ -68,21 +82,21 @@ function fmtDate(iso: string) {
       <div class="track-stat-card">
         <p class="track-stat-label">Tableau</p>
         <strong class="track-stat-value">
-          <AnimatedNumber value={meta.correct} client:visible /> / {meta.resolved}
+          <AnimatedNumber value={resolvedCount} client:visible /> / {totalCount}
         </strong>
-        <span class="track-stat-note">sur {meta.resolved} appels résolus</span>
+        <span class="track-stat-note">sur {totalCount} appels résolus</span>
       </div>
       <div class="track-stat-card track-stat-card--gold">
         <p class="track-stat-label">Taux de réussite</p>
         <strong class="track-stat-value track-stat-value--gold">
-          <AnimatedNumber value={Math.round(meta.accuracy_rate * 100)} suffix=" %" client:visible />
+          <AnimatedNumber value={accuracyPct} suffix=" %" client:visible />
         </strong>
         <span class="track-stat-note">Calculé uniquement sur les appels résolus</span>
       </div>
       <div class="track-stat-card">
         <p class="track-stat-label">Volume validé net</p>
         <strong class="track-stat-value">
-          <AnimatedNumber value={meta.net_market_volume_usd} format="thousands" suffix=" $" client:visible />
+          <AnimatedNumber value={netVolume} format="thousands" suffix=" $" client:visible />
         </strong>
         <span class="track-stat-note">Volume des bons calls moins tout volume qui aurait résolu contre nous</span>
       </div>
@@ -92,7 +106,7 @@ function fmtDate(iso: string) {
       <p class="track-section-label" id="track-resolved-title">Appels résolus</p>
       <div class="track-pred-list">
         {predictions.map((pred, i) => {
-          const totalVol = pred.markets.reduce((sum, m) => sum + m.volume_usd, 0);
+          const totalVol = pred.volume;
           const resultClass = pred.correct ? 'track-pred-correct' : 'track-pred-miss';
           const resultPrefix = pred.correct ? '✓ ' : '✗ ';
           const isResolvedCorrect = pred.status === 'resolved' && pred.correct;
@@ -102,8 +116,8 @@ function fmtDate(iso: string) {
             <article class="track-pred-row">
               <div class="track-pred-num">{i + 1}</div>
               <div class="track-pred-info">
-                <strong>{pred.flag} {pred.title_fr}</strong>
-                <span>{pred.subtitle_fr} · {fmtDate(pred.date)}</span>
+                <strong>{pred.flag} {pred.title}</strong>
+                <span>{pred.subtitle} · {fmtDate(pred.date)}</span>
               </div>
               <div class="track-pred-conf">
                 <strong>{pred.confidence.toFixed(1)} %</strong>
@@ -111,10 +125,10 @@ function fmtDate(iso: string) {
               </div>
               <div class="track-pred-call">
                 <span class="track-pred-label">Notre call</span>
-                <strong>{pred.call_fr}</strong>
+                <strong>{pred.call}</strong>
               </div>
               <div class="track-pred-result">
-                <strong class={resultClass}>{resultPrefix}{pred.result_fr}</strong>
+                <strong class={resultClass}>{resultPrefix}{pred.result}</strong>
               </div>
               <div class="track-pred-volume">
                 <strong>{fmtCurrency(totalVol)}</strong>
@@ -154,11 +168,11 @@ function fmtDate(iso: string) {
       <p class="track-section-label" id="track-markets-title">Détail du volume validé</p>
       <div class="track-market-row">
         <span class="track-market-name">Kalshi</span>
-        <span class="track-market-vol">{fmtCurrency(meta.kalshi_volume_usd)}</span>
+        <span class="track-market-vol">{fmtCurrency(metaExtra.kalshi_volume_usd)}</span>
       </div>
       <div class="track-market-row">
         <span class="track-market-name">Polymarket</span>
-        <span class="track-market-vol">{fmtCurrency(meta.polymarket_volume_usd)}</span>
+        <span class="track-market-vol">{fmtCurrency(metaExtra.polymarket_volume_usd)}</span>
       </div>
     </section>
 

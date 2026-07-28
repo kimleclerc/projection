@@ -47,8 +47,11 @@ cron peut donc traiter tout `≠0` comme « à regarder ».
 
 ## Desks enregistrés
 
-`federal`, `ontario`, `quebec`, `us-house`, `us-senate`, `mlb`.
-Ajouter un desk = une ligne dans le registre `DESKS` en tête du script.
+`federal`, `ontario`, `quebec`, `us-house`, `us-senate` (kind `projection`),
+`france` (kind `france-pres` — desk par scénarios : valide `run_date`, le
+scénario par défaut, sa somme de 1er tour ≈ 100 % et les `p_top2`), `mlb`
+(kind `mlb`). Ajouter un desk = une ligne dans le registre `DESKS` en tête du
+script (et un bloc dans `validate()` si le schéma diffère).
 
 ## Branchement moteur (pilote : Federal)
 
@@ -67,6 +70,14 @@ node scripts/publish-desk.mjs federal
 `main` reste promu à la main sur GO (cf. `GIT_GOVERNANCE.md`). Cadence libre par
 desk : France ou UK national tournent aux sondages, pas chaque nuit — le skip
 sur `run_date` inchangé gère ça sans configuration.
+
+## Branchement cron (côté moteur)
+
+La passerelle `../models/publish_gate.sh <desk> [juris]` enchaîne
+`publish_web.py` + ce garde-fou après un run moteur. Le patron cron par desk
+(heures échelonnées, commandes de run à confirmer) est dans
+`../models/PUBLISH_CRON.md`. Le nightly MLB (`../models/mlb/update_nightly_mlb.sh`)
+l'utilise déjà. UK reste manuel (desk Tier B, hors registre auto).
 
 ## Vérifié
 

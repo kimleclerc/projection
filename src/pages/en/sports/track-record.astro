@@ -2,6 +2,7 @@
 import EditorialLayout from '../../../layouts/EditorialLayout.astro';
 import EditorialHero from '../../../components/EditorialHero.astro';
 import KeepDigging from '../../../components/KeepDigging.astro';
+import ResolvedCalls from '../../../components/ResolvedCalls.astro';
 import AnimatedNumber from '../../../islands/AnimatedNumber.tsx';
 
 import sportsData from '../../../../web_data/sports/latest.json';
@@ -100,14 +101,12 @@ const nTeams = board.length;
 
   <section class="content-band">
     <div class="container">
-      <p class="section-label">Coming soon</p>
-      <div class="coming-soon-box">
-        <h2>Resolved series calls will appear here.</h2>
-        <p>
-          As the 2026 NHL playoffs advance, each series call — the model's pre-series winner pick and the actual outcome — will be logged in this archive. The format mirrors the political track-record: one row per call, confidence shown, result marked correct or miss.
-        </p>
-      </div>
+      <p class="section-label">Resolved calls</p>
+      <p style="max-width:680px;color:var(--ink-2);font-size:15px;line-height:1.65;margin:0 0 4px;">
+        Each call is frozen from the git history that proves it was public before the result — model probability against the market at the same instant. Market reach is context, never a headline; sports and elections are counted separately.
+      </p>
     </div>
+    <ResolvedCalls locale="en" domain="sport" />
   </section>
 
   <div class="container" style="max-width: 1080px; margin-bottom: 80px;">
@@ -129,7 +128,7 @@ const nTeams = board.length;
         {
           href: '/en/track-record/',
           label: 'Political track record',
-          detail: '6 for 6 · Verified calls',
+          detail: '7 for 7 · Verified calls',
         },
       ]}
     />
