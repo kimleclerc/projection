@@ -4,6 +4,7 @@ import { resolve } from 'node:path';
 import Base from '../../layouts/Base.astro';
 import KeepDigging from '../../components/KeepDigging.astro';
 import CalibrationSection from '../../components/CalibrationSection.astro';
+import ResolvedCalls from '../../components/ResolvedCalls.astro';
 import AnimatedNumber from '../../islands/AnimatedNumber.tsx';
 
 import resolvedCalls from '../../../web_data/resolved-calls.json';
@@ -142,6 +143,22 @@ function fmtDate(iso: string) {
             </article>
           );
         })}
+      </div>
+    </section>
+
+    <!-- Deporte: mismo registro congelado, con su PROPIO contador. El tablero de
+         arriba sigue siendo electoral — los dos dominios nunca se suman
+         (counting_rule de resolved-calls.json). -->
+    <section class="track-sport" aria-labelledby="track-sport-title">
+      <div class="container">
+        <p class="track-section-label" id="track-sport-title">Llamadas deportivas</p>
+        <p class="track-sport-note">
+          El historial deportivo se cuenta <strong>por separado</strong> del historial electoral de arriba. Los dos nunca se suman: un modelo de torneo y un modelo electoral no predicen lo mismo.
+        </p>
+      </div>
+      <ResolvedCalls locale="es" domain="sport" />
+      <div class="container">
+        <a class="track-sport-link" href="/es/sports/track-record/">Historial deportivo completo →</a>
       </div>
     </section>
 
@@ -328,6 +345,36 @@ function fmtDate(iso: string) {
   .track-pred-list {
     display: grid;
     gap: 10px;
+  }
+
+  .track-sport {
+    max-width: 1080px;
+    margin: 56px auto 0;
+  }
+
+  .track-sport-note {
+    margin: 0;
+    color: var(--ink-2);
+    font-size: 14px;
+    line-height: 1.55;
+  }
+
+  .track-sport-link {
+    display: inline-block;
+    margin-top: 18px;
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+    text-decoration: none;
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 2px;
+  }
+
+  .track-sport-link:hover {
+    color: var(--ink);
+    border-bottom-color: currentColor;
   }
 
   .track-pred-row {
