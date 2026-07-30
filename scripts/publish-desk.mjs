@@ -27,13 +27,15 @@ import path from 'node:path';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
 // ── Registre des desks ────────────────────────────────────────────────────
-// kind 'projection' = moteur à sièges (ProjectionEngine) ; kind 'mlb' = board.
+// kind 'projection' = moteur à sièges (ProjectionEngine) ; kind 'senate' =
+// modèle course par course (run_us_senate.py, pas d'agrégat de vote national) ;
+// kind 'mlb' = board.
 const DESKS = {
   federal:     { label: 'Federal',   json: 'web_data/federal/latest.json',            kind: 'projection' },
   ontario:     { label: 'Ontario',   json: 'web_data/ontario/latest.json',            kind: 'projection' },
   quebec:      { label: 'Quebec',    json: 'web_data/quebec/latest.json',             kind: 'projection' },
   'us-house':  { label: 'US House',  json: 'web_data/us-house/latest.json',           kind: 'projection' },
-  'us-senate': { label: 'US Senate', json: 'web_data/us-senate/latest.json',          kind: 'projection' },
+  'us-senate': { label: 'US Senate', json: 'web_data/us-senate/latest.json',          kind: 'senate' },
   france:      { label: 'France présidentielle', json: 'web_data/france-presidential/latest.json', kind: 'france-pres' },
   mlb:         { label: 'MLB',       json: 'web_data/sports/mlb2026_latest.json',      kind: 'mlb' },
 };
@@ -82,6 +84,25 @@ const finite = (v) => typeof v === 'number' && Number.isFinite(v);
 const inRange = (v, lo, hi) => finite(v) && v >= lo && v <= hi;
 const isIsoDate = (s) => typeof s === 'string' && /^\d{4}-\d{2}-\d{2}/.test(s);
 
+/**
+ * Bloc meta commun aux desks à sièges (`projection`, `senate`) : identifiant de
+ * run daté, pas dans le futur, et compteurs de run cohérents.
+ */
+function seatMetaErrors(meta) {
+  const errors = [];
+  const runId = meta.run_date;
+  if (!isIsoDate(runId)) errors.push(`meta.run_date absent ou mal formé : ${JSON.stringify(runId)}`);
+  // Date pas dans le futur (garde contre une date corrompue).
+  if (isIsoDate(runId)) {
+    const tomorrow = new Date(Date.now() + 36 * 3600 * 1000).toISOString().slice(0, 10);
+    if (runId.slice(0, 10) > tomorrow) errors.push(`meta.run_date dans le futur : ${runId}`);
+  }
+  if (!finite(meta.total_seats) || meta.total_seats <= 0) errors.push(`meta.total_seats invalide : ${JSON.stringify(meta.total_seats)}`);
+  if (!finite(meta.n_polls) || meta.n_polls < 0) errors.push(`meta.n_polls invalide : ${JSON.stringify(meta.n_polls)}`);
+  if (!finite(meta.n_simulations) || meta.n_simulations <= 0) errors.push(`meta.n_simulations invalide : ${JSON.stringify(meta.n_simulations)}`);
+  return { runId, errors };
+}
+
 /** Identifiant de run + liste d'erreurs de validation, selon le type de desk. */
 function validate(desk, data) {
   const errors = [];
@@ -89,17 +110,10 @@ function validate(desk, data) {
 
   if (desk.kind === 'projection') {
     const meta = data.meta ?? {};
-    runId = meta.run_date;
-    if (!isIsoDate(runId)) errors.push(`meta.run_date absent ou mal formé : ${JSON.stringify(runId)}`);
-    // Date pas dans le futur (garde contre une date corrompue).
-    if (isIsoDate(runId)) {
-      const tomorrow = new Date(Date.now() + 36 * 3600 * 1000).toISOString().slice(0, 10);
-      if (runId.slice(0, 10) > tomorrow) errors.push(`meta.run_date dans le futur : ${runId}`);
-    }
+    const metaCheck = seatMetaErrors(meta);
+    runId = metaCheck.runId;
+    errors.push(...metaCheck.errors);
     const total = meta.total_seats;
-    if (!finite(total) || total <= 0) errors.push(`meta.total_seats invalide : ${JSON.stringify(total)}`);
-    if (!finite(meta.n_polls) || meta.n_polls < 0) errors.push(`meta.n_polls invalide : ${JSON.stringify(meta.n_polls)}`);
-    if (!finite(meta.n_simulations) || meta.n_simulations <= 0) errors.push(`meta.n_simulations invalide : ${JSON.stringify(meta.n_simulations)}`);
 
     const parties = data.parties;
     if (!Array.isArray(parties) || parties.length === 0) {
@@ -116,6 +130,77 @@ function validate(desk, data) {
       // La somme des sièges moyens doit friser le total (arrondis → tolérance).
       if (finite(total) && Math.abs(seatSum - total) > 2) {
         errors.push(`somme seats_mean=${seatSum.toFixed(1)} s'écarte de total_seats=${total} (>2)`);
+      }
+    }
+  } else if (desk.kind === 'senate') {
+    // Desk Sénat (run_us_senate.py) : modèle course par course. Les parts de
+    // vote n'existent QUE par course (`ridings[].projection.vote_mean`) — 35
+    // courses d'États n'ont pas d'agrégat de vote national, donc on ne réclame
+    // aucun `parties[].vote_mean`. Le national se valide sur les sièges.
+    const meta = data.meta ?? {};
+    const metaCheck = seatMetaErrors(meta);
+    runId = metaCheck.runId;
+    errors.push(...metaCheck.errors);
+    const total = meta.total_seats;
+    // Une classe sénatoriale = 33-34 sièges, + les élections spéciales.
+    const contested = meta.contested_seats;
+    if (!inRange(contested, 30, 40)) errors.push(`meta.contested_seats invalide : ${JSON.stringify(contested)}`);
+
+    const parties = data.parties;
+    if (!Array.isArray(parties) || parties.length === 0) {
+      errors.push('data.parties vide ou absent');
+    } else {
+      let seatSum = 0;
+      for (const p of parties) {
+        const who = p.party ?? p.label_en ?? '?';
+        if (!finite(p.seats_mean)) errors.push(`${who}: seats_mean non fini (${JSON.stringify(p.seats_mean)})`);
+        else seatSum += p.seats_mean;
+        // Chaque camp a une probabilité de majorité (seuil 51) : obligatoire ici.
+        if (!inRange(p.p_majority, 0, 1)) errors.push(`${who}: p_majority hors [0,1] (${JSON.stringify(p.p_majority)})`);
+      }
+      // Sièges entiers répartis entre 2 camps : la somme doit faire total_seats
+      // (100) à l'arrondi près — tolérance plus serrée que pour `projection`.
+      if (finite(total) && Math.abs(seatSum - total) > 1) {
+        errors.push(`somme seats_mean=${seatSum.toFixed(1)} s'écarte de total_seats=${total} (>1)`);
+      }
+    }
+
+    const ridings = data.ridings;
+    if (!Array.isArray(ridings) || ridings.length === 0) {
+      errors.push('data.ridings vide ou absent');
+    } else {
+      if (finite(contested) && ridings.length !== contested) {
+        errors.push(`${ridings.length} course(s) dans ridings ≠ meta.contested_seats=${contested}`);
+      }
+      for (const r of ridings) {
+        const who = r.province ?? r.riding_id ?? r.name_en ?? '?';
+        const proj = r.projection;
+        if (!proj || typeof proj !== 'object') { errors.push(`${who}: projection absente`); continue; }
+        // win_prob : une distribution sur les camps → somme 1.
+        const wp = proj.win_prob;
+        if (!wp || typeof wp !== 'object') {
+          errors.push(`${who}: projection.win_prob absente`);
+        } else {
+          let pSum = 0;
+          for (const [k, v] of Object.entries(wp)) {
+            if (!inRange(v, 0, 1)) errors.push(`${who}: win_prob.${k} hors [0,1] (${JSON.stringify(v)})`);
+            else pSum += v;
+          }
+          if (Math.abs(pSum - 1) > 0.01) errors.push(`${who}: somme win_prob=${pSum.toFixed(4)} ≠ 1`);
+        }
+        // vote_mean : parts moyennes par camp, en % → somme ~100 (moyennes de
+        // tirages indépendants, d'où la fenêtre 95-105).
+        const vm = proj.vote_mean;
+        if (!vm || typeof vm !== 'object') {
+          errors.push(`${who}: projection.vote_mean absente`);
+        } else {
+          let vSum = 0;
+          for (const [k, v] of Object.entries(vm)) {
+            if (!inRange(v, 0, 100)) errors.push(`${who}: vote_mean.${k} hors [0,100] (${JSON.stringify(v)})`);
+            else vSum += v;
+          }
+          if (!inRange(vSum, 95, 105)) errors.push(`${who}: somme vote_mean=${vSum.toFixed(2)} hors [95,105]`);
+        }
       }
     }
   } else if (desk.kind === 'mlb') {
@@ -192,7 +277,7 @@ function committedRunId() {
     const prev = JSON.parse(raw);
     return desk.kind === 'mlb'
       ? (prev.board_meta?.data_fetched_at ?? prev.generated_at)
-      : prev.meta?.run_date; // projection + france-pres
+      : prev.meta?.run_date; // projection + senate + france-pres
 
   } catch {
     return null; // fichier non suivi / premier run
