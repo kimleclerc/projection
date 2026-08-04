@@ -53,6 +53,20 @@ const kalshiBinface = markets.kalshi?.binface?.last_price ?? null;
 const bookies = markets.bookies ?? {};
 const marketsAsOf = (markets.as_of ?? '').slice(0, 16).replace('T', ' ');
 
+// ── Sondage local de circonscription ────────────────────────────────────────
+// Affiché au même rang que les marchés : les lecteurs vont le chercher, et la
+// page doit montrer À LA FOIS le chiffre brut et le poids que le modèle lui
+// accorde. Contrairement aux marchés, ce sondage ENTRE dans le modèle.
+const localPolls = sp.local_polls ?? {};
+const hasLocalPoll = localPolls.available === true && (localPolls.polls ?? []).length > 0;
+const localPoll = hasLocalPoll ? localPolls.polls[0] : null;
+const pollWeight = localPolls.weighting ?? {};
+const localPollNote = hasLocalPoll
+  ? (lang === 'fr' ? localPolls.note_fr : lang === 'es' ? localPolls.note_es : localPolls.note_en)
+  : '';
+const fmtGap = (v: number | null) =>
+  v == null ? '—' : `${v > 0 ? '+' : v < 0 ? '−' : ''}${fmtPct(Math.abs(v), 1)}`;
+
 const bucketRows = [
   { key: 'lt10', label: '< 10 %', needle: 'less than 10%' },
   { key: '10_20', label: '10 – 20 %', needle: '10–20%' },
@@ -86,9 +100,14 @@ const copy = {
     snapPmFarage: 'Farage wins (Polymarket)',
     snapBinfaceShare: 'Binface vote share (model median)',
     modelLabel: 'The Vote-Scope forecast',
-    modelIntro: `${model.n_sims.toLocaleString('en-GB')} Monte Carlo simulations of voter flows from the 2024 result: how much of his own bloc Farage keeps under investigation, where each boycotting party's orphaned voters go (or whether they stay home), how far the protest vote consolidates behind Binface, and what the media circus pulls in. No local poll exists yet — every parameter is a documented, deliberately wide prior; the model re-centres the moment constituency polling lands.`,
+    modelIntro: `${model.n_sims.toLocaleString('en-GB')} Monte Carlo simulations of voter flows from the 2024 result: how much of his own bloc Farage keeps under investigation, where each boycotting party's orphaned voters go (or whether they stay home), how far the protest vote consolidates behind Binface, and what the media circus pulls in. The first constituency poll has now landed and the model re-centres on it — see below for exactly how much weight it is given.`,
     modelRange: 'Projected vote share (10th–90th percentile, median marked)',
-    modelCaveat: 'v0.2 fundamentals — no local poll yet. It now tracks the real declared field (final at the 17 July nominations close) and couples the finance-scandal shock across Farage retention, Reform turnout and protest consolidation. Read the win probabilities as structural, not predictive to the decimal.',
+    modelCaveat: 'v0.4 — fundamentals re-centred on the Survation constituency poll by likelihood re-weighting, at a deliberately deflated effective sample size. The priors themselves are unchanged, so the prior→posterior move stays readable. Read the win probabilities as structural, not predictive to the decimal.',
+    pollLabel: 'The constituency poll',
+    pollIntro: 'Unlike the markets below, this poll does feed the model. Here is what it says, what the model projects, and the gap between the two.',
+    thCandidate: 'Candidate', thPoll: 'Poll', thModel: 'Vote-Scope', thGap: 'Gap (pts)',
+    pollHeadToHead: 'Forced head-to-head (same poll)',
+    pollWeightLabel: 'How much weight the model gives it',
     pathLabel: 'Path to victory — how could the bin actually win?',
     pathIntro: `Baseline: Vote-Scope gives Count Binface ${fmtProb(model.p_binface_win)}% — the markets say ${pmBinface != null ? fmtProb(pmBinface) : '—'}%. For the upset, several things must break at once. Conditional win probabilities, from the same simulations:`,
     pathOutro: 'Verdict: very unlikely — but this is the one election where the improbable is the most fun to watch. If Binface clears 25% while Farage sinks toward 40%, election night gets interesting.',
@@ -144,9 +163,14 @@ const copy = {
     snapPmFarage: 'Farage gagne (Polymarket)',
     snapBinfaceShare: 'Part Binface (médiane du modèle)',
     modelLabel: 'La projection Vote-Scope',
-    modelIntro: `${model.n_sims.toLocaleString('fr-FR')} simulations Monte Carlo des flux d'électeurs depuis le résultat 2024 : quelle part de son bloc Farage retient sous enquête, où vont les électeurs orphelins de chaque parti boycotteur (ou s'ils restent chez eux), jusqu'où le vote protestataire se consolide sur Binface, et ce que le cirque médiatique attire. Aucun sondage local n'existe encore — chaque paramètre est un prior documenté, volontairement large ; le modèle se recentre dès qu'un sondage de circonscription tombe.`,
+    modelIntro: `${model.n_sims.toLocaleString('fr-FR')} simulations Monte Carlo des flux d'électeurs depuis le résultat 2024 : quelle part de son bloc Farage retient sous enquête, où vont les électeurs orphelins de chaque parti boycotteur (ou s'ils restent chez eux), jusqu'où le vote protestataire se consolide sur Binface, et ce que le cirque médiatique attire. Le premier sondage de circonscription est tombé et le modèle se recentre dessus — le poids exact qu'il lui accorde est détaillé plus bas.`,
     modelRange: 'Parts projetées (10e–90e percentile, médiane marquée)',
-    modelCaveat: 'Fundamentals v0.2 — pas encore de sondage local. Suit désormais le champ réel de candidats (définitif à la clôture des candidatures le 17 juillet) et couple le choc du scandale financier sur la rétention Farage, la participation Reform et la consolidation protestataire. Lisez les probabilités comme structurelles, pas prédictives à la décimale.',
+    modelCaveat: "Fundamentals v0.4 — recentrés sur le sondage de circonscription Survation par repondération de vraisemblance, à effectif efficace volontairement dégonflé. Les priors eux-mêmes ne sont pas réécrits : le passage prior → posterior reste lisible. Lisez les probabilités comme structurelles, pas prédictives à la décimale.",
+    pollLabel: 'Le sondage de circonscription',
+    pollIntro: "Contrairement aux marchés ci-dessous, ce sondage entre bel et bien dans le modèle. Voici ce qu'il dit, ce que projette le modèle, et l'écart entre les deux.",
+    thCandidate: 'Candidat', thPoll: 'Sondage', thModel: 'Vote-Scope', thGap: 'Écart (pts)',
+    pollHeadToHead: 'Duel forcé (même sondage)',
+    pollWeightLabel: 'Le poids que le modèle lui accorde',
     pathLabel: 'Path to victory — comment la poubelle pourrait-elle gagner ?',
     pathIntro: `Point de départ : Vote-Scope donne ${fmtProb(model.p_binface_win)} % à Count Binface — les marchés disent ${pmBinface != null ? fmtProb(pmBinface) : '—'} %. Pour l'exploit, il faut que plusieurs choses cassent en même temps. Probabilités conditionnelles, tirées des mêmes simulations :`,
     pathOutro: "Verdict : très improbable — mais c'est l'élection où l'improbable est le plus délicieux à regarder. Si Binface franchit 25 % pendant que Farage glisse vers 40 %, la soirée électorale devient intéressante.",
@@ -202,9 +226,14 @@ const copy = {
     snapPmFarage: 'Farage gana (Polymarket)',
     snapBinfaceShare: 'Cuota Binface (mediana del modelo)',
     modelLabel: 'La proyección de Vote-Scope',
-    modelIntro: `${model.n_sims.toLocaleString('es-ES')} simulaciones Monte Carlo de los flujos de votantes desde el resultado de 2024: cuánto de su bloque retiene Farage bajo investigación, adónde van los votantes huérfanos de cada partido que boicotea (o si se quedan en casa), cuánto se consolida el voto de protesta en Binface, y qué atrae el circo mediático. Aún no existe ninguna encuesta local — cada parámetro es un prior documentado y deliberadamente amplio; el modelo se recentra en cuanto haya encuestas de circunscripción.`,
+    modelIntro: `${model.n_sims.toLocaleString('es-ES')} simulaciones Monte Carlo de los flujos de votantes desde el resultado de 2024: cuánto de su bloque retiene Farage bajo investigación, adónde van los votantes huérfanos de cada partido que boicotea (o si se quedan en casa), cuánto se consolida el voto de protesta en Binface, y qué atrae el circo mediático. La primera encuesta de circunscripción ya existe y el modelo se recentra en ella — abajo se detalla exactamente cuánto peso le da.`,
     modelRange: 'Cuotas proyectadas (percentil 10–90, mediana marcada)',
-    modelCaveat: 'Fundamentals v0.2 — sin encuesta local todavía. Ahora sigue el campo real de candidatos (definitivo al cierre de candidaturas el 17 de julio) y acopla el shock del escándalo financiero sobre la retención de Farage, la participación de Reform y la consolidación de la protesta. Lea las probabilidades como estructurales, no predictivas al decimal.',
+    modelCaveat: 'Fundamentals v0.4 — recentrados en la encuesta de circunscripción de Survation mediante reponderación por verosimilitud, con un tamaño muestral efectivo deliberadamente reducido. Los priors no se reescriben: el paso prior → posterior sigue siendo legible. Lea las probabilidades como estructurales, no predictivas al decimal.',
+    pollLabel: 'La encuesta de circunscripción',
+    pollIntro: 'A diferencia de los mercados de abajo, esta encuesta sí alimenta el modelo. Esto es lo que dice, lo que proyecta el modelo y la diferencia entre ambos.',
+    thCandidate: 'Candidato', thPoll: 'Encuesta', thModel: 'Vote-Scope', thGap: 'Diferencia (pts)',
+    pollHeadToHead: 'Duelo directo (misma encuesta)',
+    pollWeightLabel: 'El peso que le da el modelo',
     pathLabel: 'Path to victory — ¿cómo podría ganar el cubo de basura?',
     pathIntro: `Punto de partida: Vote-Scope da a Count Binface un ${fmtProb(model.p_binface_win)} % — los mercados dicen ${pmBinface != null ? fmtProb(pmBinface) : '—'} %. Para la sorpresa, varias cosas deben romperse a la vez. Probabilidades condicionales, de las mismas simulaciones:`,
     pathOutro: 'Veredicto: muy improbable — pero es la elección donde lo improbable es más divertido de ver. Si Binface supera el 25 % mientras Farage cae hacia el 40 %, la noche electoral se pone interesante.',
@@ -398,6 +427,44 @@ const pc = (v: number) => `${Math.min(100, (v / SCALE_MAX) * 100)}%`;
       <ContextualBookShelf lang={lang} context="clacton" />
     </section>
 
+    {hasLocalPoll && (
+      <section class="container" aria-labelledby="ukbye-localpoll">
+        <p class="ukbye-label" id="ukbye-localpoll">{t.pollLabel}</p>
+        <p class="ukbye-body-text">{t.pollIntro}</p>
+        <div class="ukbye-table-wrap">
+          <table class="ukbye-table">
+            <thead>
+              <tr><th>{t.thCandidate}</th><th>{t.thPoll}</th><th>{t.thModel}</th><th>{t.thGap}</th></tr>
+            </thead>
+            <tbody>
+              {(localPoll.rows ?? []).map((row: any) => (
+                <tr>
+                  <td>{row.label?.[lang] ?? row.label?.en ?? row.bucket}</td>
+                  <td>{row.poll_pct != null ? `${fmtPct(row.poll_pct, 0)} %` : '—'}</td>
+                  <td>{row.model_pct != null ? `${fmtPct(row.model_pct, 1)} %` : '—'}</td>
+                  <td>{fmtGap(row.gap_pts)}</td>
+                </tr>
+              ))}
+              {localPoll.head_to_head && (
+                <tr>
+                  <td>{t.pollHeadToHead}</td>
+                  <td>{`${fmtPct(localPoll.head_to_head.farage, 0)} / ${fmtPct(localPoll.head_to_head.binface, 0)} %`}</td>
+                  <td>—</td>
+                  <td>—</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+        <p class="ukbye-body-text ukbye-poll-source">
+          <a href={localPoll.source_url}>{localPoll.firm === 'survation' ? 'Survation' : localPoll.firm}</a>
+          {` / ${localPoll.client} · ${localPoll.field_start} → ${localPoll.field_end} · n = ${localPoll.sample_size_published}`}
+        </p>
+        <p class="ukbye-label ukbye-poll-weight-label">{t.pollWeightLabel}</p>
+        <p class="ukbye-body-text">{localPollNote}</p>
+      </section>
+    )}
+
     <section class="container" aria-labelledby="ukbye-markets">
       <p class="ukbye-label" id="ukbye-markets">{t.marketsLabel}</p>
       <p class="ukbye-body-text">{t.marketsIntro}</p>
@@ -567,6 +634,11 @@ const pc = (v: number) => `${Math.min(100, (v / SCALE_MAX) * 100)}%`;
     letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-3);
   }
   .ukbye-body-text { margin-top: 10px; max-width: 70ch; color: var(--ink-2); line-height: 1.65; }
+
+  /* Sondage local : source discrète sous le tableau, et sous-titre du bloc de
+     pondération resserré (pas l'espacement d'une nouvelle section). */
+  .ukbye-poll-source { font-size: 13px; color: var(--ink-3); }
+  .ukbye-poll-weight-label { margin-top: 24px; }
 
   .ukbye-snap-grid { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 14px; margin-top: 14px; }
   .ukbye-snap {

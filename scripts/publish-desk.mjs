@@ -33,7 +33,11 @@ const DESKS = {
   ontario:     { label: 'Ontario',   json: 'web_data/ontario/latest.json',            kind: 'projection' },
   quebec:      { label: 'Quebec',    json: 'web_data/quebec/latest.json',             kind: 'projection' },
   'us-house':  { label: 'US House',  json: 'web_data/us-house/latest.json',           kind: 'projection' },
-  'us-senate': { label: 'US Senate', json: 'web_data/us-senate/latest.json',          kind: 'projection' },
+  // Sénat US : desk en SIÈGES SEULS. Seuls 35 des 100 sièges sont en jeu, donc
+  // le moteur ne produit pas de part de vote nationale — `vote_mean` est absent
+  // par conception, pas par accident. Le valider comme 'projection' rendait ce
+  // desk impubliable par la passerelle (corrigé le 2026-08-03).
+  'us-senate': { label: 'US Senate', json: 'web_data/us-senate/latest.json',          kind: 'projection', seatsOnly: true },
   france:      { label: 'France présidentielle', json: 'web_data/france-presidential/latest.json', kind: 'france-pres' },
   mlb:         { label: 'MLB',       json: 'web_data/sports/mlb2026_latest.json',      kind: 'mlb' },
 };
@@ -110,7 +114,16 @@ function validate(desk, data) {
         const who = p.party ?? p.label_en ?? '?';
         if (!finite(p.seats_mean)) errors.push(`${who}: seats_mean non fini (${JSON.stringify(p.seats_mean)})`);
         else seatSum += p.seats_mean;
-        if (!inRange(p.vote_mean, 0, 100)) errors.push(`${who}: vote_mean hors [0,100] (${JSON.stringify(p.vote_mean)})`);
+        // Desk en sièges seuls : pas de part de vote nationale à valider. On
+        // refuse quand même une valeur PRÉSENTE mais aberrante — l'exemption
+        // porte sur l'absence, jamais sur une donnée fausse.
+        if (desk.seatsOnly) {
+          if (p.vote_mean != null && !inRange(p.vote_mean, 0, 100)) {
+            errors.push(`${who}: vote_mean présent mais hors [0,100] (${JSON.stringify(p.vote_mean)})`);
+          }
+        } else if (!inRange(p.vote_mean, 0, 100)) {
+          errors.push(`${who}: vote_mean hors [0,100] (${JSON.stringify(p.vote_mean)})`);
+        }
         if (p.p_majority != null && !inRange(p.p_majority, 0, 1)) errors.push(`${who}: p_majority hors [0,1] (${JSON.stringify(p.p_majority)})`);
       }
       // La somme des sièges moyens doit friser le total (arrondis → tolérance).
