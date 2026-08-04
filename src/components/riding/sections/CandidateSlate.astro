@@ -54,6 +54,19 @@ const displayName = (n: string): string =>
     ? n.toLowerCase().replace(/\b([a-zà-ÿ])/g, (m) => m.toUpperCase()).replace(/\bJr\b/g, 'Jr').replace(/\bIi+\b/gi, (m) => m.toUpperCase())
     : n;
 
+// Initiales pour le portrait provisoire. Gère « Nom, Prénom » (FEC) comme
+// « Prénom Nom », et les noms composés à trait d'union.
+const initialsOf = (n: string): string => {
+  const parts = displayName(n)
+    .replace(/,/g, ' ')
+    .split(/[\s-]+/)
+    .filter(Boolean);
+  if (!parts.length) return '?';
+  const first = parts[0][0] ?? '';
+  const last = parts.length > 1 ? (parts[parts.length - 1][0] ?? '') : '';
+  return (first + last).toUpperCase();
+};
+
 const localizedBio = (c: (typeof list)[number]): string | undefined => {
   if (lang === 'fr') return c.bio_fr || c.portrait;
   if (lang === 'es') return c.bio_es;
@@ -84,7 +97,13 @@ const localizedBio = (c: (typeof list)[number]): string | undefined => {
               {st && <span class={`cand-status is-${c.status}`}>{st}</span>}
             </div>
             <div class="cand-body">
-              {c.image_url && <img class="cand-photo" src={c.image_url} alt={displayName(c.name)} width="88" height="104" loading="lazy" decoding="async" />}
+              {c.image_url
+                ? <img class="cand-photo" src={c.image_url} alt={displayName(c.name)} width="88" height="104" loading="lazy" decoding="async" />
+                /* Portrait provisoire : tant que le parti n'a pas publié la photo
+                   officielle, on affiche les initiales plutôt qu'un trou dans la
+                   grille. On ne reprend JAMAIS une photo de presse — seules les
+                   images officielles des partis sont liées. */
+                : <span class="cand-photo cand-photo-placeholder" aria-hidden="true">{initialsOf(c.name)}</span>}
               <div class="cand-copy">
                 <p class="cand-name">{displayName(c.name)}</p>
                 {bio && <p class="cand-portrait">{bio}</p>}
@@ -125,6 +144,14 @@ const localizedBio = (c: (typeof list)[number]): string | undefined => {
   .cand-body { display: flex; align-items: flex-start; gap: 13px; }
   .cand-copy { min-width: 0; }
   .cand-photo { width: 88px; height: 104px; flex: none; border-radius: 6px; object-fit: cover; object-position: 50% 20%; background: var(--rule); }
+  /* Portrait provisoire : initiales centrées, même gabarit que la photo pour
+     que la grille ne bouge pas quand la photo officielle arrive. */
+  .cand-photo-placeholder {
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono); font-size: 26px; letter-spacing: 0.04em;
+    color: var(--ink-3); background: var(--paper-3, var(--rule));
+    border: 1px dashed var(--rule-2, var(--rule));
+  }
   .cand-portrait { margin: 8px 0 0; font-size: 13.5px; line-height: 1.55; color: var(--ink-2); }
   .cand-src { display: inline-block; margin-top: 8px; font-family: var(--mono); font-size: 10px; letter-spacing: .04em; color: var(--ink-3); text-decoration: none; }
   .cand-src:hover { color: var(--ink); }

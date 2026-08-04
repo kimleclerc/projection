@@ -54,7 +54,35 @@ const CURATED = [
   '/en/uk/general-election/', '/fr/uk/general-election/', '/es/uk/general-election/',
   '/en/indexes/fraser-interim/', '/fr/indexes/fraser-interim/',
   '/en/sports/nhl/', '/fr/sports/nhl/', '/es/sports/nhl/',
+  // France — toute la section manquait, d'où des pages candidat jamais
+  // soumises (rapport Bing du 2026-08-04 : /fr/france/candidats/francois-hollande/).
+  '/en/france/', '/fr/france/', '/es/france/',
+  '/en/france/candidates/', '/fr/france/candidats/', '/es/france/candidatos/',
+  // Hubs de partielles — absents jusqu'au 2026-08-04, alors que ce sont les
+  // pages les plus mouvantes du site pendant une campagne.
+  '/en/canada/byelections/', '/fr/canada/byelections/', '/es/canada/byelections/',
+  '/en/canada/ontario/byelections/', '/fr/canada/ontario/byelections/', '/es/canada/ontario/byelections/',
+  '/en/uk/byelections/clacton/', '/fr/uk/byelections/clacton/', '/es/uk/byelections/clacton/',
 ].map((p) => `https://${HOST}${p}`);
+
+/** Desks de partielles individuels, repris du sitemap.
+ *
+ * Ils changent à chaque run et disparaissent après le scrutin : les lister à la
+ * main garantit qu'on en oublie (rapport Bing du 2026-08-04 — Hamilton-Est—Stoney
+ * Creek jamais soumise). On les ramasse par motif, donc toute nouvelle course
+ * entre automatiquement dans l'envoi par défaut.
+ */
+const BYELECTION_PATTERN =
+  /^https:\/\/vote-scope\.com\/(en|fr|es)\/(canada|canada\/ontario|uk)\/byelections\/[a-z0-9-]+\/$/;
+
+/** Fiches candidat France — même raison : la liste bouge (déclarations,
+ *  retraits), et le rapport Bing du 2026-08-04 signalait
+ *  /fr/france/candidats/francois-hollande/ jamais soumise. */
+const FR_CANDIDATE_PATTERN =
+  /^https:\/\/vote-scope\.com\/(en|fr|es)\/france\/(candidates|candidats|candidatos)\/[a-z0-9-]+\/$/;
+
+/** Pages de détail sensibles au temps, reprises du sitemap à chaque envoi. */
+const AUTO_PATTERNS = [BYELECTION_PATTERN, FR_CANDIDATE_PATTERN];
 
 function readSitemapUrls() {
   const sm = resolve(ROOT, 'dist', 'sitemap-0.xml');
@@ -86,8 +114,13 @@ async function main() {
     urls = args.slice(1);
     console.log(`Submitting ${urls.length} explicit URL(s)…`);
   } else {
-    urls = CURATED;
-    console.log(`Submitting ${urls.length} curated hub/index URLs…`);
+    // Curated + tous les desks de partielles présents au sitemap : ces pages
+    // naissent et meurent au rythme des scrutins, une liste figée les rate.
+    const auto = readSitemapUrls().filter((u) => AUTO_PATTERNS.some((re) => re.test(u)));
+    urls = [...new Set([...CURATED, ...auto])];
+    console.log(
+      `Submitting ${urls.length} curated URLs (${CURATED.length} hubs + ${auto.length} time-sensitive detail pages)…`,
+    );
   }
 
   if (urls.length === 0) {
