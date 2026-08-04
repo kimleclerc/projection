@@ -350,6 +350,21 @@ const mapRidings = ((data as any).ridings ?? []).map((r: any) => ({
         turnout_pct: r.baseline_result.turnout_pct ?? null,
       }
     : null,
+  // Partielle en cours : le moteur la rattache à la circonscription
+  // (export_json._attach_byelection_to_ridings). La carte la fait primer sur
+  // la projection de la prochaine générale — sans quoi la carte et le desk de
+  // partielle annonçaient deux vainqueurs différents pour le même siège.
+  byelection: r.byelection
+    ? {
+        election_date: r.byelection.election_date ?? null,
+        leading_party: r.byelection.leading_party ?? null,
+        p_leading: r.byelection.p_leading ?? null,
+        p_close_race: r.byelection.p_close_race ?? null,
+        mean_margin: r.byelection.mean_margin ?? null,
+        vote_mean: r.byelection.vote_mean ?? {},
+        has_local_poll: Boolean(r.byelection.has_local_poll),
+      }
+    : null,
 }));
 const mapParties = parties.map((p) => ({
   key: p.party,

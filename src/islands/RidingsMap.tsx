@@ -18,6 +18,20 @@ export interface RidingFull {
     margin: number | null;
     turnout_pct: number | null;
   } | null;
+  /** Présent quand une partielle est en cours dans cette circonscription.
+   *  Le scrutin qui arrive D'ABORD prime à l'affichage : sans ça, la carte
+   *  annonçait un vainqueur (prochaine générale) et le desk de partielle un
+   *  autre, pour le même siège. `projection` reste la prochaine générale,
+   *  dont dépend l'arithmétique des sièges. */
+  byelection?: {
+    election_date: string | null;
+    leading_party: string | null;
+    p_leading: number | null;
+    p_close_race: number | null;
+    mean_margin: number | null;
+    vote_mean: Record<string, number>;
+    has_local_poll?: boolean;
+  } | null;
 }
 
 export interface MapParty {
@@ -110,9 +124,20 @@ function buildPopupHtml(
     .filter(([, v]) => v >= 0.5)
     .sort((a, b) => b[1] - a[1]);
 
+  // Une partielle en cours PRIME sur la projection de la prochaine générale :
+  // c'est le scrutin qui arrive d'abord, et c'est celui que le desk publie.
+  const byel = riding.byelection ?? null;
+  const hasByel = Boolean(byel && byel.leading_party);
+
   const t = {
     currentProjection:
-      locale === 'fr' ? 'Projection actuelle' : 'Current projection',
+      hasByel
+        ? locale === 'fr' ? 'Prochaine générale' : 'Next general election'
+        : locale === 'fr' ? 'Projection actuelle' : 'Current projection',
+    byelection: locale === 'fr' ? 'Partielle' : 'By-election',
+    byelectionDate: locale === 'fr' ? 'Scrutin' : 'Polling day',
+    localPoll: locale === 'fr' ? 'Sondage local' : 'Local poll',
+    yes: locale === 'fr' ? 'oui' : 'yes',
     pWin: locale === 'fr' ? 'P(victoire)' : 'P(win)',
     closeRace: locale === 'fr' ? 'Course serrée' : 'Close race',
     margin: locale === 'fr' ? 'Marge' : 'Margin',
@@ -159,6 +184,41 @@ function buildPopupHtml(
       <div class="rm-pop-row"><span class="rm-pop-key">${escapeHtml(t.margin)}</span><span class="rm-pop-num">${escapeHtml(blMargin)}</span></div>`;
   }
 
+  // Bloc partielle, affiché AVANT la générale quand il existe.
+  let byelectionBlock = '';
+  let pillWinner = winner;
+  let pillLabel = winnerLabel;
+  let pillColor = winnerColor;
+  if (hasByel && byel) {
+    // La pastille annonce le meneur de la PARTIELLE : c'est le scrutin à venir.
+    pillWinner = byel.leading_party as string;
+    pillLabel = labelOf(pillWinner);
+    pillColor = colorOf(pillWinner);
+    const byVotes = Object.entries(byel.vote_mean || {})
+      .filter(([, v]) => v >= 0.5)
+      .sort((a, b) => b[1] - a[1])
+      .map(
+        ([k, v]) =>
+          `<div class="rm-pop-row"><span style="color:${colorOf(k)};font-weight:500;">${escapeHtml(labelOf(k))}</span><span class="rm-pop-num">${clampPct(v).toFixed(1)}%</span></div>`,
+      )
+      .join('');
+    const byStats: [string, string][] = [];
+    if (byel.p_leading != null) byStats.push([t.pWin, fmtPct(byel.p_leading)]);
+    if (byel.election_date) byStats.push([t.byelectionDate, byel.election_date]);
+    if (byel.has_local_poll) byStats.push([t.localPoll, t.yes]);
+    const byStatRows = byStats
+      .map(
+        ([k, v]) =>
+          `<div class="rm-pop-row"><span class="rm-pop-key">${escapeHtml(k)}</span><span class="rm-pop-num">${escapeHtml(v)}</span></div>`,
+      )
+      .join('');
+    byelectionBlock = `
+      <div class="rm-pop-eyebrow rm-pop-eyebrow-byel">${escapeHtml(t.byelection)}</div>
+      ${byVotes}
+      ${byStatRows}
+      <div class="rm-pop-sep"></div>`;
+  }
+
   const provinceTag = riding.province
     ? `<span class="rm-pop-province">${escapeHtml(riding.province)}</span>`
     : '';
@@ -169,9 +229,10 @@ function buildPopupHtml(
         <h3 class="rm-pop-title">${escapeHtml(name)}</h3>
         ${provinceTag}
       </div>
-      <div class="rm-pop-pill" style="border-color:${winnerColor};color:${winnerColor};">
-        <span class="rm-pop-dot" style="background:${winnerColor};"></span>${escapeHtml(winnerLabel)}
+      <div class="rm-pop-pill" style="border-color:${pillColor};color:${pillColor};">
+        <span class="rm-pop-dot" style="background:${pillColor};"></span>${escapeHtml(pillLabel)}
       </div>
+      ${byelectionBlock}
       <div class="rm-pop-eyebrow">${escapeHtml(t.currentProjection)}</div>
       ${voteRows}
       <div class="rm-pop-sep"></div>
@@ -380,6 +441,8 @@ export default function RidingsMap({
 .rm-pop-pill { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border: 1px solid; border-radius: 999px; font-size: 11px; font-weight: 500; margin-bottom: 12px; }
 .rm-pop-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
 .rm-pop-eyebrow { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-3, #888); margin: 10px 0 6px; }
+/* Partielle : le scrutin qui arrive d'abord, mis en avant sur la générale. */
+.rm-pop-eyebrow-byel { color: var(--ink, #1a1a1a); font-weight: 600; }
 .rm-pop-row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 2px 0; }
 .rm-pop-key { color: var(--ink-2, #555); }
 .rm-pop-num { font-weight: 500; color: var(--ink, #1a1a1a); font-variant-numeric: tabular-nums; }
