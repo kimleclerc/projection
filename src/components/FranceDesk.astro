@@ -38,7 +38,7 @@ const candBase = franceCandBase(locale);
 const legPayload = frLegLatest as any;
 const legCentralSc = legPayload.scenarios?.find((s: any) => s.id === legPayload.meta?.central_scenario);
 const legPMaj = Math.round((legCentralSc?.p_majority_far_right ?? 0) * 100);
-const legHref = { fr: '/fr/france/legislatives', en: '/en/france/legislative-election', es: '/es/france/legislativas' }[locale];
+const legHref = { fr: '/fr/france/legislatives/', en: '/en/france/legislative-election/', es: '/es/france/legislativas/' }[locale];
 const legCopy = {
   fr: {
     eyebrow: 'Législatives — en cas de dissolution',
@@ -61,7 +61,7 @@ const legCopy = {
 }[locale];
 
 // Cartes 2022 — teaser vers les résultats réels par circonscription.
-const mapsHref = { fr: '/fr/france/presidentielle/cartes', en: '/en/france/presidential/maps', es: '/es/france/presidencial/mapas' }[locale];
+const mapsHref = { fr: '/fr/france/presidentielle/cartes/', en: '/en/france/presidential/maps/', es: '/es/france/presidencial/mapas/' }[locale];
 const mapsCopy = {
   fr: {
     eyebrow: 'Résultats officiels 2022',

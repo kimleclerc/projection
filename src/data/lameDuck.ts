@@ -207,6 +207,8 @@ function buildTicker(data: Partial<LameDuckData>, locale: LameDuckLocale = 'en')
     },
   }[locale];
 
+  // Base de concaténation, sans slash final : les gabarits plus bas ouvrent
+  // tous par `/`. Ajouter un slash ici produit `/fr/us//house/`.
   const pathPrefix = locale === 'fr' ? '/fr/us' : locale === 'es' ? '/es/us' : '/en/us';
   const senateSlug = locale === 'fr' ? 'senat' : 'senate';
   // Use the localised raw_label (raw_label_fr/_es) when available, else the EN one.

@@ -55,9 +55,9 @@ export const ontarioByelectionRaces = {
     province: 'ON',
     ...attach,
     title: {
-      en: 'Hamilton East—Stoney Creek By-Election: The Seat Lumsden Built — Vote-Scope',
-      fr: 'Partielle de Hamilton-Est—Stoney Creek : le siège que Lumsden a bâti — Vote-Scope',
-      es: 'Parcial de Hamilton East—Stoney Creek: el escaño que construyó Lumsden — Vote-Scope',
+      en: 'Hamilton East—Stoney Creek By-Election 2026: Polls & Forecast — The Seat Lumsden Built — Vote-Scope',
+      fr: 'Partielle de Hamilton-Est—Stoney Creek 2026 : sondages, projection et pronostic — Vote-Scope',
+      es: 'Parcial de Hamilton Este—Stoney Creek 2026: encuestas, proyección y pronóstico — Vote-Scope',
     },
     description: {
       en: 'This riding voted below the provincial Progressive Conservative average for a decade. Neil Lumsden closed the gap, then left the cabinet amid the hotel controversy. Vote-Scope projects a Liberal gain.',
@@ -118,9 +118,9 @@ export const ontarioByelectionRaces = {
     province: 'ON',
     ...attach,
     title: {
-      en: 'Scarborough Southwest By-Election: An NDP Fortress Without Its MPP — Vote-Scope',
-      fr: 'Partielle de Scarborough-Sud-Ouest : un bastion néo-démocrate sans sa députée — Vote-Scope',
-      es: 'Parcial de Scarborough Southwest: un bastión del NPD sin su diputada — Vote-Scope',
+      en: 'Scarborough Southwest By-Election 2026: Polls & Forecast — An NDP Fortress Without Its MPP — Vote-Scope',
+      fr: 'Partielle de Scarborough-Sud-Ouest 2026 : sondages, projection et pronostic — Vote-Scope',
+      es: 'Parcial de Scarborough Suroeste 2026: encuestas, proyección y pronóstico — Vote-Scope',
     },
     description: {
       en: 'Doly Begum left the Ontario NDP to win the federal seat as a Liberal. The provincial New Democrat premium here long predates her — Vote-Scope explains why the correction is small.',
@@ -181,9 +181,9 @@ export const ontarioByelectionRaces = {
     province: 'ON',
     ...attach,
     title: {
-      en: 'York—Simcoe By-Election Forecast — Vote-Scope',
-      fr: 'Partielle de York—Simcoe : projection — Vote-Scope',
-      es: 'Parcial de York—Simcoe: proyección — Vote-Scope',
+      en: 'York—Simcoe By-Election 2026: Polls, Forecast & Seat Projection — Vote-Scope',
+      fr: 'Partielle de York—Simcoe 2026 : sondages, projection et pronostic — Vote-Scope',
+      es: 'Parcial de York—Simcoe 2026: encuestas, proyección y pronóstico — Vote-Scope',
     },
     description: {
       en: 'Caroline Mulroney is leaving the safest of the three Ontario by-election seats. Her premium was full from her very first election — the signature of a riding lean, not accumulated personal capital.',

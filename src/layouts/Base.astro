@@ -273,11 +273,13 @@ const SLUG_VARIANTS: Array<{ en: string; fr: string; es: string }> = [
 ];
 
 function deriveAltPath(path: string, from: Locale, to: Locale): string {
-  // Normalise to ensure we always work with a trailing slash so SLUG_VARIANTS
-  // (which end with `/`) can match cleanly. We strip the trailing slash from
-  // the result at the end only if the input also lacked one.
-  const hadTrailing = path.endsWith('/');
-  let p = hadTrailing ? path : `${path}/`;
+  // Normalise to a trailing slash so SLUG_VARIANTS (which end with `/`) match
+  // cleanly — and KEEP it on the way out. Cloudflare serves every route with
+  // the trailing slash and 308s the bare form, so an hreflang emitted without
+  // it points at a redirect; Google drops hreflang clusters whose URLs are not
+  // self-canonical. `Astro.url.pathname` arrives bare under
+  // `trailingSlash: 'never'`, hence the normalisation here rather than upstream.
+  let p = path.endsWith('/') ? path : `${path}/`;
   // Swap the locale prefix first.
   p = p.replace(new RegExp(`^/${from}(/|$)`), `/${to}$1`);
   // Apply known slug variants. We swap from→to ONLY when the from token
@@ -287,7 +289,6 @@ function deriveAltPath(path: string, from: Locale, to: Locale): string {
       p = p.replace(v[from], v[to]);
     }
   }
-  if (!hadTrailing && p.endsWith('/') && p.length > 1) p = p.slice(0, -1);
   return p;
 }
 

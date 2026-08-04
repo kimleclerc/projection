@@ -398,6 +398,8 @@ const trendLabel = (dir: 'up' | 'down' | 'flat') => {
 };
 
 const keepDiggingLinks = (() => {
+  // Bases de concaténation, sans slash final : les gabarits ci-dessous
+  // ouvrent tous par `/`. Ajouter un slash ici produit `/fr//us/house/`.
   const prefix = locale === 'fr' ? '/fr' : locale === 'es' ? '/es' : '/en';
   const enPrefix = locale === 'fr' ? '/fr' : '/en'; // Canada/UK only have en/fr
   const common = {
@@ -432,7 +434,7 @@ const keepDiggingLinks = (() => {
   if (jurisdiction.id === 'us-house' || jurisdiction.id === 'us-senate') {
     return [
       {
-        href: `${prefix}/us/house/`,
+        href: locale === 'fr' ? '/fr/us/chambre/' : `${prefix}/us/house/`,
         label: locale === 'fr' ? 'Projection Chambre' : locale === 'es' ? 'Proyección Cámara' : 'House projection',
         detail: locale === 'fr' ? 'Districts · majorité' : locale === 'es' ? 'Distritos · mayoría' : 'Districts · majority',
       },
@@ -466,7 +468,7 @@ const keepDiggingLinks = (() => {
       detail: locale === 'fr' ? 'Modèle fédéral' : 'Federal model',
     },
     {
-      href: `${prefix}/us/house/`,
+      href: locale === 'fr' ? '/fr/us/chambre/' : `${prefix}/us/house/`,
       label: locale === 'fr' ? 'Comparer avec la Chambre U.S.' : locale === 'es' ? 'Comparar con la Cámara' : 'Compare with U.S. House',
       detail: locale === 'fr' ? 'Districts américains' : locale === 'es' ? 'Distritos de EE. UU.' : 'U.S. districts',
     },

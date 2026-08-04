@@ -27,7 +27,7 @@ const round2Ridings = buildRound2Ridings();
 const geojsonPath = path.resolve(process.cwd(), 'web_data/france-legislative/ridings.geojson');
 const hasGeometry = fs.existsSync(geojsonPath) && blocRidings.length > 0;
 
-const franceHref = { fr: '/fr/france', en: '/en/france', es: '/es/france' }[locale];
+const franceHref = { fr: '/fr/france/', en: '/en/france/', es: '/es/france/' }[locale];
 
 const copy = {
   fr: {

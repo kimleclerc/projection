@@ -58,9 +58,9 @@ export const canadaByelectionRaces = {
     vacancyDate: '2026-07-07',
     province: 'QC',
     title: {
-      en: 'Chicoutimi—Le Fjord By-Election: What Richard Martel Was Worth — Vote-Scope',
-      fr: 'Partielle de Chicoutimi—Le Fjord : ce que valait Richard Martel — Vote-Scope',
-      es: 'Parcial de Chicoutimi—Le Fjord: cuánto valía Richard Martel — Vote-Scope',
+      en: 'Chicoutimi—Le Fjord By-Election 2026: Polls & Forecast — What Richard Martel Was Worth — Vote-Scope',
+      fr: 'Partielle de Chicoutimi—Le Fjord 2026 : sondages, projection et pronostic — Vote-Scope',
+      es: 'Parcial de Chicoutimi—Le Fjord 2026: encuestas, proyección y pronóstico — Vote-Scope',
     },
     description: {
       en: 'Richard Martel took his Senate seat — and his personal vote with him. A local Pallas poll shows a three-way tie. Vote-Scope measures what the former Saguenéens coach was actually worth, and why the poll misses the Liberal star candidate.',
@@ -262,9 +262,9 @@ export const canadaByelectionRaces = {
     vacancyDate: '2026-07-07',
     province: 'ON',
     title: {
-      en: 'Beaches—East York By-Election Forecast — Vote-Scope',
-      fr: 'Partielle de Beaches—East York : projection — Vote-Scope',
-      es: 'Parcial de Beaches—East York: proyección — Vote-Scope',
+      en: 'Beaches—East York By-Election 2026: Polls, Forecast & Seat Projection — Vote-Scope',
+      fr: 'Partielle de Beaches—East York 2026 : sondages, projection et pronostic — Vote-Scope',
+      es: 'Parcial de Beaches—East York 2026: encuestas, proyección y pronóstico — Vote-Scope',
     },
     description: {
       en: 'Nate Erskine-Smith resigned on July 7, 2026. A safe Liberal seat in east Toronto, where the by-election turnout residual widens rather than narrows the margin.',
@@ -325,9 +325,9 @@ export const canadaByelectionRaces = {
     vacancyDate: '2026-06-22',
     province: 'BC',
     title: {
-      en: 'North Vancouver—Capilano By-Election Forecast — Vote-Scope',
-      fr: 'Partielle de North Vancouver—Capilano : projection — Vote-Scope',
-      es: 'Parcial de North Vancouver—Capilano: proyección — Vote-Scope',
+      en: 'North Vancouver—Capilano By-Election 2026: Polls, Forecast & Seat Projection — Vote-Scope',
+      fr: 'Partielle de North Vancouver—Capilano 2026 : sondages, projection et pronostic — Vote-Scope',
+      es: 'Parcial de North Vancouver—Capilano 2026: encuestas, proyección y pronóstico — Vote-Scope',
     },
     description: {
       en: 'Jonathan Wilkinson left for the Canadian embassy to the European Union. A comfortable Liberal seat on the North Shore, redrawn in 2023 and short on history.',
