@@ -31,7 +31,16 @@ const markets = sp.markets ?? {};
 
 const fmtPct = (v: number, digits = 1) =>
   lang === 'en' ? v.toFixed(digits) : v.toFixed(digits).replace('.', ',');
+// Bornes d'affichage : depuis la révision des priors (v0.6), p(Farage) vaut
+// 0,9997 et p(Binface) 0,0003. Arrondi tel quel, la page afficherait « 100 % »
+// et « 0 % » — ni l'un ni l'autre n'est vrai, et une page de prévision qui
+// annonce une certitude est indéfendable. On plafonne le rendu, jamais la
+// valeur du modèle.
+const PROB_HI = 0.995;
+const PROB_LO = 0.005;
 const fmtProb = (p: number) => fmtPct(p * 100, p * 100 < 10 ? 1 : 0);
+const fmtProbBounded = (p: number): string =>
+  p >= PROB_HI ? `> ${fmtPct(99, 0)}` : p > 0 && p <= PROB_LO ? `< ${fmtPct(1, 0)}` : fmtProb(p);
 
 // ── Extraction marchés ──────────────────────────────────────────────────────
 const pmEvents = Object.values(markets.polymarket ?? {}) as any[];
@@ -88,6 +97,20 @@ const candMeta: Record<string, { name: string; tag_en: string; tag_fr: string; t
 };
 const candOrder = ['farage', 'binface', 'fox', 'others'];
 
+// ── Path to Victory ─────────────────────────────────────────────────────────
+// Depuis la révision des priors (v0.6), toutes les conditionnelles valent
+// quelques dixièmes de pour cent. Deux conséquences de rendu : (1) une échelle
+// absolue donne sept barres invisibles ; on met donc à l'échelle du scénario le
+// plus fort, car la section sert à COMPARER les leviers, pas à afficher un
+// niveau ; (2) un arrondi à une décimale écrase tout à « 0,0 % ».
+const scenarioMax = Math.max(...model.scenarios.map((s: any) => s.p_binface_win ?? 0), 1e-9);
+const scenarioBarPct = (p: number) => Math.max(3, Math.min(100, (p / scenarioMax) * 100));
+const fmtProbFine = (p: number) => {
+  const v = p * 100;
+  if (v === 0) return fmtPct(0, 0);
+  return v < 1 ? fmtPct(v, 2) : fmtProb(p);
+};
+
 const copy = {
   en: {
     kicker: 'U.K. by-election special desk · Clacton · 13 August 2026',
@@ -102,14 +125,14 @@ const copy = {
     modelLabel: 'The Vote-Scope forecast',
     modelIntro: `${model.n_sims.toLocaleString('en-GB')} Monte Carlo simulations of voter flows from the 2024 result: how much of his own bloc Farage keeps under investigation, where each boycotting party's orphaned voters go (or whether they stay home), how far the protest vote consolidates behind Binface, and what the media circus pulls in. The first constituency poll has now landed and the model re-centres on it — see below for exactly how much weight it is given.`,
     modelRange: 'Projected vote share (10th–90th percentile, median marked)',
-    modelCaveat: 'v0.5 — fundamentals re-centred on the Survation constituency poll by likelihood re-weighting, at a deliberately deflated effective sample size. The priors themselves are unchanged, so the prior→posterior move stays readable. Read the win probabilities as structural, not predictive to the decimal.',
+    modelCaveat: 'v0.6 — the orphaned-voter priors have been revised so the fundamentals now bracket the Survation constituency poll instead of contradicting it, and the poll is folded in by likelihood re-weighting at a deliberately deflated effective sample size. Caveat worth stating plainly: fundamentals and poll now agree, but neither carries a term for both being wrong — by-election polling error, house effects, a late turn. The near-certainty is the model’s, not the world’s.',
     pollLabel: 'The constituency poll',
     pollIntro: 'Unlike the markets below, this poll does feed the model. Here is what it says, what the model projects, and the gap between the two.',
     thCandidate: 'Candidate', thPoll: 'Poll', thModel: 'Vote-Scope', thGap: 'Gap (pts)',
     pollHeadToHead: 'Forced head-to-head (same poll)',
     pollWeightLabel: 'How much weight the model gives it',
     pathLabel: 'Path to victory — how could the bin actually win?',
-    pathIntro: `Baseline: Vote-Scope gives Count Binface ${fmtProb(model.p_binface_win)}% — the markets say ${pmBinface != null ? fmtProb(pmBinface) : '—'}%. For the upset, several things must break at once. Conditional win probabilities, from the same simulations:`,
+    pathIntro: `Baseline: Vote-Scope gives Count Binface ${fmtProbBounded(model.p_binface_win)}% — the markets say ${pmBinface != null ? fmtProb(pmBinface) : '—'}%. For the upset, several things must break at once. Conditional win probabilities, from the same simulations:`,
     pathOutro: 'Verdict: very unlikely — but this is the one election where the improbable is the most fun to watch. If Binface clears 25% while Farage sinks toward 40%, election night gets interesting.',
     marketsLabel: 'Prediction markets & bookmakers',
     marketsIntro: 'External comparison only — market prices never feed the model. Binface opened around 500/1 with the bookies and shortened to ~5/1 within days.',
@@ -165,14 +188,14 @@ const copy = {
     modelLabel: 'La projection Vote-Scope',
     modelIntro: `${model.n_sims.toLocaleString('fr-FR')} simulations Monte Carlo des flux d'électeurs depuis le résultat 2024 : quelle part de son bloc Farage retient sous enquête, où vont les électeurs orphelins de chaque parti boycotteur (ou s'ils restent chez eux), jusqu'où le vote protestataire se consolide sur Binface, et ce que le cirque médiatique attire. Le premier sondage de circonscription est tombé et le modèle se recentre dessus — le poids exact qu'il lui accorde est détaillé plus bas.`,
     modelRange: 'Parts projetées (10e–90e percentile, médiane marquée)',
-    modelCaveat: "Fundamentals v0.5 — recentrés sur le sondage de circonscription Survation par repondération de vraisemblance, à effectif efficace volontairement dégonflé. Les priors eux-mêmes ne sont pas réécrits : le passage prior → posterior reste lisible. Lisez les probabilités comme structurelles, pas prédictives à la décimale.",
+    modelCaveat: "Fundamentals v0.6 — les priors de report des électeurs orphelins ont été révisés pour que les fundamentals ENCADRENT le sondage Survation au lieu de le contredire, et le sondage y entre par repondération de vraisemblance à effectif efficace volontairement dégonflé. Réserve à dire franchement : fundamentals et sondage concordent désormais, mais ni l’un ni l’autre ne porte de terme « les deux se trompent » — erreur de sondage en partielle, effet de maison, retournement tardif. La quasi-certitude affichée est celle du modèle, pas celle du monde.",
     pollLabel: 'Le sondage de circonscription',
     pollIntro: "Contrairement aux marchés ci-dessous, ce sondage entre bel et bien dans le modèle. Voici ce qu'il dit, ce que projette le modèle, et l'écart entre les deux.",
     thCandidate: 'Candidat', thPoll: 'Sondage', thModel: 'Vote-Scope', thGap: 'Écart (pts)',
     pollHeadToHead: 'Duel forcé (même sondage)',
     pollWeightLabel: 'Le poids que le modèle lui accorde',
     pathLabel: 'Path to victory — comment la poubelle pourrait-elle gagner ?',
-    pathIntro: `Point de départ : Vote-Scope donne ${fmtProb(model.p_binface_win)} % à Count Binface — les marchés disent ${pmBinface != null ? fmtProb(pmBinface) : '—'} %. Pour l'exploit, il faut que plusieurs choses cassent en même temps. Probabilités conditionnelles, tirées des mêmes simulations :`,
+    pathIntro: `Point de départ : Vote-Scope donne ${fmtProbBounded(model.p_binface_win)} % à Count Binface — les marchés disent ${pmBinface != null ? fmtProb(pmBinface) : '—'} %. Pour l'exploit, il faut que plusieurs choses cassent en même temps. Probabilités conditionnelles, tirées des mêmes simulations :`,
     pathOutro: "Verdict : très improbable — mais c'est l'élection où l'improbable est le plus délicieux à regarder. Si Binface franchit 25 % pendant que Farage glisse vers 40 %, la soirée électorale devient intéressante.",
     marketsLabel: 'Marchés de prédiction & bookmakers',
     marketsIntro: "Comparaison externe seulement — les prix de marché n'entrent jamais dans le modèle. Binface a ouvert autour de 500/1 chez les bookmakers avant de tomber à ~5/1 en quelques jours.",
@@ -228,14 +251,14 @@ const copy = {
     modelLabel: 'La proyección de Vote-Scope',
     modelIntro: `${model.n_sims.toLocaleString('es-ES')} simulaciones Monte Carlo de los flujos de votantes desde el resultado de 2024: cuánto de su bloque retiene Farage bajo investigación, adónde van los votantes huérfanos de cada partido que boicotea (o si se quedan en casa), cuánto se consolida el voto de protesta en Binface, y qué atrae el circo mediático. La primera encuesta de circunscripción ya existe y el modelo se recentra en ella — abajo se detalla exactamente cuánto peso le da.`,
     modelRange: 'Cuotas proyectadas (percentil 10–90, mediana marcada)',
-    modelCaveat: 'Fundamentals v0.5 — recentrados en la encuesta de circunscripción de Survation mediante reponderación por verosimilitud, con un tamaño muestral efectivo deliberadamente reducido. Los priors no se reescriben: el paso prior → posterior sigue siendo legible. Lea las probabilidades como estructurales, no predictivas al decimal.',
+    modelCaveat: 'Fundamentals v0.6 — los priors de transferencia de votantes huérfanos se han revisado para que los fundamentals ENMARQUEN la encuesta de Survation en vez de contradecirla, y la encuesta entra por reponderación de verosimilitud con un tamaño muestral efectivo deliberadamente reducido. Reserva dicha con claridad: fundamentals y encuesta ahora coinciden, pero ninguno lleva un término para que ambos se equivoquen — error de sondeo en parciales, efecto de casa, giro tardío. La casi certeza es la del modelo, no la del mundo.',
     pollLabel: 'La encuesta de circunscripción',
     pollIntro: 'A diferencia de los mercados de abajo, esta encuesta sí alimenta el modelo. Esto es lo que dice, lo que proyecta el modelo y la diferencia entre ambos.',
     thCandidate: 'Candidato', thPoll: 'Encuesta', thModel: 'Vote-Scope', thGap: 'Diferencia (pts)',
     pollHeadToHead: 'Duelo directo (misma encuesta)',
     pollWeightLabel: 'El peso que le da el modelo',
     pathLabel: 'Path to victory — ¿cómo podría ganar el cubo de basura?',
-    pathIntro: `Punto de partida: Vote-Scope da a Count Binface un ${fmtProb(model.p_binface_win)} % — los mercados dicen ${pmBinface != null ? fmtProb(pmBinface) : '—'} %. Para la sorpresa, varias cosas deben romperse a la vez. Probabilidades condicionales, de las mismas simulaciones:`,
+    pathIntro: `Punto de partida: Vote-Scope da a Count Binface un ${fmtProbBounded(model.p_binface_win)} % — los mercados dicen ${pmBinface != null ? fmtProb(pmBinface) : '—'} %. Para la sorpresa, varias cosas deben romperse a la vez. Probabilidades condicionales, de las mismas simulaciones:`,
     pathOutro: 'Veredicto: muy improbable — pero es la elección donde lo improbable es más divertido de ver. Si Binface supera el 25 % mientras Farage cae hacia el 40 %, la noche electoral se pone interesante.',
     marketsLabel: 'Mercados de predicción y casas de apuestas',
     marketsIntro: 'Solo comparación externa — los precios de mercado nunca alimentan el modelo. Binface abrió alrededor de 500/1 y bajó a ~5/1 en días.',
@@ -356,11 +379,11 @@ const pc = (v: number) => `${Math.min(100, (v / SCALE_MAX) * 100)}%`;
       <p class="ukbye-label" id="ukbye-snap">{t.snapshotLabel}</p>
       <div class="ukbye-snap-grid">
         <div class="ukbye-snap" style="--accent:#12B6CF">
-          <strong>{fmtProb(model.p_farage_win)}%</strong>
+          <strong>{fmtProbBounded(model.p_farage_win)}%</strong>
           <span>{t.snapFarage}</span>
         </div>
         <div class="ukbye-snap" style="--accent:#1a1a1a">
-          <strong>{fmtProb(model.p_binface_win)}%</strong>
+          <strong>{fmtProbBounded(model.p_binface_win)}%</strong>
           <span>{t.snapBinface}</span>
         </div>
         <div class="ukbye-snap" style="--accent:#5aaa8a">
@@ -412,10 +435,10 @@ const pc = (v: number) => `${Math.min(100, (v / SCALE_MAX) * 100)}%`;
           <div class="ukbye-path-card">
             <p class="ukbye-path-cond">{s[scenarioCondKey]}</p>
             <div class="ukbye-path-bar">
-              <div style={`width:${Math.min(100, s.p_binface_win * 100 * 4)}%;`}></div>
+              <div style={`width:${scenarioBarPct(s.p_binface_win)}%;`}></div>
             </div>
             <p class="ukbye-path-p">
-              p(Binface) = <strong>{fmtProb(s.p_binface_win)}%</strong>
+              p(Binface) = <strong>{fmtProbFine(s.p_binface_win)}%</strong>
             </p>
           </div>
         ))}
