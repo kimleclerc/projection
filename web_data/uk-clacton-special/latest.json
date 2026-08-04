@@ -1,12 +1,12 @@
 {
   "meta": {
-    "generated_at": "2026-07-30T02:30:56.852741+00:00",
-    "run_date": "2026-07-29",
+    "generated_at": "2026-08-04T04:59:40.066870+00:00",
+    "run_date": "2026-08-04",
     "election_date": "2026-08-13",
     "riding_id": "E14001174",
     "riding_name": "Clacton",
-    "model_version": "v0.4-reform-coupling",
-    "has_local_polls": false,
+    "model_version": "v0.6-orphan-priors-revised",
+    "has_local_polls": true,
     "n_sims": 50000,
     "field": {
       "as_of": "2026-07-17",
@@ -266,68 +266,146 @@
     "seed": 20260813,
     "candidates": {
       "farage": {
-        "p_win": 0.8151,
+        "p_win": 0.9997,
         "share": {
-          "q05": 33.67,
-          "q10": 37.77,
-          "q25": 43.88,
-          "q50": 50.17,
-          "q75": 55.56,
-          "q90": 59.83,
-          "q95": 62.18
+          "q05": 53.38,
+          "q10": 55.97,
+          "q25": 60.04,
+          "q50": 64.26,
+          "q75": 68.2,
+          "q90": 71.5,
+          "q95": 73.44
         },
-        "share_mean": 49.33
+        "share_mean": 63.95
       },
       "binface": {
-        "p_win": 0.1849,
+        "p_win": 0.0003,
         "share": {
-          "q05": 23.71,
-          "q10": 25.85,
-          "q25": 29.76,
-          "q50": 34.62,
-          "q75": 40.13,
-          "q90": 45.71,
-          "q95": 49.35
+          "q05": 12.75,
+          "q10": 14.32,
+          "q25": 17.05,
+          "q50": 20.36,
+          "q75": 24.0,
+          "q90": 27.57,
+          "q95": 29.82
         },
-        "share_mean": 35.3
+        "share_mean": 20.7
       },
       "fox": {
         "p_win": 0.0,
         "share": {
-          "q05": 0.8,
-          "q10": 1.21,
-          "q25": 2.02,
-          "q50": 3.14,
-          "q75": 4.56,
-          "q90": 6.21,
-          "q95": 7.32
+          "q05": 0.78,
+          "q10": 1.12,
+          "q25": 1.81,
+          "q50": 2.76,
+          "q75": 3.93,
+          "q90": 5.22,
+          "q95": 6.1
         },
-        "share_mean": 3.48
+        "share_mean": 3.01
       },
       "others": {
         "p_win": 0.0,
         "share": {
-          "q05": 6.95,
-          "q10": 8.0,
-          "q25": 9.83,
-          "q50": 11.85,
-          "q75": 13.88,
-          "q90": 15.79,
-          "q95": 16.99
+          "q05": 6.96,
+          "q10": 8.19,
+          "q25": 10.11,
+          "q50": 12.3,
+          "q75": 14.49,
+          "q90": 16.52,
+          "q95": 17.77
         },
-        "share_mean": 11.89
+        "share_mean": 12.33
       }
     },
-    "p_farage_win": 0.8151,
-    "p_binface_win": 0.1849,
-    "p_binface_second": 0.8132,
-    "p_farage_improves_2024": 0.6676,
+    "local_poll_recentering": {
+      "applied": true,
+      "poll": {
+        "poll_id": "survation_20260802_clacton_vi",
+        "firm": "survation",
+        "release_date": "2026-08-02",
+        "field_start": "2026-07-16",
+        "field_end": "2026-07-24",
+        "sample_size_published": 502,
+        "source_url": "https://www.survation.com/clacton-by-election-poll-what-do-voters-say-the-election-is-about/",
+        "shares_pct": {
+          "farage": 73.0,
+          "binface": 20.0,
+          "fox": 2.0,
+          "others": 5.0
+        }
+      },
+      "assumed_base": 265,
+      "design_effect": 1.4,
+      "n_eff": 22.1,
+      "n_eff_share_of_published": 0.044,
+      "sd_sampling_pts": 2.91,
+      "sd_drift_pts": 8.0,
+      "sd_total_pts": 8.51,
+      "ess": 29647.0,
+      "ess_fraction": 0.5929,
+      "min_ess_fraction": 0.05,
+      "prior_farage_share_q50": 59.82,
+      "prior_farage_share_q95": 72.24,
+      "prior_binface_share_q50": 22.2,
+      "prior_p_binface_win": 0.0322,
+      "prior_p_farage_win": 0.9678,
+      "sensitivity": [
+        {
+          "n_eff": 0,
+          "ess_fraction": 1.0,
+          "farage_share_q50": 59.82,
+          "binface_share_q50": 22.2,
+          "p_binface_win": 0.0322
+        },
+        {
+          "n_eff": 12,
+          "ess_fraction": 0.7908,
+          "farage_share_q50": 62.85,
+          "binface_share_q50": 20.77,
+          "p_binface_win": 0.0025
+        },
+        {
+          "n_eff": 24,
+          "ess_fraction": 0.56,
+          "farage_share_q50": 64.47,
+          "binface_share_q50": 20.31,
+          "p_binface_win": 0.0002
+        },
+        {
+          "n_eff": 48,
+          "ess_fraction": 0.2736,
+          "farage_share_q50": 66.45,
+          "binface_share_q50": 20.02,
+          "p_binface_win": 0.0
+        },
+        {
+          "n_eff": 96,
+          "ess_fraction": 0.0832,
+          "farage_share_q50": 68.57,
+          "binface_share_q50": 19.94,
+          "p_binface_win": 0.0
+        },
+        {
+          "n_eff": 265,
+          "ess_fraction": 0.0101,
+          "farage_share_q50": 71.05,
+          "binface_share_q50": 19.99,
+          "p_binface_win": 0.0
+        }
+      ],
+      "method_fr": "repondération d'importance par la vraisemblance multinomiale du sondage local, à n effectif dégonflé (effet de plan + dérive jusqu'au scrutin) — les priors v0.3 ne sont pas réécrits"
+    },
+    "p_farage_win": 0.9997,
+    "p_binface_win": 0.0003,
+    "p_binface_second": 0.8994,
+    "p_farage_improves_2024": 0.9955,
     "binface_share_buckets": {
-      "lt10": 0.0,
-      "10_20": 0.0118,
-      "20_30": 0.2502,
-      "30_40": 0.4837,
-      "gte40": 0.2542
+      "lt10": 0.0094,
+      "10_20": 0.462,
+      "20_30": 0.4815,
+      "30_40": 0.0461,
+      "gte40": 0.001
     },
     "field": {
       "as_of": "2026-07-17",
@@ -339,22 +417,23 @@
       "n_micro_effective_mean": 31.0
     },
     "shock_diagnostics": {
-      "corr_shock_farage_retention": -0.434,
-      "corr_shock_ref_abstention": 0.233,
-      "corr_shock_binface_consolidation": 0.545,
-      "p_binface_win_coupled": 0.1849,
-      "p_binface_win_if_independent_shocks": 0.1466,
-      "joint_tail_ratio": 1.26,
-      "p_binface_win_top_decile_shock": 0.6632
+      "corr_shock_farage_retention": -0.424,
+      "corr_shock_ref_abstention": 0.226,
+      "corr_shock_binface_consolidation": 0.481,
+      "p_binface_win_coupled": 0.0322,
+      "p_binface_win_if_independent_shocks": 0.0132,
+      "joint_tail_ratio": 2.44,
+      "p_binface_win_top_decile_shock": 0.199,
+      "note_fr": "diagnostics de couplage calculés sur les fundamentals purs (avant repondération par le sondage local)"
     },
     "reform_coupling": {
       "enabled": true,
-      "national_reform_now": 24.4,
+      "national_reform_now": 23.4,
       "national_reform_anchor": 24.9,
       "beta_retention_per_point": 0.01,
-      "retention_shift": -0.005,
+      "retention_shift": -0.015,
       "farage_retention_mean_base": 0.76,
-      "farage_retention_mean_effective": 0.755,
+      "farage_retention_mean_effective": 0.745,
       "note": "rétention Farage décalée par la force nationale relative de Reform (Clacton atypique : seul signal national retenu)"
     },
     "scenarios": [
@@ -363,7 +442,7 @@
         "condition_fr": "Le scandale mord : Farage retient moins de ~70 % de son bloc 2024",
         "condition_en": "The scandal bites: Farage keeps less than ~70% of his 2024 bloc",
         "condition_es": "El escándalo golpea: Farage retiene menos del ~70 % de su bloque de 2024",
-        "p_binface_win": 0.592,
+        "p_binface_win": 0.0014,
         "p_scenario": 0.25
       },
       {
@@ -371,7 +450,7 @@
         "condition_fr": "Le vote anti-Farage se consolide sur Binface (reports gauche/centre au sommet)",
         "condition_en": "The anti-Farage vote consolidates behind Binface (left/centre transfers at the top end)",
         "condition_es": "El voto anti-Farage se consolida en Binface (transferencias de izquierda/centro al máximo)",
-        "p_binface_win": 0.374,
+        "p_binface_win": 0.001,
         "p_scenario": 0.25
       },
       {
@@ -379,7 +458,7 @@
         "condition_fr": "Fox/Reclaim divise la droite radicale (score Fox dans le quartile haut)",
         "condition_en": "Fox/Reclaim splits the radical right (Fox score in the top quartile)",
         "condition_es": "Fox/Reclaim divide a la derecha radical (puntuación de Fox en el cuartil superior)",
-        "p_binface_win": 0.373,
+        "p_binface_win": 0.0009,
         "p_scenario": 0.25
       },
       {
@@ -387,7 +466,7 @@
         "condition_fr": "Les électeurs orphelins (Lab/LD/Grn) se déplacent en masse",
         "condition_en": "Orphaned voters (Lab/LD/Grn) actually turn out in numbers",
         "condition_es": "Los votantes huérfanos (Lab/LD/Grn) acuden en masa",
-        "p_binface_win": 0.387,
+        "p_binface_win": 0.0011,
         "p_scenario": 0.25
       },
       {
@@ -395,7 +474,7 @@
         "condition_fr": "Nouvelles révélations en campagne : les fonds non déclarés (Harborne/NCA, dons crypto) refont surface avant le 13 août",
         "condition_en": "New revelations mid-campaign: the undeclared funds story (Harborne/NCA, crypto gifts) resurfaces before 13 August",
         "condition_es": "Nuevas revelaciones en campaña: los fondos no declarados (Harborne/NCA, regalos cripto) resurgen antes del 13 de agosto",
-        "p_binface_win": 0.356,
+        "p_binface_win": 0.0011,
         "p_scenario": 0.35
       },
       {
@@ -403,7 +482,7 @@
         "condition_fr": "Lune de miel du nouveau PM travailliste (investiture prévue le 17 juillet) : la démobilisation Reform mord",
         "condition_en": "New Labour PM honeymoon (expected 17 July): Reform demobilisation bites",
         "condition_es": "Luna de miel del nuevo primer ministro laborista (prevista el 17 de julio): la desmovilización de Reform golpea",
-        "p_binface_win": 0.203,
+        "p_binface_win": 0.0004,
         "p_scenario": 0.7
       },
       {
@@ -411,23 +490,154 @@
         "condition_fr": "Tempête parfaite : effondrement Farage ET consolidation protestataire",
         "condition_en": "Perfect storm: Farage collapse AND protest consolidation",
         "condition_es": "Tormenta perfecta: colapso de Farage Y consolidación de la protesta",
-        "p_binface_win": 0.801,
-        "p_scenario": 0.09
+        "p_binface_win": 0.0036,
+        "p_scenario": 0.072
       }
     ]
   },
+  "local_polls": {
+    "available": true,
+    "polls": [
+      {
+        "poll_id": "survation_20260802_clacton_vi",
+        "firm": "survation",
+        "client": "Mandate Research",
+        "release_date": "2026-08-02",
+        "field_start": "2026-07-16",
+        "field_end": "2026-07-24",
+        "sample_size_published": 502,
+        "method": "telephone",
+        "population": "likely voters, Clacton constituency",
+        "source_url": "https://www.survation.com/clacton-by-election-poll-what-do-voters-say-the-election-is-about/",
+        "shares_pct": {
+          "farage": 73.0,
+          "binface": 20.0,
+          "fox": 2.0,
+          "others": 5.0
+        },
+        "head_to_head": {
+          "farage": 69.0,
+          "binface": 31.0
+        },
+        "rows": [
+          {
+            "bucket": "farage",
+            "label": {
+              "fr": "Nigel Farage",
+              "en": "Nigel Farage",
+              "es": "Nigel Farage"
+            },
+            "poll_pct": 73.0,
+            "model_pct": 64.26,
+            "gap_pts": -8.7
+          },
+          {
+            "bucket": "binface",
+            "label": {
+              "fr": "Count Binface",
+              "en": "Count Binface",
+              "es": "Count Binface"
+            },
+            "poll_pct": 20.0,
+            "model_pct": 20.36,
+            "gap_pts": 0.4
+          },
+          {
+            "bucket": "fox",
+            "label": {
+              "fr": "Laurence Fox",
+              "en": "Laurence Fox",
+              "es": "Laurence Fox"
+            },
+            "poll_pct": 2.0,
+            "model_pct": 2.76,
+            "gap_pts": 0.8
+          },
+          {
+            "bucket": "others",
+            "label": {
+              "fr": "Autres candidats",
+              "en": "Other candidates",
+              "es": "Otros candidatos"
+            },
+            "poll_pct": 5.0,
+            "model_pct": 12.3,
+            "gap_pts": 7.3
+          }
+        ]
+      }
+    ],
+    "weighting": {
+      "applied": true,
+      "n_eff": 22.1,
+      "n_eff_share_of_published": 0.044,
+      "sd_total_pts": 8.51,
+      "ess_fraction": 0.5929,
+      "prior_farage_share_q50": 59.82,
+      "prior_binface_share_q50": 22.2,
+      "prior_p_binface_win": 0.0322,
+      "posterior_p_binface_win": 0.0003,
+      "sensitivity": [
+        {
+          "n_eff": 0,
+          "ess_fraction": 1.0,
+          "farage_share_q50": 59.82,
+          "binface_share_q50": 22.2,
+          "p_binface_win": 0.0322
+        },
+        {
+          "n_eff": 12,
+          "ess_fraction": 0.7908,
+          "farage_share_q50": 62.85,
+          "binface_share_q50": 20.77,
+          "p_binface_win": 0.0025
+        },
+        {
+          "n_eff": 24,
+          "ess_fraction": 0.56,
+          "farage_share_q50": 64.47,
+          "binface_share_q50": 20.31,
+          "p_binface_win": 0.0002
+        },
+        {
+          "n_eff": 48,
+          "ess_fraction": 0.2736,
+          "farage_share_q50": 66.45,
+          "binface_share_q50": 20.02,
+          "p_binface_win": 0.0
+        },
+        {
+          "n_eff": 96,
+          "ess_fraction": 0.0832,
+          "farage_share_q50": 68.57,
+          "binface_share_q50": 19.94,
+          "p_binface_win": 0.0
+        },
+        {
+          "n_eff": 265,
+          "ess_fraction": 0.0101,
+          "farage_share_q50": 71.05,
+          "binface_share_q50": 19.99,
+          "p_binface_win": 0.0
+        }
+      ]
+    },
+    "note_fr": "Premier et seul sondage de circonscription. Le modèle en tient compte sans s'y réduire : il lui accorde un poids effectif d'environ 22 répondants — la précision d'échantillonnage étant amputée par un terrain de 9 jours clos 24 jours avant le scrutin et par la sensibilité au cadrage que le sondage révèle lui-même (Binface à 20 % en question à 4 voies, 31 % en duel forcé).",
+    "note_en": "First and only constituency poll. The model takes it into account without reducing itself to it: it is given an effective weight of about 22 respondents — sampling precision is cut by a 9-day field period closing 24 days before polling day, and by the framing sensitivity the poll itself reveals (Binface at 20% in the four-way question, 31% head-to-head).",
+    "note_es": "Primera y única encuesta de circunscripción. El modelo la tiene en cuenta sin reducirse a ella: le otorga un peso efectivo de unos 22 encuestados — la precisión muestral se reduce por un trabajo de campo de 9 días cerrado 24 días antes de la votación y por la sensibilidad al enunciado que la propia encuesta revela (Binface al 20 % en la pregunta a cuatro, 31 % en duelo directo)."
+  },
   "markets": {
-    "as_of": "2026-07-30T02:30:55.741888+00:00",
+    "as_of": "2026-08-04T04:59:39.565974+00:00",
     "polymarket": {
       "clacton-by-election-winner-20260707143521303": {
         "title": "Clacton by-election Winner",
         "url": "https://polymarket.com/event/clacton-by-election-winner-20260707143521303",
-        "volume": 2989214.0,
+        "volume": 3597935.0,
         "markets": [
           {
             "question": "Will Nigel Farage win the Clacton by-election?",
-            "yes": 0.975,
-            "volume": 1076689.0
+            "yes": 0.9875,
+            "volume": 1361948.0
           },
           {
             "question": "Will Giles Watling win the Clacton by-election?",
@@ -461,18 +671,23 @@
           },
           {
             "question": "Will Count Binface win the Clacton by-election?",
-            "yes": 0.0235,
-            "volume": 1868585.0
+            "yes": 0.0135,
+            "volume": 2189003.0
           },
           {
             "question": "Will William Clouston win the Clacton by-election?",
             "yes": 0.0005,
-            "volume": 4042.0
+            "volume": 5849.0
           },
           {
             "question": "Will John Stevens win the Clacton by-election?",
             "yes": 0.0005,
-            "volume": 6702.0
+            "volume": 7702.0
+          },
+          {
+            "question": "Will Pamela Walford win the Clacton by-election?",
+            "yes": 0.0005,
+            "volume": 236.0
           },
           {
             "question": "Will someone else win the Clacton by-election?",
@@ -484,87 +699,92 @@
       "clacton-by-election-2nd-place-20260707214539733": {
         "title": "Clacton by-election: 2nd place",
         "url": "https://polymarket.com/event/clacton-by-election-2nd-place-20260707214539733",
-        "volume": 311218.0,
+        "volume": 480854.0,
         "markets": [
           {
             "question": "Will Nigel Farage get second place in the Clacton by-election?",
-            "yes": 0.0355,
-            "volume": 14573.0
+            "yes": 0.0125,
+            "volume": 35434.0
           },
           {
             "question": "Will Giles Watling get second place in the Clacton by-election?",
-            "yes": 0.002,
-            "volume": 2969.0
+            "yes": 0.0005,
+            "volume": 3280.0
           },
           {
             "question": "Will Jovan Owusu-Nepaul get second place in the Clacton by-election?",
-            "yes": 0.0025,
-            "volume": 1790.0
+            "yes": 0.0015,
+            "volume": 2857.0
           },
           {
             "question": "Will Matthew Bensilum get second place in the Clacton by-election?",
-            "yes": 0.0225,
-            "volume": 2532.0
+            "yes": 0.002,
+            "volume": 3829.0
           },
           {
             "question": "Will Natasha Osben get second place in the Clacton by-election?",
-            "yes": 0.0055,
-            "volume": 2009.0
+            "yes": 0.001,
+            "volume": 2862.0
           },
           {
             "question": "Will Tony Mack get second place in the Clacton by-election?",
-            "yes": 0.0025,
-            "volume": 1484.0
+            "yes": 0.0015,
+            "volume": 2457.0
           },
           {
             "question": "Will Andrew Pemberton get second place in the Clacton by-election?",
-            "yes": 0.005,
-            "volume": 1865.0
+            "yes": 0.0005,
+            "volume": 1885.0
           },
           {
             "question": "Will Count Binface get second place in the Clacton by-election?",
-            "yes": 0.785,
-            "volume": 264875.0
+            "yes": 0.955,
+            "volume": 395857.0
           },
           {
             "question": "Will Laurence Fox get second place in the Clacton by-election?",
-            "yes": 0.042,
-            "volume": 8809.0
+            "yes": 0.0235,
+            "volume": 10414.0
           },
           {
             "question": "Will Piers Corbyn get second place in the Clacton by-election?",
-            "yes": 0.0075,
-            "volume": 1063.0
+            "yes": 0.001,
+            "volume": 1873.0
           },
           {
             "question": "Will Adham Alkhatip get second place in the Clacton by-election?",
-            "yes": 0.0015,
-            "volume": 944.0
+            "yes": 0.002,
+            "volume": 1839.0
           },
           {
             "question": "Will Rees Cowne get second place in the Clacton by-election?",
             "yes": 0.0015,
-            "volume": 859.0
+            "volume": 2001.0
           },
           {
             "question": "Will Kai Stephens get second place in the Clacton by-election?",
-            "yes": 0.006,
-            "volume": 990.0
+            "yes": 0.0015,
+            "volume": 1704.0
           },
           {
             "question": "Will Luke Worley get second place in the Clacton by-election?",
-            "yes": 0.0025,
-            "volume": 1331.0
+            "yes": 0.0005,
+            "volume": 1351.0
           },
           {
             "question": "Will John Stevens get second place in the Clacton by-election?",
-            "yes": 0.0255,
-            "volume": 3641.0
+            "yes": 0.003,
+            "volume": 5354.0
           },
           {
             "question": "Will William Clouston get second place in the Clacton by-election?",
-            "yes": 0.0865,
-            "volume": 1482.0
+            "yes": 0.0185,
+            "volume": 6524.0
+          },
+          {
+            "question": "Will Pamela Walford get second place in the Clacton by-election?",
+            "yes": 0.0005,
+            "volume": 1333.0
           },
           {
             "question": "Will someone else get second place in the Clacton by-election?",
@@ -576,44 +796,44 @@
       "clacton-by-election-count-binface-vote-20260708142507718": {
         "title": "Clacton by-election: Count Binface Vote %",
         "url": "https://polymarket.com/event/clacton-by-election-count-binface-vote-20260708142507718",
-        "volume": 172675.0,
+        "volume": 254105.0,
         "markets": [
           {
             "question": "Will Count Binface win less than 10% of votes in the Clacton parliamentary by-election?",
-            "yes": 0.235,
-            "volume": 69555.0
+            "yes": 0.105,
+            "volume": 109155.0
           },
           {
             "question": "Will Count Binface win 10–20% of votes in the Clacton parliamentary by-election?",
-            "yes": 0.355,
-            "volume": 33476.0
+            "yes": 0.43,
+            "volume": 46149.0
           },
           {
             "question": "Will Count Binface win 20–30% of votes in the Clacton parliamentary by-election?",
-            "yes": 0.33,
-            "volume": 32545.0
+            "yes": 0.37,
+            "volume": 47309.0
           },
           {
             "question": "Will Count Binface win 30–40% of votes in the Clacton parliamentary by-election?",
-            "yes": 0.0555,
-            "volume": 20210.0
+            "yes": 0.0575,
+            "volume": 29195.0
           },
           {
             "question": "Will Count Binface win at least 40% of votes in the Clacton parliamentary by-election?",
-            "yes": 0.0325,
-            "volume": 16889.0
+            "yes": 0.0195,
+            "volume": 22298.0
           }
         ]
       },
       "will-nigel-farage-up-his-vote-share-in-clacton-20260707171746907": {
         "title": "Will Nigel Farage up his vote share in Clacton?",
         "url": "https://polymarket.com/event/will-nigel-farage-up-his-vote-share-in-clacton-20260707171746907",
-        "volume": 19580.0,
+        "volume": 20536.0,
         "markets": [
           {
             "question": "Will Nigel Farage up his vote share in Clacton?",
-            "yes": 0.9465,
-            "volume": 19580.0
+            "yes": 0.9805,
+            "volume": 20536.0
           }
         ]
       }
@@ -621,12 +841,12 @@
     "kalshi": {
       "farage": {
         "ticker": "KXCLACTONBYELECTION-26SEP01-RUK",
-        "last_price": 0.97,
+        "last_price": 0.99,
         "url": "https://kalshi.com/markets/kxclactonbyelection/clacton-byelection-winner"
       },
       "binface": {
         "ticker": "KXCLACTONBYELECTION-26SEP01-CBIN",
-        "last_price": 0.03,
+        "last_price": 0.02,
         "url": "https://kalshi.com/markets/kxclactonbyelection/clacton-byelection-winner"
       }
     },
@@ -634,8 +854,8 @@
       "as_of": "2026-07-11",
       "farage_odds": "1/6 – 1/8",
       "binface_odds": "9/2 – 5/1",
-      "note_fr": "Oddschecker/William Hill — les cotes Binface sont passées d'environ 500/1 à ~5/1 en quelques jours.",
-      "note_en": "Oddschecker/William Hill — Binface odds shortened from ~500/1 to ~5/1 within days.",
+      "note_fr": "Oddschecker/William Hill — cotes Binface passées d'environ 500/1 à ~5/1 en quelques jours. ⚠ Relevé du 11 juillet, ANTÉRIEUR au sondage Survation : les marchés en direct au-dessus se sont depuis reportés sur Farage.",
+      "note_en": "Oddschecker/William Hill — Binface odds shortened from ~500/1 to ~5/1 within days. ⚠ Snapshot taken 11 July, BEFORE the Survation poll: the live markets above have since moved to Farage.",
       "source_url": "https://www.oddschecker.com/insight/politics/20260708-clacton-by-election-odds-reform-heavy-favourites-to-win-seat"
     }
   },
@@ -675,6 +895,18 @@
       "p_farage": 0.8151,
       "p_binface": 0.1849,
       "binface_share_median": 34.62
+    },
+    {
+      "date": "2026-08-03",
+      "p_farage": 0.9931,
+      "p_binface": 0.0069,
+      "binface_share_median": 29.05
+    },
+    {
+      "date": "2026-08-04",
+      "p_farage": 0.9997,
+      "p_binface": 0.0003,
+      "binface_share_median": 20.36
     }
   ]
 }
