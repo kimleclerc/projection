@@ -253,6 +253,22 @@ try {
   if (opt.push) {
     execSync(`git push origin ${branch}`, { cwd: ROOT, stdio: 'inherit' });
     log(`push → origin/${branch} ✓`);
+    // IndexNow : notifier Bing & co. dès que le contenu passe EN PRODUCTION.
+    // C'est le canal d'acquisition le plus rentable du site (Bing et les
+    // moteurs IndexNow surperforment Google ~3:1, constat Kim 2026-08-04), et
+    // c'était jusqu'ici un geste manuel — donc oublié : le rapport Bing du
+    // 4 août signalait trois pages jamais soumises. Sur dev on ne soumet pas :
+    // rien n'y est public.
+    if (branch === 'main') {
+      try {
+        run('npm', ['run', 'indexnow']);
+        log('IndexNow : soumission effectuée ✓');
+      } catch {
+        // Un échec de ping ne doit JAMAIS invalider une publication réussie :
+        // le contenu est en ligne, seule la notification a raté.
+        log('⚠ IndexNow a échoué — contenu publié quand même, relancer `npm run indexnow`.');
+      }
+    }
   } else {
     log('--no-push : commit local conservé, pas de push.');
   }
