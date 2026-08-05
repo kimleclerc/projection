@@ -1,5 +1,5 @@
-// Partielles provinciales ontariennes — trois sièges, scrutin attendu le
-// 3 septembre 2026 (bref attendu le 5 août). Même contrat que
+// Partielles provinciales ontariennes — trois sièges, scrutin le
+// 3 septembre 2026 (brefs émis le 5 août). Même contrat que
 // canadaByelectionRaces.ts : narratif ici, chiffres du moteur au build.
 //
 // Différence de fond avec le fédéral : AUCUN résidu de participation n'est
@@ -49,7 +49,7 @@ export const ontarioByelectionRaces = {
     ridingId: '00037',
     dataPath: 'ontario-byelection-hamilton-est-stoney-creek',
     currentPage: 'canada',
-    status: 'expected',
+    status: 'scheduled',
     electionDate: '2026-09-03',
     vacancyDate: null,
     province: 'ON',
@@ -112,7 +112,7 @@ export const ontarioByelectionRaces = {
     ridingId: '00098',
     dataPath: 'ontario-byelection-scarborough-sud-ouest',
     currentPage: 'canada',
-    status: 'expected',
+    status: 'scheduled',
     electionDate: '2026-09-03',
     vacancyDate: '2026-02-01',
     province: 'ON',
@@ -175,7 +175,7 @@ export const ontarioByelectionRaces = {
     ridingId: '00121',
     dataPath: 'ontario-byelection-york-simcoe',
     currentPage: 'canada',
-    status: 'expected',
+    status: 'scheduled',
     electionDate: '2026-09-03',
     vacancyDate: null,
     province: 'ON',
