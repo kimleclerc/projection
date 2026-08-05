@@ -59,7 +59,8 @@ type RawRiding = {
 const ridings = (ridingsSource as { ridings: RawRiding[]; meta: { run_date: string } }).ridings;
 const META = (ridingsSource as { meta: { run_date: string } }).meta;
 const members = membersSource as Record<string, RidingMember | undefined>;
-const candidatesByRiding = candidatesSource as Record<string, Array<{ name: string; party_code: string; party_raw: string; ici_status: string; filing_status: string; fec_id: string }>>;
+type RawCandidate = { name: string; party_code: string; party_raw: string; ici_status: string; filing_status: string; fec_id: string; primary_outcome: string };
+const candidatesByRiding = candidatesSource as Record<string, RawCandidate[]>;
 const primariesByRiding = primariesSource as Record<string, RidingData['primaries']>;
 const redistrictingByRiding = redistrictingSource as Record<string, RidingData['redistrictingImpact']>;
 const RIDINGS_WITH_HISTORY = new Set((historyIndex as { ridings_with_history: string[] }).ridings_with_history);
@@ -158,7 +159,12 @@ function adaptMember(rid: string): RidingMember | undefined {
 function adaptDeclared(rid: string): DeclaredCandidate[] | undefined {
   const list = candidatesByRiding[rid];
   if (!list || list.length === 0) return undefined;
-  return list.map((c) => ({
+  const primary = primariesByRiding[rid];
+  const held = primary?.status === 'held';
+  const eligible = new Set(['won', 'advanced', 'runoff', 'no_primary']);
+  const filtered = list.filter((c) => held ? eligible.has(c.primary_outcome) : c.primary_outcome !== 'lost');
+  if (filtered.length === 0) return undefined;
+  return filtered.map((c) => ({
     name: c.name,
     party_code: c.party_code,
     party_raw: c.party_raw,

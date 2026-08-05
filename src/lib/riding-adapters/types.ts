@@ -155,6 +155,27 @@ export interface RegionalContext {
   totalSeats?: number;
 }
 
+export interface PrimaryResultRow {
+  candidate_name: string;
+  candidate_fec_id: string;
+  primary_party: 'DEM' | 'REP' | 'TOP_TWO' | 'OTHER';
+  votes: number;
+  pct: number;
+  outcome: 'won' | 'lost' | 'runoff' | 'advanced';
+}
+
+export type RidingPrimaries = {
+  status: 'held';
+  results: PrimaryResultRow[];
+  certified: boolean;
+  primary_date: string;
+  source_url: string;
+} | {
+  status?: 'polling';
+  dem?: { leader_name: string; leader_pct: number; field_end: string; firm: string; n_candidates_polled: number; source_url?: string };
+  rep?: { leader_name: string; leader_pct: number; field_end: string; firm: string; n_candidates_polled: number; source_url?: string };
+};
+
 export interface RidingData {
   id: string;                // numeric or alphanumeric ID, e.g. '35077'
   slug: string;              // URL-safe, e.g. '35077-orleans'
@@ -186,11 +207,8 @@ export interface RidingData {
   byelectionDate?: string;
   marketSlug?: string;
 
-  /** US House primary status — Dem and/or Rep primary leader from latest poll. */
-  primaries?: {
-    dem?: { leader_name: string; leader_pct: number; field_end: string; firm: string; n_candidates_polled: number; source_url?: string };
-    rep?: { leader_name: string; leader_pct: number; field_end: string; firm: string; n_candidates_polled: number; source_url?: string };
-  };
+  /** Official held results, or Dem/Rep polling for a future primary. */
+  primaries?: RidingPrimaries;
 
   /** US House redistricting impact — old districts that contribute ≥5% of the
    *  new map. Editorial threshold: surface only when fragmented (multiple
