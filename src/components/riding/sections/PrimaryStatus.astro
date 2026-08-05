@@ -15,6 +15,9 @@ const polling = data.primaries.status !== 'held' ? data.primaries : undefined;
 const dem = polling?.dem;
 const rep = polling?.rep;
 if (!held && !dem && !rep) return null;
+// A calendar-only held marker suppresses stale polling and candidate slates,
+// but must not masquerade as a result before an official feed is available.
+if (held && held.results.length === 0) return null;
 
 const demMeta = partyMeta(data.jurisdiction, 'us_dem');
 const repMeta = partyMeta(data.jurisdiction, 'us_rep');
