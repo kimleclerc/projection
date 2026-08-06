@@ -1,0 +1,355 @@
+---
+/**
+ * Desk des primaires américaines — le ledger de la saison.
+ *
+ * Deux temps : ce qui vient, ce qui est tranché. La frontière suit l'as-of
+ * calculé côté moteur, pas une constante — un scrutin bascule de lui-même le
+ * lendemain matin.
+ *
+ * Choix éditorial : le détail des vainqueurs n'est affiché que pour la
+ * DERNIÈRE date tenue (ce qui vient de se passer). Les scrutins plus anciens
+ * restent en ligne de registre et renvoient vers les pages de district, qui
+ * portent déjà le détail. Une page qui déroulerait 193 courses ne se lirait pas.
+ *
+ * Ce qui manque est affiché, jamais tu : une porte tenue sans résultats porte
+ * son motif (portail bloqué, résultats pas encore importés).
+ */
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import Base from '../layouts/Base.astro';
+import KeepDigging from './KeepDigging.astro';
+
+type Lang = 'en' | 'fr' | 'es';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+
+const desk = JSON.parse(
+  readFileSync(resolve(process.cwd(), 'web_data', 'us-primaries', 'latest.json'), 'utf-8'),
+);
+
+const PARTY_COLOR: Record<string, string> = {
+  us_dem: '#1375B7', us_rep: '#D2222D', us_oth: '#999999',
+};
+const PARTY_LABEL: Record<string, Record<Lang, string>> = {
+  DEM: { en: 'Democratic', fr: 'Démocrate', es: 'Demócrata' },
+  REP: { en: 'Republican', fr: 'Républicaine', es: 'Republicana' },
+  TOP_TWO: { en: 'Top-two', fr: 'Top-two', es: 'Top-two' },
+  OTHER: { en: 'Other', fr: 'Autre', es: 'Otra' },
+};
+
+const T = {
+  en: {
+    title: 'US Primaries — Tracker — Vote-Scope',
+    description:
+      'Every 2026 congressional primary: what is coming, what has been decided, and — just as plainly — what we have not been able to source yet.',
+    kicker: 'US Desk · Primaries',
+    h1: 'The primary season, gate by gate.',
+    dekA: 'Each state sets its own primary date, and each date settles a slice of November. This page tracks both halves: the contests still ahead, and the ones already decided.',
+    dekB: 'As of',
+    upcomingTitle: 'Still ahead',
+    heldTitle: 'Already decided',
+    ledgerTitle: 'Earlier in the season',
+    house: 'House', senate: 'Senate',
+    types: { open: 'Open primary', closed: 'Closed primary', top_two: 'Top-two primary' } as Record<string, string>,
+    races: ['race', 'races'], candidates: ['declared candidate', 'declared candidates'],
+    runoff: 'Runoff',
+    decided: ['decided', 'decided'], awaiting: 'awaiting results',
+    certified: 'Certified', uncertified: 'Official count — not yet certified',
+    source: 'Official source',
+    margin: 'by',
+    pts: ['pt', 'pts'],
+    unopposed: 'unopposed',
+    toRunoff: 'Goes to a runoff',
+    gapTitle: 'What is missing',
+    gaps: {
+      not_modelled: 'Delegate contests — outside the projection model’s scope.',
+      not_yet_imported: 'Results not yet imported into the model.',
+      results_portal_cloudflare: 'The state results portal is behind an automated-traffic check.',
+      statewide_results_not_published: 'The statewide result file is not published yet.',
+      certification_document: 'Vote totals are published, but no certification document was found.',
+      raw_download_browser_challenge: 'The raw download rejects automated clients; figures read from the official rendered page.',
+    } as Record<string, string>,
+    nothingYet: 'No primary has been held yet under this date.',
+    keepEyebrow: 'Keep digging',
+    keepTitle: 'More from the US Desk.',
+    keepBody: 'District projections, Senate seats, and the polling hub.',
+    house_link: 'House projection', senate_link: 'Senate projection',
+  },
+  fr: {
+    title: 'Primaires américaines — Suivi — Vote-Scope',
+    description:
+      'Toutes les primaires fédérales de 2026 : ce qui vient, ce qui est tranché, et — aussi clairement — ce qu’on n’a pas encore pu sourcer.',
+    kicker: 'Bureau américain · Primaires',
+    h1: 'La saison des primaires, porte par porte.',
+    dekA: 'Chaque État fixe sa propre date, et chaque date règle une part de novembre. Cette page suit les deux moitiés : les scrutins à venir et ceux déjà tranchés.',
+    dekB: 'Au',
+    upcomingTitle: 'À venir',
+    heldTitle: 'Déjà tranché',
+    ledgerTitle: 'Plus tôt dans la saison',
+    house: 'Chambre', senate: 'Sénat',
+    types: { open: 'Primaire ouverte', closed: 'Primaire fermée', top_two: 'Primaire top-two' } as Record<string, string>,
+    races: ['course', 'courses'], candidates: ['candidat déclaré', 'candidats déclarés'],
+    runoff: 'Ballottage',
+    decided: ['tranchée', 'tranchées'], awaiting: 'en attente de résultats',
+    certified: 'Certifié', uncertified: 'Décompte officiel — non encore certifié',
+    source: 'Source officielle',
+    margin: 'de',
+    pts: ['pt', 'pts'],
+    unopposed: 'sans opposition',
+    toRunoff: 'Va au ballottage',
+    gapTitle: 'Ce qui manque',
+    gaps: {
+      not_modelled: 'Courses de délégués — hors du périmètre du modèle de projection.',
+      not_yet_imported: 'Résultats pas encore importés dans le modèle.',
+      results_portal_cloudflare: 'Le portail de résultats de l’État bloque le trafic automatisé.',
+      statewide_results_not_published: 'Le fichier de résultats à l’échelle de l’État n’est pas encore publié.',
+      certification_document: 'Les totaux sont publiés, mais aucun document de certification n’a été trouvé.',
+      raw_download_browser_challenge: 'Le téléchargement brut rejette les clients automatisés ; chiffres lus sur la page officielle.',
+    } as Record<string, string>,
+    nothingYet: 'Aucune primaire tenue à cette date.',
+    keepEyebrow: 'Creuser encore',
+    keepTitle: 'Plus du bureau américain.',
+    keepBody: 'Projections par district, sièges du Sénat et carrefour des sondages.',
+    house_link: 'Projection Chambre', senate_link: 'Projection Sénat',
+  },
+  es: {
+    title: 'Primarias de EE. UU. — Seguimiento — Vote-Scope',
+    description:
+      'Todas las primarias federales de 2026: lo que viene, lo ya decidido y — con la misma claridad — lo que aún no hemos podido documentar.',
+    kicker: 'Mesa de EE. UU. · Primarias',
+    h1: 'La temporada de primarias, puerta por puerta.',
+    dekA: 'Cada estado fija su propia fecha, y cada fecha resuelve una parte de noviembre. Esta página sigue ambas mitades: lo que falta y lo ya decidido.',
+    dekB: 'Al',
+    upcomingTitle: 'Por venir',
+    heldTitle: 'Ya decidido',
+    ledgerTitle: 'Antes en la temporada',
+    house: 'Cámara', senate: 'Senado',
+    types: { open: 'Primaria abierta', closed: 'Primaria cerrada', top_two: 'Primaria top-two' } as Record<string, string>,
+    races: ['contienda', 'contiendas'], candidates: ['candidato declarado', 'candidatos declarados'],
+    runoff: 'Segunda vuelta',
+    decided: ['decidida', 'decididas'], awaiting: 'a la espera de resultados',
+    certified: 'Certificado', uncertified: 'Recuento oficial — aún no certificado',
+    source: 'Fuente oficial',
+    margin: 'por',
+    pts: ['pt', 'pts'],
+    unopposed: 'sin oposición',
+    toRunoff: 'Va a segunda vuelta',
+    gapTitle: 'Lo que falta',
+    gaps: {
+      not_modelled: 'Contiendas de delegados — fuera del alcance del modelo de proyección.',
+      not_yet_imported: 'Resultados aún no importados en el modelo.',
+      results_portal_cloudflare: 'El portal de resultados del estado bloquea el tráfico automatizado.',
+      statewide_results_not_published: 'El archivo de resultados estatal aún no se publica.',
+      certification_document: 'Los totales están publicados, pero no se encontró documento de certificación.',
+      raw_download_browser_challenge: 'La descarga directa rechaza clientes automatizados; cifras leídas de la página oficial.',
+    } as Record<string, string>,
+    nothingYet: 'Ninguna primaria celebrada en esta fecha.',
+    keepEyebrow: 'Seguir indagando',
+    keepTitle: 'Más de la mesa de EE. UU.',
+    keepBody: 'Proyecciones por distrito, escaños del Senado y el centro de sondeos.',
+    house_link: 'Proyección Cámara', senate_link: 'Proyección Senado',
+  },
+}[lang];
+
+const LOCALE = { en: 'en-CA', fr: 'fr-CA', es: 'es-ES' }[lang];
+const fmtDate = (iso: string) => {
+  if (!iso) return '';
+  try {
+    return new Date(`${iso}T12:00:00Z`).toLocaleDateString(LOCALE, {
+      year: 'numeric', month: 'long', day: 'numeric',
+    });
+  } catch { return iso; }
+};
+const fmtNum = (n: number) => n.toLocaleString(LOCALE);
+// Le français met au singulier jusqu'à 2 exclu (« 0 course », « 1 course »),
+// l'anglais et l'espagnol au singulier pour 1 seulement.
+const pl = (n: number, pair: string[]) => pair[(lang === 'fr' ? n >= 2 : n !== 1) ? 1 : 0];
+// Une décimale, séparateur localisé : « 48,5 % » en français, « 48.5 % » ailleurs.
+const fmtPct = (n: number) =>
+  n.toLocaleString(LOCALE, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+// Le Sénat est à l'échelle de l'État : « MI-0 » ne veut rien dire.
+const seatLabel = (gate: any, race: any) =>
+  race.district && race.district !== '0' ? `${gate.state}-${race.district}` : gate.state_name[lang];
+
+const PATHS = {
+  en: { self: '/en/us/primaries/', house: '/en/us/house/', senate: '/en/us/senate/' },
+  fr: { self: '/fr/us/primaires/', house: '/fr/us/chambre/', senate: '/fr/us/senat/' },
+  es: { self: '/es/us/primarias/', house: '/es/us/house/', senate: '/es/us/senate/' },
+}[lang];
+const canonical = `https://vote-scope.com${PATHS.self}`;
+
+const upcoming = desk.upcoming ?? [];
+const held = desk.held ?? [];
+const latestDate: string | undefined = held[0]?.primary_date;
+const freshest = held.filter((g: any) => g.primary_date === latestDate);
+const earlier = held.filter((g: any) => g.primary_date !== latestDate);
+
+const chamber = (scope: string) => (scope === 'senate' ? T.senate : T.house);
+const gapText = (gap: any) => (gap ? (T.gaps[gap.issue] ?? gap.issue.replace(/_/g, ' ')) : '');
+
+// Une porte à venir garde son ballottage annoncé : c'est une information de
+// calendrier, pas un résultat.
+const upcomingByDate = upcoming.reduce((acc: Record<string, any[]>, g: any) => {
+  (acc[g.primary_date] ??= []).push(g);
+  return acc;
+}, {});
+---
+
+<Base
+  title={T.title}
+  description={T.description}
+  canonical={canonical}
+  lang={lang}
+  currentPage="house"
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={{
+    en: 'https://vote-scope.com/en/us/primaries/',
+    fr: 'https://vote-scope.com/fr/us/primaires/',
+    es: 'https://vote-scope.com/es/us/primarias/',
+  }}
+  jsonLd={[
+    { '@context': 'https://schema.org', '@type': 'CollectionPage', name: T.title.replace(' — Vote-Scope', ''), url: canonical, inLanguage: lang },
+    { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: `https://vote-scope.com/${lang}/` },
+      { '@type': 'ListItem', position: 2, name: 'United States', item: `https://vote-scope.com/${lang}/us/` },
+      { '@type': 'ListItem', position: 3, name: T.kicker, item: canonical },
+    ]},
+  ]}
+>
+  <article class="pdesk">
+    <header class="pdesk-hero container">
+      <p class="pdesk-kicker">{T.kicker}</p>
+      <h1>{T.h1}</h1>
+      <p class="pdesk-dek">{T.dekA}</p>
+      <p class="pdesk-asof">{T.dekB} {fmtDate(desk.meta.as_of)} · {fmtNum(desk.meta.n_races_decided)} {pl(desk.meta.n_races_decided, T.decided)} · {fmtNum(desk.meta.n_races_awaiting)} {T.awaiting}</p>
+    </header>
+
+    <section class="container pdesk-section" aria-labelledby="pdesk-upcoming">
+      <h2 id="pdesk-upcoming">{T.upcomingTitle}</h2>
+      <div class="pdesk-grid">
+        {Object.entries(upcomingByDate).map(([date, gates]: [string, any]) => (
+          <div class="pdesk-daycard">
+            <p class="pdesk-date">{fmtDate(date)}</p>
+            <ul class="pdesk-gatelist">
+              {gates.map((g: any) => (
+                <li>
+                  <strong>{g.state_name[lang]}</strong> · {chamber(g.office_scope)}
+                  {g.district_scope.length > 0 && <span class="pdesk-scope"> ({g.district_scope.map((d: string) => `${g.state}-${d}`).join(', ')})</span>}
+                  <span class="pdesk-meta">
+                    {T.types[g.primary_type] ?? g.primary_type} · {fmtNum(g.n_races)} {pl(g.n_races, T.races)} · {fmtNum(g.n_candidates)} {pl(g.n_candidates, T.candidates)}
+                    {g.runoff_date && <span class="pdesk-runoff"> · {T.runoff} {fmtDate(g.runoff_date)}</span>}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <section class="container pdesk-section" aria-labelledby="pdesk-held">
+      <h2 id="pdesk-held">{T.heldTitle}{latestDate ? ` · ${fmtDate(latestDate)}` : ''}</h2>
+      {freshest.length === 0 && <p class="pdesk-empty">{T.nothingYet}</p>}
+      <div class="pdesk-grid">
+        {freshest.map((g: any) => (
+          <div class="pdesk-heldcard">
+            <p class="pdesk-date">
+              {g.state_name[lang]} · {chamber(g.office_scope)}
+              <span class={g.certified ? 'pdesk-cert' : 'pdesk-uncert'}>{g.certified ? T.certified : T.uncertified}</span>
+            </p>
+            <p class="pdesk-meta">{fmtNum(g.n_with_results)} {pl(g.n_with_results, T.decided)}{g.n_awaiting_results > 0 ? ` · ${fmtNum(g.n_awaiting_results)} ${T.awaiting}` : ''}</p>
+            {g.races.length > 0 && (
+              <ul class="pdesk-winners">
+                {g.races.slice(0, 12).map((race: any) => (
+                  <li>
+                    <span class="pdesk-seat">{seatLabel(g, race)}</span>
+                    {race.winners.map((w: any) => (
+                      <span class="pdesk-winner">
+                        <span class="pdesk-dot" style={`background:${PARTY_COLOR[w.party] ?? '#999'}`} aria-hidden="true"></span>
+                        {w.candidate_name}
+                        <span class="pdesk-party">{PARTY_LABEL[w.party_raw]?.[lang] ?? w.party_raw}</span>
+                        {w.pct !== null && <span class="pdesk-pct">{fmtPct(w.pct)} %</span>}
+                        {w.margin !== null && w.margin !== undefined
+                          ? <span class="pdesk-margin">{T.margin} {fmtPct(w.margin)} {pl(w.margin, T.pts)}</span>
+                          : <span class="pdesk-margin">{T.unopposed}</span>}
+                      </span>
+                    ))}
+                    {race.runoff.length > 0 && (
+                      <span class="pdesk-runoff-flag">{T.toRunoff} — {race.runoff.map((r: any) => r.candidate_name).join(' · ')}</span>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            )}
+            {g.gap && (
+              <p class="pdesk-gap"><strong>{T.gapTitle} :</strong> {gapText(g.gap)}</p>
+            )}
+            <a class="pdesk-source" href={g.result_source_url || g.source_url} rel="noreferrer">{T.source} →</a>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <section class="container pdesk-section" aria-labelledby="pdesk-ledger">
+      <h2 id="pdesk-ledger">{T.ledgerTitle}</h2>
+      <div class="pdesk-ledger">
+        {earlier.map((g: any) => (
+          <div class="pdesk-row">
+            <span class="pdesk-row-date">{fmtDate(g.primary_date)}</span>
+            <span class="pdesk-row-state"><strong>{g.state_name[lang]}</strong> · {chamber(g.office_scope)}</span>
+            <span class="pdesk-row-counts">{fmtNum(g.n_with_results)} {pl(g.n_with_results, T.decided)}{g.n_awaiting_results > 0 ? ` · ${fmtNum(g.n_awaiting_results)} ${T.awaiting}` : ''}</span>
+            <span class="pdesk-row-gap">{g.gap ? gapText(g.gap) : (g.certified ? T.certified : T.uncertified)}</span>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <KeepDigging
+      eyebrow={T.keepEyebrow}
+      title={T.keepTitle}
+      body={T.keepBody}
+      links={[
+        { label: T.house_link, href: PATHS.house },
+        { label: T.senate_link, href: PATHS.senate },
+      ]}
+    />
+  </article>
+</Base>
+
+<style>
+  .pdesk-hero { padding: 56px 0 24px; }
+  .pdesk-kicker, .pdesk-date { font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  .pdesk-hero h1 { margin: 8px 0 12px; }
+  .pdesk-dek { max-width: 62ch; color: var(--muted); }
+  .pdesk-asof { margin-top: 12px; font-variant-numeric: tabular-nums; font-size: .9rem; }
+  .pdesk-section { padding: 32px 0; border-top: 1px solid var(--rule); }
+  .pdesk-section h2 { margin-bottom: 20px; }
+  .pdesk-grid { display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+  .pdesk-daycard, .pdesk-heldcard { border: 1px solid var(--rule); border-radius: 10px; padding: 18px; background: var(--paper); }
+  .pdesk-gatelist { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 10px; }
+  .pdesk-gatelist li { font-size: .95rem; }
+  .pdesk-meta, .pdesk-scope { display: block; color: var(--muted); font-size: .85rem; margin-top: 2px; }
+  .pdesk-scope { display: inline; }
+  .pdesk-runoff { color: var(--muted); }
+  .pdesk-cert, .pdesk-uncert { display: block; text-transform: none; letter-spacing: 0; font-size: .8rem; margin-top: 4px; }
+  .pdesk-uncert { color: #B45309; }
+  .pdesk-winners { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 10px; }
+  .pdesk-winners li { display: grid; gap: 4px; padding-bottom: 10px; border-bottom: 1px solid var(--rule); }
+  .pdesk-winners li:last-child { border-bottom: 0; padding-bottom: 0; }
+  .pdesk-seat { font-size: .78rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+  .pdesk-winner { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px; font-size: .95rem; }
+  .pdesk-dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+  .pdesk-party { color: var(--muted); font-size: .82rem; }
+  .pdesk-pct, .pdesk-margin { font-variant-numeric: tabular-nums; font-size: .85rem; color: var(--muted); }
+  .pdesk-runoff-flag { font-size: .85rem; color: #B45309; }
+  .pdesk-gap { margin-top: 14px; font-size: .88rem; color: var(--muted); }
+  .pdesk-source { display: inline-block; margin-top: 12px; font-size: .85rem; }
+  .pdesk-ledger { display: grid; gap: 0; }
+  .pdesk-row { display: grid; grid-template-columns: minmax(120px, .8fr) minmax(160px, 1fr) minmax(140px, 1fr) minmax(180px, 1.4fr); gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--rule); font-size: .9rem; align-items: baseline; }
+  .pdesk-row-date, .pdesk-row-counts { color: var(--muted); font-variant-numeric: tabular-nums; }
+  .pdesk-row-gap { color: var(--muted); font-size: .85rem; }
+  .pdesk-empty { color: var(--muted); }
+  @media (max-width: 720px) {
+    .pdesk-row { grid-template-columns: 1fr; gap: 4px; padding: 14px 0; }
+  }
+</style>

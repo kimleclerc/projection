@@ -13,6 +13,12 @@ import houseData from '../../../../web_data/us-house/latest.json';
 import senateData from '../../../../web_data/us-senate/latest.json';
 import showdownData from '../../../../web_data/cusma-showdown/latest.json';
 import presData from '../../../../web_data/us-president/latest.json';
+import primaryDesk from '../../../../web_data/us-primaries/latest.json';
+
+const nextPrimary = (primaryDesk as any).upcoming?.[0];
+const nextPrimaryStates = [...new Set(((primaryDesk as any).upcoming ?? [])
+  .filter((g: any) => g.primary_date === nextPrimary?.primary_date)
+  .map((g: any) => g.state_name['en']))].join(' · ');
 
 const ldi = ldiData.ldi;
 const houseDem = (houseData.parties as Array<{party:string;seats_projected:number;p_majority:number;label_en:string;color:string}>).find((p) => p.party === 'us_dem')!;
@@ -118,6 +124,12 @@ const presDemLead = presDem.standings.find((s: any) => s.status !== 'ineligible'
             </p>
             <p>D majority probability: <strong>{Math.round(senateDem.p_majority * 100)}%</strong></p>
             <a href="/en/us/senate/" class="cta-link" style="font-size:0.85rem;">Senate projection →</a>
+          </div>
+          <div class="note-card">
+            <p class="eyebrow">Primaries 2026</p>
+            <p>{nextPrimary ? `Next: ${nextPrimaryStates}` : ""}</p>
+            <p style="font-size:0.85rem;">{(primaryDesk as any).meta.n_races_decided} decided so far.</p>
+            <a href="/en/us/primaries/" class="cta-link" style="font-size:0.85rem;">Primary tracker →</a>
           </div>
           <div class="note-card" style={`border-left:4px solid ${presRep.color};`}>
             <p class="eyebrow">President 2028 · Invisible primary</p>
