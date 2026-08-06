@@ -1,11 +1,6 @@
 ---
-/**
- * US House primary status — surfaces the latest poll leader in each
- * party's primary, when data is available. Slot stays hidden when the
- * adapter doesn't populate `data.primaries`. Currently only ~48 of 435
- * districts have NYT-tracked primary polls.
- */
-import type { RidingData } from '../../../lib/riding-adapters/types';
+/** Official primary results after election day; polling before election day. */
+import type { PrimaryResultRow, RidingData } from '../../../lib/riding-adapters/types';
 import { partyMeta } from '../../../lib/riding-adapters/parties';
 
 interface Props {
@@ -15,159 +10,140 @@ interface Props {
 
 const { data, lang } = Astro.props;
 if (!data.primaries) return null;
-const { dem, rep } = data.primaries;
-if (!dem && !rep) return null;
+const held = data.primaries.status === 'held' ? data.primaries : undefined;
+const polling = data.primaries.status !== 'held' ? data.primaries : undefined;
+const dem = polling?.dem;
+const rep = polling?.rep;
+if (!held && !dem && !rep) return null;
+// A calendar-only held marker suppresses stale polling and candidate slates,
+// but must not masquerade as a result before an official feed is available.
+if (held && held.results.length === 0) return null;
 
 const demMeta = partyMeta(data.jurisdiction, 'us_dem');
 const repMeta = partyMeta(data.jurisdiction, 'us_rep');
 
 const T = {
   en: {
-    eyebrow: 'Primary race',
-    title: 'Who leads in the primary',
-    leads: 'leads',
-    of: 'of',
+    eyebrow: 'Primary race', pollTitle: 'Who leads in the primary', resultTitle: 'Primary results',
     polledCandidates: (n: number) => `${n} ${n === 1 ? 'candidate' : 'candidates'} polled`,
-    asOf: 'Latest poll',
-    by: 'by',
-    noPrimary: 'No primary poll available',
+    asOf: 'Latest poll', by: 'by', heldOn: 'Held', votes: 'votes',
+    certified: 'Certified official result', uncertified: 'Official count — not yet certified',
+    source: 'Official source', winner: 'Winner', advanced: 'Advanced to the general election',
+    runoff: 'Advanced to a runoff', parties: { DEM: 'Democratic primary', REP: 'Republican primary', TOP_TWO: 'Top-two primary', OTHER: 'Other primary' },
+    demParty: 'Democratic', repParty: 'Republican',
   },
   fr: {
-    eyebrow: 'Course primaire',
-    title: 'Qui mène en primaire',
-    leads: 'mène',
-    of: 'de',
+    eyebrow: 'Course primaire', pollTitle: 'Qui mène en primaire', resultTitle: 'Résultats de la primaire',
     polledCandidates: (n: number) => `${n} ${n === 1 ? 'candidat·e sondé·e' : 'candidat·e·s sondé·e·s'}`,
-    asOf: 'Dernier sondage',
-    by: 'par',
-    noPrimary: 'Aucun sondage primaire disponible',
+    asOf: 'Dernier sondage', by: 'par', heldOn: 'Tenue le', votes: 'voix',
+    certified: 'Résultat officiel certifié', uncertified: 'Décompte officiel — non encore certifié',
+    source: 'Source officielle', winner: 'Vainqueur', advanced: 'Qualifié·e pour l’élection générale',
+    runoff: 'Qualifié·e pour le ballottage', parties: { DEM: 'Primaire démocrate', REP: 'Primaire républicaine', TOP_TWO: 'Primaire des deux premiers', OTHER: 'Autre primaire' },
+    demParty: 'Démocrate', repParty: 'Républicaine',
   },
   es: {
-    eyebrow: 'Primarias',
-    title: 'Quién lidera la primaria',
-    leads: 'lidera',
-    of: 'de',
-    polledCandidates: (n: number) => `${n} ${n === 1 ? 'candidato·a sondeado·a' : 'candidatos sondeados'}`,
-    asOf: 'Último sondeo',
-    by: 'por',
-    noPrimary: 'No hay sondeo de primaria disponible',
+    eyebrow: 'Primarias', pollTitle: 'Quién lidera la primaria', resultTitle: 'Resultados de las primarias',
+    polledCandidates: (n: number) => `${n} ${n === 1 ? 'candidato sondeado' : 'candidatos sondeados'}`,
+    asOf: 'Último sondeo', by: 'por', heldOn: 'Celebrada el', votes: 'votos',
+    certified: 'Resultado oficial certificado', uncertified: 'Recuento oficial — aún no certificado',
+    source: 'Fuente oficial', winner: 'Ganador', advanced: 'Pasa a las elecciones generales',
+    runoff: 'Pasa a la segunda vuelta', parties: { DEM: 'Primaria demócrata', REP: 'Primaria republicana', TOP_TWO: 'Primaria de los dos primeros', OTHER: 'Otra primaria' },
+    demParty: 'Demócrata', repParty: 'Republicana',
   },
 }[lang];
 
 function formatDate(iso: string): string {
   if (!iso) return '';
   try {
-    const LOCALE = { en: 'en-CA', fr: 'fr-CA', es: 'es-ES' }[lang];
-    return new Intl.DateTimeFormat(LOCALE, {
+    const locale = { en: 'en-CA', fr: 'fr-CA', es: 'es-ES' }[lang];
+    return new Intl.DateTimeFormat(locale, {
       month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC',
-    }).format(new Date(iso + 'T00:00:00Z'));
-  } catch {
-    return iso;
-  }
+    }).format(new Date(`${iso}T00:00:00Z`));
+  } catch { return iso; }
+}
+
+function formatVotes(value: number): string {
+  return new Intl.NumberFormat({ en: 'en-US', fr: 'fr-CA', es: 'es-ES' }[lang]).format(value);
+}
+
+const resultGroups = held ? Object.entries(
+  held.results.reduce<Record<string, PrimaryResultRow[]>>((groups, row) => {
+    (groups[row.primary_party] ??= []).push(row);
+    return groups;
+  }, {}),
+).map(([party, rows]) => ({
+  party: party as keyof typeof T.parties,
+  rows: rows.filter((row) => ['won', 'advanced', 'runoff'].includes(row.outcome)),
+})) : [];
+
+function outcomeLabel(outcome: PrimaryResultRow['outcome']): string {
+  if (outcome === 'advanced') return T.advanced;
+  if (outcome === 'runoff') return T.runoff;
+  return T.winner;
 }
 ---
 
 <section class="primary-status">
   <div class="container">
     <p class="eyebrow">{T.eyebrow}</p>
-    <h2>{T.title}</h2>
+    <h2>{held ? T.resultTitle : T.pollTitle}</h2>
 
-    <div class="primary-grid">
-      {dem && (
-        <article class="party-card" style={`--accent:${demMeta.color}`}>
-          <header>
-            <span class="party-label">{lang === 'fr' ? demMeta.label_fr : demMeta.label_en}</span>
-            <span class="party-dot" aria-hidden="true"></span>
-          </header>
-          <p class="leader">
-            <strong>{dem.leader_name}</strong> <span class="lead-pct">{dem.leader_pct}%</span>
-          </p>
-          <p class="meta">
-            {T.polledCandidates(dem.n_candidates_polled)} · {T.asOf} {formatDate(dem.field_end)}{dem.firm && <> · {T.by} {dem.firm}</>}
-          </p>
-        </article>
-      )}
-      {rep && (
-        <article class="party-card" style={`--accent:${repMeta.color}`}>
-          <header>
-            <span class="party-label">{lang === 'fr' ? repMeta.label_fr : repMeta.label_en}</span>
-            <span class="party-dot" aria-hidden="true"></span>
-          </header>
-          <p class="leader">
-            <strong>{rep.leader_name}</strong> <span class="lead-pct">{rep.leader_pct}%</span>
-          </p>
-          <p class="meta">
-            {T.polledCandidates(rep.n_candidates_polled)} · {T.asOf} {formatDate(rep.field_end)}{rep.firm && <> · {T.by} {rep.firm}</>}
-          </p>
-        </article>
-      )}
-    </div>
+    {held ? (
+      <>
+        <p class="result-context">
+          {T.heldOn} {formatDate(held.primary_date)} · {held.certified ? T.certified : T.uncertified}
+        </p>
+        <div class="primary-grid">
+          {resultGroups.map((group) => (
+            <article class="party-card result-card">
+              <header><span class="party-label">{T.parties[group.party]}</span></header>
+              {group.rows.map((row) => (
+                <div class="result-row">
+                  <p class="outcome">{outcomeLabel(row.outcome)}</p>
+                  <p class="leader"><strong>{row.candidate_name}</strong> <span class="lead-pct">{row.pct.toFixed(1)}%</span></p>
+                  <p class="meta">{formatVotes(row.votes)} {T.votes}</p>
+                </div>
+              ))}
+            </article>
+          ))}
+        </div>
+        <a class="official-source" href={held.source_url} rel="noreferrer">{T.source} →</a>
+      </>
+    ) : (
+      <div class="primary-grid">
+        {dem && (
+          <article class="party-card" style={`--accent:${demMeta.color}`}>
+            <header><span class="party-label">{T.demParty}</span><span class="party-dot" aria-hidden="true"></span></header>
+            <p class="leader"><strong>{dem.leader_name}</strong> <span class="lead-pct">{dem.leader_pct}%</span></p>
+            <p class="meta">{T.polledCandidates(dem.n_candidates_polled)} · {T.asOf} {formatDate(dem.field_end)}{dem.firm && <> · {T.by} {dem.firm}</>}</p>
+          </article>
+        )}
+        {rep && (
+          <article class="party-card" style={`--accent:${repMeta.color}`}>
+            <header><span class="party-label">{T.repParty}</span><span class="party-dot" aria-hidden="true"></span></header>
+            <p class="leader"><strong>{rep.leader_name}</strong> <span class="lead-pct">{rep.leader_pct}%</span></p>
+            <p class="meta">{T.polledCandidates(rep.n_candidates_polled)} · {T.asOf} {formatDate(rep.field_end)}{rep.firm && <> · {T.by} {rep.firm}</>}</p>
+          </article>
+        )}
+      </div>
+    )}
   </div>
 </section>
 
 <style>
-  .primary-status {
-    padding: 48px 0;
-    border-bottom: 1px solid var(--rule);
-    background: var(--paper);
-  }
-  h2 {
-    margin: 8px 0 24px;
-    font-family: var(--serif);
-    font-size: clamp(26px, 3vw, 36px);
-    font-weight: 420;
-    letter-spacing: -0.01em;
-  }
-  .primary-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 0;
-    border-top: 1px solid var(--rule);
-    border-left: 1px solid var(--rule);
-  }
-  .party-card {
-    padding: 20px 22px;
-    border-right: 1px solid var(--rule);
-    border-bottom: 1px solid var(--rule);
-    background: var(--card);
-  }
-  .party-card header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 14px;
-  }
-  .party-label {
-    font-family: var(--mono);
-    font-size: 11px;
-    letter-spacing: .1em;
-    text-transform: uppercase;
-    color: var(--ink-2);
-  }
-  .party-dot {
-    width: 10px; height: 10px; border-radius: 50%;
-    background: var(--accent);
-    margin-left: auto;
-  }
-  .leader {
-    margin: 0;
-    font-family: var(--serif);
-    font-size: clamp(22px, 2.6vw, 28px);
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    gap: 12px;
-  }
-  .leader strong { font-weight: 460; }
-  .lead-pct {
-    font-family: var(--mono);
-    font-size: 18px;
-    color: var(--accent);
-  }
-  .meta {
-    margin: 10px 0 0;
-    font-family: var(--mono);
-    font-size: 11px;
-    color: var(--ink-2);
-  }
+  .primary-status { padding:48px 0; border-bottom:1px solid var(--rule); background:var(--paper); }
+  h2 { margin:8px 0 24px; font-family:var(--serif); font-size:clamp(26px,3vw,36px); font-weight:420; letter-spacing:-.01em; }
+  .result-context { margin:-12px 0 22px; font:11px/1.6 var(--mono); color:var(--ink-2); }
+  .primary-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); border-top:1px solid var(--rule); border-left:1px solid var(--rule); }
+  .party-card { padding:20px 22px; border-right:1px solid var(--rule); border-bottom:1px solid var(--rule); background:var(--card); }
+  .party-card header { display:flex; align-items:center; gap:8px; margin-bottom:14px; }
+  .party-label,.outcome { font-family:var(--mono); font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-2); }
+  .party-dot { width:10px; height:10px; border-radius:50%; background:var(--accent); margin-left:auto; }
+  .leader { margin:0; font-family:var(--serif); font-size:clamp(22px,2.6vw,28px); display:flex; justify-content:space-between; align-items:baseline; gap:12px; }
+  .leader strong { font-weight:460; }
+  .lead-pct { font-family:var(--mono); font-size:18px; color:var(--accent,var(--blue)); white-space:nowrap; }
+  .meta { margin:10px 0 0; font-family:var(--mono); font-size:11px; color:var(--ink-2); }
+  .result-row + .result-row { margin-top:18px; padding-top:18px; border-top:1px solid var(--rule); }
+  .outcome { margin:0 0 7px; color:var(--blue); }
+  .official-source { display:inline-block; margin-top:16px; color:var(--blue); font:11px var(--mono); text-decoration:underline; text-underline-offset:3px; }
 </style>

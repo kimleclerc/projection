@@ -21,6 +21,7 @@ import { partyMeta } from './parties';
 import latestSource from '../../../web_data/us-senate/latest.json';
 import membersSource from '../../../web_data/us-senate/members.json';
 import candidatesSource from '../../../web_data/us-senate/candidates_2026.json';
+import primariesSource from '../../../web_data/us-senate/primaries.json';
 import historyIndex from '../../../web_data/us-senate/history/index.json';
 
 type RawRace = {
@@ -53,7 +54,9 @@ type RawRace = {
 const races = (latestSource as { ridings: RawRace[]; meta: { run_date: string } }).ridings;
 const META = (latestSource as { meta: { run_date: string } }).meta;
 const members = membersSource as Record<string, RidingMember | undefined>;
-const candidatesByRace = candidatesSource as Record<string, Array<{ name: string; party_code: string; party_raw: string; ici_status: string; filing_status: string; fec_id: string }> | undefined>;
+type RawCandidate = { name: string; party_code: string; party_raw: string; ici_status: string; filing_status: string; fec_id: string; primary_outcome: string };
+const candidatesByRace = candidatesSource as Record<string, RawCandidate[] | undefined>;
+const primariesByRace = primariesSource as Record<string, RidingData['primaries']>;
 const RACES_WITH_HISTORY = new Set((historyIndex as { ridings_with_history: string[] }).ridings_with_history);
 
 /** Senate-wide vote_mean by party (unweighted mean across the 35
@@ -103,7 +106,12 @@ function buildNeighbors(raceId: string, region: string): RidingNeighbor[] {
 function adaptDeclared(raceId: string): DeclaredCandidate[] | undefined {
   const list = candidatesByRace[raceId];
   if (!list || list.length === 0) return undefined;
-  return list.map((c) => ({
+  const primary = primariesByRace[raceId];
+  const held = primary?.status === 'held';
+  const eligible = new Set(['won', 'advanced', 'runoff', 'no_primary']);
+  const filtered = list.filter((c) => held ? eligible.has(c.primary_outcome) : c.primary_outcome !== 'lost');
+  if (filtered.length === 0) return undefined;
+  return filtered.map((c) => ({
     name: c.name,
     party_code: c.party_code,
     party_raw: c.party_raw,
@@ -163,6 +171,7 @@ function adaptOne(raw: RawRace): RidingData {
     baseline,
     member: members[raw.riding_id],
     declaredCandidates: adaptDeclared(raw.riding_id),
+    primaries: primariesByRace[raw.riding_id],
     runDate: META.run_date,
     hasProjectionHistory: RACES_WITH_HISTORY.has(raw.riding_id),
     neighbors: buildNeighbors(raw.riding_id, raw.region),
