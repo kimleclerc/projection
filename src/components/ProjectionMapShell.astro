@@ -17,7 +17,7 @@ const { title, body, dataUrl, geoUrl, islandName, href, actionLabel } = Astro.pr
     <p class="eyebrow">Reusable map island</p>
     <h2>{title}</h2>
     <p>{body}</p>
-    {href && actionLabel && <a class="map-link" href={href}>{actionLabel}</a>}
+    {href && actionLabel && <a class="map-link" href={href} data-analytics-event="projection_navigation">{actionLabel}</a>}
   </div>
   <div class="map-frame">
     <div class="map-placeholder">

@@ -22,7 +22,14 @@ const { instruments, title, intro } = Astro.props;
 
     <div class="instrument-grid">
       {instruments.map((instrument) => (
-        <a class="instrument-card" href={instrument.href} data-status={instrument.status}>
+        <a
+          class="instrument-card"
+          href={instrument.href}
+          data-status={instrument.status}
+          data-analytics-event="instrument_open"
+          data-analytics-instrument-family={instrument.family}
+          data-analytics-instrument-status={instrument.status}
+        >
           <span class="instrument-family">{instrument.family}</span>
           <h3>{instrument.name}</h3>
           <strong>{instrument.question}</strong>

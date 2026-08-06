@@ -23,7 +23,7 @@ const { eyebrow, title, body, links } = Astro.props;
   </div>
   <nav class="keep-digging-links" aria-label={eyebrow}>
     {links.map((link) => (
-      <a href={link.href}>
+      <a href={link.href} data-analytics-event="content_next_step" data-analytics-location="keep_digging">
         <span>{link.label}</span>
         {link.detail && <small>{link.detail}</small>}
       </a>
