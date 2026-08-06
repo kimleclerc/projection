@@ -664,7 +664,7 @@ export default function RidingsMap({
       : 'Click the map to enable scroll-wheel zoom';
 
   return (
-    <div class="pe-chart-wrap">
+    <div class="pe-chart-wrap" data-analytics-event="projection_map_interaction" data-analytics-once="true">
       {error && (
         <p class="pe-chart-error" role="status">
           {error}

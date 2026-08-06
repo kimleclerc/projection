@@ -509,7 +509,7 @@ const languageLinks = (['en', 'fr', 'es'] as Locale[])
 <body>
 <a class="skip-link" href="#main-content">{copy.skipLabel}</a>
 
-<nav class="nav" aria-label={lang === 'fr' ? 'Navigation principale' : lang === 'es' ? 'Navegación principal' : 'Primary navigation'}>
+<nav class="nav" aria-label={lang === 'fr' ? 'Navigation principale' : lang === 'es' ? 'Navegación principal' : 'Primary navigation'} data-analytics-region="header">
   <div class="container nav-inner">
     <a class="logo" href={copy.root}>
       <span class="logo-dot"></span>Vote-Scope
@@ -525,7 +525,7 @@ const languageLinks = (['en', 'fr', 'es'] as Locale[])
       {languageLinks.length > 0 && (
         <div class="lang-switcher" role="group" aria-label={copy.languageLabel}>
           {languageLinks.map((language) => (
-            <a class="lang-toggle" href={language.href} aria-label={`${copy.languageLabel}: ${language.label}`}>
+            <a class="lang-toggle" href={language.href} aria-label={`${copy.languageLabel}: ${language.label}`} data-analytics-event="language_change" data-analytics-target-locale={language.locale}>
               {language.label}
             </a>
           ))}
@@ -538,7 +538,7 @@ const languageLinks = (['en', 'fr', 'es'] as Locale[])
         <!-- Sun (show in dark mode) -->
         <svg class="icon-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
       </button>
-      <a class="nav-cta" href={copy.subscribeUrl} target="_blank" rel="noopener">{copy.subscribeLabel}</a>
+      <a class="nav-cta" href={copy.subscribeUrl} target="_blank" rel="noopener" data-analytics-event="newsletter_click" data-analytics-location="header">{copy.subscribeLabel}</a>
     </div>
   </div>
 </nav>
@@ -547,7 +547,7 @@ const languageLinks = (['en', 'fr', 'es'] as Locale[])
   <slot />
 </main>
 
-<footer class="footer">
+<footer class="footer" data-analytics-region="footer">
   <div class="container">
     <div class="footer-grid">
       <div>
@@ -613,7 +613,7 @@ const languageLinks = (['en', 'fr', 'es'] as Locale[])
         ? (
           <span class="lang-switcher" role="group" aria-label={copy.languageLabel}>
             {languageLinks.map((language) => (
-              <a class="lang-toggle" href={language.href} style="border:0;padding:0">{language.label}</a>
+              <a class="lang-toggle" href={language.href} style="border:0;padding:0" data-analytics-event="language_change" data-analytics-target-locale={language.locale}>{language.label}</a>
             ))}
           </span>
         )
@@ -624,6 +624,10 @@ const languageLinks = (['en', 'fr', 'es'] as Locale[])
 
 <!-- Dark mode toggle script — no framework needed, 150 bytes -->
 <script>
+  import { initAnalyticsTracking, trackAnalyticsEvent } from '../lib/analytics';
+
+  initAnalyticsTracking();
+
   function syncThemeToggle() {
     var button = document.getElementById('theme-toggle');
     if (!button) return;
@@ -635,6 +639,7 @@ const languageLinks = (['en', 'fr', 'es'] as Locale[])
     const next = html.dataset.theme === 'dark' ? 'light' : 'dark';
     html.dataset.theme = next;
     localStorage.setItem('vs-theme', next);
+    trackAnalyticsEvent('display_preference_change', { preference: 'theme', value: next });
     syncThemeToggle();
   });
 </script>

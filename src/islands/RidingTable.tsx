@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'preact/hooks';
 import type { RidingFull, MapParty } from './RidingsMap';
+import { trackAnalyticsEvent } from '../lib/analytics';
 import { readUrlParam, setUrlParam } from './lib/urlState';
 import CopyLink from './lib/CopyLink';
 
@@ -213,6 +214,13 @@ export default function RidingTable({
   }, [filtered, sortKey, sortDir, locale]);
 
   function toggleSort(key: SortKey) {
+    const nextDirection = sortKey === key
+      ? sortDir === 'asc' ? 'desc' : 'asc'
+      : key === 'name' || key === 'province' || key === 'winner' ? 'asc' : 'desc';
+    trackAnalyticsEvent('projection_table_sort', {
+      sort_key: key,
+      sort_direction: nextDirection,
+    });
     if (sortKey === key) {
       setSortDir(sortDir === 'asc' ? 'desc' : 'asc');
     } else {
@@ -235,6 +243,10 @@ export default function RidingTable({
   }
 
   const clearAll = () => {
+    trackAnalyticsEvent('projection_table_filter', {
+      filter_type: 'clear_all',
+      active: false,
+    });
     setSearch('');
     setProvFilter(new Set());
     setPartyFilter(new Set());
@@ -293,6 +305,15 @@ export default function RidingTable({
             setSearch((e.target as HTMLInputElement).value);
             setPageLimit(PAGE_SIZE);
           }}
+          onBlur={() => {
+            if (search.trim()) {
+              trackAnalyticsEvent('projection_table_filter', {
+                filter_type: 'search',
+                active: true,
+                result_count: filtered.length,
+              });
+            }
+          }}
           aria-label={t.search}
         />
         {provinces.length > 0 && (
@@ -305,6 +326,10 @@ export default function RidingTable({
                 data-active={provFilter.has(p)}
                 aria-pressed={provFilter.has(p)}
                 onClick={() => {
+                  trackAnalyticsEvent('projection_table_filter', {
+                    filter_type: 'province',
+                    active: !provFilter.has(p),
+                  });
                   setProvFilter(toggleSet(provFilter, p));
                   setPageLimit(PAGE_SIZE);
                 }}
@@ -323,6 +348,10 @@ export default function RidingTable({
               data-active={partyFilter.has(p.key)}
               aria-pressed={partyFilter.has(p.key)}
               onClick={() => {
+                trackAnalyticsEvent('projection_table_filter', {
+                  filter_type: 'party',
+                  active: !partyFilter.has(p.key),
+                });
                 setPartyFilter(toggleSet(partyFilter, p.key));
                 setPageLimit(PAGE_SIZE);
               }}
@@ -340,7 +369,12 @@ export default function RidingTable({
             type="checkbox"
             checked={closeOnly}
             onChange={(e) => {
-              setCloseOnly((e.target as HTMLInputElement).checked);
+              const checked = (e.target as HTMLInputElement).checked;
+              trackAnalyticsEvent('projection_table_filter', {
+                filter_type: 'close_only',
+                active: checked,
+              });
+              setCloseOnly(checked);
               setPageLimit(PAGE_SIZE);
             }}
           />
@@ -487,7 +521,12 @@ export default function RidingTable({
           <button
             type="button"
             class="rt-load-more"
-            onClick={() => setPageLimit(pageLimit + PAGE_SIZE)}
+            onClick={() => {
+              trackAnalyticsEvent('projection_table_expand', {
+                visible_count: Math.min(pageLimit + PAGE_SIZE, sorted.length),
+              });
+              setPageLimit(pageLimit + PAGE_SIZE);
+            }}
           >
             {t.loadMore} (+
             {Math.min(PAGE_SIZE, sorted.length - visible.length)})
