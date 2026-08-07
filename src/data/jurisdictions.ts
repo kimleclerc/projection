@@ -77,9 +77,9 @@ export const jurisdictions: Record<string, Jurisdiction> = {
       es: 'Proyección por distrito basada en los resultados de 2025, los sondeos nacionales y los ajustes regionales.',
     },
     pageTitle: {
-      fr: 'Élections fédérales Canada : projection de sièges et sondages — Vote-Scope',
-      en: 'Canada Federal Election: Seat Projection & Poll Tracker — Vote-Scope',
-      es: 'Elecciones federales de Canadá: proyección de escaños y encuestas — Vote-Scope',
+      fr: 'Qui va gagner les élections fédérales au Canada ? — Vote-Scope',
+      en: 'Who Will Win the Canadian Federal Election? — Vote-Scope',
+      es: '¿Quién ganará las elecciones federales de Canadá? — Vote-Scope',
     },
     metaDescription: {
       fr: 'Qui va gagner les élections fédérales au Canada? Agrégation de plus de 240 sondages, 50 000 simulations, projection des 343 sièges circonscription par circonscription. Mise à jour quotidienne.',
@@ -121,9 +121,9 @@ export const jurisdictions: Record<string, Jurisdiction> = {
       es: 'Proyección por distrito basada en los resultados de 2022, los sondeos provinciales y los ajustes regionales.',
     },
     pageTitle: {
-      fr: 'Élections Ontario : projection de sièges et sondages — Vote-Scope',
-      en: 'Ontario Election: Seat Projection & Poll Tracker — Vote-Scope',
-      es: 'Elecciones de Ontario: proyección de escaños y encuestas — Vote-Scope',
+      fr: 'Qui va gagner les prochaines élections en Ontario ? — Vote-Scope',
+      en: 'Who Will Win the Next Ontario Election? — Vote-Scope',
+      es: '¿Quién ganará las próximas elecciones de Ontario? — Vote-Scope',
     },
     metaDescription: {
       fr: 'Qui va gagner les prochaines élections en Ontario? Sondages provinciaux agrégés, projection des 124 circonscriptions de Queen\'s Park, circonscriptions pivots et probabilités de majorité. Mise à jour continue.',
@@ -166,9 +166,9 @@ export const jurisdictions: Record<string, Jurisdiction> = {
       es: 'Proyección por distrito basada en los resultados de 2022, los sondeos provinciales y las tendencias regionales.',
     },
     pageTitle: {
-      fr: 'Élections Québec 2026 : projection de sièges et sondages — Vote-Scope',
-      en: 'Quebec Election 2026: Seat Projection & Poll Tracker — Vote-Scope',
-      es: 'Elecciones de Quebec 2026: proyección de escaños y encuestas — Vote-Scope',
+      fr: 'Qui va gagner les élections du Québec 2026 ? — Vote-Scope',
+      en: 'Who Will Win the 2026 Quebec Election? — Vote-Scope',
+      es: '¿Quién ganará las elecciones de Quebec 2026? — Vote-Scope',
     },
     metaDescription: {
       fr: 'Qui va gagner les élections du Québec le 5 octobre 2026? Sondages Léger, Pallas et plus agrégés, projection des 127 circonscriptions de l\'Assemblée nationale, probabilités de majorité. Mise à jour continue.',
@@ -212,9 +212,9 @@ export const jurisdictions: Record<string, Jurisdiction> = {
       es: 'Proyección por distrito basada en resultados 2024, entorno nacional y clasificaciones de carrera.',
     },
     pageTitle: {
-      fr: 'Mi-mandat 2026 : projection Chambre des représentants — Vote-Scope',
-      en: '2026 Midterms: U.S. House Forecast & Seat Projection — Vote-Scope',
-      es: 'Intermedias 2026: proyección de la Cámara de Representantes — Vote-Scope',
+      fr: 'Qui contrôlera la Chambre des représentants en 2026 ? — Vote-Scope',
+      en: 'Who Will Control the House After the 2026 Midterms? — Vote-Scope',
+      es: '¿Quién controlará la Cámara tras las intermedias de 2026? — Vote-Scope',
     },
     metaDescription: {
       fr: 'Qui contrôlera la Chambre après les mi-mandats 2026? Projection des 435 districts, sondages génériques agrégés, districts qui basculent et probabilités de contrôle. Mise à jour continue.',
@@ -257,9 +257,9 @@ export const jurisdictions: Record<string, Jurisdiction> = {
       es: 'Proyección de escaños en disputa en 2026 (Clase II). Los estados sin carrera este ciclo permanecen en gris.',
     },
     pageTitle: {
-      fr: 'Mi-mandat 2026 : projection Sénat américain — Vote-Scope',
-      en: '2026 Midterms: U.S. Senate Forecast & Seat Projection — Vote-Scope',
-      es: 'Intermedias 2026: proyección del Senado de EE. UU. — Vote-Scope',
+      fr: 'Qui contrôlera le Sénat américain en 2026 ? — Vote-Scope',
+      en: 'Who Will Control the Senate After the 2026 Midterms? — Vote-Scope',
+      es: '¿Quién controlará el Senado tras las intermedias de 2026? — Vote-Scope',
     },
     metaDescription: {
       fr: 'Qui contrôlera le Sénat après les mi-mandats 2026? Projection des sièges en jeu État par État, sondages agrégés, États pivots et probabilités de contrôle. Mise à jour continue.',
@@ -302,9 +302,9 @@ export const jurisdictions: Record<string, Jurisdiction> = {
       es: 'Proyección por circunscripción basada en los resultados de 2024, los sondeos nacionales y las tendencias regionales.',
     },
     pageTitle: {
-      fr: 'Élection générale britannique : projection de sièges et sondages — Vote-Scope',
-      en: 'UK General Election: Seat Projection & Poll Tracker — Vote-Scope',
-      es: 'Elecciones generales del Reino Unido: proyección y encuestas — Vote-Scope',
+      fr: 'Qui va gagner la prochaine élection au Royaume-Uni ? — Vote-Scope',
+      en: 'Who Will Win the Next UK General Election? — Vote-Scope',
+      es: '¿Quién ganará las próximas elecciones del Reino Unido? — Vote-Scope',
     },
     metaDescription: {
       fr: 'Qui va gagner la prochaine élection générale au Royaume-Uni? Sondages nationaux agrégés, projection des 650 sièges des Communes, sièges marginaux et probabilités de majorité. Mise à jour continue.',
