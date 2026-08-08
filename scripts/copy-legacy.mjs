@@ -82,9 +82,6 @@ for (const f of ['_redirects', '_headers']) {
 const rootFiles = [
   'robots.txt',
   'ai.txt',
-  'llms.txt',
-  'llms-long.txt',
-  'llms-full.txt',
   'e218854fe8e84c5d01aba2961670c496.txt',  // IndexNow verification key
   'manifest.json',
   'apple-touch-icon.png',

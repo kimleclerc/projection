@@ -3,9 +3,10 @@
   "type": "module",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build && node scripts/copy-legacy.mjs",
+    "build": "astro build && node scripts/copy-legacy.mjs && node scripts/validate-ai-discovery.mjs",
     "preview": "astro preview",
     "validate:editorial": "node scripts/validate-editorial-astro.mjs",
+    "validate:ai": "node scripts/validate-ai-discovery.mjs",
     "indexnow": "node scripts/submit-indexnow.mjs",
     "indexnow:all": "node scripts/submit-indexnow.mjs --all"
   },

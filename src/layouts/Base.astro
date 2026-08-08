@@ -5,6 +5,7 @@ import '@fontsource-variable/geist/wght.css';
 import '@fontsource-variable/jetbrains-mono/wght.css';
 import '../styles/tokens.css';
 import { affiliates, amazon } from '../data/affiliates';
+import { AI_DOCUMENTS, getContextualDiscovery } from '../data/discovery';
 
 interface Props {
   title: string;
@@ -304,6 +305,13 @@ const derivedAlternates: Record<Locale, string> = {
 const languageLinks = (['en', 'fr', 'es'] as Locale[])
   .filter((locale) => locale !== lang)
   .map((locale) => ({ locale, label: languageLabels[locale], href: derivedAlternates[locale] }));
+
+const contextualDiscovery = getContextualDiscovery(currentPath, lang as Locale);
+const researchCopy = {
+  en: { title: 'Research', data: 'Machine-readable catalog', docs: 'AI documentation' },
+  fr: { title: 'Recherche', data: 'Catalogue de données', docs: 'Documentation IA' },
+  es: { title: 'Investigación', data: 'Catálogo de datos', docs: 'Documentación IA' },
+}[lang as Locale] ?? { title: 'Research', data: 'Machine-readable catalog', docs: 'AI documentation' };
 ---
 <!DOCTYPE html>
 <html lang={lang} data-theme="light">
@@ -333,7 +341,9 @@ const languageLinks = (['en', 'fr', 'es'] as Locale[])
 
   <!-- Crawler / AI hints -->
   <meta name="robots" content={noindex ? 'noindex,follow' : 'max-snippet:-1, max-image-preview:large, max-video-preview:-1'} />
-  <link rel="alternate" type="text/plain" title="LLM context" href="/llms.txt" />
+  {AI_DOCUMENTS.map((document) => (
+    <link rel="alternate" type={document.type} title={document.label} href={document.href} />
+  ))}
 
   <!-- hreflang alternates — uses derivedAlternates so every locale gets a
        link even when the page didn't declare an explicit `alternates` prop. -->
@@ -410,8 +420,49 @@ const languageLinks = (['en', 'fr', 'es'] as Locale[])
     .lang-toggle:hover { color: var(--ink); border-color: var(--ink-3); }
 
     /* FOOTER */
+    .discovery-strip {
+      padding: 28px 0;
+      border-top: 1px solid var(--rule);
+      background: var(--paper);
+    }
+    .discovery-strip-inner {
+      display: grid;
+      grid-template-columns: minmax(180px, .8fr) minmax(0, 2.2fr);
+      gap: 28px;
+      align-items: start;
+    }
+    .discovery-strip-label {
+      margin: 0;
+      font-family: var(--serif);
+      font-size: 22px;
+      line-height: 1.1;
+    }
+    .discovery-strip-links {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 18px;
+    }
+    .discovery-strip-links a {
+      display: grid;
+      gap: 5px;
+      padding-top: 8px;
+      border-top: 1px solid var(--rule);
+      color: var(--ink);
+    }
+    .discovery-strip-links a:hover { border-color: var(--ink); }
+    .discovery-strip-links strong {
+      font-family: var(--serif);
+      font-size: 16px;
+      font-weight: 560;
+      line-height: 1.15;
+    }
+    .discovery-strip-links small {
+      color: var(--ink-3);
+      font-size: 11px;
+      line-height: 1.35;
+    }
     .footer { padding: 56px 0 32px; background: var(--paper-2); border-top: 1px solid var(--rule); }
-    .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 48px; margin-bottom: 40px; }
+    .footer-grid { display: grid; grid-template-columns: 2fr repeat(4, 1fr); gap: 34px; margin-bottom: 40px; }
     .footer-col h4 { font-family: var(--mono); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); margin: 0 0 14px; font-weight: 500; }
     .footer-col a { display: block; color: var(--ink-2); font-size: 14px; padding: 4px 0; }
     .footer-col a:hover { color: var(--ink); }
@@ -458,6 +509,7 @@ const languageLinks = (['en', 'fr', 'es'] as Locale[])
 
     @media (max-width: 900px) {
       .footer-grid { grid-template-columns: 1fr 1fr; gap: 32px; }
+      .discovery-strip-links { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .nav-links    { gap: 14px; }
     }
     @media (max-width: 760px) {
@@ -502,6 +554,8 @@ const languageLinks = (['en', 'fr', 'es'] as Locale[])
       .container, .container-wide { padding: 0 18px; }
       .nav-links { gap: 16px; font-size: 12px; }
       .footer-grid { grid-template-columns: 1fr; }
+      .discovery-strip-inner { grid-template-columns: 1fr; gap: 18px; }
+      .discovery-strip-links { grid-template-columns: 1fr 1fr; gap: 14px; }
     }
   </style>
 </head>
@@ -545,6 +599,22 @@ const languageLinks = (['en', 'fr', 'es'] as Locale[])
 <main id="main-content">
   <slot />
 </main>
+
+{contextualDiscovery.links.length > 0 && (
+  <nav class="discovery-strip" aria-label={contextualDiscovery.title}>
+    <div class="container discovery-strip-inner">
+      <p class="discovery-strip-label">{contextualDiscovery.title}</p>
+      <div class="discovery-strip-links">
+        {contextualDiscovery.links.map((link) => (
+          <a href={link.href}>
+            <strong>{link.label} →</strong>
+            {link.description && <small>{link.description}</small>}
+          </a>
+        ))}
+      </div>
+    </div>
+  </nav>
+)}
 
 <footer class="footer">
   <div class="container">
@@ -595,13 +665,18 @@ const languageLinks = (['en', 'fr', 'es'] as Locale[])
         <a href={copy.root}>{copy.allRegionsLabel}</a>
       </div>
       <div class="footer-col">
-        <h4>{copy.aboutLabel}</h4>
+        <h4>{researchCopy.title}</h4>
         <a href={copy.methodology}>{copy.methodologyLabel}</a>
         <a href={copy.trackRecord}>{copy.trackRecordLabel}</a>
+        <a href={copy.library}>{copy.libraryLabel}</a>
+        <a href="/ai-index.json">{researchCopy.data}</a>
+        <a href="/llms.txt">{researchCopy.docs}</a>
+      </div>
+      <div class="footer-col">
+        <h4>{copy.aboutLabel}</h4>
         <a href={copy.privacy}>{copy.privacyLabel}</a>
         <a href={copy.terms}>{copy.termsLabel}</a>
         <a href={copy.disclosure}>{copy.disclosureLabel}</a>
-        <a href={copy.library}>{copy.libraryLabel}</a>
         <a href={copy.contact}>{copy.contactLabel}</a>
       </div>
     </div>
