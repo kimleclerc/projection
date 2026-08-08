@@ -20,9 +20,26 @@ interface Props {
   lang?: 'en' | 'fr' | 'es';
   /** URL canonique de l'événement Polymarket (forme EN, /event/...). */
   eventUrl?: string;
+  /**
+   * Nature du slug. Polymarket sert TOUT depuis /market, mais le paramètre
+   * change selon ce qu'on lui passe :
+   *   · 'market' (défaut) → ?market=  — une question oui/non unique
+   *     (« Will the Democratic Party control the House… »).
+   *   · 'event'           → ?event=   — un événement à issues MULTIPLES
+   *     (« Next French Presidential Election », 128 marchés ; « World Cup
+   *     Winner »). Passer un slug d'événement à ?market= renvoie une carte
+   *     « Market not found » avec un HTTP 200 — l'embed ne signale donc PAS
+   *     l'erreur, seul l'œil la voit. C'est le bug relevé sur le desk France.
+   */
+  kind?: 'market' | 'event';
 }
 
-const { slug, title, subtitle, theme = 'light', height = 500, lang = 'en', eventUrl } = Astro.props;
+const {
+  slug, title, subtitle, theme = 'light', height = 500, lang = 'en', eventUrl,
+  kind = 'market',
+} = Astro.props;
+
+const slugParam = kind === 'event' ? 'event' : 'market';
 
 // Polymarket sert l'EN sans préfixe ; FR/ES via /fr/ /es/.
 const localizedEventUrl = eventUrl && lang !== 'en'
@@ -42,7 +59,7 @@ const oddsLabel: Record<'en' | 'fr' | 'es', string> = {
     {title && <p class="pm-label">{title}</p>}
     {subtitle && <p class="pm-subtitle">{subtitle}</p>}
     <iframe
-      src={`https://embed.polymarket.com/market?market=${slug}&height=${height}${theme === 'dark' ? '&theme=dark' : ''}${localeParam}`}
+      src={`https://embed.polymarket.com/market?${slugParam}=${slug}&height=${height}${theme === 'dark' ? '&theme=dark' : ''}${localeParam}`}
       title={title ?? 'Polymarket prediction market'}
       loading="lazy"
       sandbox="allow-scripts allow-same-origin allow-popups"
