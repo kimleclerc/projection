@@ -207,6 +207,15 @@ export interface RidingData {
   byelectionDate?: string;
   marketSlug?: string;
 
+  /**
+   * Pending by-election in THIS riding. When present, its projection is the
+   * operative local forecast — the general-election projection above answers a
+   * different question ("if everyone voted today"), and for a seat that is
+   * about to hold a by-election, that is the hypothetical one. Populated by
+   * lib/canada-byelection-overlay.ts.
+   */
+  byelection?: import('../canada-byelection-overlay').ByelectionOverlay;
+
   /** Official held results, or Dem/Rep polling for a future primary. */
   primaries?: RidingPrimaries;
 

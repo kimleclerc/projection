@@ -15,6 +15,7 @@ import candidatesSource from '../../../web_data/federal/candidates_2025.json';
 import historyIndex from '../../../web_data/federal/history/index.json';
 import latestSource from '../../../web_data/federal/latest.json';
 import shapesSource from '../../../web_data/federal/shapes.json';
+import { byelectionFor } from '../canada-byelection-overlay';
 
 type RawRiding = {
   riding_id: string;
@@ -210,6 +211,9 @@ function adaptOne(raw: RawRiding): RidingData {
     },
     shapePath: SHAPES[raw.riding_id]?.path,
     shapeViewBox: SHAPES[raw.riding_id]?.viewBox,
+    byelection: byelectionFor(raw.riding_id),
+    isByelection: !!byelectionFor(raw.riding_id),
+    byelectionDate: byelectionFor(raw.riding_id)?.electionDate ?? undefined,
   };
 }
 

@@ -11,6 +11,7 @@ import ElectionCountdown from '../islands/ElectionCountdown.tsx';
 import KeepDigging from './KeepDigging.astro';
 import JurisdictionNav from './JurisdictionNav.astro';
 import { getNavEntry, type NavLang } from '../lib/jurisdiction-nav';
+import { byelectionFor } from '../lib/canada-byelection-overlay';
 import { partyMeta } from '../lib/riding-adapters/parties';
 import type { JurisdictionKey } from '../lib/riding-adapters/types';
 import polymarketData from '../../web_data/polymarket/latest.json';
@@ -354,17 +355,42 @@ const mapRidings = ((data as any).ridings ?? []).map((r: any) => ({
   // (export_json._attach_byelection_to_ridings). La carte la fait primer sur
   // la projection de la prochaine générale — sans quoi la carte et le desk de
   // partielle annonçaient deux vainqueurs différents pour le même siège.
-  byelection: r.byelection
-    ? {
-        election_date: r.byelection.election_date ?? null,
-        leading_party: r.byelection.leading_party ?? null,
-        p_leading: r.byelection.p_leading ?? null,
-        p_close_race: r.byelection.p_close_race ?? null,
-        mean_margin: r.byelection.mean_margin ?? null,
-        vote_mean: r.byelection.vote_mean ?? {},
-        has_local_poll: Boolean(r.byelection.has_local_poll),
-      }
-    : null,
+  //
+  // Deux sources, dans cet ordre :
+  //   1. `canada-byelections/latest.json` via l'overlay — régénéré par
+  //      export_fed_byelections_web.py SEUL, donc une partielle annoncée hier
+  //      y figure aujourd'hui. Ne concerne que le fédéral canadien.
+  //   2. le bloc rattaché par le moteur, réécrit seulement au passage complet
+  //      de run_pipeline — donc en retard d'un run.
+  // L'overlay passe en premier : c'est ainsi que Brantford, ajoutée entre deux
+  // pipelines, manquait la carte alors que son desk existait déjà.
+  byelection: (() => {
+    const fresh = jurisdiction.dataPath === 'federal'
+      ? byelectionFor(String(r.riding_id))
+      : undefined;
+    if (fresh) {
+      return {
+        election_date: fresh.electionDate,
+        leading_party: fresh.favorite,
+        p_leading: fresh.favoriteProbability,
+        p_close_race: fresh.closeRaceProbability,
+        mean_margin: fresh.meanMargin,
+        vote_mean: Object.fromEntries(fresh.parties.map((x) => [x.party, x.voteMean])),
+        has_local_poll: fresh.hasLocalPoll,
+      };
+    }
+    return r.byelection
+      ? {
+          election_date: r.byelection.election_date ?? null,
+          leading_party: r.byelection.leading_party ?? null,
+          p_leading: r.byelection.p_leading ?? null,
+          p_close_race: r.byelection.p_close_race ?? null,
+          mean_margin: r.byelection.mean_margin ?? null,
+          vote_mean: r.byelection.vote_mean ?? {},
+          has_local_poll: Boolean(r.byelection.has_local_poll),
+        }
+      : null;
+  })(),
 }));
 const mapParties = parties.map((p) => ({
   key: p.party,

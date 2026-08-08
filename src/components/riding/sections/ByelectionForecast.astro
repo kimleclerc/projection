@@ -1,0 +1,279 @@
+---
+/**
+ * ByelectionForecast — the operative local forecast for a riding that is about
+ * to hold a by-election.
+ *
+ * Placed ABOVE ProjectionPanel: for these seats the general-election
+ * projection answers a hypothetical ("if the whole country voted today"),
+ * while this one answers the election that is actually coming. The general
+ * projection stays on the page directly underneath, so the two readings are
+ * comparable rather than one silently replacing the other.
+ *
+ * The two numbers routinely disagree, and that is the model working, not
+ * failing: by-election turnout is differential, and it costs whichever side is
+ * demobilised — Liberal-held seats bore it through 2024, Conservative-held
+ * seats bear it now.
+ */
+import type { RidingData } from '../../../lib/riding-adapters/types';
+import { partyMeta } from '../../../lib/riding-adapters/parties';
+
+interface Props {
+  data: RidingData;
+  lang: 'en' | 'fr' | 'es';
+}
+
+const { data, lang } = Astro.props;
+const by = data.byelection!;
+
+const favMeta = partyMeta(data.jurisdiction, by.favorite);
+const favLabel = lang === 'fr' ? favMeta.label_fr : favMeta.label_en;
+const favPct = Math.round(by.favoriteProbability * 100);
+
+const generalWinner = data.projection.winner;
+const flips = generalWinner !== by.favorite;
+
+const genMeta = partyMeta(data.jurisdiction, generalWinner);
+const genLabel = lang === 'fr' ? genMeta.label_fr : genMeta.label_en;
+
+const dateFmt = by.electionDate
+  ? new Date(`${by.electionDate}T12:00:00Z`).toLocaleDateString(
+      { en: 'en-CA', fr: 'fr-CA', es: 'es' }[lang],
+      { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' },
+    )
+  : null;
+
+const T = {
+  en: {
+    eyebrow: 'By-election — the next vote in this seat',
+    favorite: 'By-election favourite',
+    probability: 'Probability',
+    margin: 'Mean margin (pts)',
+    shares: 'Projected shares',
+    scheduled: dateFmt ? `Polling day ${dateFmt}` : 'Polling day to be set',
+    vacant: 'Seat vacant — writ pending',
+    expected: 'Departure announced — seat not yet vacant',
+    localPoll: 'Constituency poll anchored',
+    departing: (m: string) => `${m} is leaving`,
+    why: 'Why this differs from the map above',
+    whyBody:
+      'The projection below answers a general election: every seat voting at once. This one answers the by-election actually coming. By-election turnout is differential — it costs whichever side is demobilised, which is why the two can name different winners.',
+    flip: (a: string, b: string) =>
+      `The general-election map still shows ${a}. In the by-election the model favours ${b}.`,
+    hold: (a: string) => `Both readings favour ${a}.`,
+    open: 'Full by-election desk →',
+  },
+  fr: {
+    eyebrow: 'Partielle — le prochain scrutin dans ce siège',
+    favorite: 'Favori de la partielle',
+    probability: 'Probabilité',
+    margin: 'Marge moyenne (pts)',
+    shares: 'Parts projetées',
+    scheduled: dateFmt ? `Scrutin le ${dateFmt}` : 'Date de scrutin à fixer',
+    vacant: 'Siège vacant — bref en attente',
+    expected: 'Départ annoncé — siège pas encore vacant',
+    localPoll: 'Sondage de circonscription ancré',
+    departing: (m: string) => `${m} s’en va`,
+    why: 'Pourquoi ce chiffre diffère de la carte ci-dessous',
+    whyBody:
+      'La projection ci-dessous répond à une générale : tous les sièges votant en même temps. Celle-ci répond à la partielle qui s’en vient. La participation d’une partielle est différentielle — elle coûte au camp démobilisé, et c’est pourquoi les deux lectures peuvent désigner des vainqueurs différents.',
+    flip: (a: string, b: string) =>
+      `La carte générale donne encore ${a}. À la partielle, le modèle favorise ${b}.`,
+    hold: (a: string) => `Les deux lectures favorisent ${a}.`,
+    open: 'Ouvrir le desk de la partielle →',
+  },
+  es: {
+    eyebrow: 'Parcial — la próxima votación en este escaño',
+    favorite: 'Favorito de la parcial',
+    probability: 'Probabilidad',
+    margin: 'Margen medio (pts)',
+    shares: 'Cuotas proyectadas',
+    scheduled: dateFmt ? `Votación el ${dateFmt}` : 'Fecha de votación por fijar',
+    vacant: 'Escaño vacante — decreto pendiente',
+    expected: 'Salida anunciada — escaño aún no vacante',
+    localPoll: 'Encuesta de circunscripción anclada',
+    departing: (m: string) => `${m} se va`,
+    why: 'Por qué difiere del mapa de abajo',
+    whyBody:
+      'La proyección de abajo responde a unas generales: todos los escaños votando a la vez. Esta responde a la parcial que viene. La participación en una parcial es diferencial — le cuesta al bando desmovilizado, y por eso ambas lecturas pueden nombrar ganadores distintos.',
+    flip: (a: string, b: string) =>
+      `El mapa general todavía muestra ${a}. En la parcial el modelo favorece ${b}.`,
+    hold: (a: string) => `Ambas lecturas favorecen ${a}.`,
+    open: 'Abrir la mesa de la parcial →',
+  },
+}[lang];
+
+const statusLabel =
+  by.status === 'scheduled' ? T.scheduled
+  : by.status === 'vacant_pending_writ' ? T.vacant
+  : T.expected;
+
+const topParties = by.parties.slice(0, 5);
+const maxShare = Math.max(1, ...topParties.map((p) => p.voteMean));
+---
+
+<section class="by-forecast">
+  <div class="container">
+    <p class="eyebrow">{T.eyebrow}</p>
+
+    <div class="bf-head">
+      <div>
+        <p class="bf-label">{T.favorite}</p>
+        <p class="bf-fav" style={`color:${favMeta.color};`}>{favLabel}</p>
+        <p class="bf-prob">{favPct}% · {T.probability}</p>
+      </div>
+      <ul class="bf-meta">
+        <li>{statusLabel}</li>
+        {by.departingMember && <li>{T.departing(by.departingMember)}</li>}
+        {by.meanMargin !== null && <li>{T.margin} : {by.meanMargin.toFixed(1)}</li>}
+        {by.hasLocalPoll && <li class="bf-poll">{T.localPoll}</li>}
+      </ul>
+    </div>
+
+    {topParties.length > 0 && (
+      <div class="bf-shares">
+        <p class="bf-label">{T.shares}</p>
+        {topParties.map((p) => {
+          const meta = partyMeta(data.jurisdiction, p.party);
+          const label = lang === 'fr' ? meta.label_fr : meta.label_en;
+          return (
+            <div class="bf-row">
+              <span class="bf-party">{label}</span>
+              <span class="bf-bar">
+                <span style={`width:${(p.voteMean / maxShare) * 100}%;background:${meta.color};`} />
+              </span>
+              <span class="bf-val">{p.voteMean.toFixed(1)}%</span>
+            </div>
+          );
+        })}
+      </div>
+    )}
+
+    <div class="bf-why">
+      <p class="bf-label">{T.why}</p>
+      <p class="bf-verdict">
+        {flips ? T.flip(genLabel, favLabel) : T.hold(favLabel)}
+      </p>
+      <p class="bf-body">{T.whyBody}</p>
+      <p class="bf-open"><a href={by.href[lang]}>{T.open}</a></p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .by-forecast {
+    padding: 40px 0;
+    border-top: 3px solid var(--ink);
+    border-bottom: 1px solid var(--rule);
+    background: var(--paper-2);
+  }
+
+  .bf-head {
+    display: flex;
+    gap: 32px;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-top: 8px;
+  }
+
+  .bf-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+
+  .bf-fav {
+    font-family: var(--serif);
+    font-size: clamp(30px, 4vw, 46px);
+    font-weight: 430;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin-top: 2px;
+  }
+
+  .bf-prob {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--ink-2);
+    margin-top: 4px;
+  }
+
+  .bf-meta {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    color: var(--ink-3);
+    text-align: right;
+  }
+
+  .bf-meta li + li { margin-top: 5px; }
+  .bf-meta .bf-poll { color: var(--ink); }
+
+  .bf-shares { margin-top: 26px; }
+
+  .bf-row {
+    display: grid;
+    grid-template-columns: minmax(90px, 150px) 1fr 56px;
+    align-items: center;
+    gap: 12px;
+    margin-top: 7px;
+  }
+
+  .bf-party { font-size: 14px; color: var(--ink-2); }
+
+  .bf-bar {
+    display: block;
+    height: 12px;
+    background: var(--rule-2);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .bf-bar > span { display: block; height: 100%; }
+
+  .bf-val {
+    font-family: var(--mono);
+    font-size: 12px;
+    text-align: right;
+    color: var(--ink-2);
+  }
+
+  .bf-why {
+    margin-top: 28px;
+    padding-top: 18px;
+    border-top: 1px solid var(--rule);
+  }
+
+  .bf-verdict {
+    font-family: var(--serif);
+    font-size: 20px;
+    line-height: 1.3;
+    margin-top: 6px;
+  }
+
+  .bf-body {
+    margin-top: 10px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--ink-2);
+    max-width: 62ch;
+  }
+
+  .bf-open {
+    margin-top: 14px;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  @media (max-width: 640px) {
+    .bf-meta { text-align: left; }
+    .bf-row { grid-template-columns: minmax(70px, 110px) 1fr 48px; }
+  }
+</style>

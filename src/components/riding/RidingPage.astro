@@ -13,6 +13,7 @@ import RidingQuestion from './sections/RidingQuestion.astro';
 import PrimaryStatus from './sections/PrimaryStatus.astro';
 import RedistrictingImpact from './sections/RedistrictingImpact.astro';
 import ProjectionPanel from './sections/ProjectionPanel.astro';
+import ByelectionForecast from './sections/ByelectionForecast.astro';
 import VoteBars from './sections/VoteBars.astro';
 import HistoryTimeline from './sections/HistoryTimeline.astro';
 import Demographics from './sections/Demographics.astro';
@@ -43,6 +44,7 @@ const navWebKey = data.navWebKey ?? getNavEntryForRiding(data.jurisdiction)?.web
 {data.member && <CurrentMember data={data} lang={lang} />}
 {data.primaries && <PrimaryStatus data={data} lang={lang} />}
 {data.declaredCandidates && data.declaredCandidates.length > 0 && <CandidateSlate data={data} lang={lang} />}
+{data.byelection && <ByelectionForecast data={data} lang={lang} />}
 <ProjectionPanel data={data} lang={lang} />
 <VoteBars data={data} lang={lang} />
 {data.regionalContext && <RegionalContext data={data} lang={lang} />}

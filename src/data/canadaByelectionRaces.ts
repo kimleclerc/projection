@@ -106,9 +106,9 @@ export const canadaByelectionRaces = {
       ],
     },
     modelNote: {
-      en: 'This is the only one of the seven races with a constituency poll, so the poll re-centres the projection. Neither the personal-vote correction nor the by-election turnout residual is applied on top: a poll asking voters about this by-election already carries both effects, and applying them again would double-count.',
-      fr: 'C’est la seule des sept courses dotée d’un sondage de circonscription : il re-centre donc la projection. Ni la correction du vote personnel ni le résidu de participation ne s’ajoutent par-dessus — un sondage qui interroge les électeurs sur CETTE partielle porte déjà les deux effets, et les réappliquer serait un double comptage.',
-      es: 'Es la única de las siete carreras con una encuesta de circunscripción, así que la encuesta recentra la proyección. Ni la corrección del voto personal ni el residuo de participación se aplican encima: una encuesta que pregunta por ESTA parcial ya contiene ambos efectos, y volver a aplicarlos sería contarlos dos veces.',
+      en: 'This is the only one of the eight races with a constituency poll, so the poll re-centres the projection. Neither the personal-vote correction nor the by-election turnout residual is applied on top: a poll asking voters about this by-election already carries both effects, and applying them again would double-count.',
+      fr: 'C’est la seule des huit courses dotée d’un sondage de circonscription : il re-centre donc la projection. Ni la correction du vote personnel ni le résidu de participation ne s’ajoutent par-dessus — un sondage qui interroge les électeurs sur CETTE partielle porte déjà les deux effets, et les réappliquer serait un double comptage.',
+      es: 'Es la única de las ocho carreras con una encuesta de circunscripción, así que la encuesta recentra la proyección. Ni la corrección del voto personal ni el residuo de participación se aplican encima: una encuesta que pregunta por ESTA parcial ya contiene ambos efectos, y volver a aplicarlos sería contarlos dos veces.',
     },
     paths: {
       en: '/en/canada/byelections/chicoutimi-le-fjord/',
@@ -459,9 +459,9 @@ export const canadaByelectionRaces = {
       es: 'Parcial de Yorkton—Melville: proyección — Vote-Scope',
     },
     description: {
-      en: 'Cathay Wagantall resigns effective August 31, 2026, leaving the safest seat of the seven: the Conservatives took 77% here in 2025.',
-      fr: 'Cathay Wagantall démissionne le 31 août 2026, laissant le siège le plus sûr des sept : les conservateurs y ont fait 77 % en 2025.',
-      es: 'Cathay Wagantall renuncia con efecto el 31 de agosto de 2026, dejando el escaño más seguro de los siete: los conservadores lograron 77 % aquí en 2025.',
+      en: 'Cathay Wagantall resigns effective August 31, 2026, leaving the safest seat of the eight: the Conservatives took 77% here in 2025.',
+      fr: 'Cathay Wagantall démissionne le 31 août 2026, laissant le siège le plus sûr des huit : les conservateurs y ont fait 77 % en 2025.',
+      es: 'Cathay Wagantall renuncia con efecto el 31 de agosto de 2026, dejando el escaño más seguro de los ocho: los conservadores lograron 77 % aquí en 2025.',
     },
     kicker: {
       en: 'Federal by-election · Saskatchewan · expected',
@@ -469,9 +469,9 @@ export const canadaByelectionRaces = {
       es: 'Parcial federal · Saskatchewan · prevista',
     },
     headline: {
-      en: 'The safest of the seven.',
-      fr: 'Le plus sûr des sept.',
-      es: 'El más seguro de los siete.',
+      en: 'The safest of the eight.',
+      fr: 'Le plus sûr des huit.',
+      es: 'El más seguro de los ocho.',
     },
     dek: {
       en: 'Rural Saskatchewan at its most Conservative. The seat ran ahead of the provincial Conservative score before Wagantall was ever elected, so almost none of the margin is personal — and almost nothing about this race is in doubt.',
@@ -482,17 +482,17 @@ export const canadaByelectionRaces = {
       en: [
         'Cathay Wagantall announced her resignation, effective August 31, 2026.',
         'Conservative share versus the Saskatchewan-wide Conservative vote: +10.5 points in 2015, before she was elected. The premium is structural.',
-        'The Conservatives took 77% here in 2025 — the largest margin among the seven pending or expected by-elections.',
+        'The Conservatives took 77% here in 2025 — the largest margin among the eight pending or expected by-elections.',
       ],
       fr: [
         'Cathay Wagantall a annoncé sa démission, effective le 31 août 2026.',
         'Part conservatrice par rapport au vote conservateur saskatchewanais : +10,5 points en 2015, avant son élection. La prime est structurelle.',
-        'Les conservateurs ont fait 77 % ici en 2025 — la plus large marge des sept partielles en attente ou anticipées.',
+        'Les conservateurs ont fait 77 % ici en 2025 — la plus large marge des huit partielles en attente ou anticipées.',
       ],
       es: [
         'Cathay Wagantall anunció su renuncia, efectiva el 31 de agosto de 2026.',
         'Cuota conservadora frente al voto conservador de Saskatchewan: +10,5 puntos en 2015, antes de su elección. La prima es estructural.',
-        'Los conservadores lograron 77 % aquí en 2025 — el mayor margen de las siete parciales pendientes o previstas.',
+        'Los conservadores lograron 77 % aquí en 2025 — el mayor margen de las ocho parciales pendientes o previstas.',
       ],
     },
     modelNote: {
@@ -504,6 +504,68 @@ export const canadaByelectionRaces = {
       en: '/en/canada/byelections/yorkton-melville/',
       fr: '/fr/canada/byelections/yorkton-melville/',
       es: '/es/canada/byelections/yorkton-melville/',
+    },
+  },
+  'brantford-brant-sud-six-nations': {
+    slug: 'brantford-brant-sud-six-nations',
+    ridingId: '35015',
+    dataPath: 'canada-byelection-brantford-brant-sud-six-nations',
+    currentPage: 'canada',
+    status: 'expected',
+    electionDate: null,
+    vacancyDate: null,
+    province: 'ON',
+    title: {
+      en: 'Brantford—Brant South—Six Nations By-Election Forecast — Vote-Scope',
+      fr: 'Partielle de Brantford—Brant-Sud—Six Nations : projection — Vote-Scope',
+      es: 'Parcial de Brantford—Brant South—Six Nations: proyección — Vote-Scope',
+    },
+    description: {
+      en: 'Larry Brock resigns September 18, 2026 to return to the Crown attorney’s office. The Conservatives won here by 11 points in 2025 — and this is the first of the eight pending by-elections the model does not call for the incumbent party.',
+      fr: 'Larry Brock démissionne le 18 septembre 2026 pour retourner au bureau du procureur de la Couronne. Les conservateurs ont gagné ici par 11 points en 2025 — et c’est la première des huit partielles en attente que le modèle ne donne pas au parti sortant.',
+      es: 'Larry Brock renuncia el 18 de septiembre de 2026 para volver a la fiscalía de la Corona. Los conservadores ganaron aquí por 11 puntos en 2025 — y es la primera de las ocho parciales pendientes que el modelo no adjudica al partido saliente.',
+    },
+    kicker: {
+      en: 'Federal by-election · Ontario · expected',
+      fr: 'Partielle fédérale · Ontario · anticipée',
+      es: 'Parcial federal · Ontario · prevista',
+    },
+    headline: {
+      en: 'The first one that is actually in play.',
+      fr: 'La première qui est vraiment jouable.',
+      es: 'La primera que está realmente en juego.',
+    },
+    dek: {
+      en: 'A seat the Conservatives held by eleven points is the closest race of the eight — not because the departing member took much with him, but because the Conservative vote has fallen roughly nine points nationally since April 2025, and by-election turnout has been running against them all year.',
+      fr: 'Un siège conservateur avec onze points d’avance est la course la plus serrée des huit — non parce que le député sortant emporte grand-chose, mais parce que le vote conservateur a reculé d’environ neuf points au pays depuis avril 2025, et que la participation des partielles joue contre lui depuis le début de l’année.',
+      es: 'Un escaño conservador con once puntos de ventaja es la carrera más reñida de las ocho — no porque el diputado saliente se lleve mucho consigo, sino porque el voto conservador ha caído unos nueve puntos en el país desde abril de 2025, y la participación en las parciales viene jugando en su contra todo el año.',
+    },
+    why: {
+      en: [
+        'Larry Brock announced on August 6, 2026 that he will resign effective September 18, to return to the Crown attorney’s office in Brantford.',
+        'He is the seventh MP to leave the Conservative caucus since the 2025 election — four of them crossed to the Liberals.',
+        'Conservative share versus the Ontario-wide Conservative vote: +5.8 points in 2015 and +7.2 in 2019, both before Brock was elected. The premium predates him, so little of it is personal.',
+      ],
+      fr: [
+        'Larry Brock a annoncé le 6 août 2026 sa démission, effective le 18 septembre, pour retourner au bureau du procureur de la Couronne à Brantford.',
+        'Il est le septième député à quitter le caucus conservateur depuis la générale de 2025 — quatre d’entre eux ont traversé chez les libéraux.',
+        'Part conservatrice par rapport au vote conservateur ontarien : +5,8 points en 2015 et +7,2 en 2019, avant son élection dans les deux cas. La prime le précède : peu de chose y est personnel.',
+      ],
+      es: [
+        'Larry Brock anunció el 6 de agosto de 2026 su renuncia, efectiva el 18 de septiembre, para volver a la fiscalía de la Corona en Brantford.',
+        'Es el séptimo diputado en dejar el caucus conservador desde las generales de 2025 — cuatro de ellos se pasaron a los liberales.',
+        'Cuota conservadora frente al voto conservador de Ontario: +5,8 puntos en 2015 y +7,2 en 2019, en ambos casos antes de su elección. La prima es anterior a él: poco de ella es personal.',
+      ],
+    },
+    modelNote: {
+      en: 'The riding’s general-election projection still has the Conservatives ahead, and the by-election projection does not. That gap is the model working, not failing: the two answer different questions. A general election turns out everybody; a by-election turns out whoever is still motivated, and that differential costs the demobilised side. Liberal-held seats paid it through 2024, when the Liberals were the unpopular ones. With the Conservative vote down roughly nine points nationally since April 2025, Conservative-held seats pay it now. Add a small personal-vote strip for a departing member and the seat crosses over.',
+      fr: 'La projection générale du siège place encore les conservateurs devant, et la projection de partielle non. Cet écart est le modèle qui fonctionne, pas qui se trompe : les deux répondent à des questions différentes. Une générale fait voter tout le monde ; une partielle fait voter qui reste motivé, et ce différentiel coûte au camp démobilisé. Les sièges libéraux l’ont payé tout au long de 2024, quand c’étaient les libéraux les impopulaires. Le vote conservateur ayant reculé d’environ neuf points au pays depuis avril 2025, ce sont les sièges conservateurs qui le paient aujourd’hui. Ajoutez un faible retrait de vote personnel pour un député sortant, et le siège bascule.',
+      es: 'La proyección general del escaño todavía sitúa a los conservadores por delante, y la proyección de la parcial no. Esa brecha es el modelo funcionando, no fallando: cada una responde a una pregunta distinta. Unas generales movilizan a todo el mundo; una parcial moviliza a quien sigue motivado, y ese diferencial le cuesta al bando desmovilizado. Los escaños liberales lo pagaron durante todo 2024, cuando los impopulares eran ellos. Como el voto conservador ha caído unos nueve puntos en el país desde abril de 2025, hoy lo pagan los escaños conservadores. Súmese un pequeño retiro de voto personal por un diputado saliente, y el escaño cambia de manos.',
+    },
+    paths: {
+      en: '/en/canada/byelections/brantford-brant-sud-six-nations/',
+      fr: '/fr/canada/byelections/brantford-brant-sud-six-nations/',
+      es: '/es/canada/byelections/brantford-brant-sud-six-nations/',
     },
   },
 } satisfies Record<string, ByelectionRaceConfig>;
