@@ -47,11 +47,25 @@ cron peut donc traiter tout `≠0` comme « à regarder ».
 
 ## Desks enregistrés
 
-`federal`, `ontario`, `quebec`, `us-house`, `us-senate` (kind `projection`),
-`france` (kind `france-pres` — desk par scénarios : valide `run_date`, le
-scénario par défaut, sa somme de 1er tour ≈ 100 % et les `p_top2`), `mlb`
-(kind `mlb`). Ajouter un desk = une ligne dans le registre `DESKS` en tête du
-script (et un bloc dans `validate()` si le schéma diffère).
+`federal`, `ontario`, `quebec`, `us-house` (kind `projection`), `us-senate`
+(kind `senate`), `france` (kind `france-pres` — desk par scénarios : valide
+`run_date`, le scénario par défaut, sa somme de 1er tour ≈ 100 % et les
+`p_top2`), `mlb` (kind `mlb`). Ajouter un desk = une ligne dans le registre
+`DESKS` en tête du script (et un bloc dans `validate()` si le schéma diffère).
+
+Le kind `senate` existe parce que `run_us_senate.py` est un modèle **course par
+course** : 35 courses d'États n'ont pas d'agrégat de vote national, donc
+`parties[]` n'a jamais porté de `vote_mean` (le kind `projection` l'exigeait et
+faisait échouer le gate à chaque run). Il valide ce que le desk produit vraiment :
+
+- `meta` : `run_date` daté et pas dans le futur, `total_seats`, `n_polls`,
+  `n_simulations`, `contested_seats` (une classe sénatoriale + spéciales) ;
+- `parties[]` : `seats_mean` finis dont la somme = `total_seats` (100) à
+  l'arrondi près, `p_majority` dans `[0,1]` — **aucun `vote_mean` national** ;
+- `ridings[]` : autant d'entrées que `meta.contested_seats` (35 en 2026), et par
+  course `projection.win_prob` (distribution : somme = 1) et
+  `projection.vote_mean` (parts en % : somme dans `[95,105]`, fenêtre laissée
+  ouverte parce que ce sont des moyennes de tirages indépendants).
 
 ## Branchement moteur (pilote : Federal)
 
@@ -86,3 +100,7 @@ l'utilise déjà. UK reste manuel (desk Tier B, hors registre auto).
   dérivante.
 - Détection d'un nouveau `run_date` → passage aux gates.
 - `maxBuffer` élargi pour les gros JSON (federal ~1,8 Mo).
+- Kind `senate` (2026-07-29) : les payloads du 2026-07-22 et du 2026-07-29
+  passent, et le gate refuse toujours une course retirée, un `win_prob` qui ne
+  somme plus à 1, un `vote_mean` de course hors fenêtre, un `p_majority` hors
+  bornes, une somme de sièges dérivante et une `projection` manquante.

@@ -27,7 +27,11 @@ import path from 'node:path';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
 // ── Registre des desks ────────────────────────────────────────────────────
-// kind 'projection' = moteur à sièges (ProjectionEngine) ; kind 'mlb' = board.
+// kind 'projection' = moteur à sièges (ProjectionEngine). L'option `seatsOnly`
+// couvre les desks sans agrégat de vote national — le Sénat est course par
+// course (run_us_senate.py), ses parts de vote ne vivent que par siège ;
+// `contestedRange` y ajoute l'invariante propre à une classe sénatoriale.
+// kind 'mlb' = board.
 const DESKS = {
   federal:     { label: 'Federal',   json: 'web_data/federal/latest.json',            kind: 'projection' },
   ontario:     { label: 'Ontario',   json: 'web_data/ontario/latest.json',            kind: 'projection' },
@@ -37,7 +41,7 @@ const DESKS = {
   // le moteur ne produit pas de part de vote nationale — `vote_mean` est absent
   // par conception, pas par accident. Le valider comme 'projection' rendait ce
   // desk impubliable par la passerelle (corrigé le 2026-08-03).
-  'us-senate': { label: 'US Senate', json: 'web_data/us-senate/latest.json',          kind: 'projection', seatsOnly: true },
+  'us-senate': { label: 'US Senate', json: 'web_data/us-senate/latest.json',          kind: 'projection', seatsOnly: true, contestedRange: [30, 40] },
   france:      { label: 'France présidentielle', json: 'web_data/france-presidential/latest.json', kind: 'france-pres' },
   mlb:         { label: 'MLB',       json: 'web_data/sports/mlb2026_latest.json',      kind: 'mlb' },
 };
@@ -86,6 +90,25 @@ const finite = (v) => typeof v === 'number' && Number.isFinite(v);
 const inRange = (v, lo, hi) => finite(v) && v >= lo && v <= hi;
 const isIsoDate = (s) => typeof s === 'string' && /^\d{4}-\d{2}-\d{2}/.test(s);
 
+/**
+ * Bloc meta commun aux desks à sièges (`projection`, `senate`) : identifiant de
+ * run daté, pas dans le futur, et compteurs de run cohérents.
+ */
+function seatMetaErrors(meta) {
+  const errors = [];
+  const runId = meta.run_date;
+  if (!isIsoDate(runId)) errors.push(`meta.run_date absent ou mal formé : ${JSON.stringify(runId)}`);
+  // Date pas dans le futur (garde contre une date corrompue).
+  if (isIsoDate(runId)) {
+    const tomorrow = new Date(Date.now() + 36 * 3600 * 1000).toISOString().slice(0, 10);
+    if (runId.slice(0, 10) > tomorrow) errors.push(`meta.run_date dans le futur : ${runId}`);
+  }
+  if (!finite(meta.total_seats) || meta.total_seats <= 0) errors.push(`meta.total_seats invalide : ${JSON.stringify(meta.total_seats)}`);
+  if (!finite(meta.n_polls) || meta.n_polls < 0) errors.push(`meta.n_polls invalide : ${JSON.stringify(meta.n_polls)}`);
+  if (!finite(meta.n_simulations) || meta.n_simulations <= 0) errors.push(`meta.n_simulations invalide : ${JSON.stringify(meta.n_simulations)}`);
+  return { runId, errors };
+}
+
 /** Identifiant de run + liste d'erreurs de validation, selon le type de desk. */
 function validate(desk, data) {
   const errors = [];
@@ -93,17 +116,10 @@ function validate(desk, data) {
 
   if (desk.kind === 'projection') {
     const meta = data.meta ?? {};
-    runId = meta.run_date;
-    if (!isIsoDate(runId)) errors.push(`meta.run_date absent ou mal formé : ${JSON.stringify(runId)}`);
-    // Date pas dans le futur (garde contre une date corrompue).
-    if (isIsoDate(runId)) {
-      const tomorrow = new Date(Date.now() + 36 * 3600 * 1000).toISOString().slice(0, 10);
-      if (runId.slice(0, 10) > tomorrow) errors.push(`meta.run_date dans le futur : ${runId}`);
-    }
+    const metaCheck = seatMetaErrors(meta);
+    runId = metaCheck.runId;
+    errors.push(...metaCheck.errors);
     const total = meta.total_seats;
-    if (!finite(total) || total <= 0) errors.push(`meta.total_seats invalide : ${JSON.stringify(total)}`);
-    if (!finite(meta.n_polls) || meta.n_polls < 0) errors.push(`meta.n_polls invalide : ${JSON.stringify(meta.n_polls)}`);
-    if (!finite(meta.n_simulations) || meta.n_simulations <= 0) errors.push(`meta.n_simulations invalide : ${JSON.stringify(meta.n_simulations)}`);
 
     const parties = data.parties;
     if (!Array.isArray(parties) || parties.length === 0) {
@@ -125,6 +141,15 @@ function validate(desk, data) {
           errors.push(`${who}: vote_mean hors [0,100] (${JSON.stringify(p.vote_mean)})`);
         }
         if (p.p_majority != null && !inRange(p.p_majority, 0, 1)) errors.push(`${who}: p_majority hors [0,1] (${JSON.stringify(p.p_majority)})`);
+      }
+      // Une classe sénatoriale vaut 33-34 sièges, plus les partielles : un
+      // desk en sièges seuls déclare la fourchette qu'il doit respecter.
+      if (desk.contestedRange) {
+        const [lo, hi] = desk.contestedRange;
+        const contested = (data.meta ?? {}).contested_seats;
+        if (!inRange(contested, lo, hi)) {
+          errors.push(`meta.contested_seats invalide : ${JSON.stringify(contested)}`);
+        }
       }
       // La somme des sièges moyens doit friser le total (arrondis → tolérance).
       if (finite(total) && Math.abs(seatSum - total) > 2) {
@@ -205,7 +230,7 @@ function committedRunId() {
     const prev = JSON.parse(raw);
     return desk.kind === 'mlb'
       ? (prev.board_meta?.data_fetched_at ?? prev.generated_at)
-      : prev.meta?.run_date; // projection + france-pres
+      : prev.meta?.run_date; // projection + senate + france-pres
 
   } catch {
     return null; // fichier non suivi / premier run
