@@ -9,6 +9,7 @@ import PolymarketEmbed from '../../../components/PolymarketEmbed.astro';
 import sportsData from '../../../../web_data/sports/latest.json';
 import mlbData from '../../../../web_data/sports/mlb2026_latest.json';
 import { teamLabel, fmtProb, type MlbData } from '../../../lib/mlb';
+import DeskSections from '../../../components/DeskSections.astro';
 
 const hero = sportsData.hero;
 const boardMeta = sportsData.board_meta;
@@ -109,7 +110,7 @@ const mlbJays = mlbByCode.get(mlb.hero.canadian_focus.code);
 
   <section class="content-band">
     <div class="container">
-      <PolymarketEmbed slug="world-cup-winner" title="Polymarket — 2026 World Cup Champion" />
+      <PolymarketEmbed slug="world-cup-winner" kind="event" title="Polymarket — 2026 World Cup Champion" />
     </div>
   </section>
 
@@ -132,6 +133,8 @@ const mlbJays = mlbByCode.get(mlb.hero.canadian_focus.code);
     marketLabel="Market pulse"
     note="Prediction-market data is shown as a benchmark only. Model and market are updated on independent cadences."
   />
+
+  <DeskSections lang="en" desk="sports" />
 
   <MethodologyNote
     title="Three sports desks. One standard."

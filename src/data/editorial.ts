@@ -72,7 +72,7 @@ export const desks: Record<'en' | 'fr' | 'es', Desk[]> = {
       question: 'Where is the Canadian map stable, and where is it only pretending?',
       description:
         'Federal, Quebec, Ontario, by-elections, riding risk, and the path from public polls to seat pressure.',
-      href: '/es/canada/',
+      href: '/en/canada/',
       signal: 'Canada Goose Index is now live',
     },
     {
@@ -176,7 +176,7 @@ export const desks: Record<'en' | 'fr' | 'es', Desk[]> = {
       question: '¿Dónde es estable el mapa canadiense y dónde solo lo aparenta?',
       description:
         'Federal, Quebec, Ontario, parciales, riesgo por circunscripción y el paso de las encuestas a la presión en escaños.',
-      href: '/en/canada/',
+      href: '/es/canada/',
       signal: 'El Canada Goose Index ya está en vivo',
     },
     {

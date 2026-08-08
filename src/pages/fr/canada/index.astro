@@ -11,6 +11,7 @@ import ontarioData from '../../../../web_data/ontario/latest.json';
 import fraserData from '../../../../web_data/on-fraser-interim/latest.json';
 import gooseData from '../../../../web_data/ca-canada-goose/latest.json';
 import showdownData from '../../../../web_data/cusma-showdown/latest.json';
+import DeskSections from '../../../components/DeskSections.astro';
 
 const meta = federalData.meta;
 const parties = federalData.parties as Array<{
@@ -193,6 +194,8 @@ const onMaj = Math.round(onTop.p_majority * 100);
       <PolymarketEmbed slug={null} />
     </div>
   </section>
+
+  <DeskSections lang="fr" desk="canada" />
 
   <MethodologyNote
     title="Trois juridictions. Un seul standard de projection."

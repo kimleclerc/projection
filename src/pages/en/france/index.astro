@@ -2,6 +2,7 @@
 import EditorialLayout from '../../../layouts/EditorialLayout.astro';
 import FranceDesk from '../../../components/FranceDesk.astro';
 import latest from '../../../../web_data/france-presidential/latest.json';
+import DeskSections from '../../../components/DeskSections.astro';
 
 const meta = (latest as any).meta;
 const canonical = 'https://vote-scope.com/en/france/';
@@ -32,4 +33,5 @@ const canonical = 'https://vote-scope.com/en/france/';
   ]}
 >
   <FranceDesk locale="en" />
+  <DeskSections lang="en" desk="france" />
 </EditorialLayout>

@@ -2,6 +2,7 @@
 import EditorialLayout from '../../layouts/EditorialLayout.astro';
 import EditorialHero from '../../components/EditorialHero.astro';
 import InstrumentGrid from '../../components/InstrumentGrid.astro';
+import DeskSections from '../../components/DeskSections.astro';
 import MarketCheck from '../../components/MarketCheck.astro';
 import MethodologyNote from '../../components/MethodologyNote.astro';
 import IdentityMark from '../../components/IdentityMark.astro';
@@ -27,15 +28,15 @@ const pFarage = Math.round(((clactonData as any).model.p_farage_win ?? 0) * 1000
 const goose = (gooseData as any).cgi;
 const cusma = (cusmaData as any).showdown;
 
-// The ticker carries site numbers only — never promises.
+// ACTIVE races first; the World Cup closes the ticker as an archive.
 const signals = [
-  { label: 'World Cup 2026', value: '🇪🇸 Spain champions — 1–0 a.e.t.', href: '/en/sports/wc2026/' },
   { label: 'Barrage Index', value: `${bfi.score}/100 · ${bfi.label_en}`, href: '/en/france/indexes/barrage/' },
   { label: 'French legislative', value: `p(RN majority) ${pMajRN}% under a 2024 front`, href: '/en/france/legislative-election' },
   { label: 'Clacton by-election', value: `Farage ${pFarage}% — polling day Aug 13`, href: '/en/uk/byelections/clacton/' },
   { label: 'Lame-Duck Index', value: `${ldi.score}/100 · ${ldi.label_en}`, href: '/en/us/indexes/lame-duck/' },
   { label: 'Canada Goose Index', value: `${goose.score}/100 · ${goose.label_en}`, href: '/en/canada/indexes/canada-goose/' },
   { label: 'CUSMA duel', value: `gap ${cusma.gap > 0 ? '+' : ''}${cusma.gap} — ${cusma.label_en}`, href: '/en/indexes/cusma-showdown/' },
+  { label: 'World Cup 2026', value: '🇪🇸 Spain champions — archive', href: '/en/sports/wc2026/' },
 ];
 
 // Most striking number of each desk, injected on its card.
@@ -44,7 +45,7 @@ const liveSignals: Record<string, string> = {
   canada: `Goose ${goose.score}/100 · CUSMA ${cusma.gap > 0 ? '+' : ''}${cusma.gap}`,
   france: `p(RN majority) ${pMajRN}% under a 2024 front · Barrage ${bfi.score}/100`,
   uk: `Clacton: Farage ${pFarage}% — Aug 13`,
-  sports: '🇪🇸 Spain champions · model archive',
+  sports: 'MLB live · World Cup archive',
 };
 ---
 
@@ -92,22 +93,6 @@ const liveSignals: Record<string, string> = {
     secondaryLabel="Open U.S. desk"
   />
 
-  <section class="content-band" style="border-top:4px solid var(--red, #c33);">
-    <div class="container" style="display:flex;align-items:center;gap:2rem;flex-wrap:wrap;">
-      <div>
-        <p class="eyebrow" style="margin-bottom:0.25rem;">World Cup 2026 — final archive</p>
-        <h2 style="margin:0;">Spain are world champions.</h2>
-        <p style="font-size:1.5rem;font-weight:700;margin-top:0.5rem;">🇪🇸 Spain 1–0 Argentina · after extra time</p>
-      </div>
-      <div style="flex:1;min-width:220px;">
-        <p>Spain won the first 48-team World Cup. The archive keeps both sides of the model record: Spain ranked first at opening (7.36%), while the last pre-final update narrowly preferred Argentina, 53.59–46.41.</p>
-        <p style="margin-top:0.75rem;">
-          <a href="/en/sports/wc2026/" class="cta-link">Open the World Cup archive →</a>
-        </p>
-      </div>
-    </div>
-  </section>
-
   <section class="content-band" style="background:var(--surface-alt,#f9f7f2);padding:2rem 0;">
     <div class="container" style="display:flex;align-items:center;gap:2rem;flex-wrap:wrap;">
       <div>
@@ -148,6 +133,8 @@ const liveSignals: Record<string, string> = {
       </div>
     </div>
   </section>
+
+  <DeskSections lang="en" />
 
   <InstrumentGrid
     instruments={instruments.en.slice(0, 6)}

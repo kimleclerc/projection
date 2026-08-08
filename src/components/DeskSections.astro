@@ -1,0 +1,225 @@
+---
+/**
+ * DeskSections — the uniform "what's in this desk" band.
+ *
+ * Two variants, one registry (lib/desk-sections.ts):
+ *   · desk="us" → the sections of a single desk, dropped under the editorial
+ *     content of /us/, /canada/, /uk/, /france/, /indexes/ and /sports/.
+ *   · directory → every desk at once, for the home page.
+ *
+ * Pure HTML, no island: this is wayfinding, it must render before hydration
+ * and work with JS off. Styling follows the editorial system (rules, not
+ * shadows; serif headings; mono eyebrows) so it reads as part of the paper
+ * rather than as a widget bolted on.
+ */
+import { DESKS, getDesk, deskItems, itemLinks, type NavLang } from '../lib/desk-sections';
+
+interface Props {
+  lang: NavLang;
+  /** Omit for the full directory (home page). */
+  desk?: 'us' | 'canada' | 'uk' | 'france' | 'indexes' | 'sports';
+  /** Override the band heading. */
+  title?: string;
+  /** Override the eyebrow. */
+  eyebrow?: string;
+  /** Hide the desk-level "open the desk" link (already there on a hub). */
+  showHubLink?: boolean;
+}
+
+const { lang, desk: deskId, title, eyebrow, showHubLink = false } = Astro.props as Props;
+
+const T = {
+  en: {
+    eyebrowDesk: 'In this desk',
+    eyebrowAll: 'Every forecast',
+    titleDesk: 'Everything this desk publishes.',
+    titleAll: 'Every forecast, in one place.',
+    hub: 'Open the desk',
+  },
+  fr: {
+    eyebrowDesk: 'Dans ce desk',
+    eyebrowAll: 'Toutes les prévisions',
+    titleDesk: 'Tout ce que ce desk publie.',
+    titleAll: 'Toutes les prévisions, au même endroit.',
+    hub: 'Ouvrir le desk',
+  },
+  es: {
+    eyebrowDesk: 'En esta mesa',
+    eyebrowAll: 'Todos los pronósticos',
+    titleDesk: 'Todo lo que publica esta mesa.',
+    titleAll: 'Todos los pronósticos, en un solo lugar.',
+    hub: 'Abrir la mesa',
+  },
+}[lang];
+
+const single = deskId ? getDesk(deskId) : undefined;
+const groups = single ? [single] : DESKS;
+const isDirectory = !single;
+
+const bandEyebrow = eyebrow ?? (isDirectory ? T.eyebrowAll : T.eyebrowDesk);
+const bandTitle = title ?? (isDirectory ? T.titleAll : T.titleDesk);
+---
+
+<section class="content-band desk-sections">
+  <div class="container">
+    <p class="eyebrow">{bandEyebrow}</p>
+    <h2>{bandTitle}</h2>
+
+    {groups.map((group) => (
+      <div class="ds-group">
+        {isDirectory && (
+          <div class="ds-group-head">
+            <h3>{group.label[lang]}</h3>
+            <a href={group.hub[lang]}>{T.hub} →</a>
+          </div>
+        )}
+
+        <ul class="ds-grid">
+          {deskItems(group, lang).map((item) => (
+            <li class="ds-card">
+              <a class="ds-card-title" href={item.href[lang]}>{item.label[lang]}</a>
+              <p class="ds-blurb">{item.blurb[lang]}</p>
+              {itemLinks(item, lang).length > 0 && (
+                <p class="ds-links">
+                  {itemLinks(item, lang).map((link, i) => (
+                    <>
+                      {i > 0 && <span aria-hidden="true"> · </span>}
+                      <a href={link.href[lang]}>{link.label[lang]}</a>
+                    </>
+                  ))}
+                </p>
+              )}
+            </li>
+          ))}
+        </ul>
+      </div>
+    ))}
+
+    {showHubLink && single && (
+      <p class="ds-hub-link">
+        <a href={single.hub[lang]}>{T.hub} →</a>
+      </p>
+    )}
+  </div>
+</section>
+
+<style>
+  .desk-sections h2 {
+    margin-bottom: 6px;
+  }
+
+  .ds-group + .ds-group {
+    margin-top: 44px;
+  }
+
+  .ds-group-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--ink);
+  }
+
+  .ds-group-head h3 {
+    font-family: var(--serif);
+    font-size: clamp(22px, 2.4vw, 30px);
+    font-weight: 430;
+    letter-spacing: -0.01em;
+    margin: 0;
+  }
+
+  .ds-group-head a {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .ds-group-head a:hover {
+    color: var(--ink);
+  }
+
+  .ds-grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    border-top: 1px solid var(--rule);
+    border-left: 1px solid var(--rule);
+  }
+
+  /* The directory repeats the grid per desk; the head already carries a rule. */
+  .ds-group-head + .ds-grid {
+    border-top: none;
+  }
+
+  .ds-card {
+    padding: 18px 20px 20px;
+    border-right: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    background: var(--card);
+  }
+
+  .ds-card-title {
+    font-family: var(--serif);
+    font-size: 21px;
+    font-weight: 460;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  .ds-card-title:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .ds-blurb {
+    margin-top: 8px;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--ink-2);
+  }
+
+  .ds-links {
+    margin-top: 14px;
+    padding-top: 10px;
+    border-top: 1px solid var(--rule-2);
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    color: var(--ink-4);
+  }
+
+  .ds-links a {
+    color: var(--ink-3);
+    text-decoration: none;
+  }
+
+  .ds-links a:hover {
+    color: var(--ink);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .ds-hub-link {
+    margin-top: 24px;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  @media (max-width: 640px) {
+    .ds-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

@@ -14,6 +14,7 @@ import senateData from '../../../../web_data/us-senate/latest.json';
 import showdownData from '../../../../web_data/cusma-showdown/latest.json';
 import presData from '../../../../web_data/us-president/latest.json';
 import primaryDesk from '../../../../web_data/us-primaries/latest.json';
+import DeskSections from '../../../components/DeskSections.astro';
 
 const nextPrimary = (primaryDesk as any).upcoming?.[0];
 const nextPrimaryStates = [...new Set(((primaryDesk as any).upcoming ?? [])
@@ -183,6 +184,8 @@ const presDemLead = presDem.standings.find((s: any) => s.status !== 'ineligible'
     marketLabel="Marché"
     note="Repères Polymarket, actualisés chaque jour à côté de chaque projection."
   />
+
+  <DeskSections lang="fr" desk="us" />
 
   <MethodologyNote
     title="Comment les projections américaines sont bâties."

@@ -6,6 +6,7 @@
 import EditorialLayout from '../layouts/EditorialLayout.astro';
 import EditorialHero from './EditorialHero.astro';
 import MethodologyNote from './MethodologyNote.astro';
+import DeskSections from './DeskSections.astro';
 import ukMeta from '../../web_data/uk/latest.json';
 import clactonSpecial from '../../web_data/uk-clacton-special/latest.json';
 import { ukByelections, ukResolvedByelections2026 } from '../data/ukByelections';
@@ -297,6 +298,8 @@ const dateLabel = (iso: string) => {
       ))}
     </div>
   </section>
+
+  <DeskSections lang={locale} desk="uk" />
 
   <MethodologyNote
     title={t.methodTitle}

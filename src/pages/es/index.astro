@@ -2,6 +2,7 @@
 import EditorialLayout from '../../layouts/EditorialLayout.astro';
 import EditorialHero from '../../components/EditorialHero.astro';
 import InstrumentGrid from '../../components/InstrumentGrid.astro';
+import DeskSections from '../../components/DeskSections.astro';
 import MarketCheck from '../../components/MarketCheck.astro';
 import MethodologyNote from '../../components/MethodologyNote.astro';
 import IdentityMark from '../../components/IdentityMark.astro';
@@ -27,15 +28,15 @@ const pFarage = Math.round(((clactonData as any).model.p_farage_win ?? 0) * 1000
 const goose = (gooseData as any).cgi;
 const cusma = (cusmaData as any).showdown;
 
-// La cinta solo lleva cifras del sitio — nunca promesas.
+// Primero las carreras ACTIVAS; el Mundial cierra la cinta como archivo.
 const signals = [
-  { label: 'Mundial 2026', value: '🇪🇸 España campeona — 1–0 t.e.', href: '/es/sports/wc2026/' },
   { label: 'Índice Barrage', value: `${bfi.score}/100 · ${bfi.label_es}`, href: '/es/france/indexes/barrage/' },
   { label: 'Legislativas FR', value: `p(mayoría RN) ${pMajRN}% con frente 2024`, href: '/es/france/legislativas' },
   { label: 'Parcial de Clacton', value: `Farage ${pFarage}% — 13 de agosto`, href: '/es/uk/byelections/clacton/' },
   { label: 'Lame-Duck Index', value: `${ldi.score}/100 · ${ldi.label_es ?? ldi.label_en}`, href: '/es/us/indexes/lame-duck/' },
   { label: 'Canada Goose Index', value: `${goose.score}/100 · ${goose.label_es}`, href: '/es/canada/indexes/canada-goose/' },
   { label: 'Duelo T-MEC', value: `brecha ${cusma.gap > 0 ? '+' : ''}${cusma.gap} — ${cusma.label_es}`, href: '/es/indexes/cusma-showdown/' },
+  { label: 'Mundial 2026', value: '🇪🇸 España campeona — archivo', href: '/es/sports/wc2026/' },
 ];
 
 // La cifra más llamativa de cada desk, inyectada en su tarjeta.
@@ -44,7 +45,7 @@ const liveSignals: Record<string, string> = {
   canada: `Goose ${goose.score}/100 · T-MEC ${cusma.gap > 0 ? '+' : ''}${cusma.gap}`,
   france: `p(mayoría RN) ${pMajRN}% con frente 2024 · Barrage ${bfi.score}/100`,
   uk: `Clacton: Farage ${pFarage}% — 13 de agosto`,
-  sports: '🇪🇸 España campeona · archivo del modelo',
+  sports: 'MLB en vivo · archivo del Mundial',
 };
 ---
 
@@ -92,22 +93,6 @@ const liveSignals: Record<string, string> = {
     secondaryLabel="Abrir desk EE. UU."
   />
 
-  <section class="content-band" style="border-top:4px solid var(--red, #c33);">
-    <div class="container" style="display:flex;align-items:center;gap:2rem;flex-wrap:wrap;">
-      <div>
-        <p class="eyebrow" style="margin-bottom:0.25rem;">Copa del Mundo 2026 — archivo final</p>
-        <h2 style="margin:0;">España es campeona del mundo.</h2>
-        <p style="font-size:1.5rem;font-weight:700;margin-top:0.5rem;">🇪🇸 España 1–0 Argentina · tras la prórroga</p>
-      </div>
-      <div style="flex:1;min-width:220px;">
-        <p>España ganó el primer Mundial de 48 selecciones. El archivo conserva ambas lecturas: España primera al inicio (7,36%), pero Argentina ligeramente favorita en el último run antes de la final, 53,59–46,41.</p>
-        <p style="margin-top:0.75rem;">
-          <a href="/es/sports/wc2026/" class="cta-link">Abrir el archivo del Mundial →</a>
-        </p>
-      </div>
-    </div>
-  </section>
-
   <section class="content-band" style="background:var(--surface-alt,#f9f7f2);padding:2rem 0;">
     <div class="container" style="display:flex;align-items:center;gap:2rem;flex-wrap:wrap;">
       <div>
@@ -148,6 +133,8 @@ const liveSignals: Record<string, string> = {
       </div>
     </div>
   </section>
+
+  <DeskSections lang="es" />
 
   <InstrumentGrid
     instruments={instruments.es.slice(0, 6)}

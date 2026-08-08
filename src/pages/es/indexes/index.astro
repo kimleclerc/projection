@@ -12,6 +12,7 @@ import ldiData from '../../../../web_data/us-lame-duck/latest.json';
 import gooseData from '../../../../web_data/ca-canada-goose/latest.json';
 import showdownData from '../../../../web_data/cusma-showdown/latest.json';
 import barrageData from '../../../../web_data/fr-barrage/latest.json';
+import DeskSections from '../../../components/DeskSections.astro';
 
 const ldi = ldiData.ldi;
 const deltaSign = ldi.delta_7d >= 0 ? '+' : '';
@@ -124,6 +125,8 @@ const deltaSign = ldi.delta_7d >= 0 ? '+' : '';
       <PolymarketEmbed slug="2026-balance-of-power-d-senate-d-house-949" title="Elecciones intermedias de EE. UU. 2026 — equilibrio de poderes" />
     </div>
   </section>
+
+  <DeskSections lang="es" desk="indexes" />
 
   <MethodologyNote
     title="Cada índice responde a una pregunta con una sola cifra."

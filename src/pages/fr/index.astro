@@ -2,6 +2,7 @@
 import EditorialLayout from '../../layouts/EditorialLayout.astro';
 import EditorialHero from '../../components/EditorialHero.astro';
 import InstrumentGrid from '../../components/InstrumentGrid.astro';
+import DeskSections from '../../components/DeskSections.astro';
 import MarketCheck from '../../components/MarketCheck.astro';
 import MethodologyNote from '../../components/MethodologyNote.astro';
 import IdentityMark from '../../components/IdentityMark.astro';
@@ -27,14 +28,15 @@ const goose = (gooseData as any).cgi;
 const cusma = (cusmaData as any).showdown;
 
 // Le bandeau ne porte que des chiffres du site — jamais de promesses.
+// Les courses ACTIVES d'abord ; la Coupe du monde ferme le bandeau en archive.
 const signals = [
-  { label: 'Coupe du monde 2026', value: '🇪🇸 Espagne championne — 1–0 a.p.', href: '/fr/sports/wc2026/' },
+  { label: 'Partielle Clacton', value: `Farage ${pFarage} % — scrutin le 13 août`, href: '/fr/uk/byelections/clacton/' },
   { label: 'Indice Barrage', value: `${bfi.score}/100 · ${bfi.label_fr}`, href: '/fr/france/indexes/barrage/' },
   { label: 'Législatives FR', value: `p(majorité RN) ${pMajRN} % si front 2024`, href: '/fr/france/legislatives' },
-  { label: 'Partielle Clacton', value: `Farage ${pFarage} % — scrutin le 13 août`, href: '/fr/uk/byelections/clacton/' },
   { label: 'Lame-Duck Index', value: `${ldi.score}/100 · ${ldi.label_fr}`, href: '/fr/us/indexes/lame-duck/' },
   { label: 'Indice Bernache', value: `${goose.score}/100 · ${goose.label_fr}`, href: '/fr/canada/indexes/canada-goose/' },
   { label: 'Duel ACEUM', value: `écart ${cusma.gap > 0 ? '+' : ''}${cusma.gap} — ${cusma.label_fr}`, href: '/fr/indexes/cusma-showdown/' },
+  { label: 'Coupe du monde 2026', value: '🇪🇸 Espagne championne — archive', href: '/fr/sports/wc2026/' },
 ];
 
 // Chiffre le plus marquant de chaque desk, injecté sur sa carte.
@@ -43,7 +45,7 @@ const liveSignals: Record<string, string> = {
   canada: `Bernache ${goose.score}/100 · ACEUM ${cusma.gap > 0 ? '+' : ''}${cusma.gap}`,
   france: `p(majorité RN) ${pMajRN} % si front 2024 · Barrage ${bfi.score}/100`,
   uk: `Clacton : Farage ${pFarage} % — 13 août`,
-  sports: '🇪🇸 Espagne championne · archive du modèle',
+  sports: 'MLB en direct · archive Coupe du monde',
 };
 ---
 
@@ -91,22 +93,6 @@ const liveSignals: Record<string, string> = {
     secondaryLabel="Ouvrir le desk US"
   />
 
-  <section class="content-band" style="border-top:4px solid var(--red, #c33);">
-    <div class="container" style="display:flex;align-items:center;gap:2rem;flex-wrap:wrap;">
-      <div>
-        <p class="eyebrow" style="margin-bottom:0.25rem;">Coupe du monde 2026 — archive finale</p>
-        <h2 style="margin:0;">L’Espagne est championne du monde.</h2>
-        <p style="font-size:1.5rem;font-weight:700;margin-top:0.5rem;">🇪🇸 Espagne 1–0 Argentine · après prolongation</p>
-      </div>
-      <div style="flex:1;min-width:220px;">
-        <p>L’Espagne remporte la première Coupe du monde à 48 équipes. L’archive conserve les deux lectures du modèle : Espagne première à l’ouverture (7,36 %), mais Argentine légèrement favorite au dernier run avant la finale, 53,59–46,41.</p>
-        <p style="margin-top:0.75rem;">
-          <a href="/fr/sports/wc2026/" class="cta-link">Ouvrir l’archive Coupe du monde →</a>
-        </p>
-      </div>
-    </div>
-  </section>
-
   <section class="content-band" style="background:var(--surface-alt,#f9f7f2);padding:2rem 0;">
     <div class="container" style="display:flex;align-items:center;gap:2rem;flex-wrap:wrap;">
       <div>
@@ -147,6 +133,8 @@ const liveSignals: Record<string, string> = {
       </div>
     </div>
   </section>
+
+  <DeskSections lang="fr" />
 
   <InstrumentGrid
     instruments={instruments.fr.slice(0, 6)}
