@@ -4,8 +4,8 @@
   "slug": "tx-24",
   "name": "TX-24",
   "state": "TX",
-  "rank": 194,
-  "score": 7.5,
+  "rank": 190,
+  "score": 8.0,
   "eligibility": {
     "eligible": true,
     "latino_cvap_threshold": true,
@@ -14,18 +14,18 @@
   },
   "projection": {
     "winner": "us_rep",
-    "p_winner": 0.9945,
+    "p_winner": 0.9907,
     "win_prob": {
-      "us_dem": 0.0055,
-      "us_rep": 0.9945,
+      "us_dem": 0.0093,
+      "us_rep": 0.9907,
       "us_oth": 0.0
     },
     "vote_mean": {
-      "us_dem": 47.02,
-      "us_rep": 52.98,
+      "us_dem": 47.41,
+      "us_rep": 52.59,
       "us_oth": 0.0
     },
-    "mean_margin": 5.97,
+    "mean_margin": 5.19,
     "rating": {
       "code": "lean_rep",
       "side": "rep",
@@ -35,7 +35,7 @@
     "current_party": "us_rep"
   },
   "movement_7d": {
-    "delta_probability_points": -0.47,
+    "delta_probability_points": -0.85,
     "comparison_date": "2026-07-29"
   },
   "components": [
@@ -68,14 +68,14 @@
         "en": "Competitiveness",
         "es": "Competitividad"
       },
-      "score": 1.1,
+      "score": 1.9,
       "weight": 20,
-      "raw_value": 99.45,
+      "raw_value": 99.07000000000001,
       "unit": "favorite probability",
       "source": {
         "label": "Vote-Scope model",
         "url": "/web_data/us-house/latest.json",
-        "as_of": "2026-08-05",
+        "as_of": "2026-08-08",
         "confidence": "model"
       },
       "detail": {}
@@ -87,14 +87,14 @@
         "en": "Flip probability",
         "es": "Probabilidad de cambio"
       },
-      "score": 0.5,
+      "score": 0.9,
       "weight": 15,
-      "raw_value": 0.5499999999999949,
+      "raw_value": 0.9299999999999975,
       "unit": "percent",
       "source": {
         "label": "Vote-Scope model",
         "url": "/web_data/us-house/latest.json",
-        "as_of": "2026-08-05",
+        "as_of": "2026-08-08",
         "confidence": "model"
       },
       "detail": {
@@ -115,7 +115,7 @@
       "source": {
         "label": "Vote-Scope reviewed identity registry",
         "url": "",
-        "as_of": "2026-08-05",
+        "as_of": "2026-08-08",
         "confidence": "no verified candidate in registry"
       },
       "detail": {}
@@ -134,7 +134,7 @@
       "source": {
         "label": "Vote-Scope model",
         "url": "/web_data/us-house/latest.json",
-        "as_of": "2026-08-05",
+        "as_of": "2026-08-08",
         "confidence": "model"
       },
       "detail": {
@@ -148,14 +148,14 @@
         "en": "Recent movement",
         "es": "Dinámica reciente"
       },
-      "score": 3.1,
+      "score": 5.7,
       "weight": 10,
-      "raw_value": -0.47,
+      "raw_value": -0.85,
       "unit": "probability points over at least 7 days",
       "source": {
         "label": "Vote-Scope model",
         "url": "/web_data/us-house/latest.json",
-        "as_of": "2026-08-05",
+        "as_of": "2026-08-08",
         "confidence": "model"
       },
       "detail": {
@@ -203,8 +203,13 @@
       },
       "incumbency": "C",
       "filing_status": "C",
-      "ballot_status": "fec_filing",
-      "ballot_source": null,
+      "ballot_status": "lost_primary",
+      "ballot_source": {
+        "url": "https://goelect.txelections.civixapps.com/api-ivis-system/api/s3/enr/election/53814",
+        "label": "Texas Secretary of State — official election results portal",
+        "certified_on": "",
+        "confidence": "official"
+      },
       "latino_verified": false,
       "identity_source": null
     },
@@ -219,8 +224,13 @@
       },
       "incumbency": "C",
       "filing_status": "C",
-      "ballot_status": "fec_filing",
-      "ballot_source": null,
+      "ballot_status": "qualified_general",
+      "ballot_source": {
+        "url": "https://goelect.txelections.civixapps.com/api-ivis-system/api/s3/enr/election/58314",
+        "label": "Texas Secretary of State — official election results portal",
+        "certified_on": "",
+        "confidence": "official"
+      },
       "latino_verified": false,
       "identity_source": null
     },
@@ -571,6 +581,17 @@
         "us_dem": 0.0055,
         "us_rep": 0.9945
       }
+    },
+    {
+      "date": "2026-08-08",
+      "vote_mean": {
+        "us_dem": 47.41,
+        "us_rep": 52.59
+      },
+      "win_prob": {
+        "us_dem": 0.0093,
+        "us_rep": 0.9907
+      }
     }
   ],
   "sources": [
@@ -583,7 +604,7 @@
     {
       "label": "Vote-Scope model",
       "url": "/web_data/us-house/latest.json",
-      "as_of": "2026-08-05",
+      "as_of": "2026-08-08",
       "confidence": "model"
     },
     {
@@ -591,6 +612,18 @@
       "url": "https://www2.census.gov/programs-surveys/cps/tables/p20/587/vote04b_2024.xlsx",
       "as_of": "2026-07-24",
       "confidence": "official; state estimate"
+    },
+    {
+      "label": "Texas Secretary of State — official election results portal",
+      "url": "https://goelect.txelections.civixapps.com/api-ivis-system/api/s3/enr/election/53814",
+      "as_of": "",
+      "confidence": "official; certified primary result"
+    },
+    {
+      "label": "Texas Secretary of State — official election results portal",
+      "url": "https://goelect.txelections.civixapps.com/api-ivis-system/api/s3/enr/election/58314",
+      "as_of": "",
+      "confidence": "official; certified primary result"
     }
   ],
   "data_completeness": {
@@ -614,5 +647,5 @@
     "en": "/og/latino-radar/house-tx-24-en.png",
     "es": "/og/latino-radar/house-tx-24-es.png"
   },
-  "run_date": "2026-08-05"
+  "run_date": "2026-08-08"
 }
