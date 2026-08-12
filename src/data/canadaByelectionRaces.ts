@@ -568,6 +568,68 @@ export const canadaByelectionRaces = {
       es: '/es/canada/byelections/brantford-brant-sud-six-nations/',
     },
   },
+  'scarborough-nord': {
+    slug: 'scarborough-nord',
+    ridingId: '35095',
+    dataPath: 'canada-byelection-scarborough-nord',
+    currentPage: 'canada',
+    status: 'expected',
+    electionDate: null,
+    vacancyDate: '2026-08-15',
+    province: 'ON',
+    title: {
+      en: 'Scarborough North By-Election Forecast — Vote-Scope',
+      fr: 'Partielle de Scarborough-Nord : projection — Vote-Scope',
+      es: 'Parcial de Scarborough Norte: proyección — Vote-Scope',
+    },
+    description: {
+      en: 'Shaun Chen resigns as Liberal MP effective August 15, 2026. Vote-Scope projects the coming Scarborough North by-election from a seat the Liberals won with 62.4% in 2025.',
+      fr: 'Shaun Chen démissionne comme député libéral le 15 août 2026. Vote-Scope projette la future partielle de Scarborough-Nord, un siège gagné par les libéraux avec 62,4 % en 2025.',
+      es: 'Shaun Chen renuncia como diputado liberal el 15 de agosto de 2026. Vote-Scope proyecta la próxima parcial de Scarborough Norte, que los liberales ganaron con el 62,4 % en 2025.',
+    },
+    kicker: {
+      en: 'Federal by-election · Ontario · expected',
+      fr: 'Partielle fédérale · Ontario · anticipée',
+      es: 'Parcial federal · Ontario · prevista',
+    },
+    headline: {
+      en: 'The safest Liberal vacancy yet.',
+      fr: 'La vacance libérale la plus sûre jusqu’ici.',
+      es: 'La vacante liberal más segura hasta ahora.',
+    },
+    dek: {
+      en: 'Shaun Chen is leaving a riding where the Liberals cleared sixty per cent in 2025. The model finds no identifiable personal-vote premium to remove, so the coming by-election begins as a very safe Liberal hold.',
+      fr: 'Shaun Chen laisse une circonscription où les libéraux ont dépassé 60 % en 2025. Le modèle ne trouve aucune prime personnelle identifiable à retirer : la future partielle commence donc comme une très solide défense libérale.',
+      es: 'Shaun Chen deja una circunscripción donde los liberales superaron el 60 % en 2025. El modelo no detecta una prima personal identificable que retirar, por lo que la parcial empieza como una defensa liberal muy segura.',
+    },
+    why: {
+      en: [
+        'Shaun Chen announced he will resign from the House of Commons effective August 15, 2026, after representing the riding since 2015.',
+        'He won 62.4% in 2025, 13.4 points above the Liberal Ontario-wide share.',
+        'That margin cannot be cleanly identified as personal rather than structural, so the model applies no personal-vote subtraction.',
+      ],
+      fr: [
+        'Shaun Chen a annoncé qu’il quittera la Chambre des communes le 15 août 2026, après avoir représenté la circonscription depuis 2015.',
+        'Il a obtenu 62,4 % en 2025, soit 13,4 points de plus que la part libérale à l’échelle ontarienne.',
+        'Cette marge ne peut pas être attribuée proprement à sa personne plutôt qu’à la structure du siège : le modèle ne retranche donc aucun vote personnel.',
+      ],
+      es: [
+        'Shaun Chen anunció que dejará la Cámara de los Comunes el 15 de agosto de 2026, tras representar la circunscripción desde 2015.',
+        'Obtuvo el 62,4 % en 2025, 13,4 puntos por encima del voto liberal en Ontario.',
+        'Ese margen no puede identificarse limpiamente como personal y no estructural, por lo que el modelo no resta voto personal.',
+      ],
+    },
+    modelNote: {
+      en: 'No constituency poll exists. The engine starts from the riding’s current federal projection and applies the measured by-election turnout residual. Because there is no defensible pre-Chen comparison on the current boundaries, personal_vote_pct is intentionally left unapplied rather than guessed.',
+      fr: 'Aucun sondage de circonscription n’existe. Le moteur part de la projection fédérale courante du siège et applique le résidu de participation mesuré pour les partielles. Faute de comparaison pré-Chen défendable dans les limites actuelles, personal_vote_pct reste volontairement non appliqué plutôt que deviné.',
+      es: 'No existe encuesta de circunscripción. El motor parte de la proyección federal actual y aplica el residuo de participación medido para las parciales. Sin una comparación pre-Chen defendible en los límites actuales, personal_vote_pct se deja sin aplicar en vez de inventarlo.',
+    },
+    paths: {
+      en: '/en/canada/byelections/scarborough-nord/',
+      fr: '/fr/canada/byelections/scarborough-nord/',
+      es: '/es/canada/byelections/scarborough-nord/',
+    },
+  },
 } satisfies Record<string, ByelectionRaceConfig>;
 
 export type CanadaByelectionRaceKey = keyof typeof canadaByelectionRaces;

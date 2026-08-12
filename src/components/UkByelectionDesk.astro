@@ -8,7 +8,9 @@ import Base from '../layouts/Base.astro';
 import KeepDigging from './KeepDigging.astro';
 import ContextualBookShelf from './ContextualBookShelf.astro';
 import ElectionCountdown from '../islands/ElectionCountdown.tsx';
+import ClactonLiveDesk from '../islands/ClactonLiveDesk.tsx';
 import special from '../../web_data/uk-clacton-special/latest.json';
+import clactonLive from '../../web_data/uk-clacton-live/latest.json';
 import {
   ukByelectionAlternates,
   type UkByelectionConfig,
@@ -70,6 +72,8 @@ const localPolls = sp.local_polls ?? {};
 const hasLocalPoll = localPolls.available === true && (localPolls.polls ?? []).length > 0;
 const localPoll = hasLocalPoll ? localPolls.polls[0] : null;
 const pollWeight = localPolls.weighting ?? {};
+const postalVoting = sp.postal_voting ?? {};
+const reformCoupling = model.reform_coupling ?? {};
 const localPollNote = hasLocalPoll
   ? (lang === 'fr' ? localPolls.note_fr : lang === 'es' ? localPolls.note_es : localPolls.note_en)
   : '';
@@ -125,12 +129,15 @@ const copy = {
     modelLabel: 'The Vote-Scope forecast',
     modelIntro: `${model.n_sims.toLocaleString('en-GB')} Monte Carlo simulations of voter flows from the 2024 result: how much of his own bloc Farage keeps under investigation, where each boycotting party's orphaned voters go (or whether they stay home), how far the protest vote consolidates behind Binface, and what the media circus pulls in. The first constituency poll has now landed and the model re-centres on it — see below for exactly how much weight it is given.`,
     modelRange: 'Projected vote share (10th–90th percentile, median marked)',
-    modelCaveat: 'v0.6 — the orphaned-voter priors have been revised so the fundamentals now bracket the Survation constituency poll instead of contradicting it, and the poll is folded in by likelihood re-weighting at a deliberately deflated effective sample size. Caveat worth stating plainly: fundamentals and poll now agree, but neither carries a term for both being wrong — by-election polling error, house effects, a late turn. The near-certainty is the model’s, not the world’s.',
+    modelCaveat: 'v0.7 — the constituency poll is now discounted a second time for being the only local poll: its effective weight falls to about nine respondents after sampling, age, framing and single-poll uncertainty are combined. That moves Binface from roughly 0.03% to 0.42% — still a long shot, but without false precision.',
     pollLabel: 'The constituency poll',
     pollIntro: 'Unlike the markets below, this poll does feed the model. Here is what it says, what the model projects, and the gap between the two.',
     thCandidate: 'Candidate', thPoll: 'Poll', thModel: 'Vote-Scope', thGap: 'Gap (pts)',
     pollHeadToHead: 'Forced head-to-head (same poll)',
     pollWeightLabel: 'How much weight the model gives it',
+    turnoutLabel: 'Turnout, postal votes & the Reform slide',
+    turnoutIntro: 'What the model can use — and what it deliberately leaves out.',
+    reformNote: `Reform UK is at ${fmtPct(reformCoupling.national_reform_now, 1)}% nationally versus the model’s ${fmtPct(reformCoupling.national_reform_anchor, 1)}% anchor. That trims Farage’s expected retention of his 2024 bloc from ${fmtPct(reformCoupling.farage_retention_mean_base * 100, 1)}% to ${fmtPct(reformCoupling.farage_retention_mean_effective * 100, 1)}%. Transfers and turnout are simulated voter bloc by voter bloc, including a shared mobilisation shock.`,
     pathLabel: 'Path to victory — how could the bin actually win?',
     pathIntro: `Baseline: Vote-Scope gives Count Binface ${fmtProbBounded(model.p_binface_win)}% — the markets say ${pmBinface != null ? fmtProb(pmBinface) : '—'}%. For the upset, several things must break at once. Conditional win probabilities, from the same simulations:`,
     pathOutro: 'Verdict: very unlikely — but this is the one election where the improbable is the most fun to watch. If Binface clears 25% while Farage sinks toward 40%, election night gets interesting.',
@@ -188,12 +195,15 @@ const copy = {
     modelLabel: 'La projection Vote-Scope',
     modelIntro: `${model.n_sims.toLocaleString('fr-FR')} simulations Monte Carlo des flux d'électeurs depuis le résultat 2024 : quelle part de son bloc Farage retient sous enquête, où vont les électeurs orphelins de chaque parti boycotteur (ou s'ils restent chez eux), jusqu'où le vote protestataire se consolide sur Binface, et ce que le cirque médiatique attire. Le premier sondage de circonscription est tombé et le modèle se recentre dessus — le poids exact qu'il lui accorde est détaillé plus bas.`,
     modelRange: 'Parts projetées (10e–90e percentile, médiane marquée)',
-    modelCaveat: "Fundamentals v0.6 — les priors de report des électeurs orphelins ont été révisés pour que les fundamentals ENCADRENT le sondage Survation au lieu de le contredire, et le sondage y entre par repondération de vraisemblance à effectif efficace volontairement dégonflé. Réserve à dire franchement : fundamentals et sondage concordent désormais, mais ni l’un ni l’autre ne porte de terme « les deux se trompent » — erreur de sondage en partielle, effet de maison, retournement tardif. La quasi-certitude affichée est celle du modèle, pas celle du monde.",
+    modelCaveat: "v0.7 — le sondage de circonscription est maintenant pénalisé une seconde fois parce qu’il est le seul sondage local : son poids effectif tombe à environ neuf répondants après combinaison de l’échantillonnage, de l’ancienneté, du cadrage et de l’incertitude propre à un sondage unique. Binface passe ainsi d’environ 0,03 % à 0,42 % — toujours très loin, mais sans fausse précision.",
     pollLabel: 'Le sondage de circonscription',
     pollIntro: "Contrairement aux marchés ci-dessous, ce sondage entre bel et bien dans le modèle. Voici ce qu'il dit, ce que projette le modèle, et l'écart entre les deux.",
     thCandidate: 'Candidat', thPoll: 'Sondage', thModel: 'Vote-Scope', thGap: 'Écart (pts)',
     pollHeadToHead: 'Duel forcé (même sondage)',
     pollWeightLabel: 'Le poids que le modèle lui accorde',
+    turnoutLabel: 'Participation, vote postal et baisse de Reform',
+    turnoutIntro: 'Ce que le modèle peut exploiter — et ce qu’il écarte volontairement.',
+    reformNote: `Reform UK est à ${fmtPct(reformCoupling.national_reform_now, 1)} % au pays contre une ancre de ${fmtPct(reformCoupling.national_reform_anchor, 1)} % dans le modèle. Cela réduit la rétention attendue du bloc Farage de 2024 de ${fmtPct(reformCoupling.farage_retention_mean_base * 100, 1)} % à ${fmtPct(reformCoupling.farage_retention_mean_effective * 100, 1)} %. Les reports et la participation sont simulés bloc par bloc, avec un choc commun de mobilisation.`,
     pathLabel: 'Path to victory — comment la poubelle pourrait-elle gagner ?',
     pathIntro: `Point de départ : Vote-Scope donne ${fmtProbBounded(model.p_binface_win)} % à Count Binface — les marchés disent ${pmBinface != null ? fmtProb(pmBinface) : '—'} %. Pour l'exploit, il faut que plusieurs choses cassent en même temps. Probabilités conditionnelles, tirées des mêmes simulations :`,
     pathOutro: "Verdict : très improbable — mais c'est l'élection où l'improbable est le plus délicieux à regarder. Si Binface franchit 25 % pendant que Farage glisse vers 40 %, la soirée électorale devient intéressante.",
@@ -251,12 +261,15 @@ const copy = {
     modelLabel: 'La proyección de Vote-Scope',
     modelIntro: `${model.n_sims.toLocaleString('es-ES')} simulaciones Monte Carlo de los flujos de votantes desde el resultado de 2024: cuánto de su bloque retiene Farage bajo investigación, adónde van los votantes huérfanos de cada partido que boicotea (o si se quedan en casa), cuánto se consolida el voto de protesta en Binface, y qué atrae el circo mediático. La primera encuesta de circunscripción ya existe y el modelo se recentra en ella — abajo se detalla exactamente cuánto peso le da.`,
     modelRange: 'Cuotas proyectadas (percentil 10–90, mediana marcada)',
-    modelCaveat: 'Fundamentals v0.6 — los priors de transferencia de votantes huérfanos se han revisado para que los fundamentals ENMARQUEN la encuesta de Survation en vez de contradecirla, y la encuesta entra por reponderación de verosimilitud con un tamaño muestral efectivo deliberadamente reducido. Reserva dicha con claridad: fundamentals y encuesta ahora coinciden, pero ninguno lleva un término para que ambos se equivoquen — error de sondeo en parciales, efecto de casa, giro tardío. La casi certeza es la del modelo, no la del mundo.',
+    modelCaveat: 'v0.7 — la encuesta de circunscripción recibe ahora una penalización adicional por ser la única encuesta local: su peso efectivo cae a unos nueve encuestados al combinar muestreo, antigüedad, encuadre e incertidumbre de encuesta única. Binface pasa así de cerca del 0,03 % al 0,42 % — sigue muy lejos, pero sin falsa precisión.',
     pollLabel: 'La encuesta de circunscripción',
     pollIntro: 'A diferencia de los mercados de abajo, esta encuesta sí alimenta el modelo. Esto es lo que dice, lo que proyecta el modelo y la diferencia entre ambos.',
     thCandidate: 'Candidato', thPoll: 'Encuesta', thModel: 'Vote-Scope', thGap: 'Diferencia (pts)',
     pollHeadToHead: 'Duelo directo (misma encuesta)',
     pollWeightLabel: 'El peso que le da el modelo',
+    turnoutLabel: 'Participación, voto postal y caída de Reform',
+    turnoutIntro: 'Lo que el modelo puede utilizar — y lo que deja fuera deliberadamente.',
+    reformNote: `Reform UK está en ${fmtPct(reformCoupling.national_reform_now, 1)} % a nivel nacional frente al ancla de ${fmtPct(reformCoupling.national_reform_anchor, 1)} % del modelo. Eso reduce la retención esperada del bloque Farage de 2024 del ${fmtPct(reformCoupling.farage_retention_mean_base * 100, 1)} % al ${fmtPct(reformCoupling.farage_retention_mean_effective * 100, 1)} %. Las transferencias y la participación se simulan bloque por bloque, con un choque común de movilización.`,
     pathLabel: 'Path to victory — ¿cómo podría ganar el cubo de basura?',
     pathIntro: `Punto de partida: Vote-Scope da a Count Binface un ${fmtProbBounded(model.p_binface_win)} % — los mercados dicen ${pmBinface != null ? fmtProb(pmBinface) : '—'} %. Para la sorpresa, varias cosas deben romperse a la vez. Probabilidades condicionales, de las mismas simulaciones:`,
     pathOutro: 'Veredicto: muy improbable — pero es la elección donde lo improbable es más divertido de ver. Si Binface supera el 25 % mientras Farage cae hacia el 40 %, la noche electoral se pone interesante.',
@@ -311,7 +324,9 @@ const ctxQuestion = lang === 'fr' ? ctxPoll.question_fr : lang === 'es' ? ctxPol
 const sources = [
   { label: 'Wikipedia — 2026 Clacton by-election (date, candidats, boycott)', url: 'https://en.wikipedia.org/wiki/2026_Clacton_by-election' },
   { label: 'BBC News — Clacton by-election to be held 13 August', url: 'https://www.bbc.com/news/articles/c15y85gkkx5o' },
+  { label: 'The Independent — Survation constituency poll (16–24 July, n=502)', url: 'https://www.independent.co.uk/news/uk/politics/count-binface-nigel-farage-clacton-byelection-poll-b3031765.html' },
   { label: 'Ipsos — British public more likely to prefer Count Binface (8–9 July 2026, n=1000)', url: 'https://www.ipsos.com/en-uk/british-public-more-likely-prefer-count-binface-wins-clacton-election-nigel-farage' },
+  { label: 'Electoral Commission — how postal votes are verified and counted', url: 'https://www.electoralcommission.org.uk/voting-and-elections/how-elections-work/how-votes-are-counted' },
   { label: 'Polymarket — Clacton by-election Winner', url: 'https://polymarket.com/event/clacton-by-election-winner-20260707143521303' },
   { label: 'Polymarket — Clacton 2nd place', url: 'https://polymarket.com/event/clacton-by-election-2nd-place-20260707214539733' },
   { label: 'Polymarket — Count Binface Vote %', url: 'https://polymarket.com/event/clacton-by-election-count-binface-vote-20260708142507718' },
@@ -374,6 +389,10 @@ const pc = (v: number) => `${Math.min(100, (v / SCALE_MAX) * 100)}%`;
       <h1>{t.headline}</h1>
       <p class="ukbye-dek">{t.dek}</p>
     </header>
+
+    <div class="container">
+      <ClactonLiveDesk initial={clactonLive} lang={lang} client:load />
+    </div>
 
     <section class="container" aria-labelledby="ukbye-snap">
       <p class="ukbye-label" id="ukbye-snap">{t.snapshotLabel}</p>
@@ -487,6 +506,15 @@ const pc = (v: number) => `${Math.min(100, (v / SCALE_MAX) * 100)}%`;
         <p class="ukbye-body-text">{localPollNote}</p>
       </section>
     )}
+
+    <section class="container" aria-labelledby="ukbye-turnout">
+      <p class="ukbye-label" id="ukbye-turnout">{t.turnoutLabel}</p>
+      <p class="ukbye-body-text">{t.turnoutIntro}</p>
+      <div class="ukbye-turnout-grid">
+        <p>{t.reformNote}</p>
+        <p>{lang === 'fr' ? postalVoting.note_fr : lang === 'es' ? postalVoting.note_es : postalVoting.note_en}</p>
+      </div>
+    </section>
 
     <section class="container" aria-labelledby="ukbye-markets">
       <p class="ukbye-label" id="ukbye-markets">{t.marketsLabel}</p>
@@ -662,6 +690,8 @@ const pc = (v: number) => `${Math.min(100, (v / SCALE_MAX) * 100)}%`;
      pondération resserré (pas l'espacement d'une nouvelle section). */
   .ukbye-poll-source { font-size: 13px; color: var(--ink-3); }
   .ukbye-poll-weight-label { margin-top: 24px; }
+  .ukbye-turnout-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 14px; }
+  .ukbye-turnout-grid p { margin: 0; border: 1px solid var(--rule); border-radius: 6px; background: var(--card); padding: 16px; color: var(--ink-2); font-size: 14px; line-height: 1.6; }
 
   .ukbye-snap-grid { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 14px; margin-top: 14px; }
   .ukbye-snap {
@@ -758,6 +788,7 @@ const pc = (v: number) => `${Math.min(100, (v / SCALE_MAX) * 100)}%`;
   @media (max-width: 780px) {
     .ukbye-snap-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
     .ukbye-path-grid { grid-template-columns: 1fr; }
+    .ukbye-turnout-grid { grid-template-columns: 1fr; }
     .ukbye-range-row { grid-template-columns: 130px 1fr 90px; }
     .ukbye-ctx-row { grid-template-columns: 104px 1fr 40px; }
     .ukbye-subscribe { flex-direction: column; align-items: flex-start; }

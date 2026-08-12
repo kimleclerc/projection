@@ -1,11 +1,11 @@
 {
   "meta": {
-    "generated_at": "2026-08-11T16:24:45.939281+00:00",
-    "run_date": "2026-08-11",
+    "generated_at": "2026-08-12T18:10:44.319982+00:00",
+    "run_date": "2026-08-12",
     "election_date": "2026-08-13",
     "riding_id": "E14001174",
     "riding_name": "Clacton",
-    "model_version": "v0.6-orphan-priors-revised",
+    "model_version": "v0.7-single-poll-risk",
     "has_local_polls": true,
     "n_sims": 50000,
     "field": {
@@ -266,56 +266,56 @@
     "seed": 20260813,
     "candidates": {
       "farage": {
-        "p_win": 0.9997,
+        "p_win": 0.9958,
         "share": {
-          "q05": 53.46,
-          "q10": 56.07,
-          "q25": 60.21,
-          "q50": 64.39,
-          "q75": 68.27,
-          "q90": 71.59,
-          "q95": 73.53
+          "q05": 49.12,
+          "q10": 52.29,
+          "q25": 57.41,
+          "q50": 62.56,
+          "q75": 67.06,
+          "q90": 70.84,
+          "q95": 73.01
         },
-        "share_mean": 64.07
+        "share_mean": 61.97
       },
       "binface": {
-        "p_win": 0.0003,
+        "p_win": 0.0042,
         "share": {
-          "q05": 12.79,
-          "q10": 14.28,
-          "q25": 16.96,
-          "q50": 20.24,
-          "q75": 23.91,
-          "q90": 27.54,
-          "q95": 29.81
+          "q05": 12.2,
+          "q10": 13.89,
+          "q25": 16.98,
+          "q50": 20.83,
+          "q75": 25.21,
+          "q90": 29.69,
+          "q95": 32.47
         },
-        "share_mean": 20.64
+        "share_mean": 21.4
       },
       "fox": {
         "p_win": 0.0,
         "share": {
-          "q05": 0.78,
+          "q05": 0.74,
           "q10": 1.11,
-          "q25": 1.78,
-          "q50": 2.71,
-          "q75": 3.89,
-          "q90": 5.16,
-          "q95": 6.05
+          "q25": 1.87,
+          "q50": 2.95,
+          "q75": 4.34,
+          "q90": 5.87,
+          "q95": 6.95
         },
-        "share_mean": 2.98
+        "share_mean": 3.28
       },
       "others": {
         "p_win": 0.0,
         "share": {
-          "q05": 7.07,
-          "q10": 8.16,
-          "q25": 10.05,
-          "q50": 12.26,
-          "q75": 14.48,
-          "q90": 16.51,
-          "q95": 17.75
+          "q05": 7.75,
+          "q10": 8.93,
+          "q25": 10.98,
+          "q50": 13.31,
+          "q75": 15.63,
+          "q90": 17.79,
+          "q95": 19.13
         },
-        "share_mean": 12.31
+        "share_mean": 13.34
       }
     },
     "local_poll_recentering": {
@@ -337,13 +337,14 @@
       },
       "assumed_base": 265,
       "design_effect": 1.4,
-      "n_eff": 22.1,
-      "n_eff_share_of_published": 0.044,
+      "n_eff": 9.3,
+      "n_eff_share_of_published": 0.018,
       "sd_sampling_pts": 2.91,
       "sd_drift_pts": 8.0,
-      "sd_total_pts": 8.51,
-      "ess": 29757.8,
-      "ess_fraction": 0.5952,
+      "sd_single_poll_pts": 10.0,
+      "sd_total_pts": 13.13,
+      "ess": 42470.3,
+      "ess_fraction": 0.8494,
       "min_ess_fraction": 0.05,
       "prior_farage_share_q50": 60.0,
       "prior_farage_share_q95": 72.38,
@@ -394,18 +395,18 @@
           "p_binface_win": 0.0
         }
       ],
-      "method_fr": "repondération d'importance par la vraisemblance multinomiale du sondage local, à n effectif dégonflé (effet de plan + dérive jusqu'au scrutin) — les priors v0.3 ne sont pas réécrits"
+      "method_fr": "repondération d'importance par la vraisemblance multinomiale du sondage local, à n effectif dégonflé (effet de plan + dérive jusqu'au scrutin + risque de sondage unique) — les priors v0.3 ne sont pas réécrits"
     },
-    "p_farage_win": 0.9997,
-    "p_binface_win": 0.0003,
-    "p_binface_second": 0.8992,
-    "p_farage_improves_2024": 0.9958,
+    "p_farage_win": 0.9958,
+    "p_binface_win": 0.0042,
+    "p_binface_second": 0.8533,
+    "p_farage_improves_2024": 0.9749,
     "binface_share_buckets": {
-      "lt10": 0.0094,
-      "10_20": 0.4735,
-      "20_30": 0.4702,
-      "30_40": 0.046,
-      "gte40": 0.0009
+      "lt10": 0.0168,
+      "10_20": 0.43,
+      "20_30": 0.4607,
+      "30_40": 0.0867,
+      "gte40": 0.0058
     },
     "field": {
       "as_of": "2026-07-17",
@@ -442,7 +443,7 @@
         "condition_fr": "Le scandale mord : Farage retient moins de ~70 % de son bloc 2024",
         "condition_en": "The scandal bites: Farage keeps less than ~70% of his 2024 bloc",
         "condition_es": "El escándalo golpea: Farage retiene menos del ~70 % de su bloque de 2024",
-        "p_binface_win": 0.0014,
+        "p_binface_win": 0.0168,
         "p_scenario": 0.25
       },
       {
@@ -450,7 +451,7 @@
         "condition_fr": "Le vote anti-Farage se consolide sur Binface (reports gauche/centre au sommet)",
         "condition_en": "The anti-Farage vote consolidates behind Binface (left/centre transfers at the top end)",
         "condition_es": "El voto anti-Farage se consolida en Binface (transferencias de izquierda/centro al máximo)",
-        "p_binface_win": 0.001,
+        "p_binface_win": 0.0114,
         "p_scenario": 0.25
       },
       {
@@ -458,7 +459,7 @@
         "condition_fr": "Fox/Reclaim divise la droite radicale (score Fox dans le quartile haut)",
         "condition_en": "Fox/Reclaim splits the radical right (Fox score in the top quartile)",
         "condition_es": "Fox/Reclaim divide a la derecha radical (puntuación de Fox en el cuartil superior)",
-        "p_binface_win": 0.0009,
+        "p_binface_win": 0.0106,
         "p_scenario": 0.25
       },
       {
@@ -466,7 +467,7 @@
         "condition_fr": "Les électeurs orphelins (Lab/LD/Grn) se déplacent en masse",
         "condition_en": "Orphaned voters (Lab/LD/Grn) actually turn out in numbers",
         "condition_es": "Los votantes huérfanos (Lab/LD/Grn) acuden en masa",
-        "p_binface_win": 0.0011,
+        "p_binface_win": 0.0126,
         "p_scenario": 0.25
       },
       {
@@ -474,7 +475,7 @@
         "condition_fr": "Nouvelles révélations en campagne : les fonds non déclarés (Harborne/NCA, dons crypto) refont surface avant le 13 août",
         "condition_en": "New revelations mid-campaign: the undeclared funds story (Harborne/NCA, crypto gifts) resurfaces before 13 August",
         "condition_es": "Nuevas revelaciones en campaña: los fondos no declarados (Harborne/NCA, regalos cripto) resurgen antes del 13 de agosto",
-        "p_binface_win": 0.0011,
+        "p_binface_win": 0.0116,
         "p_scenario": 0.35
       },
       {
@@ -482,7 +483,7 @@
         "condition_fr": "Lune de miel du nouveau PM travailliste (investiture prévue le 17 juillet) : la démobilisation Reform mord",
         "condition_en": "New Labour PM honeymoon (expected 17 July): Reform demobilisation bites",
         "condition_es": "Luna de miel del nuevo primer ministro laborista (prevista el 17 de julio): la desmovilización de Reform golpea",
-        "p_binface_win": 0.0004,
+        "p_binface_win": 0.0049,
         "p_scenario": 0.7
       },
       {
@@ -490,8 +491,8 @@
         "condition_fr": "Tempête parfaite : effondrement Farage ET consolidation protestataire",
         "condition_en": "Perfect storm: Farage collapse AND protest consolidation",
         "condition_es": "Tormenta perfecta: colapso de Farage Y consolidación de la protesta",
-        "p_binface_win": 0.0033,
-        "p_scenario": 0.073
+        "p_binface_win": 0.0365,
+        "p_scenario": 0.078
       }
     ]
   },
@@ -528,8 +529,8 @@
               "es": "Nigel Farage"
             },
             "poll_pct": 73.0,
-            "model_pct": 64.39,
-            "gap_pts": -8.6
+            "model_pct": 62.56,
+            "gap_pts": -10.4
           },
           {
             "bucket": "binface",
@@ -539,8 +540,8 @@
               "es": "Count Binface"
             },
             "poll_pct": 20.0,
-            "model_pct": 20.24,
-            "gap_pts": 0.2
+            "model_pct": 20.83,
+            "gap_pts": 0.8
           },
           {
             "bucket": "fox",
@@ -550,8 +551,8 @@
               "es": "Laurence Fox"
             },
             "poll_pct": 2.0,
-            "model_pct": 2.71,
-            "gap_pts": 0.7
+            "model_pct": 2.95,
+            "gap_pts": 1.0
           },
           {
             "bucket": "others",
@@ -561,22 +562,23 @@
               "es": "Otros candidatos"
             },
             "poll_pct": 5.0,
-            "model_pct": 12.26,
-            "gap_pts": 7.3
+            "model_pct": 13.31,
+            "gap_pts": 8.3
           }
         ]
       }
     ],
     "weighting": {
       "applied": true,
-      "n_eff": 22.1,
-      "n_eff_share_of_published": 0.044,
-      "sd_total_pts": 8.51,
-      "ess_fraction": 0.5952,
+      "n_eff": 9.3,
+      "n_eff_share_of_published": 0.018,
+      "sd_total_pts": 13.13,
+      "sd_single_poll_pts": 10.0,
+      "ess_fraction": 0.8494,
       "prior_farage_share_q50": 60.0,
       "prior_binface_share_q50": 22.1,
       "prior_p_binface_win": 0.0316,
-      "posterior_p_binface_win": 0.0003,
+      "posterior_p_binface_win": 0.0042,
       "sensitivity": [
         {
           "n_eff": 0,
@@ -622,9 +624,20 @@
         }
       ]
     },
-    "note_fr": "Premier et seul sondage de circonscription. Le modèle en tient compte sans s'y réduire : il lui accorde un poids effectif d'environ 22 répondants — la précision d'échantillonnage étant amputée par un terrain de 9 jours clos 24 jours avant le scrutin et par la sensibilité au cadrage que le sondage révèle lui-même (Binface à 20 % en question à 4 voies, 31 % en duel forcé).",
-    "note_en": "First and only constituency poll. The model takes it into account without reducing itself to it: it is given an effective weight of about 22 respondents — sampling precision is cut by a 9-day field period closing 24 days before polling day, and by the framing sensitivity the poll itself reveals (Binface at 20% in the four-way question, 31% head-to-head).",
-    "note_es": "Primera y única encuesta de circunscripción. El modelo la tiene en cuenta sin reducirse a ella: le otorga un peso efectivo de unos 22 encuestados — la precisión muestral se reduce por un trabajo de campo de 9 días cerrado 24 días antes de la votación y por la sensibilidad al enunciado que la propia encuesta revela (Binface al 20 % en la pregunta a cuatro, 31 % en duelo directo)."
+    "note_fr": "Premier et seul sondage de circonscription. Le modèle en tient compte sans s'y réduire : il lui accorde un poids effectif d'environ 9 répondants — la précision d'échantillonnage étant amputée parce qu'il est unique, par un terrain de 9 jours clos 20 jours avant le scrutin et par la sensibilité au cadrage que le sondage révèle lui-même (Binface à 20 % en question à 4 voies, 31 % en duel forcé).",
+    "note_en": "First and only constituency poll. The model takes it into account without reducing itself to it: it is given an effective weight of about 9 respondents — sampling precision is cut because it is the only local poll, by a 9-day field period closing 20 days before polling day, and by the framing sensitivity the poll itself reveals (Binface at 20% in the four-way question, 31% head-to-head).",
+    "note_es": "Primera y única encuesta de circunscripción. El modelo la tiene en cuenta sin reducirse a ella: le otorga un peso efectivo de unos 9 encuestados — la precisión muestral se reduce porque es la única encuesta local, por un trabajo de campo de 9 días cerrado 20 días antes de la votación y por la sensibilidad al enunciado que la propia encuesta revela (Binface al 20 % en la pregunta a cuatro, 31 % en duelo directo)."
+  },
+  "postal_voting": {
+    "official_return_rate_available": false,
+    "applied_to_model": false,
+    "note_en": "The U.K. has postal and proxy voting, not general advance in-person voting. Postal packs may be opened before polling day to validate identifiers, but ballots stay face down and are not counted until polls close. No official Clacton return rate has been published, so no unsupported number enters the model. Turnout is already simulated by 2024 voter bloc plus a shared turnout shock.",
+    "note_fr": "Au Royaume-Uni, il existe le vote postal et par procuration, pas de vote anticipé général en personne. Les enveloppes peuvent être ouvertes avant le scrutin pour valider les identifiants, mais les bulletins restent face cachée et ne sont comptés qu'après la fermeture. Aucun taux officiel de retour à Clacton n'est publié : aucun chiffre non étayé n'entre donc dans le modèle. La participation est déjà simulée par bloc électoral de 2024 et par un choc commun de mobilisation.",
+    "note_es": "En el Reino Unido hay voto postal y por poder, no voto anticipado general en persona. Los sobres pueden abrirse antes para validar la identidad, pero las papeletas permanecen boca abajo y no se cuentan hasta el cierre. No se ha publicado una tasa oficial de devolución en Clacton, por lo que ningún dato sin respaldo entra en el modelo.",
+    "sources": [
+      "https://www.electoralcommission.org.uk/voting-and-elections/how-elections-work/how-votes-are-counted",
+      "https://www.gov.uk/apply-postal-vote"
+    ]
   },
   "markets": {
     "as_of": "2026-08-11T16:24:45.090657+00:00",
@@ -931,6 +944,12 @@
       "p_farage": 0.9997,
       "p_binface": 0.0003,
       "binface_share_median": 20.24
+    },
+    {
+      "date": "2026-08-12",
+      "p_farage": 0.9958,
+      "p_binface": 0.0042,
+      "binface_share_median": 20.83
     }
   ]
 }

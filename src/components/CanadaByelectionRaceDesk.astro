@@ -386,6 +386,9 @@ const labelFor = (party: string) =>
       <p class="cabye-label" id="cabye-sources">{t.sources}</p>
       <ol class="cabye-sources">
         <li><a href={byelectionSourceUrl} rel="noopener">By-elections to the 45th Canadian Parliament — Wikipedia</a></li>
+        {(data.sources ?? []).filter((s: any) => s?.url && s.url !== byelectionSourceUrl).map((s: any) => (
+          <li><a href={s.url} rel="noopener">{s.label}</a></li>
+        ))}
         {localPoll?.source_url && (
           <li><a href={localPoll.source_url} rel="noopener">{titleCase(localPoll.firm)} — {data.district?.name ?? config.slug} ({localPoll.field_end ?? localPoll.release_date})</a></li>
         )}
