@@ -19,6 +19,29 @@ function fileIncludes(path, needles) {
   return needles.every((needle) => content.includes(needle));
 }
 
+function localeCrossingRedirects(path, separator) {
+  const localeFromUrl = (value) => {
+    try {
+      const url = new URL(value.includes('://') ? value : `https://${value}`);
+      return url.pathname.match(/^\/(en|fr|es)(?:\/|$)/)?.[1] ?? null;
+    } catch {
+      return null;
+    }
+  };
+
+  return read(path)
+    .split(/\r?\n/)
+    .filter(Boolean)
+    .flatMap((line, index) => {
+      const [source, target] = line.trim().split(separator);
+      const sourceLocale = localeFromUrl(source);
+      const targetLocale = localeFromUrl(target);
+      return sourceLocale && targetLocale && sourceLocale !== targetLocale
+        ? [`line ${index + 1}: ${sourceLocale} → ${targetLocale}`]
+        : [];
+    });
+}
+
 const expectedFiles = [
   'src/data/editorial.ts',
   'src/components/EditorialHero.astro',
@@ -119,6 +142,16 @@ check(
     '/ca1-special /en/us/specials/ca1/ 301',
     '/us/ca1-special /en/us/specials/ca1/ 301',
   ])
+);
+
+const crossingRedirects = [
+  ...localeCrossingRedirects('docs/cloudflare-bulk-redirects.csv', ','),
+  ...localeCrossingRedirects('_redirects', /\s+/),
+];
+check(
+  'Redirects preserve explicit locale prefixes',
+  crossingRedirects.length === 0,
+  crossingRedirects.join('; ')
 );
 
 check(
