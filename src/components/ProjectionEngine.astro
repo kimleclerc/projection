@@ -8,6 +8,7 @@ import VoteTrendChart from '../islands/VoteTrendChart.tsx';
 import RidingsMap from '../islands/RidingsMap.tsx';
 import RidingTable from '../islands/RidingTable.tsx';
 import ElectionCountdown from '../islands/ElectionCountdown.tsx';
+import ForecastShare from '../islands/lib/ForecastShare.tsx';
 import KeepDigging from './KeepDigging.astro';
 import JurisdictionNav from './JurisdictionNav.astro';
 import { getNavEntry, type NavLang } from '../lib/jurisdiction-nav';
@@ -522,7 +523,7 @@ const keepDiggingLinks = (() => {
     </div>
   </header>
 
-  <section class="pe-section container pe-snapshot" aria-labelledby="pe-snapshot-title">
+  <section id="forecast" class="pe-section container pe-snapshot" aria-labelledby="pe-snapshot-title">
     <p class="pe-snapshot-kicker">{snapshotKicker}</p>
     <h2 id="pe-snapshot-title">{snapshotHeadline}</h2>
     <div class="pe-snapshot-grid">
@@ -532,6 +533,12 @@ const keepDiggingLinks = (() => {
       {liveMarketValue && <a class="pe-market-card" href={marketHref}><strong>{liveMarketValue}</strong><span>{liveMarketLabel} →</span></a>}
     </div>
     <p class="pe-snapshot-note">{locale === 'fr' ? `${meta.n_polls} sondages · ${meta.n_simulations.toLocaleString('fr-CA')} simulations · notre lecture exclusive de la course` : locale === 'es' ? `${meta.n_polls} encuestas · ${meta.n_simulations.toLocaleString('es-ES')} simulaciones · nuestra lectura exclusiva de la carrera` : `${meta.n_polls} polls · ${meta.n_simulations.toLocaleString('en-CA')} simulations · our exclusive read of the race`}</p>
+    <ForecastShare
+      locale={locale}
+      cardPath={`/og/projections/${jurisdiction.dataPath}/${locale}.png`}
+      title={jurisdiction.pageTitle[locale] ?? jurisdiction.pageTitle.en}
+      client:load
+    />
   </section>
 
   {jurisdiction.electionDate && (
