@@ -5,6 +5,7 @@ interface Props {
   locale: 'fr' | 'en' | 'es';
   cardPath: string;
   title: string;
+  shareVersion: string;
 }
 
 const LABELS = {
@@ -13,10 +14,19 @@ const LABELS = {
   shared: { fr: 'Partagé', en: 'Shared', es: 'Compartido' },
 } as const;
 
-export default function ForecastShare({ locale, cardPath, title }: Props) {
+export default function ForecastShare({ locale, cardPath, title, shareVersion }: Props) {
   const [canShare, setCanShare] = useState(false);
   const [shared, setShared] = useState(false);
   const cardKey = cardPath.split('/').filter(Boolean).at(-2) ?? 'forecast';
+  const shareToken = shareVersion.replace(/\D/g, '');
+
+  const getShareUrl = () => {
+    const url = new URL(window.location.href);
+    url.hash = '';
+    url.searchParams.set('vs', shareToken);
+    url.hash = 'forecast';
+    return url.toString();
+  };
 
   useEffect(() => {
     injectStyles();
@@ -35,7 +45,7 @@ export default function ForecastShare({ locale, cardPath, title }: Props) {
 
   const share = async () => {
     try {
-      await navigator.share({ title, url: window.location.href });
+      await navigator.share({ title, url: getShareUrl() });
       setShared(true);
       setTimeout(() => setShared(false), 2000);
     } catch (error) {
@@ -45,7 +55,7 @@ export default function ForecastShare({ locale, cardPath, title }: Props) {
 
   return (
     <div class="forecast-share" aria-label={LABELS.share[locale]}>
-      <CopyLink locale={locale} anchor="forecast" />
+      <CopyLink locale={locale} anchor="forecast" params={{ vs: shareToken }} />
       <a class="copy-link" href={cardPath} download={`vote-scope-${cardKey}-${locale}.png`}>
         ↓ {LABELS.png[locale]}
       </a>

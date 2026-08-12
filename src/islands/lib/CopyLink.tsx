@@ -11,6 +11,8 @@ interface Props {
   locale: 'fr' | 'en' | 'es';
   /** Ancre (#id) ajoutée à l'URL copiée pour cibler le module. */
   anchor?: string;
+  /** Paramètres ajoutés au lien partagé, notamment pour renouveler les cartes sociales. */
+  params?: Record<string, string>;
 }
 
 const LABELS = {
@@ -47,7 +49,7 @@ async function copyText(text: string): Promise<void> {
   }
 }
 
-export default function CopyLink({ locale, anchor }: Props) {
+export default function CopyLink({ locale, anchor, params }: Props) {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
@@ -56,7 +58,11 @@ export default function CopyLink({ locale, anchor }: Props) {
 
   const onClick = async () => {
     const url = new URL(window.location.href);
-    if (anchor) url.hash = anchor;
+    url.hash = '';
+    for (const [key, value] of Object.entries(params ?? {})) {
+      url.searchParams.set(key, value);
+    }
+    if (anchor) url.hash = anchor.replace(/^#+/, '');
     await copyText(url.toString());
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
