@@ -13,6 +13,8 @@ interface Props {
   /** Absolute URL to OG image (1200×630). Defaults to brand fallback. */
   ogImage?: string;
   ogType?: string;
+  /** Include the page in the internal Pagefind search index. */
+  searchIndex?: boolean;
 }
 
 const {
@@ -25,6 +27,7 @@ const {
   jsonLd,
   ogImage = 'https://vote-scope.com/og/vote-scope.png',
   ogType = 'website',
+  searchIndex = true,
 } = Astro.props;
 ---
 
@@ -38,6 +41,7 @@ const {
   jsonLd={jsonLd}
   ogImage={ogImage}
   ogType={ogType}
+  searchIndex={searchIndex}
 >
   <slot />
 </Base>

@@ -22,6 +22,8 @@ interface Props {
   jsonLd?: object | object[];
   /** Prevent indexing for temporary untranslated or duplicate stubs. */
   noindex?: boolean;
+  /** Include the page in the internal Pagefind search index. */
+  searchIndex?: boolean;
 }
 
 type Locale = 'en' | 'fr' | 'es';
@@ -37,6 +39,7 @@ const {
   alternates,
   jsonLd,
   noindex = false,
+  searchIndex = true,
 } = Astro.props;
 
 const localeCopy: Record<Locale, {
@@ -563,7 +566,7 @@ const languageLinks = (['en', 'fr', 'es'] as Locale[])
   </div>
 </nav>
 
-<main id="main-content" data-pagefind-body>
+<main id="main-content" data-pagefind-body={searchIndex ? true : undefined}>
   <slot />
 </main>
 
