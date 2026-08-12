@@ -1,0 +1,223 @@
+---
+interface Props {
+  lang: 'en' | 'fr' | 'es';
+}
+
+const { lang } = Astro.props;
+
+const media = [
+  {
+    outlet: 'PiluleRouge.ca',
+    date: '2026-04-23',
+    displayDate: { en: 'April 23, 2026', fr: '23 avril 2026', es: '23 de abril de 2026' },
+    title: {
+      en: 'Launching Vote-Scope’s electoral projection model',
+      fr: 'Lancement du modèle de projections électorales Vote-Scope',
+      es: 'Lanzamiento del modelo de proyecciones electorales Vote-Scope',
+    },
+    body: {
+      en: 'An interview about the Bayesian model, its first Canadian forecasts and the project’s public-data approach.',
+      fr: 'Un entretien sur le modèle bayésien, ses premières projections canadiennes et l’approche fondée sur des données publiques.',
+      es: 'Una entrevista sobre el modelo bayesiano, sus primeras proyecciones canadienses y el uso de datos públicos.',
+    },
+    url: 'https://pilulerouge.ca/projections-electorales-kim-leclerc-lance-un-nouveau-site-pour-decoder-la-carte-politique/',
+    type: 'Article',
+  },
+  {
+    outlet: 'CBC News',
+    date: '2026-03',
+    displayDate: { en: 'March 2026', fr: 'Mars 2026', es: 'Marzo de 2026' },
+    title: {
+      en: 'Air Canada governance and crisis management',
+      fr: 'Gouvernance et gestion de crise chez Air Canada',
+      es: 'Gobernanza y gestión de crisis en Air Canada',
+    },
+    body: {
+      en: 'A television interview on governance, accountability and institutional crisis response.',
+      fr: 'Une entrevue télévisée sur la gouvernance, la reddition de comptes et la réponse institutionnelle en situation de crise.',
+      es: 'Una entrevista televisiva sobre gobernanza, rendición de cuentas y respuesta institucional ante una crisis.',
+    },
+    url: 'https://www.cbc.ca/player/play/video/9.7143764',
+    type: 'VideoObject',
+  },
+  {
+    outlet: 'CBC News',
+    date: '',
+    displayDate: { en: 'CBC archive', fr: 'Archives de CBC', es: 'Archivo de CBC' },
+    title: {
+      en: 'Political debates and leaders’ preparation',
+      fr: 'Débats politiques et préparation des chefs',
+      es: 'Debates políticos y preparación de los líderes',
+    },
+    body: {
+      en: 'Analysis of political communication, debate preparation and party strategy during a federal election campaign.',
+      fr: 'Analyse de la communication politique, de la préparation aux débats et de la stratégie des partis en campagne fédérale.',
+      es: 'Análisis de comunicación política, preparación de debates y estrategia partidista durante una campaña federal.',
+    },
+    url: 'https://www.cbc.ca/player/play/video/9.6999303',
+    type: 'VideoObject',
+  },
+  {
+    outlet: 'Anadolu Agency',
+    date: '2025-07-03',
+    displayDate: { en: 'July 3, 2025', fr: '3 juillet 2025', es: '3 de julio de 2025' },
+    title: {
+      en: 'F-35 costs and alternatives for allied countries',
+      fr: 'Coûts du F-35 et solutions de remplacement pour les pays alliés',
+      es: 'Costos del F-35 y alternativas para los países aliados',
+    },
+    body: {
+      en: 'Expert commentary on procurement risk, rising program costs and European fighter-aircraft alternatives.',
+      fr: 'Commentaires d’expert sur les risques d’approvisionnement, la hausse des coûts du programme et les solutions européennes.',
+      es: 'Comentarios expertos sobre riesgos de adquisición, aumento de costos y alternativas europeas de aviones de combate.',
+    },
+    url: 'https://www.aa.com.tr/en/americas/experts-believe-countries-could-seek-alternatives-amid-rising-costs-of-us-made-f-35-fighter-jets/3621045',
+    type: 'Article',
+  },
+];
+
+const copy = {
+  en: {
+    eyebrow: 'About Vote-Scope',
+    title: 'Independent forecasts, built to be checked.',
+    intro: 'Vote-Scope is an independent, non-partisan election and sports intelligence project created by Kim Leclerc in Ottawa in 2026.',
+    whatTitle: 'What Vote-Scope does',
+    whatBody: 'The site turns public polling, electoral history and market signals into probabilistic forecasts, riding-level estimates and named editorial instruments. Outputs are published with their uncertainty, source context and a public methodology.',
+    authorTitle: 'About the creator',
+    authorBody: 'Kim Leclerc is a political analyst and public-affairs strategist with experience in political offices and strategic communications. Vote-Scope is a personal project: it is not affiliated with a party, polling firm or media organization.',
+    standardsTitle: 'How to assess the work',
+    standardsBody: 'Readers can inspect the methodology, compare resolved calls in the public track record and consult the disclosure policy. Errors and methodological changes are documented rather than erased.',
+    mediaEyebrow: 'Selected interviews and media mentions',
+    mediaTitle: 'Expertise behind the model, in the public record.',
+    mediaIntro: 'These independent media appearances provide context on the experience behind Vote-Scope. They are separate from Vote-Scope’s own editorial publications.',
+    read: 'Open source',
+    methodology: 'Read the methodology',
+    track: 'View the track record',
+    contact: 'Contact Kim Leclerc',
+  },
+  fr: {
+    eyebrow: 'À propos de Vote-Scope',
+    title: 'Des projections indépendantes, conçues pour être vérifiées.',
+    intro: 'Vote-Scope est un projet indépendant et non partisan d’intelligence électorale et sportive créé par Kim Leclerc à Ottawa en 2026.',
+    whatTitle: 'Ce que fait Vote-Scope',
+    whatBody: 'Le site transforme les sondages publics, l’histoire électorale et les signaux de marché en projections probabilistes, estimations par circonscription et instruments éditoriaux nommés. Les résultats sont publiés avec leur incertitude, le contexte des sources et une méthodologie publique.',
+    authorTitle: 'À propos du créateur',
+    authorBody: 'Kim Leclerc est analyste politique et stratège en affaires publiques, avec une expérience en cabinets politiques et en communications stratégiques. Vote-Scope est un projet personnel : il n’est affilié à aucun parti, institut de sondage ou média.',
+    standardsTitle: 'Comment évaluer le travail',
+    standardsBody: 'Le lecteur peut examiner la méthodologie, comparer les appels résolus dans l’historique public et consulter la politique de divulgation. Les erreurs et changements méthodologiques sont documentés plutôt qu’effacés.',
+    mediaEyebrow: 'Entrevues et mentions médiatiques sélectionnées',
+    mediaTitle: 'L’expertise derrière le modèle, dans le dossier public.',
+    mediaIntro: 'Ces interventions dans des médias indépendants donnent du contexte sur l’expérience derrière Vote-Scope. Elles sont distinctes des publications éditoriales du site.',
+    read: 'Consulter la source',
+    methodology: 'Lire la méthodologie',
+    track: 'Voir l’historique',
+    contact: 'Contacter Kim Leclerc',
+  },
+  es: {
+    eyebrow: 'Acerca de Vote-Scope',
+    title: 'Proyecciones independientes, hechas para ser verificadas.',
+    intro: 'Vote-Scope es un proyecto independiente y no partidista de inteligencia electoral y deportiva creado por Kim Leclerc en Ottawa en 2026.',
+    whatTitle: 'Qué hace Vote-Scope',
+    whatBody: 'El sitio convierte encuestas públicas, historia electoral y señales de mercado en proyecciones probabilísticas, estimaciones por distrito e instrumentos editoriales propios. Los resultados se publican con su incertidumbre, contexto de fuentes y una metodología pública.',
+    authorTitle: 'Sobre el creador',
+    authorBody: 'Kim Leclerc es analista político y estratega de asuntos públicos con experiencia en oficinas políticas y comunicaciones estratégicas. Vote-Scope es un proyecto personal: no está afiliado a partidos, encuestadoras ni medios.',
+    standardsTitle: 'Cómo evaluar el trabajo',
+    standardsBody: 'El lector puede revisar la metodología, comparar pronósticos resueltos en el historial público y consultar la política de divulgación. Los errores y cambios metodológicos se documentan en lugar de borrarse.',
+    mediaEyebrow: 'Entrevistas y menciones seleccionadas',
+    mediaTitle: 'La experiencia detrás del modelo, en el registro público.',
+    mediaIntro: 'Estas apariciones en medios independientes contextualizan la experiencia detrás de Vote-Scope. Son distintas de las publicaciones editoriales del sitio.',
+    read: 'Consultar la fuente',
+    methodology: 'Leer la metodología',
+    track: 'Ver el historial',
+    contact: 'Contactar a Kim Leclerc',
+  },
+}[lang];
+
+const paths = {
+  en: { method: '/en/methodology/', track: '/en/track-record/' },
+  fr: { method: '/fr/methodologie/', track: '/fr/track-record/' },
+  es: { method: '/es/metodologia/', track: '/es/track-record/' },
+}[lang];
+---
+
+<article class="about-page">
+  <header class="about-hero">
+    <div class="container about-hero__inner">
+      <p class="eyebrow">{copy.eyebrow}</p>
+      <h1>{copy.title}</h1>
+      <p class="lede">{copy.intro}</p>
+      <div class="about-actions">
+        <a class="primary" href={paths.method}>{copy.methodology}</a>
+        <a href={paths.track}>{copy.track}</a>
+      </div>
+    </div>
+  </header>
+
+  <section class="about-principles container">
+    <div><h2>{copy.whatTitle}</h2><p>{copy.whatBody}</p></div>
+    <div><h2>{copy.authorTitle}</h2><p>{copy.authorBody}</p></div>
+    <div><h2>{copy.standardsTitle}</h2><p>{copy.standardsBody}</p></div>
+  </section>
+
+  <section class="media-section">
+    <div class="container">
+      <p class="eyebrow">{copy.mediaEyebrow}</p>
+      <h2>{copy.mediaTitle}</h2>
+      <p class="media-intro">{copy.mediaIntro}</p>
+      <div class="media-list">
+        {media.map((item) => (
+          <article class="media-card">
+            <div class="media-meta">
+              <strong>{item.outlet}</strong>
+              <time datetime={item.date || undefined}>{item.displayDate[lang]}</time>
+            </div>
+            <h3>{item.title[lang]}</h3>
+            <p>{item.body[lang]}</p>
+            <a href={item.url} target="_blank" rel="noopener noreferrer" data-analytics-event="outbound_click" data-analytics-location="about_media">
+              {copy.read} <span aria-hidden="true">↗</span>
+            </a>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <aside class="about-contact container">
+    <a href="https://kimleclerc.ca" target="_blank" rel="me noopener">{copy.contact} <span aria-hidden="true">↗</span></a>
+    <span aria-hidden="true">·</span>
+    <a href="https://x.com/kimleclerc" target="_blank" rel="me noopener">X — @kimleclerc <span aria-hidden="true">↗</span></a>
+  </aside>
+</article>
+
+<style>
+  .about-hero { padding: clamp(4rem, 9vw, 8rem) 0; border-bottom: 1px solid var(--rule); }
+  .about-hero__inner { max-width: 960px; }
+  .about-hero h1 { max-width: 900px; margin: .45rem 0 1.25rem; font-size: clamp(2.7rem, 7vw, 6.3rem); line-height: .98; letter-spacing: -.045em; }
+  .lede { max-width: 780px; font-size: clamp(1.15rem, 2vw, 1.45rem); line-height: 1.55; color: var(--ink-2); }
+  .about-actions { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: 2rem; }
+  .about-actions a { padding: .75rem 1rem; border: 1px solid var(--rule); border-radius: 2px; font-family: var(--mono); font-size: .75rem; text-transform: uppercase; letter-spacing: .07em; }
+  .about-actions .primary { color: var(--paper-3); background: var(--ink); border-color: var(--ink); }
+  .about-principles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; padding-block: 4rem; }
+  .about-principles > div { padding: 0 2rem; border-left: 1px solid var(--rule); }
+  .about-principles > div:first-child { padding-left: 0; border-left: 0; }
+  .about-principles h2 { margin-bottom: .75rem; font-size: 1.45rem; }
+  .about-principles p { color: var(--ink-2); line-height: 1.7; }
+  .media-section { padding: 4.5rem 0; background: var(--paper-2); border-block: 1px solid var(--rule); }
+  .media-section h2 { max-width: 820px; margin: .35rem 0 .8rem; font-size: clamp(2rem, 4vw, 3.8rem); letter-spacing: -.035em; }
+  .media-intro { max-width: 760px; color: var(--ink-2); font-size: 1.05rem; line-height: 1.65; }
+  .media-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-top: 2.5rem; }
+  .media-card { display: flex; min-height: 290px; flex-direction: column; padding: 1.6rem; border: 1px solid var(--rule); background: var(--paper); }
+  .media-meta { display: flex; justify-content: space-between; gap: 1rem; color: var(--ink-3); font-family: var(--mono); font-size: .7rem; letter-spacing: .05em; text-transform: uppercase; }
+  .media-meta strong { color: var(--red); }
+  .media-card h3 { margin: 1.25rem 0 .7rem; font-size: clamp(1.35rem, 2.4vw, 2rem); }
+  .media-card p { color: var(--ink-2); line-height: 1.65; }
+  .media-card a { align-self: flex-start; margin-top: auto; padding-top: 1.2rem; font-family: var(--mono); font-size: .75rem; letter-spacing: .06em; text-transform: uppercase; border-bottom: 1px solid var(--ink); }
+  .about-contact { display: flex; justify-content: center; gap: .75rem; padding-block: 3rem; text-align: center; }
+  .about-contact a { font-size: 1.2rem; border-bottom: 1px solid var(--ink); }
+  @media (max-width: 820px) {
+    .about-principles { grid-template-columns: 1fr; gap: 2rem; }
+    .about-principles > div { padding: 0; border-left: 0; }
+    .media-list { grid-template-columns: 1fr; }
+    .media-card { min-height: 250px; }
+  }
+</style>

@@ -1,0 +1,86 @@
+---
+interface Props {
+  lang: 'en' | 'fr' | 'es';
+}
+
+const { lang } = Astro.props;
+const copy = {
+  en: {
+    eyebrow: 'Fast path',
+    title: 'Find a riding, district, candidate or race.',
+    body: 'Search every Vote-Scope projection, poll page, instrument and methodology note from one place.',
+    placeholder: 'Search Vote-Scope',
+  },
+  fr: {
+    eyebrow: 'Accès direct',
+    title: 'Trouvez une circonscription, un candidat ou une course.',
+    body: 'Recherchez d’un seul endroit dans les projections, sondages, instruments et notes méthodologiques de Vote-Scope.',
+    placeholder: 'Rechercher dans Vote-Scope',
+  },
+  es: {
+    eyebrow: 'Acceso directo',
+    title: 'Encuentre un distrito, candidato o contienda.',
+    body: 'Busque desde un solo lugar en las proyecciones, encuestas, índices y notas metodológicas de Vote-Scope.',
+    placeholder: 'Buscar en Vote-Scope',
+  },
+}[lang];
+---
+
+<section class="search-fast-path" aria-labelledby={`search-fast-path-${lang}`}>
+  <div class="container search-fast-path__inner">
+    <div>
+      <p class="eyebrow">{copy.eyebrow}</p>
+      <h2 id={`search-fast-path-${lang}`}>{copy.title}</h2>
+      <p>{copy.body}</p>
+    </div>
+    <div class="search-fast-path__control">
+      <pagefind-modal-trigger placeholder={copy.placeholder}></pagefind-modal-trigger>
+      <small>⌘ K · Ctrl K</small>
+    </div>
+  </div>
+</section>
+
+<style>
+  .search-fast-path {
+    padding: 1.25rem 0;
+    border-block: 1px solid var(--rule);
+    background: var(--paper-2);
+  }
+  .search-fast-path__inner {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(260px, 420px);
+    align-items: center;
+    gap: 2rem;
+  }
+  .search-fast-path h2 {
+    margin: .2rem 0 .35rem;
+    font-size: clamp(1.35rem, 2.2vw, 2rem);
+  }
+  .search-fast-path p:last-child {
+    max-width: 720px;
+    color: var(--ink-2);
+  }
+  .search-fast-path__control {
+    display: grid;
+    gap: .4rem;
+  }
+  .search-fast-path__control pagefind-modal-trigger {
+    --pagefind-ui-primary: var(--red);
+    --pagefind-ui-text: var(--ink);
+    --pagefind-ui-background: var(--paper);
+    --pagefind-ui-border: var(--rule);
+    --pagefind-ui-border-width: 1px;
+    --pagefind-ui-border-radius: 3px;
+    width: 100%;
+  }
+  .search-fast-path__control small {
+    color: var(--ink-3);
+    font-family: var(--mono);
+    font-size: 10px;
+    text-align: right;
+    letter-spacing: .04em;
+  }
+  @media (max-width: 760px) {
+    .search-fast-path__inner { grid-template-columns: 1fr; gap: 1rem; }
+  }
+</style>

@@ -54,6 +54,7 @@ const localeCopy: Record<Locale, {
   terms: string;
   disclosure: string;
   library: string;
+  about: string;
   contact: string;
   homeLabel: string;
   usLabel: string;
@@ -99,7 +100,8 @@ const localeCopy: Record<Locale, {
     terms: '/en/terms/',
     disclosure: '/en/disclosure/',
     library: '/en/library/',
-    contact: '/en/',
+    about: '/en/about/',
+    contact: 'https://kimleclerc.ca',
     homeLabel: 'Home',
     usLabel: 'U.S.',
     canadaLabel: 'Canada',
@@ -144,7 +146,8 @@ const localeCopy: Record<Locale, {
     terms: '/fr/conditions/',
     disclosure: '/fr/divulgation/',
     library: '/fr/bibliotheque/',
-    contact: '/fr/',
+    about: '/fr/a-propos/',
+    contact: 'https://kimleclerc.ca',
     homeLabel: 'Accueil',
     usLabel: 'États-Unis',
     canadaLabel: 'Canada',
@@ -189,7 +192,8 @@ const localeCopy: Record<Locale, {
     terms: '/es/terminos/',
     disclosure: '/es/divulgacion/',
     library: '/es/biblioteca/',
-    contact: '/es/',
+    about: '/es/acerca-de/',
+    contact: 'https://kimleclerc.ca',
     homeLabel: 'Inicio',
     usLabel: 'EE. UU.',
     canadaLabel: 'Canadá',
@@ -335,6 +339,8 @@ const languageLinks = (['en', 'fr', 'es'] as Locale[])
   <!-- Crawler / AI hints -->
   <meta name="robots" content={noindex ? 'noindex,follow' : 'max-snippet:-1, max-image-preview:large, max-video-preview:-1'} />
   <link rel="alternate" type="text/plain" title="LLM context" href="/llms.txt" />
+  <link rel="stylesheet" href="/pagefind/pagefind-component-ui.css" />
+  <script type="module" src="/pagefind/pagefind-component-ui.js"></script>
 
   <!-- hreflang alternates — uses derivedAlternates so every locale gets a
        link even when the page didn't declare an explicit `alternates` prop. -->
@@ -397,6 +403,16 @@ const languageLinks = (['en', 'fr', 'es'] as Locale[])
     .nav-links a:hover { border-color: var(--ink); }
     .nav-links a.current { color: var(--ink); font-weight: 500; }
     .nav-right { display: flex; align-items: center; gap: 10px; }
+    .nav-search { display: inline-flex; }
+    .nav-search pagefind-modal-trigger {
+      --pagefind-ui-primary: var(--ink);
+      --pagefind-ui-text: var(--ink);
+      --pagefind-ui-background: var(--paper);
+      --pagefind-ui-border: var(--rule);
+      --pagefind-ui-border-width: 1px;
+      --pagefind-ui-border-radius: 2px;
+      font-size: 12px;
+    }
     .nav-cta { font-family: var(--mono); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; padding: 8px 14px; background: var(--ink); color: var(--paper-3); border-radius: 2px; display: inline-block; }
     /* Dark mode toggle */
     .theme-toggle { min-width: 44px; min-height: 44px; background: none; border: 1px solid var(--rule); border-radius: 2px; padding: 7px 8px; cursor: pointer; color: var(--ink-3); line-height: 1; display: flex; align-items: center; justify-content: center; transition: color .15s, border-color .15s; }
@@ -495,6 +511,7 @@ const languageLinks = (['en', 'fr', 'es'] as Locale[])
         padding: 8px 10px;
         font-size: 10px;
       }
+      .nav-search pagefind-modal-trigger { max-width: 44px; overflow: hidden; }
       .lang-toggle {
         padding: 7px 9px;
       }
@@ -522,6 +539,9 @@ const languageLinks = (['en', 'fr', 'es'] as Locale[])
       ))}
     </div>
     <div class="nav-right">
+      <span class="nav-search">
+        <pagefind-modal-trigger compact aria-label={lang === 'fr' ? 'Rechercher sur Vote-Scope' : lang === 'es' ? 'Buscar en Vote-Scope' : 'Search Vote-Scope'}></pagefind-modal-trigger>
+      </span>
       {languageLinks.length > 0 && (
         <div class="lang-switcher" role="group" aria-label={copy.languageLabel}>
           {languageLinks.map((language) => (
@@ -543,7 +563,7 @@ const languageLinks = (['en', 'fr', 'es'] as Locale[])
   </div>
 </nav>
 
-<main id="main-content">
+<main id="main-content" data-pagefind-body>
   <slot />
 </main>
 
@@ -597,13 +617,14 @@ const languageLinks = (['en', 'fr', 'es'] as Locale[])
       </div>
       <div class="footer-col">
         <h4>{copy.aboutLabel}</h4>
+        <a href={copy.about}>{copy.aboutLabel}</a>
         <a href={copy.methodology}>{copy.methodologyLabel}</a>
         <a href={copy.trackRecord}>{copy.trackRecordLabel}</a>
         <a href={copy.privacy}>{copy.privacyLabel}</a>
         <a href={copy.terms}>{copy.termsLabel}</a>
         <a href={copy.disclosure}>{copy.disclosureLabel}</a>
         <a href={copy.library}>{copy.libraryLabel}</a>
-        <a href={copy.contact}>{copy.contactLabel}</a>
+        <a href={copy.contact} target="_blank" rel="me noopener">{copy.contactLabel}</a>
       </div>
     </div>
     <div class="footer-bottom">
@@ -621,6 +642,8 @@ const languageLinks = (['en', 'fr', 'es'] as Locale[])
     </div>
   </div>
 </footer>
+
+<pagefind-modal></pagefind-modal>
 
 <!-- Dark mode toggle script — no framework needed, 150 bytes -->
 <script>

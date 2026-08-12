@@ -3,7 +3,7 @@
   "type": "module",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build && node scripts/copy-legacy.mjs",
+    "build": "astro build && node scripts/copy-legacy.mjs && pagefind --site dist",
     "preview": "astro preview",
     "validate:editorial": "node scripts/validate-editorial-astro.mjs",
     "check:polymarket": "node scripts/check-polymarket-embeds.mjs",
@@ -26,6 +26,7 @@
     "satori": "^0.26.0"
   },
   "devDependencies": {
-    "@types/leaflet": "^1.9.21"
+    "@types/leaflet": "^1.9.21",
+    "pagefind": "^1.5.2"
   }
 }
