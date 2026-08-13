@@ -10,6 +10,7 @@ import ContextualBookShelf from './ContextualBookShelf.astro';
 import ElectionCountdown from '../islands/ElectionCountdown.tsx';
 import GooglePreferredSource from './GooglePreferredSource.astro';
 import ClactonLiveDesk from '../islands/ClactonLiveDesk.tsx';
+import ClactonTurnoutCurve from './ClactonTurnoutCurve.astro';
 import special from '../../web_data/uk-clacton-special/latest.json';
 import clactonLive from '../../web_data/uk-clacton-live/latest.json';
 import {
@@ -138,6 +139,7 @@ const copy = {
     pollWeightLabel: 'How much weight the model gives it',
     turnoutLabel: 'Turnout, postal votes & the Reform slide',
     turnoutIntro: 'What the model can use — and what it deliberately leaves out.',
+    curveNote: "Turnout is the one number the returning officer announces before the result. Our forecast assumes turnout in the range a by-election normally produces — the shaded band. The model also says which way an unusually heavy turnout would cut: towards Count Binface, because Farage's own 2024 voters are the bloc least likely to be moved by a bigger crowd, while everyone else in the constituency has to be mobilised to appear at all. How heavy is heavy enough to change the outcome is precisely what the model cannot pin down, so the chart carries no figures.",
     reformNote: `Reform UK is at ${fmtPct(reformCoupling.national_reform_now, 1)}% nationally versus the model’s ${fmtPct(reformCoupling.national_reform_anchor, 1)}% anchor. That trims Farage’s expected retention of his 2024 bloc from ${fmtPct(reformCoupling.farage_retention_mean_base * 100, 1)}% to ${fmtPct(reformCoupling.farage_retention_mean_effective * 100, 1)}%. Transfers and turnout are simulated voter bloc by voter bloc, including a shared mobilisation shock.`,
     pathLabel: 'Path to victory — how could the bin actually win?',
     pathIntro: `Baseline: Vote-Scope gives Count Binface ${fmtProbBounded(model.p_binface_win)}% — the markets say ${pmBinface != null ? fmtProb(pmBinface) : '—'}%. For the upset, several things must break at once. Conditional win probabilities, from the same simulations:`,
@@ -204,6 +206,7 @@ const copy = {
     pollWeightLabel: 'Le poids que le modèle lui accorde',
     turnoutLabel: 'Participation, vote postal et baisse de Reform',
     turnoutIntro: 'Ce que le modèle peut exploiter — et ce qu’il écarte volontairement.',
+    curveNote: "La participation est le seul chiffre que le returning officer annonce avant le résultat. Notre projection suppose une participation de l'ordre de ce que produit normalement une partielle — la bande grisée. Le modèle dit aussi dans quel sens pencherait une affluence inhabituelle : vers Count Binface, parce que les électeurs de Farage de 2024 sont le bloc que l'affluence déplace le moins, tandis que tout le reste de la circonscription doit être mobilisé pour se présenter. À partir de quel niveau l'issue changerait est précisément ce que le modèle n'arrive pas à fixer : le graphique ne porte donc aucun chiffre.",
     reformNote: `Reform UK est à ${fmtPct(reformCoupling.national_reform_now, 1)} % au pays contre une ancre de ${fmtPct(reformCoupling.national_reform_anchor, 1)} % dans le modèle. Cela réduit la rétention attendue du bloc Farage de 2024 de ${fmtPct(reformCoupling.farage_retention_mean_base * 100, 1)} % à ${fmtPct(reformCoupling.farage_retention_mean_effective * 100, 1)} %. Les reports et la participation sont simulés bloc par bloc, avec un choc commun de mobilisation.`,
     pathLabel: 'Path to victory — comment la poubelle pourrait-elle gagner ?',
     pathIntro: `Point de départ : Vote-Scope donne ${fmtProbBounded(model.p_binface_win)} % à Count Binface — les marchés disent ${pmBinface != null ? fmtProb(pmBinface) : '—'} %. Pour l'exploit, il faut que plusieurs choses cassent en même temps. Probabilités conditionnelles, tirées des mêmes simulations :`,
@@ -270,6 +273,7 @@ const copy = {
     pollWeightLabel: 'El peso que le da el modelo',
     turnoutLabel: 'Participación, voto postal y caída de Reform',
     turnoutIntro: 'Lo que el modelo puede utilizar — y lo que deja fuera deliberadamente.',
+    curveNote: 'La participación es la única cifra que el returning officer anuncia antes del resultado. Nuestra previsión supone una participación del orden de la que suele darse en una elección parcial — la banda sombreada. El modelo también indica hacia dónde inclinaría una afluencia inusual: hacia Count Binface, porque los votantes de Farage de 2024 son el bloque al que la afluencia menos mueve, mientras que el resto de la circunscripción debe ser movilizado para acudir. A partir de qué nivel cambiaría el desenlace es precisamente lo que el modelo no logra fijar, por lo que el gráfico no lleva ninguna cifra.',
     reformNote: `Reform UK está en ${fmtPct(reformCoupling.national_reform_now, 1)} % a nivel nacional frente al ancla de ${fmtPct(reformCoupling.national_reform_anchor, 1)} % del modelo. Eso reduce la retención esperada del bloque Farage de 2024 del ${fmtPct(reformCoupling.farage_retention_mean_base * 100, 1)} % al ${fmtPct(reformCoupling.farage_retention_mean_effective * 100, 1)} %. Las transferencias y la participación se simulan bloque por bloque, con un choque común de movilización.`,
     pathLabel: 'Path to victory — ¿cómo podría ganar el cubo de basura?',
     pathIntro: `Punto de partida: Vote-Scope da a Count Binface un ${fmtProbBounded(model.p_binface_win)} % — los mercados dicen ${pmBinface != null ? fmtProb(pmBinface) : '—'} %. Para la sorpresa, varias cosas deben romperse a la vez. Probabilidades condicionales, de las mismas simulaciones:`,
@@ -516,6 +520,8 @@ const pc = (v: number) => `${Math.min(100, (v / SCALE_MAX) * 100)}%`;
         <p>{t.reformNote}</p>
         <p>{lang === 'fr' ? postalVoting.note_fr : lang === 'es' ? postalVoting.note_es : postalVoting.note_en}</p>
       </div>
+      <ClactonTurnoutCurve lang={lang} />
+      <p class="ukbye-curve-note">{t.curveNote}</p>
     </section>
 
     <section class="container" aria-labelledby="ukbye-markets">
@@ -694,6 +700,7 @@ const pc = (v: number) => `${Math.min(100, (v / SCALE_MAX) * 100)}%`;
   .ukbye-poll-weight-label { margin-top: 24px; }
   .ukbye-turnout-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 14px; }
   .ukbye-turnout-grid p { margin: 0; border: 1px solid var(--rule); border-radius: 6px; background: var(--card); padding: 16px; color: var(--ink-2); font-size: 14px; line-height: 1.6; }
+  .ukbye-curve-note { margin-top: 12px; max-width: 70ch; color: var(--ink-3); font-size: 13.5px; line-height: 1.6; }
 
   .ukbye-snap-grid { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 14px; margin-top: 14px; }
   .ukbye-snap {

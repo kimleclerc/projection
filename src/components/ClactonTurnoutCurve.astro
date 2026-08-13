@@ -1,0 +1,132 @@
+---
+/*
+  Courbe participation × part du vote — SCHÉMA NON CHIFFRÉ.
+
+  Intention éditoriale (directive Kim, 2026-08-13) : montrer que la projection
+  publiée suppose une participation NORMALE pour une partielle, et qu'une
+  participation exceptionnelle favoriserait Binface selon le modèle — sans
+  jamais dire ni quantifier ce que « exceptionnelle » veut dire.
+
+  Pourquoi aucun chiffre. Le module run_clacton_turnout_curve.py (dépôt models)
+  établit deux choses de statut très différent :
+
+    · la PENTE est robuste — chaque point de participation en plus coûte à
+      Farage entre 0,27 et 0,45 point de part, quel que soit l'ancrage de
+      niveau testé. C'est ce que ce schéma a le droit de montrer.
+    · la POSITION du croisement ne l'est PAS — elle passe d'environ 40 % de
+      participation (mécanisme non ancré) à « hors de portée » dès que l'on
+      ancre le niveau sur le sondage local. Or ce sondage vaut un n effectif
+      de 9,3 après déflation : il oriente, il ne tranche pas.
+
+  Porter un seuil chiffré sur la page publique reviendrait donc à publier le
+  seul élément que le modèle n'identifie pas — et il contredirait à l'œil le
+  p(Farage) affiché juste au-dessus. Les courbes ci-dessous sont donc un
+  SCHÉMA : la forme est celle du modèle, l'échelle est délibérément absente et
+  le croisement est placé loin à droite, dans une zone laissée sans étiquette.
+  Ne pas y ajouter d'axe gradué, de valeur ni de repère chiffré.
+*/
+interface Props {
+  lang: 'en' | 'fr' | 'es';
+}
+const { lang } = Astro.props;
+
+const t = {
+  en: {
+    axisLow: 'lower turnout',
+    axisHigh: 'higher turnout',
+    axisY: 'vote share',
+    band: 'turnout expected at a by-election',
+    here: 'our forecast',
+    farage: 'Farage',
+    binface: 'Count Binface',
+    alt: 'Schematic curves, deliberately unscaled: across the turnout range expected at a by-election, Farage stays well ahead of Count Binface. As turnout rises the two converge, and far to the right they cross. No figures are shown, because the model identifies the direction of the effect but not the level at which it would flip.',
+  },
+  fr: {
+    axisLow: 'participation plus faible',
+    axisHigh: 'participation plus forte',
+    axisY: 'part du vote',
+    band: 'participation attendue pour une partielle',
+    here: 'notre projection',
+    farage: 'Farage',
+    binface: 'Count Binface',
+    alt: "Courbes schématiques, volontairement sans échelle : sur la plage de participation attendue pour une partielle, Farage reste nettement devant Count Binface. À mesure que la participation monte, les deux se rapprochent, et loin à droite elles se croisent. Aucun chiffre n'est indiqué, car le modèle identifie le sens de l'effet mais pas le niveau auquel il basculerait.",
+  },
+  es: {
+    axisLow: 'participación más baja',
+    axisHigh: 'participación más alta',
+    axisY: 'cuota de voto',
+    band: 'participación esperada en una parcial',
+    here: 'nuestra previsión',
+    farage: 'Farage',
+    binface: 'Count Binface',
+    alt: 'Curvas esquemáticas, deliberadamente sin escala: en el rango de participación esperado en una elección parcial, Farage se mantiene claramente por delante de Count Binface. A medida que sube la participación ambas convergen y, muy a la derecha, se cruzan. No se muestra ninguna cifra, porque el modelo identifica el sentido del efecto pero no el nivel en el que se invertiría.',
+  },
+}[lang];
+---
+
+<figure class="ctc">
+  <svg viewBox="0 0 640 250" role="img" aria-label={t.alt} class="ctc-svg">
+    <!-- bande : participation normale de partielle -->
+    <rect x="150" y="26" width="104" height="164" class="ctc-band" />
+    <text x="202" y="18" class="ctc-band-label">{t.band}</text>
+    <line x1="202" y1="190" x2="202" y2="206" class="ctc-tick" />
+    <text x="202" y="220" class="ctc-here">{t.here}</text>
+
+    <!-- axes, sans graduation -->
+    <line x1="56" y1="190" x2="600" y2="190" class="ctc-axis" />
+    <line x1="56" y1="26" x2="56" y2="190" class="ctc-axis" />
+    <text x="56" y="243" class="ctc-axis-label" text-anchor="start">{t.axisLow}</text>
+    <text x="600" y="243" class="ctc-axis-label" text-anchor="end">{t.axisHigh}</text>
+    <text x="16" y="108" class="ctc-axis-label ctc-axis-y">{t.axisY}</text>
+
+    <!-- courbes : forme du modèle, échelle absente -->
+    <path d="M64 52 C 210 74 360 118 600 168" class="ctc-line ctc-farage" />
+    <path d="M64 176 C 210 172 360 162 600 146" class="ctc-line ctc-binface" />
+
+    <!-- étiquettes directes, posées à gauche où l'écart est net -->
+    <text x="72" y="42" class="ctc-name ctc-farage-t">{t.farage}</text>
+    <text x="72" y="192" class="ctc-name ctc-binface-t">{t.binface}</text>
+  </svg>
+</figure>
+
+<style>
+  .ctc {
+    margin: 18px 0 0;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    background: var(--card);
+    padding: 18px 16px 10px;
+  }
+  .ctc-svg { display: block; width: 100%; height: auto; overflow: visible; }
+
+  /* Turquoise Reform foncé pour le thème clair : le #12B6CF de la page passe
+     sous 3:1 sur le papier crème et donnerait un trait pâle. */
+  .ctc-farage { stroke: #0e93a8; }
+  .ctc-farage-t { fill: #0e93a8; }
+  .ctc-binface { stroke: var(--ink); }
+  .ctc-binface-t { fill: var(--ink); }
+  :global([data-theme='dark']) .ctc-farage { stroke: #12b6cf; }
+  :global([data-theme='dark']) .ctc-farage-t { fill: #12b6cf; }
+
+  .ctc-line { fill: none; stroke-width: 2.5; stroke-linecap: round; }
+  .ctc-band { fill: var(--paper-2); stroke: none; }
+  .ctc-axis { stroke: var(--rule); stroke-width: 1; }
+  .ctc-tick { stroke: var(--ink-4); stroke-width: 1; }
+
+  .ctc-band-label,
+  .ctc-axis-label,
+  .ctc-here {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    fill: var(--ink-3);
+  }
+  .ctc-band-label, .ctc-here { text-anchor: middle; }
+  .ctc-here { fill: var(--ink-4); }
+  .ctc-axis-y { transform: rotate(-90deg); transform-origin: 16px 108px; text-anchor: middle; }
+  .ctc-name { font-size: 12.5px; font-weight: 650; }
+
+  @media (max-width: 560px) {
+    .ctc-band-label, .ctc-axis-label, .ctc-here { font-size: 9px; }
+  }
+</style>
