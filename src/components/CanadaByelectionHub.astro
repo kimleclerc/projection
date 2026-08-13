@@ -5,6 +5,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import Base from '../layouts/Base.astro';
 import KeepDigging from './KeepDigging.astro';
+import GooglePreferredSource from './GooglePreferredSource.astro';
 import { canadaByelections } from '../data/canadaByelections';
 import {
   canadaByelectionRaces,
@@ -145,6 +146,7 @@ const canonical = `https://vote-scope.com/${lang}/canada/byelections/`;
       <p class="byhub-kicker">{t.kicker}</p>
       <h1>{t.h1}</h1>
       <p class="byhub-dek">{t.dek}</p>
+      <GooglePreferredSource locale={lang} />
     </header>
 
     {[{ label: t.scheduledLabel, list: scheduled, live: true }, { label: t.pendingLabel, list: pendingWrit, live: false }, { label: t.expectedLabel, list: expected, live: false }].filter((g) => g.list.length > 0).map((group) => (

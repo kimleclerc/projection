@@ -1,4 +1,6 @@
 ---
+import GooglePreferredSource from './GooglePreferredSource.astro';
+
 interface Props {
   eyebrow: string;
   title: string;
@@ -8,6 +10,7 @@ interface Props {
   primaryLabel?: string;
   secondaryHref?: string;
   secondaryLabel?: string;
+  preferredSourceLocale?: 'en' | 'fr' | 'es';
 }
 
 const {
@@ -19,6 +22,7 @@ const {
   primaryLabel = '',
   secondaryHref = '',
   secondaryLabel = '',
+  preferredSourceLocale,
 } = Astro.props;
 ---
 
@@ -28,6 +32,7 @@ const {
       <p class="eyebrow">{eyebrow}</p>
       <h1>{title}</h1>
       <p class="hero-promise">{promise}</p>
+      {preferredSourceLocale && <GooglePreferredSource locale={preferredSourceLocale} />}
     </div>
     <aside class="hero-question" aria-label="Page question">
       <span>One page, one question</span>

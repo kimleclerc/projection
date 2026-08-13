@@ -8,6 +8,7 @@ import Base from '../layouts/Base.astro';
 import KeepDigging from './KeepDigging.astro';
 import ContextualBookShelf from './ContextualBookShelf.astro';
 import ElectionCountdown from '../islands/ElectionCountdown.tsx';
+import GooglePreferredSource from './GooglePreferredSource.astro';
 import ClactonLiveDesk from '../islands/ClactonLiveDesk.tsx';
 import special from '../../web_data/uk-clacton-special/latest.json';
 import clactonLive from '../../web_data/uk-clacton-live/latest.json';
@@ -388,6 +389,7 @@ const pc = (v: number) => `${Math.min(100, (v / SCALE_MAX) * 100)}%`;
       <p class="ukbye-kicker">{t.kicker}</p>
       <h1>{t.headline}</h1>
       <p class="ukbye-dek">{t.dek}</p>
+      <GooglePreferredSource locale={lang} />
     </header>
 
     <div class="container">

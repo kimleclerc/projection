@@ -5,6 +5,7 @@ import { resolve } from 'node:path';
 import Base from '../layouts/Base.astro';
 import KeepDigging from './KeepDigging.astro';
 import { ontarioByelectionRaces } from '../data/ontarioByelectionRaces';
+import GooglePreferredSource from './GooglePreferredSource.astro';
 import type { ByelectionRaceLocale } from '../data/canadaByelectionRaces';
 
 interface Props { lang: ByelectionRaceLocale }
@@ -116,6 +117,7 @@ const canonical = `https://vote-scope.com/${lang}/canada/ontario/byelections/`;
       <p class="onhub-kicker">{t.kicker}</p>
       <h1>{t.h1}</h1>
       <p class="onhub-dek">{t.dek}</p>
+      <GooglePreferredSource locale={lang} />
     </header>
 
     <section class="container">

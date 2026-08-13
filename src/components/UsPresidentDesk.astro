@@ -178,6 +178,7 @@ for (const u of ec.units) stateNameByAbbr[u.state] = locale === 'fr' ? u.name_fr
         </div>
       ))}
     </div>
+    <GooglePreferredSource locale={locale} />
     <div class="up-cta-row">
       <a class="up-cta" href={methodHref(locale)}>{C.ctaMethod} →</a>
     </div>
@@ -257,10 +258,6 @@ for (const u of ec.units) stateNameByAbbr[u.state] = locale === 'fr' ? u.name_fr
       title={C.marketTitle}
       subtitle={C.marketSub}
     />
-  </section>
-
-  <section class="up-section container">
-    <GooglePreferredSource locale={locale} />
   </section>
 
   <section class="up-section container">

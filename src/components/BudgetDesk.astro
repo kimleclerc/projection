@@ -63,6 +63,7 @@ const dir = (d: string) => (d === 'up' ? '▲' : d === 'down' ? '▼' : '');
       <a class="bd-cta" href={budgetJur(locale, data.slug)}>{UI.otherBudgets[locale]} →</a>
       <a class="bd-cta" href={methodHref(locale)}>{locale === 'fr' ? 'Méthodologie' : locale === 'es' ? 'Metodología' : 'Methodology'} →</a>
     </div>
+    <GooglePreferredSource locale={locale} />
   </header>
 
   <section class="bd-section container bd-intro">
@@ -168,10 +169,6 @@ const dir = (d: string) => (d === 'up' ? '▲' : d === 'down' ? '▼' : '');
       </div>
     </section>
   )}
-
-  <section class="bd-section container">
-    <GooglePreferredSource locale={locale} />
-  </section>
 
   <section class="bd-section container">
     <KeepDigging

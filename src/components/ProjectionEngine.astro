@@ -6,6 +6,7 @@ import { resolve } from 'node:path';
 import ScenariosChart from '../islands/ScenariosChart.tsx';
 import VoteTrendChart from '../islands/VoteTrendChart.tsx';
 import RidingsMap from '../islands/RidingsMap.tsx';
+import GooglePreferredSource from './GooglePreferredSource.astro';
 import RidingTable from '../islands/RidingTable.tsx';
 import ElectionCountdown from '../islands/ElectionCountdown.tsx';
 import ForecastShare from '../islands/lib/ForecastShare.tsx';
@@ -521,6 +522,7 @@ const keepDiggingLinks = (() => {
       <span class="pe-badge pe-badge-strong">{t.modelBadge}</span>
       <span class="pe-badge">{meta.election_cycle}</span>
     </div>
+    <GooglePreferredSource locale={locale} />
   </header>
 
   <section id="forecast" class="pe-section container pe-snapshot" aria-labelledby="pe-snapshot-title">

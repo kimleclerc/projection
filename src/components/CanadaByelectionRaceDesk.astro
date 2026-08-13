@@ -8,6 +8,7 @@ import { resolve } from 'node:path';
 import Base from '../layouts/Base.astro';
 import KeepDigging from './KeepDigging.astro';
 import ElectionCountdown from '../islands/ElectionCountdown.tsx';
+import GooglePreferredSource from './GooglePreferredSource.astro';
 import {
   byelectionRaceAlternates,
   byelectionSourceUrl,
@@ -237,6 +238,7 @@ const labelFor = (party: string) =>
       <h1>{config.headline[lang]}</h1>
       <p class="cabye-dek">{config.dek[lang]}</p>
       <p class="cabye-status">{statusLabel}</p>
+      <GooglePreferredSource locale={lang} />
     </header>
 
     <section class="container" aria-labelledby="cabye-forecast">

@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import ElectionCountdown from '../islands/ElectionCountdown.tsx';
+import GooglePreferredSource from './GooglePreferredSource.astro';
 import KeepDigging from './KeepDigging.astro';
 import {
   getByelectionAlternates,
@@ -141,6 +142,7 @@ if (result && result.candidates.length >= 2) {
       <p class="byelection-kicker">{config.kicker}</p>
       <h1>{config.headline}</h1>
       <p class="byelection-dek">{config.dek}</p>
+      <GooglePreferredSource locale={lang} />
     </header>
 
     {isArchive && result ? (
