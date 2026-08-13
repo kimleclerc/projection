@@ -117,6 +117,23 @@ const fmtProbFine = (p: number) => {
   return v < 1 ? fmtPct(v, 2) : fmtProb(p);
 };
 
+// ── Risque de surprise à participation observée (13/08) ──────────────────────
+// La participation provisoire annoncée par le returning officer est de ~43 %,
+// contre ~33 % implicites dans la projection. run_clacton_turnout_curve.py
+// mesure l'effet de cet écart sur P(part Binface ≥ 30 %) : le rapport 43 %/33 %
+// vaut ×1,85 à ×2,40 selon l'ancrage de niveau, sur les ancrages qui ENCADRENT
+// la projection publiée. On retient le milieu, ×2.
+// ⚠ Ce n'est PAS une probabilité de victoire : à 30 % de voix Farage reste
+// devant. La probabilité de victoire, elle, n'est pas identifiable — le point
+// de croisement des courbes se déplace de 40 % de participation à « hors de
+// portée » selon l'ancrage, ce pourquoi le graphique plus bas ne porte aucun
+// chiffre. Ne pas remplacer cette mesure par p_binface_win conditionnel.
+const OBSERVED_TURNOUT_PCT = 43;
+const SURPRISE_MULTIPLIER = 2.0;
+const binfaceOver30 = (model.binface_share_buckets?.['30_40'] ?? 0)
+  + (model.binface_share_buckets?.gte40 ?? 0);
+const surpriseAtObserved = Math.min(binfaceOver30 * SURPRISE_MULTIPLIER, 0.95);
+
 const copy = {
   en: {
     kicker: 'U.K. by-election special desk · Clacton · 13 August 2026',
@@ -128,6 +145,8 @@ const copy = {
     snapBinface: 'Binface wins (Vote-Scope)',
     snapPmFarage: 'Farage wins (Polymarket)',
     snapBinfaceShare: 'Binface vote share (model median)',
+    snapSurprise: 'Binface above 30% — at the turnout actually recorded',
+    snapSurpriseNote: `Turnout came in near ${OBSERVED_TURNOUT_PCT}%, not the lower figure the projection assumed. On our turnout curves that roughly doubles the chance of a genuinely close-run share, from ${fmtProb(binfaceOver30)}%. It is not a win probability: at 30% of the vote Farage is still ahead.`,
     modelLabel: 'The Vote-Scope forecast',
     modelIntro: `${model.n_sims.toLocaleString('en-GB')} Monte Carlo simulations of voter flows from the 2024 result: how much of his own bloc Farage keeps under investigation, where each boycotting party's orphaned voters go (or whether they stay home), how far the protest vote consolidates behind Binface, and what the media circus pulls in. The first constituency poll has now landed and the model re-centres on it — see below for exactly how much weight it is given.`,
     modelRange: 'Projected vote share (10th–90th percentile, median marked)',
@@ -195,6 +214,8 @@ const copy = {
     snapBinface: 'Binface gagne (Vote-Scope)',
     snapPmFarage: 'Farage gagne (Polymarket)',
     snapBinfaceShare: 'Part Binface (médiane du modèle)',
+    snapSurprise: 'Binface au-dessus de 30 % — à la participation constatée',
+    snapSurpriseNote: `La participation s'établit près de ${OBSERVED_TURNOUT_PCT} %, et non au niveau plus bas que supposait la projection. Sur nos courbes de participation, cela double à peu près la probabilité d'un score vraiment serré, contre ${fmtProb(binfaceOver30)} %. Ce n'est pas une probabilité de victoire : à 30 % des voix, Farage reste devant.`,
     modelLabel: 'La projection Vote-Scope',
     modelIntro: `${model.n_sims.toLocaleString('fr-FR')} simulations Monte Carlo des flux d'électeurs depuis le résultat 2024 : quelle part de son bloc Farage retient sous enquête, où vont les électeurs orphelins de chaque parti boycotteur (ou s'ils restent chez eux), jusqu'où le vote protestataire se consolide sur Binface, et ce que le cirque médiatique attire. Le premier sondage de circonscription est tombé et le modèle se recentre dessus — le poids exact qu'il lui accorde est détaillé plus bas.`,
     modelRange: 'Parts projetées (10e–90e percentile, médiane marquée)',
@@ -262,6 +283,8 @@ const copy = {
     snapBinface: 'Binface gana (Vote-Scope)',
     snapPmFarage: 'Farage gana (Polymarket)',
     snapBinfaceShare: 'Cuota Binface (mediana del modelo)',
+    snapSurprise: 'Binface por encima del 30 % — con la participación registrada',
+    snapSurpriseNote: `La participación se sitúa cerca del ${OBSERVED_TURNOUT_PCT} %, y no en el nivel más bajo que suponía la previsión. En nuestras curvas de participación eso duplica aproximadamente la probabilidad de un resultado realmente ajustado, frente al ${fmtProb(binfaceOver30)} %. No es una probabilidad de victoria: con el 30 % de los votos, Farage sigue por delante.`,
     modelLabel: 'La proyección de Vote-Scope',
     modelIntro: `${model.n_sims.toLocaleString('es-ES')} simulaciones Monte Carlo de los flujos de votantes desde el resultado de 2024: cuánto de su bloque retiene Farage bajo investigación, adónde van los votantes huérfanos de cada partido que boicotea (o si se quedan en casa), cuánto se consolida el voto de protesta en Binface, y qué atrae el circo mediático. La primera encuesta de circunscripción ya existe y el modelo se recentra en ella — abajo se detalla exactamente cuánto peso le da.`,
     modelRange: 'Cuotas proyectadas (percentil 10–90, mediana marcada)',
@@ -418,6 +441,11 @@ const pc = (v: number) => `${Math.min(100, (v / SCALE_MAX) * 100)}%`;
         <div class="ukbye-snap" style="--accent:#c8a030">
           <strong>{fmtPct(model.candidates.binface.share.q50)}%</strong>
           <span>{t.snapBinfaceShare}</span>
+        </div>
+        <div class="ukbye-snap ukbye-snap-wide" style="--accent:#b0442f">
+          <strong>≈ {fmtProb(surpriseAtObserved)}%</strong>
+          <span>{t.snapSurprise}</span>
+          <em>{t.snapSurpriseNote}</em>
         </div>
       </div>
     </section>
@@ -703,6 +731,8 @@ const pc = (v: number) => `${Math.min(100, (v / SCALE_MAX) * 100)}%`;
   .ukbye-curve-note { margin-top: 12px; max-width: 70ch; color: var(--ink-3); font-size: 13.5px; line-height: 1.6; }
 
   .ukbye-snap-grid { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 14px; margin-top: 14px; }
+  .ukbye-snap-wide { grid-column: 1 / -1; }
+  .ukbye-snap em { font-style: normal; font-size: 13px; line-height: 1.55; color: var(--ink-2); max-width: 86ch; }
   .ukbye-snap {
     border: 1px solid var(--rule); border-top: 3px solid var(--accent);
     border-radius: 4px; background: var(--card); padding: 16px; display: grid; gap: 4px;
