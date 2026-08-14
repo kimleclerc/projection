@@ -38,10 +38,16 @@
       },
       "market": {
         "available": false,
+        "volume_usd": 6221478881,
         "note": {
-          "en": "Only a live market link was archived; the market price at the snapshot was not frozen. (Fixed going forward — see resolved-calls schema.)",
-          "fr": "Seul un lien de marché vivant était archivé ; le prix de marché à l'instant du snapshot n'a pas été figé. (Corrigé pour le futur.)",
-          "es": "Solo se archivó un enlace de mercado en vivo; el precio de mercado en ese instante no quedó congelado. (Corregido a futuro.)"
+          "en": "The World Cup Winner market: $4.33bn on Polymarket, open since 2 July 2025, plus $1.89bn on Kalshi (KXMENWORLDCUP-26), open since 15 May 2025. Polymarket verified at the gamma API after settlement; Kalshi read off its own market page, because Kalshi's API zeroes the volume field once a market settles. The market price at our snapshot was never frozen, so only the ranking can be compared, not the price.",
+          "fr": "Le marché World Cup Winner : 4,33 G$ chez Polymarket, ouvert depuis le 2 juillet 2025, plus 1,89 G$ chez Kalshi (KXMENWORLDCUP-26), ouvert depuis le 15 mai 2025. Polymarket vérifié à l'API gamma après règlement ; Kalshi relevé sur sa propre page de marché, l'API Kalshi remettant le volume à zéro une fois le marché réglé. Le prix de marché à l'instant de notre snapshot n'a jamais été figé : seul le classement est comparable, pas le prix.",
+          "es": "El mercado World Cup Winner: 4,33 MM$ en Polymarket, abierto desde el 2 de julio de 2025, más 1,89 MM$ en Kalshi (KXMENWORLDCUP-26), abierto desde el 15 de mayo de 2025. Polymarket verificado en la API gamma tras la liquidación; Kalshi leído en su propia página de mercado, ya que la API de Kalshi pone el volumen a cero al liquidarse. El precio de mercado en nuestro snapshot nunca quedó congelado: solo el orden es comparable, no el precio."
+        },
+        "comparison": {
+          "en": "On the eve of kickoff Kalshi had Spain 16.5%, France 16.3%, England 10.2%. Vote-Scope's April run had the same three teams in the same order — Spain 7.4%, France 7.1%, England 5.8% — from a 48-team field. The model agreed with the market's pick rather than beating it; its probabilities were flatter.",
+          "fr": "À la veille du coup d'envoi, Kalshi donnait l'Espagne à 16,5 %, la France à 16,3 % et l'Angleterre à 10,2 %. Le run d'avril de Vote-Scope plaçait les mêmes trois équipes dans le même ordre — Espagne 7,4 %, France 7,1 %, Angleterre 5,8 % — sur un plateau de 48. Le modèle a rejoint le choix du marché plutôt que de le battre ; ses probabilités étaient plus plates.",
+          "es": "En la víspera del inicio, Kalshi daba a España un 16,5 %, a Francia un 16,3 % y a Inglaterra un 10,2 %. La simulación de abril de Vote-Scope situaba a los mismos tres equipos en el mismo orden — España 7,4 %, Francia 7,1 %, Inglaterra 5,8 % — sobre 48 selecciones. El modelo coincidió con la apuesta del mercado en vez de superarla; sus probabilidades eran más planas."
         }
       },
       "proof": {
@@ -63,9 +69,9 @@
         }
       },
       "final_volume_note": {
-        "en": "Associated-market reach was in the billions, but it is market-making churn, not conviction — shown as context only, never as a headline.",
-        "fr": "La portée des marchés associés se comptait en milliards, mais c'est du churn de tenue de marché, pas de la conviction — contexte seulement, jamais en titre.",
-        "es": "El alcance de los mercados asociados era de miles de millones, pero es churn de creación de mercado, no convicción — solo contexto, nunca titular."
+        "en": "Editorial call: the billions are shown. A 13-month tournament market accumulates market-making churn that a two-week by-election market does not, so this figure is not comparable like-for-like with the election calls above — it is the size of the market that was called, on the house convention.",
+        "fr": "Décision éditoriale : les milliards sont affichés. Un marché de tournoi ouvert treize mois accumule du volume de tenue de marché qu'un marché de partielle de deux semaines n'a pas ; ce chiffre n'est donc pas comparable à isopérimètre avec les appels électoraux ci-dessus — c'est la taille du marché appelé, selon la convention maison.",
+        "es": "Decisión editorial: se muestran los miles de millones. Un mercado de torneo abierto trece meses acumula volumen de creación de mercado que uno de elección parcial de dos semanas no tiene; esta cifra no es comparable en igualdad de condiciones con los pronósticos electorales anteriores — es el tamaño del mercado pronosticado, según la convención de la casa."
       },
       "links": {
         "votescope": {
@@ -666,7 +672,12 @@
       },
       "market": {
         "available": true,
-        "volume_usd": 5692608
+        "volume_usd": 7778608,
+        "note": {
+          "en": "The Clacton winner market: $5.69M on Polymarket plus $2.09M on Kalshi (KXCLACTONBYELECTION-26SEP01). Polymarket verified at the gamma API after settlement; Kalshi read off its own market page, because Kalshi's API zeroes the volume field once a market settles.",
+          "fr": "Le marché du vainqueur de Clacton : 5,69 M$ chez Polymarket plus 2,09 M$ chez Kalshi (KXCLACTONBYELECTION-26SEP01). Polymarket vérifié à l'API gamma après règlement ; Kalshi relevé sur sa propre page de marché, l'API Kalshi remettant le volume à zéro une fois le marché réglé.",
+          "es": "El mercado del ganador de Clacton: 5,69 M$ en Polymarket más 2,09 M$ en Kalshi (KXCLACTONBYELECTION-26SEP01). Polymarket verificado en la API gamma tras la liquidación; Kalshi leído en su propia página de mercado, ya que la API de Kalshi pone el volumen a cero al liquidarse."
+        }
       },
       "proof": {
         "commit_date": "2026-08-12",

@@ -74,8 +74,19 @@ const t = {
 }[locale];
 
 // Volume marché compact ($3.8M / $373K) — contexte, jamais additionné.
+// Le palier milliard existe depuis que le marché du Mondial (6,2 G$) est au
+// bilan : sans lui il s'affichait « $6221.5M », qui se lit mal et sous-vend
+// l'ordre de grandeur. Suffixe localisé — G$ en français, B en anglais, MM$ en
+// espagnol — car « B » francisé se lit « billion » et vaut 10^12.
+const BILLION_SUFFIX: Record<string, string> = { en: 'B', fr: 'G', es: 'MM' };
 const fmtUsd = (v: number): string =>
-  v >= 1_000_000 ? `$${(v / 1_000_000).toFixed(1)}M` : v >= 1_000 ? `$${Math.round(v / 1000)}K` : `$${v}`;
+  v >= 1_000_000_000
+    ? `$${(v / 1_000_000_000).toFixed(2)}${BILLION_SUFFIX[locale] ?? 'B'}`
+    : v >= 1_000_000
+      ? `$${(v / 1_000_000).toFixed(1)}M`
+      : v >= 1_000
+        ? `$${Math.round(v / 1000)}K`
+        : `$${v}`;
 
 const groups = domains.map((d) => {
   const calls = all.filter((c) => c.domain === d);
