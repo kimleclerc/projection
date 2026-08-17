@@ -78,6 +78,7 @@ function delta(here: number, ref: number): { sign: string; val: number; cls: str
     <p class="eyebrow">{T.eyebrow}</p>
     <h2>{T.title}</h2>
 
+    <div class="table-scroll" tabindex="0" role="region" aria-label={T.title}>
     <table>
       <thead>
         <tr>
@@ -129,6 +130,7 @@ function delta(here: number, ref: number): { sign: string; val: number; cls: str
         )}
       </tbody>
     </table>
+    </div>
     <p class="note">{(() => {
       const NOTE = {
         en: showProvince
@@ -163,6 +165,11 @@ function delta(here: number, ref: number): { sign: string; val: number; cls: str
     width: 100%;
     border-collapse: collapse;
     font-size: 14px;
+  }
+  .table-scroll {
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
   th, td {
     padding: 14px;

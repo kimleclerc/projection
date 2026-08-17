@@ -53,6 +53,7 @@ const numberFmt = new Intl.NumberFormat(LOCALE);
     <p class="eyebrow">{T.eyebrow}</p>
     <h2>{T.title}</h2>
 
+    <div class="table-scroll" tabindex="0" role="region" aria-label={T.title}>
     <table>
       <thead>
         <tr>
@@ -86,6 +87,7 @@ const numberFmt = new Intl.NumberFormat(LOCALE);
         })}
       </tbody>
     </table>
+    </div>
   </div>
 </section>
 
@@ -106,6 +108,11 @@ const numberFmt = new Intl.NumberFormat(LOCALE);
     border-collapse: collapse;
     border-top: 1px solid var(--rule);
     font-size: 14px;
+  }
+  .table-scroll {
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
   th, td {
     padding: 12px 14px;

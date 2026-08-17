@@ -12,10 +12,11 @@ import ElectionCountdown from '../islands/ElectionCountdown.tsx';
 import ForecastShare from '../islands/lib/ForecastShare.tsx';
 import KeepDigging from './KeepDigging.astro';
 import JurisdictionNav from './JurisdictionNav.astro';
-import { getNavEntry, type NavLang } from '../lib/jurisdiction-nav';
+import OnThisPage from './OnThisPage.astro';
+import { getNavEntry, sectionUrl, type NavLang } from '../lib/jurisdiction-nav';
 import { byelectionFor } from '../lib/canada-byelection-overlay';
 import { partyMeta } from '../lib/riding-adapters/parties';
-import type { JurisdictionKey } from '../lib/riding-adapters/types';
+import { ridingSlug, type JurisdictionKey } from '../lib/riding-adapters/types';
 import polymarketData from '../../web_data/polymarket/latest.json';
 import clactonData from '../../web_data/uk-clacton-special/latest.json';
 
@@ -28,6 +29,10 @@ const { jurisdiction, locale } = Astro.props;
 
 // Contextual sub-nav: jurisdiction.dataPath matches the nav registry webKey.
 const navEntry = getNavEntry(jurisdiction.dataPath);
+const ridingIndexUrl = navEntry?.sections.districts
+  ? sectionUrl(navEntry, 'districts', locale as NavLang)
+  : null;
+const hasNarrative = Astro.slots.has('narrative');
 
 // Build-time read of latest.json from the project data contract. The files are
 // copied to dist/web_data after Astro renders the static HTML.
@@ -337,6 +342,12 @@ const mapRidings = ((data as any).ridings ?? []).map((r: any) => ({
   riding_id: String(r.riding_id),
   name_en: r.name_en,
   name_fr: r.name_fr,
+  href: ridingIndexUrl
+    ? `${ridingIndexUrl}${ridingSlug(
+        String(r.riding_id),
+        jurisdiction.id === 'quebec' ? r.name_fr || r.name_en : r.name_en || r.name_fr,
+      )}/`
+    : undefined,
   province: r.province ?? r.nation ?? null,
   projection: {
     winner: r.projection?.winner ?? r.winner ?? 'tossup',
@@ -503,6 +514,29 @@ const keepDiggingLinks = (() => {
     common.indexes,
   ];
 })();
+
+const pageNavItems = [
+  {
+    href: '#forecast',
+    label: locale === 'fr' ? 'Prévision' : locale === 'es' ? 'Pronóstico' : 'Forecast',
+  },
+  {
+    href: '#analysis',
+    label: locale === 'fr' ? 'Analyse' : locale === 'es' ? 'Análisis' : 'Analysis',
+  },
+  {
+    href: '#map',
+    label: locale === 'fr' ? 'Carte' : locale === 'es' ? 'Mapa' : 'Map',
+  },
+  {
+    href: '#districts',
+    label: locale === 'fr' ? 'Circonscriptions' : locale === 'es' ? 'Distritos' : 'Districts',
+  },
+  ...(hasNarrative ? [{
+    href: '#race-analysis',
+    label: locale === 'fr' ? 'Lecture de la course' : locale === 'es' ? 'Lectura de la carrera' : 'Race analysis',
+  }] : []),
+];
 ---
 
 {navEntry && <JurisdictionNav webKey={jurisdiction.dataPath} lang={locale as NavLang} active="projection" />}
@@ -524,6 +558,8 @@ const keepDiggingLinks = (() => {
     </div>
     <GooglePreferredSource locale={locale} />
   </header>
+
+  <OnThisPage locale={locale} items={pageNavItems} />
 
   <section id="forecast" class="pe-section container pe-snapshot" aria-labelledby="pe-snapshot-title">
     <p class="pe-snapshot-kicker">{snapshotKicker}</p>
@@ -564,7 +600,7 @@ const keepDiggingLinks = (() => {
   )}
 
   <!-- CURRENT COMPOSITION -->
-  <section class="pe-section container" aria-labelledby="pe-composition-title">
+  <section id="composition" class="pe-section container" aria-labelledby="pe-composition-title">
     <h2 id="pe-composition-title" class="pe-section-title">{t.composition}</h2>
     <p class="pe-section-label">{t.seatsLabel}</p>
     <div class="pe-bar" role="img" aria-label={t.composition}>
@@ -596,7 +632,7 @@ const keepDiggingLinks = (() => {
   </section>
 
   <!-- SEAT PROJECTION -->
-  <section class="pe-section container" aria-labelledby="pe-projection-title">
+  <section id="seat-projection" class="pe-section container" aria-labelledby="pe-projection-title">
     <h2 id="pe-projection-title" class="pe-section-title">{t.seatProjection}</h2>
     <div class="pe-bar" role="img" aria-label={t.seatProjection}>
       {projectionSegments.map((s) => (
@@ -655,7 +691,7 @@ const keepDiggingLinks = (() => {
   </section>
 
   <!-- ANALYSIS — charts -->
-  <section class="pe-section container" aria-labelledby="pe-analysis-title">
+  <section id="analysis" class="pe-section container" aria-labelledby="pe-analysis-title">
     <h2 id="pe-analysis-title" class="pe-section-title">{t.analysis}</h2>
     <div class="pe-charts-grid">
       <article class="pe-chart-card">
@@ -685,10 +721,8 @@ const keepDiggingLinks = (() => {
     </div>
   </section>
 
-  <slot name="narrative" />
-
   <!-- MAP -->
-  <section class="pe-section container" aria-labelledby="pe-map-title">
+  <section id="map" class="pe-section container" aria-labelledby="pe-map-title">
     <h2 id="pe-map-title" class="pe-section-title">{t.mapTitle}</h2>
     <p class="pe-section-label">{t.mapHelp}</p>
     <article class="pe-chart-card">
@@ -707,7 +741,7 @@ const keepDiggingLinks = (() => {
   </section>
 
   <!-- RIDING TABLE -->
-  <section class="pe-section container" aria-labelledby="pe-table-title">
+  <section id="districts" class="pe-section container" aria-labelledby="pe-table-title">
     <h2 id="pe-table-title" class="pe-section-title">{t.tableTitle}</h2>
     <p class="pe-section-label">{t.tableHelp}</p>
     <article class="pe-chart-card">
@@ -720,6 +754,12 @@ const keepDiggingLinks = (() => {
       />
     </article>
   </section>
+
+  {hasNarrative && (
+    <div id="race-analysis" class="pe-anchor-target">
+      <slot name="narrative" />
+    </div>
+  )}
 
   <section class="pe-section container" aria-labelledby="keep-digging-title">
     <KeepDigging
@@ -734,6 +774,10 @@ const keepDiggingLinks = (() => {
 <style>
   .projection-engine {
     padding-block: 32px 96px;
+  }
+  .pe-section,
+  .pe-anchor-target {
+    scroll-margin-top: 92px;
   }
 
   /* HERO */

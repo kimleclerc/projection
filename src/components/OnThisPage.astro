@@ -6,7 +6,7 @@ const title = locale === 'fr' ? 'Sur cette page' : locale === 'es' ? 'En esta p√
 ---
 
 <nav class="on-this-page" aria-label={title}>
-  <details>
+  <details open>
     <summary>{title}</summary>
     <ul>
       {items.map((item) => <li><a href={item.href}>{item.label}</a></li>)}

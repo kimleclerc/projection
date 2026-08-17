@@ -4,6 +4,7 @@ export interface RidingFull {
   riding_id: string;
   name_en: string;
   name_fr: string;
+  href?: string;
   province: string | null;
   projection: {
     winner: string;

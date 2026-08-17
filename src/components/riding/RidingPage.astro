@@ -8,6 +8,7 @@
 import type { RidingData } from '../../lib/riding-adapters/types';
 import { getNavEntryForRiding } from '../../lib/jurisdiction-nav';
 import JurisdictionNav from '../JurisdictionNav.astro';
+import OnThisPage from '../OnThisPage.astro';
 import Hero from './sections/Hero.astro';
 import RidingQuestion from './sections/RidingQuestion.astro';
 import PrimaryStatus from './sections/PrimaryStatus.astro';
@@ -34,28 +35,51 @@ interface Props {
 
 const { data, lang } = Astro.props;
 const navWebKey = data.navWebKey ?? getNavEntryForRiding(data.jurisdiction)?.webKey;
+const pageNavItems = [
+  {
+    href: '#projection',
+    label: { en: 'Projection', fr: 'Projection', es: 'Proyección' }[lang],
+  },
+  {
+    href: '#vote-share',
+    label: { en: 'Vote share', fr: 'Intentions de vote', es: 'Intención de voto' }[lang],
+  },
+  ...(data.polls?.length ? [{
+    href: '#local-polls',
+    label: { en: 'Local polls', fr: 'Sondages locaux', es: 'Sondeos locales' }[lang],
+  }] : []),
+  ...(data.baseline ? [{
+    href: '#history',
+    label: { en: 'Election history', fr: 'Historique électoral', es: 'Historial electoral' }[lang],
+  }] : []),
+  ...(data.neighbors?.length ? [{
+    href: '#nearby',
+    label: { en: 'Nearby districts', fr: 'Circonscriptions voisines', es: 'Distritos cercanos' }[lang],
+  }] : []),
+];
 ---
 
 {navWebKey && <JurisdictionNav webKey={navWebKey} lang={lang} active="districts" />}
 <Hero data={data} lang={lang} />
 <RidingQuestion data={data} lang={lang} />
-<EditorialBlurb data={data} lang={lang} />
+<OnThisPage locale={lang} items={pageNavItems} />
 <slot name="local-feature" />
+{data.byelection && <ByelectionForecast data={data} lang={lang} />}
+<div id="projection" class="riding-anchor"><ProjectionPanel data={data} lang={lang} /></div>
+<div id="vote-share" class="riding-anchor"><VoteBars data={data} lang={lang} /></div>
+{data.regionalContext && <RegionalContext data={data} lang={lang} />}
+{data.hasProjectionHistory && <ProjectionHistory data={data} lang={lang} />}
+{data.polls && data.polls.length > 0 && <div id="local-polls" class="riding-anchor"><LocalPolls data={data} lang={lang} /></div>}
+
+<EditorialBlurb data={data} lang={lang} />
 {data.member && <CurrentMember data={data} lang={lang} />}
 {data.primaries && <PrimaryStatus data={data} lang={lang} />}
 {data.declaredCandidates && data.declaredCandidates.length > 0 && <CandidateSlate data={data} lang={lang} />}
-{data.byelection && <ByelectionForecast data={data} lang={lang} />}
-<ProjectionPanel data={data} lang={lang} />
-<VoteBars data={data} lang={lang} />
-{data.regionalContext && <RegionalContext data={data} lang={lang} />}
-{data.hasProjectionHistory && <ProjectionHistory data={data} lang={lang} />}
-{data.polls && data.polls.length > 0 && <LocalPolls data={data} lang={lang} />}
-
-{data.baseline && <HistoryTimeline data={data} lang={lang} />}
+{data.baseline && <div id="history" class="riding-anchor"><HistoryTimeline data={data} lang={lang} /></div>}
 {data.candidates && data.candidates.length > 0 && <CandidatesTable data={data} lang={lang} />}
 {data.redistrictingImpact && data.redistrictingImpact.length > 0 && <RedistrictingImpact data={data} lang={lang} />}
 {data.demographics && <Demographics data={data} lang={lang} />}
-{data.neighbors && data.neighbors.length > 0 && <NeighborRidings data={data} lang={lang} />}
+{data.neighbors && data.neighbors.length > 0 && <div id="nearby" class="riding-anchor"><NeighborRidings data={data} lang={lang} /></div>}
 {data.runDate && <DataFreshness data={data} lang={lang} />}
 
 {/* Future slots — light up automatically when adapter populates them. */}
@@ -65,3 +89,7 @@ const navWebKey = data.navWebKey ?? getNavEntryForRiding(data.jurisdiction)?.web
     {/* PolymarketEmbed island would hook here */}
   </div></section>
 )}
+
+<style>
+  .riding-anchor { scroll-margin-top: 92px; }
+</style>

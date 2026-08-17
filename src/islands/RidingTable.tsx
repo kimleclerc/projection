@@ -7,7 +7,7 @@ import CopyLink from './lib/CopyLink';
 interface Props {
   ridings: RidingFull[];
   parties: MapParty[];
-  locale: 'en' | 'fr';
+  locale: 'en' | 'fr' | 'es';
   baselineYear?: number;
 }
 
@@ -54,6 +54,8 @@ function injectStyles() {
 .rt-table tr:last-child td { border-bottom: none; }
 .rt-table tr:hover td { background: var(--card, #f8f8f3); }
 .rt-name { font-family: var(--serif, Georgia, serif); font-size: 14px; color: var(--ink, #1a1a1a); }
+.rt-name a { color: inherit; text-decoration: underline; text-decoration-color: color-mix(in oklab, currentColor 28%, transparent); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+.rt-name a:hover, .rt-name a:focus-visible { text-decoration-color: currentColor; }
 .rt-province { font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3, #888); }
 .rt-pill { display: inline-flex; align-items: center; gap: 5px; padding: 3px 8px; border: 1px solid; border-radius: 999px; font-size: 11px; font-weight: 500; background: color-mix(in oklab, currentColor 12%, transparent); }
 .rt-pill-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
@@ -479,7 +481,22 @@ export default function RidingTable({
                   locale === 'fr' ? r.name_fr : r.name_en;
                 return (
                   <tr key={r.riding_id}>
-                    <td class="rt-name">{name}</td>
+                    <td class="rt-name">
+                      {r.href ? (
+                        <a
+                          href={r.href}
+                          onClick={() =>
+                            trackAnalyticsEvent('navigation_click', {
+                              destination_path: r.href,
+                              link_context: 'projection_table',
+                              riding_id: r.riding_id,
+                            })
+                          }
+                        >
+                          {name}
+                        </a>
+                      ) : name}
+                    </td>
                     <td class="rt-province">{r.province ?? '—'}</td>
                     <td>
                       <span
