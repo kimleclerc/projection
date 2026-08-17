@@ -48,6 +48,11 @@ export interface PollRow {
   has_breakdowns: boolean;
   dimensions: string[];
   geography?: PollGeography;
+  quarantine?: {
+    scope: string;
+    review_after?: string;
+    reason: string;
+  };
   has_detail: boolean;
 }
 

@@ -80,6 +80,8 @@ const T = {
     src: 'link',
     note:
       'National and big-regional polls only. District-level polls appear on each district’s forecast page.',
+    quarantine:
+      '* Under review: this poll remains visible, but all or part of its signal is temporarily excluded from the model pending corroboration.',
   },
   fr: {
     table: 'Sondages',
@@ -101,6 +103,8 @@ const T = {
     src: 'lien',
     note:
       'Sondages nationaux et grands régionaux seulement. Les sondages de circonscription apparaissent sur la page de prévision de chaque circonscription.',
+    quarantine:
+      '* Sous surveillance : ce sondage demeure visible, mais tout ou partie de son signal est temporairement exclu du modèle en attente de corroboration.',
   },
   es: {
     table: 'Sondeos',
@@ -122,6 +126,8 @@ const T = {
     src: 'enlace',
     note:
       'Solo sondeos nacionales y grandes regionales. Los sondeos por distrito aparecen en la página de proyección de cada distrito.',
+    quarantine:
+      '* Bajo revisión: el sondeo sigue visible, pero toda o parte de su señal queda temporalmente excluida del modelo hasta que sea corroborada.',
   },
 }[lang];
 
@@ -258,6 +264,9 @@ const nFirms = firms.length || new Set(polls.map((p) => p.firm)).size;
                   ) : (
                     <span>{p.firm_name}</span>
                   )}
+                  {p.quarantine && (
+                    <sup class="quarantine-mark" title={p.quarantine.reason} aria-label={p.quarantine.reason}>*</sup>
+                  )}
                   {p.client && <span class="client">{p.client}</span>}
                 </td>
                 <td class="c-dates">{fmtDates(p)}</td>
@@ -310,6 +319,7 @@ const nFirms = firms.length || new Set(polls.map((p) => p.firm)).size;
     </div>
 
     <p class="hub-note">{T.note}</p>
+    {polls.some((p) => p.quarantine) && <p class="quarantine-note">{T.quarantine}</p>}
   </div>
 </section>
 
@@ -340,6 +350,7 @@ const nFirms = firms.length || new Set(polls.map((p) => p.firm)).size;
   .c-firm { font-family: var(--serif); font-size: 14px; min-width: 160px; }
   .firm-link { color: inherit; text-decoration: none; border-bottom: 1px solid var(--rule); }
   .firm-link:hover { border-bottom-color: var(--ink); }
+  .quarantine-mark { color: #a45a00; font-family: var(--mono); font-weight: 700; margin-left: 3px; cursor: help; }
   .client { display: block; font-family: var(--mono); font-size: 10px; color: var(--ink-2); margin-top: 2px; }
   .c-dates, .c-sample, .c-pop { white-space: nowrap; color: var(--ink-2); }
   .c-sample { text-align: right; }
@@ -359,4 +370,5 @@ const nFirms = firms.length || new Set(polls.map((p) => p.firm)).size;
   .bar-val { text-align: right; font-variant-numeric: tabular-nums; color: var(--ink); }
 
   .hub-note { margin-top: 16px; font-family: var(--serif); font-style: italic; font-size: 14px; color: var(--ink-2); max-width: 720px; }
+  .quarantine-note { margin: 8px 0 0; font-family: var(--serif); font-size: 14px; line-height: 1.45; color: #7a4600; max-width: 760px; }
 </style>
