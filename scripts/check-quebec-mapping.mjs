@@ -138,12 +138,23 @@ const duplicateGeoIds = matches
   .map((match) => match.CO_CEP)
   .filter((coCep, index, all) => all.indexOf(coCep) !== index);
 
+const normalizeId = (value) => {
+  const raw = String(value ?? '').trim();
+  return /^\d+$/.test(raw) ? String(Number(raw)) : raw;
+};
+const modelIds = new Set((latest.ridings ?? []).map((riding) => normalizeId(riding.riding_id)));
+const geoIds = new Set(geoFeatures.map((feature) => normalizeId(feature.properties?.CO_CEP)));
+const modelOnlyIds = [...modelIds].filter((id) => !geoIds.has(id));
+const geoOnlyIds = [...geoIds].filter((id) => !modelIds.has(id));
+
 console.log(`Quebec riding mapping diagnostic`);
 console.log(`latest ridings: ${latest.ridings?.length ?? 0}`);
 console.log(`geojson features: ${geoFeatures.length}`);
 console.log(`matched: ${matches.length}`);
 console.log(`unmatched: ${unmatched.length}`);
 console.log(`duplicate CO_CEP matches: ${new Set(duplicateGeoIds).size}`);
+console.log(`model IDs absent from GeoJSON: ${modelOnlyIds.length}`);
+console.log(`GeoJSON IDs absent from model: ${geoOnlyIds.length}`);
 console.log('');
 
 console.log('Proposed mapping (CO_CEP -> riding_id):');
@@ -162,4 +173,18 @@ if (unmatched.length > 0) {
   console.log('');
   console.log('Unmatched ridings with best guesses:');
   console.log(JSON.stringify(unmatched, null, 2));
+}
+
+const invalid =
+  (latest.ridings?.length ?? 0) !== geoFeatures.length ||
+  unmatched.length > 0 ||
+  new Set(duplicateGeoIds).size > 0 ||
+  modelOnlyIds.length > 0 ||
+  geoOnlyIds.length > 0;
+
+if (invalid) {
+  console.error('✗ Quebec map/model mapping is incomplete; refusing the build.');
+  if (modelOnlyIds.length) console.error('  model-only IDs:', modelOnlyIds.join(', '));
+  if (geoOnlyIds.length) console.error('  GeoJSON-only IDs:', geoOnlyIds.join(', '));
+  process.exit(1);
 }
