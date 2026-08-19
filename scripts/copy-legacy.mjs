@@ -65,6 +65,22 @@ for (const dir of assetDirs) {
     console.log(`✓ Copied ${dir}/ → dist/${dir}/`);
   }
 }
+
+// Stable additive aliases for API consumers. The source files remain under
+// /web_data/ so existing pages and integrations keep their canonical paths.
+const apiAliases = [
+  ['latest.json', 'manifest.json'],
+  ['elections.json', 'elections.json'],
+];
+const apiSource = join(ROOT, 'web_data', 'public-api');
+const apiTarget = join(DIST, 'api', 'v1');
+if (existsSync(apiSource)) {
+  mkdirSync(apiTarget, { recursive: true });
+  for (const [sourceName, targetName] of apiAliases) {
+    copyFileSync(join(apiSource, sourceName), join(apiTarget, targetName));
+  }
+  console.log('✓ Published public data aliases under dist/api/v1/');
+}
 if (skippedDataless > 0) {
   console.warn(`⚠ Skipped ${skippedDataless} dataless local file(s); hydrate them before build if they are required publicly.`);
 }

@@ -1,4 +1,5 @@
 import { readFile } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -18,6 +19,7 @@ const id = (value) => {
   return /^\d+$/.test(raw) ? String(Number(raw)) : raw;
 };
 const difference = (left, right) => [...left].filter((value) => !right.has(value));
+const sha256 = (value) => createHash('sha256').update(value).digest('hex');
 
 let failed = false;
 
@@ -85,6 +87,45 @@ if (!radarProjectionAsOf || !radarPrimaryAsOf || radarPrimaryAsOf < primaryAsOf)
   console.log(
     `✓ latino radar: projection ${radarProjectionAsOf}, primaries ${radarPrimaryAsOf}`,
   );
+}
+
+// The additive public catalogue must remain a trustworthy view of the
+// canonical /web_data/ files. This catches stale manifests before deployment.
+const publicManifest = await load('web_data/public-api/latest.json');
+const publicDatasets = publicManifest.datasets ?? [];
+const publicIds = new Set(publicDatasets.map((dataset) => dataset.id));
+const manifestProblems = [];
+if (publicManifest.meta?.schema_version !== '1.0') manifestProblems.push('unsupported schema');
+if (publicManifest.meta?.dataset_count !== publicDatasets.length) manifestProblems.push('dataset_count mismatch');
+if (publicIds.size !== publicDatasets.length) manifestProblems.push('duplicate dataset ID');
+
+for (const dataset of publicDatasets) {
+  const pathname = new URL(dataset.latest_url).pathname.replace(/^\//, '');
+  try {
+    const bytes = await readFile(path.join(root, pathname));
+    if (sha256(bytes) !== dataset.latest_sha256) manifestProblems.push(`${dataset.id}: stale checksum`);
+  } catch {
+    manifestProblems.push(`${dataset.id}: missing latest file`);
+  }
+  if (!dataset.backlink_url || dataset.attribution?.url !== dataset.backlink_url) {
+    manifestProblems.push(`${dataset.id}: invalid backlink attribution`);
+  }
+}
+
+const publicQuebec = publicDatasets.find((dataset) => dataset.id === 'qc-2026');
+const canonicalQuebec = await load('web_data/quebec/latest.json');
+if (
+  publicQuebec?.total_seats !== canonicalQuebec.meta?.total_seats ||
+  publicQuebec?.majority_seats !== canonicalQuebec.meta?.majority_threshold
+) {
+  manifestProblems.push('qc-2026: seat metadata differs from canonical data');
+}
+
+if (manifestProblems.length) {
+  failed = true;
+  console.error(`✗ public data manifest: ${manifestProblems.join(', ')}`);
+} else {
+  console.log(`✓ public data manifest: ${publicDatasets.length} datasets, checksums and backlinks valid`);
 }
 
 if (failed) process.exit(1);
