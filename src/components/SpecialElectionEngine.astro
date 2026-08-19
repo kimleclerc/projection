@@ -5,8 +5,10 @@ import Base from '../layouts/Base.astro';
 import SpecialElectionForecast from '../islands/SpecialElectionForecast.tsx';
 import ElectionCountdown from '../islands/ElectionCountdown.tsx';
 import KeepDigging from './KeepDigging.astro';
+import ContextualBookShelf from './ContextualBookShelf.astro';
 import {
   getSpecialElectionAlternates,
+  specialElections,
   type SpecialElectionConfig,
   type SpecialElectionLocale,
 } from '../data/specialElections';
@@ -87,21 +89,13 @@ const initialData = normalizeSpecialElectionData(rawData);
 const electionDate = (initialData.meta as Record<string, unknown>).election_date as string | undefined;
 
 // Other specials for KeepDigging cross-links (excluding current)
-const allSlugs = ['ca1', 'ca14', 'ga14', 'nj11'] as const;
-type SlugType = typeof allSlugs[number];
-const specialLabels: Record<SlugType, string> = {
-  ca1: 'CA-1 Special Primary · June 2026',
-  ca14: 'CA-14 Special Primary · June 2026',
-  ga14: 'GA-14 Runoff · April 2026',
-  nj11: 'NJ-11 Special · April 2026',
-};
-const otherSpecials = allSlugs
-  .filter((s) => s !== config.slug)
+const otherSpecials = Object.values(specialElections)
+  .filter((special) => special.slug !== config.slug)
   .slice(0, 2)
-  .map((s) => ({
-    href: `/${lang}/us/specials/${s}/`,
-    label: s.toUpperCase(),
-    detail: specialLabels[s],
+  .map((special) => ({
+    href: special.paths[lang] ?? special.paths.en ?? '#',
+    label: special.slug.toUpperCase(),
+    detail: lang === 'es' ? (special.kicker_es ?? special.kicker) : special.kicker,
   }));
 
 const metaCopy = {
@@ -237,6 +231,12 @@ const jsonLd = [
       client:load
     />
 
+    {config.bookContext && (
+      <div class="special-books container">
+        <ContextualBookShelf lang={lang} context={config.bookContext} limit={1} />
+      </div>
+    )}
+
     {config.polymarketMarket && (
       <div class="special-polymarket container">
         <p class="special-polymarket-label">Prediction market</p>
@@ -334,6 +334,11 @@ const jsonLd = [
   }
 
   .special-polymarket {
+    max-width: 1080px;
+    margin-top: 48px;
+  }
+
+  .special-books {
     max-width: 1080px;
     margin-top: 48px;
   }

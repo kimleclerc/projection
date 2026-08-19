@@ -1,0 +1,127 @@
+{
+  "meta": {
+    "run_date": "2026-08-19",
+    "race_id": "fl20_special_pending_2026",
+    "title": "Florida's 20th Congressional District Pending Special Election",
+    "election_date": null,
+    "n_simulations": 50000,
+    "model_type": "provisional_party_control_v1",
+    "pipeline_version": "1.0",
+    "language": "en",
+    "status": "vacant_pending_writ",
+    "race_format": "party_control"
+  },
+  "district": {
+    "state": "Florida",
+    "district": "20th Congressional District",
+    "vacancy_reason": "The seat became vacant after Rep. Sheila Cherfilus-McCormick resigned. The special-election date has not yet been set.",
+    "district_context": {
+      "house_2024_democratic_share": 81.78,
+      "house_2024_republican_share": 18.22,
+      "note": "The projection is party-level and remains provisional until the election calendar and candidate field are official."
+    }
+  },
+  "candidates": [
+    {
+      "id": "us_dem",
+      "name": "Democratic nominee",
+      "party": "Democrat",
+      "color": "#2563eb",
+      "projected_vote_mean": 72.0,
+      "win_probability": 0.9975,
+      "top_two_probability": 1.0,
+      "first_place_probability": 0.9975,
+      "vote_quantiles": {
+        "q05": 58.88,
+        "q10": 61.82,
+        "q25": 66.59,
+        "q50": 71.97,
+        "q75": 77.42,
+        "q90": 82.25,
+        "q95": 85.17
+      }
+    },
+    {
+      "id": "us_rep",
+      "name": "Republican nominee",
+      "party": "Republican",
+      "color": "#c62828",
+      "projected_vote_mean": 28.0,
+      "win_probability": 0.0025,
+      "top_two_probability": 1.0,
+      "first_place_probability": 0.0025,
+      "vote_quantiles": {
+        "q05": 14.83,
+        "q10": 17.75,
+        "q25": 22.58,
+        "q50": 28.03,
+        "q75": 33.41,
+        "q90": 38.18,
+        "q95": 41.12
+      }
+    }
+  ],
+  "summary": {
+    "favorite_id": "us_dem",
+    "favorite_name": "Democratic nominee",
+    "favorite_probability": 0.9975,
+    "projected_margin_mean": 43.99,
+    "projected_margin_quantiles": {
+      "q05": 17.76,
+      "q10": 23.65,
+      "q25": 33.19,
+      "q50": 43.93,
+      "q75": 54.84,
+      "q90": 64.5,
+      "q95": 70.34
+    },
+    "upset_probability": 0.0025,
+    "runoff_probability": 0.0,
+    "majority_outright_probability": 0.9975,
+    "likely_runoff_names": [
+      "Democratic nominee",
+      "Republican nominee"
+    ],
+    "likely_runoff_probability": 1.0,
+    "if_likely_runoff_favorite": "Democratic nominee",
+    "if_likely_runoff_favorite_probability": 0.9975
+  },
+  "benchmarks": {
+    "top_two_pairs": [
+      {
+        "pair": [
+          "us_dem",
+          "us_rep"
+        ],
+        "probability": 1.0
+      }
+    ],
+    "assumptions": [
+      {
+        "label": "119th Congress district",
+        "note": "The anchor uses the district that elected the departing member, not a later general-election redistricting plan."
+      },
+      {
+        "label": "Candidate field pending",
+        "note": "Candidate-specific effects are not applied before official qualification."
+      },
+      {
+        "label": "Special-election uncertainty",
+        "note": "The distribution is deliberately wider than a normal general-election projection because date, turnout and nominees remain unknown."
+      }
+    ]
+  },
+  "pending": {
+    "vacancy_date": "2026-04-21",
+    "status": "vacant_pending_writ",
+    "departing_member": "Sheila Cherfilus-McCormick",
+    "reason": "resignation"
+  },
+  "sources": [
+    {
+      "label": "U.S. House Clerk — current vacancies",
+      "url": "https://clerk.house.gov/Members/ViewVacancies"
+    }
+  ],
+  "method_note": "A provisional party-control projection for a vacant seat before the writ, date and candidate field are known. It anchors to the 119th Congress district result and widens uncertainty for special-election turnout and candidate effects."
+}

@@ -65,4 +65,26 @@ if (candidateCount !== equity.n_total) {
   console.log(`✓ quebec equity: ${candidateCount} published candidacies`);
 }
 
+// Le radar latino combine les projections et les résultats de primaires. Sa
+// date de projection peut légitimement être plus ancienne, mais ses statuts de
+// candidatures doivent toujours inclure le dernier bureau des primaires publié.
+const [primaryDesk, latinoRadar] = await Promise.all([
+  load('web_data/us-primaries/latest.json'),
+  load('web_data/us-latino-radar/latest.json'),
+]);
+const primaryAsOf = primaryDesk.meta?.as_of ?? '';
+const radarPrimaryAsOf = latinoRadar.meta?.primaries_as_of ?? '';
+const radarProjectionAsOf = latinoRadar.meta?.projection_as_of ?? '';
+if (!radarProjectionAsOf || !radarPrimaryAsOf || radarPrimaryAsOf < primaryAsOf) {
+  failed = true;
+  console.error(
+    `✗ latino radar freshness: projection=${radarProjectionAsOf || 'missing'}, ` +
+      `primaries=${radarPrimaryAsOf || 'missing'}, primary desk=${primaryAsOf || 'missing'}`,
+  );
+} else {
+  console.log(
+    `✓ latino radar: projection ${radarProjectionAsOf}, primaries ${radarPrimaryAsOf}`,
+  );
+}
+
 if (failed) process.exit(1);

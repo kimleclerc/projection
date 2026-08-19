@@ -35,6 +35,7 @@ interface SpecialElectionData {
     possible_runoff_date?: string;
     n_simulations: number;
     model_type: string;
+    race_format?: 'top_two_primary' | 'head_to_head' | 'party_control';
   };
   district: {
     state: string;
@@ -56,6 +57,7 @@ interface SpecialElectionData {
     likely_runoff_probability: number;
     if_likely_runoff_favorite: string;
     if_likely_runoff_favorite_probability: number;
+    projected_margin_mean?: number;
   };
   benchmarks: {
     assumptions: NoteItem[];
@@ -226,33 +228,57 @@ export default function SpecialElectionForecast({
   const favorite = data.summary.favorite_name;
   const expectedPair = data.summary.likely_runoff_names.join(' vs ');
   const districtContext = data.district.district_context;
+  const isHeadToHead = data.meta.race_format === 'head_to_head' || data.meta.race_format === 'party_control';
+  const partyControl = data.meta.race_format === 'party_control';
 
   return (
     <div class="special-engine container" data-special-slug={slug}>
       <style>{specialElectionStyles}</style>
       <section class="special-dashboard" aria-label="Special-election forecast summary">
         <article class="special-big-number special-panel">
-          <p class="special-label">{t.favorite}</p>
+          <p class="special-label">{isHeadToHead ? (locale === 'fr' ? 'Gagnant projeté' : locale === 'es' ? 'Ganador proyectado' : 'Projected winner') : t.favorite}</p>
           <strong>{pct(data.summary.favorite_probability)}</strong>
           <span>
-            {favorite} {t.firstPlace}
+            {favorite} {isHeadToHead ? (locale === 'fr' ? 'probabilité de victoire' : locale === 'es' ? 'probabilidad de victoria' : 'win probability') : t.firstPlace}
           </span>
         </article>
-        <article class="special-panel">
-          <p class="special-label">{t.runoff}</p>
-          <strong>{pct(data.summary.runoff_probability)}</strong>
-          <span>{data.meta.possible_runoff_date ?? '2026-08-04'}</span>
-        </article>
-        <article class="special-panel">
-          <p class="special-label">{t.outright}</p>
-          <strong>{pct(data.summary.majority_outright_probability)}</strong>
-          <span>50% + 1</span>
-        </article>
-        <article class="special-panel">
-          <p class="special-label">{t.pair}</p>
-          <strong class="special-pair">{expectedPair}</strong>
-          <span>{pct(data.summary.likely_runoff_probability)} top-two path</span>
-        </article>
+        {isHeadToHead ? (
+          <>
+            <article class="special-panel">
+              <p class="special-label">{locale === 'fr' ? 'Marge projetée' : locale === 'es' ? 'Margen proyectado' : 'Projected margin'}</p>
+              <strong>{(data.summary.projected_margin_mean ?? 0).toFixed(1)} pts</strong>
+              <span>{favorite}</span>
+            </article>
+            <article class="special-panel">
+              <p class="special-label">{locale === 'fr' ? 'Date du vote' : locale === 'es' ? 'Fecha de votación' : 'Election date'}</p>
+              <strong class="special-pair">{data.meta.election_date ?? (locale === 'fr' ? 'À déterminer' : locale === 'es' ? 'Por definir' : 'TBD')}</strong>
+              <span>{partyControl ? (locale === 'fr' ? 'bref en attente' : locale === 'es' ? 'convocatoria pendiente' : 'writ pending') : expectedPair}</span>
+            </article>
+            <article class="special-panel">
+              <p class="special-label">{locale === 'fr' ? 'Champ' : locale === 'es' ? 'Candidaturas' : 'Field'}</p>
+              <strong class="special-pair">{partyControl ? (locale === 'fr' ? 'Noms à confirmer' : locale === 'es' ? 'Nombres por confirmar' : 'Names pending') : expectedPair}</strong>
+              <span>{partyControl ? (locale === 'fr' ? 'projection par parti' : locale === 'es' ? 'proyección por partido' : 'party-level forecast') : 'head-to-head'}</span>
+            </article>
+          </>
+        ) : (
+          <>
+            <article class="special-panel">
+              <p class="special-label">{t.runoff}</p>
+              <strong>{pct(data.summary.runoff_probability)}</strong>
+              <span>{data.meta.possible_runoff_date ?? '2026-08-04'}</span>
+            </article>
+            <article class="special-panel">
+              <p class="special-label">{t.outright}</p>
+              <strong>{pct(data.summary.majority_outright_probability)}</strong>
+              <span>50% + 1</span>
+            </article>
+            <article class="special-panel">
+              <p class="special-label">{t.pair}</p>
+              <strong class="special-pair">{expectedPair}</strong>
+              <span>{pct(data.summary.likely_runoff_probability)} top-two path</span>
+            </article>
+          </>
+        )}
       </section>
 
       <p class="special-status" role="status">
@@ -265,10 +291,10 @@ export default function SpecialElectionForecast({
       <section class="special-section" aria-labelledby="special-candidates-title">
         <header class="special-section-head">
           <div>
-            <p class="special-label">{t.projectedPrimaryField}</p>
+            <p class="special-label">{isHeadToHead ? (partyControl ? (locale === 'fr' ? 'Projection par parti' : locale === 'es' ? 'Proyección por partido' : 'Party-control projection') : (locale === 'fr' ? 'Duel projeté' : locale === 'es' ? 'Duelo proyectado' : 'Head-to-head forecast')) : t.projectedPrimaryField}</p>
             <h2 id="special-candidates-title">{t.candidates}</h2>
           </div>
-          <p>{t.candidatesHelp}</p>
+          <p>{isHeadToHead ? (partyControl ? (locale === 'fr' ? 'Projection provisoire avant confirmation de la date et des candidatures.' : locale === 'es' ? 'Proyección provisional antes de confirmar fecha y candidatos.' : 'Provisional forecast before the date and candidates are confirmed.') : (locale === 'fr' ? 'Vote projeté et probabilité de victoire dans le second tour.' : locale === 'es' ? 'Voto proyectado y probabilidad de victoria en la segunda vuelta.' : 'Projected vote and win probability in the runoff.')) : t.candidatesHelp}</p>
         </header>
 
         <div class="special-candidate-list">
@@ -299,12 +325,12 @@ export default function SpecialElectionForecast({
                   <dd>{pctPoint(candidate.projected_vote_mean)}</dd>
                 </div>
                 <div>
-                  <dt>{t.top2}</dt>
-                  <dd>{pct(candidate.top_two_probability, 0)}</dd>
+                  <dt>{isHeadToHead ? (locale === 'fr' ? 'Victoire' : locale === 'es' ? 'Victoria' : 'Win') : t.top2}</dt>
+                  <dd>{pct(isHeadToHead ? candidate.first_place_probability : candidate.top_two_probability, isHeadToHead ? 1 : 0)}</dd>
                 </div>
                 <div>
-                  <dt>{t.first}</dt>
-                  <dd>{pct(candidate.first_place_probability, 1)}</dd>
+                  <dt>{isHeadToHead ? (locale === 'fr' ? 'Médiane' : locale === 'es' ? 'Mediana' : 'Median') : t.first}</dt>
+                  <dd>{isHeadToHead ? pctPoint(candidate.vote_quantiles?.q50 ?? candidate.projected_vote_mean) : pct(candidate.first_place_probability, 1)}</dd>
                 </div>
               </dl>
             </article>
@@ -312,7 +338,7 @@ export default function SpecialElectionForecast({
         </div>
       </section>
 
-      <section class="special-two-col">
+      {!isHeadToHead && <section class="special-two-col">
         <article class="special-section special-compact" aria-labelledby="special-pairs-title">
           <p class="special-label">{t.topTwoPairs}</p>
           <h2 id="special-pairs-title">{t.topTwo}</h2>
@@ -336,7 +362,7 @@ export default function SpecialElectionForecast({
             )}
           </p>
         </article>
-      </section>
+      </section>}
 
       <section class="special-two-col">
         <article class="special-section special-compact" aria-labelledby="special-district-title">

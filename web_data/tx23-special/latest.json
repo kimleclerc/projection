@@ -1,0 +1,127 @@
+{
+  "meta": {
+    "run_date": "2026-08-19",
+    "race_id": "tx23_special_pending_2026",
+    "title": "Texas's 23rd Congressional District Pending Special Election",
+    "election_date": null,
+    "n_simulations": 50000,
+    "model_type": "provisional_party_control_v1",
+    "pipeline_version": "1.0",
+    "language": "en",
+    "status": "vacant_pending_writ",
+    "race_format": "party_control"
+  },
+  "district": {
+    "state": "Texas",
+    "district": "23rd Congressional District",
+    "vacancy_reason": "The seat became vacant after Rep. Tony Gonzales resigned. The special-election date has not yet been set.",
+    "district_context": {
+      "house_2024_democratic_share": 37.73,
+      "house_2024_republican_share": 62.27,
+      "note": "The projection is party-level and remains provisional until the election calendar and candidate field are official."
+    }
+  },
+  "candidates": [
+    {
+      "id": "us_dem",
+      "name": "Democratic nominee",
+      "party": "Democrat",
+      "color": "#2563eb",
+      "projected_vote_mean": 40.51,
+      "win_probability": 0.1029,
+      "top_two_probability": 1.0,
+      "first_place_probability": 0.1029,
+      "vote_quantiles": {
+        "q05": 28.13,
+        "q10": 30.91,
+        "q25": 35.43,
+        "q50": 40.52,
+        "q75": 45.61,
+        "q90": 50.13,
+        "q95": 52.94
+      }
+    },
+    {
+      "id": "us_rep",
+      "name": "Republican nominee",
+      "party": "Republican",
+      "color": "#c62828",
+      "projected_vote_mean": 59.49,
+      "win_probability": 0.8971,
+      "top_two_probability": 1.0,
+      "first_place_probability": 0.8971,
+      "vote_quantiles": {
+        "q05": 47.06,
+        "q10": 49.87,
+        "q25": 54.39,
+        "q50": 59.48,
+        "q75": 64.57,
+        "q90": 69.09,
+        "q95": 71.87
+      }
+    }
+  ],
+  "summary": {
+    "favorite_id": "us_rep",
+    "favorite_name": "Republican nominee",
+    "favorite_probability": 0.8971,
+    "projected_margin_mean": 18.98,
+    "projected_margin_quantiles": {
+      "q05": -5.87,
+      "q10": -0.25,
+      "q25": 8.77,
+      "q50": 18.96,
+      "q75": 29.14,
+      "q90": 38.18,
+      "q95": 43.74
+    },
+    "upset_probability": 0.1029,
+    "runoff_probability": 0.0,
+    "majority_outright_probability": 0.8971,
+    "likely_runoff_names": [
+      "Democratic nominee",
+      "Republican nominee"
+    ],
+    "likely_runoff_probability": 1.0,
+    "if_likely_runoff_favorite": "Republican nominee",
+    "if_likely_runoff_favorite_probability": 0.8971
+  },
+  "benchmarks": {
+    "top_two_pairs": [
+      {
+        "pair": [
+          "us_dem",
+          "us_rep"
+        ],
+        "probability": 1.0
+      }
+    ],
+    "assumptions": [
+      {
+        "label": "119th Congress district",
+        "note": "The anchor uses the district that elected the departing member, not a later general-election redistricting plan."
+      },
+      {
+        "label": "Candidate field pending",
+        "note": "Candidate-specific effects are not applied before official qualification."
+      },
+      {
+        "label": "Special-election uncertainty",
+        "note": "The distribution is deliberately wider than a normal general-election projection because date, turnout and nominees remain unknown."
+      }
+    ]
+  },
+  "pending": {
+    "vacancy_date": "2026-04-14",
+    "status": "vacant_pending_writ",
+    "departing_member": "Tony Gonzales",
+    "reason": "resignation"
+  },
+  "sources": [
+    {
+      "label": "U.S. House Clerk — current vacancies",
+      "url": "https://clerk.house.gov/Members/ViewVacancies"
+    }
+  ],
+  "method_note": "A provisional party-control projection for a vacant seat before the writ, date and candidate field are known. It anchors to the 119th Congress district result and widens uncertainty for special-election turnout and candidate effects."
+}

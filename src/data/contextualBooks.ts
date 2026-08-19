@@ -6,7 +6,7 @@
  * editions vary by country; Amazon OneLink handles storefront localization.
  */
 
-export type BookContext = 'clacton' | 'us-president' | 'france-president';
+export type BookContext = 'clacton' | 'us-president' | 'france-president' | 'ga13' | 'fl20' | 'tx23';
 export type BookLocale = 'en' | 'fr' | 'es';
 
 export interface ContextualBook {
@@ -22,6 +22,45 @@ export interface ContextualBook {
 }
 
 export const contextualBooks: ContextualBook[] = [
+  {
+    id: 'politics-in-georgia',
+    contexts: ['ga13'],
+    search: 'Politics in Georgia Charles S Bullock Ronald Keith Gaddie',
+    title: 'Politics in Georgia',
+    author: 'Charles S. Bullock III & Ronald Keith Gaddie',
+    note: {
+      en: 'A state-level guide to the institutions, electoral coalitions and political change behind the GA‑13 runoff.',
+      fr: 'Un guide des institutions, coalitions électorales et transformations politiques qui forment le contexte de GA‑13.',
+      es: 'Una guía de las instituciones, coaliciones electorales y cambios políticos que forman el contexto de GA‑13.',
+    },
+    accent: '#6b2f21',
+  },
+  {
+    id: 'the-swamp',
+    contexts: ['fl20'],
+    asin: '0743251075',
+    title: 'The Swamp',
+    author: 'Michael Grunwald',
+    note: {
+      en: 'The political and environmental history of the Everglades — essential context for a South Florida seat shaped by water, development and federal policy.',
+      fr: 'L’histoire politique et environnementale des Everglades — un contexte essentiel pour un siège du sud de la Floride façonné par l’eau et l’action fédérale.',
+      es: 'La historia política y ambiental de los Everglades, contexto esencial para un distrito del sur de Florida marcado por el agua y la política federal.',
+    },
+    accent: '#3f6b57',
+  },
+  {
+    id: 'line-becomes-river',
+    contexts: ['tx23'],
+    asin: '0735217734',
+    title: 'The Line Becomes a River',
+    author: 'Francisco Cantú',
+    note: {
+      en: 'A former Border Patrol agent’s account of the U.S.–Mexico borderlands, a defining geography and policy issue across TX‑23.',
+      fr: 'Le récit d’un ancien agent de la Border Patrol sur la frontière américano-mexicaine, géographie et enjeu central de TX‑23.',
+      es: 'El relato de un exagente de la Patrulla Fronteriza sobre la frontera entre Estados Unidos y México, geografía central de TX‑23.',
+    },
+    accent: '#b56b32',
+  },
   {
     id: 'purple-revolution',
     contexts: ['clacton'],
