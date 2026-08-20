@@ -277,7 +277,14 @@ try {
   // silence — launchd notait un code 1 que personne ne lisait.)
   const manifest = ['web_data/public-api/latest.json', 'web_data/public-api/elections.json']
     .filter((f) => existsSync(path.join(ROOT, f)));
-  execSync(`git add ${[desk.json, ...manifest].join(' ')}`, { cwd: ROOT, stdio: 'inherit' });
+  // Le desk, c'est son DOSSIER, pas seulement son latest.json : runs/,
+  // history/, polls/, ridings.json sont copiés par publish_web.py au même
+  // moment et lus par le site. En ne stageant que le JSON, la passerelle
+  // laissait tout le reste non commité — l'historique des runs cessait
+  // d'avancer en ligne et l'arbre du site accumulait des fichiers orphelins
+  // qu'un humain devait ramasser à la main (ce qu'on a fait le 2026-08-20).
+  const deskDir = path.posix.dirname(desk.json);
+  execSync(`git add ${[deskDir, ...manifest].join(' ')}`, { cwd: ROOT, stdio: 'inherit' });
   // Rien de stagé (ex. build a régénéré des fichiers non suivis) → on ne commit que le JSON.
   const staged = execSync('git diff --cached --name-only', { cwd: ROOT, encoding: 'utf-8' }).trim();
   if (!staged) { log('aucun changement stagé sur le JSON — rien à commiter. ✓'); process.exit(0); }
