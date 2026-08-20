@@ -269,7 +269,15 @@ try {
 // ── Commit + push ───────────────────────────────────────────────────────────
 const msg = `${desk.label} data: nightly ${String(runId).slice(0, 10)}`;
 try {
-  execSync(`git add ${desk.json}`, { cwd: ROOT, stdio: 'inherit' });
+  // Le manifeste public porte une somme de contrôle par jeu de données : il
+  // devient périmé dès que le desk bouge, et `validate:live-data` (prebuild)
+  // refuse alors le build — y compris celui de Cloudflare en production. Il
+  // doit donc voyager dans le MÊME commit que la donnée qu'il décrit.
+  // (2026-08-20 : le nightly MLB échouait là-dessus depuis des jours, en
+  // silence — launchd notait un code 1 que personne ne lisait.)
+  const manifest = ['web_data/public-api/latest.json', 'web_data/public-api/elections.json']
+    .filter((f) => existsSync(path.join(ROOT, f)));
+  execSync(`git add ${[desk.json, ...manifest].join(' ')}`, { cwd: ROOT, stdio: 'inherit' });
   // Rien de stagé (ex. build a régénéré des fichiers non suivis) → on ne commit que le JSON.
   const staged = execSync('git diff --cached --name-only', { cwd: ROOT, encoding: 'utf-8' }).trim();
   if (!staged) { log('aucun changement stagé sur le JSON — rien à commiter. ✓'); process.exit(0); }
