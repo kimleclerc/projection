@@ -5,6 +5,7 @@ import '@fontsource-variable/geist/wght.css';
 import '@fontsource-variable/jetbrains-mono/wght.css';
 import '../styles/tokens.css';
 import { affiliates, amazon } from '../data/affiliates';
+import { ads, adScriptUrl } from '../data/ads';
 
 interface Props {
   title: string;
@@ -533,6 +534,20 @@ const languageLinks = (['en', 'fr', 'es'] as Locale[])
       .footer-grid { grid-template-columns: 1fr; }
     }
   </style>
+
+  {/* Journey by Mediavine. Renders nothing while ads.enabled is false —
+      see src/data/ads.ts for the pre-launch checklist. data-cfasync="false"
+      keeps Cloudflare Rocket Loader from deferring it; is:inline keeps
+      Astro from bundling a third-party URL. */}
+  {ads.enabled && (
+    <script
+      is:inline
+      async
+      data-noptimize="1"
+      data-cfasync="false"
+      src={adScriptUrl()}
+    ></script>
+  )}
 </head>
 <body>
 <a class="skip-link" href="#main-content">{copy.skipLabel}</a>
