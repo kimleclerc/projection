@@ -1,0 +1,103 @@
+---
+/**
+ * Coquille plein écran des jeux Vote-Scope.
+ *
+ * Volontairement à côté de `Base.astro` plutôt que dessus : un jeu de cartes à
+ * glisser se joue sans barre de navigation ni pied de page, et hérite de sa
+ * propre palette. Ce qui suit ne réimplémente donc que ce dont un jeu a besoin
+ * dans le `<head>` — et que la première version oubliait : les alternances de
+ * langue, et les cartes de partage, sans lesquelles une expérience faite pour
+ * être partagée arrive nue dans les fils.
+ */
+import '@fontsource-variable/newsreader/opsz.css';
+import '@fontsource-variable/geist/wght.css';
+
+interface Props {
+  title: string;
+  description: string;
+  canonical: string;
+  lang?: 'fr' | 'en' | 'es';
+  alternates?: { en: string; fr: string; es: string };
+  ogImage?: string;
+  /** Par défaut le jeu est indexable : c'est une porte d'entrée, pas une annexe. */
+  noindex?: boolean;
+}
+
+const {
+  title,
+  description,
+  canonical,
+  lang = 'fr',
+  alternates,
+  ogImage = 'https://vote-scope.com/og/vote-scope.png',
+  noindex = false,
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta
+      name="robots"
+      content={noindex
+        ? 'noindex,follow'
+        : 'max-snippet:-1, max-image-preview:large, max-video-preview:-1'}
+    />
+    <link rel="canonical" href={canonical} />
+
+    {alternates && (
+      <>
+        <link rel="alternate" hreflang="fr" href={alternates.fr} />
+        <link rel="alternate" hreflang="en" href={alternates.en} />
+        <link rel="alternate" hreflang="es" href={alternates.es} />
+        <link rel="alternate" hreflang="x-default" href={alternates.en} />
+      </>
+    )}
+
+    <meta property="og:site_name" content="Vote-Scope" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta name="theme-color" content="#f5f1e8" />
+    <style is:global>
+      :root {
+        --vibe-paper: #f5f1e8;
+        --vibe-card: #fffdf6;
+        --vibe-ink: #171512;
+        --vibe-muted: #70695f;
+        --vibe-rule: #d8d0c2;
+        --vibe-red: #b8242b;
+        --vibe-blue: #143858;
+        --vibe-serif: "Newsreader Variable", Georgia, serif;
+        --vibe-sans: "Geist Variable", -apple-system, BlinkMacSystemFont, sans-serif;
+      }
+
+      *, *::before, *::after { box-sizing: border-box; }
+      html, body { min-height: 100%; margin: 0; background: var(--vibe-paper); color: var(--vibe-ink); }
+      body { font-family: var(--vibe-sans); -webkit-font-smoothing: antialiased; }
+      button, input, select { font: inherit; }
+      button, a { -webkit-tap-highlight-color: transparent; }
+      button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible {
+        outline: 3px solid #1f6595;
+        outline-offset: 3px;
+      }
+    </style>
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>

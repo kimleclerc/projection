@@ -1,0 +1,28 @@
+---
+import GameLayout from '../../../../layouts/GameLayout.astro';
+import VibeMatch from '../../../../islands/VibeMatch';
+import { vibeMatchParties, vibeMatchRidings, runDate } from '../../../../lib/vibe-match-data';
+
+const canonical = 'https://vote-scope.com/es/canada/quebec/match/';
+const alternates = {
+  fr: 'https://vote-scope.com/fr/canada/quebec/match/',
+  en: 'https://vote-scope.com/en/canada/quebec/match/',
+  es: canonical,
+};
+---
+
+<GameLayout
+  title="Tu match electoral de hoy — Vote-Scope"
+  description="Desliza algunas cartas y descubre qué partidos de Quebec encajan mejor con tu vibra de hoy."
+  canonical={canonical}
+  lang="es"
+  alternates={alternates}
+>
+  <VibeMatch
+    client:load
+    parties={vibeMatchParties('es')}
+    ridings={vibeMatchRidings('es')}
+    locale="es"
+    campaignVersion={runDate}
+  />
+</GameLayout>
