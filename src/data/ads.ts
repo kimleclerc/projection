@@ -32,7 +32,7 @@ export interface AdsConfig {
 }
 
 export const ads: AdsConfig = {
-  enabled: false,
+  enabled: true,
   siteId: '9eff603b-b6c9-42b7-a2dc-d65bce3610a5',
   scriptHost: 'scripts.scriptwrapper.com',
 };
