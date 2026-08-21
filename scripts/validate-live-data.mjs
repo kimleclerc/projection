@@ -98,6 +98,15 @@ const manifestProblems = [];
 if (publicManifest.meta?.schema_version !== '1.0') manifestProblems.push('unsupported schema');
 if (publicManifest.meta?.dataset_count !== publicDatasets.length) manifestProblems.push('dataset_count mismatch');
 if (publicIds.size !== publicDatasets.length) manifestProblems.push('duplicate dataset ID');
+const expectedCatalogues = {
+  elections: ['election_forecast'],
+  polls: ['polling_index'],
+  candidates: ['candidate_registry'],
+  primaries: ['primary_calendar'],
+  indexes: ['original_index'],
+  'special-elections': ['special_election'],
+  'track-record': ['track_record'],
+};
 
 for (const dataset of publicDatasets) {
   const pathname = new URL(dataset.latest_url).pathname.replace(/^\//, '');
@@ -112,6 +121,24 @@ for (const dataset of publicDatasets) {
   }
 }
 
+for (const [name, kinds] of Object.entries(expectedCatalogues)) {
+  try {
+    const catalogue = await load(`web_data/public-api/${name}.json`);
+    const expected = publicDatasets.filter((dataset) => kinds.includes(dataset.kind));
+    if (catalogue.meta?.dataset_count !== expected.length) {
+      manifestProblems.push(`${name}: dataset_count mismatch`);
+    }
+    if ((catalogue.datasets ?? []).some((dataset) => !kinds.includes(dataset.kind))) {
+      manifestProblems.push(`${name}: unexpected dataset kind`);
+    }
+    if (publicManifest.meta?.catalogs?.[name] !== `https://vote-scope.com/api/v1/${name}.json`) {
+      manifestProblems.push(`${name}: missing stable API URL`);
+    }
+  } catch {
+    manifestProblems.push(`${name}: missing catalogue`);
+  }
+}
+
 const publicQuebec = publicDatasets.find((dataset) => dataset.id === 'qc-2026');
 const canonicalQuebec = await load('web_data/quebec/latest.json');
 if (
@@ -119,6 +146,13 @@ if (
   publicQuebec?.majority_seats !== canonicalQuebec.meta?.majority_threshold
 ) {
   manifestProblems.push('qc-2026: seat metadata differs from canonical data');
+}
+const publicQuebecCandidates = publicDatasets.find((dataset) => dataset.id === 'qc-2026-candidates');
+if (publicQuebecCandidates?.record_count !== candidateCount) {
+  manifestProblems.push('qc-2026-candidates: record count differs from published slate');
+}
+if (publicIds.has('us-senate-2026-polls')) {
+  manifestProblems.push('stale U.S. Senate poll catalogue must not be public');
 }
 
 if (manifestProblems.length) {

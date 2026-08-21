@@ -71,6 +71,12 @@ for (const dir of assetDirs) {
 const apiAliases = [
   ['latest.json', 'manifest.json'],
   ['elections.json', 'elections.json'],
+  ['polls.json', 'polls.json'],
+  ['candidates.json', 'candidates.json'],
+  ['primaries.json', 'primaries.json'],
+  ['indexes.json', 'indexes.json'],
+  ['special-elections.json', 'special-elections.json'],
+  ['track-record.json', 'track-record.json'],
 ];
 const apiSource = join(ROOT, 'web_data', 'public-api');
 const apiTarget = join(DIST, 'api', 'v1');

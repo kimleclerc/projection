@@ -11,13 +11,15 @@ const datasets = manifest.datasets as Array<{
   latest_url: string;
   backlink_url: string;
   model_version?: string;
+  record_count?: number;
   history: { available: boolean; snapshot_count: number };
 }>;
+const catalogues = Object.entries(manifest.meta.catalogs ?? {}) as Array<[string, string]>;
 ---
 
 <EditorialLayout
-  title="Vote-Scope Data API — Static election and sports forecasts"
-  description="Discover Vote-Scope’s public forecast datasets, provenance, historical snapshots and attribution requirements through a stable static manifest."
+  title="Vote-Scope Data API — Forecasts, polls, candidates and indexes"
+  description="Discover Vote-Scope’s public forecasts, polling archives, candidate registries, original indexes, special elections and provenance through a stable static API."
   canonical={canonical}
   lang="en"
   currentPage="api"
@@ -44,11 +46,14 @@ const datasets = manifest.datasets as Array<{
     <header class="api-hero">
       <p class="eyebrow">VOTE-SCOPE DATA · VERSION {manifest.meta.schema_version}</p>
       <h1>Forecast data built to be cited.</h1>
-      <p class="lede">A read-only catalogue of Vote-Scope election and sports forecasts. Existing <code>/web_data/</code> resources remain canonical; this API adds discovery, provenance, checksums and stable backlinks.</p>
+      <p class="lede">A read-only catalogue of Vote-Scope forecasts, polls, candidates, primaries, original indexes and special elections. Existing <code>/web_data/</code> resources remain canonical; this API adds discovery, provenance, checksums and stable backlinks.</p>
       <div class="api-actions">
         <a class="primary" href="/api/v1/manifest.json">Open manifest</a>
         <a href="/api/v1/elections.json">Election datasets</a>
       </div>
+      <nav class="catalog-links" aria-label="Dataset catalogues">
+        {catalogues.map(([name, url]) => <a href={url}>{name.replace('-', ' ')}</a>)}
+      </nav>
     </header>
 
     <section class="api-note" aria-labelledby="attribution-title">
@@ -75,6 +80,7 @@ const datasets = manifest.datasets as Array<{
             <dl>
               <div><dt>Data through</dt><dd>{dataset.data_through ?? 'See dataset'}</dd></div>
               <div><dt>Model</dt><dd>{dataset.model_version ?? 'Desk-specific'}</dd></div>
+              {dataset.record_count != null && <div><dt>Records</dt><dd>{dataset.record_count.toLocaleString('en-CA')}</dd></div>}
               <div><dt>Snapshots</dt><dd>{dataset.history.snapshot_count}</dd></div>
             </dl>
             <div class="dataset-links">
@@ -86,11 +92,25 @@ const datasets = manifest.datasets as Array<{
       </div>
     </section>
 
+    <section class="api-uses" aria-labelledby="uses-title">
+      <p class="eyebrow">WHAT CAN I BUILD?</p>
+      <h2 id="uses-title">From newsroom graphics to reproducible research.</h2>
+      <div class="use-grid">
+        <p>Retrieve the latest forecast or polling catalogue for an election graphic.</p>
+        <p>Compare immutable runs to explain how a race changed over time.</p>
+        <p>Cite a dated projection and send readers back to its Vote-Scope desk.</p>
+      </div>
+    </section>
+
     <section class="api-reference" aria-labelledby="reference-title">
       <p class="eyebrow">STATIC BY DESIGN</p>
       <h2 id="reference-title">Simple files, explicit provenance.</h2>
-      <pre><code>GET /api/v1/manifest.json<br/>GET /api/v1/elections.json<br/>GET /web_data/quebec/latest.json<br/>GET /web_data/quebec/runs/2026-08-18.json</code></pre>
+      <pre><code>curl https://vote-scope.com/api/v1/manifest.json<br/><br/>const data = await fetch(<br/>  'https://vote-scope.com/web_data/quebec/latest.json'<br/>).then(response =&gt; response.json());<br/><br/>console.log(data.parties);</code></pre>
       <p><code>latest.json</code> resources change as forecasts update. Historical run files are treated as immutable and publish with SHA-256 checksums in the manifest. No account or API key is required.</p>
+      <div class="stability-contract">
+        <h3>Version 1 stability contract</h3>
+        <p>Additions to <code>/api/v1/</code> are backwards-compatible. A change that removes or redefines existing fields will publish under a new API version. Canonical <code>/web_data/</code> URLs remain in place.</p>
+      </div>
     </section>
   </article>
 </EditorialLayout>
@@ -103,8 +123,10 @@ const datasets = manifest.datasets as Array<{
   h2 { font-family: var(--serif); font-size: clamp(30px, 4vw, 48px); line-height: 1.02; letter-spacing: -.03em; margin: 8px 0 12px; }
   .lede { max-width: 760px; font-size: clamp(18px, 2vw, 23px); line-height: 1.55; color: var(--ink-2); }
   code, pre { font-family: var(--mono); }
-  .api-actions, .dataset-links { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
+  .api-actions, .dataset-links, .catalog-links { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
   .api-actions a, .dataset-links a { border: 1px solid var(--rule); padding: 10px 14px; font-family: var(--mono); font-size: 12px; }
+  .catalog-links { margin-top: 14px; }
+  .catalog-links a { font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-3); }
   .api-actions a.primary { color: var(--paper); background: var(--ink); border-color: var(--ink); }
   .api-note { display: grid; grid-template-columns: minmax(220px, .8fr) 1.4fr; gap: 40px; padding: 34px; margin-bottom: 70px; border: 1px solid var(--rule); background: var(--paper-2); }
   .api-note p:last-child { font-size: 17px; line-height: 1.65; color: var(--ink-2); }
@@ -118,12 +140,18 @@ const datasets = manifest.datasets as Array<{
   dt { color: var(--ink-3); }
   dd { margin: 0; overflow-wrap: anywhere; }
   .dataset-links a { padding: 7px 10px; }
-  .api-reference { max-width: 850px; margin-top: 70px; }
+  .api-uses, .api-reference { max-width: 850px; margin-top: 70px; }
+  .use-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--rule); border: 1px solid var(--rule); margin-top: 24px; }
+  .use-grid p { background: var(--paper); margin: 0; padding: 24px; line-height: 1.55; }
   pre { overflow-x: auto; padding: 24px; border: 1px solid var(--rule); background: var(--paper-2); line-height: 1.8; }
-  .api-reference > p:last-child { color: var(--ink-2); line-height: 1.65; }
+  .api-reference > p { color: var(--ink-2); line-height: 1.65; }
+  .stability-contract { border-left: 3px solid var(--red); margin-top: 28px; padding: 4px 0 4px 22px; }
+  .stability-contract h3 { margin: 0 0 8px; font-family: var(--serif); font-size: 24px; }
+  .stability-contract p { margin: 0; color: var(--ink-2); line-height: 1.6; }
   @media (max-width: 760px) {
     .api-note { grid-template-columns: 1fr; }
     .dataset-grid { grid-template-columns: 1fr; }
+    .use-grid { grid-template-columns: 1fr; }
     .section-head { align-items: start; flex-direction: column; }
   }
 </style>
