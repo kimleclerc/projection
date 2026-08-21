@@ -1,4 +1,4 @@
-import { readFile } from 'node:fs/promises';
+import { readFile, readdir } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -22,6 +22,29 @@ const difference = (left, right) => [...left].filter((value) => !right.has(value
 const sha256 = (value) => createHash('sha256').update(value).digest('hex');
 
 let failed = false;
+
+// Aggregators remain useful inside the ingestion pipeline, but they must not
+// leak through the publication boundary as primary sources or backlinks.
+const blockedPublicSource = /(?:338canada\.com|qc125\.com|"qc125_url"|"demographics_source"\s*:\s*"qc125_)/i;
+const publicSourceFiles = ['web_data/federal/geo.json'];
+for (const jurisdiction of ['federal', 'ontario', 'quebec']) {
+  const directory = `web_data/${jurisdiction}/polls`;
+  for (const filename of await readdir(path.join(root, directory))) {
+    if (filename.endsWith('.json')) publicSourceFiles.push(`${directory}/${filename}`);
+  }
+}
+const leakedSources = [];
+for (const filename of publicSourceFiles) {
+  if (blockedPublicSource.test(await readFile(path.join(root, filename), 'utf8'))) {
+    leakedSources.push(filename);
+  }
+}
+if (leakedSources.length) {
+  failed = true;
+  console.error(`✗ public source boundary: aggregator provenance leaked into ${leakedSources.length} file(s)`);
+} else {
+  console.log('✓ public source boundary: no 338Canada/QC125 links or source labels');
+}
 
 for (const [jurisdiction, geoId] of jurisdictions) {
   const base = `web_data/${jurisdiction}`;

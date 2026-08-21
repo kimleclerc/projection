@@ -50,7 +50,7 @@ type RawGeo = Record<string, {
   anglophone_pct: number | null;
   nonfrancophone_pct: number | null;
   demographics_source: string | null;
-  qc125_url: string | null;
+  qc125_url?: string | null;
 }>;
 
 const ridings = (ridingsSource as { ridings: RawRiding[]; meta: { run_date: string } }).ridings;
@@ -140,13 +140,12 @@ function buildDemographics(rid: string): RidingDemographics | undefined {
   if (!g) return undefined;
   const hasLinguistic =
     g.francophone_pct !== null || g.anglophone_pct !== null || g.nonfrancophone_pct !== null;
-  if (!hasLinguistic && !g.qc125_url) return undefined;
+  if (!hasLinguistic) return undefined;
   return {
     francophone_pct: g.francophone_pct ?? undefined,
     anglophone_pct: g.anglophone_pct ?? undefined,
     nonfrancophone_pct: g.nonfrancophone_pct ?? undefined,
     source: g.demographics_source ?? undefined,
-    external_profile_url: g.qc125_url ?? undefined,
   };
 }
 
