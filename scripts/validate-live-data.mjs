@@ -25,7 +25,7 @@ let failed = false;
 
 // Aggregators remain useful inside the ingestion pipeline, but they must not
 // leak through the publication boundary as primary sources or backlinks.
-const blockedPublicSource = /(?:338canada\.com|qc125\.com|"qc125_url"|"demographics_source"\s*:\s*"qc125_)/i;
+const blockedPublicSource = /(?:338canada|qc125)/i;
 const publicSourceFiles = ['web_data/federal/geo.json'];
 for (const jurisdiction of ['federal', 'ontario', 'quebec']) {
   const directory = `web_data/${jurisdiction}/polls`;
