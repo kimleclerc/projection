@@ -121,6 +121,14 @@ const manifestProblems = [];
 if (publicManifest.meta?.schema_version !== '1.0') manifestProblems.push('unsupported schema');
 if (publicManifest.meta?.dataset_count !== publicDatasets.length) manifestProblems.push('dataset_count mismatch');
 if (publicIds.size !== publicDatasets.length) manifestProblems.push('duplicate dataset ID');
+const expectedApiDocs = {
+  en: 'https://vote-scope.com/api/',
+  fr: 'https://vote-scope.com/fr/api/',
+  es: 'https://vote-scope.com/es/api/',
+};
+if (JSON.stringify(publicManifest.meta?.api_docs_urls) !== JSON.stringify(expectedApiDocs)) {
+  manifestProblems.push('localized API documentation URLs missing');
+}
 const expectedCatalogues = {
   elections: ['election_forecast'],
   polls: ['polling_index'],

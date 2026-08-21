@@ -1,0 +1,178 @@
+---
+import EditorialLayout from '../layouts/EditorialLayout.astro';
+import manifest from '../../web_data/public-api/latest.json';
+
+type Locale = 'en' | 'fr' | 'es';
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+
+const datasets = manifest.datasets as Array<{
+  id: string; kind: string; title: string; data_through?: string;
+  latest_url: string; backlink_url: string;
+  source_pages?: Partial<Record<Locale, string>>;
+  model_version?: string; record_count?: number;
+  history: { available: boolean; snapshot_count: number };
+}>;
+const catalogues = Object.entries(manifest.meta.catalogs ?? {}) as Array<[string, string]>;
+const alternates = {
+  en: 'https://vote-scope.com/api/',
+  fr: 'https://vote-scope.com/fr/api/',
+  es: 'https://vote-scope.com/es/api/',
+};
+
+const copy = {
+  en: {
+    title: 'Vote-Scope Data API — Forecasts, polls, candidates and indexes',
+    description: 'Discover Vote-Scope’s public forecasts, polling archives, candidate registries, original indexes, special elections and provenance through a stable static API.',
+    eyebrow: 'VOTE-SCOPE DATA', hero: 'Forecast data built to be cited.',
+    lede: 'A read-only catalogue of Vote-Scope forecasts, polls, candidates, primaries, original indexes and special elections. Existing /web_data/ resources remain canonical; this API adds discovery, provenance, checksums and stable backlinks.',
+    openManifest: 'Open manifest', elections: 'Election datasets', nav: 'Dataset catalogues',
+    attribution: 'ATTRIBUTION', attributionTitle: 'Link to the desk you use.',
+    attributionText: 'When republishing a Vote-Scope forecast, use “According to Vote-Scope” and link to the dataset’s backlink_url. That URL points readers to the relevant forecast, methodology and context—not merely to a raw file.',
+    current: 'CURRENT CATALOGUE', datasets: 'public datasets', asOf: 'As of', through: 'Data through', see: 'See dataset', model: 'Model', desk: 'Desk-specific', records: 'Records', snapshots: 'Snapshots', page: 'Forecast page',
+    uses: 'WHAT CAN I BUILD?', usesTitle: 'From newsroom graphics to reproducible research.',
+    useItems: ['Retrieve the latest forecast or polling catalogue for an election graphic.', 'Compare immutable runs to explain how a race changed over time.', 'Cite a dated projection and send readers back to its Vote-Scope desk.'],
+    examples: 'TECHNICAL EXAMPLES', examplesTitle: 'Start with the manifest, then request only what you need.',
+    examplesIntro: 'Every endpoint is public JSON over HTTPS. No account, token or software development kit is required.',
+    exampleTitles: ['Discover the catalogue with curl', 'Load polling indexes in JavaScript', 'List special elections in Python', 'Inspect provenance with jq'],
+    static: 'STATIC BY DESIGN', staticTitle: 'Simple files, explicit provenance.',
+    staticText: 'latest.json resources change as forecasts update. Historical run files are immutable and publish with SHA-256 checksums in the manifest. Cross-origin requests are allowed and catalogues are cached briefly.',
+    contract: 'Version 1 stability contract', contractText: 'Additions to /api/v1/ are backwards-compatible. A change that removes or redefines existing fields will publish under a new API version. Canonical /web_data/ URLs remain in place.',
+  },
+  fr: {
+    title: 'API de données Vote-Scope — Projections, sondages, candidatures et indices',
+    description: 'Découvrez les projections publiques, archives de sondages, candidatures, indices originaux, élections partielles et données de provenance de Vote-Scope dans une API statique stable.',
+    eyebrow: 'DONNÉES VOTE-SCOPE', hero: 'Des données électorales conçues pour être citées.',
+    lede: 'Un catalogue en lecture seule des projections, sondages, candidatures, primaires, indices originaux et élections partielles de Vote-Scope. Les ressources /web_data/ restent canoniques; l’API facilite leur découverte et ajoute provenance, sommes de contrôle et backlinks stables.',
+    openManifest: 'Ouvrir le manifeste', elections: 'Données électorales', nav: 'Catalogues de données',
+    attribution: 'ATTRIBUTION', attributionTitle: 'Créez un lien vers le bureau que vous utilisez.',
+    attributionText: 'Lorsque vous republiez une projection, écrivez « Selon Vote-Scope » et créez un lien vers le backlink_url du jeu de données. Cette adresse conduit le lecteur vers la projection, sa méthodologie et son contexte, pas seulement vers un fichier brut.',
+    current: 'CATALOGUE ACTUEL', datasets: 'jeux de données publics', asOf: 'En date du', through: 'Données au', see: 'Voir le jeu', model: 'Modèle', desk: 'Selon le bureau', records: 'Entrées', snapshots: 'Instantanés', page: 'Page de projection',
+    uses: 'QUE PEUT-ON CRÉER?', usesTitle: 'Des graphiques de salle de presse à la recherche reproductible.',
+    useItems: ['Récupérer la dernière projection ou le catalogue de sondages pour un graphique électoral.', 'Comparer les exécutions immuables pour expliquer l’évolution d’une course.', 'Citer une projection datée et ramener le lecteur vers le bureau Vote-Scope pertinent.'],
+    examples: 'EXEMPLES TECHNIQUES', examplesTitle: 'Commencez par le manifeste, puis demandez uniquement les données nécessaires.',
+    examplesIntro: 'Chaque point d’accès sert du JSON public par HTTPS. Aucun compte, jeton ni kit de développement n’est requis.',
+    exampleTitles: ['Découvrir le catalogue avec curl', 'Charger les index de sondages en JavaScript', 'Lister les élections partielles en Python', 'Examiner la provenance avec jq'],
+    static: 'STATIQUE PAR CONCEPTION', staticTitle: 'Des fichiers simples, une provenance explicite.',
+    staticText: 'Les ressources latest.json changent avec les mises à jour des projections. Les exécutions historiques sont immuables et accompagnées de sommes SHA-256 dans le manifeste. Les requêtes interorigines sont permises et les catalogues sont mis en cache brièvement.',
+    contract: 'Contrat de stabilité de la version 1', contractText: 'Les ajouts à /api/v1/ sont rétrocompatibles. Toute modification qui retire ou redéfinit un champ existant sera publiée sous une nouvelle version. Les adresses canoniques /web_data/ demeurent en place.',
+  },
+  es: {
+    title: 'API de datos de Vote-Scope — Pronósticos, encuestas, candidaturas e índices',
+    description: 'Descubra los pronósticos públicos, archivos de encuestas, candidaturas, índices originales, elecciones especiales y procedencia de Vote-Scope mediante una API estática estable.',
+    eyebrow: 'DATOS DE VOTE-SCOPE', hero: 'Datos electorales creados para ser citados.',
+    lede: 'Un catálogo de solo lectura con pronósticos, encuestas, candidaturas, primarias, índices originales y elecciones especiales de Vote-Scope. Los recursos /web_data/ siguen siendo canónicos; la API facilita su descubrimiento y añade procedencia, sumas de verificación y backlinks estables.',
+    openManifest: 'Abrir el manifiesto', elections: 'Datos electorales', nav: 'Catálogos de datos',
+    attribution: 'ATRIBUCIÓN', attributionTitle: 'Enlace al centro de datos que utilice.',
+    attributionText: 'Al republicar un pronóstico, escriba «Según Vote-Scope» y enlace al backlink_url del conjunto de datos. Esa dirección lleva al lector al pronóstico, su metodología y contexto, no solamente a un archivo sin procesar.',
+    current: 'CATÁLOGO ACTUAL', datasets: 'conjuntos de datos públicos', asOf: 'Datos al', through: 'Datos hasta', see: 'Ver conjunto', model: 'Modelo', desk: 'Según el centro', records: 'Registros', snapshots: 'Instantáneas', page: 'Página del pronóstico',
+    uses: '¿QUÉ PUEDO CREAR?', usesTitle: 'Desde gráficos periodísticos hasta investigación reproducible.',
+    useItems: ['Obtenga el pronóstico más reciente o el catálogo de encuestas para un gráfico electoral.', 'Compare ejecuciones inmutables para explicar cómo cambió una contienda.', 'Cite una proyección fechada y dirija al lector al centro de Vote-Scope correspondiente.'],
+    examples: 'EJEMPLOS TÉCNICOS', examplesTitle: 'Empiece por el manifiesto y solicite solo los datos necesarios.',
+    examplesIntro: 'Cada endpoint ofrece JSON público mediante HTTPS. No se requiere cuenta, token ni kit de desarrollo.',
+    exampleTitles: ['Descubrir el catálogo con curl', 'Cargar índices de encuestas en JavaScript', 'Listar elecciones especiales en Python', 'Examinar la procedencia con jq'],
+    static: 'ESTÁTICA POR DISEÑO', staticTitle: 'Archivos sencillos, procedencia explícita.',
+    staticText: 'Los recursos latest.json cambian al actualizarse los pronósticos. Las ejecuciones históricas son inmutables y publican sumas SHA-256 en el manifiesto. Se permiten solicitudes de origen cruzado y los catálogos se almacenan brevemente en caché.',
+    contract: 'Contrato de estabilidad de la versión 1', contractText: 'Las adiciones a /api/v1/ son retrocompatibles. Todo cambio que elimine o redefina campos existentes se publicará bajo una nueva versión. Las URL canónicas /web_data/ permanecen vigentes.',
+  },
+} as const;
+
+const t = copy[locale];
+const localeCode = locale === 'en' ? 'en-CA' : locale === 'fr' ? 'fr-CA' : 'es-ES';
+const catalogueLabels = {
+  en: { elections: 'elections', polls: 'polls', candidates: 'candidates', primaries: 'primaries', indexes: 'indexes', 'special-elections': 'special elections', 'track-record': 'track record' },
+  fr: { elections: 'élections', polls: 'sondages', candidates: 'candidatures', primaries: 'primaires', indexes: 'indices', 'special-elections': 'élections partielles', 'track-record': 'bilan' },
+  es: { elections: 'elecciones', polls: 'encuestas', candidates: 'candidaturas', primaries: 'primarias', indexes: 'índices', 'special-elections': 'elecciones especiales', 'track-record': 'historial' },
+} as const;
+const examples = [
+  `curl -sS https://vote-scope.com/api/v1/manifest.json`,
+  `const response = await fetch(\n  'https://vote-scope.com/api/v1/polls.json'\n);\nconst { datasets } = await response.json();\n\nconst pollingIndexes = datasets.filter(\n  ({ kind }) => kind === 'polling_index'\n);\nconsole.table(pollingIndexes);`,
+  `import json\nfrom urllib.request import urlopen\n\nurl = "https://vote-scope.com/api/v1/special-elections.json"\nwith urlopen(url) as response:\n    catalogue = json.load(response)\n\nfor race in catalogue["datasets"]:\n    print(race["title"], race["latest_url"])`,
+  `curl -sS https://vote-scope.com/api/v1/manifest.json | jq '\n  .datasets[]\n  | {id, data_through, latest_sha256, backlink_url}\n'`,
+];
+---
+
+<EditorialLayout
+  title={t.title} description={t.description} canonical={alternates[locale]}
+  lang={locale} currentPage="api" alternates={alternates}
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  jsonLd={{
+    '@context': 'https://schema.org', '@type': 'DataCatalog', name: 'Vote-Scope Data API',
+    url: alternates[locale], inLanguage: locale,
+    creator: { '@type': 'Person', name: 'Kim Leclerc', url: 'https://kimleclerc.ca' },
+    dataset: datasets.map((dataset) => ({
+      '@type': 'Dataset', name: dataset.title, url: dataset.source_pages?.[locale] ?? dataset.backlink_url,
+      distribution: { '@type': 'DataDownload', contentUrl: dataset.latest_url, encodingFormat: 'application/json' },
+    })),
+  }}
+>
+  <article class="api-docs container">
+    <header class="api-hero">
+      <p class="eyebrow">{t.eyebrow} · VERSION {manifest.meta.schema_version}</p>
+      <h1>{t.hero}</h1><p class="lede">{t.lede}</p>
+      <div class="api-actions"><a class="primary" href="/api/v1/manifest.json">{t.openManifest}</a><a href="/api/v1/elections.json">{t.elections}</a></div>
+      <nav class="catalog-links" aria-label={t.nav}>{catalogues.map(([name, url]) => <a href={url}>{catalogueLabels[locale][name as keyof typeof catalogueLabels.en] ?? name}</a>)}</nav>
+    </header>
+
+    <section class="api-note" aria-labelledby="attribution-title">
+      <div><p class="eyebrow">{t.attribution}</p><h2 id="attribution-title">{t.attributionTitle}</h2></div><p>{t.attributionText}</p>
+    </section>
+
+    <section aria-labelledby="datasets-title">
+      <div class="section-head"><div><p class="eyebrow">{t.current}</p><h2 id="datasets-title">{datasets.length} {t.datasets}</h2></div><p>{t.asOf} {String(manifest.meta.data_through).slice(0, 10)}</p></div>
+      <div class="dataset-grid">{datasets.map((dataset) => (
+        <article class="dataset-card">
+          <p class="dataset-kind">{dataset.kind.replaceAll('_', ' ')}</p><h3>{dataset.title}</h3>
+          <dl>
+            <div><dt>{t.through}</dt><dd>{dataset.data_through ?? t.see}</dd></div>
+            <div><dt>{t.model}</dt><dd>{dataset.model_version ?? t.desk}</dd></div>
+            {dataset.record_count != null && <div><dt>{t.records}</dt><dd>{dataset.record_count.toLocaleString(localeCode)}</dd></div>}
+            <div><dt>{t.snapshots}</dt><dd>{dataset.history.snapshot_count}</dd></div>
+          </dl>
+          <div class="dataset-links"><a href={dataset.source_pages?.[locale] ?? dataset.backlink_url}>{t.page}</a><a href={dataset.latest_url}>JSON</a></div>
+        </article>
+      ))}</div>
+    </section>
+
+    <section class="api-uses" aria-labelledby="uses-title"><p class="eyebrow">{t.uses}</p><h2 id="uses-title">{t.usesTitle}</h2><div class="use-grid">{t.useItems.map((item) => <p>{item}</p>)}</div></section>
+
+    <section class="api-examples" aria-labelledby="examples-title">
+      <p class="eyebrow">{t.examples}</p><h2 id="examples-title">{t.examplesTitle}</h2><p class="section-intro">{t.examplesIntro}</p>
+      <div class="example-grid">{examples.map((code, index) => (
+        <article class="example-card"><h3><span>{String(index + 1).padStart(2, '0')}</span>{t.exampleTitles[index]}</h3><pre><code>{code}</code></pre></article>
+      ))}</div>
+    </section>
+
+    <section class="api-reference" aria-labelledby="reference-title">
+      <p class="eyebrow">{t.static}</p><h2 id="reference-title">{t.staticTitle}</h2><p>{t.staticText}</p>
+      <div class="stability-contract"><h3>{t.contract}</h3><p>{t.contractText}</p></div>
+    </section>
+  </article>
+</EditorialLayout>
+
+<style>
+  .api-docs { padding-block: clamp(54px, 8vw, 110px); }
+  .api-hero { max-width: 880px; margin-bottom: 64px; }
+  .eyebrow, .dataset-kind { font-family: var(--mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--red); }
+  h1 { font-family: var(--serif); font-size: clamp(46px, 8vw, 86px); line-height: .96; letter-spacing: -.045em; margin: 18px 0 24px; }
+  h2 { font-family: var(--serif); font-size: clamp(30px, 4vw, 48px); line-height: 1.02; letter-spacing: -.03em; margin: 8px 0 12px; }
+  .lede { max-width: 760px; font-size: clamp(18px, 2vw, 23px); line-height: 1.55; color: var(--ink-2); }
+  code, pre { font-family: var(--mono); }
+  .api-actions, .dataset-links, .catalog-links { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
+  .api-actions a, .dataset-links a { border: 1px solid var(--rule); padding: 10px 14px; font-family: var(--mono); font-size: 12px; }
+  .catalog-links { margin-top: 14px; }.catalog-links a { font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-3); }
+  .api-actions a.primary { color: var(--paper); background: var(--ink); border-color: var(--ink); }
+  .api-note { display: grid; grid-template-columns: minmax(220px, .8fr) 1.4fr; gap: 40px; padding: 34px; margin-bottom: 70px; border: 1px solid var(--rule); background: var(--paper-2); }
+  .api-note p:last-child, .section-intro { font-size: 17px; line-height: 1.65; color: var(--ink-2); }
+  .section-head { display: flex; align-items: end; justify-content: space-between; gap: 20px; margin-bottom: 24px; }.section-head > p { color: var(--ink-3); font-family: var(--mono); font-size: 12px; }
+  .dataset-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border-top: 1px solid var(--rule); border-left: 1px solid var(--rule); }
+  .dataset-card { padding: 28px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }.dataset-card h3 { font-family: var(--serif); font-size: 28px; margin: 8px 0 22px; }
+  dl { display: grid; gap: 7px; margin: 0; }dl div { display: grid; grid-template-columns: 105px 1fr; gap: 12px; font-size: 13px; }dt { color: var(--ink-3); }dd { margin: 0; overflow-wrap: anywhere; }.dataset-links a { padding: 7px 10px; }
+  .api-uses, .api-examples, .api-reference { margin-top: 70px; }.api-uses, .api-reference { max-width: 850px; }
+  .use-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--rule); border: 1px solid var(--rule); margin-top: 24px; }.use-grid p { background: var(--paper); margin: 0; padding: 24px; line-height: 1.55; }
+  .section-intro { max-width: 760px; }.example-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; margin-top: 28px; }
+  .example-card { min-width: 0; border: 1px solid var(--rule); background: var(--paper-2); }.example-card h3 { display: flex; gap: 12px; align-items: baseline; margin: 0; padding: 18px 20px; border-bottom: 1px solid var(--rule); font-family: var(--serif); font-size: 21px; }.example-card h3 span { color: var(--red); font-family: var(--mono); font-size: 11px; }
+  pre { overflow-x: auto; margin: 0; padding: 20px; line-height: 1.65; font-size: 12px; }.api-reference > p { color: var(--ink-2); line-height: 1.65; }
+  .stability-contract { border-left: 3px solid var(--red); margin-top: 28px; padding: 4px 0 4px 22px; }.stability-contract h3 { margin: 0 0 8px; font-family: var(--serif); font-size: 24px; }.stability-contract p { margin: 0; color: var(--ink-2); line-height: 1.6; }
+  @media (max-width: 760px) { .api-note, .dataset-grid, .use-grid, .example-grid { grid-template-columns: 1fr; }.section-head { align-items: start; flex-direction: column; }.api-note { padding: 24px; } }
+</style>

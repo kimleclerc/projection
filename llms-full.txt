@@ -12,7 +12,7 @@ Vote-Scope est un outil de projection électorale indépendant et non partisan d
 
 - **Stack** : site statique Astro, déployé sur Cloudflare Pages, build auto depuis GitHub.
 - **Langues** : anglais (`/en/`), français (`/fr/`), espagnol (`/es/`) — couverture complète sur toutes les pages.
-- **Échelle** : 6 juridictions politiques, ~1677 circonscriptions/districts avec page individuelle, 3 langues → 5000+ pages.
+- **Échelle** : 6 juridictions politiques, ~1677 circonscriptions/districts avec page individuelle, 3 langues → 7900+ pages statiques.
 - **Verticale sport** : `Sports Scope` (NHL/Coupe Stanley), produit d'analyse et de divertissement, séparé du noyau électoral.
 
 ---
@@ -46,7 +46,7 @@ Le sélecteur de langue dérive automatiquement ces variantes. Les balises hrefl
 | Royaume-Uni | /en/uk/general-election | 650 | uk_2029 | uk_2024 | /en/uk/constituencies/ |
 | France présidentielle | /en/france/ | — | fr_pres_2027 | — | — |
 
-Pages spéciales : /en/us/specials/ca1/, /ca14/, /ga14/, /nj11/.
+Pages spéciales et partielles : `/en/us/specials/ca1/`, `/ca14/`, `/ga14/`, `/nj11/`, `/ga13/`, `/fl20/`, `/tx23/` et `/en/uk/byelections/clacton/`.
 Hubs : /en/canada/, /en/us/, /en/uk/, /en/france/.
 Index éditoriaux : /en/us/indexes/lame-duck/, /en/indexes/fraser-interim/.
 Autres : /en/track-record/, /en/methodology/, /en/canada/byelections/.
@@ -54,14 +54,9 @@ Sport : /en/sports/nhl/, /en/sports/track-record/, /en/sports/wc2026/.
 
 ---
 
-## 4. Instantané des projections (run 2026-05-26/27 — lire les JSON pour les valeurs courantes)
+## 4. Valeurs courantes
 
-- **Canada fédéral** : Libéral 213 sièges (majorité 100%), Conservateur 99, Bloc 22, NPD 6. Seuil 64.
-- **Québec** : PQ 55 sièges (majorité 9%), PLQ 46, CAQ 14, PCQ 5, QS 4. Seuil 63. Course à trois serrée.
-- **Ontario** : PC 67 sièges (majorité 85%), NPD 28, Libéral 25, Vert 3. Seuil 63.
-- **Chambre US** : Démocrates 228 sièges (contrôle 96%), Républicains 207. Seuil 218.
-- **Sénat US** : Démocrates ~51 (contrôle 52%), Républicains ~49 (24%). Toss-up de chambre. Seuil 51.
-- **Royaume-Uni** : Labour 176, Conservateurs 155, Reform UK 141, Lib Dems 79 — parlement sans majorité (seuil 326).
+Les projections évoluent plus vite que ce document. Pour éviter de présenter un instantané périmé comme actuel, lire le manifeste `https://vote-scope.com/api/v1/manifest.json`, puis le `latest_url` du jeu recherché. Le manifeste indique aussi `data_through`, la version du modèle, la somme SHA-256 et la page à citer.
 
 ---
 
@@ -117,18 +112,22 @@ question éditoriale dérivée des données → hero (silhouette SVG) → élu·
 
 ## 8. Endpoints de données (JSON, valeurs courantes)
 
+- Documentation de l'API : `https://vote-scope.com/api/` (EN), `https://vote-scope.com/fr/api/` (FR), `https://vote-scope.com/es/api/` (ES).
+- Manifeste de découverte : `https://vote-scope.com/api/v1/manifest.json`.
+- Catalogues stables : `/api/v1/elections.json`, `polls.json`, `candidates.json`, `primaries.json`, `indexes.json`, `special-elections.json`, `track-record.json`.
+- Le catalogue `polls.json` regroupe cinq ressources `polling_index` (Canada fédéral, Québec, Ontario, Royaume-Uni, Chambre américaine). Les objets du manifeste exposent `latest_url`, `latest_sha256`, `source_pages` localisées et `backlink_url`.
 - Projection par juridiction : `https://vote-scope.com/web_data/{federal,quebec,ontario,us-house,us-senate,uk}/latest.json`
   - Champs : `meta` (run_date, n_polls, n_simulations, cycle), `parties` (seats_mean, p_majority, vote_mean, intervalles), `current_composition`, `tipping_points`, `ridings`.
 - Couches US : `web_data/us-house/{members,candidates_2026,primaries,redistricting}.json`, `web_data/us-senate/{members,candidates_2026}.json`, `web_data/{us-house,us-senate}/history/<riding_id>.json`.
 - Lame-Duck Index : `web_data/us-lame-duck/latest.json`.
 - Sport : `web_data/sports/latest.json`.
-- Sitemap : `https://vote-scope.com/sitemap-0.xml` (5000+ URLs).
+- Sitemap : `https://vote-scope.com/sitemap-0.xml` (7900+ URLs).
 
 ---
 
 ## 9. Sources
 
-- **Canada** : Élections Canada/Québec/Ontario, 338Canada, firmes publiques (Léger, Abacus, Nanos, Mainstreet, EKOS, Angus Reid, Liaison).
+- **Canada** : Élections Canada/Québec/Ontario et sources primaires des firmes publiques (Léger, Abacus, Nanos, Mainstreet, EKOS, Angus Reid, Liaison).
 - **États-Unis** : Federal Election Commission (candidats), NYT (sondages district + primaires), MIT Election Lab (résultats), Census Bureau, GIS officiels par État (redécoupage).
 - **Royaume-Uni** : members-api.parliament.uk, electionresults.parliament.uk, ONS (démographie).
 - **France** : IFOP, Harris, Ipsos, OpinionWay, BVA.

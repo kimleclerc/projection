@@ -24,7 +24,6 @@ const files = {
   ],
   'llms-full.txt': [
     [/\| Québec \| ([^\n]*?) \| \d+ \|/, `| Québec | $1 | ${total} |`],
-    [/Seuil \d+\./, `Seuil ${majority}.`],
     [/Canada 172 · Québec \d+ ·/, `Canada 172 · Québec ${majority} ·`],
   ],
 };

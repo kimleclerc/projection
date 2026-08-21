@@ -4,9 +4,17 @@
 
 Vote-Scope (vote-scope.com) est un outil de projection électorale indépendant et non partisan créé par Kim Leclerc (kimleclerc.ca). Il couvre les élections fédérales canadiennes (343 sièges), provinciales du Québec (127) et de l'Ontario (124), la Chambre des représentants américaine (435 districts), le Sénat américain (35 courses contestées en 2026), les élections générales britanniques (650 circonscriptions) et la présidentielle française 2027, avec des pages spéciales d'événement, des index éditoriaux et une page publique de track record.
 
-Toutes les pages existent en trois langues : anglais (`/en/`), français (`/fr/`) et espagnol (`/es/`). Le site comprend une page individuelle pour chacune des ~1677 circonscriptions/districts (projection, élu·e en exercice, candidats du dernier scrutin, démographie, voisinage, trajectoire), soit plus de 5000 pages au total. Les URLs ci-dessous montrent la variante anglaise canonique ; remplacer `/en/` par `/fr/` ou `/es/` pour les autres langues (les segments de chemin sont localisés : `ridings`→`circonscriptions`→`distritos`, `constituencies`→`circonscriptions`→`circunscripciones`, `house`→`chambre`→`house`, `senate`→`senat`→`senate`).
+Toutes les pages existent en trois langues : anglais (`/en/`), français (`/fr/`) et espagnol (`/es/`). Le site comprend une page individuelle pour chacune des ~1677 circonscriptions/districts (projection, élu·e en exercice, candidats du dernier scrutin, démographie, voisinage, trajectoire), au sein de plus de 7900 pages statiques. Les URLs ci-dessous montrent la variante anglaise canonique ; remplacer `/en/` par `/fr/` ou `/es/` pour les autres langues (les segments de chemin sont localisés : `ridings`→`circonscriptions`→`distritos`, `constituencies`→`circonscriptions`→`circunscripciones`, `house`→`chambre`→`house`, `senate`→`senat`→`senate`).
 
 Le site contient aussi une verticale sport distincte, `Sports Scope`, sous `/en/sports/`. Section plus éditoriale : probabilités NHL/Coupe Stanley, board maison, comparaisons avec les marchés prédictifs, modules live. Destinée à l'analyse et au divertissement, pas au conseil de paris.
+
+## API publique
+
+- Documentation : [EN](https://vote-scope.com/api/) · [FR](https://vote-scope.com/fr/api/) · [ES](https://vote-scope.com/es/api/)
+- Manifeste stable : `https://vote-scope.com/api/v1/manifest.json`
+- Catalogues : `elections.json`, `polls.json`, `candidates.json`, `primaries.json`, `indexes.json`, `special-elections.json`, `track-record.json` sous `/api/v1/`
+- `polls.json` regroupe cinq jeux de type `polling_index` : Canada fédéral, Québec, Ontario, Royaume-Uni et Chambre américaine.
+- Chaque entrée expose notamment `latest_url`, `latest_sha256`, `source_pages` en/fr/es et un `backlink_url` d'attribution. Aucun compte ni jeton n'est requis.
 
 ## Pages principales
 
@@ -28,6 +36,10 @@ Le site contient aussi une verticale sport distincte, `Sports Scope`, sous `/en/
 - [CA-14 Special](https://vote-scope.com/en/us/specials/ca14/): Primaire spéciale top-two du 16 juin 2026 en Californie CD-14
 - [GA-14 Runoff](https://vote-scope.com/en/us/specials/ga14/): Runoff du 7 avril 2026 dans la 14e circonscription de Géorgie
 - [NJ-11 Special](https://vote-scope.com/en/us/specials/nj11/): Élection spéciale du New Jersey CD-11
+- [GA-13 Special](https://vote-scope.com/en/us/specials/ga13/): Projection de l'élection spéciale du 25 août 2026 en Géorgie CD-13
+- [FL-20 Special](https://vote-scope.com/en/us/specials/fl20/): Veille et projection en attente pour la Floride CD-20
+- [TX-23 Special](https://vote-scope.com/en/us/specials/tx23/): Veille et projection en attente pour le Texas CD-23
+- [Clacton by-election](https://vote-scope.com/en/uk/byelections/clacton/): Projection de l'élection partielle britannique de 2026
 - [Royaume-Uni](https://vote-scope.com/en/uk/): Hub de l'élection générale britannique
 - [Élection générale R.-U.](https://vote-scope.com/en/uk/general-election/): Projection — 650 circonscriptions (cycle uk_2029, baseline 2024)
 - [Index circonscriptions R.-U.](https://vote-scope.com/en/uk/constituencies/): Les 650 circonscriptions de Westminster ; Irlande du Nord individualisée (DUP, Sinn Féin, SDLP, Alliance, UUP, TUV)

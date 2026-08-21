@@ -9,7 +9,7 @@
 
 Vote-Scope est un outil de projection électorale indépendant, non partisan, développé par Kim Leclerc. Il produit des projections probabilistes du nombre de sièges par parti, par circonscription, pour plusieurs juridictions électorales.
 
-Le site est **trilingue** : anglais (`/en/`), français (`/fr/`) et espagnol (`/es/`). Hébergé en tant qu'application web statique sur Cloudflare Pages, généré avec Astro. Le site compte plus de 5000 pages, dont une page individuelle pour chacune des ~1677 circonscriptions/districts à travers les juridictions, dans les trois langues.
+Le site est **trilingue** : anglais (`/en/`), français (`/fr/`) et espagnol (`/es/`). Hébergé en tant qu'application web statique sur Cloudflare Pages, généré avec Astro. Le site compte plus de 7900 pages, dont une page individuelle pour chacune des ~1677 circonscriptions/districts à travers les juridictions, dans les trois langues.
 
 En plus du noyau électoral, le domaine héberge une verticale sport distincte : `Sports Scope`, sous `/en/sports/` (et `/fr/`, `/es/`) avec un desk NHL dédié sous `/en/sports/nhl/`. Cette verticale reste un produit d'analyse et de divertissement, plus léger éditorialement, et ne doit pas être décrite comme un service de conseil ou de recommandation de paris.
 
@@ -25,6 +25,14 @@ Les URLs canoniques utilisent le préfixe `/en/`. Pour le français et l'espagno
 | Districts Chambre | `/districts/` | `/districts/` | `/distritos/` |
 | Sénat US | `/us/senate/` | `/us/senat/` | `/us/senate/` |
 | Sièges Sénat | `/seats/` | `/sieges/` | `/escanos/` |
+
+---
+
+## API publique et accès machine
+
+Documentation : `https://vote-scope.com/api/` (EN), `/fr/api/` (FR), `/es/api/` (ES).
+
+Le manifeste `https://vote-scope.com/api/v1/manifest.json` découvre tous les jeux publics et leurs liens d'attribution. Les catalogues stables sous `/api/v1/` sont : `elections.json`, `polls.json`, `candidates.json`, `primaries.json`, `indexes.json`, `special-elections.json` et `track-record.json`. `polls.json` contient les cinq jeux `polling_index` disponibles. Chaque entrée fournit le fichier courant, sa somme SHA-256, les pages sources localisées et l'historique immuable lorsque disponible. API JSON statique, CORS ouvert, sans clé.
 
 ---
 
@@ -48,6 +56,10 @@ Les URLs canoniques utilisent le préfixe `/en/`. Pour le français et l'espagno
 | CA-14 special primary | /en/us/specials/ca14/ | Primaire top-two du 16 juin 2026, Californie CD-14 |
 | GA-14 runoff (archive) | /en/us/specials/ga14/ | Runoff du 7 avril 2026, Géorgie CD-14 |
 | NJ-11 special | /en/us/specials/nj11/ | Élection spéciale New Jersey CD-11 |
+| GA-13 special | /en/us/specials/ga13/ | Projection de l'élection spéciale du 25 août 2026, Géorgie CD-13 |
+| FL-20 special | /en/us/specials/fl20/ | Veille et projection en attente, Floride CD-20 |
+| TX-23 special | /en/us/specials/tx23/ | Veille et projection en attente, Texas CD-23 |
+| Clacton by-election | /en/uk/byelections/clacton/ | Projection de l'élection partielle britannique de 2026 |
 
 ---
 
@@ -148,7 +160,7 @@ Couches supplémentaires (US) : `members.json` (élus en exercice, FEC), `candid
 
 ## Sources des données
 
-- **Canada fédéral / Québec / Ontario** : Élections Canada/Québec/Ontario, 338Canada, firmes publiques (Léger, Abacus, Nanos, Mainstreet, EKOS, Angus Reid, Liaison)
+- **Canada fédéral / Québec / Ontario** : Élections Canada/Québec/Ontario et sources primaires des firmes publiques (Léger, Abacus, Nanos, Mainstreet, EKOS, Angus Reid, Liaison)
 - **États-Unis** : Federal Election Commission (candidats), NYT (sondages district + primaires), MIT Election Lab (résultats), Census Bureau, sources GIS officielles par État pour le redécoupage
 - **Royaume-Uni** : members-api.parliament.uk (députés), electionresults.parliament.uk (candidats 2024), ONS (démographie)
 - **France** : Sondages publics agrégés (IFOP, Harris, Ipsos, OpinionWay, BVA)
