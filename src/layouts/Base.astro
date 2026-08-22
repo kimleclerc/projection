@@ -47,6 +47,7 @@ const localeCopy: Record<Locale, {
   root: string;
   us: string;
   canada: string;
+  match: string;
   uk: string;
   france: string;
   indexes: string;
@@ -64,6 +65,7 @@ const localeCopy: Record<Locale, {
   homeLabel: string;
   usLabel: string;
   canadaLabel: string;
+  matchLabel: string;
   ukLabel: string;
   franceLabel: string;
   indexesLabel: string;
@@ -95,6 +97,7 @@ const localeCopy: Record<Locale, {
     root: '/en/',
     us: '/en/us/',
     canada: '/en/canada/',
+    match: '/en/canada/quebec/match/',
     uk: '/en/uk/',
     france: '/en/france/',
     indexes: '/en/indexes/',
@@ -112,6 +115,7 @@ const localeCopy: Record<Locale, {
     homeLabel: 'Home',
     usLabel: 'U.S.',
     canadaLabel: 'Canada',
+    matchLabel: 'Match',
     ukLabel: 'U.K.',
     franceLabel: 'France',
     indexesLabel: 'Indexes',
@@ -143,6 +147,7 @@ const localeCopy: Record<Locale, {
     root: '/fr/',
     us: '/fr/us/',
     canada: '/fr/canada/',
+    match: '/fr/canada/quebec/match/',
     uk: '/fr/uk/',
     france: '/fr/france/',
     indexes: '/fr/indexes/',
@@ -160,6 +165,7 @@ const localeCopy: Record<Locale, {
     homeLabel: 'Accueil',
     usLabel: 'États-Unis',
     canadaLabel: 'Canada',
+    matchLabel: 'Match',
     ukLabel: 'R.-U.',
     franceLabel: 'France',
     indexesLabel: 'Index',
@@ -191,6 +197,7 @@ const localeCopy: Record<Locale, {
     root: '/es/',
     us: '/es/us/',
     canada: '/es/canada/',
+    match: '/es/canada/quebec/match/',
     uk: '/es/uk/',
     france: '/es/france/',
     indexes: '/es/indexes/',
@@ -208,6 +215,7 @@ const localeCopy: Record<Locale, {
     homeLabel: 'Inicio',
     usLabel: 'EE. UU.',
     canadaLabel: 'Canadá',
+    matchLabel: 'Match',
     ukLabel: 'R.U.',
     franceLabel: 'Francia',
     indexesLabel: 'Índices',
@@ -252,6 +260,10 @@ const navLinks = [
   { href: copy.root, label: copy.homeLabel, key: 'intl' },
   { href: copy.us, label: copy.usLabel, key: 'usa-hub' },
   { href: copy.canada, label: copy.canadaLabel, key: 'canada' },
+  // Le jeu, placé au contact du Canada plutôt qu'en bout de barre : sur
+  // mobile les liens défilent horizontalement, et la fin de course est le
+  // pire endroit pour ce qu'on veut rendre visible.
+  { href: copy.match, label: copy.matchLabel, key: 'match' },
   { href: copy.uk, label: copy.ukLabel, key: 'uk' },
   { href: copy.france, label: copy.franceLabel, key: 'france' },
   { href: copy.indexes, label: copy.indexesLabel, key: 'indexes' },

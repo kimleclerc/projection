@@ -95,6 +95,8 @@ const COPY = {
     riding: 'Ta circonscription', resumeResult: 'Revoir mon match d’aujourd’hui', resumeGame: 'Continuer mon match', changed: 'Les données de la campagne ont peut-être changé.',
     knowRiding: 'Je connais ma circonscription', findPostal: 'La trouver avec mon code postal', pass: 'Passer', back: '← Retour', postal: 'Code postal',
     postalPrivacy: 'Utilisé seulement pour trouver la circonscription. Il n’est ni enregistré ni ajouté à ton profil.', find: 'Trouver', searching: 'Recherche…',
+    dataNote: 'Anonyme. Aucun courriel, aucune adresse IP, aucun code postal : il devient une circonscription sur ton appareil, avant de nous parvenir. Nos partenaires n’y ont pas accès.',
+    dataLink: 'Confidentialité', termsLink: 'Conditions',
     notFound: 'On ne trouve pas ce code. Tu peux choisir ta circonscription dans la liste.', lookupError: 'La recherche ne répond pas. Tu peux choisir ta circonscription dans la liste.',
     chooseList: 'Choisir dans la liste', found: 'On a trouvé ta circonscription', ambiguous: 'Ce code touche plus d’une circonscription', startArrow: 'Commencer →',
     chooseRiding: 'Choisir ma circonscription', select: 'Sélectionner…', start: 'Commencer', cardsSeen: 'cartes vues', no: 'NON', yes: 'OUI', answerCard: 'Répondre à la carte',
@@ -112,6 +114,8 @@ const COPY = {
     riding: 'Your riding', resumeResult: 'See today’s match again', resumeGame: 'Continue my match', changed: 'The campaign data may have changed.',
     knowRiding: 'I know my riding', findPostal: 'Find it with my postal code', pass: 'Skip', back: '← Back', postal: 'Postal code',
     postalPrivacy: 'Used only to find your riding. It is not saved or added to your profile.', find: 'Find it', searching: 'Searching…',
+    dataNote: 'Anonymous. No email, no IP address, no postal code: it becomes a riding on your device, before it ever reaches us. Our partners have no access to it.',
+    dataLink: 'Privacy', termsLink: 'Terms',
     notFound: 'We could not find that code. You can choose your riding from the list.', lookupError: 'The lookup is unavailable. You can choose your riding from the list.',
     chooseList: 'Choose from the list', found: 'We found your riding', ambiguous: 'This code overlaps more than one riding', startArrow: 'Start →',
     chooseRiding: 'Choose my riding', select: 'Select…', start: 'Start', cardsSeen: 'cards seen', no: 'NO', yes: 'YES', answerCard: 'Answer the card',
@@ -129,6 +133,8 @@ const COPY = {
     riding: 'Tu circunscripción', resumeResult: 'Volver a ver mi match de hoy', resumeGame: 'Continuar mi match', changed: 'Los datos de la campaña pueden haber cambiado.',
     knowRiding: 'Conozco mi circunscripción', findPostal: 'Encontrarla con mi código postal', pass: 'Saltar', back: '← Volver', postal: 'Código postal',
     postalPrivacy: 'Se usa únicamente para encontrar tu circunscripción. No se guarda ni se añade a tu perfil.', find: 'Buscar', searching: 'Buscando…',
+    dataNote: 'Anónimo. Sin correo, sin dirección IP, sin código postal: se convierte en circunscripción en tu dispositivo, antes de llegarnos. Nuestros socios no tienen acceso.',
+    dataLink: 'Privacidad', termsLink: 'Términos',
     notFound: 'No encontramos ese código. Puedes elegir tu circunscripción en la lista.', lookupError: 'La búsqueda no responde. Puedes elegir tu circunscripción en la lista.',
     chooseList: 'Elegir en la lista', found: 'Encontramos tu circunscripción', ambiguous: 'Este código abarca más de una circunscripción', startArrow: 'Empezar →',
     chooseRiding: 'Elegir mi circunscripción', select: 'Seleccionar…', start: 'Empezar', cardsSeen: 'cartas vistas', no: 'NO', yes: 'SÍ', answerCard: 'Responder a la carta',
@@ -189,6 +195,10 @@ export default function VibeMatch({ parties, ridings, locale, campaignVersion, c
   const isEnglish = locale === 'en';
   const isSpanish = locale === 'es';
   const t = isEnglish ? COPY.en : isSpanish ? COPY.es : COPY.fr;
+  // Les slugs des pages légales ne sont pas traduits mot à mot d'une langue
+  // à l'autre : ils sont nommés dans la langue du site.
+  const privacyHref = isEnglish ? '/en/privacy/' : isSpanish ? '/es/privacidad/' : '/fr/confidentialite/';
+  const termsHref = isEnglish ? '/en/terms/' : isSpanish ? '/es/terminos/' : '/fr/conditions/';
   const partyNames = isEnglish ? PARTY_NAMES_EN : isSpanish ? PARTY_NAMES_ES : PARTY_NAMES;
   const projectionBase = isEnglish ? '/en/canada/quebec/' : isSpanish ? '/es/canada/quebec/' : '/fr/canada/quebec/';
   const profileStorageKey = locale === 'fr' ? 'vote-scope-match-profile-v1' : `vote-scope-match-profile-v1-${locale}`;
@@ -426,13 +436,28 @@ export default function VibeMatch({ parties, ridings, locale, campaignVersion, c
     void submitCalibration(preference);
   }
 
+  /**
+   * Envoi de la calibration.
+   *
+   * Pas de porte de consentement, et c'est une décision réfléchie. Ce qui part
+   * ne contient aucun renseignement permettant de relier : pas d'adresse IP,
+   * pas de courriel, pas d'âge, pas de genre, pas d'identifiant de session. Le
+   * code postal n'est jamais transmis — il est converti en circonscription
+   * DANS le navigateur, et seule la circonscription voyage. La plus petite du
+   * Québec, les Îles-de-la-Madeleine, compte des milliers d'électeurs : aucune
+   * combinaison de réponses n'y désigne quelqu'un.
+   *
+   * Le consentement Zaraz n'a par ailleurs aucun ciblage géographique — le
+   * même motif qui a fait écarter le gating du script publicitaire. S'y
+   * brancher aurait coupé la collecte au Québec, où elle n'est pas exigée, et
+   * biaisé l'échantillon vers les gens qui acceptent tout.
+   *
+   * Reste l'interrupteur maître : rien ne part tant que
+   * PUBLIC_VIBE_CALIBRATION_ENABLED ne vaut pas 'true'.
+   */
   async function submitCalibration(preference: DeclaredPreference) {
-    const purposeId = import.meta.env.PUBLIC_ZARAZ_VIBE_PURPOSE_ID?.trim();
-    const zarazConsent = (window as Window & {
-      zaraz?: { consent?: { APIReady?: boolean; get?: (id: string) => boolean | undefined } };
-    }).zaraz?.consent;
     const collectionEnabled = import.meta.env.PUBLIC_VIBE_CALIBRATION_ENABLED === 'true';
-    if (!collectionEnabled || !purposeId || !zarazConsent?.APIReady || zarazConsent.get?.(purposeId) !== true) return;
+    if (!collectionEnabled) return;
     if (submissionInFlight.current || submissionStatus === 'sent') return;
     submissionInFlight.current = true;
     setSubmissionStatus('sending');
@@ -630,6 +655,14 @@ export default function VibeMatch({ parties, ridings, locale, campaignVersion, c
                 <button class="vibe-primary" type="button" onClick={() => setSetupMode('riding')}>{t.knowRiding}</button>
                 <button class="vibe-secondary" type="button" onClick={() => setSetupMode('postal')}>{t.findPostal}</button>
                 <button class="vibe-text-button" type="button" onClick={() => begin()}>{t.pass}</button>
+                {/* Dit AVANT de jouer ce qui sera recueilli, et mène aux textes
+                    complets. Une note d'après-coup n'informe personne. */}
+                <p class="vibe-data-note">
+                  {t.dataNote}{' '}
+                  <a href={privacyHref} rel="nofollow">{t.dataLink}</a>
+                  {' · '}
+                  <a href={termsHref} rel="nofollow">{t.termsLink}</a>
+                </p>
               </>
             )}
 
