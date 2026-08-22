@@ -171,6 +171,81 @@ export const CARDS: VibeCard[] = [
       es: 'Moverse por aquí es una lata.',
     },
   },
+  // ── Trois cartes mesurées de plus, réintégrées pour étoffer le paquet ─────
+  // Elles chevauchent partiellement les a priori (la circonscription connaît
+  // déjà l'axe rural/urbain, la navigation connaît déjà la langue), donc elles
+  // apportent peu — mais « peu » n'est pas « rien », et un jeu de cartes a
+  // besoin d'épaisseur autant que de tranchant.
+
+  // Écart 1,19. La plus redondante du lot (r = +0,93 avec l'axe rural/urbain),
+  // gardée pour sa force brute et parce qu'elle dit quelque chose de vrai.
+  {
+    id: 'issue_salience:langue_identite',
+    tone: 'red',
+    text: {
+      fr: 'Le français, faut le défendre.',
+      en: 'French needs defending.',
+      es: 'Hay que defender el francés.',
+    },
+  },
+  // Écart 0,34.
+  {
+    id: 'issue_salience:sante',
+    tone: 'paper',
+    text: {
+      fr: 'Trouver un médecin, c’est ma vraie inquiétude.',
+      en: 'Finding a doctor is my real worry.',
+      es: 'Encontrar médico es mi verdadera preocupación.',
+    },
+  },
+  // Écart 0,20 — la plus faible publiée, donc quasi une respiration.
+  {
+    id: 'issue_salience:cout_de_la_vie',
+    tone: 'ink',
+    text: {
+      fr: 'Tout coûte plus cher qu’avant.',
+      en: 'Everything costs more than it used to.',
+      es: 'Todo cuesta más que antes.',
+    },
+  },
+
+  // ── Respirations : aucun poids, glissées EN COURS de partie ───────────────
+  //
+  // Elles ne mesurent rien et c'est voulu : elles cassent le rythme cognitif
+  // quand six questions politiques d'affilée commencent à peser. Comme les
+  // cartes d'ouverture, leurs réponses partent en calibration — si la boucle
+  // D1 montre qu'une d'elles sépare pour de vrai, elle recevra un poids
+  // mesuré sans qu'une ligne change ici.
+  {
+    id: 'filler:hiver',
+    filler: true,
+    tone: 'blue',
+    text: {
+      fr: 'L’hiver, j’aime ça.',
+      en: 'I actually like winter.',
+      es: 'El invierno me gusta.',
+    },
+  },
+  {
+    id: 'filler:appel',
+    filler: true,
+    tone: 'paper',
+    text: {
+      fr: 'Je préfère appeler que texter.',
+      en: 'I’d rather call than text.',
+      es: 'Prefiero llamar que escribir un mensaje.',
+    },
+  },
+  {
+    id: 'filler:poutine',
+    filler: true,
+    tone: 'ink',
+    text: {
+      fr: 'Une bonne poutine règle bien des affaires.',
+      en: 'A good poutine fixes a lot of things.',
+      es: 'Una buena poutine arregla muchas cosas.',
+    },
+  },
 ];
 
 /** Ordre d'ouverture garanti : les cartes d'ambiance d'abord, telles quelles. */

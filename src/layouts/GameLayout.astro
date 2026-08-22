@@ -9,6 +9,7 @@
  * langue, et les cartes de partage, sans lesquelles une expérience faite pour
  * être partagée arrive nue dans les fils.
  */
+import { ads, adScriptUrl } from '../data/ads';
 import '@fontsource-variable/newsreader/opsz.css';
 import '@fontsource-variable/geist/wght.css';
 
@@ -35,7 +36,7 @@ const {
 ---
 
 <!doctype html>
-<html lang={lang}>
+<html lang={lang} data-theme="light">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
@@ -71,8 +72,20 @@ const {
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImage} />
 
+    <!-- Même lecture que Base.astro : le jeu suit la préférence choisie
+         ailleurs sur le site, et le système à défaut. Lue AVANT la première
+         peinture, sinon la carte clignote en clair puis bascule. -->
+    <script is:inline>
+      (function() {
+        var saved  = localStorage.getItem('vs-theme');
+        var system = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.dataset.theme = saved || system;
+      })();
+    </script>
+
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <meta name="theme-color" content="#f5f1e8" />
+    <meta name="theme-color" content="#f5f1e8" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#14120f" media="(prefers-color-scheme: dark)" />
     <style is:global>
       :root {
         --vibe-paper: #f5f1e8;
@@ -86,6 +99,18 @@ const {
         --vibe-sans: "Geist Variable", -apple-system, BlinkMacSystemFont, sans-serif;
       }
 
+      /* Le jeu a sa propre palette : elle doit donc avoir sa propre version
+         sombre, sans quoi il restait le seul écran clair du site. */
+      :root[data-theme="dark"] {
+        --vibe-paper: #14120f;
+        --vibe-card: #1d1a16;
+        --vibe-ink: #f2ece1;
+        --vibe-muted: #a89d8d;
+        --vibe-rule: #35302a;
+        --vibe-red: #d9484f;
+        --vibe-blue: #5b8cba;
+      }
+
       *, *::before, *::after { box-sizing: border-box; }
       html, body { min-height: 100%; margin: 0; background: var(--vibe-paper); color: var(--vibe-ink); }
       body { font-family: var(--vibe-sans); -webkit-font-smoothing: antialiased; }
@@ -96,6 +121,13 @@ const {
         outline-offset: 3px;
       }
     </style>
+
+    {/* Journey by Mediavine — le jeu ne passe pas par Base.astro, il portait
+        donc aucune publicité alors que le reste du site en sert. Voir
+        src/data/ads.ts. */}
+    {ads.enabled && (
+      <script is:inline async data-noptimize="1" data-cfasync="false" src={adScriptUrl()}></script>
+    )}
   </head>
   <body>
     <slot />

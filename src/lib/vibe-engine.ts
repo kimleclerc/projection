@@ -54,6 +54,12 @@ export interface Card {
   id: string;
   /** Forcée à l'ouverture, hors sélection adaptative. */
   warmup?: boolean;
+  /**
+   * Carte de respiration : sans poids, glissée EN COURS de partie plutôt qu'en
+   * ouverture. Les cartes d'ambiance toutes servies d'affilée au début feraient
+   * un préambule ; réparties, elles cassent le rythme là où il se raidit.
+   */
+  filler?: boolean;
   /** Sens de la carte : `-1` si répondre OUI va CONTRE l'attitude mesurée. */
   polarity?: 1 | -1;
 }
@@ -196,7 +202,7 @@ export function choisirProchaine(
   answers: Record<string, Answer>,
   scores: Record<PartyId, number>,
   index: Map<string, CalibratedCard>,
-  options: { exploration?: number; alea?: () => number } = {},
+  options: { exploration?: number; alea?: () => number; respiration?: number } = {},
 ): Card | null {
   const restantes = cartes.filter((c) => !answers[c.id]);
   if (!restantes.length) return null;
@@ -206,6 +212,16 @@ export function choisirProchaine(
 
   const exploration = options.exploration ?? 3;
   const alea = options.alea ?? Math.random;
+
+  // Une respiration de temps en temps. Pas avant la troisième carte — on ne
+  // fait pas respirer quelqu'un qui vient de commencer — et jamais deux fois
+  // de suite, ce que garantit le tirage sur les cartes restantes.
+  const respirations = restantes.filter((c) => c.filler);
+  const repondues = Object.keys(answers).length;
+  const frequence = options.respiration ?? 0.28;
+  if (respirations.length && repondues >= 3 && alea() < frequence) {
+    return respirations[Math.floor(alea() * respirations.length)];
+  }
   const probabilites = softmax(scores);
   const classees = [...restantes].sort(
     (a, b) => valeurDeCarte(poidsDe(index, b), probabilites)
@@ -226,7 +242,8 @@ export function choisirProchaine(
 export function resultatPret(
   answers: Record<string, Answer>,
   probabilites: Record<PartyId, number>,
-  options: { minimum?: number; maximum?: number; ecart?: number } = {},
+  options: { minimum?: number; maximum?: number; ecart?: number;
+             informatives?: number } = {},
 ): boolean {
   // Sept cartes au plus tôt, huit au plus tard : sept suffisent quand les
   // réponses sont tranchées, huit tranchent quand elles ne le sont pas.
@@ -235,7 +252,12 @@ export function resultatPret(
   const minimum = options.minimum ?? 7;
   const maximum = options.maximum ?? 8;
   const ecartMin = options.ecart ?? 0.08;
-  const repondues = Object.values(answers).filter((a) => a !== 'skip').length;
+  // Les respirations n'entrent PAS dans le compte : elles ne pèsent rien, et
+  // les laisser remplir le quota reviendrait à révéler un match construit sur
+  // cinq cartes utiles au lieu de sept. Le joueur en voit sept, le modèle en
+  // reçoit sept.
+  const repondues = options.informatives
+    ?? Object.values(answers).filter((a) => a !== 'skip').length;
   if (repondues < minimum) return false;
   if (repondues >= maximum) return true;
   const tri = [...PARTIES].sort((a, b) => probabilites[b] - probabilites[a]);

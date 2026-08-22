@@ -98,7 +98,7 @@ const COPY = {
     notFound: 'On ne trouve pas ce code. Tu peux choisir ta circonscription dans la liste.', lookupError: 'La recherche ne répond pas. Tu peux choisir ta circonscription dans la liste.',
     chooseList: 'Choisir dans la liste', found: 'On a trouvé ta circonscription', ambiguous: 'Ce code touche plus d’une circonscription', startArrow: 'Commencer →',
     chooseRiding: 'Choisir ma circonscription', select: 'Sélectionner…', start: 'Commencer', cardsSeen: 'cartes vues', no: 'NON', yes: 'OUI', answerCard: 'Répondre à la carte',
-    answersBefore: 'réponses avant les matchs', reveal: 'Voir mes matchs', resultTitle: 'Ton meilleur match aujourd’hui', hearts: 'cœurs sur 5 pour',
+    answersBefore: 'réponses avant les matchs', reveal: 'Voir mes matchs', replay: 'Rejouer', resultTitle: 'Ton meilleur match aujourd’hui', hearts: 'cœurs sur 5 pour',
     localProjection: 'Voir la projection', quebecProjection: 'Voir la projection du Québec', share: 'Partager mon résultat', continueCards: 'Continuer les cartes', wholeProjection: 'Voir toute la projection du Québec',
     return: 'Une campagne, ça bouge. Reviens dans quelques jours pour voir si ton match a changé.', guessed: 'On t’a bien deviné?', exact: 'En plein ça', closeEnough: 'Pas loin', wrong: 'Dans le champ',
     noted: 'Noté. On remettra notre intuition à l’épreuve pendant la campagne.', declaredQuestion: 'Si tu votais aujourd’hui, quel parti choisirais-tu?',
@@ -115,7 +115,7 @@ const COPY = {
     notFound: 'We could not find that code. You can choose your riding from the list.', lookupError: 'The lookup is unavailable. You can choose your riding from the list.',
     chooseList: 'Choose from the list', found: 'We found your riding', ambiguous: 'This code overlaps more than one riding', startArrow: 'Start →',
     chooseRiding: 'Choose my riding', select: 'Select…', start: 'Start', cardsSeen: 'cards seen', no: 'NO', yes: 'YES', answerCard: 'Answer the card',
-    answersBefore: 'answers before your matches', reveal: 'See my matches', resultTitle: 'Your best match today', hearts: 'hearts out of 5 for',
+    answersBefore: 'answers before your matches', reveal: 'See my matches', replay: 'Play again', resultTitle: 'Your best match today', hearts: 'hearts out of 5 for',
     localProjection: 'See the projection', quebecProjection: 'See the Quebec projection', share: 'Share my result', continueCards: 'Keep swiping', wholeProjection: 'See the full Quebec projection',
     return: 'Campaigns move. Come back in a few days to see whether your match has changed.', guessed: 'Did we read you right?', exact: 'Nailed it', closeEnough: 'Not far off', wrong: 'Way off',
     noted: 'Noted. We’ll put our intuition to the test again during the campaign.', declaredQuestion: 'If you voted today, which party would you choose?',
@@ -132,7 +132,7 @@ const COPY = {
     notFound: 'No encontramos ese código. Puedes elegir tu circunscripción en la lista.', lookupError: 'La búsqueda no responde. Puedes elegir tu circunscripción en la lista.',
     chooseList: 'Elegir en la lista', found: 'Encontramos tu circunscripción', ambiguous: 'Este código abarca más de una circunscripción', startArrow: 'Empezar →',
     chooseRiding: 'Elegir mi circunscripción', select: 'Seleccionar…', start: 'Empezar', cardsSeen: 'cartas vistas', no: 'NO', yes: 'SÍ', answerCard: 'Responder a la carta',
-    answersBefore: 'respuestas antes de tus matches', reveal: 'Ver mis matches', resultTitle: 'Tu mejor match hoy', hearts: 'corazones de 5 para',
+    answersBefore: 'respuestas antes de tus matches', reveal: 'Ver mis matches', replay: 'Jugar otra vez', resultTitle: 'Tu mejor match hoy', hearts: 'corazones de 5 para',
     localProjection: 'Ver la proyección', quebecProjection: 'Ver la proyección de Quebec (FR)', share: 'Compartir mi resultado', continueCards: 'Seguir con las cartas', wholeProjection: 'Ver toda la proyección de Quebec (FR)',
     return: 'Las campañas cambian. Vuelve en unos días para ver si tu match cambió.', guessed: '¿Te adivinamos bien?', exact: 'Exactamente', closeEnough: 'Casi', wrong: 'Para nada',
     noted: 'Anotado. Volveremos a poner a prueba nuestra intuición durante la campaña.', declaredQuestion: 'Si votaras hoy, ¿qué partido elegirías?',
@@ -142,6 +142,32 @@ const COPY = {
     sendError: 'El envío no funcionó. No se guardó nada más.',
   },
 } as const;
+
+/**
+ * Cœurs par parti — chaque cran doit être MÉRITÉ.
+ *
+ * Deux approches ont échoué avant celle-ci. Diviser par la probabilité de tête
+ * écrasait tout le monde à un cœur dès que le meneur dominait. Des seuils
+ * absolus faisaient pareil, pour une raison plus profonde : avec cinq partis,
+ * la queue vit naturellement entre 3 et 8 %, sous n'importe quel seuil parlant.
+ *
+ * On compare donc chaque parti à CELUI QUI LE PRÉCÈDE : garder son rang de
+ * cœurs demande de rester au-dessus de la moitié de son voisin, sinon on
+ * descend d'un cran. Le classement garde ainsi son relief même quand les
+ * probabilités absolues sont minces, et un vrai décrochage se voit — c'est
+ * l'information que le moteur vient de produire, elle ne doit pas se perdre
+ * dans l'affichage.
+ */
+function coeursParRang(probabilites: number[]): number[] {
+  const sortie: number[] = [];
+  probabilites.forEach((p, i) => {
+    if (i === 0) { sortie.push(p >= 0.45 ? 5 : 4); return; }
+    const precedent = sortie[i - 1];
+    const decrochage = probabilites[i - 1] > 0 ? p / probabilites[i - 1] : 0;
+    sortie.push(Math.max(1, decrochage >= 0.5 ? precedent - 1 : precedent - 2));
+  });
+  return sortie;
+}
 
 function HeartRow({ filled, label, phrase = 'cœurs sur 5 pour' }: { filled: number; label: string; phrase?: string }) {
   return (
@@ -195,7 +221,13 @@ export default function VibeMatch({ parties, ridings, locale, campaignVersion, c
   const answeredCount = Object.values(answers).filter((answer) => answer !== 'skip').length;
   const seenCount = Object.keys(answers).length;
   const orderedProbabilities = [...PARTY_IDS].sort((a, b) => probabilities[b] - probabilities[a]);
-  const resultUnlocked = resultatPret(answers, probabilities);
+  // Ce qui compte pour révéler, c'est le nombre de cartes PESÉES : les
+  // respirations amusent sans informer, elles ne doivent donc pas rapprocher
+  // du résultat.
+  const informatives = CARDS.filter(
+    (c) => !c.warmup && !c.filler && answers[c.id] && answers[c.id] !== 'skip',
+  ).length;
+  const resultUnlocked = resultatPret(answers, probabilities, { informatives });
   const savedAnsweredCount = savedProfile
     ? Object.values(savedProfile.answers).filter((answer) => answer !== 'skip').length
     : 0;
@@ -205,7 +237,7 @@ export default function VibeMatch({ parties, ridings, locale, campaignVersion, c
     setSelectedRidingId(riding?.id ?? '');
     setScores(firstScores);
     setAnswers({});
-    setCurrentId('canada');
+    setCurrentId(premiereCarte.id);
     setScreen('game');
   }
 
@@ -267,6 +299,40 @@ export default function VibeMatch({ parties, ridings, locale, campaignVersion, c
   // puis tirage parmi les trois meilleures plutôt qu'un maximum strict.
   function pickNext(nextScores: Record<PartyId, number>, nextAnswers: Record<string, Answer>) {
     return choisirProchaine(CARDS, nextAnswers, nextScores, poids);
+  }
+
+  /**
+   * Repartir de zéro, en gardant la circonscription.
+   *
+   * Le profil local est effacé aussi : sans ça, la partie suivante proposerait
+   * « Continuer mon match » avec les réponses qu'on vient justement de jeter.
+   */
+  function rejouer() {
+    try { window.localStorage.removeItem(profileStorageKey); } catch { /* refusé */ }
+    setSavedProfile(null);
+    setFeedback('');
+    setDeclaredPreference('');
+    setSubmissionStatus('idle');
+    submissionInFlight.current = false;
+    setShareStatus('');
+    begin(selectedRiding);
+  }
+
+  /**
+   * Revenir aux cartes depuis les résultats.
+   *
+   * `setScreen('game')` seul ne suffisait pas : `currentId` pointait encore sur
+   * la dernière carte répondue, et le garde-fou `answers[current.id]` de
+   * `answerCard` rendait tous les clics inertes. Le jeu paraissait figé — c'est
+   * le blocage constaté à l'essai en production.
+   */
+  function reprendreLesCartes() {
+    const suivante = pickNext(scores, answers);
+    if (!suivante) return;
+    setCurrentId(suivante.id);
+    setDragX(0);
+    setExit(null);
+    setScreen('game');
   }
 
   function answerCard(answer: Answer) {
@@ -415,13 +481,10 @@ export default function VibeMatch({ parties, ridings, locale, campaignVersion, c
     else setDragX(0);
   }
 
+  const coeurs = coeursParRang(orderedProbabilities.map((id) => probabilities[id]));
   const ranked = orderedProbabilities.map((id, index) => {
     const party = parties.find((item) => item.id === id)!;
-    const topConfidence = probabilities[orderedProbabilities[0]];
-    const hearts = index === 0
-      ? (topConfidence >= 0.58 ? 5 : 4)
-      : Math.max(1, Math.min(4, Math.round((probabilities[id] / topConfidence) * 4)));
-    return { ...party, name: partyNames[id], hearts };
+    return { ...party, name: partyNames[id], hearts: coeurs[index] };
   });
 
   async function shareResult() {
@@ -663,7 +726,7 @@ export default function VibeMatch({ parties, ridings, locale, campaignVersion, c
             {resultUnlocked ? (
               <button class="vibe-reveal" type="button" onClick={() => setScreen('results')}>{t.reveal}</button>
             ) : (
-              <span>{Math.max(0, REVEAL_MIN - answeredCount)} {t.answersBefore}</span>
+              <span>{Math.max(0, REVEAL_MIN - informatives)} {t.answersBefore}</span>
             )}
           </div>
         </section>
@@ -698,7 +761,8 @@ export default function VibeMatch({ parties, ridings, locale, campaignVersion, c
               {t.share}
             </button>
             {shareStatus && <span class="vibe-share-status" role="status">{shareStatus}</span>}
-            <button class="vibe-secondary" type="button" onClick={() => setScreen('game')}>{t.continueCards}</button>
+            <button class="vibe-secondary" type="button" onClick={reprendreLesCartes}>{t.continueCards}</button>
+            <button class="vibe-secondary" type="button" onClick={rejouer}>{t.replay}</button>
             {selectedRiding && <a class="vibe-candidate-link" href={projectionBase}>{t.wholeProjection}</a>}
           </div>
 
