@@ -85,6 +85,8 @@ const PARTY_NAMES_ES: Record<PartyId, string> = {
 };
 
 const PARTY_IDS: PartyId[] = ['pq', 'plq', 'pcq', 'caq', 'qs'];
+/** Doit rester aligné sur `resultatPret` du moteur. */
+const REVEAL_MIN = 7;
 const DECLARED_PARTY_ORDER: PartyId[] = ['caq', 'plq', 'pq', 'pcq', 'qs'];
 
 const COPY = {
@@ -219,7 +221,7 @@ export default function VibeMatch({ parties, ridings, locale, campaignVersion, c
     setDeclaredPreference(savedProfile.declaredPreference ?? '');
     const next = choisirProchaine(CARDS, savedProfile.answers, refreshedScores, poids);
     if (next) setCurrentId(next.id);
-    setScreen(savedAnsweredCount >= 6 ? 'results' : 'game');
+    setScreen(savedAnsweredCount >= REVEAL_MIN ? 'results' : 'game');
   }
 
   async function inferPostalRiding() {
@@ -558,8 +560,8 @@ export default function VibeMatch({ parties, ridings, locale, campaignVersion, c
                 <h2>{t.riding}</h2>
                 {savedProfile && (
                   <button class="vibe-resume" type="button" onClick={resumeProfile}>
-                    {savedAnsweredCount >= 6 ? t.resumeResult : t.resumeGame}
-                    <span>{savedAnsweredCount >= 6 ? t.changed : (isEnglish ? `${savedAnsweredCount} saved answer${savedAnsweredCount === 1 ? '' : 's'}.` : isSpanish ? `${savedAnsweredCount} respuesta${savedAnsweredCount === 1 ? '' : 's'} guardada${savedAnsweredCount === 1 ? '' : 's'}.` : `${savedAnsweredCount} réponse${savedAnsweredCount > 1 ? 's' : ''} enregistrée${savedAnsweredCount > 1 ? 's' : ''}.`)}</span>
+                    {savedAnsweredCount >= REVEAL_MIN ? t.resumeResult : t.resumeGame}
+                    <span>{savedAnsweredCount >= REVEAL_MIN ? t.changed : (isEnglish ? `${savedAnsweredCount} saved answer${savedAnsweredCount === 1 ? '' : 's'}.` : isSpanish ? `${savedAnsweredCount} respuesta${savedAnsweredCount === 1 ? '' : 's'} guardada${savedAnsweredCount === 1 ? '' : 's'}.` : `${savedAnsweredCount} réponse${savedAnsweredCount > 1 ? 's' : ''} enregistrée${savedAnsweredCount > 1 ? 's' : ''}.`)}</span>
                   </button>
                 )}
                 <button class="vibe-primary" type="button" onClick={() => setSetupMode('riding')}>{t.knowRiding}</button>

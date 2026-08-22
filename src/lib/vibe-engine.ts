@@ -228,7 +228,11 @@ export function resultatPret(
   probabilites: Record<PartyId, number>,
   options: { minimum?: number; maximum?: number; ecart?: number } = {},
 ): boolean {
-  const minimum = options.minimum ?? 6;
+  // Sept cartes au plus tôt, huit au plus tard : sept suffisent quand les
+  // réponses sont tranchées, huit tranchent quand elles ne le sont pas.
+  // En dessous, le classement bouge encore d'une carte à l'autre ; au-delà,
+  // on fait payer au joueur une précision qu'il n'a pas demandée.
+  const minimum = options.minimum ?? 7;
   const maximum = options.maximum ?? 8;
   const ecartMin = options.ecart ?? 0.08;
   const repondues = Object.values(answers).filter((a) => a !== 'skip').length;
