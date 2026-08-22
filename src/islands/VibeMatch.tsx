@@ -14,6 +14,15 @@ type DeclaredPreference = PartyId | 'undecided' | 'prefer-not';
 type SetupMode = 'start' | 'riding' | 'postal';
 type Screen = 'setup' | 'game' | 'results';
 type SubmissionStatus = 'idle' | 'sending' | 'sent' | 'error';
+/**
+ * Justesse du match, en CODE et non en libellé.
+ *
+ * L'état stockait le texte affiché — « Pas loin » en français, « Not far
+ * off » en anglais, « Casi » en espagnol. Trois orthographes pour une même
+ * réponse, donc aucune agrégation possible entre les langues, et tout se
+ * casse à la première reformulation. Le code voyage, le libellé s'affiche.
+ */
+type Feedback = 'exact' | 'close' | 'wrong';
 
 interface Party {
   id: PartyId;
@@ -215,7 +224,7 @@ export default function VibeMatch({ parties, ridings, locale, campaignVersion, c
   const [dragX, setDragX] = useState(0);
   const [dragging, setDragging] = useState(false);
   const [exit, setExit] = useState<Answer | null>(null);
-  const [feedback, setFeedback] = useState('');
+  const [feedback, setFeedback] = useState<Feedback | ''>('');
   const [declaredPreference, setDeclaredPreference] = useState<DeclaredPreference | ''>('');
   const [shareStatus, setShareStatus] = useState('');
   const [submissionStatus, setSubmissionStatus] = useState<SubmissionStatus>('idle');
@@ -260,7 +269,7 @@ export default function VibeMatch({ parties, ridings, locale, campaignVersion, c
     setSelectedRidingId(riding?.id ?? '');
     setAnswers(savedProfile.answers);
     setScores(refreshedScores);
-    setFeedback(savedProfile.feedback ?? '');
+    setFeedback((savedProfile.feedback as Feedback | undefined) ?? '');
     setDeclaredPreference(savedProfile.declaredPreference ?? '');
     const next = choisirProchaine(CARDS, savedProfile.answers, refreshedScores, poids);
     if (next) setCurrentId(next.id);
@@ -401,10 +410,10 @@ export default function VibeMatch({ parties, ridings, locale, campaignVersion, c
     setSavedProfile(profile);
   }, [answers, selectedRidingId, campaignVersion, feedback, declaredPreference, profileStorageKey]);
 
-  function chooseFeedback(choice: string) {
+  function chooseFeedback(choice: Feedback) {
     setFeedback(choice);
     setSubmissionStatus('idle');
-    if (choice === t.exact) setDeclaredPreference('');
+    if (choice === 'exact') setDeclaredPreference('');
   }
 
   function saveDeclaredPreference(preference: DeclaredPreference) {
@@ -807,12 +816,12 @@ export default function VibeMatch({ parties, ridings, locale, campaignVersion, c
           <div class="vibe-feedback">
             <h2>{t.guessed}</h2>
             <div>
-              {[t.exact, t.closeEnough, t.wrong].map((choice) => (
-                <button class={feedback === choice ? 'is-selected' : ''} type="button" onClick={() => chooseFeedback(choice)}>{choice}</button>
+              {([['exact', t.exact], ['close', t.closeEnough], ['wrong', t.wrong]] as const).map(([code, libelle]) => (
+                <button class={feedback === code ? 'is-selected' : ''} type="button" onClick={() => chooseFeedback(code)}>{libelle}</button>
               ))}
             </div>
-            {feedback === t.exact && <p>{t.noted}</p>}
-            {(feedback === t.closeEnough || feedback === t.wrong) && (
+            {feedback === 'exact' && <p>{t.noted}</p>}
+            {(feedback === 'close' || feedback === 'wrong') && (
               <div class="vibe-calibration">
                 <h3>{t.declaredQuestion}</h3>
                 <p>{t.declaredWhy}</p>
