@@ -663,7 +663,7 @@ export default function VibeMatch({ parties, ridings, locale, campaignVersion, c
             {resultUnlocked ? (
               <button class="vibe-reveal" type="button" onClick={() => setScreen('results')}>{t.reveal}</button>
             ) : (
-              <span>{Math.max(0, 6 - answeredCount)} {t.answersBefore}</span>
+              <span>{Math.max(0, REVEAL_MIN - answeredCount)} {t.answersBefore}</span>
             )}
           </div>
         </section>
