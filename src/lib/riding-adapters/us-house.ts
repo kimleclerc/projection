@@ -162,7 +162,21 @@ function adaptDeclared(rid: string): DeclaredCandidate[] | undefined {
   const primary = primariesByRiding[rid];
   const held = primary?.status === 'held';
   const eligible = new Set(['won', 'advanced', 'runoff', 'no_primary']);
-  const filtered = list.filter((c) => held ? eligible.has(c.primary_outcome) : c.primary_outcome !== 'lost');
+  let filtered = list.filter((c) => held ? eligible.has(c.primary_outcome) : c.primary_outcome !== 'lost');
+
+  // Une primaire tenue dont le décompte officiel n'est pas encore importé laisse
+  // tous ses candidats en `results_pending`, qui n'est dans aucun des deux
+  // ensembles ci-dessus : la liste tombait à zéro et la section « Qui se
+  // présente » disparaissait en silence. Mesuré le 2026-08-22 : 149 districts
+  // et 5 sièges du Sénat n'affichaient aucun candidat pour cette seule raison.
+  // Repli : plutôt que de ne rien montrer, montrer le terrain déclaré, sans
+  // ceux qui ont perdu ou ne sont pas sur le bulletin. Ne s'active QUE si le
+  // filtre strict a tout vidé, donc aucune page déjà correcte ne change.
+  if (filtered.length === 0) {
+    filtered = list.filter(
+      (c) => c.primary_outcome !== 'lost' && c.primary_outcome !== 'not_on_ballot',
+    );
+  }
   if (filtered.length === 0) return undefined;
   return filtered.map((c) => ({
     name: c.name,
