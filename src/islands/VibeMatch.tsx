@@ -5,6 +5,7 @@ import {
   type Calibration,
 } from '../lib/vibe-engine';
 import { CARDS, cardText } from '../lib/vibe-cards';
+import { vibeCalibration } from '../data/vibeCalibration';
 import '../styles/vibe-match.css';
 
 type PartyId = 'pq' | 'plq' | 'pcq' | 'caq' | 'qs';
@@ -452,22 +453,21 @@ export default function VibeMatch({ parties, ridings, locale, campaignVersion, c
    * brancher aurait coupé la collecte au Québec, où elle n'est pas exigée, et
    * biaisé l'échantillon vers les gens qui acceptent tout.
    *
-   * Reste l'interrupteur maître : rien ne part tant que
-   * PUBLIC_VIBE_CALIBRATION_ENABLED ne vaut pas 'true'.
+   * Reste l'interrupteur maître, dans src/data/vibeCalibration.ts : rien ne
+   * part tant qu'il vaut `false`.
    */
   async function submitCalibration(preference: DeclaredPreference) {
-    const collectionEnabled = import.meta.env.PUBLIC_VIBE_CALIBRATION_ENABLED === 'true';
-    if (!collectionEnabled) return;
+    if (!vibeCalibration.enabled) return;
     if (submissionInFlight.current || submissionStatus === 'sent') return;
     submissionInFlight.current = true;
     setSubmissionStatus('sending');
     try {
-      const response = await fetch('/api/v1/vibe-calibration', {
+      const response = await fetch(vibeCalibration.endpoint, {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({
           consent: true,
-          consentVersion: 'calibration-v1',
+          consentVersion: vibeCalibration.consentVersion,
           campaignVersion,
           locale,
           ridingId: selectedRidingId || undefined,
