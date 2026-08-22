@@ -11,7 +11,9 @@
  * On avertit donc bruyamment au build et on rend le jeu avec ce qui existe.
  */
 import quebec from '../../web_data/quebec/latest.json';
+import calibrationSource from '../../web_data/quebec/vibe_calibration.json';
 import { ridingSlug } from './riding-adapters/types';
+import type { Calibration } from './vibe-engine';
 
 export type VibeLocale = 'fr' | 'en' | 'es';
 
@@ -29,6 +31,9 @@ const RIDING_SEGMENT: Record<VibeLocale, string> = {
 const EXPECTED_SEATS = 127;
 
 export const runDate = quebec.meta.run_date;
+
+/** Poids mesurés, régénérés par le moteur à chaque rapport Léger. */
+export const calibration = calibrationSource as unknown as Calibration;
 
 export function vibeMatchParties(locale: VibeLocale) {
   return PARTY_ORDER.map((id) => {

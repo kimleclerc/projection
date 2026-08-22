@@ -1,7 +1,7 @@
 ---
 import GameLayout from '../../../../layouts/GameLayout.astro';
 import VibeMatch from '../../../../islands/VibeMatch';
-import { vibeMatchParties, vibeMatchRidings, runDate } from '../../../../lib/vibe-match-data';
+import { vibeMatchParties, vibeMatchRidings, runDate, calibration } from '../../../../lib/vibe-match-data';
 
 const canonical = 'https://vote-scope.com/en/canada/quebec/match/';
 const alternates = {
@@ -24,5 +24,6 @@ const alternates = {
     ridings={vibeMatchRidings('en')}
     locale="en"
     campaignVersion={runDate}
+    calibration={calibration}
   />
 </GameLayout>

@@ -1,4 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
+import {
+  POIDS_NON, softmax, priorScores, indexerCalibration, poidsDe,
+  scoresDepuisReponses, choisirProchaine, resultatPret,
+  type Calibration,
+} from '../lib/vibe-engine';
+import { CARDS, cardText } from '../lib/vibe-cards';
 import '../styles/vibe-match.css';
 
 type PartyId = 'pq' | 'plq' | 'pcq' | 'caq' | 'qs';
@@ -25,19 +31,13 @@ interface Riding {
   voteMean: Record<PartyId, number>;
 }
 
-interface Question {
-  id: string;
-  text: string;
-  category: 'identity' | 'money' | 'places' | 'habits' | 'temperament';
-  tone: 'paper' | 'red' | 'blue' | 'ink';
-  weights: Record<PartyId, number>;
-}
-
 interface Props {
   parties: Party[];
   ridings: Riding[];
   locale: 'fr' | 'en' | 'es';
   campaignVersion: string;
+  /** Poids mesurés, publiés par export_vibe_match_calibration.py. */
+  calibration: Calibration;
 }
 
 interface SavedProfile {
@@ -86,69 +86,6 @@ const PARTY_NAMES_ES: Record<PartyId, string> = {
 
 const PARTY_IDS: PartyId[] = ['pq', 'plq', 'pcq', 'caq', 'qs'];
 const DECLARED_PARTY_ORDER: PartyId[] = ['caq', 'plq', 'pq', 'pcq', 'qs'];
-
-const QUESTIONS: Question[] = [
-  { id: 'canada', text: "J’aime le Canada.", category: 'identity', tone: 'red', weights: { pq: -2.5, plq: 2.6, pcq: 0.15, caq: 0.75, qs: -0.15 } },
-  { id: 'quebec-pride', text: "Le Québec me rend fier.", category: 'identity', tone: 'blue', weights: { pq: 1.2, plq: -0.3, pcq: 0.25, caq: 0.55, qs: 0.3 } },
-  { id: 'taxes', text: "Je paye trop d’impôts.", category: 'money', tone: 'ink', weights: { pq: 0.15, plq: 0.2, pcq: 1.75, caq: 0.05, qs: -1.7 } },
-  { id: 'tims', text: "J’aime Tim Hortons.", category: 'places', tone: 'paper', weights: { pq: 0.15, plq: -0.35, pcq: 1.1, caq: 0.55, qs: -1.05 } },
-  { id: 'indie-coffee', text: "Je choisis le café indépendant.", category: 'places', tone: 'red', weights: { pq: -0.05, plq: 0.15, pcq: -1.1, caq: -0.55, qs: 1.45 } },
-  { id: 'hunting', text: "La chasse ou la pêche, c’est mon genre.", category: 'habits', tone: 'blue', weights: { pq: 0.25, plq: -0.45, pcq: 1.45, caq: 0.45, qs: -1.25 } },
-  { id: 'pickup', text: "Un pickup, c’est pratique.", category: 'habits', tone: 'ink', weights: { pq: 0.1, plq: -0.35, pcq: 1.4, caq: 0.5, qs: -1.4 } },
-  { id: 'thrift', text: "J’achète souvent usagé.", category: 'habits', tone: 'paper', weights: { pq: 0, plq: -0.15, pcq: -0.6, caq: -0.45, qs: 1.1 } },
-  { id: 'transit', text: "Je me déplace souvent sans voiture.", category: 'habits', tone: 'red', weights: { pq: -0.1, plq: 0.15, pcq: -1.35, caq: -0.65, qs: 1.55 } },
-  { id: 'museum', text: "J’aime aller au musée.", category: 'places', tone: 'blue', weights: { pq: 0.1, plq: 0.35, pcq: -0.8, caq: -0.2, qs: 1.05 } },
-  { id: 'services', text: "Je garderais plus d’argent, même avec moins de services.", category: 'money', tone: 'ink', weights: { pq: 0.05, plq: 0.3, pcq: 1.7, caq: 0.55, qs: -1.75 } },
-  { id: 'repair', text: "J’ai plus envie de réparer que de repartir à zéro.", category: 'temperament', tone: 'paper', weights: { pq: -0.35, plq: 1.35, pcq: -0.7, caq: 0.3, qs: -0.15 } },
-  { id: 'confidence', text: "Je fais confiance au Québec pour voir plus grand.", category: 'temperament', tone: 'red', weights: { pq: 1.5, plq: -0.8, pcq: 0.1, caq: 0.15, qs: 0.35 } },
-  { id: 'halfway', text: "Quand on change les choses, il faut arrêter d’y aller à moitié.", category: 'temperament', tone: 'blue', weights: { pq: 0.25, plq: -0.05, pcq: 1.35, caq: -1.15, qs: 0.35 } },
-  { id: 'experience', text: "Je préfère l’expérience à un grand saut dans l’inconnu.", category: 'temperament', tone: 'ink', weights: { pq: -0.35, plq: 0.55, pcq: -0.85, caq: 1.4, qs: -0.45 } },
-  { id: 'possible', text: "On se fait trop souvent dire que les grandes choses sont impossibles.", category: 'temperament', tone: 'paper', weights: { pq: 0.35, plq: -0.2, pcq: 0.15, caq: -0.9, qs: 1.35 } },
-  { id: 'superstore', text: "J’aime tout trouver au même magasin.", category: 'places', tone: 'red', weights: { pq: 0.1, plq: -0.1, pcq: 0.75, caq: 0.35, qs: -0.7 } },
-  { id: 'wine', text: "Un verre de vin rouge, c’est oui.", category: 'habits', tone: 'blue', weights: { pq: 0.25, plq: 0.35, pcq: -0.2, caq: 0.35, qs: -0.1 } },
-];
-
-const QUESTION_TEXT_EN: Record<string, string> = {
-  canada: 'I like Canada.',
-  'quebec-pride': 'Quebec makes me proud.',
-  taxes: 'I pay too much tax.',
-  tims: 'I like Tim Hortons.',
-  'indie-coffee': 'I choose independent coffee shops.',
-  hunting: 'Hunting or fishing is my kind of thing.',
-  pickup: 'A pickup truck is practical.',
-  thrift: 'I often buy used.',
-  transit: 'I often get around without a car.',
-  museum: 'I like going to museums.',
-  services: 'I would keep more of my money, even with fewer services.',
-  repair: 'I would rather fix things than start over.',
-  confidence: 'I trust Quebec to aim higher.',
-  halfway: 'When we change things, we should stop doing it halfway.',
-  experience: 'I prefer experience to a big leap into the unknown.',
-  possible: 'We are told too often that big things are impossible.',
-  superstore: 'I like finding everything in one store.',
-  wine: 'A glass of red wine? Yes.',
-};
-
-const QUESTION_TEXT_ES: Record<string, string> = {
-  canada: 'Me gusta Canadá.',
-  'quebec-pride': 'Quebec me llena de orgullo.',
-  taxes: 'Pago demasiados impuestos.',
-  tims: 'Me gusta Tim Hortons.',
-  'indie-coffee': 'Prefiero las cafeterías independientes.',
-  hunting: 'La caza o la pesca son lo mío.',
-  pickup: 'Una camioneta pickup es práctica.',
-  thrift: 'Compro cosas usadas a menudo.',
-  transit: 'A menudo me desplazo sin automóvil.',
-  museum: 'Me gusta ir a museos.',
-  services: 'Preferiría conservar más de mi dinero, aunque hubiera menos servicios.',
-  repair: 'Prefiero reparar las cosas antes que empezar de cero.',
-  confidence: 'Confío en que Quebec puede aspirar a más.',
-  halfway: 'Cuando cambiamos las cosas, hay que dejar de hacerlo a medias.',
-  experience: 'Prefiero la experiencia a un gran salto hacia lo desconocido.',
-  possible: 'Nos dicen demasiado a menudo que las grandes cosas son imposibles.',
-  superstore: 'Me gusta encontrarlo todo en una sola tienda.',
-  wine: '¿Una copa de vino tinto? Sí.',
-};
 
 const COPY = {
   fr: {
@@ -204,54 +141,6 @@ const COPY = {
   },
 } as const;
 
-function normalizeScores(scores: Record<PartyId, number>) {
-  const max = Math.max(...PARTY_IDS.map((id) => scores[id]));
-  const exp = PARTY_IDS.map((id) => Math.exp(scores[id] - max));
-  const total = exp.reduce((sum, value) => sum + value, 0);
-  return Object.fromEntries(PARTY_IDS.map((id, index) => [id, exp[index] / total])) as Record<PartyId, number>;
-}
-
-function initialScores(parties: Party[], riding?: Riding, locale: Props['locale'] = 'fr') {
-  const global = Object.fromEntries(parties.map((party) => [party.id, party.voteMean])) as Record<PartyId, number>;
-  const scores = {} as Record<PartyId, number>;
-  PARTY_IDS.forEach((id) => {
-    const local = riding?.voteMean?.[id] ?? global[id] ?? 10;
-    const blended = riding ? local * 0.58 + global[id] * 0.42 : global[id];
-    scores[id] = Math.log(Math.max(0.025, blended / 100));
-  });
-  if (locale === 'fr') {
-    scores.pq += 0.18;
-    scores.caq += 0.08;
-    scores.plq -= 0.2;
-  } else if (locale === 'en') {
-    scores.plq += 0.3;
-    scores.pq -= 0.25;
-  } else if (locale === 'es') {
-    scores.plq += 0.22;
-    scores.qs += 0.05;
-    scores.pq -= 0.18;
-  }
-  return scores;
-}
-
-function scoresFromAnswers(baseScores: Record<PartyId, number>, answers: Record<string, Answer>) {
-  const nextScores = { ...baseScores };
-  Object.entries(answers).forEach(([questionId, answer]) => {
-    if (answer === 'skip') return;
-    const question = QUESTIONS.find((item) => item.id === questionId);
-    if (!question) return;
-    const direction = answer === 'yes' ? 1 : -0.72;
-    PARTY_IDS.forEach((id) => { nextScores[id] += question.weights[id] * direction; });
-  });
-  return nextScores;
-}
-
-function questionValue(question: Question, probabilities: Record<PartyId, number>, categoryCounts: Record<string, number>) {
-  const mean = PARTY_IDS.reduce((sum, id) => sum + probabilities[id] * question.weights[id], 0);
-  const variance = PARTY_IDS.reduce((sum, id) => sum + probabilities[id] * ((question.weights[id] - mean) ** 2), 0);
-  return variance * (categoryCounts[question.category] ? 0.82 : 1.14);
-}
-
 function HeartRow({ filled, label, phrase = 'cœurs sur 5 pour' }: { filled: number; label: string; phrase?: string }) {
   return (
     <span class="vibe-hearts" aria-label={`${filled} ${phrase} ${label}`}>
@@ -264,7 +153,11 @@ function HeartRow({ filled, label, phrase = 'cœurs sur 5 pour' }: { filled: num
   );
 }
 
-export default function VibeMatch({ parties, ridings, locale, campaignVersion }: Props) {
+export default function VibeMatch({ parties, ridings, locale, campaignVersion, calibration }: Props) {
+  // Index des poids mesurés. Une carte absente vaut zéro : c'est ce qui
+  // permet aux cartes d'ambiance d'exister sans fausser le score.
+  const poids = useMemo(() => indexerCalibration(calibration), [calibration]);
+  const premiereCarte = CARDS[0];
   const isEnglish = locale === 'en';
   const isSpanish = locale === 'es';
   const t = isEnglish ? COPY.en : isSpanish ? COPY.es : COPY.fr;
@@ -277,9 +170,9 @@ export default function VibeMatch({ parties, ridings, locale, campaignVersion }:
   const [postalCode, setPostalCode] = useState('');
   const [postalMatches, setPostalMatches] = useState<Riding[]>([]);
   const [postalStatus, setPostalStatus] = useState<'idle' | 'loading' | 'not-found' | 'error'>('idle');
-  const [scores, setScores] = useState<Record<PartyId, number>>(() => initialScores(parties, undefined, locale));
+  const [scores, setScores] = useState<Record<PartyId, number>>(() => priorScores(calibration, locale));
   const [answers, setAnswers] = useState<Record<string, Answer>>({});
-  const [currentId, setCurrentId] = useState('canada');
+  const [currentId, setCurrentId] = useState(premiereCarte.id);
   const [dragX, setDragX] = useState(0);
   const [dragging, setDragging] = useState(false);
   const [exit, setExit] = useState<Answer | null>(null);
@@ -295,18 +188,18 @@ export default function VibeMatch({ parties, ridings, locale, campaignVersion }:
     () => ridings.find((riding) => riding.id === selectedRidingId),
     [ridings, selectedRidingId],
   );
-  const probabilities = useMemo(() => normalizeScores(scores), [scores]);
-  const current = QUESTIONS.find((question) => question.id === currentId) ?? QUESTIONS[0];
+  const probabilities = useMemo(() => softmax(scores), [scores]);
+  const current = CARDS.find((carte) => carte.id === currentId) ?? premiereCarte;
   const answeredCount = Object.values(answers).filter((answer) => answer !== 'skip').length;
   const seenCount = Object.keys(answers).length;
   const orderedProbabilities = [...PARTY_IDS].sort((a, b) => probabilities[b] - probabilities[a]);
-  const resultUnlocked = answeredCount >= 6 && (probabilities[orderedProbabilities[0]] - probabilities[orderedProbabilities[1]] >= 0.08 || answeredCount >= 8);
+  const resultUnlocked = resultatPret(answers, probabilities);
   const savedAnsweredCount = savedProfile
     ? Object.values(savedProfile.answers).filter((answer) => answer !== 'skip').length
     : 0;
 
   function begin(riding?: Riding) {
-    const firstScores = initialScores(parties, riding, locale);
+    const firstScores = priorScores(calibration, locale, riding);
     setSelectedRidingId(riding?.id ?? '');
     setScores(firstScores);
     setAnswers({});
@@ -317,13 +210,14 @@ export default function VibeMatch({ parties, ridings, locale, campaignVersion }:
   function resumeProfile() {
     if (!savedProfile) return;
     const riding = ridings.find((item) => item.id === savedProfile.ridingId);
-    const refreshedScores = scoresFromAnswers(initialScores(parties, riding, locale), savedProfile.answers);
+    const refreshedScores = scoresDepuisReponses(
+      priorScores(calibration, locale, riding), savedProfile.answers, CARDS, poids);
     setSelectedRidingId(riding?.id ?? '');
     setAnswers(savedProfile.answers);
     setScores(refreshedScores);
     setFeedback(savedProfile.feedback ?? '');
     setDeclaredPreference(savedProfile.declaredPreference ?? '');
-    const next = pickNext(refreshedScores, savedProfile.answers);
+    const next = choisirProchaine(CARDS, savedProfile.answers, refreshedScores, poids);
     if (next) setCurrentId(next.id);
     setScreen(savedAnsweredCount >= 6 ? 'results' : 'game');
   }
@@ -367,16 +261,10 @@ export default function VibeMatch({ parties, ridings, locale, campaignVersion }:
     begin(riding);
   }
 
+  // Le sélecteur vit dans le moteur : cartes d'ambiance forcées en ouverture,
+  // puis tirage parmi les trois meilleures plutôt qu'un maximum strict.
   function pickNext(nextScores: Record<PartyId, number>, nextAnswers: Record<string, Answer>) {
-    const remaining = QUESTIONS.filter((question) => !nextAnswers[question.id]);
-    if (!remaining.length) return null;
-    const nextProbabilities = normalizeScores(nextScores);
-    const categoryCounts = Object.keys(nextAnswers).reduce<Record<string, number>>((counts, id) => {
-      const question = QUESTIONS.find((item) => item.id === id);
-      if (question) counts[question.category] = (counts[question.category] ?? 0) + 1;
-      return counts;
-    }, {});
-    return remaining.sort((a, b) => questionValue(b, nextProbabilities, categoryCounts) - questionValue(a, nextProbabilities, categoryCounts))[0];
+    return choisirProchaine(CARDS, nextAnswers, nextScores, poids);
   }
 
   function answerCard(answer: Answer) {
@@ -384,8 +272,9 @@ export default function VibeMatch({ parties, ridings, locale, campaignVersion }:
     setExit(answer);
     const nextScores = { ...scores };
     if (answer !== 'skip') {
-      const direction = answer === 'yes' ? 1 : -0.72;
-      PARTY_IDS.forEach((id) => { nextScores[id] += current.weights[id] * direction; });
+      const direction = answer === 'yes' ? 1 : POIDS_NON;
+      const w = poidsDe(poids, current);
+      PARTY_IDS.forEach((id) => { nextScores[id] += w[id] * direction; });
     }
     const nextAnswers = { ...answers, [current.id]: answer };
     window.setTimeout(() => {
@@ -753,7 +642,7 @@ export default function VibeMatch({ parties, ridings, locale, campaignVersion }:
             >
               <span class={`vibe-stamp vibe-stamp-no ${dragX < -24 ? 'is-visible' : ''}`}>{t.no}</span>
               <span class={`vibe-stamp vibe-stamp-yes ${dragX > 24 ? 'is-visible' : ''}`}>{t.yes}</span>
-              <h1>{isEnglish ? QUESTION_TEXT_EN[current.id] : isSpanish ? QUESTION_TEXT_ES[current.id] : current.text}</h1>
+              <h1>{cardText(current, locale)}</h1>
               <div class="vibe-card-directions" aria-hidden="true"><span>← {t.no}</span><span>{t.yes} →</span></div>
             </article>
           </div>
