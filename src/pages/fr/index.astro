@@ -7,6 +7,7 @@ import MarketCheck from '../../components/MarketCheck.astro';
 import MethodologyNote from '../../components/MethodologyNote.astro';
 import IdentityMark from '../../components/IdentityMark.astro';
 import SearchFastPath from '../../components/SearchFastPath.astro';
+import RidingsCta from '../../components/RidingsCta.astro';
 import SignalTicker from '../../islands/SignalTicker';
 import AnimatedNumber from '../../islands/AnimatedNumber';
 import { desks, editorialPhilosophy, instruments } from '../../data/editorial';
@@ -120,6 +121,21 @@ const liveSignals: Record<string, string> = {
   </section>
 
   <SignalTicker client:idle signals={signals} locale="fr" />
+
+
+  <RidingsCta
+
+    eyebrow="Le jeu électoral · Québec"
+
+    title="Et si ta vibe connaissait déjà ton match?"
+
+    blurb="Quelques cartes à glisser, des réponses instinctives — puis le parti québécois qui colle le mieux et les projections du jour dans ta circonscription. Aucune inscription, et ton code postal ne quitte jamais ton navigateur."
+
+    href="/fr/canada/quebec/match/"
+
+    cta="Trouver mon match →"
+
+  />
 
   <section class="content-band">
     <div class="container">

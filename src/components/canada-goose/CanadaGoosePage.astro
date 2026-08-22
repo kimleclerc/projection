@@ -52,11 +52,12 @@ const copy = {
     seatsLabel: 'Projected Liberal seats',
     majorityLabel: 'Majority probability',
     voteLabel: 'Projected vote share',
-    cusmaEyebrow: 'CUSMA Showdown',
+    cusmaEyebrow: 'Trade-war desk',
     cusmaTitle: 'Goose vs Lame Duck.',
     cusmaBody:
-      'The Canada Goose Index is one half of the matchup. The CUSMA showdown layer pits it against the Trump Lame-Duck Index to read who leads the negotiating table — coming next.',
-    cusmaCta: 'See the Lame-Duck Index',
+      'The Canada Goose Index is one half of the matchup. The trade-war desk pits it against the Trump Lame-Duck Index for the leverage gap, then surrounds it with what is actually in force at the border, live Polymarket and Kalshi prices, and polling from both sides.',
+    cusmaCta: 'Open the trade-war desk',
+    cusmaCtaAlt: 'See the Lame-Duck Index',
   },
   fr: {
     title: 'Indice Bernache — Carney et la révision de l’ACEUM (USMCA) — Vote-Scope',
@@ -94,11 +95,12 @@ const copy = {
     seatsLabel: 'Sièges libéraux projetés',
     majorityLabel: 'Probabilité de majorité',
     voteLabel: 'Part du vote projetée',
-    cusmaEyebrow: 'Duel ACEUM',
+    cusmaEyebrow: 'Pupitre guerre commerciale',
     cusmaTitle: 'Bernache contre Canard boiteux.',
     cusmaBody:
-      "L’Indice Bernache n’est qu’une moitié de l’affrontement. La couche duel ACEUM l’oppose à l’Indice canard boiteux de Trump pour lire qui mène la table de négociation — à venir.",
-    cusmaCta: 'Voir l’Indice canard boiteux',
+      "L’Indice Bernache n’est qu’une moitié de l’affrontement. Le pupitre de la guerre commerciale l’oppose à l’Indice canard boiteux de Trump pour l’écart de levier, puis l’entoure de ce qui est réellement en vigueur à la frontière, des cotes Polymarket et Kalshi en direct, et des sondages des deux côtés.",
+    cusmaCta: 'Ouvrir le pupitre',
+    cusmaCtaAlt: 'Voir l’Indice canard boiteux',
   },
   es: {
     title: 'Canada Goose Index — Carney y la revisión del T-MEC (USMCA) — Vote-Scope',
@@ -135,17 +137,19 @@ const copy = {
     seatsLabel: 'Escaños liberales proyectados',
     majorityLabel: 'Probabilidad de mayoría',
     voteLabel: 'Voto proyectado',
-    cusmaEyebrow: 'Duelo T-MEC',
+    cusmaEyebrow: 'Mesa de guerra comercial',
     cusmaTitle: 'Ganso contra Pato cojo.',
     cusmaBody:
-      'El Canada Goose Index es una mitad del enfrentamiento. La capa del duelo T-MEC lo enfrenta al Lame-Duck Index de Trump — próximamente.',
-    cusmaCta: 'Ver el Lame-Duck Index',
+      'El Canada Goose Index es una mitad del enfrentamiento. La mesa de guerra comercial lo enfrenta al Lame-Duck Index de Trump para la brecha de ventaja, y la rodea de lo que realmente está en vigor en la frontera, cuotas en vivo de Polymarket y Kalshi, y encuestas de ambos lados.',
+    cusmaCta: 'Abrir la mesa',
+    cusmaCtaAlt: 'Ver el Lame-Duck Index',
   },
 } as const;
 
 const t = copy[locale] ?? copy.en;
 const canonical = `https://vote-scope.com${canonicalPath}`;
 const lameDuckHref = locale === 'es' ? '/es/us/indexes/lame-duck/' : locale === 'fr' ? '/fr/us/indexes/lame-duck/' : '/en/us/indexes/lame-duck/';
+const showdownHref = `/${locale}/indexes/cusma-showdown/`;
 const licenseHref = `https://vote-scope.com/${locale === 'fr' ? 'fr/conditions' : locale === 'es' ? 'es/terminos' : 'en/terms'}/`;
 
 const alternates = {
@@ -196,7 +200,7 @@ const deltaTone = typeof delta === 'number' ? (delta > 0 ? 'is-up' : delta < 0 ?
   canonical={canonical}
   lang={locale}
   currentPage="canada"
-  ogImage={`https://vote-scope.com/og/indexes/${locale}/canada-goose.png`}
+  ogImage={"https://vote-scope.com/og/canada-goose.png"}
   alternates={alternates}
   jsonLd={jsonLd}
 >
@@ -325,7 +329,8 @@ const deltaTone = typeof delta === 'number' ? (delta > 0 ? 'is-up' : delta < 0 ?
           <div>
             <p>{t.cusmaBody}</p>
             <div class="lame-duck-actions" style="margin-top:1rem">
-              <a class="btn-outline" href={lameDuckHref}>{t.cusmaCta}</a>
+              <a class="btn-primary" href={showdownHref}>{t.cusmaCta}</a>
+              <a class="btn-outline" href={lameDuckHref}>{t.cusmaCtaAlt}</a>
             </div>
           </div>
         </div>

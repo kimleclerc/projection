@@ -51,6 +51,14 @@ const CURATED = [
   '/en/us/house', '/fr/us/chambre', '/es/us/house',
   '/en/us/senate', '/fr/us/senat', '/es/us/senate',
   '/en/us/indexes/lame-duck/', '/fr/us/indexes/lame-duck/', '/es/us/indexes/lame-duck/',
+  // Les indices « maison » bougent tous les jours et n'étaient jamais soumis,
+  // à l'exception du canard boiteux : le hub, la Bernache et surtout le pupitre
+  // de la guerre commerciale, qui se met à jour avec les marchés live.
+  '/en/indexes/', '/fr/indexes/', '/es/indexes/',
+  '/en/indexes/cusma-showdown/', '/fr/indexes/cusma-showdown/', '/es/indexes/cusma-showdown/',
+  '/en/canada/indexes/canada-goose/', '/fr/canada/indexes/canada-goose/', '/es/canada/indexes/canada-goose/',
+  // Le jeu québécois, publié le 2026-08-22 et jamais annoncé aux moteurs.
+  '/en/canada/quebec/match/', '/fr/canada/quebec/match/', '/es/canada/quebec/match/',
   '/en/uk/general-election/', '/fr/uk/general-election/', '/es/uk/general-election/',
   '/en/indexes/fraser-interim/', '/fr/indexes/fraser-interim/',
   '/en/sports/nhl/', '/fr/sports/nhl/', '/es/sports/nhl/',

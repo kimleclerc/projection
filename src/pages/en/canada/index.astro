@@ -86,11 +86,12 @@ const onMaj = Math.round(onTop.p_majority * 100);
           <p style="margin-top:0.75rem;"><a href="/en/canada/indexes/canada-goose/" class="cta-link">Open Canada Goose Index →</a></p>
         </div>
         <div class="note-card" style={`border-left:4px solid ${showdownData.showdown.zone_color};`}>
-          <p class="eyebrow">CUSMA Showdown · Goose vs Lame Duck</p>
+          <p class="eyebrow">Trade-war desk · CUSMA</p>
           <h2 style="font-size:3rem;margin:0.25rem 0;color:var(--text);">{showdownData.showdown.gap > 0 ? '+' : ''}{showdownData.showdown.gap}</h2>
           <p style={`font-weight:700;color:${showdownData.showdown.zone_color};`}>{showdownData.showdown.label_en}</p>
+          {(showdownData as any).war_status && (<p style="font-size:0.9rem;color:var(--text-muted);margin-top:0.4rem;">{(showdownData as any).war_status.headline_en}</p>)}
           <p style="margin-top:0.5rem;">Leverage gap vs the Trump Lame-Duck Index.</p>
-          <p style="margin-top:0.75rem;"><a href="/en/indexes/cusma-showdown/" class="cta-link">Open CUSMA Showdown →</a></p>
+          <p style="margin-top:0.75rem;"><a href="/en/indexes/cusma-showdown/" class="cta-link">Open the trade-war desk →</a></p>
         </div>
       </div>
     </div>

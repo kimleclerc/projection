@@ -7,6 +7,7 @@ import ComponentBreakdown from '../../islands/ComponentBreakdown.tsx';
 import LameDuckHistory from '../../islands/LameDuckHistory.tsx';
 import MidtermsEngagement from '../../islands/MidtermsEngagement.tsx';
 import type { LameDuckData, LameDuckLocale } from '../../data/lameDuck';
+import { getCusmaShowdownData, showdownLabel, pick } from '../../data/cusmaShowdown';
 import '../../styles/lame-duck.css';
 
 interface Props {
@@ -48,6 +49,12 @@ const copy = {
     midtermsTitle: 'What the quack means for November.',
     midtermsBody:
       'The LDI is not isolated from the rest of Vote-Scope. Congressional control feeds the index, and the index should pull readers deeper into the House, Senate, and U.S. desk instruments.',
+    tradeEyebrow: 'Trade-war desk',
+    tradeTitle: 'Where the quack meets the border.',
+    tradeBody:
+      'The Lame-Duck Index is one half of the CUSMA leverage gap: Canada Goose Index minus Trump\u2019s residual strength (100 \u2212 LDI). With 50% tariffs in force, the trade-war desk puts that gap next to live Polymarket and Kalshi prices and polling from both countries.',
+    tradeGap: 'Leverage gap',
+    tradeCta: 'Open the trade-war desk',
   },
   fr: {
     title: 'Indice canard boiteux — Vote-Scope',
@@ -79,6 +86,12 @@ const copy = {
     midtermsTitle: 'Ce que le canard annonce pour novembre.',
     midtermsBody:
       'L’ICB n’est pas isolé du reste de Vote-Scope. Le contrôle du Congrès nourrit l’indice, et l’indice doit pousser les lecteurs vers les instruments Chambre, Sénat et desk U.S.',
+    tradeEyebrow: 'Pupitre guerre commerciale',
+    tradeTitle: 'Là où le coin-coin touche la frontière.',
+    tradeBody:
+      'L’ICB est une moitié de l’écart de levier ACEUM : Indice Bernache moins la force résiduelle de Trump (100 − ICB). Avec des tarifs de 50 % en vigueur, le pupitre de la guerre commerciale place cet écart à côté des cotes Polymarket et Kalshi en direct et des sondages des deux pays.',
+    tradeGap: 'Écart de levier',
+    tradeCta: 'Ouvrir le pupitre',
   },
   es: {
     title: 'Lame-Duck Index — Vote-Scope',
@@ -110,11 +123,22 @@ const copy = {
     midtermsTitle: 'Qué significa el quack para noviembre.',
     midtermsBody:
       'El LDI no está aislado del resto de Vote-Scope. El control del Congreso alimenta el índice, y el índice debe llevar a los lectores hacia los instrumentos de la Cámara, el Senado y el desk de Estados Unidos.',
+    tradeEyebrow: 'Mesa de guerra comercial',
+    tradeTitle: 'Donde el cuac toca la frontera.',
+    tradeBody:
+      'El LDI es una mitad de la brecha de ventaja del T-MEC: Canada Goose Index menos la fuerza residual de Trump (100 − LDI). Con aranceles del 50 % en vigor, la mesa de guerra comercial pone esa brecha junto a cuotas en vivo de Polymarket y Kalshi y encuestas de ambos países.',
+    tradeGap: 'Brecha de ventaja',
+    tradeCta: 'Abrir la mesa',
   },
 } as const;
 
 const t = copy[locale] ?? copy.en;
 const canonical = `https://vote-scope.com${canonicalPath}`;
+const showdown = getCusmaShowdownData();
+const showdownHref = `/${locale}/indexes/cusma-showdown/`;
+const showdownGap = showdown.showdown.gap;
+const showdownZone = showdownLabel(showdown.showdown, locale);
+const warHeadline = pick(showdown.war_status, 'headline', locale);
 const licenseHref = `https://vote-scope.com/${locale === 'fr' ? 'fr/conditions' : locale === 'es' ? 'es/terminos' : 'en/terms'}/`;
 const approvalComponent = data.components.find((component) => component.id === 'net_approval');
 const alternates = {
@@ -181,7 +205,7 @@ const jsonLd = [
   canonical={canonical}
   lang={locale}
   currentPage="indexes"
-  ogImage={`https://vote-scope.com/og/indexes/${locale}/lame-duck.png`}
+  ogImage={"https://vote-scope.com/og/lame-duck.png"}
   alternates={alternates}
   jsonLd={jsonLd}
 >
@@ -296,6 +320,29 @@ const jsonLd = [
           </div>
         </div>
         <MidtermsEngagement midterms={data.midterms} locale={locale} client:visible />
+      </div>
+    </section>
+
+    <section class="content-band" id="trade-war">
+      <div class="container">
+        <p class="eyebrow">{t.tradeEyebrow}</p>
+        <div class="content-grid-2">
+          <div><h2>{t.tradeTitle}</h2></div>
+          <div>
+            <p>{t.tradeBody}</p>
+            {warHeadline && <p class="note-card" style="margin-top:1rem">{warHeadline}</p>}
+            <div class="lame-duck-stats" style="grid-template-columns:1fr;margin-top:1.25rem">
+              <article>
+                <p>{t.tradeGap}</p>
+                <strong>{showdownGap > 0 ? `+${showdownGap}` : showdownGap}</strong>
+                <em>{showdownZone}</em>
+              </article>
+            </div>
+            <div class="lame-duck-actions" style="margin-top:1rem">
+              <a class="btn-primary" href={showdownHref}>{t.tradeCta}</a>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   </article>

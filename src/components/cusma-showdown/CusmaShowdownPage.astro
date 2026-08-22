@@ -2,9 +2,11 @@
 import EditorialLayout from '../../layouts/EditorialLayout.astro';
 import CusmaTugOfWar from '../../islands/CusmaTugOfWar.tsx';
 import PolymarketEmbed from '../PolymarketEmbed.astro';
-import { showdownLabel } from '../../data/cusmaShowdown';
-import type { ShowdownData, ShowdownLocale } from '../../data/cusmaShowdown';
+import NewsletterCta from '../NewsletterCta.astro';
+import { showdownLabel, pick, pickList } from '../../data/cusmaShowdown';
+import type { ShowdownData, ShowdownLocale, MarketCard, PollCard } from '../../data/cusmaShowdown';
 import '../../styles/lame-duck.css';
+import '../../styles/cusma-desk.css';
 
 interface Props {
   data: ShowdownData;
@@ -16,18 +18,42 @@ const { data, locale, canonicalPath } = Astro.props;
 
 const copy = {
   en: {
-    title: 'CUSMA / USMCA Showdown — Goose vs Lame Duck — Vote-Scope',
+    title: 'Canada–U.S. Trade War — Live Desk, Markets & Polls — Vote-Scope',
     description:
-      'Who leads the CUSMA (USMCA) negotiating table — Carney or Trump? The CUSMA Showdown pits the Canada Goose Index against the Trump Lame-Duck Index in one leverage-gap number. Positive = Canada ahead.',
-    eyebrow: 'Vote-Scope · CUSMA · Live duel',
-    headline: 'Goose vs Lame Duck.',
+      'The Canada–U.S. tariff war, tracked live: 50% U.S. tariffs in effect, Ottawa’s dollar-for-dollar reply, Polymarket and Kalshi odds, Léger, Abacus and Angus Reid polling on both sides of the border, and the CUSMA leverage gap between Carney and Trump.',
+    eyebrow: 'Vote-Scope · CUSMA · Trade-war desk',
+    headline: 'The trade war desk.',
     dek:
-      "Who brings more standing to the CUSMA table? The showdown subtracts Trump's residual strength from Carney's, in one leverage-gap number. Positive means Canada leads, negative means the U.S. leads.",
+      'Talks collapsed. The tariffs landed. This page keeps one instrument, one market board and one polling wall on the same screen — updated daily, sourced line by line.',
     updated: 'Updated',
+    live: 'Live',
+    meterTitle: 'Leverage gap.',
+    alertNext: 'Next: Canadian counter-tariffs',
+    factsEyebrow: 'What is actually in force',
+    marketEyebrow: 'What the money says',
+    marketTitle: 'The board.',
+    marketBody:
+      'Live prices from Polymarket and Kalshi. External markets, carried as context — none of them feed the leverage gap. Thin books are labelled, and one contract below resolves on a narrower question than its title suggests.',
+    ladderTitle: 'The tariff-rate ladder',
+    ladderSub: 'Kalshi · general tariff rate on Canada, January 1, 2027',
+    ladderNote: 'A thin book — a few hundred contracts of open interest. Read it as a shape, not a price.',
+    pollsEyebrow: 'What the publics say',
+    pollsTitle: 'Two countries, one file.',
+    pollsBody:
+      'Canadians want less concession than their government is offering. Americans want less tariff than their president is imposing. Both facts are measured, and both are inconvenient for the same policy.',
+    pollsCanada: 'Canada',
+    pollsUs: 'United States',
+    timelineEyebrow: 'How we got here',
+    timelineTitle: 'From joint review to 50%.',
+    quotesEyebrow: 'The two accounts',
+    quotesTitle: 'Same night, two stories.',
+    takesEyebrow: 'Our read',
+    takesTitle: 'Four things this page is saying.',
+    watchTitle: 'What we are watching',
     methodEyebrow: 'How the gap works',
     methodTitle: 'One number from two instruments.',
     methodBody:
-      'The gap is Canada Goose Index minus Trump strength (100 − Lame-Duck Index). It is derived purely from our two proprietary instruments — transparent and defensible. The signals below are bilateral context, deliberately NOT folded into the number.',
+      'The gap is Canada Goose Index minus Trump strength (100 − Lame-Duck Index). It is derived purely from our two proprietary instruments — transparent and defensible. Everything else on this page is context, deliberately NOT folded into the number.',
     sidesEyebrow: 'The two birds',
     sidesTitle: 'Each side, its own instrument.',
     canadaSub: 'Canada Goose Index',
@@ -39,22 +65,50 @@ const copy = {
     contextBody: 'Real relational data — shown as context, not part of the gap calculation.',
     cadTitle: 'Loonie (USD→CAD)',
     favTitle: 'U.S. favourability of Canada',
-    tariffTitle: 'Tariff market',
     viewMarket: 'View market',
+    sourcesTitle: 'Reporting behind this page',
+    field: 'Field',
+    sample: 'n',
+    stale: 'Prices could not be refreshed — showing the last good board.',
+    embedSub: 'External market — not part of the gap calculation.',
   },
   fr: {
-    title: 'Duel ACEUM (USMCA) — Bernache contre Canard boiteux — Vote-Scope',
+    title: 'Guerre commerciale Canada–É.-U. — Pupitre live, marchés et sondages — Vote-Scope',
     description:
-      "Qui mène la table de négociation de l'ACEUM (USMCA) — Carney ou Trump ? Le Duel ACEUM oppose l'Indice Bernache à l'Indice canard boiteux de Trump en un seul écart de levier. Positif = avantage Canada.",
-    eyebrow: 'Vote-Scope · ACEUM · Duel live',
-    headline: 'Bernache contre Canard boiteux.',
+      'La guerre tarifaire Canada–États-Unis, suivie en direct : tarifs américains de 50 % en vigueur, riposte dollar pour dollar d’Ottawa, cotes Polymarket et Kalshi, sondages Léger, Abacus et Angus Reid des deux côtés de la frontière, et l’écart de levier ACEUM entre Carney et Trump.',
+    eyebrow: 'Vote-Scope · ACEUM · Pupitre guerre commerciale',
+    headline: 'Le pupitre de la guerre commerciale.',
     dek:
-      "Qui apporte le plus de poids à la table de l'ACEUM ? Le duel soustrait la force résiduelle de Trump de celle de Carney, en un seul écart de levier. Positif = le Canada mène, négatif = les É.-U. mènent.",
+      'Les pourparlers ont échoué. Les tarifs ont frappé. Cette page garde un instrument, un tableau de marchés et un mur de sondages sur le même écran — mis à jour chaque jour, sourcé ligne par ligne.',
     updated: 'Mis à jour',
+    live: 'En direct',
+    meterTitle: 'Écart de levier.',
+    alertNext: 'Prochaine étape : riposte canadienne',
+    factsEyebrow: 'Ce qui est réellement en vigueur',
+    marketEyebrow: 'Ce que dit l’argent',
+    marketTitle: 'Le tableau.',
+    marketBody:
+      'Cotes en direct de Polymarket et Kalshi. Marchés externes, portés comme contexte — aucun n’alimente l’écart de levier. Les carnets minces sont signalés, et un contrat ci-dessous se règle sur une question plus étroite que son titre le laisse croire.',
+    ladderTitle: 'L’échelle du taux tarifaire',
+    ladderSub: 'Kalshi · taux tarifaire général sur le Canada, 1ᵉʳ janvier 2027',
+    ladderNote: 'Carnet mince — quelques centaines de contrats d’intérêt ouvert. À lire comme une forme, pas comme un prix.',
+    pollsEyebrow: 'Ce que disent les publics',
+    pollsTitle: 'Deux pays, un même dossier.',
+    pollsBody:
+      'Les Canadiens veulent moins de concessions que leur gouvernement n’en offre. Les Américains veulent moins de tarifs que leur président n’en impose. Les deux faits sont mesurés, et les deux dérangent la même politique.',
+    pollsCanada: 'Canada',
+    pollsUs: 'États-Unis',
+    timelineEyebrow: 'Comment on en est arrivé là',
+    timelineTitle: 'De la revue conjointe au 50 %.',
+    quotesEyebrow: 'Les deux versions',
+    quotesTitle: 'Même nuit, deux récits.',
+    takesEyebrow: 'Notre lecture',
+    takesTitle: 'Quatre choses que cette page affirme.',
+    watchTitle: 'Ce qu’on surveille',
     methodEyebrow: 'Comment l’écart fonctionne',
     methodTitle: 'Un nombre, deux instruments.',
     methodBody:
-      "L’écart, c’est l’Indice Bernache moins la force de Trump (100 − Indice canard boiteux). Il est tiré uniquement de nos deux instruments propriétaires — transparent et défendable. Les signaux ci-dessous sont du contexte bilatéral, volontairement PAS fondus dans le nombre.",
+      'L’écart, c’est l’Indice Bernache moins la force de Trump (100 − Indice canard boiteux). Il est tiré uniquement de nos deux instruments propriétaires — transparent et défendable. Tout le reste de cette page est du contexte, volontairement PAS fondu dans le nombre.',
     sidesEyebrow: 'Les deux oiseaux',
     sidesTitle: 'Chaque camp, son propre instrument.',
     canadaSub: 'Indice Bernache',
@@ -66,21 +120,50 @@ const copy = {
     contextBody: 'De la vraie data relationnelle — affichée comme contexte, hors du calcul de l’écart.',
     cadTitle: 'Huard (USD→CAD)',
     favTitle: 'Favourabilité du Canada aux É.-U.',
-    tariffTitle: 'Marché des tarifs',
     viewMarket: 'Voir le marché',
+    sourcesTitle: 'Le reportage derrière cette page',
+    field: 'Terrain',
+    sample: 'n',
+    stale: 'Les cotes n’ont pas pu être rafraîchies — dernier tableau valide affiché.',
+    embedSub: 'Marché externe — hors du calcul de l’écart.',
   },
   es: {
-    title: 'Duelo T-MEC (USMCA) — Ganso vs Pato cojo — Vote-Scope',
+    title: 'Guerra comercial Canadá–EE. UU. — Mesa en vivo, mercados y encuestas — Vote-Scope',
     description:
-      '¿Quién lidera la mesa del T-MEC (USMCA) — Carney o Trump? El Duelo T-MEC enfrenta el Canada Goose Index al Lame-Duck Index en una sola brecha de ventaja. Positivo = Canadá adelante.',
-    eyebrow: 'Vote-Scope · T-MEC · Duelo en vivo',
-    headline: 'Ganso vs Pato cojo.',
-    dek: '¿Quién aporta más peso a la mesa del T-MEC? El duelo resta la fuerza residual de Trump a la de Carney, en una sola brecha de ventaja.',
+      'La guerra arancelaria Canadá–Estados Unidos, en vivo: aranceles estadounidenses del 50 % en vigor, respuesta dólar por dólar de Ottawa, cuotas de Polymarket y Kalshi, encuestas de Léger, Abacus y Angus Reid a ambos lados de la frontera, y la brecha de ventaja del T-MEC entre Carney y Trump.',
+    eyebrow: 'Vote-Scope · T-MEC · Mesa de guerra comercial',
+    headline: 'La mesa de la guerra comercial.',
+    dek:
+      'Las negociaciones fracasaron. Los aranceles cayeron. Esta página mantiene un instrumento, un tablero de mercados y un muro de encuestas en la misma pantalla — actualizada a diario, con fuentes línea por línea.',
     updated: 'Actualizado',
+    live: 'En vivo',
+    meterTitle: 'Brecha de ventaja.',
+    alertNext: 'Próximo paso: contra-aranceles canadienses',
+    factsEyebrow: 'Lo que realmente está en vigor',
+    marketEyebrow: 'Lo que dice el dinero',
+    marketTitle: 'El tablero.',
+    marketBody:
+      'Precios en vivo de Polymarket y Kalshi. Mercados externos, como contexto — ninguno alimenta la brecha de ventaja. Los libros delgados están señalados, y un contrato abajo se resuelve sobre una pregunta más estrecha de lo que sugiere su título.',
+    ladderTitle: 'La escalera de la tasa arancelaria',
+    ladderSub: 'Kalshi · tasa arancelaria general sobre Canadá, 1 de enero de 2027',
+    ladderNote: 'Libro delgado — unos cientos de contratos de interés abierto. Léase como forma, no como precio.',
+    pollsEyebrow: 'Lo que dicen los públicos',
+    pollsTitle: 'Dos países, un mismo expediente.',
+    pollsBody:
+      'Los canadienses quieren menos concesiones de las que ofrece su gobierno. Los estadounidenses quieren menos aranceles de los que impone su presidente. Ambos hechos están medidos, y ambos incomodan a la misma política.',
+    pollsCanada: 'Canadá',
+    pollsUs: 'Estados Unidos',
+    timelineEyebrow: 'Cómo llegamos aquí',
+    timelineTitle: 'De la revisión conjunta al 50 %.',
+    quotesEyebrow: 'Las dos versiones',
+    quotesTitle: 'Misma noche, dos relatos.',
+    takesEyebrow: 'Nuestra lectura',
+    takesTitle: 'Cuatro cosas que afirma esta página.',
+    watchTitle: 'Lo que vigilamos',
     methodEyebrow: 'Cómo funciona la brecha',
     methodTitle: 'Un número, dos instrumentos.',
     methodBody:
-      'La brecha es el Canada Goose Index menos la fuerza de Trump (100 − Lame-Duck Index). Derivada solo de nuestros dos instrumentos propios. Las señales abajo son contexto bilateral, no parte del cálculo.',
+      'La brecha es el Canada Goose Index menos la fuerza de Trump (100 − Lame-Duck Index). Derivada solo de nuestros dos instrumentos propios. Todo lo demás en esta página es contexto, deliberadamente fuera del cálculo.',
     sidesEyebrow: 'Las dos aves',
     sidesTitle: 'Cada lado, su instrumento.',
     canadaSub: 'Canada Goose Index',
@@ -92,8 +175,12 @@ const copy = {
     contextBody: 'Datos relacionales reales — como contexto, fuera del cálculo de la brecha.',
     cadTitle: 'Loonie (USD→CAD)',
     favTitle: 'Favorabilidad de Canadá en EE. UU.',
-    tariffTitle: 'Mercado de aranceles',
     viewMarket: 'Ver mercado',
+    sourcesTitle: 'El reportaje detrás de esta página',
+    field: 'Campo',
+    sample: 'n',
+    stale: 'No se pudieron actualizar las cuotas — se muestra el último tablero válido.',
+    embedSub: 'Mercado externo — fuera del cálculo de la brecha.',
   },
 } as const;
 
@@ -101,10 +188,64 @@ const t = copy[locale] ?? copy.en;
 const canonical = `https://vote-scope.com${canonicalPath}`;
 const sides = data.sides;
 const ctx = data.context_signals ?? {};
+const war = data.war_status;
+const board = data.markets?.board ?? [];
+const editorial = data.editorial;
 const canadaHref = locale === 'fr' ? sides.canada?.href_fr : sides.canada?.href_en;
 const usHref = locale === 'fr' ? sides.us?.href_fr : sides.us?.href_en;
 const gapLabel = showdownLabel(data.showdown, locale);
 const licenseHref = `https://vote-scope.com/${locale === 'fr' ? 'fr/conditions' : locale === 'es' ? 'es/terminos' : 'en/terms'}/`;
+
+const intlLocale = locale === 'fr' ? 'fr-CA' : locale === 'es' ? 'es-ES' : 'en-CA';
+const thisYear = new Date().getFullYear();
+const dayMonth = (iso: string) => {
+  if (!iso) return '—';
+  const date = new Date(`${iso}T12:00:00`);
+  // Contracts run years out — a bare "Oct 15" on a 2029 market misleads.
+  const withYear = date.getFullYear() !== thisYear;
+  return date.toLocaleDateString(intlLocale, {
+    month: 'short',
+    day: 'numeric',
+    ...(withYear ? { year: 'numeric' } : {}),
+  });
+};
+const fullDate = (iso: string) =>
+  iso
+    ? new Date(`${iso}T12:00:00`).toLocaleDateString(intlLocale, { year: 'numeric', month: 'long', day: 'numeric' })
+    : '—';
+
+/* The board arrives as one flat list. The Kalshi tariff-rate ladder is three
+ * markets that only mean something read together, so it gets pulled out and
+ * rendered as a single object. */
+const ladder = board.filter((m) => m.group === 'ladder');
+const cards = board.filter((m) => m.group !== 'ladder');
+const featuredSlug = cards.find((m) => m.venue === 'polymarket' && m.featured)?.slug;
+
+const usd = (value?: number) =>
+  typeof value === 'number' && value > 0
+    ? `$${value >= 1000 ? `${Math.round(value / 1000)}k` : Math.round(value)}`
+    : null;
+
+const marketMeta = (m: MarketCard) => {
+  const bits: string[] = [];
+  const volume = usd(m.volume_usd);
+  if (volume) bits.push(`vol ${volume}`);
+  if (typeof m.open_interest === 'number' && m.open_interest > 0) {
+    bits.push(`OI ${usd(m.open_interest)}`);
+  }
+  if (m.closes) bits.push(`→ ${dayMonth(m.closes)}`);
+  return bits.join(' · ');
+};
+
+const pollFirm = (p: PollCard) =>
+  (locale === 'fr' ? p.firm_fr : locale === 'es' ? p.firm_es : undefined) ?? p.firm;
+
+const pollMeta = (p: PollCard) => {
+  const bits = [`${t.field} ${dayMonth(p.field_start)}–${dayMonth(p.field_end)}`];
+  if (p.n) bits.push(`${t.sample} = ${p.n.toLocaleString(intlLocale)}`);
+  if (p.moe) bits.push(`${p.moe} %`);
+  return bits.join(' · ');
+};
 
 const alternates = {
   en: 'https://vote-scope.com/en/indexes/cusma-showdown/',
@@ -116,14 +257,16 @@ const jsonLd = [
   {
     '@context': 'https://schema.org',
     '@type': 'Dataset',
-    name: 'CUSMA Showdown — leverage gap',
-    keywords: 'CUSMA, USMCA, CUSMA Showdown, Mark Carney, Donald Trump, Canada Goose Index, Lame-Duck Index, Canada–US trade, tariffs, negotiating leverage',
+    name: 'CUSMA Showdown — leverage gap, trade-war market board and polling',
+    keywords:
+      'CUSMA, USMCA, Canada US trade war, tariffs, Section 338, Mark Carney, Donald Trump, Canada Goose Index, Lame-Duck Index, Polymarket, Kalshi, Léger, Abacus Data, Angus Reid',
     description: t.description,
     creator: { '@type': 'Person', name: 'Kim Leclerc', url: 'https://kimleclerc.ca' },
     publisher: { '@type': 'Organization', name: 'Vote-Scope', url: 'https://vote-scope.com' },
     url: canonical,
     isAccessibleForFree: true,
     license: licenseHref,
+    temporalCoverage: `${data.timeline?.[0]?.date ?? '2026-07-01'}/..`,
     distribution: {
       '@type': 'DataDownload',
       contentUrl: 'https://vote-scope.com/web_data/cusma-showdown/latest.json',
@@ -141,12 +284,26 @@ const jsonLd = [
   },
 ];
 
+if (war) {
+  jsonLd.push({
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: (data.timeline ?? []).slice(-3).map((entry) => ({
+      '@type': 'Question',
+      name: pick(entry, 'title', locale),
+      acceptedAnswer: { '@type': 'Answer', text: pick(entry, 'body', locale) },
+    })),
+  } as never);
+}
+
 const cad = ctx.cad_usd;
 const fav = ctx.canada_favourability;
 const tariff = ctx.tariff_market;
 const favNote = fav ? (locale === 'fr' ? fav.note_fr : fav.note_en) : '';
 const delta = data.showdown.delta_7d;
 const deltaArrow = typeof delta === 'number' ? (delta > 0 ? '▲' : delta < 0 ? '▼' : '—') : '—';
+const stickingPoints = war ? pickList(war, 'sticking_points', locale) : [];
+const watchList = editorial ? pickList(editorial, 'watch', locale) : [];
 ---
 
 <EditorialLayout
@@ -155,29 +312,47 @@ const deltaArrow = typeof delta === 'number' ? (delta > 0 ? '▲' : delta < 0 ? 
   canonical={canonical}
   lang={locale}
   currentPage="indexes"
-  ogImage={`https://vote-scope.com/og/indexes/${locale}/cusma-showdown.png`}
+  ogImage={"https://vote-scope.com/og/cusma-showdown.png"}
   alternates={alternates}
   jsonLd={jsonLd}
 >
+  {war && (
+    <aside class="tw-alert" role="status">
+      <div class="container tw-alert-inner">
+        <span class="tw-alert-tag">{t.live}</span>
+        <strong>{pick(war, 'headline', locale)}</strong>
+        <span>{t.updated} {fullDate(data.meta.as_of_date ?? war.since)}</span>
+        <span class="tw-alert-next">{t.alertNext} · {fullDate('2026-09-08')}</span>
+      </div>
+    </aside>
+  )}
+
   <article class="lame-duck-page">
     <header class="lame-duck-hero container">
       <div class="lame-duck-hero-copy">
         <p class="lame-duck-kicker">{t.eyebrow}</p>
         <h1 class="lame-duck-title">{t.headline}</h1>
         <p class="lame-duck-dek">{t.dek}</p>
+        {war && (
+          <p class="lame-duck-dek">{pick(war, 'standfirst', locale)}</p>
+        )}
         <div class="lame-duck-meta">
           <span>{t.updated} {data.computed.asOfLabel}</span>
           <span aria-hidden="true">·</span>
-          <span>v{data.meta.version ?? '1.0'}</span>
+          <span>v{data.meta.version ?? '2.0'}</span>
           <span aria-hidden="true">·</span>
           <span>{data.computed.dataQualityLabel[locale] ?? data.computed.dataQualityLabel.en}</span>
         </div>
+        <div class="lame-duck-actions">
+          <a class="btn-primary" href="#markets">{t.marketEyebrow} ↓</a>
+          <a class="btn-outline" href="#polls">{t.pollsEyebrow} ↓</a>
+        </div>
       </div>
 
-      <aside id="meter" class="lame-duck-meter-card" aria-label={t.headline}>
+      <aside id="meter" class="lame-duck-meter-card" aria-label={gapLabel}>
         <div class="lame-duck-meter-head">
           <div>
-            <h2>{t.headline}</h2>
+            <h2>{t.meterTitle}</h2>
             <p>{gapLabel} · {deltaArrow} {typeof delta === 'number' ? Math.abs(delta).toFixed(1) : '—'}</p>
           </div>
           <span>LIVE</span>
@@ -194,12 +369,236 @@ const deltaArrow = typeof delta === 'number' ? (delta > 0 ? '▲' : delta < 0 ? 
       </aside>
     </header>
 
+    {war && (
+      <section class="content-band" id="in-force">
+        <div class="container">
+          <p class="eyebrow">{t.factsEyebrow}</p>
+          <div class="tw-facts">
+            {war.facts.map((fact) => (
+              <article class={`tw-fact is-${fact.tone ?? 'neutral'}`}>
+                <span>{pick(fact, 'label', locale)}</span>
+                <strong>
+                  {locale === 'en' ? (fact.value_en ?? fact.value) : locale === 'es' ? (fact.value_es ?? fact.value) : fact.value}
+                </strong>
+                <p>{pick(fact, 'note', locale)}</p>
+              </article>
+            ))}
+          </div>
+          {stickingPoints.length > 0 && (
+            <ul class="tw-watch" style="max-width:820px">
+              {stickingPoints.map((point, index) => (
+                <li><span>{String(index + 1).padStart(2, '0')}</span><span style="color:var(--ink-2);font-family:inherit;font-size:inherit;letter-spacing:0">{point}</span></li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </section>
+    )}
+
+    {editorial && (
+      <section class="tw-stance" id="stance">
+        <div class="container tw-stance-inner">
+          <div>
+            <p class="eyebrow">{pick(editorial, 'stance_label', locale)}</p>
+            <h2>{t.takesEyebrow}</h2>
+          </div>
+          <div>
+            <p>{pick(editorial, 'stance', locale)}</p>
+            <footer>{editorial.byline} · {fullDate(editorial.updated)}</footer>
+          </div>
+        </div>
+      </section>
+    )}
+
+    <section class="content-band" id="markets">
+      <div class="container">
+        <p class="eyebrow">{t.marketEyebrow}</p>
+        <div class="content-grid-2">
+          <div><h2>{t.marketTitle}</h2></div>
+          <div><p>{t.marketBody}</p></div>
+        </div>
+
+        {data.markets?.stale && <p class="note-card" style="margin-top:20px;max-width:680px">{t.stale}</p>}
+
+        <div class="tw-board">
+          {cards.map((m) => (
+            <article class={`tw-market${m.featured ? ' is-featured' : ''}`}>
+              <header>
+                <span class={`tw-venue${m.thin ? ' is-thin' : ''}`}>
+                  {m.venue === 'kalshi' ? 'Kalshi' : 'Polymarket'}{m.thin ? ' · thin' : ''}
+                </span>
+              </header>
+              <h3>{pick(m, 'question', locale)}</h3>
+              <div class="tw-prob">
+                <b>{m.prob}%</b>
+                <i>{locale === 'fr' ? 'implicite' : locale === 'es' ? 'implícita' : 'implied'}</i>
+              </div>
+              <div class="tw-gauge"><span style={`width:${Math.max(1, Math.min(100, m.prob))}%`}></span></div>
+              {pick(m, 'reading', locale) && (
+                <p class={m.caveat ? 'is-caveat' : undefined}>
+                  {pick(m, 'reading', locale)}
+                </p>
+              )}
+              <footer>
+                <span>{marketMeta(m)}</span>
+                <a href={m.event_url ?? m.url} target="_blank" rel="noopener nofollow">{t.viewMarket} ↗</a>
+              </footer>
+            </article>
+          ))}
+
+          {ladder.length > 0 && (
+            <section class="tw-ladder">
+              <span class="tw-venue">Kalshi</span>
+              <h3>{t.ladderTitle}</h3>
+              <p style="margin:0;color:var(--ink-3);font-family:var(--mono);font-size:11px">{t.ladderSub}</p>
+              <dl class="tw-ladder-rows">
+                {ladder.map((step) => (
+                  <div class="tw-ladder-row">
+                    <dt>{pick(step, 'question', locale)}</dt>
+                    <dd><div class="tw-gauge"><span style={`width:${Math.max(1, Math.min(100, step.prob))}%`}></span></div></dd>
+                    <dd class="tw-ladder-pct">{step.prob}%</dd>
+                  </div>
+                ))}
+              </dl>
+              <p style="margin:14px 0 0;color:var(--ink-2);font-size:13px;line-height:1.6">{t.ladderNote}</p>
+            </section>
+          )}
+        </div>
+
+        {featuredSlug && (
+          <div style="margin-top:26px;max-width:680px">
+            <PolymarketEmbed
+              slug={featuredSlug}
+              title={t.marketEyebrow}
+              subtitle={t.embedSub}
+              lang={locale}
+              eventUrl={cards.find((m) => m.slug === featuredSlug)?.event_url}
+            />
+          </div>
+        )}
+      </div>
+    </section>
+
+    <section class="content-band" id="polls">
+      <div class="container">
+        <p class="eyebrow">{t.pollsEyebrow}</p>
+        <div class="content-grid-2">
+          <div><h2>{t.pollsTitle}</h2></div>
+          <div><p>{t.pollsBody}</p></div>
+        </div>
+
+        <div class="tw-polls">
+          {(['canada', 'us'] as const).map((sideKey) => (
+            <div class="tw-poll-col">
+              <p class="eyebrow">{sideKey === 'canada' ? t.pollsCanada : t.pollsUs}</p>
+              {(data.polls?.[sideKey] ?? []).map((poll) => (
+                <article class="tw-poll">
+                  <span>{pollFirm(poll)}</span>
+                  <h3>{pick(poll, 'headline', locale)}</h3>
+                  <em>{pick(poll, 'question', locale)}</em>
+                  <dl class="tw-bars">
+                    {poll.results.map((row) => (
+                      <div class={`tw-bar is-${row.tone ?? 'neutral'}`}>
+                        <dt>
+                          {pick(row, 'label', locale)}
+                          <span><i style={`width:${Math.max(1, Math.min(100, row.pct))}%`}></i></span>
+                        </dt>
+                        <dd>{row.pct}%</dd>
+                      </div>
+                    ))}
+                  </dl>
+                  {pick(poll, 'note', locale) && (
+                    <p>{pick(poll, 'note', locale)}</p>
+                  )}
+                  <footer>
+                    {pollMeta(poll)} · <a href={poll.source_url} target="_blank" rel="noopener">{pollFirm(poll)} ↗</a>
+                  </footer>
+                </article>
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    {editorial && (
+      <section class="content-band" id="read">
+        <div class="container">
+          <p class="eyebrow">{t.takesEyebrow}</p>
+          <div class="content-grid-2">
+            <div><h2>{t.takesTitle}</h2></div>
+            <div></div>
+          </div>
+          <div class="tw-takes">
+            {editorial.takes.map((take) => (
+              <article class="tw-take">
+                <h3>{pick(take, 'title', locale)}</h3>
+                <p>{pick(take, 'body', locale)}</p>
+              </article>
+            ))}
+          </div>
+          {watchList.length > 0 && (
+            <>
+              <p class="eyebrow" style="margin-top:34px">{t.watchTitle}</p>
+              <ul class="tw-watch">
+                {watchList.map((item, index) => (
+                  <li><span>{String(index + 1).padStart(2, '0')}</span><span style="color:var(--ink-2);font-family:inherit;font-size:inherit;letter-spacing:0">{item}</span></li>
+                ))}
+              </ul>
+            </>
+          )}
+        </div>
+      </section>
+    )}
+
+    {war && war.quotes?.length > 0 && (
+      <section class="content-band" id="accounts">
+        <div class="container">
+          <p class="eyebrow">{t.quotesEyebrow}</p>
+          <div class="content-grid-2">
+            <div><h2>{t.quotesTitle}</h2></div>
+            <div></div>
+          </div>
+          <div class="tw-quotes">
+            {war.quotes.map((quote) => (
+              <figure class={`tw-quote${quote.side === 'us' ? ' is-us' : ''}`}>
+                <blockquote>« {pick(quote, 'text', locale)} »</blockquote>
+                <cite>{quote.speaker} · {pick(quote, 'role', locale)}</cite>
+                <p>{pick(quote, 'context', locale)}</p>
+              </figure>
+            ))}
+          </div>
+        </div>
+      </section>
+    )}
+
+    {(data.timeline?.length ?? 0) > 0 && (
+      <section class="content-band" id="timeline">
+        <div class="container">
+          <p class="eyebrow">{t.timelineEyebrow}</p>
+          <div class="content-grid-2">
+            <div><h2>{t.timelineTitle}</h2></div>
+            <div></div>
+          </div>
+          <ol class="tw-timeline">
+            {data.timeline.map((entry) => (
+              <li class={entry.tag === 'live' ? 'is-live' : entry.tag === 'ahead' ? 'is-ahead' : undefined}>
+                <time datetime={entry.date}>{fullDate(entry.date)}</time>
+                <h3>{pick(entry, 'title', locale)}</h3>
+                <p>{pick(entry, 'body', locale)}</p>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+    )}
+
     <section class="content-band" id="sides">
       <div class="container">
         <p class="eyebrow">{t.sidesEyebrow}</p>
         <div class="content-grid-2">
           <div><h2>{t.sidesTitle}</h2></div>
-          <div></div>
+          <div><p>{t.methodBody}</p></div>
         </div>
         <div class="lame-duck-stats" style="margin-top:1.5rem">
           <article style={`border-left:4px solid ${sides.canada?.color ?? '#2f6fb0'};padding-left:1rem`}>
@@ -214,16 +613,6 @@ const deltaArrow = typeof delta === 'number' ? (delta > 0 ? '▲' : delta < 0 ? 
             <em>{t.strengthLabel} · LDI {sides.us?.ldi?.toFixed(1)}</em>
             {usHref && <a class="btn-outline" href={usHref} style="margin-top:.6rem;display:inline-block">{t.openIndex} ↗</a>}
           </article>
-        </div>
-      </div>
-    </section>
-
-    <section class="content-band" id="methodology">
-      <div class="container">
-        <p class="eyebrow">{t.methodEyebrow}</p>
-        <div class="content-grid-2">
-          <div><h2>{t.methodTitle}</h2></div>
-          <div><p>{t.methodBody}</p></div>
         </div>
       </div>
     </section>
@@ -252,29 +641,36 @@ const deltaArrow = typeof delta === 'number' ? (delta > 0 ? '▲' : delta < 0 ? 
           )}
           {tariff && (
             <article>
-              <p>{t.tariffTitle}</p>
+              <p>{t.marketEyebrow}</p>
               <strong style="font-size:1.1rem;line-height:1.3">{locale === 'fr' ? tariff.label_fr : tariff.label_en}</strong>
               {tariff.market_url && <a class="btn-outline" href={tariff.market_url} target="_blank" rel="noopener" style="margin-top:.6rem;display:inline-block">{t.viewMarket} ↗</a>}
             </article>
           )}
         </div>
         {favNote && <p class="note-card" style="margin-top:1.25rem;max-width:680px">{favNote}</p>}
-        {tariff && (
-          <div style="margin-top:1.5rem;max-width:680px">
-            <PolymarketEmbed
-              slug="tariff-increase-on-canada-in-effect-by-june-30"
-              title={t.tariffTitle}
-              subtitle={locale === 'fr'
-                ? 'Marché externe — hors du calcul de l’écart.'
-                : locale === 'es'
-                ? 'Mercado externo — fuera del cálculo de la brecha.'
-                : 'External market — not part of the gap calculation.'}
-              lang={locale}
-              eventUrl={tariff.market_url}
-            />
-          </div>
+      </div>
+    </section>
+
+    <section class="content-band" id="methodology">
+      <div class="container">
+        <p class="eyebrow">{t.methodEyebrow}</p>
+        <div class="content-grid-2">
+          <div><h2>{t.methodTitle}</h2></div>
+          <div><p>{t.methodBody}</p></div>
+        </div>
+        {war && war.sources?.length > 0 && (
+          <>
+            <p class="eyebrow" style="margin-top:34px">{t.sourcesTitle}</p>
+            <ul class="tw-sources">
+              {war.sources.map((source) => (
+                <li><a href={source.url} target="_blank" rel="noopener">{source.label} ↗</a></li>
+              ))}
+            </ul>
+          </>
         )}
       </div>
     </section>
+
+    <NewsletterCta lang={locale} placement="cusma-trade-war" />
   </article>
 </EditorialLayout>

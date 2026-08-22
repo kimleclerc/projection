@@ -13,6 +13,13 @@
  * Règle : `?market=` pour une question oui/non unique, `?event=` pour un
  * événement à issues multiples (prop `kind="event"` du composant).
  *
+ * MISE À JOUR 2026-08-22. Gratter la page d'embed ne suffisait pas : elle est
+ * rendue côté client, donc « Market not found » n'apparaît pas dans le HTML
+ * initial et un marché RETIRÉ ou RÉSOLU passait le test. Trois embeds vivaient
+ * ainsi sur le site — la Coupe Stanley 2026 (retirée de Polymarket) et
+ * l'événement Coupe du monde (résolu le 2026-07-20). On interroge désormais
+ * l'API Gamma, qui est l'autorité : existence ET statut.
+ *
  * Usage : node scripts/check-polymarket-embeds.mjs
  * Sortie : code 1 si au moins un embed est cassé.
  */
@@ -61,25 +68,55 @@ for (const e of embeds) {
 
 console.log(`Embeds Polymarket trouvés : ${embeds.length} (${seen.size} uniques)\n`);
 
+const GAMMA = 'https://gamma-api.polymarket.com';
+
+/** Interroge Gamma sur le bon endpoint et rend un verdict. */
+async function inspect(slug, kind) {
+  const endpoint = kind === 'event' ? 'events' : 'markets';
+  const res = await fetch(`${GAMMA}/${endpoint}?slug=${encodeURIComponent(slug)}`);
+  if (!res.ok) return { ok: false, why: `Gamma HTTP ${res.status}` };
+  const rows = await res.json();
+
+  if (!rows.length) {
+    // Un slug d'événement passé à ?market= (ou l'inverse) revient vide côté
+    // Gamma exactement comme un slug retiré : on teste l'autre endpoint pour
+    // distinguer « mauvais kind » de « n'existe plus ».
+    const other = kind === 'event' ? 'markets' : 'events';
+    const alt = await fetch(`${GAMMA}/${other}?slug=${encodeURIComponent(slug)}`);
+    const altRows = alt.ok ? await alt.json() : [];
+    if (altRows.length) {
+      const fix = kind === 'event' ? 'retirer kind="event"' : 'ajouter kind="event"';
+      return { ok: false, why: `mauvais kind — c'est un ${other === 'events' ? 'ÉVÉNEMENT' : 'MARCHÉ'} : ${fix}` };
+    }
+    return { ok: false, why: 'introuvable sur Gamma — slug retiré par Polymarket' };
+  }
+
+  const row = rows[0];
+  if (row.closed || row.archived) {
+    return { ok: false, why: `RÉSOLU/ARCHIVÉ (fin ${(row.endDate || '').slice(0, 10)}) — l'embed affiche un marché mort` };
+  }
+  if (kind === 'event') {
+    const open = (row.markets || []).filter((m) => !m.closed);
+    if (open.length === 0) {
+      return { ok: false, why: `événement sans marché ouvert (fin ${(row.endDate || '').slice(0, 10)})` };
+    }
+    return { ok: true, note: `${open.length} marché(s) ouvert(s)` };
+  }
+  const prices = JSON.parse(row.outcomePrices || '[]');
+  const pct = prices.length ? `${Math.round(Number(prices[0]) * 100)}%` : '—';
+  return { ok: true, note: `${pct} · fin ${(row.endDate || '').slice(0, 10)}` };
+}
+
 let broken = 0;
 for (const [key, e] of seen) {
-  const param = e.kind === 'event' ? 'event' : 'market';
-  const url = `https://embed.polymarket.com/market?${param}=${e.slug}`;
   let verdict;
   try {
-    const res = await fetch(url, { redirect: 'follow' });
-    const body = await res.text();
-    // Le 200 ne prouve rien : c'est la carte d'erreur qu'il faut chercher.
-    const notFound = /Market not found/i.test(body);
-    if (!res.ok || notFound) {
-      broken++;
-      const why = notFound ? 'carte « Market not found »' : `HTTP ${res.status}`;
-      const hint = e.kind === 'market'
-        ? ' — slug d\'ÉVÉNEMENT passé à ?market= ? essayer kind="event"'
-        : ' — slug de MARCHÉ passé à ?event= ? retirer kind="event"';
-      verdict = `CASSÉ  (${why})${hint}`;
+    const r = await inspect(e.slug, e.kind);
+    if (r.ok) {
+      verdict = `OK  (${r.note})`;
     } else {
-      verdict = 'OK';
+      broken++;
+      verdict = `CASSÉ  ${r.why}`;
     }
   } catch (err) {
     broken++;
