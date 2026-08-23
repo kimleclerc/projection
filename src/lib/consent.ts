@@ -50,15 +50,14 @@ declare global {
 /** Zaraz purpose id for "Audience measurement" / "Mesure d'audience". */
 const ZARAZ_PURPOSE = 'METw';
 
-/** How long we let the Mediavine CMP announce itself before concluding it will not. */
-const CMP_GRACE_MS = 2500;
-
 let published: ConsentState | undefined;
+let decided = false;
 
 function publish(state: ConsentState, source: string): void {
   // Republish only on an actual change: GTM applies every update it receives.
   if (state === published) return;
   published = state;
+  if (source !== 'pending') decided = true;
 
   // The consent signal itself, in the shape Consent Mode expects. This goes
   // through the same gtag defined alongside the defaults in Base.astro, so GTM
@@ -127,6 +126,8 @@ function zarazGrantsAnalytics(): boolean | undefined {
  */
 export function initConsentArbitration(): void {
   if (typeof window === 'undefined') return;
+  if (document.documentElement.dataset.consentReady === 'true') return;
+  document.documentElement.dataset.consentReady = 'true';
 
   const settle = (): void => {
     const snapshot = cmpSnapshot();
@@ -150,11 +151,20 @@ export function initConsentArbitration(): void {
 
   settle();
 
-  // Both managers resolve asynchronously and both can be changed by the reader
-  // afterwards, so re-settle on every signal either of them emits.
-  document.addEventListener('zarazConsentChoiceMade', settle);
-  document.addEventListener('zarazConsentAPIReady', settle);
+  // The event is `zarazConsentChoicesUpdated`. `zarazConsentChoiceMade` sounds
+  // right and does not exist — verified on production 2026-08-23 by wrapping
+  // dispatchEvent and reading what Zaraz actually emits.
+  for (const name of ['zarazConsentChoicesUpdated', 'zarazConsentModalClosed', 'zarazConsentAPIReady']) {
+    document.addEventListener(name, settle);
+  }
   window.addEventListener('cmpEvent', settle);
-  const timer = window.setInterval(settle, 500);
-  window.setTimeout(() => window.clearInterval(timer), CMP_GRACE_MS * 4);
+
+  // Both managers resolve asynchronously, and a reader can leave the banner
+  // sitting there for minutes. So keep looking until somebody has actually
+  // answered rather than for a fixed window: a poll that expires silently
+  // discards every late acceptance, which is most of them.
+  const timer = window.setInterval(() => {
+    settle();
+    if (decided) window.clearInterval(timer);
+  }, 500);
 }
