@@ -1,25 +1,20 @@
 /**
  * Display advertising config — Journey by Mediavine.
  *
- * IMPORTANT: `enabled` stays false until the Mediavine onboarding is
- * complete AND the consent work has shipped. Base.astro renders nothing
- * when it is false, so the script can be committed and reviewed long
- * before it ever reaches a reader.
+ * Live in production since 2026-08-21. `enabled` is the master switch: false
+ * renders no script at all, which is the way to turn advertising off.
  *
- * Before flipping this to true, in this order:
- *   1. Consent modal text switched to the post-launch wording
- *      (models/docs/analytics/consent-modal-copy.md) — the current text
- *      says "no advertising profile", which stops being true on the
- *      first impression served.
- *   2. Advertising purpose added in Cloudflare Zaraz consent settings.
- *   3. privacy.json updated in all three locales to name Mediavine.
- *   4. public/ads.txt present (publish_web.py refreshes it on every run).
+ * Consent for advertising is Mediavine's, not ours. Their consent management
+ * platform (CONSENTMANAGER) collects it, and their own documentation scopes it
+ * to "display and video advertising" and to regions covered by GDPR, PECR and
+ * the ePrivacy Directive. Nothing on our side should declare an advertising
+ * consent signal: on 2026-08-23 our Consent Mode defaults briefly did, which
+ * put Google ad demand into restricted mode in Canada and the United States
+ * where no consent signal is required at all. See the note in Base.astro.
  *
- * NEVER register this script as a Zaraz tool with a consent purpose.
- * Zaraz consent is global and has no geographic targeting, so gating it
- * there would switch ads off in Canada and the United States too, where
- * no consent is required. The script loads for everyone; the TCF signal
- * is what constrains behaviour inside the EEA and the UK.
+ * Audience measurement is the opposite case and is ours: GA4 and Microsoft
+ * Clarity run through Google Tag Manager, gated on analytics_storage by
+ * src/lib/consent.ts.
  */
 
 export interface AdsConfig {
