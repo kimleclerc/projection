@@ -341,9 +341,16 @@ const languageLinks = (['en', 'fr', 'es'] as Locale[])
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <!-- Google Consent Mode v2 default for measurement, and ONLY for measurement.
-       Cloudflare's Google Tag Gateway injects the GTM container as the last
-       script in <head>, so this inline script is guaranteed to run first and
-       nothing is measured until src/lib/consent.ts sends the update.
+
+       Position matters and is measured, not assumed. Cloudflare's Google Tag
+       Gateway injects its bootstrap and the GTM snippet as the first two
+       scripts of <head>, ahead of this one. That is fine: the snippet only
+       queues gtm.start and appends gtm.js as an async script, which has to
+       cross the network first, so this synchronous block always executes
+       before the container does. Confirmed on production by reading
+       google_tag_data.ics, which carries the default. Keep this script at the
+       top of <head> — anything that pushes it below a slow synchronous script
+       would start eroding that margin.
 
        The advertising signals (ad_storage, ad_user_data, ad_personalization)
        are deliberately absent. They belong to Journey by Mediavine: it is their
