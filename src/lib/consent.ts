@@ -1,44 +1,34 @@
 /**
- * Consent arbitration between the two consent managers on the page.
+ * Google Consent Mode signal for measurement.
  *
- * Vote-Scope ends up with two of them for a structural reason: Journey by
- * Mediavine ships its own IAB TCF CMP (CONSENTMANAGER, cmpId 31) that we do
- * not control, and Cloudflare Zaraz has one of its own from the days before
- * advertising, when it was the only thing we had.
+ * Google requires a Consent Mode v2 signal from a certified consent manager
+ * only for visitors in the EEA, the United Kingdom and Switzerland. Everywhere
+ * else — Canada and the United States included — it requires nothing, and
+ * Journey by Mediavine's consent platform deliberately does not display: their
+ * own documentation scopes the CMP to "display and video advertising" and to
+ * "regions covered by GDPR, PECR, and the ePrivacy Directive".
  *
- * Measured on 2026-08-23 on production:
- *   - From Canada the Mediavine CMP stays silent: it reports `cmpGDPR: 0`,
- *     `cmpDisplayStatus: "hidden"` and never installs `__tcfapi` at all.
- *   - Inside the EEA and the UK it does display, and the Zaraz modal displays
- *     on top of it. That stack of two banners is the bug this module fixes.
+ * So this module answers one question: has a consent manager taken charge of
+ * this reader, and if so what did they say?
  *
- * The rule is therefore: exactly one banner asks, and whichever one asked is
- * the one we believe. The Mediavine CMP wins wherever it speaks, because it
- * is the one that carries the TCF string the ad stack needs.
+ *   - It has  → derive analytics_storage from the TCF signals it publishes.
+ *   - It has not → Google asks for nothing here, so measurement runs.
  *
- * Nothing here loads an analytics tool. It only resolves a decision and
- * publishes it on the dataLayer as `vs_consent`, where Google Tag Manager
- * turns it into a Consent Mode v2 signal. See
- * models/docs/analytics/MEASUREMENT_PLAN.md.
+ * Advertising consent is deliberately absent from this file and from the
+ * defaults in Base.astro. It belongs to Mediavine: their ad stack, their
+ * certified CMP, their vendor list.
+ *
+ * Measured on production 2026-08-23: from Canada the CMP reports `cmpGDPR: 0`,
+ * `cmpDisplayStatus: "hidden"` and never installs `__tcfapi`.
  */
 
 type ConsentState = 'granted' | 'denied';
-
-interface ZarazConsentApi {
-  getAll?: () => Record<string, boolean>;
-  setAll?: (value: boolean) => void;
-  sendQueuedEvents?: () => void;
-}
 
 declare global {
   interface Window {
     dataLayer?: unknown[];
     /** Defined by the Consent Mode defaults script at the top of Base.astro. */
     gtag?: (...args: unknown[]) => void;
-    zaraz?: {
-      consent?: ZarazConsentApi;
-      showConsentModal?: () => void;
-    };
     __tcfapi?: (
       command: string,
       version: number,
@@ -47,11 +37,16 @@ declare global {
   }
 }
 
-/** Zaraz purpose id for "Audience measurement" / "Mesure d'audience". */
-const ZARAZ_PURPOSE = 'METw';
+/**
+ * How long to wait for the CMP to announce itself before concluding it never
+ * will. It is blocked outright by most ad blockers, and staying silent forever
+ * would mean measuring nothing at all for those readers.
+ */
+const CMP_FALLBACK_MS = 5000;
 
 let published: ConsentState | undefined;
 let decided = false;
+let startedAt = 0;
 
 function publish(state: ConsentState, source: string): void {
   // Republish only on an actual change: GTM applies every update it receives.
@@ -59,14 +54,12 @@ function publish(state: ConsentState, source: string): void {
   published = state;
   if (source !== 'pending') decided = true;
 
-  // The consent signal itself, in the shape Consent Mode expects. This goes
-  // through the same gtag defined alongside the defaults in Base.astro, so GTM
-  // reads it natively — no Custom HTML tag stands between the decision and the
-  // container.
+  // The signal itself, through the gtag defined alongside the defaults in
+  // Base.astro, so GTM reads it natively.
   window.gtag?.('consent', 'update', { analytics_storage: state });
 
-  // A plain event as well, so the decision and its origin are visible in GTM
-  // Preview and can be triggered on later without re-deriving any of this.
+  // A plain event too, so the decision and its origin are visible in GTM
+  // Preview and can be triggered on later.
   window.dataLayer = window.dataLayer || [];
   window.dataLayer.push({
     event: 'vs_consent',
@@ -76,10 +69,9 @@ function publish(state: ConsentState, source: string): void {
 }
 
 /**
- * Read the most recent CONSENTMANAGER snapshot off the dataLayer. The CMP
- * pushes a flat object of `cmp*` keys on every state change rather than
- * exposing a stable global, so the newest push that carries `cmpGDPR` is the
- * current truth.
+ * The most recent CONSENTMANAGER snapshot. It pushes a flat object of `cmp*`
+ * keys on every state change rather than exposing a stable global, so the
+ * newest push carrying `cmpGDPR` is the current truth.
  */
 function cmpSnapshot(): Record<string, unknown> | undefined {
   const layer = window.dataLayer;
@@ -93,7 +85,7 @@ function cmpSnapshot(): Record<string, unknown> | undefined {
   return undefined;
 }
 
-/** True once the Mediavine CMP has taken responsibility for asking. */
+/** True once the CMP has taken responsibility for asking this reader. */
 function cmpGoverns(snapshot: Record<string, unknown> | undefined): boolean {
   if (typeof window.__tcfapi === 'function') return true;
   return !!snapshot && Number(snapshot.cmpGDPR) === 1;
@@ -102,69 +94,68 @@ function cmpGoverns(snapshot: Record<string, unknown> | undefined): boolean {
 /**
  * Google's own IAB vendor id is 755. Under TCF the CMP publishes the vendors
  * the reader accepted as a comma-delimited list, so membership of 755 is what
- * tells us Google Analytics may run.
+ * says Google Analytics may run. TCF purpose 1 is storage access and purpose 8
+ * is measuring content performance.
  */
 function cmpGrantsAnalytics(snapshot: Record<string, unknown>): boolean {
-  const vendors = String(snapshot.cmpVendorsConsent ?? '');
-  const purposes = String(snapshot.cmpPurposesConsent ?? '');
-  const googleAccepted = vendors.split(',').includes('755');
-  // TCF purpose 8 is "measure content performance"; purpose 1 is storage access.
-  const measurementAccepted = purposes.split(',').includes('8')
-    || purposes.split(',').includes('1');
-  return googleAccepted && measurementAccepted;
-}
-
-function zarazGrantsAnalytics(): boolean | undefined {
-  const all = window.zaraz?.consent?.getAll?.();
-  if (!all || !(ZARAZ_PURPOSE in all)) return undefined;
-  return all[ZARAZ_PURPOSE] === true;
+  const vendors = String(snapshot.cmpVendorsConsent ?? '').split(',');
+  const purposes = String(snapshot.cmpPurposesConsent ?? '').split(',');
+  return vendors.includes('755') && (purposes.includes('8') || purposes.includes('1'));
 }
 
 /**
- * Decide, publish, and keep the Zaraz modal out of the way where the Mediavine
- * CMP is already asking. Safe to call more than once.
+ * Last-resort guard for the fallback path only. If the CMP never loaded we
+ * cannot ask it where the reader is, and granting a European reader by default
+ * is the one mistake worth avoiding. The browser's own timezone is not proof
+ * of location, but it is enough to hold back rather than guess wrong.
  */
+function looksEuropean(): boolean {
+  try {
+    const zone = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+    return /^(Europe\/|Atlantic\/(Canary|Faroe|Madeira)|Africa\/Ceuta)/.test(zone);
+  } catch {
+    return true;
+  }
+}
+
+/** Decide and publish. Safe to call more than once. */
 export function initConsentArbitration(): void {
   if (typeof window === 'undefined') return;
   if (document.documentElement.dataset.consentReady === 'true') return;
   document.documentElement.dataset.consentReady = 'true';
+  startedAt = Date.now();
 
   const settle = (): void => {
     const snapshot = cmpSnapshot();
 
     if (cmpGoverns(snapshot) && snapshot) {
-      // Mediavine asks here. Never show a second banner on top of theirs.
       publish(cmpGrantsAnalytics(snapshot) ? 'granted' : 'denied', 'mediavine');
       return;
     }
 
-    // Outside the EEA and the UK the Mediavine CMP stays hidden, so the Zaraz
-    // modal is the only thing standing between us and unconsented measurement.
-    const zarazChoice = zarazGrantsAnalytics();
-    if (zarazChoice === undefined) {
-      publish('denied', 'pending');
-      window.zaraz?.showConsentModal?.();
+    if (snapshot) {
+      // The CMP loaded and decided this reader is outside its scope. Google
+      // requires no signal here, so measurement runs.
+      publish('granted', 'not-required');
       return;
     }
-    publish(zarazChoice ? 'granted' : 'denied', 'zaraz');
+
+    if (Date.now() - startedAt > CMP_FALLBACK_MS) {
+      publish(looksEuropean() ? 'denied' : 'granted', 'no-cmp');
+      return;
+    }
+
+    publish('denied', 'pending');
   };
 
   settle();
 
-  // The event is `zarazConsentChoicesUpdated`. `zarazConsentChoiceMade` sounds
-  // right and does not exist — verified on production 2026-08-23 by wrapping
-  // dispatchEvent and reading what Zaraz actually emits.
-  for (const name of ['zarazConsentChoicesUpdated', 'zarazConsentModalClosed', 'zarazConsentAPIReady']) {
-    document.addEventListener(name, settle);
-  }
   window.addEventListener('cmpEvent', settle);
 
-  // Both managers resolve asynchronously, and a reader can leave the banner
-  // sitting there for minutes. So keep looking until somebody has actually
-  // answered rather than for a fixed window: a poll that expires silently
-  // discards every late acceptance, which is most of them.
+  // Both the CMP and the reader act asynchronously, so keep looking until
+  // somebody has actually answered rather than for a fixed window.
   const timer = window.setInterval(() => {
     settle();
     if (decided) window.clearInterval(timer);
-  }, 500);
+  }, 300);
 }
