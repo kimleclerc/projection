@@ -687,7 +687,11 @@ const languageLinks = (['en', 'fr', 'es'] as Locale[])
 <!-- Dark mode toggle script — no framework needed, 150 bytes -->
 <script>
   import { initAnalyticsTracking, trackAnalyticsEvent } from '../lib/analytics';
+  import { initConsentArbitration } from '../lib/consent';
 
+  // Resolve which consent manager governs this reader before anything is
+  // measured — see src/lib/consent.ts for why there are two of them.
+  initConsentArbitration();
   initAnalyticsTracking();
 
   function syncThemeToggle() {

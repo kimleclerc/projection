@@ -3,9 +3,7 @@ type AnalyticsProperties = Record<string, AnalyticsValue>;
 
 declare global {
   interface Window {
-    zaraz?: {
-      track: (eventName: string, properties?: AnalyticsProperties) => void;
-    };
+    dataLayer?: unknown[];
   }
 }
 const EVENT_NAME = /^[a-z][a-z0-9_]{0,39}$/;
@@ -51,15 +49,30 @@ function safeProperties(properties: AnalyticsProperties): AnalyticsProperties {
   );
 }
 
+// GTM merges every push into one persistent data model, so a parameter set by
+// one event survives into the next unless it is overwritten. Remember the keys
+// we sent last time and blank the ones this event does not carry, otherwise a
+// `chart_type` from a chart click would still be attached to a later sort.
+let lastKeys: string[] = [];
+
 export function trackAnalyticsEvent(
   eventName: string,
   properties: AnalyticsProperties = {},
 ): void {
   if (typeof window === 'undefined' || !EVENT_NAME.test(eventName)) return;
 
-  // Zaraz is intentionally the only transport. Its consent manager decides
-  // whether the event can reach GA4; there is no direct GA fallback.
-  window.zaraz?.track(eventName, safeProperties({ ...pageContext(), ...properties }));
+  // Google Tag Manager is intentionally the only transport. Consent Mode
+  // decides whether the tags reading this event may fire; there is no direct
+  // gtag fallback and no second analytics library.
+  const payload = safeProperties({ ...pageContext(), ...properties });
+  const cleared: Record<string, undefined> = {};
+  for (const key of lastKeys) {
+    if (!(key in payload)) cleared[key] = undefined;
+  }
+  lastKeys = Object.keys(payload);
+
+  window.dataLayer = window.dataLayer || [];
+  window.dataLayer.push({ event: eventName, ...cleared, ...payload });
 }
 
 export function trackAnalyticsEventOnce(
