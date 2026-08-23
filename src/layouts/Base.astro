@@ -339,6 +339,27 @@ const languageLinks = (['en', 'fr', 'es'] as Locale[])
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Google Consent Mode v2 defaults. Cloudflare's Google Tag Gateway injects
+       the GTM container as the last script in <head>, so this inline script is
+       guaranteed to run first and nothing measures anything until a consent
+       manager answers. src/lib/consent.ts sends the matching update. Defining
+       the defaults here rather than in a GTM Custom HTML tag is deliberate:
+       GTM warns that gtag commands inside Custom HTML may not be processed as
+       consent commands at all. -->
+  <script is:inline>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){ window.dataLayer.push(arguments); }
+    gtag('consent', 'default', {
+      ad_storage: 'denied',
+      ad_user_data: 'denied',
+      ad_personalization: 'denied',
+      analytics_storage: 'denied',
+      functionality_storage: 'granted',
+      security_storage: 'granted',
+      wait_for_update: 2000
+    });
+  </script>
   <title>{title}</title>
   {description && <meta name="description" content={description} />}
   {canonical  && <link rel="canonical" href={canonical} />}

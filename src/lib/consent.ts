@@ -33,6 +33,8 @@ interface ZarazConsentApi {
 declare global {
   interface Window {
     dataLayer?: unknown[];
+    /** Defined by the Consent Mode defaults script at the top of Base.astro. */
+    gtag?: (...args: unknown[]) => void;
     zaraz?: {
       consent?: ZarazConsentApi;
       showConsentModal?: () => void;
@@ -57,6 +59,15 @@ function publish(state: ConsentState, source: string): void {
   // Republish only on an actual change: GTM applies every update it receives.
   if (state === published) return;
   published = state;
+
+  // The consent signal itself, in the shape Consent Mode expects. This goes
+  // through the same gtag defined alongside the defaults in Base.astro, so GTM
+  // reads it natively — no Custom HTML tag stands between the decision and the
+  // container.
+  window.gtag?.('consent', 'update', { analytics_storage: state });
+
+  // A plain event as well, so the decision and its origin are visible in GTM
+  // Preview and can be triggered on later without re-deriving any of this.
   window.dataLayer = window.dataLayer || [];
   window.dataLayer.push({
     event: 'vs_consent',
