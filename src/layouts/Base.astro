@@ -365,10 +365,31 @@ const languageLinks = (['en', 'fr', 'es'] as Locale[])
   <script is:inline>
     window.dataLayer = window.dataLayer || [];
     function gtag(){ window.dataLayer.push(arguments); }
-    gtag('consent', 'default', {
-      analytics_storage: 'denied',
-      wait_for_update: 2000
-    });
+    (function () {
+      // Defaulting everyone to denied cost us every page view. GA4 fires
+      // page_view immediately; under a denied default it goes out as a
+      // cookieless ping (gcs=G1-0) that feeds modelling but never appears as a
+      // view, while later events — arriving after src/lib/consent.ts had
+      // granted — came through fine. Realtime showed users and zero views.
+      //
+      // Google only requires a consent signal in the EEA, the UK and
+      // Switzerland, so only those readers need to wait. The timezone is not
+      // proof of location, but it is decisive in the direction that matters
+      // here: a browser reporting America/Toronto is not in the EEA. Readers
+      // who might be keep the denied default, and consent.ts resolves them
+      // from the Mediavine CMP as before.
+      var european = true;
+      try {
+        var zone = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+        european = /^(Europe\/|Atlantic\/(Canary|Faroe|Madeira)|Africa\/Ceuta)/.test(zone);
+      } catch (e) {
+        european = true;
+      }
+      window.__vsConsentDefault = european ? 'denied' : 'granted';
+      gtag('consent', 'default', european
+        ? { analytics_storage: 'denied', wait_for_update: 2000 }
+        : { analytics_storage: 'granted' });
+    })();
   </script>
   <title>{title}</title>
   {description && <meta name="description" content={description} />}

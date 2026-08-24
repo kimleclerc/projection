@@ -29,6 +29,8 @@ declare global {
     dataLayer?: unknown[];
     /** Defined by the Consent Mode defaults script at the top of Base.astro. */
     gtag?: (...args: unknown[]) => void;
+    /** The default that script already applied, so we never contradict it. */
+    __vsConsentDefault?: ConsentState;
     __tcfapi?: (
       command: string,
       version: number,
@@ -47,6 +49,16 @@ const CMP_FALLBACK_MS = 5000;
 let published: ConsentState | undefined;
 let decided = false;
 let startedAt = 0;
+
+/**
+ * Whatever Base.astro already told Google before the container loaded. Outside
+ * the EEA that is 'granted', and we must not walk it back to 'denied' while
+ * waiting for a CMP that is never going to speak — doing so is what stripped
+ * page_view of its consent and emptied the Realtime views card.
+ */
+function defaultState(): ConsentState {
+  return window.__vsConsentDefault === 'granted' ? 'granted' : 'denied';
+}
 
 function publish(state: ConsentState, source: string): void {
   // Republish only on an actual change: GTM applies every update it receives.
@@ -124,6 +136,7 @@ export function initConsentArbitration(): void {
   if (document.documentElement.dataset.consentReady === 'true') return;
   document.documentElement.dataset.consentReady = 'true';
   startedAt = Date.now();
+  published = defaultState();
 
   const settle = (): void => {
     const snapshot = cmpSnapshot();
@@ -145,7 +158,7 @@ export function initConsentArbitration(): void {
       return;
     }
 
-    publish('denied', 'pending');
+    publish(defaultState(), 'pending');
   };
 
   settle();
