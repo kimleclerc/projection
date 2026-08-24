@@ -6,7 +6,7 @@
  * editions vary by country; Amazon OneLink handles storefront localization.
  */
 
-export type BookContext = 'clacton' | 'us-president' | 'france-president' | 'ga13' | 'fl20' | 'tx23';
+export type BookContext = 'clacton' | 'us-president' | 'france-president' | 'ga13' | 'fl20' | 'tx23' | 'cusma';
 export type BookLocale = 'en' | 'fr' | 'es';
 
 export interface ContextualBook {
@@ -22,6 +22,58 @@ export interface ContextualBook {
 }
 
 export const contextualBooks: ContextualBook[] = [
+  {
+    id: 'carney-values',
+    contexts: ['cusma'],
+    search: 'Value(s) Building a Better World for All Mark Carney',
+    title: 'Value(s)',
+    author: 'Mark Carney',
+    note: {
+      en: 'The Prime Minister’s own argument about what markets price and what they refuse to — written years before he had to defend it at a negotiating table.',
+      fr: 'L’argumentaire du premier ministre sur ce que les marchés cotent et ce qu’ils refusent de coter — écrit des années avant qu’il ait à le défendre à une table de négociation.',
+      es: 'El argumento del primer ministro sobre lo que los mercados cotizan y lo que se niegan a cotizar — escrito años antes de tener que defenderlo en una mesa de negociación.',
+    },
+    accent: '#1f4e79',
+  },
+  {
+    id: 'peddling-protectionism',
+    contexts: ['cusma'],
+    search: 'Peddling Protectionism Smoot-Hawley and the Great Depression Douglas Irwin',
+    title: 'Peddling Protectionism',
+    author: 'Douglas A. Irwin',
+    note: {
+      en: 'The standard history of the 1930 Smoot-Hawley Act — the statute Washington reached back for to sign the Section 338 proclamations.',
+      fr: 'L’histoire de référence de la loi Smoot-Hawley de 1930 — le texte que Washington est allé rechercher pour signer les proclamations de l’article 338.',
+      es: 'La historia de referencia de la ley Smoot-Hawley de 1930 — la norma que Washington rescató para firmar las proclamaciones de la Sección 338.',
+    },
+    accent: '#7a3b2e',
+  },
+  {
+    id: 'trade-wars-class-wars',
+    contexts: ['cusma'],
+    search: 'Trade Wars Are Class Wars Matthew Klein Michael Pettis',
+    title: 'Trade Wars Are Class Wars',
+    author: 'Matthew C. Klein & Michael Pettis',
+    note: {
+      en: 'The case that trade conflicts are domestic distribution fights in a foreign-policy costume. Useful for reading a tariff that 59% of Americans oppose.',
+      fr: 'La thèse selon laquelle les conflits commerciaux sont des batailles de répartition intérieure déguisées en politique étrangère. Utile pour lire un tarif auquel 59 % des Américains s’opposent.',
+      es: 'La tesis de que los conflictos comerciales son peleas internas de distribución disfrazadas de política exterior. Útil para leer un arancel al que se opone el 59 % de los estadounidenses.',
+    },
+    accent: '#3f5f4a',
+  },
+  {
+    id: 'bad-samaritans',
+    contexts: ['cusma'],
+    search: 'Bad Samaritans The Myth of Free Trade Ha-Joon Chang',
+    title: 'Bad Samaritans',
+    author: 'Ha-Joon Chang',
+    note: {
+      en: 'The argument that rich countries do not trade by the rules they used to get rich. Read it against either side of this table.',
+      fr: 'L’argument voulant que les pays riches ne commercent pas selon les règles qui les ont enrichis. À lire contre l’un ou l’autre côté de cette table.',
+      es: 'El argumento de que los países ricos no comercian con las reglas que los enriquecieron. Léase contra cualquiera de los dos lados de esta mesa.',
+    },
+    accent: '#5a4a7a',
+  },
   {
     id: 'politics-in-georgia',
     contexts: ['ga13'],

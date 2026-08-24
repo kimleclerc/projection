@@ -44,37 +44,52 @@ const displayCandidateName = books[0]?.author ?? candidateName;
 
 const copy = {
   en: {
-    kicker: 'Books from the race',
+    kicker: context === 'cusma' ? 'The shelf behind the file' : 'Books from the race',
     title: candidateName
       ? `Books by ${displayCandidateName}`
-      : context === 'clacton'
-        ? 'Read the people on the ballot.'
-        : 'Read the people in the race.',
-    body: 'Selected for the people, place or issues in this race. Inclusion is contextual, not an endorsement.',
+      : context === 'cusma'
+        ? 'Read the argument, not just the headline.'
+        : context === 'clacton'
+          ? 'Read the people on the ballot.'
+          : 'Read the people in the race.',
+    body:
+      context === 'cusma'
+        ? 'Four books that explain the statute, the economics and the argument behind this trade war. Chosen for what they explain, not for who they agree with.'
+        : 'Selected for the people, place or issues in this race. Inclusion is contextual, not an endorsement.',
     cta: 'View on Amazon',
     paid: 'paid link',
     disclosure: 'How we disclose',
   },
   fr: {
-    kicker: 'Livres de la course',
+    kicker: context === 'cusma' ? 'La tablette derrière le dossier' : 'Livres de la course',
     title: candidateName
       ? `Les livres de ${displayCandidateName}`
-      : context === 'clacton'
-        ? 'Lire les personnes sur le bulletin.'
-        : 'Lire les personnes derrière la course.',
-    body: 'Des ouvrages choisis pour les personnes, le territoire ou les enjeux de cette course. Leur présence ne constitue pas un appui.',
+      : context === 'cusma'
+        ? 'Lire l’argument, pas seulement la manchette.'
+        : context === 'clacton'
+          ? 'Lire les personnes sur le bulletin.'
+          : 'Lire les personnes derrière la course.',
+    body:
+      context === 'cusma'
+        ? 'Quatre livres qui expliquent la loi, l’économie et l’argument derrière cette guerre commerciale. Choisis pour ce qu’ils expliquent, pas pour ce qu’ils approuvent.'
+        : 'Des ouvrages choisis pour les personnes, le territoire ou les enjeux de cette course. Leur présence ne constitue pas un appui.',
     cta: 'Voir sur Amazon',
     paid: 'lien rémunéré',
     disclosure: 'Notre politique de divulgation',
   },
   es: {
-    kicker: 'Libros de la contienda',
+    kicker: context === 'cusma' ? 'El estante detrás del expediente' : 'Libros de la contienda',
     title: candidateName
       ? `Libros de ${displayCandidateName}`
-      : context === 'clacton'
-        ? 'Leer a las personas en la papeleta.'
-        : 'Leer a las personas de la contienda.',
-    body: 'Obras elegidas por las personas, el territorio o los temas de esta contienda. Su inclusión no supone un respaldo.',
+      : context === 'cusma'
+        ? 'Leer el argumento, no solo el titular.'
+        : context === 'clacton'
+          ? 'Leer a las personas en la papeleta.'
+          : 'Leer a las personas de la contienda.',
+    body:
+      context === 'cusma'
+        ? 'Cuatro libros que explican la ley, la economía y el argumento detrás de esta guerra comercial. Elegidos por lo que explican, no por con quién coinciden.'
+        : 'Obras elegidas por las personas, el territorio o los temas de esta contienda. Su inclusión no supone un respaldo.',
     cta: 'Ver en Amazon',
     paid: 'enlace remunerado',
     disclosure: 'Cómo lo divulgamos',

@@ -3,6 +3,7 @@ import EditorialLayout from '../../layouts/EditorialLayout.astro';
 import CusmaTugOfWar from '../../islands/CusmaTugOfWar.tsx';
 import PolymarketEmbed from '../PolymarketEmbed.astro';
 import NewsletterCta from '../NewsletterCta.astro';
+import ContextualBookShelf from '../ContextualBookShelf.astro';
 import { showdownLabel, pick, pickList } from '../../data/cusmaShowdown';
 import type { ShowdownData, ShowdownLocale, MarketCard, PollCard } from '../../data/cusmaShowdown';
 import '../../styles/lame-duck.css';
@@ -31,6 +32,7 @@ const copy = {
     alertNext: 'Next: Canadian counter-tariffs',
     factsEyebrow: 'What is actually in force',
     marketEyebrow: 'What the money says',
+    tariffCardTitle: 'Tariff-rate market',
     marketTitle: 'The board.',
     marketBody:
       'Live prices from Polymarket and Kalshi. External markets, carried as context — none of them feed the leverage gap. Thin books are labelled, and one contract below resolves on a narrower question than its title suggests.',
@@ -40,13 +42,14 @@ const copy = {
     pollsEyebrow: 'What the publics say',
     pollsTitle: 'Two countries, one file.',
     pollsBody:
-      'Canadians want less concession than their government is offering. Americans want less tariff than their president is imposing. Both facts are measured, and both are inconvenient for the same policy.',
+      'Canada now has two sets of readings: the ones taken before the talks collapsed, and the ones taken after. They do not say the same thing, and both stay up with their field dates attached. In the United States, opinion never followed the president on this file at all.',
     pollsCanada: 'Canada',
     pollsUs: 'United States',
     timelineEyebrow: 'How we got here',
     timelineTitle: 'From joint review to 50%.',
     quotesEyebrow: 'The two accounts',
     quotesTitle: 'Same night, two stories.',
+    stanceTitle: 'Written from Canada, and labelled as such.',
     takesEyebrow: 'Our read',
     takesTitle: 'What you need to know.',
     navLabel: 'On this page',
@@ -78,22 +81,24 @@ const copy = {
     field: 'Field',
     sample: 'n',
     stale: 'Prices could not be refreshed — showing the last good board.',
+    embedTitle: 'The contract to watch',
     embedSub: 'External market — not part of the gap calculation.',
   },
   fr: {
-    title: 'Guerre commerciale Canada–É.-U. : pupitre ACEUM | Vote-Scope',
+    title: 'Guerre commerciale Canada–É.-U. : le bureau ACEUM | Vote-Scope',
     description:
       'Tarifs américains, riposte du Canada, marchés prédictifs, sondages et écart de levier ACEUM — sourcés et mis à jour chaque jour.',
-    eyebrow: 'Vote-Scope · ACEUM · Pupitre guerre commerciale',
-    headline: 'Le pupitre de la guerre commerciale Canada–États-Unis.',
+    eyebrow: 'Vote-Scope · ACEUM · Bureau guerre commerciale',
+    headline: 'Le bureau de la guerre commerciale Canada–États-Unis.',
     dek:
-      'Les pourparlers ont échoué. Les tarifs ont frappé. Cette page garde un instrument, un tableau de marchés et un mur de sondages sur le même écran — mis à jour chaque jour, sourcé ligne par ligne.',
+      'Les pourparlers ont échoué. Les tarifs ont frappé. Le pays a donné raison au refus. Un instrument, un tableau de marchés et un mur de sondages sur le même écran — mis à jour chaque jour, sourcé ligne par ligne.',
     updated: 'Mis à jour',
     live: 'En direct',
     meterTitle: 'Écart de levier.',
     alertNext: 'Prochaine étape : riposte canadienne',
     factsEyebrow: 'Ce qui est réellement en vigueur',
     marketEyebrow: 'Ce que dit l’argent',
+    tariffCardTitle: 'Marché du taux tarifaire',
     marketTitle: 'Marchés prédictifs sur la guerre commerciale.',
     marketBody:
       'Cotes en direct de Polymarket et Kalshi. Marchés externes, portés comme contexte — aucun n’alimente l’écart de levier. Les carnets minces sont signalés, et un contrat ci-dessous se règle sur une question plus étroite que son titre le laisse croire.',
@@ -103,13 +108,14 @@ const copy = {
     pollsEyebrow: 'Ce que disent les publics',
     pollsTitle: 'Sondages au Canada et aux États-Unis.',
     pollsBody:
-      'Les Canadiens veulent moins de concessions que leur gouvernement n’en offre. Les Américains veulent moins de tarifs que leur président n’en impose. Les deux faits sont mesurés, et les deux dérangent la même politique.',
+      'Le Canada a maintenant deux séries de mesures : celles d’avant la rupture et celles d’après. Elles ne disent pas la même chose, et les deux restent affichées avec leurs dates de terrain. Aux États-Unis, l’opinion n’a jamais suivi le président sur ce dossier.',
     pollsCanada: 'Canada',
     pollsUs: 'États-Unis',
     timelineEyebrow: 'Comment on en est arrivé là',
     timelineTitle: 'Chronologie des tarifs Canada–États-Unis.',
     quotesEyebrow: 'Les deux versions',
     quotesTitle: 'Même nuit, deux récits.',
+    stanceTitle: 'Écrit depuis le Canada, et affiché comme tel.',
     takesEyebrow: 'Notre lecture',
     takesTitle: 'Ce qu’il faut retenir.',
     navLabel: 'Dans cette page',
@@ -133,14 +139,15 @@ const copy = {
     openIndex: 'Ouvrir l’indice',
     contextEyebrow: 'Contexte bilatéral',
     contextTitle: 'Les signaux autour de la table.',
-    contextBody: 'De la vraie data relationnelle — affichée comme contexte, hors du calcul de l’écart.',
+    contextBody: 'Des signaux bilatéraux réels — affichés comme contexte, hors du calcul de l’écart.',
     cadTitle: 'Huard (USD→CAD)',
-    favTitle: 'Favourabilité du Canada aux É.-U.',
+    favTitle: 'Opinion favorable du Canada aux É.-U.',
     viewMarket: 'Voir le marché',
     sourcesTitle: 'Le reportage derrière cette page',
     field: 'Terrain',
     sample: 'n',
     stale: 'Les cotes n’ont pas pu être rafraîchies — dernier tableau valide affiché.',
+    embedTitle: 'Le contrat à surveiller',
     embedSub: 'Marché externe — hors du calcul de l’écart.',
   },
   es: {
@@ -157,6 +164,7 @@ const copy = {
     alertNext: 'Próximo paso: contra-aranceles canadienses',
     factsEyebrow: 'Lo que realmente está en vigor',
     marketEyebrow: 'Lo que dice el dinero',
+    tariffCardTitle: 'Mercado de la tasa arancelaria',
     marketTitle: 'El tablero.',
     marketBody:
       'Precios en vivo de Polymarket y Kalshi. Mercados externos, como contexto — ninguno alimenta la brecha de ventaja. Los libros delgados están señalados, y un contrato abajo se resuelve sobre una pregunta más estrecha de lo que sugiere su título.',
@@ -166,13 +174,14 @@ const copy = {
     pollsEyebrow: 'Lo que dicen los públicos',
     pollsTitle: 'Dos países, un mismo expediente.',
     pollsBody:
-      'Los canadienses quieren menos concesiones de las que ofrece su gobierno. Los estadounidenses quieren menos aranceles de los que impone su presidente. Ambos hechos están medidos, y ambos incomodan a la misma política.',
+      'Canadá tiene ahora dos series de mediciones: las anteriores a la ruptura y las posteriores. No dicen lo mismo, y ambas se quedan a la vista con sus fechas de campo. En Estados Unidos, la opinión nunca acompañó al presidente en este expediente.',
     pollsCanada: 'Canadá',
     pollsUs: 'Estados Unidos',
     timelineEyebrow: 'Cómo llegamos aquí',
     timelineTitle: 'De la revisión conjunta al 50 %.',
     quotesEyebrow: 'Las dos versiones',
     quotesTitle: 'Misma noche, dos relatos.',
+    stanceTitle: 'Escrito desde Canadá, y señalado como tal.',
     takesEyebrow: 'Nuestra lectura',
     takesTitle: 'Lo que hay que saber.',
     navLabel: 'En esta página',
@@ -197,13 +206,14 @@ const copy = {
     contextEyebrow: 'Contexto bilateral',
     contextTitle: 'Señales alrededor de la mesa.',
     contextBody: 'Datos relacionales reales — como contexto, fuera del cálculo de la brecha.',
-    cadTitle: 'Loonie (USD→CAD)',
-    favTitle: 'Favorabilidad de Canadá en EE. UU.',
+    cadTitle: 'Dólar canadiense (USD→CAD)',
+    favTitle: 'Opinión favorable de Canadá en EE. UU.',
     viewMarket: 'Ver mercado',
     sourcesTitle: 'El reportaje detrás de esta página',
     field: 'Campo',
     sample: 'n',
     stale: 'No se pudieron actualizar las cuotas — se muestra el último tablero válido.',
+    embedTitle: 'El contrato a vigilar',
     embedSub: 'Mercado externo — fuera del cálculo de la brecha.',
   },
 } as const;
@@ -278,7 +288,7 @@ const alternates = {
 };
 
 const datasetName = locale === 'fr'
-  ? 'Pupitre ACEUM — écart de levier, marchés et sondages sur la guerre commerciale'
+  ? 'Bureau ACEUM — écart de levier, marchés et sondages sur la guerre commerciale'
   : locale === 'es'
     ? 'Mesa T-MEC — brecha de ventaja, mercados y encuestas sobre la guerra comercial'
     : 'CUSMA desk — leverage gap, trade-war markets and polling';
@@ -449,7 +459,7 @@ const watchList = editorial ? pickList(editorial, 'watch', locale) : [];
         <div class="container tw-stance-inner">
           <div>
             <p class="eyebrow">{pick(editorial, 'stance_label', locale)}</p>
-            <h2>{t.takesEyebrow}</h2>
+            <h2>{t.stanceTitle}</h2>
           </div>
           <div>
             <p>{pick(editorial, 'stance', locale)}</p>
@@ -548,7 +558,7 @@ const watchList = editorial ? pickList(editorial, 'watch', locale) : [];
           <div style="margin-top:26px;max-width:680px">
             <PolymarketEmbed
               slug={featuredSlug}
-              title={t.marketEyebrow}
+              title={t.embedTitle}
               subtitle={t.embedSub}
               lang={locale}
               eventUrl={cards.find((m) => m.slug === featuredSlug)?.event_url}
@@ -642,6 +652,12 @@ const watchList = editorial ? pickList(editorial, 'watch', locale) : [];
       </section>
     )}
 
+    <section class="content-band" id="reading">
+      <div class="container">
+        <ContextualBookShelf lang={locale} context="cusma" limit={4} />
+      </div>
+    </section>
+
     <section class="content-band" id="sides">
       <div class="container">
         <p class="eyebrow">{t.sidesEyebrow}</p>
@@ -690,7 +706,7 @@ const watchList = editorial ? pickList(editorial, 'watch', locale) : [];
           )}
           {tariff && (
             <article>
-              <p>{t.marketEyebrow}</p>
+              <p>{t.tariffCardTitle}</p>
               <strong style="font-size:1.1rem;line-height:1.3">{locale === 'fr' ? tariff.label_fr : tariff.label_en}</strong>
               {tariff.market_url && <a class="btn-outline" href={tariff.market_url} target="_blank" rel="noopener" style="margin-top:.6rem;display:inline-block">{t.viewMarket} ↗</a>}
             </article>
