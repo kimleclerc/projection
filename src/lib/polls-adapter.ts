@@ -21,6 +21,13 @@
 
 export type PollTopline = Record<string, number>;
 
+export interface PollToplineScope {
+  kind: string;
+  value: string;
+  includes?: string[];
+  excludes?: string[];
+}
+
 export interface PollGeography {
   level?: string;
   province?: string;
@@ -45,6 +52,9 @@ export interface PollRow {
   client?: string | null;
   source_url?: string | null;
   topline: PollTopline;
+  /** Present when `topline` is a display-only subgroup result, not the
+   * jurisdiction-wide topline used by the trend/model. */
+  topline_scope?: PollToplineScope | null;
   has_breakdowns: boolean;
   dimensions: string[];
   geography?: PollGeography;

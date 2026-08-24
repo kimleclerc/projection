@@ -82,6 +82,8 @@ const T = {
       'National and big-regional polls only. District-level polls appear on each district’s forecast page.',
     quarantine:
       '* Under review: this poll remains visible, but all or part of its signal is temporarily excluded from the model pending corroboration.',
+    nonfrOnly: 'Anglophones + allophones only',
+    excludesFr: 'Francophones excluded',
   },
   fr: {
     table: 'Sondages',
@@ -105,6 +107,8 @@ const T = {
       'Sondages nationaux et grands régionaux seulement. Les sondages de circonscription apparaissent sur la page de prévision de chaque circonscription.',
     quarantine:
       '* Sous surveillance : ce sondage demeure visible, mais tout ou partie de son signal est temporairement exclu du modèle en attente de corroboration.',
+    nonfrOnly: 'Anglophones + allophones seulement',
+    excludesFr: 'Francophones exclus',
   },
   es: {
     table: 'Sondeos',
@@ -128,6 +132,8 @@ const T = {
       'Solo sondeos nacionales y grandes regionales. Los sondeos por distrito aparecen en la página de proyección de cada distrito.',
     quarantine:
       '* Bajo revisión: el sondeo sigue visible, pero toda o parte de su señal queda temporalmente excluida del modelo hasta que sea corroborada.',
+    nonfrOnly: 'Solo anglófonos + alófonos',
+    excludesFr: 'Excluye francófonos',
   },
 }[lang];
 
@@ -150,7 +156,15 @@ function fmtPop(pop?: string | null): string {
   if (k === 'lv') return T.pop_lv;
   if (k === 'rv') return T.pop_rv;
   if (k === 'a' || k === 'adults') return T.pop_a;
+  if (k === 'anglophone_allophone_eligible_voters') return T.nonfrOnly;
   return pop.toUpperCase();
+}
+
+function scopedNote(p: PollRow): { title: string; detail: string } | null {
+  if (p.topline_scope?.kind === 'language' && p.topline_scope.value === 'nonfr') {
+    return { title: T.nonfrOnly, detail: T.excludesFr };
+  }
+  return null;
 }
 
 function fmtDates(p: PollRow): string {
@@ -254,8 +268,9 @@ const nFirms = firms.length || new Set(polls.map((p) => p.firm)).size;
           {polls.map((p) => {
             const entries = toplineEntries(p);
             const max = Math.max(1, ...entries.map(([, v]) => v));
+            const scope = scopedNote(p);
             return (
-              <tr>
+              <tr class={scope ? 'is-scoped-poll' : undefined}>
                 <td class="c-firm">
                   {detailPages && p.has_detail ? (
                     <a class="firm-link" href={`${pollsBase}/${p.poll_id}/`}>
@@ -268,6 +283,12 @@ const nFirms = firms.length || new Set(polls.map((p) => p.firm)).size;
                     <sup class="quarantine-mark" title={p.quarantine.reason} aria-label={p.quarantine.reason}>*</sup>
                   )}
                   {p.client && <span class="client">{p.client}</span>}
+                  {scope && (
+                    <span class="scope-note">
+                      <strong>{scope.title}</strong>
+                      <span>{scope.detail}</span>
+                    </span>
+                  )}
                 </td>
                 <td class="c-dates">{fmtDates(p)}</td>
                 <td class="c-sample">{fmtSample(p.sample_size)}</td>
@@ -352,6 +373,11 @@ const nFirms = firms.length || new Set(polls.map((p) => p.firm)).size;
   .firm-link:hover { border-bottom-color: var(--ink); }
   .quarantine-mark { color: #a45a00; font-family: var(--mono); font-weight: 700; margin-left: 3px; cursor: help; }
   .client { display: block; font-family: var(--mono); font-size: 10px; color: var(--ink-2); margin-top: 2px; }
+  .scope-note { display: block; width: max-content; max-width: 190px; margin-top: 7px; padding: 5px 7px; border: 1px solid color-mix(in oklab, var(--accent, #7a5a16) 38%, var(--rule)); border-radius: 4px; background: color-mix(in oklab, var(--accent, #7a5a16) 7%, var(--card)); font-family: var(--mono); font-size: 9px; line-height: 1.35; color: var(--ink); }
+  .scope-note strong, .scope-note span { display: block; }
+  .scope-note strong { letter-spacing: .025em; text-transform: uppercase; }
+  .scope-note span { margin-top: 1px; color: var(--ink-2); }
+  .poll-table tbody tr.is-scoped-poll { background: color-mix(in oklab, var(--accent, #7a5a16) 3%, var(--card)); }
   .c-dates, .c-sample, .c-pop { white-space: nowrap; color: var(--ink-2); }
   .c-sample { text-align: right; }
   .c-result { min-width: 220px; }
