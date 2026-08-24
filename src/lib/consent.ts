@@ -49,6 +49,7 @@ const CMP_FALLBACK_MS = 5000;
 let published: ConsentState | undefined;
 let decided = false;
 let startedAt = 0;
+let pageViewRequested = false;
 
 /**
  * Whatever Base.astro already told Google before the container loaded. Outside
@@ -61,10 +62,16 @@ function defaultState(): ConsentState {
 }
 
 function publish(state: ConsentState, source: string): void {
-  // Republish only on an actual change: GTM applies every update it receives.
-  if (state === published) return;
-  published = state;
+  // A definitive answer stops the polling even when it matches what we already
+  // published — outside the EEA the CMP confirms the default rather than
+  // changing it, and reading that as "nothing happened" left the interval
+  // running for the life of the page.
   if (source !== 'pending') decided = true;
+
+  // Push only on an actual change: GTM applies every update it receives.
+  if (state === published) return;
+  const upgraded = published === 'denied' && state === 'granted';
+  published = state;
 
   // The signal itself, through the gtag defined alongside the defaults in
   // Base.astro, so GTM reads it natively.
@@ -78,6 +85,19 @@ function publish(state: ConsentState, source: string): void {
     vs_analytics_consent: state,
     vs_consent_source: source,
   });
+
+  // GA4 sends its automatic page_view as soon as the container loads. A reader
+  // who starts denied — everyone in the EEA and the UK, which is over 40% of
+  // this audience — has that hit go out cookieless, and GA4 never counts it as
+  // a view. It does NOT resend one when consent arrives later: measured on
+  // production 2026-08-23, where 27 user_engagement events coexisted with zero
+  // views. So when consent is upgraded after the fact, ask for the view
+  // explicitly. Readers who default to granted already had theirs counted and
+  // never reach this branch, so nothing is counted twice.
+  if (upgraded && !pageViewRequested) {
+    pageViewRequested = true;
+    window.dataLayer.push({ event: 'vs_page_view' });
+  }
 }
 
 /**
