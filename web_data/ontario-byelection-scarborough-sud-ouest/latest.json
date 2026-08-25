@@ -1,7 +1,7 @@
 {
   "meta": {
-    "run_date": "2026-08-24",
-    "generated_at": "2026-08-24T14:26:54+00:00",
+    "run_date": "2026-08-25",
+    "generated_at": "2026-08-25T12:37:29+00:00",
     "n_simulations": 50000,
     "model": "ByelectionHandler",
     "cycle": "on_2029"
@@ -32,13 +32,13 @@
       "first_place_probability": 0.999,
       "top_two_probability": 0.999,
       "vote_quantiles": {
-        "q05": 37.43,
-        "q10": 38.65,
-        "q25": 40.72,
+        "q05": 37.47,
+        "q10": 38.69,
+        "q25": 40.74,
         "q50": 43.04,
-        "q75": 45.45,
-        "q90": 47.64,
-        "q95": 48.98
+        "q75": 45.44,
+        "q90": 47.62,
+        "q95": 48.95
       }
     },
     {
@@ -57,13 +57,13 @@
       "first_place_probability": 0.001,
       "top_two_probability": 0.001,
       "vote_quantiles": {
-        "q05": 21.08,
-        "q10": 22.3,
-        "q25": 24.26,
-        "q50": 26.44,
+        "q05": 21.12,
+        "q10": 22.33,
+        "q25": 24.28,
+        "q50": 26.45,
         "q75": 28.63,
-        "q90": 30.56,
-        "q95": 31.71
+        "q90": 30.54,
+        "q95": 31.68
       }
     },
     {
@@ -82,13 +82,13 @@
       "first_place_probability": 0.0,
       "top_two_probability": 0.0,
       "vote_quantiles": {
-        "q05": 20.38,
-        "q10": 21.56,
-        "q25": 23.55,
+        "q05": 20.42,
+        "q10": 21.59,
+        "q25": 23.57,
         "q50": 25.75,
-        "q75": 27.92,
-        "q90": 29.93,
-        "q95": 31.08
+        "q75": 27.91,
+        "q90": 29.91,
+        "q95": 31.04
       }
     },
     {
@@ -111,9 +111,9 @@
         "q10": 0.0,
         "q25": 0.0,
         "q50": 1.98,
-        "q75": 4.44,
-        "q90": 6.54,
-        "q95": 7.79
+        "q75": 4.43,
+        "q90": 6.51,
+        "q95": 7.75
       }
     },
     {
@@ -136,9 +136,9 @@
         "q10": 0.0,
         "q25": 0.0,
         "q50": 1.2,
-        "q75": 3.65,
-        "q90": 5.74,
-        "q95": 7.0
+        "q75": 3.63,
+        "q90": 5.71,
+        "q95": 6.96
       }
     }
   ],
@@ -146,8 +146,8 @@
     "favorite_id": "on_ndp",
     "favorite_name": "NPD de l’Ontario",
     "favorite_probability": 0.999,
-    "close_race_probability": 0.022,
-    "mean_margin": 14.9
+    "close_race_probability": 0.021,
+    "mean_margin": 14.91
   },
   "benchmarks": {
     "last_result": {
@@ -193,7 +193,25 @@
         "on_ndp": 19.0
       }
     },
+    "local_polls": [
+      {
+        "poll_id": "mainstreet_202603_scarborough_sw_prov",
+        "firm": "mainstreet",
+        "field_end": "2026-03-31",
+        "release_date": "2026-03-31",
+        "sample_size": 464,
+        "source_url": "https://www.mainstreetresearch.ca/post/scarborough-southwest-federal-and-ontario-by-election-poll-march-2026",
+        "shares": {
+          "on_pc": 29.0,
+          "on_lib": 43.0,
+          "on_ndp": 19.0
+        },
+        "anchor_weight_multiplier": 1.0,
+        "active_in_anchor": true
+      }
+    ],
     "star_candidate": null,
+    "scenario_adjustments_applied": [],
     "notes": "Doly Begum a démissionné en février 2026 pour se présenter pour les libéraux à la partielle fédérale de Scarborough—Southwest, qu'elle a remportée le 13 avril 2026 avec 69,6 %. Bref émis le 5 août 2026, scrutin le 3 septembre; clôture des mises en candidature le 20 août."
   },
   "sources": [
@@ -202,5 +220,5 @@
       "url": "https://www.elections.on.ca/en.html"
     }
   ],
-  "method_note": "Projection par simulation à partir de la projection fédérale courante de la circonscription. Quand un sondage de circonscription existe, il re-centre la base et ni le retrait du vote personnel ni le résidu de participation ne s'appliquent — un sondage de partielle porte déjà ces deux effets."
+  "method_note": "Projection par simulation à partir de la projection fédérale courante de la circonscription. Quand un sondage de circonscription existe, il re-centre la base. Les corrections déjà partiellement captées par ce sondage sont réduites selon son poids; les événements postérieurs au terrain et les régimes empiriques conditionnels restent déclarés séparément dans la projection."
 }
