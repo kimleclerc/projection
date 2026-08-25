@@ -6,6 +6,7 @@ import '@fontsource-variable/jetbrains-mono/wght.css';
 import '../styles/tokens.css';
 import { affiliates, amazon } from '../data/affiliates';
 import { ads, adScriptUrl } from '../data/ads';
+import { versionSocialCardUrl } from '../lib/og/version';
 
 interface Props {
   title: string;
@@ -42,6 +43,8 @@ const {
   noindex = false,
   searchIndex = true,
 } = Astro.props;
+
+const versionedOgImage = versionSocialCardUrl(ogImage);
 
 const localeCopy: Record<Locale, {
   root: string;
@@ -401,7 +404,7 @@ const languageLinks = (['en', 'fr', 'es'] as Locale[])
   {canonical  && <meta property="og:url"   content={canonical} />}
   <meta property="og:title"     content={title} />
   {description && <meta property="og:description" content={description} />}
-  {ogImage    && <meta property="og:image"  content={ogImage} />}
+  {ogImage    && <meta property="og:image"  content={versionedOgImage} />}
   {ogImage    && <meta property="og:image:width"  content="1200" />}
   {ogImage    && <meta property="og:image:height" content="630" />}
   <meta property="og:locale"    content={copy.ogLocale} />
@@ -410,7 +413,7 @@ const languageLinks = (['en', 'fr', 'es'] as Locale[])
   <meta name="twitter:card"        content="summary_large_image" />
   <meta name="twitter:title"       content={title} />
   {description && <meta name="twitter:description" content={description} />}
-  {ogImage    && <meta name="twitter:image"       content={ogImage} />}
+  {ogImage    && <meta name="twitter:image"       content={versionedOgImage} />}
 
   <!-- Crawler / AI hints -->
   <meta name="robots" content={noindex ? 'noindex,follow' : 'max-snippet:-1, max-image-preview:large, max-video-preview:-1'} />
