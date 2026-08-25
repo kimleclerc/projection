@@ -24,6 +24,15 @@ export interface ModelRelease {
 
 export const MODEL_RELEASES: ModelRelease[] = [
   {
+    name: 'Harfang des neiges',
+    since: '2026-08',
+    headline: {
+      fr: 'Refonte de la projection locale. La concentration du vote d’un parti dépend désormais de son niveau — un parti à 7 % ne se répartit pas comme un parti à 30 % — et la géographie propre de chaque parti entre dans la projection par circonscription. Effets d’institut activés au Québec.',
+      en: 'Rebuilt riding-level projection. A party’s vote concentration now depends on its level — a party at 7% does not spread like one at 30% — and each party’s own geography feeds the riding projection. House effects switched on for Quebec.',
+      es: 'Rediseño de la proyección local. La concentración del voto de un partido depende ahora de su nivel — un partido con 7 % no se reparte como uno con 30 % — y la geografía propia de cada partido alimenta la proyección por circunscripción. Efectos de encuestadora activados en Quebec.',
+    },
+  },
+  {
     name: 'Heron',
     since: '2026-07',
     headline: {
