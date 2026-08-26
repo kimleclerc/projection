@@ -1,4 +1,4 @@
-import { readFile, readdir } from 'node:fs/promises';
+import { readFile, readdir, stat } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -110,6 +110,93 @@ if (!radarProjectionAsOf || !radarPrimaryAsOf || radarPrimaryAsOf < primaryAsOf)
   console.log(
     `✓ latino radar: projection ${radarProjectionAsOf}, primaries ${radarPrimaryAsOf}`,
   );
+}
+
+// Les cartes OG de partage sont générées par le moteur, publiées comme des
+// fichiers statiques et illustrées de chiffres qu'elles gravent en pixels : rien
+// dans un PNG ne dit de quel run il sort. C'est ainsi que les 642 cartes du
+// Radar latino ont dérivé cinq semaines (publish_web.py ne copiait pas
+// public/og/) — les pages montraient les chiffres du jour, les cartes
+// annonçaient « Updated 2026-07-22 » avec d'autres valeurs, et aucune alerte
+// n'a sonné. Chaque jeu de cartes porte donc désormais un manifest.json daté,
+// et ce gardien refuse un jeu plus vieux que les données qu'il illustre.
+const ogSets = new Map();
+for (const entry of await readdir(path.join(root, 'web_data'), { withFileTypes: true })) {
+  if (!entry.isDirectory()) continue;
+  let raw;
+  try {
+    raw = await readFile(path.join(root, 'web_data', entry.name, 'latest.json'), 'utf8');
+  } catch {
+    continue;
+  }
+  // Parser 6 Mo de JSON à chaque build pour une clé absente de 41 desks sur 42
+  // ne se justifie pas : le test texte coûte un balayage et tranche.
+  if (!raw.includes('"social_cards"')) continue;
+  const payload = JSON.parse(raw);
+  for (const race of payload.races ?? []) {
+    for (const cardPath of Object.values(race.social_cards ?? {})) {
+      const [, , setName] = String(cardPath).split('/');
+      if (!setName) continue;
+      if (!ogSets.has(setName)) {
+        ogSets.set(setName, { dataset: entry.name, runDate: payload.meta?.run_date ?? '', cards: new Set() });
+      }
+      ogSets.get(setName).cards.add(String(cardPath));
+    }
+  }
+}
+
+// Les cartes rendues au build par satori s'écrivent dans dist/og/<segment>/,
+// et public/og/ y est recopié tel quel : un jeu du moteur qui porterait le nom
+// d'un segment de route écraserait — ou serait écrasé par — ces cartes, sans
+// un mot. Les segments sont lus sur le disque plutôt que recopiés ici, pour
+// qu'une route ajoutée demain entre d'elle-même dans la comparaison.
+const hubKeys = [...(await readFile(path.join(root, 'src/lib/polls-hubs.ts'), 'utf8'))
+  .matchAll(/webKey:\s*'([^']+)'/g)].map((match) => match[1]);
+const reservedOgSegments = new Set(
+  (await readdir(path.join(root, 'src/pages/og'), { withFileTypes: true }))
+    .filter((entry) => entry.isDirectory())
+    .flatMap((entry) => (entry.name === '[key]' ? hubKeys : [entry.name])),
+);
+
+const ogProblems = [];
+for (const [setName, { dataset, runDate, cards }] of [...ogSets].sort(([a], [b]) => a.localeCompare(b))) {
+  if (reservedOgSegments.has(setName)) {
+    ogProblems.push(`${setName}: name collides with a built /og/${setName}/ route`);
+  }
+  let manifest;
+  try {
+    manifest = await load(`public/og/${setName}/manifest.json`);
+  } catch {
+    ogProblems.push(`${setName}: no manifest.json — cards cannot be dated`);
+    continue;
+  }
+  if (!manifest.run_date || manifest.run_date < runDate) {
+    ogProblems.push(
+      `${setName}: cards are from ${manifest.run_date || 'an unknown run'}, ` +
+        `${dataset} data is from ${runDate}`,
+    );
+  }
+  if (manifest.card_count !== cards.size) {
+    ogProblems.push(`${setName}: manifest counts ${manifest.card_count} cards, ${dataset} declares ${cards.size}`);
+  }
+  const absent = [];
+  for (const cardPath of cards) {
+    // stat, pas readFile : 642 cartes font ~26 Mo, et seule leur présence importe.
+    try {
+      await stat(path.join(root, 'public', cardPath.replace(/^\//, '')));
+    } catch {
+      absent.push(cardPath);
+    }
+  }
+  if (absent.length) ogProblems.push(`${setName}: ${absent.length} declared card(s) missing, e.g. ${absent[0]}`);
+}
+
+if (ogProblems.length) {
+  failed = true;
+  console.error(`✗ social cards: ${ogProblems.join(', ')}`);
+} else {
+  const total = [...ogSets.values()].reduce((sum, set) => sum + set.cards.size, 0);
+  console.log(`✓ social cards: ${ogSets.size} set(s), ${total} cards current with their data`);
 }
 
 // The additive public catalogue must remain a trustworthy view of the

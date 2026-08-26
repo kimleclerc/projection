@@ -54,9 +54,33 @@ function extractEmbeds(source, file) {
   return found;
 }
 
+/**
+ * Les slugs rangés dans `src/lib/prediction-markets.ts` n'apparaissent dans
+ * aucun `<PolymarketEmbed slug="…">` littéral : le composant les reçoit par
+ * une prop calculée, donc `extractEmbeds` ne les voit pas. Sans cette lecture,
+ * un registre serait précisément l'endroit où un slug se périme sans bruit.
+ */
+function extractRegistry(source, file) {
+  const found = [];
+  const re = /slug:\s*'([^']+)'[\s\S]{0,120}?kind:\s*'(market|event)'/g;
+  let m;
+  while ((m = re.exec(source)) !== null) {
+    found.push({ slug: m[1], kind: m[2], file: file.replace(ROOT, '') });
+  }
+  return found;
+}
+
 const files = await walk(SRC);
 const embeds = [];
 for (const f of files) embeds.push(...extractEmbeds(await readFile(f, 'utf8'), f));
+
+const REGISTRY = join(SRC, 'lib', 'prediction-markets.ts');
+const registryEntries = extractRegistry(await readFile(REGISTRY, 'utf8'), REGISTRY);
+if (registryEntries.length === 0) {
+  console.error('✗ src/lib/prediction-markets.ts ne rend aucune entrée — le registre est-il encore lu ?');
+  process.exit(1);
+}
+embeds.push(...registryEntries);
 
 // Dédoublonne : le même couple slug/kind n'a pas besoin de N appels réseau.
 const seen = new Map();

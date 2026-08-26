@@ -27,6 +27,7 @@ import ProjectionHistory from './sections/ProjectionHistory.astro';
 import RegionalContext from './sections/RegionalContext.astro';
 import NeighborRidings from './sections/NeighborRidings.astro';
 import LocalPolls from './sections/LocalPolls.astro';
+import PolymarketEmbed from '../PolymarketEmbed.astro';
 
 interface Props {
   data: RidingData;
@@ -82,11 +83,24 @@ const pageNavItems = [
 {data.neighbors && data.neighbors.length > 0 && <div id="nearby" class="riding-anchor"><NeighborRidings data={data} lang={lang} /></div>}
 {data.runDate && <DataFreshness data={data} lang={lang} />}
 
-{/* Future slots — light up automatically when adapter populates them. */}
-{data.isByelection && data.marketSlug && (
+{/* Marché de prédiction — s'allume dès que le registre porte cette course.
+    Placé APRÈS la prévision : la page répond d'abord avec son propre modèle,
+    le marché est un point de comparaison, jamais la manchette. */}
+{data.isByelection && data.predictionMarket && (
   <section class="slot-market"><div class="container">
-    <p class="eyebrow">{{ en: 'Prediction market', fr: 'Marché de prédiction', es: 'Mercado de predicción' }[lang]}</p>
-    {/* PolymarketEmbed island would hook here */}
+    <PolymarketEmbed
+      slug={data.predictionMarket.slug}
+      kind={data.predictionMarket.kind}
+      eventUrl={data.predictionMarket.eventUrl}
+      lang={lang}
+      title={{ en: 'Prediction market', fr: 'Marché de prédiction', es: 'Mercado de predicción' }[lang]}
+      subtitle={{
+        en: 'Traders’ prices, not the Vote-Scope forecast. The two can disagree.',
+        fr: 'Les cotes des parieurs, pas la prévision Vote-Scope. Les deux peuvent diverger.',
+        es: 'Las cuotas de los apostadores, no la previsión Vote-Scope. Ambas pueden diferir.',
+      }[lang]}
+      height={420}
+    />
   </div></section>
 )}
 

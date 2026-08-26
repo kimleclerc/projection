@@ -207,7 +207,8 @@ export interface RidingData {
   // Byelection enrichments (riding becomes a partial)
   isByelection?: boolean;
   byelectionDate?: string;
-  marketSlug?: string;
+  /** Marché de prédiction attaché à cette course — voir lib/prediction-markets. */
+  predictionMarket?: import('../prediction-markets').PredictionMarket;
 
   /**
    * Pending by-election in THIS riding. When present, its projection is the
