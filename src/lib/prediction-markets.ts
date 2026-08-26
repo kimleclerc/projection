@@ -51,12 +51,35 @@ export const PREDICTION_MARKETS: Record<string, PredictionMarket> = {
     eventUrl:
       'https://polymarket.com/event/north-vancouvercapilano-by-election-winner-20260729185730213',
   },
-  // Scarborough-Sud-Ouest (provinciale ontarienne, 3 septembre) a bien un
-  // marché ouvert — `scarborough-southwest-provincial-by-election-winner-1785955561142`
-  // — mais l'adaptateur ontarien ne porte encore aucune couche de partielles :
-  // `isByelection` y est toujours faux et l'emplacement ne s'afficherait pas.
-  // À rattacher le jour où l'overlay ontarien existe.
+  'on:00098': {
+    slug: 'scarborough-southwest-provincial-by-election-winner-1785955561142',
+    kind: 'event',
+    eventUrl:
+      'https://polymarket.com/event/scarborough-southwest-provincial-by-election-winner-1785955561142',
+  },
 };
+
+/**
+ * Juridiction déduite du dossier de données de la course. Les desks de
+ * partielles (fédéral et ontarien partagent le même composant) ne portent pas
+ * de champ « juridiction » : `dataPath` est ce qui les distingue, et il est
+ * déjà là. Le déduire plutôt que l'écrire une deuxième fois dans chaque
+ * config garde UN seul endroit à modifier pour attacher un marché — ce
+ * registre.
+ */
+const JURISDICTION_BY_DATA_PREFIX: ReadonlyArray<[string, string]> = [
+  ['canada-byelection-', 'fed'],
+  ['ontario-byelection-', 'on'],
+];
+
+/** Le marché d'une course de partielle, d'après sa config de desk. */
+export function marketForByelection(
+  dataPath: string,
+  ridingId: string,
+): PredictionMarket | undefined {
+  const match = JURISDICTION_BY_DATA_PREFIX.find(([prefix]) => dataPath.startsWith(prefix));
+  return match ? marketForRiding(match[1], ridingId) : undefined;
+}
 
 /** Le marché d'une circonscription, ou `undefined` s'il n'y en a pas. */
 export function marketForRiding(

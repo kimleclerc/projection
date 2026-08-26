@@ -9,6 +9,8 @@ import Base from '../layouts/Base.astro';
 import KeepDigging from './KeepDigging.astro';
 import ElectionCountdown from '../islands/ElectionCountdown.tsx';
 import GooglePreferredSource from './GooglePreferredSource.astro';
+import PolymarketEmbed from './PolymarketEmbed.astro';
+import { marketForByelection } from '../lib/prediction-markets';
 import {
   byelectionRaceAlternates,
   byelectionSourceUrl,
@@ -36,6 +38,7 @@ const localPoll = byel.local_poll ?? null;
 const personalVote = byel.personal_vote_applied ?? null;
 const turnoutResidual = byel.turnout_residual_applied ?? null;
 const anchorWeight = personalVote?.local_poll_anchor_weight ?? null;
+const market = marketForByelection(config.dataPath, config.ridingId);
 
 const nf = lang === 'en' ? 'en-CA' : lang === 'es' ? 'es-ES' : 'fr-CA';
 const fmtPct = (v: number, d = 1) =>
@@ -88,6 +91,8 @@ const t = {
     noDate: 'No polling day yet',
     noDateBody: 'Under the Canada Elections Act the writ must issue between 11 and 180 days after the Speaker notifies the Chief Electoral Officer of the vacancy.',
     sources: 'Sources',
+    marketLabel: 'Prediction market',
+    marketNote: 'Traders’ prices, not the Vote-Scope forecast. The two can disagree.',
     keepEyebrow: 'Keep digging',
     keepTitle: 'More from the Canada Desk.',
     keepBody: 'All pending by-elections, the federal projection, and the ridings behind it.',
@@ -124,6 +129,8 @@ const t = {
     noDate: 'Pas encore de date de scrutin',
     noDateBody: 'Selon la Loi électorale du Canada, le bref doit être émis entre 11 et 180 jours après que le président de la Chambre a avisé le directeur général des élections de la vacance.',
     sources: 'Sources',
+    marketLabel: 'Marché de prédiction',
+    marketNote: 'Les cotes des parieurs, pas la prévision Vote-Scope. Les deux peuvent diverger.',
     keepEyebrow: 'Continuer à creuser',
     keepTitle: 'Plus du bureau Canada.',
     keepBody: 'Toutes les partielles en attente, la projection fédérale et les circonscriptions derrière elle.',
@@ -160,6 +167,8 @@ const t = {
     noDate: 'Aún sin fecha de votación',
     noDateBody: 'Según la Ley Electoral de Canadá, el decreto debe emitirse entre 11 y 180 días después de que el presidente de la Cámara notifique la vacante al director general de elecciones.',
     sources: 'Fuentes',
+    marketLabel: 'Mercado de predicción',
+    marketNote: 'Las cuotas de los apostadores, no la previsión Vote-Scope. Ambas pueden diferir.',
     keepEyebrow: 'Seguir cavando',
     keepTitle: 'Más del desk de Canadá.',
     keepBody: 'Todas las parciales pendientes, la proyección federal y las circunscripciones detrás.',
@@ -397,6 +406,20 @@ const labelFor = (party: string) =>
         <li><a href="https://www.elections.ca/" rel="noopener">Elections Canada</a></li>
       </ol>
     </section>
+
+    {market && (
+      <section class="container">
+        <PolymarketEmbed
+          slug={market.slug}
+          kind={market.kind}
+          eventUrl={market.eventUrl}
+          lang={lang}
+          title={t.marketLabel}
+          subtitle={t.marketNote}
+          height={420}
+        />
+      </section>
+    )}
 
     <KeepDigging
       eyebrow={t.keepEyebrow}
