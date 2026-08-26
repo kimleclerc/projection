@@ -101,7 +101,7 @@ function outcomeLabel(outcome: PrimaryResultRow['outcome']): string {
                 <div class="result-row">
                   <p class="outcome">{outcomeLabel(row.outcome)}</p>
                   <p class="leader"><strong>{row.candidate_name}</strong> <span class="lead-pct">{row.pct.toFixed(1)}%</span></p>
-                  <p class="meta">{formatVotes(row.votes)} {T.votes}</p>
+                  {row.votes !== null && <p class="meta">{formatVotes(row.votes)} {T.votes}</p>}
                 </div>
               ))}
             </article>

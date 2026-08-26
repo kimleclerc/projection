@@ -159,7 +159,9 @@ export interface PrimaryResultRow {
   candidate_name: string;
   candidate_fec_id: string;
   primary_party: 'DEM' | 'REP' | 'TOP_TWO' | 'OTHER';
-  votes: number;
+  // null quand le scrutin est tranché mais qu'aucun total exact n'est encore
+  // publié par l'autorité électorale (cf. CALLED_FEDERAL_RESULTS côté moteur).
+  votes: number | null;
   pct: number;
   outcome: 'won' | 'lost' | 'runoff' | 'advanced';
 }
