@@ -8,6 +8,7 @@ import { resolve } from 'node:path';
 import Base from '../layouts/Base.astro';
 import KeepDigging from './KeepDigging.astro';
 import ElectionCountdown from '../islands/ElectionCountdown.tsx';
+import CanadaByelectionLive from '../islands/CanadaByelectionLive.tsx';
 import GooglePreferredSource from './GooglePreferredSource.astro';
 import PolymarketEmbed from './PolymarketEmbed.astro';
 import { marketForByelection } from '../lib/prediction-markets';
@@ -249,6 +250,17 @@ const labelFor = (party: string) =>
       <p class="cabye-status">{statusLabel}</p>
       <GooglePreferredSource locale={lang} />
     </header>
+
+    {config.liveEventId && (
+      <div class="container">
+        <CanadaByelectionLive
+          eventId={config.liveEventId}
+          ridingId={config.ridingId}
+          lang={lang}
+          client:load
+        />
+      </div>
+    )}
 
     <section class="container" aria-labelledby="cabye-forecast">
       <p class="cabye-label" id="cabye-forecast">{t.forecast}</p>

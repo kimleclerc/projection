@@ -22,6 +22,8 @@ export interface ByelectionRaceConfig {
   electionDate: string | null;
   vacancyDate: string | null;
   province: string;
+  /** Événement de résultats live, absent hors soirée électorale prise en charge. */
+  liveEventId?: string;
   title: L<string>;
   description: L<string>;
   kicker: L<string>;
@@ -57,6 +59,7 @@ export const canadaByelectionRaces = {
     electionDate: '2026-08-31',
     vacancyDate: '2026-07-07',
     province: 'QC',
+    liveEventId: 'fed-2026-08-31',
     title: {
       en: 'Chicoutimi—Le Fjord By-Election 2026: Polls & Forecast — What Richard Martel Was Worth — Vote-Scope',
       fr: 'Partielle de Chicoutimi—Le Fjord 2026 : sondages, projection et pronostic — Vote-Scope',
@@ -264,6 +267,7 @@ export const canadaByelectionRaces = {
     electionDate: '2026-08-31',
     vacancyDate: '2026-07-07',
     province: 'ON',
+    liveEventId: 'fed-2026-08-31',
     title: {
       en: 'Beaches—East York By-Election 2026: Polls, Forecast & Seat Projection — Vote-Scope',
       fr: 'Partielle de Beaches—East York 2026 : sondages, projection et pronostic — Vote-Scope',
@@ -327,6 +331,7 @@ export const canadaByelectionRaces = {
     electionDate: '2026-08-31',
     vacancyDate: '2026-06-22',
     province: 'BC',
+    liveEventId: 'fed-2026-08-31',
     title: {
       en: 'North Vancouver—Capilano By-Election 2026: Polls, Forecast & Seat Projection — Vote-Scope',
       fr: 'Partielle de North Vancouver—Capilano 2026 : sondages, projection et pronostic — Vote-Scope',
