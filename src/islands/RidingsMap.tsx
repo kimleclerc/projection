@@ -520,9 +520,11 @@ export default function RidingsMap({
         (mapInstance as any).__outsideClick = outsideClick;
 
         L.tileLayer(
-          'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
+          'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
           {
-            attribution: '© OpenStreetMap, © CARTO',
+            attribution:
+              '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+            maxZoom: 19,
           },
         ).addTo(mapInstance);
 
