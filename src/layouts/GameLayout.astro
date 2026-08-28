@@ -100,6 +100,21 @@ const versionedOgImage = versionSocialCardUrl(ogImage);
         --vibe-blue: #143858;
         --vibe-serif: "Newsreader Variable", Georgia, serif;
         --vibe-sans: "Geist Variable", -apple-system, BlinkMacSystemFont, sans-serif;
+
+        /* Surfaces. Elles vivaient en dur dans vibe-match.css, donc elles ne
+           basculaient pas : `--vibe-ink` passait au blanc cassé pendant que le
+           voile des cartes restait crème, et le texte des cartes « paper »
+           devenait illisible. Une palette n'est complète que si TOUT ce qui
+           porte du texte y figure. */
+        --vibe-wash: rgba(250, 246, 236, .72);   /* voile des cartes sans teinte */
+        --vibe-veil: rgba(245, 241, 232, .92);   /* barre du haut */
+        --vibe-surface: rgba(255, 253, 246, .72);/* lignes du classement */
+        --vibe-edge: rgba(43, 35, 25, .16);      /* liseré des cartes */
+        --vibe-track: #d2c9b7;                   /* jauge de progression */
+        --vibe-heart-empty: #c9bdab;
+        --vibe-on-ink: #ffffff;                  /* texte posé sur --vibe-ink */
+        --vibe-ok: #12643d;
+        --vibe-err: #8f2020;
       }
 
       /* Le jeu a sa propre palette : elle doit donc avoir sa propre version
@@ -112,6 +127,18 @@ const versionedOgImage = versionSocialCardUrl(ogImage);
         --vibe-rule: #35302a;
         --vibe-red: #d9484f;
         --vibe-blue: #5b8cba;
+        --vibe-wash: rgba(18, 16, 13, .74);
+        --vibe-veil: rgba(20, 18, 15, .92);
+        --vibe-surface: rgba(32, 28, 24, .72);
+        --vibe-edge: rgba(242, 236, 225, .14);
+        --vibe-track: #3a352e;
+        --vibe-heart-empty: #4d463c;
+        /* Sur fond sombre, `--vibe-ink` EST clair : y poser du blanc revient à
+           écrire en blanc sur blanc. La pastille de rang reprend donc la
+           couleur de la carte. */
+        --vibe-on-ink: #14120f;
+        --vibe-ok: #7fd6a6;
+        --vibe-err: #ff9d9d;
       }
 
       *, *::before, *::after { box-sizing: border-box; }

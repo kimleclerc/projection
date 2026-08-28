@@ -103,7 +103,7 @@ const COPY = {
   fr: {
     close: 'Fermer le jeu', title: 'Ton match électoral, selon ta vibe.', subtitle: 'Glisse. Réponds vite. On essaie de te deviner.',
     riding: 'Ta circonscription', resumeResult: 'Revoir mon match d’aujourd’hui', resumeGame: 'Continuer mon match', changed: 'Les données de la campagne ont peut-être changé.',
-    knowRiding: 'Je connais ma circonscription', findPostal: 'La trouver avec mon code postal', pass: 'Passer', back: '← Retour', postal: 'Code postal',
+    knowRiding: 'Je connais ma circonscription', findPostal: 'La trouver avec mon code postal', pass: 'Passer', outsideQuebec: 'J’habite en dehors du Québec', back: '← Retour', postal: 'Code postal',
     postalPrivacy: 'Utilisé seulement pour trouver la circonscription. Il n’est ni enregistré ni ajouté à ton profil.', find: 'Trouver', searching: 'Recherche…',
     dataNote: 'Anonyme. Aucun courriel, aucune adresse IP, aucun code postal : il devient une circonscription sur ton appareil, avant de nous parvenir. Nos partenaires n’y ont pas accès.',
     dataLink: 'Confidentialité', termsLink: 'Conditions',
@@ -122,7 +122,7 @@ const COPY = {
   en: {
     close: 'Close the game', title: 'Your election match, based on your vibe.', subtitle: 'Swipe. Answer fast. We’ll try to read you.',
     riding: 'Your riding', resumeResult: 'See today’s match again', resumeGame: 'Continue my match', changed: 'The campaign data may have changed.',
-    knowRiding: 'I know my riding', findPostal: 'Find it with my postal code', pass: 'Skip', back: '← Back', postal: 'Postal code',
+    knowRiding: 'I know my riding', findPostal: 'Find it with my postal code', pass: 'Skip', outsideQuebec: 'I live outside Quebec', back: '← Back', postal: 'Postal code',
     postalPrivacy: 'Used only to find your riding. It is not saved or added to your profile.', find: 'Find it', searching: 'Searching…',
     dataNote: 'Anonymous. No email, no IP address, no postal code: it becomes a riding on your device, before it ever reaches us. Our partners have no access to it.',
     dataLink: 'Privacy', termsLink: 'Terms',
@@ -141,7 +141,7 @@ const COPY = {
   es: {
     close: 'Cerrar el juego', title: 'Tu match electoral, según tu vibra.', subtitle: 'Desliza. Responde rápido. Intentaremos adivinarte.',
     riding: 'Tu circunscripción', resumeResult: 'Volver a ver mi match de hoy', resumeGame: 'Continuar mi match', changed: 'Los datos de la campaña pueden haber cambiado.',
-    knowRiding: 'Conozco mi circunscripción', findPostal: 'Encontrarla con mi código postal', pass: 'Saltar', back: '← Volver', postal: 'Código postal',
+    knowRiding: 'Conozco mi circunscripción', findPostal: 'Encontrarla con mi código postal', pass: 'Saltar', outsideQuebec: 'Vivo fuera de Quebec', back: '← Volver', postal: 'Código postal',
     postalPrivacy: 'Se usa únicamente para encontrar tu circunscripción. No se guarda ni se añade a tu perfil.', find: 'Buscar', searching: 'Buscando…',
     dataNote: 'Anónimo. Sin correo, sin dirección IP, sin código postal: se convierte en circunscripción en tu dispositivo, antes de llegarnos. Nuestros socios no tienen acceso.',
     dataLink: 'Privacidad', termsLink: 'Términos',
@@ -231,6 +231,17 @@ export default function VibeMatch({ parties, ridings, locale, campaignVersion, c
   const [savedProfile, setSavedProfile] = useState<SavedProfile | null>(null);
   const pointerStart = useRef(0);
   const submissionInFlight = useRef(false);
+  /**
+   * Une soumission par partie, et une seule.
+   *
+   * Le garde-fou lisait `submissionStatus`, capturé dans la fermeture du
+   * gestionnaire : après un `setSubmissionStatus('idle')` posé dans le même
+   * tour, il lisait encore l'ancienne valeur. Un `ref` dit la vérité tout de
+   * suite, et ne se remet à faux qu'au `rejouer`.
+   */
+  const submitted = useRef(false);
+  /** Un match affiché compte une fois par partie, pas à chaque rendu. */
+  const revealCounted = useRef(false);
 
   const selectedRiding = useMemo(
     () => ridings.find((riding) => riding.id === selectedRidingId),
@@ -252,12 +263,66 @@ export default function VibeMatch({ parties, ridings, locale, campaignVersion, c
     ? Object.values(savedProfile.answers).filter((answer) => answer !== 'skip').length
     : 0;
 
+  /**
+   * Un cran d'entonnoir : un « +1 » anonyme, rien d'autre.
+   *
+   * `calibration_responses` ne sait compter que les gens qui vont au bout ET
+   * répondent à la question du parti. Sans ces crans, aucun dénominateur : on
+   * appelait « participants » ce qui n'était qu'un nombre de répondants, et
+   * un abandon en cours de partie ne laissait aucune trace.
+   *
+   * Ce qui part : le cran, la version de campagne, la langue. Pas
+   * d'identifiant, pas de date de naissance du navigateur, rien. Le drapeau
+   * qui empêche de recompter un même navigateur reste DANS le navigateur —
+   * c'est ce qui garde la promesse « aucun cookie ID » intacte. On compte donc
+   * des navigateurs, pas des personnes : deux appareils font deux, un stockage
+   * vidé refait un. C'est un plancher, et il vaut infiniment mieux que rien.
+   *
+   * Le même interrupteur que la calibration le coupe : une seule manette.
+   */
+  function pingStep(step: 'visitor' | 'started' | 'revealed') {
+    if (!vibeCalibration.enabled) return;
+    try {
+      void fetch(`${vibeCalibration.endpoint}/step`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        keepalive: true,
+        body: JSON.stringify({ step, campaignVersion, locale }),
+      }).catch(() => { /* un compteur ne doit jamais gêner une partie */ });
+    } catch { /* idem */ }
+  }
+
+  // Premier passage de ce navigateur, jamais recompté ensuite.
+  useEffect(() => {
+    const key = 'vote-scope-match-seen-v1';
+    try {
+      if (window.localStorage.getItem(key)) return;
+      window.localStorage.setItem(key, '1');
+    } catch {
+      // Stockage refusé : on ne compte pas plutôt que de compter en double à
+      // chaque visite, ce qui gonflerait le total sans qu'on le sache.
+      return;
+    }
+    pingStep('visitor');
+  }, []);
+
+  /** Passage aux résultats, compté une seule fois par partie. */
+  function showResults() {
+    if (!revealCounted.current) {
+      revealCounted.current = true;
+      pingStep('revealed');
+    }
+    setScreen('results');
+  }
+
   function begin(riding?: Riding) {
     const firstScores = priorScores(calibration, locale, riding);
     setSelectedRidingId(riding?.id ?? '');
     setScores(firstScores);
     setAnswers({});
     setCurrentId(premiereCarte.id);
+    revealCounted.current = false;
+    pingStep('started');
     setScreen('game');
   }
 
@@ -273,6 +338,10 @@ export default function VibeMatch({ parties, ridings, locale, campaignVersion, c
     setDeclaredPreference(savedProfile.declaredPreference ?? '');
     const next = choisirProchaine(CARDS, savedProfile.answers, refreshedScores, poids);
     if (next) setCurrentId(next.id);
+    // Reprendre un match d'hier n'est pas un match de plus : sans ça, un
+    // rechargement de page suffisait à faire passer `revealed` au-dessus de
+    // `started`, et l'entonnoir cessait d'être lisible.
+    revealCounted.current = true;
     setScreen(savedAnsweredCount >= REVEAL_MIN ? 'results' : 'game');
   }
 
@@ -334,6 +403,7 @@ export default function VibeMatch({ parties, ridings, locale, campaignVersion, c
     setDeclaredPreference('');
     setSubmissionStatus('idle');
     submissionInFlight.current = false;
+    submitted.current = false;
     setShareStatus('');
     begin(selectedRiding);
   }
@@ -410,21 +480,40 @@ export default function VibeMatch({ parties, ridings, locale, campaignVersion, c
     setSavedProfile(profile);
   }, [answers, selectedRidingId, campaignVersion, feedback, declaredPreference, profileStorageKey]);
 
+  /**
+   * Choisir la justesse du match.
+   *
+   * « En plein ça » ne coupait PAS l'envoi par accident : le bloc de préférence
+   * ne s'affichait que pour `close` et `wrong`, et le seul appel à
+   * `submitCalibration` part de ce bloc. Toute personne bien devinée sortait
+   * donc de la calibration sans laisser de trace, et la base ne pouvait
+   * contenir que des ratés — de quoi rendre le taux de succès non mesurable,
+   * et toxique tout réajustement des poids fondé dessus. La question du parti
+   * se pose maintenant dans les trois cas.
+   *
+   * On efface la préférence à CHAQUE changement de justesse, y compris entre
+   * `close` et `wrong`. C'est ce qui garantit que le clic sur le parti vient
+   * toujours en dernier — et donc que la justesse envoyée est bien la
+   * dernière choisie, pas celle d'avant.
+   */
   function chooseFeedback(choice: Feedback) {
+    if (submitted.current) return;
     setFeedback(choice);
+    setDeclaredPreference('');
     setSubmissionStatus('idle');
-    if (choice === 'exact') setDeclaredPreference('');
   }
 
-  function saveDeclaredPreference(preference: DeclaredPreference) {
+  function saveDeclaredPreference(preference: DeclaredPreference, feedbackValue: Feedback | '') {
+    // Pas de justesse, pas d'envoi : le Worker rejette de toute façon une
+    // soumission sans code de justesse, et la rejette EN ENTIER.
+    if (submitted.current || feedbackValue === '') return;
     setDeclaredPreference(preference);
-    setSubmissionStatus('idle');
     const capturedAt = new Date().toISOString();
     const record: CalibrationRecord = {
       answers,
       ridingId: selectedRidingId,
       locale,
-      feedback,
+      feedback: feedbackValue,
       declaredPreference: preference,
       predictedParty: orderedProbabilities[0],
       campaignVersion,
@@ -443,7 +532,7 @@ export default function VibeMatch({ parties, ridings, locale, campaignVersion, c
     } catch {
       // The result remains usable when storage is unavailable.
     }
-    void submitCalibration(preference);
+    void submitCalibration(preference, feedbackValue);
   }
 
   /**
@@ -465,9 +554,9 @@ export default function VibeMatch({ parties, ridings, locale, campaignVersion, c
    * Reste l'interrupteur maître, dans src/data/vibeCalibration.ts : rien ne
    * part tant qu'il vaut `false`.
    */
-  async function submitCalibration(preference: DeclaredPreference) {
+  async function submitCalibration(preference: DeclaredPreference, feedbackValue: Feedback) {
     if (!vibeCalibration.enabled) return;
-    if (submissionInFlight.current || submissionStatus === 'sent') return;
+    if (submissionInFlight.current || submitted.current) return;
     submissionInFlight.current = true;
     setSubmissionStatus('sending');
     try {
@@ -482,11 +571,12 @@ export default function VibeMatch({ parties, ridings, locale, campaignVersion, c
           ridingId: selectedRidingId || undefined,
           predictedParty: orderedProbabilities[0],
           declaredPreference: preference,
-          feedback,
+          feedback: feedbackValue,
           answers,
         }),
       });
       if (!response.ok) throw new Error('submission_failed');
+      submitted.current = true;
       setSubmissionStatus('sent');
     } catch {
       setSubmissionStatus('error');
@@ -663,7 +753,13 @@ export default function VibeMatch({ parties, ridings, locale, campaignVersion, c
                 )}
                 <button class="vibe-primary" type="button" onClick={() => setSetupMode('riding')}>{t.knowRiding}</button>
                 <button class="vibe-secondary" type="button" onClick={() => setSetupMode('postal')}>{t.findPostal}</button>
-                <button class="vibe-text-button" type="button" onClick={() => begin()}>{t.pass}</button>
+                {/* « Passer » invitait tout le monde à passer : le geste ne coûtait
+                    rien et ne disait rien, et la circonscription — le signal le
+                    plus fort du moteur — se perdait chez des gens qui l'avaient.
+                    Nommer la seule raison valable de sauter l'étape laisse la
+                    sortie grande ouverte tout en la rendant fausse pour un
+                    résident du Québec. Même clic, même résultat, meilleur taux. */}
+                <button class="vibe-text-button" type="button" onClick={() => begin()}>{t.outsideQuebec}</button>
                 {/* Dit AVANT de jouer ce qui sera recueilli, et mène aux textes
                     complets. Une note d'après-coup n'informe personne. */}
                 <p class="vibe-data-note">
@@ -766,7 +862,7 @@ export default function VibeMatch({ parties, ridings, locale, campaignVersion, c
 
           <div class="vibe-result-slot">
             {resultUnlocked ? (
-              <button class="vibe-reveal" type="button" onClick={() => setScreen('results')}>{t.reveal}</button>
+              <button class="vibe-reveal" type="button" onClick={showResults}>{t.reveal}</button>
             ) : (
               <span>{Math.max(0, REVEAL_MIN - informatives)} {t.answersBefore}</span>
             )}
@@ -817,11 +913,14 @@ export default function VibeMatch({ parties, ridings, locale, campaignVersion, c
             <h2>{t.guessed}</h2>
             <div>
               {([['exact', t.exact], ['close', t.closeEnough], ['wrong', t.wrong]] as const).map(([code, libelle]) => (
-                <button class={feedback === code ? 'is-selected' : ''} type="button" onClick={() => chooseFeedback(code)}>{libelle}</button>
+                <button class={feedback === code ? 'is-selected' : ''} type="button" disabled={submissionStatus === 'sent'} onClick={() => chooseFeedback(code)}>{libelle}</button>
               ))}
             </div>
             {feedback === 'exact' && <p>{t.noted}</p>}
-            {(feedback === 'close' || feedback === 'wrong') && (
+            {/* La question se pose dans les trois cas : sans les matchs réussis,
+                aucun taux de succès n'est calculable et la base ne garde que
+                des ratés. */}
+            {feedback !== '' && (
               <div class="vibe-calibration">
                 <h3>{t.declaredQuestion}</h3>
                 <p>{t.declaredWhy}</p>
@@ -830,14 +929,15 @@ export default function VibeMatch({ parties, ridings, locale, campaignVersion, c
                     <button
                       class={declaredPreference === partyId ? 'is-selected' : ''}
                       type="button"
-                      onClick={() => saveDeclaredPreference(partyId)}
+                      disabled={submissionStatus === 'sent'}
+                      onClick={() => saveDeclaredPreference(partyId, feedback)}
                     >
                       <span style={{ background: parties.find((party) => party.id === partyId)?.color }} />
                       {partyNames[partyId]}
                     </button>
                   ))}
-                  <button class={declaredPreference === 'undecided' ? 'is-selected' : ''} type="button" onClick={() => saveDeclaredPreference('undecided')}>{t.undecided}</button>
-                  <button class={declaredPreference === 'prefer-not' ? 'is-selected' : ''} type="button" onClick={() => saveDeclaredPreference('prefer-not')}>{t.preferNot}</button>
+                  <button class={declaredPreference === 'undecided' ? 'is-selected' : ''} type="button" disabled={submissionStatus === 'sent'} onClick={() => saveDeclaredPreference('undecided', feedback)}>{t.undecided}</button>
+                  <button class={declaredPreference === 'prefer-not' ? 'is-selected' : ''} type="button" disabled={submissionStatus === 'sent'} onClick={() => saveDeclaredPreference('prefer-not', feedback)}>{t.preferNot}</button>
                 </div>
                 {declaredPreference && (
                   <div class="vibe-calibration-choice">

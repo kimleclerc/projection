@@ -209,6 +209,53 @@ export const CARDS: VibeCard[] = [
     },
   },
 
+  // ── Sonde : servie pour être MESURÉE, pas pour peser ─────────────────────
+  //
+  // Aucun tableau croisé Léger ne porte d'attitude sur Trump : la carte vaut
+  // donc zéro aujourd'hui, exactement comme une respiration, et ne déplace
+  // aucun match. Ce n'est pas un défaut, c'est le seul protocole honnête —
+  // écrire à la main le penchant qu'on s'attend à trouver, puis le « retrouver »
+  // dans nos propres données, ne prouverait rien du tout.
+  //
+  // L'hypothèse à tester, elle, est nette : le refus de Trump devrait séparer
+  // vers le PQ (nationalisme, réplique aux sorties de Washington sur le Québec)
+  // et son adhésion vers le PCQ (droite populiste), pendant que la CAQ, le PLQ
+  // et QS restent plus proches de la moyenne. Si c'est vrai, ça se verra dans
+  // la boucle sans qu'on ait eu à le décréter.
+  //
+  // Où elle devrait payer, précisément : sur les deux confusions que le paquet
+  // actuel ne tranche pas. CAQ ↔ PCQ, que rien ne sépare vraiment une fois
+  // l'axe de l'État posé ; et PQ ↔ QS, que la souveraineté regroupe au lieu de
+  // distinguer (le référendum le fait un peu, seul). Deux paires où le rapport
+  // aux États-Unis passe justement de travers par rapport au clivage habituel.
+  // La matrice `predicted_party` × `declared_preference` de la boucle dira si
+  // ces paires sont bien nos ratés dominants — elle ne pouvait rien dire tant
+  // que les matchs réussis n'entraient pas dans la base.
+  //
+  // Deux chemins mènent au poids, et aucun ne touche ce fichier : la boucle D1
+  // croise la réponse avec la préférence déclarée, ou un rapport Léger portant
+  // une attitude `us_relations` / `trump_ennemi` est importé dans
+  // `poll_party_attitudes` — l'identifiant est déjà à la bonne forme pour que
+  // `export_vibe_match_calibration.py` le ramasse tel quel.
+  //
+  // ⚠ SENS : l'identifiant dit « Trump est notre ennemi », donc OUI = hostile.
+  // Un import qui mesurerait la FAVEUR envers Trump porte le sens inverse et
+  // devrait arriver avec `polarity: -1`, comme `sovereignty:pour`.
+  //
+  // `filler` au sens mécanique du terme — sans poids, glissée en cours de
+  // partie, hors du quota de révélation — et non au sens éditorial : celle-ci
+  // ne fait respirer personne.
+  {
+    id: 'us_relations:trump_ennemi',
+    filler: true,
+    tone: 'red',
+    text: {
+      fr: 'Trump, c’est notre ennemi.',
+      en: 'Trump is our enemy.',
+      es: 'Trump es nuestro enemigo.',
+    },
+  },
+
   // ── Respirations : aucun poids, glissées EN COURS de partie ───────────────
   //
   // Elles ne mesurent rien et c'est voulu : elles cassent le rythme cognitif
