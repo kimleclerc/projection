@@ -1,21 +1,21 @@
 ---
 import SimulatorPage from '../../../components/SimulatorPage.astro';
 import quebecDoc from '../../../../web_data/quebec/simulator.json';
-import quebecShapes from '../../../../web_data/quebec/shapes.json';
 import federalDoc from '../../../../web_data/federal/simulator.json';
-import federalShapes from '../../../../web_data/federal/shapes.json';
 import ontarioDoc from '../../../../web_data/ontario/simulator.json';
-import ontarioShapes from '../../../../web_data/ontario/shapes.json';
+import usHouseDoc from '../../../../web_data/us-house/simulator.json';
 export function getStaticPaths() { return [
-  {params:{slug:'quebec-simulator'},props:{doc:quebecDoc,shapes:quebecShapes,title:'What if the polls moved in Quebec?',description:'Build a Quebec election scenario and watch all 127 ridings change on the map.',lede:'Move the vote. Watch the map and all 127 ridings respond.',jurisdiction:'Quebec · 127 ridings',projectionHref:'/en/canada/quebec/',frSlug:'simulateur-quebec',esSlug:'simulador-quebec'}},
-  {params:{slug:'canada-simulator'},props:{doc:federalDoc,shapes:federalShapes,title:'What if the polls moved in Canada?',description:'Build a federal election scenario and watch all 343 ridings change on the map.',lede:'Move the national or regional vote and see all 343 ridings respond.',jurisdiction:'Canada · 343 ridings',projectionHref:'/en/canada/federal/',frSlug:'simulateur-canada',esSlug:'simulador-canada'}},
-  {params:{slug:'ontario-simulator'},props:{doc:ontarioDoc,shapes:ontarioShapes,title:'What if the polls moved in Ontario?',description:'Build an Ontario election scenario and watch all 124 ridings change on the map.',lede:'Move the parties and watch Ontario’s electoral map reassemble.',jurisdiction:'Ontario · 124 ridings',projectionHref:'/en/canada/ontario/',frSlug:'simulateur-ontario',esSlug:'simulador-ontario'}},
+  {params:{slug:'quebec-simulator'},props:{doc:quebecDoc,title:'What if the polls moved in Quebec?',description:'Build a Quebec election scenario and watch all 127 ridings change on the map.',lede:'Move the vote. Watch the map and all 127 ridings respond.',jurisdiction:'Quebec · 127 ridings',projectionHref:'/en/canada/quebec/',frSlug:'simulateur-quebec',esSlug:'simulador-quebec'}},
+  {params:{slug:'canada-simulator'},props:{doc:federalDoc,title:'What if the polls moved in Canada?',description:'Build a federal election scenario and watch all 343 ridings change on the map.',lede:'Move the national or regional vote and see all 343 ridings respond.',jurisdiction:'Canada · 343 ridings',projectionHref:'/en/canada/federal/',frSlug:'simulateur-canada',esSlug:'simulador-canada'}},
+  {params:{slug:'ontario-simulator'},props:{doc:ontarioDoc,title:'What if the polls moved in Ontario?',description:'Build an Ontario election scenario and watch all 124 ridings change on the map.',lede:'Move the parties and watch Ontario’s electoral map reassemble.',jurisdiction:'Ontario · 124 ridings',projectionHref:'/en/canada/ontario/',frSlug:'simulateur-ontario',esSlug:'simulador-ontario'}},
+  {params:{slug:'us-house-simulator'},props:{doc:usHouseDoc,title:'What if the polls moved in the U.S.?',description:'Build a midterm scenario and watch all 435 districts change on the map.',lede:'Move the national or regional vote and see all 435 districts respond.',jurisdiction:'United States · 435 districts',projectionHref:'/en/us/house/',frSlug:'simulateur-chambre-us',esSlug:'simulador-camara-us'}},
 ]; }
-const {doc,shapes,title,description,lede,jurisdiction,projectionHref,frSlug,esSlug}=Astro.props; const slug=Astro.params.slug!;
+const {doc,title,description,lede,jurisdiction,projectionHref,frSlug,esSlug}=Astro.props; const slug=Astro.params.slug!;
 const map = {
-  qc_2026: { geoUrl:'/web_data/quebec/ridings.geojson', center:[48.4,-70.5], zoom:6, idProp:'CO_CEP', baselineYear:2022 },
+  qc_2026: { geoUrl:'/web_data/quebec/ridings.geojson', center:[46.6,-72.0], zoom:6, idProp:'CO_CEP', baselineYear:2022 },
   fed_46: { geoUrl:'/web_data/federal/ridings.geojson', center:[56,-96], zoom:4, idProp:'FEDNUM', baselineYear:2025 },
   on_2029: { geoUrl:'/web_data/ontario/ridings.geojson', center:[50,-85], zoom:5, idProp:'FEDNUM', baselineYear:2022 },
+  us_house_2026: { geoUrl:'/web_data/us-house/ridings.geojson', center:[37.9,-95.9], zoom:4, idProp:'FEDNUM', baselineYear:2024 },
 }[doc.meta.election_cycle];
 ---
 <SimulatorPage locale="en" doc={doc} map={map} title={title} description={description} lede={lede} jurisdiction={jurisdiction} projectionHref={projectionHref} hubHref="/en/tools" canonical={`https://vote-scope.com/en/tools/${slug}`} alternates={{en:`https://vote-scope.com/en/tools/${slug}`,fr:`https://vote-scope.com/fr/outils/${frSlug}`,es:`https://vote-scope.com/es/herramientas/${esSlug}`}} />

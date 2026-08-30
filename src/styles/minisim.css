@@ -77,9 +77,6 @@
   display: grid;
   gap: 2px;
 }
-.msim-party-seat {
-  min-width: 0;
-}
 .msim-seat-row {
   display: grid;
   grid-template-columns: 10px 1fr auto 3.6em;
@@ -120,38 +117,6 @@
 .msim-seat-d.is-down { color: var(--red); }
 .msim-seat-d.is-flat { opacity: 0.45; }
 
-.msim-seat-flips {
-  list-style: none;
-  margin: 2px 8px 7px 26px;
-  padding: 0 0 0 10px;
-  border-left: 2px solid var(--rule);
-  display: grid;
-  gap: 2px;
-  animation: msim-list-in .2s ease-out both;
-}
-.msim-seat-flips li {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 10px;
-  min-width: 0;
-  padding: 3px 0;
-  font-size: .75rem;
-}
-.msim-seat-flips span {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.msim-seat-flips small,
-.msim-seat-flip-more {
-  flex: 0 0 auto;
-  font-family: var(--mono);
-  font-size: .64rem;
-  color: var(--ink-3);
-}
-.msim-seat-flip-more { justify-content: flex-start !important; }
 
 /* Portée régionale */
 .msim-scope {
@@ -430,15 +395,7 @@
   font-weight: 500;
 }
 
-.msim-move-note,
 .msim-no-move { margin: 0; padding: 18px; color: var(--ink-3); font-size: .82rem; }
-.msim-move-note {
-  overflow: hidden;
-  font-family: var(--mono);
-  font-size: .68rem;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
 
 @keyframes msim-flip-pulse {
   0% { filter: brightness(1.65); stroke-width: 5; }
@@ -472,4 +429,143 @@
 @media (prefers-reduced-motion: reduce) {
   .msim-bar-seg,
   .msim-map-stage path { transition: none; animation: none; }
+}
+
+/* Total des parts affichées — la vérification du 100 % à l'œil nu. */
+.msim-total {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+  margin: 4px 0 0;
+  padding: 9px 0 0;
+  border-top: 1px solid var(--rule);
+  font-family: var(--mono);
+  font-size: .7rem;
+  color: var(--ink-3);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+.msim-total strong { font-size: .82rem; color: var(--ink); letter-spacing: 0; }
+.msim-total small { margin-left: auto; text-transform: none; letter-spacing: 0; }
+
+/* Tableau « qui détient quoi » : une colonne par parti. Déplacer un curseur
+   fait migrer une circonscription d'une colonne à l'autre — c'est le mouvement
+   qu'une liste unique ne rend pas. */
+.msim-moves-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 15px 18px;
+  border-bottom: 1px solid var(--rule);
+}
+.msim-moves-head h3 {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: .7rem;
+  font-weight: 600;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+}
+.msim-moves-search {
+  flex: 0 1 240px;
+  min-width: 0;
+  padding: 7px 10px;
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  background: var(--card);
+  color: inherit;
+  font: inherit;
+  font-size: .78rem;
+}
+.msim-moves-search:focus-visible { outline: 2px solid var(--ink); outline-offset: 1px; }
+
+.msim-board {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  border-top: 1px solid var(--rule);
+  border-left: 1px solid var(--rule);
+}
+.msim-board-col {
+  min-width: 0;
+  border-right: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+}
+.msim-board-col > header {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: baseline;
+  gap: 4px 8px;
+  padding: 11px 13px 9px;
+  border-top: 3px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  background: var(--paper-2);
+}
+.msim-board-col h4 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  font-size: .8rem;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.msim-board-col header strong {
+  font-family: var(--mono);
+  font-size: 1.15rem;
+  font-variant-numeric: tabular-nums;
+}
+.msim-board-col header small {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 7px;
+  font-family: var(--mono);
+  font-size: .66rem;
+  color: var(--ink-3);
+}
+.msim-board-col header small b { font-weight: 600; }
+.msim-board-col header small .is-up { color: var(--blue); }
+.msim-board-col header small .is-down { color: var(--red); }
+
+.msim-board-col ol { list-style: none; margin: 0; padding: 0; }
+.msim-board-col li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 0;
+  padding: 5px 13px;
+  font-size: .74rem;
+  border-bottom: 1px solid var(--rule-2);
+}
+.msim-board-col li:last-child { border-bottom: 0; }
+.msim-board-col li.is-flip {
+  background: color-mix(in srgb, var(--blue-tint, #dce6f7) 55%, transparent);
+  font-weight: 500;
+  animation: msim-list-in .22s ease-out both;
+}
+.msim-bd-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.msim-bd-margin,
+.msim-bd-from {
+  flex: 0 0 auto;
+  font-family: var(--mono);
+  font-size: .64rem;
+  color: var(--ink-3);
+}
+.msim-bd-from { color: var(--ink-2); font-weight: 600; }
+.msim-board-empty { margin: 0; padding: 13px; color: var(--ink-3); font-size: .74rem; }
+
+/* Écran large : la colonne défile chez elle, le tableau garde une hauteur
+   tenable. Sur téléphone les colonnes s'empilent et la page défile seule —
+   un défilement imbriqué sur mobile est une trappe. */
+@media (min-width: 861px) {
+  .msim-board-col ol { max-height: 340px; overflow-y: auto; scrollbar-width: thin; }
+}
+@media (max-width: 860px) {
+  .msim-board { grid-template-columns: 1fr; }
+  .msim-board-col li { padding: 8px 13px; font-size: .8rem; }
 }

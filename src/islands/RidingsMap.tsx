@@ -446,6 +446,7 @@ export default function RidingsMap({
   const mapInstanceRef = useRef<any>(null);
   const leafletRef = useRef<any>(null);
   const homeViewRef = useRef<{ center: [number, number]; zoom: number } | null>(null);
+  const focusedRef = useRef(false);
   const ridingsRef = useRef(ridings);
   const partiesRef = useRef(parties);
   const highlightsRef = useRef(highlightIds);
@@ -826,14 +827,16 @@ export default function RidingsMap({
     const L = leafletRef.current;
     if (!loaded || !map || !layerGroup || !L) return;
 
+    const prop = idProp ?? 'FEDNUM';
+
     if (!focusIds.length) {
       const home = homeViewRef.current;
-      if (home) map.setView(home.center, home.zoom, { animate: false });
+      if (home && focusedRef.current) map.setView(home.center, home.zoom, { animate: false });
+      focusedRef.current = false;
       return;
     }
 
     const wanted = new Set(focusIds.flatMap(idAliases));
-    const prop = idProp ?? 'FEDNUM';
     let bounds: any = null;
     layerGroup.eachLayer((layer: any) => {
       const id = String(layer.feature?.properties?.[prop] ?? '');
@@ -850,11 +853,13 @@ export default function RidingsMap({
     const target = map.getBoundsZoom(bounds, false, L.point(28, 28));
     if (home && target <= home.zoom) {
       map.setView(home.center, home.zoom, { animate: false });
+      focusedRef.current = true;
       return;
     }
     // Recadrage sec, sans animation : le vol Leaflet passe par requestAnimationFrame,
     // qui ne tourne pas dans un onglet masqué — la carte restait alors muette.
     map.fitBounds(bounds, { padding: [28, 28], maxZoom: 12, animate: false });
+    focusedRef.current = true;
   }, [loaded, focusKey, idProp]);
 
   const hint =

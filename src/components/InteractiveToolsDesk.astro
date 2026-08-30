@@ -5,36 +5,37 @@ import '../styles/interactive-tools.css';
 import quebecDoc from '../../web_data/quebec/simulator.json';
 import federalDoc from '../../web_data/federal/simulator.json';
 import ontarioDoc from '../../web_data/ontario/simulator.json';
+import usHouseDoc from '../../web_data/us-house/simulator.json';
 
 interface Props {
   locale: 'fr' | 'en' | 'es';
 }
 const { locale } = Astro.props;
 const paths = {
-  fr: { hub:'/fr/outils', qc:'/fr/outils/simulateur-quebec', ca:'/fr/outils/simulateur-canada', on:'/fr/outils/simulateur-ontario', match:'/fr/canada/quebec/match' },
-  en: { hub:'/en/tools', qc:'/en/tools/quebec-simulator', ca:'/en/tools/canada-simulator', on:'/en/tools/ontario-simulator', match:'/en/canada/quebec/match' },
-  es: { hub:'/es/herramientas', qc:'/es/herramientas/simulador-quebec', ca:'/es/herramientas/simulador-canada', on:'/es/herramientas/simulador-ontario', match:'/es/canada/quebec/match' },
+  fr: { hub:'/fr/outils', qc:'/fr/outils/simulateur-quebec', ca:'/fr/outils/simulateur-canada', on:'/fr/outils/simulateur-ontario', match:'/fr/canada/quebec/match' , house:'/fr/outils/simulateur-chambre-us' },
+  en: { hub:'/en/tools', qc:'/en/tools/quebec-simulator', ca:'/en/tools/canada-simulator', on:'/en/tools/ontario-simulator', match:'/en/canada/quebec/match' , house:'/en/tools/us-house-simulator' },
+  es: { hub:'/es/herramientas', qc:'/es/herramientas/simulador-quebec', ca:'/es/herramientas/simulador-canada', on:'/es/herramientas/simulador-ontario', match:'/es/canada/quebec/match' , house:'/es/herramientas/simulador-camara-us' },
 }[locale];
 const copy = {
   fr: {
     title:'Jouez avec la politique.',
     description:'Simulateurs, jeux et outils interactifs pour voir comment une course peut changer — sans confondre votre scénario avec notre projection.',
     featured:'Instrument phare', qc:'Simulateur Québec', open:'Ouvrir le simulateur', ridings:'circonscriptions',
-    available:'Autres simulateurs disponibles', ca:'Simulateur Canada', on:'Simulateur Ontario', play:'Jouer',
+    available:'Autres simulateurs disponibles', ca:'Simulateur Canada', on:'Simulateur Ontario', house:'Simulateur Chambre US', play:'Jouer', districts:'districts',
     match:'Le Match', matchBody:'Quelques cartes à glisser. Une circonscription qui vous ressemble.', matchCta:'Trouver mon match',
   },
   en: {
     title:'Play with politics.',
     description:'Simulators, games and interactive tools to see how a race can change — without confusing your scenario with our projection.',
     featured:'Featured instrument', qc:'Quebec simulator', open:'Open the simulator', ridings:'ridings',
-    available:'Other available simulators', ca:'Canada simulator', on:'Ontario simulator', play:'Play',
+    available:'Other available simulators', ca:'Canada simulator', on:'Ontario simulator', house:'U.S. House simulator', play:'Play', districts:'districts',
     match:'The Match', matchBody:'Swipe a few cards. Find a riding that feels like you.', matchCta:'Find my match',
   },
   es: {
     title:'Juega con la política.',
     description:'Simuladores, juegos y herramientas interactivas para ver cómo puede cambiar una carrera — sin confundir tu escenario con nuestra proyección.',
     featured:'Instrumento destacado', qc:'Simulador Quebec', open:'Abrir el simulador', ridings:'distritos',
-    available:'Otros simuladores disponibles', ca:'Simulador Canadá', on:'Simulador Ontario', play:'Jugar',
+    available:'Otros simuladores disponibles', ca:'Simulador Canadá', on:'Simulador Ontario', house:'Simulador Cámara EE. UU.', play:'Jugar', districts:'distritos',
     match:'El Match', matchBody:'Desliza unas cartas. Encuentra un distrito que se parezca a ti.', matchCta:'Encontrar mi match',
   },
 }[locale];
@@ -90,6 +91,10 @@ const alternates = { en:'https://vote-scope.com/en/tools', fr:'https://vote-scop
         <a href={paths.on}>
           <div><h3>{copy.on}</h3><p>{ontarioDoc.meta.total_seats} {copy.ridings}</p><strong>{copy.play} →</strong></div>
           <span><SimulatorSeatPreview doc={ontarioDoc} label={copy.on} /></span>
+        </a>
+        <a href={paths.house}>
+          <div><h3>{copy.house}</h3><p>{usHouseDoc.meta.total_seats} {copy.districts}</p><strong>{copy.play} →</strong></div>
+          <span><SimulatorSeatPreview doc={usHouseDoc} label={copy.house} /></span>
         </a>
       </div>
     </div>
