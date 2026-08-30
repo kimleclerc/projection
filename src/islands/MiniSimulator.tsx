@@ -48,6 +48,7 @@ const COPY = {
     scenario: 'Votre scénario',
     margin: 'Marge',
     changed: 'Bascule',
+    more: (n: number) => `+ ${n} autres`,
   },
   en: {
     title: 'Move the numbers',
@@ -70,6 +71,7 @@ const COPY = {
     scenario: 'Your scenario',
     margin: 'Margin',
     changed: 'Flip',
+    more: (n: number) => `+ ${n} more`,
   },
   es: {
     title: 'Mueve las cifras',
@@ -92,6 +94,7 @@ const COPY = {
     scenario: 'Tu escenario',
     margin: 'Margen',
     changed: 'Cambio',
+    more: (n: number) => `+ ${n} más`,
   },
 } as const;
 
@@ -209,6 +212,14 @@ export default function MiniSimulator({ doc, locale, map }: Props) {
     .filter((p) => seats[p.code] >= 0.5 || p.national >= 1.5)
     .sort((a, b) => seats[b.code] - seats[a.code]);
   const activeRegion = doc.regions.find((r) => r.id === scope);
+  const gainsFor = (code: string) => changedRidings.filter((riding) => riding.winner === code);
+  // La carte suit la portée : à l'échelle du Québec entier, les circonscriptions
+  // de Montréal font moins de 10 px de côté. Choisir « Montréal » doit y amener
+  // la carte, sinon l'outil montre un scénario qu'on ne peut pas lire.
+  const focusIds = useMemo(
+    () => (scope === 'national' ? [] : doc.ridings.filter((r) => r.region === scope).map((r) => r.id)),
+    [doc.ridings, scope],
+  );
 
   const valueFor = (code: string) =>
     scope === 'national' ? (nat[code] ?? 0) : (reg[scope]?.[code] ?? 0);
@@ -278,14 +289,28 @@ export default function MiniSimulator({ doc, locale, map }: Props) {
         {ordered.map((p) => {
           const delta = seats[p.code] - p.seats_projected;
           const maj = seats[p.code] >= threshold;
+          const gains = gainsFor(p.code);
           return (
-            <li key={p.code} class={`msim-seat-row${maj ? ' is-majority' : ''}`}>
-              <span class="msim-chip" style={{ background: p.color }} aria-hidden="true" />
-              <span class="msim-seat-name">{partyLabel(p, locale)}</span>
-              <span class="msim-seat-n">{nf(seats[p.code])}</span>
-              <span class={`msim-seat-d${Math.abs(delta) < 0.05 ? ' is-flat' : delta > 0 ? ' is-up' : ' is-down'}`}>
-                {Math.abs(delta) < 0.05 ? '—' : signed(delta)}
-              </span>
+            <li key={p.code} class="msim-party-seat">
+              <div class={`msim-seat-row${maj ? ' is-majority' : ''}`}>
+                <span class="msim-chip" style={{ background: p.color }} aria-hidden="true" />
+                <span class="msim-seat-name">{partyLabel(p, locale)}</span>
+                <span class="msim-seat-n">{nf(seats[p.code])}</span>
+                <span class={`msim-seat-d${Math.abs(delta) < 0.05 ? ' is-flat' : delta > 0 ? ' is-up' : ' is-down'}`}>
+                  {Math.abs(delta) < 0.05 ? '—' : signed(delta)}
+                </span>
+              </div>
+              {gains.length > 0 && (
+                <ol class="msim-seat-flips" aria-label={`${partyLabel(p, locale)} · ${gains.length} ${t.changed.toLowerCase()}`}>
+                  {gains.slice(0, 6).map((riding) => (
+                    <li key={riding.id}>
+                      <span>{riding.name}</span>
+                      <small>← {label(riding.baselineWinner)}</small>
+                    </li>
+                  ))}
+                  {gains.length > 6 && <li class="msim-seat-flip-more">{t.more(gains.length - 6)}</li>}
+                </ol>
+              )}
             </li>
           );
         })}
@@ -403,6 +428,7 @@ export default function MiniSimulator({ doc, locale, map }: Props) {
               scenario
               reactive
               highlightIds={changedRidings.map((riding) => riding.id)}
+              focusIds={focusIds}
               height={620}
             />
           </div>
@@ -413,17 +439,7 @@ export default function MiniSimulator({ doc, locale, map }: Props) {
               <strong>{changedRidings.length}</strong>
             </div>
             {changedRidings.length ? (
-              <div class="msim-move-rail">
-                {changedRidings.slice(0, 12).map((riding) => (
-                  <article
-                    key={riding.id}
-                  >
-                    <span>{riding.name}</span>
-                    <strong>{label(riding.baselineWinner)} → {label(riding.winner)}</strong>
-                    <small>{t.margin} {nf(riding.margin, 1)} %</small>
-                  </article>
-                ))}
-              </div>
+              <p class="msim-move-note">{changedRidings.map((riding) => riding.name).slice(0, 3).join(' · ')}</p>
             ) : <p class="msim-no-move">{t.noMove}</p>}
           </div>
         </section>

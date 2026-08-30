@@ -70,6 +70,11 @@ interface Props {
   reactive?: boolean;
   /** Circonscriptions à souligner, par exemple celles qui changent de camp. */
   highlightIds?: string[];
+  /** Circonscriptions sur lesquelles recadrer la carte. Une carte du Québec au
+   *  zoom d'ensemble rend les 33 circos de Montréal invisibles (moins de 10 px
+   *  de côté) : recadrer sur la portée active est la seule façon de les voir.
+   *  Vide = retour au cadrage d'ensemble (`center`/`zoom`). */
+  focusIds?: string[];
   /** Hauteur du canevas Leaflet. Défaut historique : 480 px. */
   height?: number;
   /** Présentation éditoriale d'un scénario personnel, sans probabilités de modèle. */
@@ -432,11 +437,15 @@ export default function RidingsMap({
   winnerThreshold = 0.5,
   reactive = false,
   highlightIds = [],
+  focusIds = [],
   height = 480,
   scenario = false,
 }: Props) {
   const mapRef = useRef<HTMLDivElement>(null);
   const geoLayerRef = useRef<any>(null);
+  const mapInstanceRef = useRef<any>(null);
+  const leafletRef = useRef<any>(null);
+  const homeViewRef = useRef<{ center: [number, number]; zoom: number } | null>(null);
   const ridingsRef = useRef(ridings);
   const partiesRef = useRef(parties);
   const highlightsRef = useRef(highlightIds);
@@ -574,6 +583,9 @@ export default function RidingsMap({
           zoomControl: true,
           scrollWheelZoom: false,
         }).setView(mapCenter, mapZoom);
+        mapInstanceRef.current = mapInstance;
+        leafletRef.current = L;
+        homeViewRef.current = { center: mapCenter, zoom: mapZoom };
 
         const enableZoom = () => {
           mapInstance.scrollWheelZoom.enable();
@@ -725,6 +737,8 @@ export default function RidingsMap({
           }
           mapInstance.remove();
           geoLayerRef.current = null;
+          mapInstanceRef.current = null;
+          homeViewRef.current = null;
         } catch {
           /* noop */
         }
@@ -793,12 +807,55 @@ export default function RidingsMap({
       layer.setTooltipContent(`<strong>${escapeHtml(name)}</strong><br>${escapeHtml(winnerLabel)}`);
       const el = layer.getElement?.();
       if (el?.setAttribute) {
+        el.classList.toggle('is-changed', isHighlighted);
         el.setAttribute('aria-label', scenario
           ? buildScenarioAriaLabel(riding, parties, locale)
           : buildAriaLabel(riding, parties, locale, winnerThreshold));
       }
     });
   }, [reactive, loaded, ridings, parties, highlightIds, locale, idProp, baselineYear, winnerThreshold, scenario]);
+
+  // Recadrage sur la portée active. Le Québec est le cas qui l'impose : à un
+  // zoom qui montre la Gaspésie, la moitié des circonscriptions font moins de
+  // 10 px de côté. Les bornes viennent du GeoJSON, jamais d'un centre codé en
+  // dur — c'est ce qui avait laissé la carte pointée 400 km au nord du vote.
+  const focusKey = focusIds.join(',');
+  useEffect(() => {
+    const map = mapInstanceRef.current;
+    const layerGroup = geoLayerRef.current;
+    const L = leafletRef.current;
+    if (!loaded || !map || !layerGroup || !L) return;
+
+    if (!focusIds.length) {
+      const home = homeViewRef.current;
+      if (home) map.setView(home.center, home.zoom, { animate: false });
+      return;
+    }
+
+    const wanted = new Set(focusIds.flatMap(idAliases));
+    const prop = idProp ?? 'FEDNUM';
+    let bounds: any = null;
+    layerGroup.eachLayer((layer: any) => {
+      const id = String(layer.feature?.properties?.[prop] ?? '');
+      if (!wanted.has(id) || !layer.getBounds) return;
+      const b = layer.getBounds();
+      if (!b.isValid()) return;
+      bounds = bounds ? bounds.extend(b) : L.latLngBounds(b.getSouthWest(), b.getNorthEast());
+    });
+    const home = homeViewRef.current;
+    if (!bounds) return;
+    // Une portée peut être plus large que la vue d'ensemble : « Reste du Québec »
+    // contient Ungava, et s'y ajuster dézoomait à 4 — moins lisible que le défaut.
+    // Recadrer ne doit jamais reculer.
+    const target = map.getBoundsZoom(bounds, false, L.point(28, 28));
+    if (home && target <= home.zoom) {
+      map.setView(home.center, home.zoom, { animate: false });
+      return;
+    }
+    // Recadrage sec, sans animation : le vol Leaflet passe par requestAnimationFrame,
+    // qui ne tourne pas dans un onglet masqué — la carte restait alors muette.
+    map.fitBounds(bounds, { padding: [28, 28], maxZoom: 12, animate: false });
+  }, [loaded, focusKey, idProp]);
 
   const hint =
     locale === 'fr'

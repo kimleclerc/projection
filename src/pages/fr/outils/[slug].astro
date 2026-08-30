@@ -9,15 +9,15 @@ import ontarioShapes from '../../../../web_data/ontario/shapes.json';
 
 export function getStaticPaths() {
   return [
-    { params:{slug:'simulateur-quebec'}, props:{doc:quebecDoc,shapes:quebecShapes,title:'Et si le Québec votait autrement?',description:'Construisez un scénario électoral québécois et regardez les 127 circonscriptions changer sur la carte.',lede:'Faites bouger le vote. Regardez la carte et les 127 circonscriptions réagir.',jurisdiction:'Québec · 127 circonscriptions',projectionHref:'/fr/canada/quebec/',enSlug:'quebec-simulator',esSlug:'simulador-quebec'} },
-    { params:{slug:'simulateur-canada'}, props:{doc:federalDoc,shapes:federalShapes,title:'Et si le Canada votait autrement?',description:'Construisez un scénario électoral fédéral et regardez les 343 circonscriptions changer sur la carte.',lede:'Déplacez le vote national ou régional et voyez les 343 circonscriptions réagir.',jurisdiction:'Canada · 343 circonscriptions',projectionHref:'/fr/canada/federal/',enSlug:'canada-simulator',esSlug:'simulador-canada'} },
-    { params:{slug:'simulateur-ontario'}, props:{doc:ontarioDoc,shapes:ontarioShapes,title:'Et si l’Ontario votait autrement?',description:'Construisez un scénario électoral ontarien et regardez les 124 circonscriptions changer sur la carte.',lede:'Faites bouger les partis et regardez la carte ontarienne se recomposer.',jurisdiction:'Ontario · 124 circonscriptions',projectionHref:'/fr/canada/ontario/',enSlug:'ontario-simulator',esSlug:'simulador-ontario'} },
+    { params:{slug:'simulateur-quebec'}, props:{doc:quebecDoc,shapes:quebecShapes,title:'Et si les sondages bougeaient au Québec?',description:'Construisez un scénario électoral québécois et regardez les 127 circonscriptions changer sur la carte.',lede:'Faites bouger le vote. Regardez la carte et les 127 circonscriptions réagir.',jurisdiction:'Québec · 127 circonscriptions',projectionHref:'/fr/canada/quebec/',enSlug:'quebec-simulator',esSlug:'simulador-quebec'} },
+    { params:{slug:'simulateur-canada'}, props:{doc:federalDoc,shapes:federalShapes,title:'Et si les sondages bougeaient au Canada?',description:'Construisez un scénario électoral fédéral et regardez les 343 circonscriptions changer sur la carte.',lede:'Déplacez le vote national ou régional et voyez les 343 circonscriptions réagir.',jurisdiction:'Canada · 343 circonscriptions',projectionHref:'/fr/canada/federal/',enSlug:'canada-simulator',esSlug:'simulador-canada'} },
+    { params:{slug:'simulateur-ontario'}, props:{doc:ontarioDoc,shapes:ontarioShapes,title:'Et si les sondages bougeaient en Ontario?',description:'Construisez un scénario électoral ontarien et regardez les 124 circonscriptions changer sur la carte.',lede:'Faites bouger les partis et regardez la carte ontarienne se recomposer.',jurisdiction:'Ontario · 124 circonscriptions',projectionHref:'/fr/canada/ontario/',enSlug:'ontario-simulator',esSlug:'simulador-ontario'} },
   ];
 }
 const { doc, shapes, title, description, lede, jurisdiction, projectionHref, enSlug, esSlug } = Astro.props;
 const slug = Astro.params.slug!;
 const map = {
-  qc_2026: { geoUrl:'/web_data/quebec/ridings.geojson', center:[52,-71], zoom:5, idProp:'CO_CEP', baselineYear:2022 },
+  qc_2026: { geoUrl:'/web_data/quebec/ridings.geojson', center:[48.4,-70.5], zoom:6, idProp:'CO_CEP', baselineYear:2022 },
   fed_46: { geoUrl:'/web_data/federal/ridings.geojson', center:[56,-96], zoom:4, idProp:'FEDNUM', baselineYear:2025 },
   on_2029: { geoUrl:'/web_data/ontario/ridings.geojson', center:[50,-85], zoom:5, idProp:'FEDNUM', baselineYear:2022 },
 }[doc.meta.election_cycle];
