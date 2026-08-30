@@ -1,0 +1,48 @@
+---
+/* Mini-simulateur — enveloppe Astro de l'îlot.
+ *
+ * Charge la feuille de style partagée et hydrate l'îlot au défilement. Le
+ * document vient de `web_data/<juridiction>/simulator.json`, généré par le
+ * moteur dans le même run que la projection (models/web_simulator.py) et
+ * vérifié au prebuild par `npm run check:mini-sim`.
+ */
+import '../styles/minisim.css';
+import MiniSimulatorIsland from '../islands/MiniSimulator.tsx';
+import type { SimDoc } from '../lib/mini-sim';
+import type { SimulatorMapConfig } from '../islands/MiniSimulator.tsx';
+
+interface Props {
+  doc: SimDoc;
+  locale: 'fr' | 'en' | 'es';
+  map?: SimulatorMapConfig;
+  eyebrow?: string;
+  standalone?: boolean;
+}
+
+const { doc, locale, map, eyebrow, standalone = false } = Astro.props;
+const defaultEyebrow = {
+  fr: 'Le bac à sable',
+  en: 'The sandbox',
+  es: 'El taller',
+}[locale];
+---
+
+<section class:list={["msim-section", { "is-standalone": standalone }]} id="mini-simulateur" aria-labelledby="msim-eyebrow">
+  <p class="msim-eyebrow" id="msim-eyebrow">{eyebrow ?? defaultEyebrow}</p>
+  <MiniSimulatorIsland doc={doc} map={map} locale={locale} client:load />
+</section>
+
+<style>
+  .msim-section {
+    margin: 48px 0;
+  }
+  .msim-section.is-standalone { margin: 0; }
+  .msim-eyebrow {
+    margin: 0 0 10px;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+</style>

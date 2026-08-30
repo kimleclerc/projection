@@ -65,6 +65,15 @@ interface Props {
    *  (mode 'winner'). Défaut 0.5 = comportement projection historique. Passer 0
    *  pour des RÉSULTATS réels où le vainqueur est une pluralité (< 50 %). */
   winnerThreshold?: number;
+  /** Met à jour les styles et contenus des circonscriptions sans recréer la carte.
+   *  Destiné aux outils où `ridings` change rapidement (simulateurs, résultats live). */
+  reactive?: boolean;
+  /** Circonscriptions à souligner, par exemple celles qui changent de camp. */
+  highlightIds?: string[];
+  /** Hauteur du canevas Leaflet. Défaut historique : 480 px. */
+  height?: number;
+  /** Présentation éditoriale d'un scénario personnel, sans probabilités de modèle. */
+  scenario?: boolean;
 }
 
 interface LegendItem {
@@ -264,6 +273,54 @@ function buildAriaLabel(
     : `${name}: ${winnerLabel} (${pct}% probability)`;
 }
 
+function buildScenarioPopupHtml(
+  riding: RidingFull,
+  parties: MapParty[],
+  locale: 'en' | 'fr',
+): string {
+  const partyByKey = new Map(parties.map((party) => [party.key, party]));
+  const labelOf = (key: string) =>
+    partyByKey.get(key)?.[locale === 'fr' ? 'label_fr' : 'label_en'] ?? key;
+  const colorOf = (key: string) => partyByKey.get(key)?.color ?? '#888';
+  const name = locale === 'fr' ? riding.name_fr : riding.name_en;
+  const winner = riding.projection.winner;
+  const voteRows = Object.entries(riding.projection.vote_mean)
+    .filter(([, value]) => value >= .5)
+    .sort((a, b) => b[1] - a[1])
+    .map(([key, value]) =>
+      `<div class="rm-pop-row"><span style="color:${colorOf(key)};font-weight:500;">${escapeHtml(labelOf(key))}</span><span class="rm-pop-num">${clampPct(value).toFixed(1)}%</span></div>`,
+    ).join('');
+  const published = riding.baseline?.winner
+    ? `<div class="rm-pop-eyebrow">${locale === 'fr' ? 'Projection publiée' : 'Published projection'}</div>
+       <div class="rm-pop-row"><span class="rm-pop-key">${locale === 'fr' ? 'Gagnant' : 'Winner'}</span><span style="color:${colorOf(riding.baseline.winner)};font-weight:500;">${escapeHtml(labelOf(riding.baseline.winner))}</span></div>`
+    : '';
+
+  return `<div class="rm-pop">
+    <div class="rm-pop-head"><h3 class="rm-pop-title">${escapeHtml(name)}</h3></div>
+    <div class="rm-pop-pill" style="border-color:${colorOf(winner)};color:${colorOf(winner)};">
+      <span class="rm-pop-dot" style="background:${colorOf(winner)};"></span>${escapeHtml(labelOf(winner))}
+    </div>
+    <div class="rm-pop-eyebrow">${locale === 'fr' ? 'Votre scénario' : 'Your scenario'}</div>
+    ${voteRows}
+    <div class="rm-pop-sep"></div>
+    <div class="rm-pop-row"><span class="rm-pop-key">${locale === 'fr' ? 'Marge' : 'Margin'}</span><span class="rm-pop-num">${riding.projection.mean_margin.toFixed(1)}%</span></div>
+    ${published}
+  </div>`;
+}
+
+function buildScenarioAriaLabel(
+  riding: RidingFull,
+  parties: MapParty[],
+  locale: 'en' | 'fr',
+): string {
+  const party = parties.find((item) => item.key === riding.projection.winner);
+  const label = party?.[locale === 'fr' ? 'label_fr' : 'label_en'] ?? riding.projection.winner;
+  const name = locale === 'fr' ? riding.name_fr : riding.name_en;
+  return locale === 'fr'
+    ? `${name} : ${label}, marge ${riding.projection.mean_margin.toFixed(1)} % dans votre scénario`
+    : `${name}: ${label}, ${riding.projection.mean_margin.toFixed(1)}% margin in your scenario`;
+}
+
 // ── Mode 'heat' : dégradé séquentiel mono-couleur ─────────────────────────
 // fillOpacity varie linéairement de 0.12 (0 %) à 0.92 (heatMax), même formule
 // pour le remplissage des circonscriptions et les graduations de la légende.
@@ -373,8 +430,16 @@ export default function RidingsMap({
   heatColor,
   heatMax,
   winnerThreshold = 0.5,
+  reactive = false,
+  highlightIds = [],
+  height = 480,
+  scenario = false,
 }: Props) {
   const mapRef = useRef<HTMLDivElement>(null);
+  const geoLayerRef = useRef<any>(null);
+  const ridingsRef = useRef(ridings);
+  const partiesRef = useRef(parties);
+  const highlightsRef = useRef(highlightIds);
   const [error, setError] = useState<string | null>(null);
   const [loaded, setLoaded] = useState(false);
   const [zoomActive, setZoomActive] = useState(false);
@@ -420,6 +485,16 @@ export default function RidingsMap({
     mode === 'heat'
       ? [0, heatMaxResolved / 3, (2 * heatMaxResolved) / 3, heatMaxResolved]
       : [];
+
+  ridingsRef.current = ridings;
+  partiesRef.current = parties;
+  highlightsRef.current = highlightIds;
+
+  // En mode réactif, les tableaux ne doivent pas redémarrer Leaflet. Le second
+  // effet ci-dessous met les couches à jour en place.
+  const ridingsDependency = reactive ? null : ridings;
+  const partiesDependency = reactive ? null : parties;
+  const highlightsDependency = reactive ? null : highlightIds;
 
   useEffect(() => {
     let cancelled = false;
@@ -478,13 +553,16 @@ export default function RidingsMap({
 
         const L = (leafletModule as any).default ?? leafletModule;
 
+        const activeRidings = ridingsRef.current;
+        const activeParties = partiesRef.current;
+        const activeHighlights = new Set(highlightsRef.current.flatMap(idAliases));
         const ridingById = new Map<string, RidingFull>();
-        for (const riding of ridings) {
+        for (const riding of activeRidings) {
           for (const alias of idAliases(riding.riding_id)) {
             ridingById.set(alias, riding);
           }
         }
-        const colorByParty = new Map(parties.map((p) => [p.key, p.color]));
+        const colorByParty = new Map(activeParties.map((p) => [p.key, p.color]));
 
         const prop = idProp ?? 'FEDNUM';
         const mapCenter: [number, number] = center ?? [56, -96];
@@ -528,7 +606,7 @@ export default function RidingsMap({
           },
         ).addTo(mapInstance);
 
-        L.geoJSON(geo, {
+        geoLayerRef.current = L.geoJSON(geo, {
           style(feature: any) {
             const id = String(feature?.properties?.[prop] ?? '');
             const riding = ridingById.get(id);
@@ -550,11 +628,12 @@ export default function RidingsMap({
               fillColor =
                 colorByParty.get(riding.projection.winner) ?? '#bbb';
             }
+            const highlighted = activeHighlights.has(id);
             return {
               fillColor,
-              color: '#fff',
-              weight: 0.4,
-              fillOpacity: 0.85,
+              color: highlighted ? '#171714' : '#fff',
+              weight: highlighted ? 2 : 0.4,
+              fillOpacity: highlighted ? 0.96 : 0.85,
             };
           },
           onEachFeature(feature: any, layer: any) {
@@ -564,10 +643,10 @@ export default function RidingsMap({
 
             if (mode === 'heat' && heatKey) {
               layer.bindPopup(
-                buildHeatPopupHtml(riding, parties, locale, heatKey, heatColor ?? '#888'),
+                buildHeatPopupHtml(riding, activeParties, locale, heatKey, heatColor ?? '#888'),
                 { maxWidth: 320, className: 'rm-popup' },
               );
-              const partyByKey = new Map(parties.map((p) => [p.key, p]));
+              const partyByKey = new Map(activeParties.map((p) => [p.key, p]));
               const heatLabel =
                 partyByKey.get(heatKey)?.[locale === 'fr' ? 'label_fr' : 'label_en'] ??
                 heatKey;
@@ -582,19 +661,21 @@ export default function RidingsMap({
               );
               const el = layer.getElement?.();
               if (el && el.setAttribute) {
-                el.setAttribute('aria-label', buildHeatAriaLabel(riding, parties, locale, heatKey));
+                el.setAttribute('aria-label', buildHeatAriaLabel(riding, activeParties, locale, heatKey));
                 el.setAttribute('role', 'img');
                 el.setAttribute('tabindex', '-1');
               }
               return;
             }
 
-            layer.bindPopup(buildPopupHtml(riding, parties, locale, baselineYear, winnerThreshold), {
+            layer.bindPopup(scenario
+              ? buildScenarioPopupHtml(riding, activeParties, locale)
+              : buildPopupHtml(riding, activeParties, locale, baselineYear, winnerThreshold), {
               maxWidth: 320,
               className: 'rm-popup',
             });
             // Also keep a brief tooltip on hover (name + party).
-            const partyByKey = new Map(parties.map((p) => [p.key, p]));
+            const partyByKey = new Map(activeParties.map((p) => [p.key, p]));
             const winnerLabel =
               riding.projection.winner === 'tossup' ||
               riding.projection.p_winner < winnerThreshold
@@ -615,7 +696,9 @@ export default function RidingsMap({
             if (el && el.setAttribute) {
               el.setAttribute(
                 'aria-label',
-                buildAriaLabel(riding, parties, locale, winnerThreshold),
+                scenario
+                  ? buildScenarioAriaLabel(riding, activeParties, locale)
+                  : buildAriaLabel(riding, activeParties, locale, winnerThreshold),
               );
               el.setAttribute('role', 'img');
               el.setAttribute('tabindex', '-1');
@@ -641,6 +724,7 @@ export default function RidingsMap({
             );
           }
           mapInstance.remove();
+          geoLayerRef.current = null;
         } catch {
           /* noop */
         }
@@ -648,8 +732,8 @@ export default function RidingsMap({
     };
   }, [
     geoUrl,
-    ridings,
-    parties,
+    ridingsDependency,
+    partiesDependency,
     locale,
     center,
     zoom,
@@ -659,7 +743,62 @@ export default function RidingsMap({
     heatKey,
     heatColor,
     heatMaxResolved,
+    winnerThreshold,
+    highlightsDependency,
+    scenario,
   ]);
+
+  useEffect(() => {
+    if (!reactive || !loaded || !geoLayerRef.current) return;
+
+    const ridingById = new Map<string, RidingFull>();
+    for (const riding of ridings) {
+      for (const alias of idAliases(riding.riding_id)) ridingById.set(alias, riding);
+    }
+    const partyByKey = new Map(parties.map((party) => [party.key, party]));
+    const colorByParty = new Map(parties.map((party) => [party.key, party.color]));
+    const highlighted = new Set(highlightIds.flatMap(idAliases));
+    const prop = idProp ?? 'FEDNUM';
+
+    geoLayerRef.current.eachLayer((layer: any) => {
+      const id = String(layer.feature?.properties?.[prop] ?? '');
+      const riding = ridingById.get(id);
+      if (!riding) return;
+
+      let fillColor = '#bbb';
+      if (
+        riding.projection.winner !== 'tossup' &&
+        riding.projection.p_winner >= winnerThreshold
+      ) {
+        fillColor = colorByParty.get(riding.projection.winner) ?? '#bbb';
+      }
+      const isHighlighted = highlighted.has(id);
+      layer.setStyle({
+        fillColor,
+        color: isHighlighted ? '#171714' : '#fff',
+        weight: isHighlighted ? 2 : 0.4,
+        fillOpacity: isHighlighted ? 0.96 : 0.85,
+      });
+      layer.setPopupContent(scenario
+        ? buildScenarioPopupHtml(riding, parties, locale)
+        : buildPopupHtml(riding, parties, locale, baselineYear, winnerThreshold));
+
+      const winnerLabel =
+        riding.projection.winner === 'tossup' || riding.projection.p_winner < winnerThreshold
+          ? locale === 'fr' ? 'Indécis' : 'Tossup'
+          : (partyByKey.get(riding.projection.winner)?.[
+              locale === 'fr' ? 'label_fr' : 'label_en'
+            ] ?? riding.projection.winner);
+      const name = locale === 'fr' ? riding.name_fr : riding.name_en;
+      layer.setTooltipContent(`<strong>${escapeHtml(name)}</strong><br>${escapeHtml(winnerLabel)}`);
+      const el = layer.getElement?.();
+      if (el?.setAttribute) {
+        el.setAttribute('aria-label', scenario
+          ? buildScenarioAriaLabel(riding, parties, locale)
+          : buildAriaLabel(riding, parties, locale, winnerThreshold));
+      }
+    });
+  }, [reactive, loaded, ridings, parties, highlightIds, locale, idProp, baselineYear, winnerThreshold, scenario]);
 
   const hint =
     locale === 'fr'
@@ -688,7 +827,7 @@ export default function RidingsMap({
         <div
           ref={mapRef}
           class="pe-map"
-          style="height:480px;width:100%;border-radius:4px;"
+          style={`height:${height}px;width:100%;border-radius:4px;`}
         />
         {loaded && !zoomActive && (
           <div

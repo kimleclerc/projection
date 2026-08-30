@@ -1,0 +1,158 @@
+---
+import EditorialLayout from '../layouts/EditorialLayout.astro';
+import SimulatorSeatPreview from './SimulatorSeatPreview.astro';
+import '../styles/interactive-tools.css';
+import quebecDoc from '../../web_data/quebec/simulator.json';
+import federalDoc from '../../web_data/federal/simulator.json';
+import ontarioDoc from '../../web_data/ontario/simulator.json';
+
+interface Props {
+  locale: 'fr' | 'en' | 'es';
+}
+const { locale } = Astro.props;
+const paths = {
+  fr: { hub:'/fr/outils', qc:'/fr/outils/simulateur-quebec', ca:'/fr/outils/simulateur-canada', on:'/fr/outils/simulateur-ontario', match:'/fr/canada/quebec/match' },
+  en: { hub:'/en/tools', qc:'/en/tools/quebec-simulator', ca:'/en/tools/canada-simulator', on:'/en/tools/ontario-simulator', match:'/en/canada/quebec/match' },
+  es: { hub:'/es/herramientas', qc:'/es/herramientas/simulador-quebec', ca:'/es/herramientas/simulador-canada', on:'/es/herramientas/simulador-ontario', match:'/es/canada/quebec/match' },
+}[locale];
+const copy = {
+  fr: {
+    title:'Jouez avec la politique.',
+    description:'Simulateurs, jeux et outils interactifs pour voir comment une course peut changer — sans confondre votre scénario avec notre projection.',
+    featured:'Instrument phare', qc:'Simulateur Québec', open:'Ouvrir le simulateur', ridings:'circonscriptions',
+    available:'Autres simulateurs disponibles', ca:'Simulateur Canada', on:'Simulateur Ontario', play:'Jouer',
+    match:'Le Match', matchBody:'Quelques cartes à glisser. Une circonscription qui vous ressemble.', matchCta:'Trouver mon match',
+    coming:'Bientôt', future:['Jeu des coalitions','Débat-o-mètre','Promesses vérifiées','Atlas des enjeux par région'],
+    rule:'Vos scénarios restent séparés des projections Vote-Scope.', ruleBody:'Les simulateurs et jeux du Desk interactif permettent d’explorer des « et si ». Ils ne remplacent jamais nos projections, qui reposent sur des modèles, des sondages et des données vérifiées.'
+  },
+  en: {
+    title:'Play with politics.',
+    description:'Simulators, games and interactive tools to see how a race can change — without confusing your scenario with our projection.',
+    featured:'Featured instrument', qc:'Quebec simulator', open:'Open the simulator', ridings:'ridings',
+    available:'Other available simulators', ca:'Canada simulator', on:'Ontario simulator', play:'Play',
+    match:'The Match', matchBody:'Swipe a few cards. Find a riding that feels like you.', matchCta:'Find my match',
+    coming:'Coming soon', future:['Coalition game','Debate meter','Promise tracker','Regional issues atlas'],
+    rule:'Your scenarios stay separate from Vote-Scope projections.', ruleBody:'The interactive desk lets you explore “what ifs.” Its games and simulators never replace our projections, which rely on models, polling and verified data.'
+  },
+  es: {
+    title:'Juega con la política.',
+    description:'Simuladores, juegos y herramientas interactivas para ver cómo puede cambiar una carrera — sin confundir tu escenario con nuestra proyección.',
+    featured:'Instrumento destacado', qc:'Simulador Quebec', open:'Abrir el simulador', ridings:'distritos',
+    available:'Otros simuladores disponibles', ca:'Simulador Canadá', on:'Simulador Ontario', play:'Jugar',
+    match:'El Match', matchBody:'Desliza unas cartas. Encuentra un distrito que se parezca a ti.', matchCta:'Encontrar mi match',
+    coming:'Próximamente', future:['Juego de coaliciones','Medidor de debates','Promesas verificadas','Atlas regional de temas'],
+    rule:'Tus escenarios permanecen separados de las proyecciones Vote-Scope.', ruleBody:'El desk interactivo permite explorar escenarios hipotéticos. Sus juegos y simuladores nunca sustituyen nuestras proyecciones, basadas en modelos, encuestas y datos verificados.'
+  },
+}[locale];
+const canonical = `https://vote-scope.com${paths.hub}`;
+const alternates = { en:'https://vote-scope.com/en/tools', fr:'https://vote-scope.com/fr/outils', es:'https://vote-scope.com/es/herramientas' };
+---
+
+<EditorialLayout
+  title={`${copy.title} — Vote-Scope`}
+  description={copy.description}
+  canonical={canonical}
+  lang={locale}
+  currentPage="match"
+  alternates={alternates}
+  jsonLd={{ '@context':'https://schema.org', '@type':'CollectionPage', name:copy.title, description:copy.description, url:canonical, inLanguage:locale }}
+>
+  <header class="tools-hero">
+    <div class="container-wide">
+      <h1>{copy.title}</h1>
+      <p>{copy.description}</p>
+    </div>
+  </header>
+
+  <section class="tools-featured">
+    <div class="container-wide">
+      <p class="eyebrow">{copy.featured}</p>
+      <div class="tools-featured-frame">
+        <div class="tools-featured-copy">
+          <h2>{copy.qc}</h2>
+          <p>{quebecDoc.meta.total_seats} {copy.ridings}</p>
+          <ul>
+            {quebecDoc.parties.filter((party) => party.seats_projected >= .5).sort((a,b) => b.seats_projected-a.seats_projected).map((party) => (
+              <li><i style={{background:party.color}}></i><span>{party.label_fr === party.label_en ? party.label_fr : (locale === 'fr' ? party.label_fr : party.label_en)}</span><strong>{Math.round(party.seats_projected)}</strong></li>
+            ))}
+          </ul>
+          <a class="tools-primary" href={paths.qc}>{copy.open} →</a>
+        </div>
+        <a class="tools-featured-map" href={paths.qc} aria-label={copy.open}>
+          <SimulatorSeatPreview doc={quebecDoc} label={copy.qc} />
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="tools-available">
+    <div class="container-wide">
+      <h2>{copy.available}</h2>
+      <div class="tools-rail">
+        <a href={paths.ca}>
+          <div><h3>{copy.ca}</h3><p>{federalDoc.meta.total_seats} {copy.ridings}</p><strong>{copy.play} →</strong></div>
+          <span><SimulatorSeatPreview doc={federalDoc} label={copy.ca} /></span>
+        </a>
+        <a href={paths.on}>
+          <div><h3>{copy.on}</h3><p>{ontarioDoc.meta.total_seats} {copy.ridings}</p><strong>{copy.play} →</strong></div>
+          <span><SimulatorSeatPreview doc={ontarioDoc} label={copy.on} /></span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="tools-match">
+    <div class="container-wide tools-match-inner">
+      <div><h2>{copy.match}</h2><p>{copy.matchBody}</p><a class="tools-primary" href={paths.match}>{copy.matchCta} →</a></div>
+      <div class="tools-match-cards" aria-hidden="true"><span>Économie</span><span>Logement</span><span>Environnement</span><strong>→</strong></div>
+    </div>
+  </section>
+
+  <section class="tools-coming">
+    <div class="container-wide">
+      <h2>{copy.coming}</h2>
+      <div>{copy.future.map((item) => <span>{item}</span>)}</div>
+    </div>
+  </section>
+
+  <section class="tools-rule"><div class="container-wide"><h2>{copy.rule}</h2><p>{copy.ruleBody}</p></div></section>
+</EditorialLayout>
+
+<style>
+  .tools-hero { padding:clamp(54px,9vw,110px) 0 48px; border-bottom:1px solid var(--rule); }
+  .tools-hero h1 { max-width:1000px; margin:0; font:430 clamp(54px,9vw,112px)/.88 var(--serif); letter-spacing:-.055em; }
+  .tools-hero p { max-width:790px; margin:24px 0 0; color:var(--ink-2); font-size:clamp(18px,2vw,24px); line-height:1.45; }
+  .tools-featured,.tools-available,.tools-match,.tools-coming,.tools-rule { padding:52px 0; border-bottom:1px solid var(--rule); }
+  .tools-featured-frame { display:grid; grid-template-columns:310px minmax(0,1fr); margin-top:15px; border:1px solid var(--rule); background:var(--card); }
+  .tools-featured-copy { padding:30px; border-right:1px solid var(--rule); }
+  .tools-featured-copy h2,.tools-match h2 { margin:0; font:430 clamp(36px,4vw,54px)/.95 var(--serif); }
+  .tools-featured-copy > p { margin:8px 0 20px; color:var(--ink-3); font:11px var(--mono); text-transform:uppercase; letter-spacing:.08em; }
+  .tools-featured-copy ul { list-style:none; margin:0 0 24px; padding:16px 0; border-top:1px solid var(--rule); border-bottom:1px solid var(--rule); }
+  .tools-featured-copy li { display:grid; grid-template-columns:10px 1fr auto; align-items:center; gap:8px; padding:4px 0; }
+  .tools-featured-copy li i { width:9px; height:9px; }
+  .tools-featured-copy li strong { font:600 18px var(--mono); }
+  .tools-primary { display:inline-flex; padding:13px 17px; background:var(--ink); color:var(--paper-3); font:600 11px var(--mono); letter-spacing:.08em; text-transform:uppercase; }
+  .tools-featured-map { display:block; min-height:560px; padding:16px; background:radial-gradient(circle at 55% 48%,var(--blue-tint),transparent 65%),var(--paper-2); }
+  .tools-available h2,.tools-coming h2 { margin:0 0 18px; font:600 11px var(--mono); letter-spacing:.1em; text-transform:uppercase; }
+  .tools-rail { display:grid; grid-template-columns:1fr 1fr; border-top:1px solid var(--rule); border-left:1px solid var(--rule); }
+  .tools-rail > a { display:grid; grid-template-columns:190px 1fr; min-height:260px; border-right:1px solid var(--rule); border-bottom:1px solid var(--rule); background:var(--card); }
+  .tools-rail > a > div { padding:24px; }
+  .tools-rail h3 { margin:0; font:430 34px/1 var(--serif); }
+  .tools-rail p { margin:8px 0 26px; color:var(--ink-3); font-size:13px; }
+  .tools-rail strong { font:600 11px var(--mono); letter-spacing:.08em; text-transform:uppercase; }
+  .tools-rail > a > span { min-width:0; padding:10px; background:var(--paper-2); }
+  .tools-match { background:var(--paper-2); }
+  .tools-match-inner { display:grid; grid-template-columns:minmax(260px,420px) 1fr; align-items:center; gap:clamp(40px,8vw,120px); }
+  .tools-match p { max-width:380px; margin:16px 0 24px; color:var(--ink-2); font-size:18px; }
+  .tools-match-cards { position:relative; min-height:260px; }
+  .tools-match-cards span { position:absolute; top:35px; left:12%; width:210px; padding:24px 20px 150px; border:1px solid var(--rule); background:var(--card); box-shadow:4px 7px 0 color-mix(in srgb,var(--ink) 10%,transparent); font:600 12px var(--mono); transform:rotate(-6deg); }
+  .tools-match-cards span:nth-child(2) { left:34%; transform:rotate(1deg); }
+  .tools-match-cards span:nth-child(3) { left:56%; transform:rotate(7deg); }
+  .tools-match-cards strong { position:absolute; right:2%; top:45%; font:430 60px var(--serif); }
+  .tools-coming > .container-wide > div { display:flex; overflow-x:auto; border-top:1px solid var(--rule); border-left:1px solid var(--rule); }
+  .tools-coming span { flex:1 0 210px; padding:22px; border-right:1px solid var(--rule); border-bottom:1px solid var(--rule); font:500 14px var(--mono); }
+  .tools-rule h2 { margin:0; font:430 clamp(28px,4vw,44px)/1 var(--serif); }
+  .tools-rule p { max-width:780px; margin:14px 0 0; color:var(--ink-2); line-height:1.6; }
+  @media(max-width:850px){.tools-featured-frame{grid-template-columns:1fr}.tools-featured-copy{border-right:0;border-bottom:1px solid var(--rule)}.tools-featured-map{min-height:430px}.tools-rail{grid-template-columns:1fr}.tools-match-inner{grid-template-columns:1fr}.tools-match-cards{min-height:230px}}
+  @media(max-width:560px){.tools-featured-map{min-height:330px}.tools-rail>a{grid-template-columns:145px 1fr}.tools-rail h3{font-size:28px}.tools-match-cards span{width:155px;padding-bottom:110px}.tools-match-cards span:nth-child(2){left:28%}.tools-match-cards span:nth-child(3){left:49%}}
+</style>

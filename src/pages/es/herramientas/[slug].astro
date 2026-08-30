@@ -1,0 +1,21 @@
+---
+import SimulatorPage from '../../../components/SimulatorPage.astro';
+import quebecDoc from '../../../../web_data/quebec/simulator.json';
+import quebecShapes from '../../../../web_data/quebec/shapes.json';
+import federalDoc from '../../../../web_data/federal/simulator.json';
+import federalShapes from '../../../../web_data/federal/shapes.json';
+import ontarioDoc from '../../../../web_data/ontario/simulator.json';
+import ontarioShapes from '../../../../web_data/ontario/shapes.json';
+export function getStaticPaths() { return [
+  {params:{slug:'simulador-quebec'},props:{doc:quebecDoc,shapes:quebecShapes,title:'¿Y si Quebec votara de otra manera?',description:'Construye un escenario electoral de Quebec y observa los 127 distritos cambiar en el mapa.',lede:'Mueve el voto. Observa cómo reaccionan el mapa y los 127 distritos.',jurisdiction:'Quebec · 127 distritos',projectionHref:'/es/canada/quebec/',frSlug:'simulateur-quebec',enSlug:'quebec-simulator'}},
+  {params:{slug:'simulador-canada'},props:{doc:federalDoc,shapes:federalShapes,title:'¿Y si Canadá votara de otra manera?',description:'Construye un escenario electoral federal y observa los 343 distritos cambiar en el mapa.',lede:'Mueve el voto nacional o regional y observa cómo reaccionan los 343 distritos.',jurisdiction:'Canadá · 343 distritos',projectionHref:'/es/canada/federal/',frSlug:'simulateur-canada',enSlug:'canada-simulator'}},
+  {params:{slug:'simulador-ontario'},props:{doc:ontarioDoc,shapes:ontarioShapes,title:'¿Y si Ontario votara de otra manera?',description:'Construye un escenario electoral de Ontario y observa los 124 distritos cambiar en el mapa.',lede:'Mueve los partidos y observa cómo se recompone el mapa de Ontario.',jurisdiction:'Ontario · 124 distritos',projectionHref:'/es/canada/ontario/',frSlug:'simulateur-ontario',enSlug:'ontario-simulator'}},
+]; }
+const {doc,shapes,title,description,lede,jurisdiction,projectionHref,frSlug,enSlug}=Astro.props; const slug=Astro.params.slug!;
+const map = {
+  qc_2026: { geoUrl:'/web_data/quebec/ridings.geojson', center:[52,-71], zoom:5, idProp:'CO_CEP', baselineYear:2022 },
+  fed_46: { geoUrl:'/web_data/federal/ridings.geojson', center:[56,-96], zoom:4, idProp:'FEDNUM', baselineYear:2025 },
+  on_2029: { geoUrl:'/web_data/ontario/ridings.geojson', center:[50,-85], zoom:5, idProp:'FEDNUM', baselineYear:2022 },
+}[doc.meta.election_cycle];
+---
+<SimulatorPage locale="es" doc={doc} map={map} title={title} description={description} lede={lede} jurisdiction={jurisdiction} projectionHref={projectionHref} hubHref="/es/herramientas" canonical={`https://vote-scope.com/es/herramientas/${slug}`} alternates={{es:`https://vote-scope.com/es/herramientas/${slug}`,fr:`https://vote-scope.com/fr/outils/${frSlug}`,en:`https://vote-scope.com/en/tools/${enSlug}`}} />

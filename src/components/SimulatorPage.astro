@@ -1,0 +1,63 @@
+---
+import EditorialLayout from '../layouts/EditorialLayout.astro';
+import MiniSimulator from './MiniSimulator.astro';
+import type { SimDoc } from '../lib/mini-sim';
+import type { SimulatorMapConfig } from '../islands/MiniSimulator';
+import '../styles/interactive-tools.css';
+
+interface Props {
+  locale: 'fr' | 'en' | 'es';
+  doc: SimDoc;
+  map: SimulatorMapConfig;
+  title: string;
+  description: string;
+  lede: string;
+  jurisdiction: string;
+  canonical: string;
+  projectionHref: string;
+  hubHref: string;
+  alternates: { en: string; fr: string; es: string };
+}
+
+const { locale, doc, map, title, description, lede, jurisdiction, canonical, projectionHref, hubHref, alternates } = Astro.props;
+const projectionUrl = projectionHref.replace(/\/$/, '');
+const hubUrl = hubHref.replace(/\/$/, '');
+const copy = {
+  fr: { back: 'Tous les outils', projection: 'Voir la projection', personal: 'Scénario personnel', anchor: 'ancré sur la projection', how: 'Comment le lire', howBody: 'La carte montre le gagnant de chaque circonscription dans votre scénario. Les sièges restent une approximation ancrée sur le run publié; déplacer un curseur ne relance pas le modèle complet.', rule: 'La règle éditoriale', ruleBody: 'Votre scénario demeure séparé de la projection Vote-Scope. Il n’est jamais enregistré comme une nouvelle prévision et ne modifie aucune donnée du site.' },
+  en: { back: 'All tools', projection: 'View the projection', personal: 'Personal scenario', anchor: 'anchored to the projection', how: 'How to read it', howBody: 'The map shows the winner of every riding in your scenario. Seats remain an approximation anchored to the published run; moving a slider does not rerun the full model.', rule: 'The editorial rule', ruleBody: 'Your scenario remains separate from the Vote-Scope projection. It is never stored as a new forecast and never changes site data.' },
+  es: { back: 'Todas las herramientas', projection: 'Ver la proyección', personal: 'Escenario personal', anchor: 'anclado a la proyección', how: 'Cómo leerlo', howBody: 'El mapa muestra el ganador de cada distrito en tu escenario. Los escaños siguen siendo una aproximación anclada en el run publicado; mover un control no vuelve a ejecutar el modelo completo.', rule: 'La regla editorial', ruleBody: 'Tu escenario permanece separado de la proyección Vote-Scope. Nunca se guarda como una nueva previsión ni modifica los datos del sitio.' },
+}[locale];
+---
+
+<EditorialLayout
+  title={`${title} — Vote-Scope`}
+  description={description}
+  canonical={canonical}
+  lang={locale}
+  currentPage="match"
+  alternates={alternates}
+  jsonLd={{ '@context': 'https://schema.org', '@type': 'WebApplication', name: title, description, applicationCategory: 'EducationalApplication', operatingSystem: 'Any', url: canonical, inLanguage: locale, isAccessibleForFree: true }}
+>
+  <header class="tool-page-head">
+    <div class="container-wide">
+      <div class="tool-page-nav">
+        <a href={hubUrl}>← {copy.back}</a>
+        <a href={projectionUrl}>{copy.projection} →</a>
+      </div>
+      <h1>{title}</h1>
+      <p>{lede}</p>
+      <span class="tool-page-meta">{copy.personal} · {copy.anchor} {doc.meta.run_date} · {jurisdiction}</span>
+    </div>
+  </header>
+
+  <div class="container-wide tool-simulator-wrap">
+    <MiniSimulator doc={doc} map={map} locale={locale} standalone eyebrow={copy.personal} />
+  </div>
+
+  <section class="tool-explainer">
+    <div class="container-wide tool-explainer-grid">
+      <article><h2>{copy.how}</h2><p>{copy.howBody}</p></article>
+      <article><h2>{copy.rule}</h2><p>{copy.ruleBody}</p></article>
+    </div>
+  </section>
+</EditorialLayout>
