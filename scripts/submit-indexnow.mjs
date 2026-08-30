@@ -71,6 +71,14 @@ const CURATED = [
   '/en/canada/byelections/', '/fr/canada/byelections/', '/es/canada/byelections/',
   '/en/canada/ontario/byelections/', '/fr/canada/ontario/byelections/', '/es/canada/ontario/byelections/',
   '/en/uk/byelections/clacton/', '/fr/uk/byelections/clacton/', '/es/uk/byelections/clacton/',
+  // Desk interactif — le hub et les quatre simulateurs n'étaient dans aucune
+  // des deux listes : `npm run indexnow` ne les a jamais soumis. Leurs sièges
+  // sont réancrés à chaque run, donc ils bougent tous les jours.
+  '/en/tools/', '/fr/outils/', '/es/herramientas/',
+  '/en/tools/quebec-simulator/', '/fr/outils/simulateur-quebec/', '/es/herramientas/simulador-quebec/',
+  '/en/tools/canada-simulator/', '/fr/outils/simulateur-canada/', '/es/herramientas/simulador-canada/',
+  '/en/tools/ontario-simulator/', '/fr/outils/simulateur-ontario/', '/es/herramientas/simulador-ontario/',
+  '/en/tools/us-house-simulator/', '/fr/outils/simulateur-chambre-us/', '/es/herramientas/simulador-camara-us/',
 ].map((p) => `https://${HOST}${p}`);
 
 /** Desks de partielles individuels, repris du sitemap.
