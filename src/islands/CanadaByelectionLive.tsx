@@ -76,7 +76,9 @@ export default function CanadaByelectionLive({ eventId, ridingId, lang }: { even
   const locale = lang === 'en' ? 'en-CA' : lang === 'fr' ? 'fr-CA' : 'es-ES';
   const stamp = data?.generated_at ? new Intl.DateTimeFormat(locale, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(data.generated_at)) : null;
   const ageMinutes = data?.generated_at ? Math.floor((now - new Date(data.generated_at).getTime()) / 60_000) : null;
-  const stale = ageMinutes != null && ageMinutes >= 5;
+  // Before the first box reports, an old waiting snapshot is expected and must not
+  // look like a stalled count. Once votes exist, five quiet minutes are meaningful.
+  const stale = Boolean(leader) && ageMinutes != null && ageMinutes >= 5;
 
   return <section className={stale ? "cblive cblive-is-stale" : "cblive"} aria-live="polite" aria-busy={!data && !failed}>
     <div className="cblive-head">
