@@ -58,6 +58,8 @@ const COPY = {
 } as const;
 
 const GRIS = '#b9b6ae';
+/** Écart entre tuiles, en fraction d'une tuile. */
+const GAP = 0.14;
 
 export default function TileMap({ blocs, canvas, ridings, locale, colors, labels, query = '', flipWord }: Props) {
   const [sel, setSel] = useState<string | null>(null);
@@ -92,14 +94,27 @@ export default function TileMap({ blocs, canvas, ridings, locale, colors, labels
             style={{
               left: `${(b.x / toile.w) * 100}%`,
               top: `${(b.y / toile.h) * 100}%`,
-              width: `${(b.cols / toile.w) * 100}%`,
+              // Une unité de toile = une tuile PLUS son écart. Un bloc de n
+              // colonnes occupe donc n unités moins le dernier écart, sinon la
+              // tuile rétrécit à mesure que le bloc s'élargit.
+              width: `${((b.cols - GAP) / toile.w) * 100}%`,
             }}
           >
             <h3 id={`tmap-${b.id}`}>
               <span>{locale === 'en' ? b.label_en : locale === 'es' ? b.label_es : b.label_fr}</span>
               <em>{b.n}</em>
             </h3>
-            <div class="tmap-cells" style={{ gridTemplateColumns: `repeat(${b.cols},1fr)` }}>
+            <div
+              class="tmap-cells"
+              style={{
+                gridTemplateColumns: `repeat(${b.cols},1fr)`,
+                // L'écart en pourcentage se résout sur la largeur du BLOC, qui
+                // varie avec son nombre de colonnes. Le rapporter à la largeur
+                // du bloc est ce qui rendait les tuiles inégales — 42 px à une
+                // colonne, 29 px à six. Une tuile = un siège = une taille.
+                gap: `${(GAP / (b.cols - GAP)) * 100}%`,
+              }}
+            >
               {b.ids.map((id) => {
                 const r = byId.get(id);
                 if (!r) return null;
