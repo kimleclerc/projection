@@ -610,14 +610,17 @@ export default function RidingsMap({
         // Stash on mapInstance so cleanup can remove
         (mapInstance as any).__outsideClick = outsideClick;
 
-        L.tileLayer(
-          'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-          {
-            attribution:
-              '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-            maxZoom: 19,
-          },
-        ).addTo(mapInstance);
+        // PAS DE FOND DE CARTE. Les circonscriptions pavent le territoire : leurs
+        // contours SONT la géographie, et un fond de tuiles ne fait que
+        // concurrencer les couleurs de parti — c'est du repérage, pas de la
+        // donnée. Aucun grand titre n'en met sous une carte électorale (NYT,
+        // 270toWin, Cook : zéro requête de tuiles, vérifié).
+        //
+        // Le retrait est aussi ce qui met les toponymes hors de portée d'un
+        // tiers : une étiquette cuite dans un raster ne se surcharge pas, et le
+        // renommage du lac Ontario en « Lake America » par le GNIS a montré que
+        // le nom affiché n'est pas une donnée stable. Ce qu'on n'affiche pas ne
+        // peut pas être renommé par quelqu'un d'autre.
 
         geoLayerRef.current = L.geoJSON(geo, {
           style(feature: any) {

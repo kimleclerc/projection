@@ -3,7 +3,7 @@
   "type": "module",
   "scripts": {
     "dev": "astro dev",
-    "prebuild": "npm run sync:machine-metadata -- --check && npm run validate:live-data && npm run check:mini-sim",
+    "prebuild": "npm run sync:machine-metadata -- --check && npm run validate:live-data && npm run check:mini-sim && npm run check:basemaps",
     "build": "astro build && node scripts/copy-legacy.mjs && pagefind --site dist",
     "preview": "astro preview",
     "validate:editorial": "node scripts/validate-editorial-astro.mjs",
@@ -13,7 +13,8 @@
     "validate:live-data": "node scripts/validate-live-data.mjs",
     "sync:machine-metadata": "node scripts/sync-machine-metadata.mjs",
     "indexnow": "node scripts/submit-indexnow.mjs",
-    "indexnow:all": "node scripts/submit-indexnow.mjs --all"
+    "indexnow:all": "node scripts/submit-indexnow.mjs --all",
+    "check:basemaps": "node scripts/check-basemaps.mjs"
   },
   "dependencies": {
     "@astrojs/preact": "^5.1.2",
