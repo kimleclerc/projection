@@ -6,6 +6,8 @@ import { resolve } from 'node:path';
 import ScenariosChart from '../islands/ScenariosChart.tsx';
 import VoteTrendChart from '../islands/VoteTrendChart.tsx';
 import RidingsMap from '../islands/RidingsMap.tsx';
+import '../styles/minisim.css';
+import ProjectionTiles from '../islands/ProjectionTiles.tsx';
 import GooglePreferredSource from './GooglePreferredSource.astro';
 import RidingTable from '../islands/RidingTable.tsx';
 import ElectionCountdown from '../islands/ElectionCountdown.tsx';
@@ -413,6 +415,14 @@ const mapParties = parties.map((p) => ({
 }));
 const geoUrl = `/web_data/${jurisdiction.dataPath}/ridings.geojson`;
 
+// Blocs de la carte en tuiles, produits par le moteur dans simulator.json.
+// Best-effort : une juridiction sans découpage connu n'a que la géographique.
+let tileBlocs: any[] = [];
+try {
+  const simPath = resolve(process.cwd(), 'web_data', jurisdiction.dataPath, 'simulator.json');
+  tileBlocs = JSON.parse(readFileSync(simPath, 'utf-8'))?.tiles?.blocs ?? [];
+} catch { tileBlocs = []; }
+
 // Top 5 mainstream parties (drop the catch-all "_oth" buckets).
 const trendOrder = jurisdiction.parties
   .filter((k) => !/_oth$/.test(k))
@@ -726,11 +736,12 @@ const pageNavItems = [
     <h2 id="pe-map-title" class="pe-section-title">{t.mapTitle}</h2>
     <p class="pe-section-label">{t.mapHelp}</p>
     <article class="pe-chart-card">
-      <RidingsMap
-        geoUrl={geoUrl}
+      <ProjectionTiles
+        blocs={tileBlocs}
         ridings={mapRidings}
         parties={mapParties}
         locale={locale}
+        geoUrl={geoUrl}
         center={jurisdiction.mapCenter}
         zoom={jurisdiction.mapZoom}
         idProp={jurisdiction.idProp}

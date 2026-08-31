@@ -1,5 +1,4 @@
 import { useMemo, useState } from 'preact/hooks';
-import type { SimDoc, SimRidingState } from '../lib/mini-sim';
 
 /** Carte en tuiles : une tuile par circonscription, toutes de la même taille.
  *
@@ -13,39 +12,64 @@ import type { SimDoc, SimRidingState } from '../lib/mini-sim';
  *  côté du bloc), la même disposition sur ordinateur et sur téléphone (les
  *  tuiles rétrécissent, rien ne se replie), et les bascules en hachure plutôt
  *  qu'en nuance — une texture survit à dix pixels, pas une teinte.
+ *
+ *  Le composant ne connaît ni simulateur ni projection : il reçoit des tuiles
+ *  déjà normalisées, ce qui lui permet de servir les deux.
  */
+export interface TileRiding {
+  id: string;
+  name: string;
+  /** Parti gagnant, ou null pour une course indécise. */
+  winner: string | null;
+  /** Parti que la circonscription quitte, quand elle bascule. */
+  from?: string | null;
+  changed?: boolean;
+  margin: number;
+  href?: string;
+}
+
+export interface TileBloc {
+  id: string;
+  label_fr: string; label_en: string; label_es: string;
+  col: number; n: number; cols: number;
+  ids: string[];
+}
+
 interface Props {
-  doc: SimDoc;
-  states: SimRidingState[];
+  blocs: TileBloc[];
+  ridings: TileRiding[];
   locale: 'fr' | 'en' | 'es';
   colors: Record<string, string>;
   labels: Record<string, string>;
   query?: string;
+  /** Libellé de la bascule : « bascule » en projection, « gain sur » en scénario. */
+  flipWord?: string;
 }
 
 const COPY = {
-  fr: { pick: 'Touchez une circonscription pour la détailler.', margin: 'marge', gain: 'gain sur', pt: 'pt' },
-  en: { pick: 'Select a riding to see its detail.', margin: 'margin', gain: 'gain from', pt: 'pt' },
-  es: { pick: 'Toca un distrito para ver el detalle.', margin: 'margen', gain: 'gana a', pt: 'pt' },
+  fr: { pick: 'Touchez une circonscription pour la détailler.', margin: 'marge', from: 'sur', pt: 'pt', tossup: 'Indécis', open: 'Voir la circonscription' },
+  en: { pick: 'Select a riding to see its detail.', margin: 'margin', from: 'from', pt: 'pt', tossup: 'Tossup', open: 'Open riding page' },
+  es: { pick: 'Toca un distrito para ver el detalle.', margin: 'margen', from: 'a', pt: 'pt', tossup: 'Indeciso', open: 'Ver el distrito' },
 } as const;
 
-export default function TileMap({ doc, states, locale, colors, labels, query = '' }: Props) {
+const GRIS = '#b9b6ae';
+
+export default function TileMap({ blocs, ridings, locale, colors, labels, query = '', flipWord }: Props) {
   const [sel, setSel] = useState<string | null>(null);
   const t = COPY[locale] ?? COPY.fr;
-
-  const byId = useMemo(() => new Map(states.map((s) => [s.id, s])), [states]);
+  const byId = useMemo(() => new Map(ridings.map((r) => [r.id, r])), [ridings]);
   const colonnes = useMemo(() => {
-    const blocs = doc.tiles?.blocs ?? [];
     const max = blocs.reduce((m, b) => Math.max(m, b.col), 0);
     return Array.from({ length: max + 1 }, (_, i) => blocs.filter((b) => b.col === i));
-  }, [doc.tiles]);
+  }, [blocs]);
 
-  if (!doc.tiles) return null;
+  if (!blocs.length) return null;
   const q = query.trim().toLocaleLowerCase();
-  const courant = sel ? byId.get(sel) : null;
+  const cur = sel ? byId.get(sel) : null;
   const nf = (n: number) =>
     n.toLocaleString(locale === 'fr' ? 'fr-CA' : locale === 'es' ? 'es' : 'en-CA',
       { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  const nom = (code: string | null | undefined) => (code && labels[code]) || t.tossup;
 
   return (
     <div class="tmap">
@@ -68,9 +92,9 @@ export default function TileMap({ doc, states, locale, colors, labels, query = '
                         key={id}
                         type="button"
                         class={`tmap-tile${r.changed ? ' is-flip' : ''}${dim ? ' is-dim' : ''}`}
-                        style={{ background: colors[r.winner] ?? '#999' }}
+                        style={{ background: (r.winner && colors[r.winner]) || GRIS }}
                         aria-pressed={sel === id}
-                        aria-label={`${r.name} — ${labels[r.winner]}${r.changed ? `, ${t.gain} ${labels[r.baselineWinner]}` : ''}, ${t.margin} ${nf(r.margin)}`}
+                        aria-label={`${r.name} — ${nom(r.winner)}${r.changed && r.from ? `, ${flipWord ?? t.from} ${nom(r.from)}` : ''}, ${t.margin} ${nf(r.margin)}`}
                         onClick={() => setSel(id)}
                         onMouseEnter={() => setSel(id)}
                         onFocus={() => setSel(id)}
@@ -86,15 +110,16 @@ export default function TileMap({ doc, states, locale, colors, labels, query = '
 
       {/* La fiche ne déplace jamais la carte : c'est elle qui rend le zoom inutile. */}
       <p class="tmap-detail" aria-live="polite">
-        {courant ? (
+        {cur ? (
           <>
-            <strong>{courant.name}</strong>
+            <strong>{cur.name}</strong>
             <span class="tmap-who">
-              <i style={{ background: colors[courant.winner] ?? '#999' }} aria-hidden="true" />
-              {labels[courant.winner]}
+              <i style={{ background: (cur.winner && colors[cur.winner]) || GRIS }} aria-hidden="true" />
+              {nom(cur.winner)}
             </span>
-            {courant.changed && <span class="tmap-gain">{t.gain} {labels[courant.baselineWinner]}</span>}
-            <span class="tmap-marge">{t.margin} {nf(courant.margin)} {t.pt}</span>
+            {cur.changed && cur.from && <span class="tmap-gain">{flipWord ?? t.from} {nom(cur.from)}</span>}
+            <span class="tmap-marge">{t.margin} {nf(cur.margin)} {t.pt}</span>
+            {cur.href && <a class="tmap-lien" href={cur.href}>{t.open} →</a>}
           </>
         ) : <span class="tmap-vide">{t.pick}</span>}
       </p>

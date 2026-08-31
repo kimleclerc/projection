@@ -52,6 +52,7 @@ const COPY = {
     more: (n: number) => `+ ${n} autres`,
     board: 'Qui détient quoi, dans votre scénario',
     viewTiles: 'Tuiles',
+    gainOn: 'gain sur',
     viewGeo: 'Carte',
     total: 'Total',
     others: 'Autres partis',
@@ -83,6 +84,7 @@ const COPY = {
     more: (n: number) => `+ ${n} more`,
     board: 'Who holds what, in your scenario',
     viewTiles: 'Tiles',
+    gainOn: 'gain from',
     viewGeo: 'Map',
     total: 'Total',
     others: 'Other parties',
@@ -114,6 +116,7 @@ const COPY = {
     more: (n: number) => `+ ${n} más`,
     board: 'Quién tiene qué, en tu escenario',
     viewTiles: 'Mosaico',
+    gainOn: 'gana a',
     viewGeo: 'Mapa',
     total: 'Total',
     others: 'Otros partidos',
@@ -481,12 +484,16 @@ export default function MiniSimulator({ doc, locale, map }: Props) {
 
           {doc.tiles && mapView === 'tiles' ? (
             <TileMap
-              doc={doc}
-              states={ridingStates}
+              blocs={doc.tiles.blocs}
+              ridings={ridingStates.map((r) => ({
+                id: r.id, name: r.name, winner: r.winner,
+                from: r.baselineWinner, changed: r.changed, margin: r.margin,
+              }))}
               locale={locale}
               colors={Object.fromEntries(doc.parties.map((p) => [p.code, p.color]))}
               labels={Object.fromEntries(doc.parties.map((p) => [p.code, partyLabel(p, locale)]))}
               query={ridingQuery}
+              flipWord={t.gainOn}
             />
           ) : (
           <div class="msim-map-stage">
