@@ -37,7 +37,9 @@ export function lambertProject(lon: number, lat: number, center: [number, number
   const rho = f / Math.pow(Math.tan(Math.PI / 4 + phi / 2), safeN);
   const rho0 = f / Math.pow(Math.tan(Math.PI / 4 + phi0 / 2), safeN);
   const theta = safeN * (lambda - lambda0);
-  return [rho * Math.sin(theta), rho0 - rho * Math.cos(theta)];
+  // SVG y coordinates grow downward, while projected northing grows upward.
+  // Negate the northing here so north remains at the top of every map.
+  return [rho * Math.sin(theta), rho * Math.cos(theta) - rho0];
 }
 
 function walkPositions(value: unknown, visit: (lon: number, lat: number) => void): void {
