@@ -71,6 +71,14 @@ function insetKey(feature: GeoFeatureLike, geoUrl: string, idProp: string): stri
     if (id.startsWith('02')) return 'Alaska';
     if (id.startsWith('15')) return 'Hawaii';
   }
+  if (geoUrl.includes('/federal/')) {
+    if (id.startsWith('60')) return 'Yukon';
+    if (id.startsWith('61')) return 'T.N.-O.';
+    if (id.startsWith('62')) return 'Nunavut';
+  }
+  if (geoUrl.includes('/quebec/') && (id === '00831' || id === '831')) {
+    return 'Ungava';
+  }
   if (geoUrl.includes('/france-legislative/')) {
     const [lon, lat] = featureCentroid(feature);
     if (lon < -10 || lon > 15 || lat < 40 || lat > 53) {
@@ -159,8 +167,9 @@ function geometryPath(type: string | undefined, coordinates: unknown): string {
 
 /**
  * Project GeoJSON locally, with no slippy-map or Web Mercator dependency.
- * Alaska, Hawaii and French overseas territories are fitted into explicit
- * inset boxes so discontinuous geography never crushes the main map.
+ * Alaska, Hawaii, the Canadian territories, Ungava and French overseas
+ * territories are fitted into explicit inset boxes so discontinuous or
+ * exceptionally large geography never crushes the main map.
  */
 export function projectFeatures(
   features: GeoFeatureLike[],
