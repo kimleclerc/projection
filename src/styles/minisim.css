@@ -230,7 +230,7 @@
   margin-bottom: 0;
 }
 
-/* Carte collective : réutilise l'île Leaflet de la projection. */
+/* Carte collective : réutilise la projection SVG de la page principale. */
 .msim-map-panel {
   display: grid;
   grid-template-rows: auto auto auto;
@@ -295,17 +295,8 @@
 .msim-map-stage .pe-map { border-radius: 0 !important; }
 .msim-map-stage .pe-legend { display: none !important; }
 
-/* NE PAS dimensionner le SVG de Leaflet ici. Il vit dans `.leaflet-overlay-pane`,
- * un conteneur positionné SANS dimensions : un `width: 100%` y vaut zéro, le SVG
- * tombe à 0 × 0 et aucune des 127 circonscriptions ne se peint — la carte n'affiche
- * plus que le fond de plan. Leaflet pose lui-même width/height/viewBox à chaque
- * changement de vue. La règle venait d'une carte SVG en ligne, restée après le
- * passage à Leaflet. */
-
-/* Pas de `stroke` ni de `stroke-width` en bloc ici : une déclaration CSS l'emporte
- * sur les attributs de présentation que Leaflet écrit par circonscription, ce qui
- * effaçait le liseré des bascules (weight 2, #171714). On ne garde que ce qui ne
- * dépend d'aucun état. */
+/* Les dimensions et le trait sont portés par le composant : ce sélecteur ne
+ * garde que les transitions communes au simulateur. */
 .msim-map-stage path {
   vector-effect: non-scaling-stroke;
   cursor: crosshair;
@@ -579,7 +570,7 @@
  * surface que six circonscriptions montréalaises). D'où la taille fixe.
  * Même disposition sur ordinateur et sur téléphone : les tuiles rétrécissent,
  * rien ne se replie. */
-.tmap { --tmap-cell: clamp(12px, 2.4vw, 30px); }
+.tmap { --tmap-cell: clamp(12px, 2.4vw, 30px); position: relative; }
 
 .msim-mapview { display: inline-flex; margin-left: auto; border: 1px solid var(--rule); border-radius: 2px; overflow: hidden; }
 .msim-mapview button {
@@ -622,6 +613,16 @@
   margin: 0; padding: 11px 16px 13px; min-height: 42px;
   border-top: 1px solid var(--rule); background: var(--paper-2);
 }
+.tmap-detail.is-open {
+  position: absolute; z-index: 5; left: 10px; right: 10px; bottom: 10px;
+  padding-right: 46px; border: 1px solid var(--rule); background: color-mix(in srgb, var(--card) 96%, transparent);
+  box-shadow: 0 5px 18px rgba(0,0,0,.2);
+}
+.tmap-close {
+  position: absolute; top: 5px; right: 7px; width: 32px; height: 32px;
+  border: 0; background: transparent; color: var(--ink-2); cursor: pointer;
+  font: 22px/1 var(--sans);
+}
 .tmap-detail strong { font-size: .95rem; font-weight: 600; }
 .tmap-who { display: inline-flex; align-items: center; gap: 6px; font-size: .8rem; color: var(--ink-2); }
 .tmap-who i { width: 10px; height: 10px; border-radius: 2px; }
@@ -643,6 +644,4 @@
 .ptiles-search:focus-visible { outline: 2px solid var(--ink); outline-offset: 1px; }
 .tmap-lien { font-family: var(--mono); font-size: .68rem; color: var(--ink); }
 
-/* Sans fond de carte, le conteneur Leaflet doit peindre le sien : le gris par
-   défaut de Leaflet n'appartient à aucun de nos deux thèmes. */
-.pe-map, .leaflet-container { background: var(--paper-2); }
+.pe-map { background: var(--paper-2); }

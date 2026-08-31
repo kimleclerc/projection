@@ -1,4 +1,9 @@
-import { useEffect, useRef, useState } from 'preact/hooks';
+import { useEffect, useMemo, useState } from 'preact/hooks';
+import {
+  projectFeatures,
+  type GeoFeatureLike,
+  type ProjectedShape,
+} from '../lib/mapProjection';
 
 export interface RidingFull {
   riding_id: string;
@@ -75,7 +80,7 @@ interface Props {
    *  de côté) : recadrer sur la portée active est la seule façon de les voir.
    *  Vide = retour au cadrage d'ensemble (`center`/`zoom`). */
   focusIds?: string[];
-  /** Hauteur du canevas Leaflet. Défaut historique : 480 px. */
+  /** Hauteur maximale du canevas SVG. Défaut historique : 480 px. */
   height?: number;
   /** Présentation éditoriale d'un scénario personnel, sans probabilités de modèle. */
   scenario?: boolean;
@@ -441,18 +446,11 @@ export default function RidingsMap({
   height = 480,
   scenario = false,
 }: Props) {
-  const mapRef = useRef<HTMLDivElement>(null);
-  const geoLayerRef = useRef<any>(null);
-  const mapInstanceRef = useRef<any>(null);
-  const leafletRef = useRef<any>(null);
-  const homeViewRef = useRef<{ center: [number, number]; zoom: number } | null>(null);
-  const focusedRef = useRef(false);
-  const ridingsRef = useRef(ridings);
-  const partiesRef = useRef(parties);
-  const highlightsRef = useRef(highlightIds);
+  const mapWidth = 1000;
+  const mapHeight = 620;
   const [error, setError] = useState<string | null>(null);
-  const [loaded, setLoaded] = useState(false);
-  const [zoomActive, setZoomActive] = useState(false);
+  const [features, setFeatures] = useState<GeoFeatureLike[]>([]);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   // Compute legend items (outside useEffect, reactive to props)
   const legendItems: LegendItem[] = [];
@@ -496,379 +494,95 @@ export default function RidingsMap({
       ? [0, heatMaxResolved / 3, (2 * heatMaxResolved) / 3, heatMaxResolved]
       : [];
 
-  ridingsRef.current = ridings;
-  partiesRef.current = parties;
-  highlightsRef.current = highlightIds;
-
-  // En mode réactif, les tableaux ne doivent pas redémarrer Leaflet. Le second
-  // effet ci-dessous met les couches à jour en place.
-  const ridingsDependency = reactive ? null : ridings;
-  const partiesDependency = reactive ? null : parties;
-  const highlightsDependency = reactive ? null : highlightIds;
-
   useEffect(() => {
     let cancelled = false;
-    let mapInstance: any = null;
-
-    // Inject popup CSS once per page (idempotent).
-    if (
-      typeof document !== 'undefined' &&
-      !document.getElementById('rm-popup-style')
-    ) {
-      const style = document.createElement('style');
-      style.id = 'rm-popup-style';
-      style.textContent = `
-.rm-popup .leaflet-popup-content { margin: 14px 16px; min-width: 220px; }
-.rm-popup .leaflet-popup-content-wrapper { border-radius: 6px; }
-.rm-pop { font-family: var(--mono, ui-monospace, monospace); font-size: 12px; line-height: 1.4; color: var(--ink, #1a1a1a); }
-.rm-pop-head { display: flex; align-items: baseline; gap: 8px; margin-bottom: 8px; }
-.rm-pop-title { font-family: var(--serif, Georgia, serif); font-size: 16px; font-weight: 500; margin: 0; flex: 1 1 auto; }
-.rm-pop-province { font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3, #888); }
-.rm-pop-pill { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border: 1px solid; border-radius: 999px; font-size: 11px; font-weight: 500; margin-bottom: 12px; }
-.rm-pop-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
-.rm-pop-eyebrow { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-3, #888); margin: 10px 0 6px; }
-/* Partielle : le scrutin qui arrive d'abord, mis en avant sur la générale. */
-.rm-pop-eyebrow-byel { color: var(--ink, #1a1a1a); font-weight: 600; }
-.rm-pop-row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 2px 0; }
-.rm-pop-key { color: var(--ink-2, #555); }
-.rm-pop-num { font-weight: 500; color: var(--ink, #1a1a1a); font-variant-numeric: tabular-nums; }
-.rm-pop-sep { height: 1px; background: var(--rule, #e5e5e0); margin: 8px 0 4px; }
-.rm-pop-heat-big { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 6px; }
-.rm-pop-heat-label { font-family: var(--serif, Georgia, serif); font-size: 15px; font-weight: 500; }
-.rm-pop-heat-value { font-size: 22px; font-weight: 600; font-variant-numeric: tabular-nums; }
-`;
-      document.head.appendChild(style);
-    }
-
-    async function boot() {
+    async function load() {
       try {
-        // Lazy-load Leaflet CSS
-        (import('leaflet/dist/leaflet.css' as any) as Promise<any>).catch(
-          () => {},
-        );
-
-        const [leafletModule, geoRes] = await Promise.all([
-          import('leaflet'),
-          fetch(geoUrl),
-        ]);
-
-        if (cancelled || !mapRef.current) return;
-
+        setError(null);
+        const geoRes = await fetch(geoUrl);
         if (!geoRes.ok) {
           throw new Error(`Failed to load GeoJSON: ${geoRes.status}`);
         }
         const geo = await geoRes.json();
-
-        if (cancelled || !mapRef.current) return;
-
-        const L = (leafletModule as any).default ?? leafletModule;
-
-        const activeRidings = ridingsRef.current;
-        const activeParties = partiesRef.current;
-        const activeHighlights = new Set(highlightsRef.current.flatMap(idAliases));
-        const ridingById = new Map<string, RidingFull>();
-        for (const riding of activeRidings) {
-          for (const alias of idAliases(riding.riding_id)) {
-            ridingById.set(alias, riding);
-          }
-        }
-        const colorByParty = new Map(activeParties.map((p) => [p.key, p.color]));
-
-        const prop = idProp ?? 'FEDNUM';
-        const mapCenter: [number, number] = center ?? [56, -96];
-        const mapZoom = zoom ?? 4;
-
-        // Click-to-activate scroll zoom: start disabled, enable on click,
-        // disable when clicking outside.
-        mapInstance = L.map(mapRef.current, {
-          zoomControl: true,
-          scrollWheelZoom: false,
-        }).setView(mapCenter, mapZoom);
-        mapInstanceRef.current = mapInstance;
-        leafletRef.current = L;
-        homeViewRef.current = { center: mapCenter, zoom: mapZoom };
-
-        const enableZoom = () => {
-          mapInstance.scrollWheelZoom.enable();
-          setZoomActive(true);
-        };
-        const disableZoom = () => {
-          mapInstance.scrollWheelZoom.disable();
-          setZoomActive(false);
-        };
-        mapInstance.on('focus click', enableZoom);
-        mapInstance.on('blur', disableZoom);
-        const outsideClick = (e: MouseEvent) => {
-          if (
-            mapRef.current &&
-            !mapRef.current.contains(e.target as Node)
-          ) {
-            disableZoom();
-          }
-        };
-        document.addEventListener('click', outsideClick);
-        // Stash on mapInstance so cleanup can remove
-        (mapInstance as any).__outsideClick = outsideClick;
-
-        // PAS DE FOND DE CARTE. Les circonscriptions pavent le territoire : leurs
-        // contours SONT la géographie, et un fond de tuiles ne fait que
-        // concurrencer les couleurs de parti — c'est du repérage, pas de la
-        // donnée. Aucun grand titre n'en met sous une carte électorale (NYT,
-        // 270toWin, Cook : zéro requête de tuiles, vérifié).
-        //
-        // Le retrait est aussi ce qui met les toponymes hors de portée d'un
-        // tiers : une étiquette cuite dans un raster ne se surcharge pas, et le
-        // renommage du lac Ontario en « Lake America » par le GNIS a montré que
-        // le nom affiché n'est pas une donnée stable. Ce qu'on n'affiche pas ne
-        // peut pas être renommé par quelqu'un d'autre.
-
-        geoLayerRef.current = L.geoJSON(geo, {
-          style(feature: any) {
-            const id = String(feature?.properties?.[prop] ?? '');
-            const riding = ridingById.get(id);
-            if (mode === 'heat') {
-              const value = riding ? riding.projection.vote_mean[heatKey ?? ''] ?? 0 : 0;
-              return {
-                fillColor: heatColor ?? '#888',
-                color: '#fff',
-                weight: 0.4,
-                fillOpacity: riding ? heatOpacity(value, heatMaxResolved) : HEAT_OPACITY_MIN,
-              };
-            }
-            let fillColor = '#bbb';
-            if (
-              riding &&
-              riding.projection.winner !== 'tossup' &&
-              riding.projection.p_winner >= winnerThreshold
-            ) {
-              fillColor =
-                colorByParty.get(riding.projection.winner) ?? '#bbb';
-            }
-            const highlighted = activeHighlights.has(id);
-            return {
-              fillColor,
-              color: highlighted ? '#171714' : '#fff',
-              weight: highlighted ? 2 : 0.4,
-              fillOpacity: highlighted ? 0.96 : 0.85,
-            };
-          },
-          onEachFeature(feature: any, layer: any) {
-            const id = String(feature?.properties?.[prop] ?? '');
-            const riding = ridingById.get(id);
-            if (!riding) return;
-
-            if (mode === 'heat' && heatKey) {
-              layer.bindPopup(
-                buildHeatPopupHtml(riding, activeParties, locale, heatKey, heatColor ?? '#888'),
-                { maxWidth: 320, className: 'rm-popup' },
-              );
-              const partyByKey = new Map(activeParties.map((p) => [p.key, p]));
-              const heatLabel =
-                partyByKey.get(heatKey)?.[locale === 'fr' ? 'label_fr' : 'label_en'] ??
-                heatKey;
-              const heatValueStr = fmtPct1(
-                clampPct(riding.projection.vote_mean[heatKey] ?? 0),
-                locale,
-              );
-              const name = locale === 'fr' ? riding.name_fr : riding.name_en;
-              layer.bindTooltip(
-                `<strong>${escapeHtml(name)}</strong><br>${escapeHtml(String(heatLabel))} : ${heatValueStr}`,
-                { sticky: true, direction: 'top' },
-              );
-              const el = layer.getElement?.();
-              if (el && el.setAttribute) {
-                el.setAttribute('aria-label', buildHeatAriaLabel(riding, activeParties, locale, heatKey));
-                el.setAttribute('role', 'img');
-                el.setAttribute('tabindex', '-1');
-              }
-              return;
-            }
-
-            layer.bindPopup(scenario
-              ? buildScenarioPopupHtml(riding, activeParties, locale)
-              : buildPopupHtml(riding, activeParties, locale, baselineYear, winnerThreshold), {
-              maxWidth: 320,
-              className: 'rm-popup',
-            });
-            // Also keep a brief tooltip on hover (name + party).
-            const partyByKey = new Map(activeParties.map((p) => [p.key, p]));
-            const winnerLabel =
-              riding.projection.winner === 'tossup' ||
-              riding.projection.p_winner < winnerThreshold
-                ? locale === 'fr'
-                  ? 'Indécis'
-                  : 'Tossup'
-                : (partyByKey.get(riding.projection.winner)?.[
-                    locale === 'fr' ? 'label_fr' : 'label_en'
-                  ] ?? riding.projection.winner);
-            const name =
-              locale === 'fr' ? riding.name_fr : riding.name_en;
-            layer.bindTooltip(
-              `<strong>${escapeHtml(name)}</strong><br>${escapeHtml(winnerLabel)}`,
-              { sticky: true, direction: 'top' },
-            );
-            // a11y: aria-label on the SVG path.
-            const el = layer.getElement?.();
-            if (el && el.setAttribute) {
-              el.setAttribute(
-                'aria-label',
-                scenario
-                  ? buildScenarioAriaLabel(riding, activeParties, locale)
-                  : buildAriaLabel(riding, activeParties, locale, winnerThreshold),
-              );
-              el.setAttribute('role', 'img');
-              el.setAttribute('tabindex', '-1');
-            }
-          },
-        }).addTo(mapInstance);
-
-        setLoaded(true);
+        if (!cancelled) setFeatures(Array.isArray(geo?.features) ? geo.features : []);
       } catch (e: any) {
         if (!cancelled) setError(String(e?.message ?? e));
       }
     }
-
-    boot();
+    load();
     return () => {
       cancelled = true;
-      if (mapInstance) {
-        try {
-          if ((mapInstance as any).__outsideClick) {
-            document.removeEventListener(
-              'click',
-              (mapInstance as any).__outsideClick,
-            );
-          }
-          mapInstance.remove();
-          geoLayerRef.current = null;
-          mapInstanceRef.current = null;
-          homeViewRef.current = null;
-        } catch {
-          /* noop */
-        }
-      }
     };
-  }, [
-    geoUrl,
-    ridingsDependency,
-    partiesDependency,
-    locale,
-    center,
-    zoom,
-    idProp,
-    baselineYear,
-    mode,
-    heatKey,
-    heatColor,
-    heatMaxResolved,
-    winnerThreshold,
-    highlightsDependency,
-    scenario,
-  ]);
+  }, [geoUrl]);
 
-  useEffect(() => {
-    if (!reactive || !loaded || !geoLayerRef.current) return;
-
-    const ridingById = new Map<string, RidingFull>();
+  const prop = idProp ?? 'FEDNUM';
+  const ridingById = useMemo(() => {
+    const lookup = new Map<string, RidingFull>();
     for (const riding of ridings) {
-      for (const alias of idAliases(riding.riding_id)) ridingById.set(alias, riding);
+      for (const alias of idAliases(riding.riding_id)) lookup.set(alias, riding);
     }
-    const partyByKey = new Map(parties.map((party) => [party.key, party]));
-    const colorByParty = new Map(parties.map((party) => [party.key, party.color]));
-    const highlighted = new Set(highlightIds.flatMap(idAliases));
-    const prop = idProp ?? 'FEDNUM';
+    return lookup;
+  }, [ridings]);
+  const partyColor = useMemo(
+    () => new Map(parties.map((party) => [party.key, party.color])),
+    [parties],
+  );
+  const highlighted = useMemo(
+    () => new Set(highlightIds.flatMap(idAliases)),
+    [highlightIds],
+  );
+  const projected = useMemo(
+    () => projectFeatures(features, geoUrl, prop, {
+      center: center ?? [56, -96],
+      width: mapWidth,
+      height: mapHeight,
+      padding: 22,
+    }),
+    [features, geoUrl, prop, center?.[0], center?.[1]],
+  );
 
-    geoLayerRef.current.eachLayer((layer: any) => {
-      const id = String(layer.feature?.properties?.[prop] ?? '');
-      const riding = ridingById.get(id);
-      if (!riding) return;
-
-      let fillColor = '#bbb';
-      if (
-        riding.projection.winner !== 'tossup' &&
-        riding.projection.p_winner >= winnerThreshold
-      ) {
-        fillColor = colorByParty.get(riding.projection.winner) ?? '#bbb';
-      }
-      const isHighlighted = highlighted.has(id);
-      layer.setStyle({
-        fillColor,
-        color: isHighlighted ? '#171714' : '#fff',
-        weight: isHighlighted ? 2 : 0.4,
-        fillOpacity: isHighlighted ? 0.96 : 0.85,
-      });
-      layer.setPopupContent(scenario
-        ? buildScenarioPopupHtml(riding, parties, locale)
-        : buildPopupHtml(riding, parties, locale, baselineYear, winnerThreshold));
-
-      const winnerLabel =
-        riding.projection.winner === 'tossup' || riding.projection.p_winner < winnerThreshold
-          ? locale === 'fr' ? 'Indécis' : 'Tossup'
-          : (partyByKey.get(riding.projection.winner)?.[
-              locale === 'fr' ? 'label_fr' : 'label_en'
-            ] ?? riding.projection.winner);
-      const name = locale === 'fr' ? riding.name_fr : riding.name_en;
-      layer.setTooltipContent(`<strong>${escapeHtml(name)}</strong><br>${escapeHtml(winnerLabel)}`);
-      const el = layer.getElement?.();
-      if (el?.setAttribute) {
-        el.classList.toggle('is-changed', isHighlighted);
-        el.setAttribute('aria-label', scenario
-          ? buildScenarioAriaLabel(riding, parties, locale)
-          : buildAriaLabel(riding, parties, locale, winnerThreshold));
-      }
-    });
-  }, [reactive, loaded, ridings, parties, highlightIds, locale, idProp, baselineYear, winnerThreshold, scenario]);
-
-  // Recadrage sur la portée active. Le Québec est le cas qui l'impose : à un
-  // zoom qui montre la Gaspésie, la moitié des circonscriptions font moins de
-  // 10 px de côté. Les bornes viennent du GeoJSON, jamais d'un centre codé en
-  // dur — c'est ce qui avait laissé la carte pointée 400 km au nord du vote.
-  const focusKey = focusIds.join(',');
-  useEffect(() => {
-    const map = mapInstanceRef.current;
-    const layerGroup = geoLayerRef.current;
-    const L = leafletRef.current;
-    if (!loaded || !map || !layerGroup || !L) return;
-
-    const prop = idProp ?? 'FEDNUM';
-
-    if (!focusIds.length) {
-      const home = homeViewRef.current;
-      if (home && focusedRef.current) map.setView(home.center, home.zoom, { animate: false });
-      focusedRef.current = false;
-      return;
-    }
-
+  const viewBox = useMemo(() => {
+    if (!focusIds.length || !projected.length) return `0 0 ${mapWidth} ${mapHeight}`;
     const wanted = new Set(focusIds.flatMap(idAliases));
-    let bounds: any = null;
-    layerGroup.eachLayer((layer: any) => {
-      const id = String(layer.feature?.properties?.[prop] ?? '');
-      if (!wanted.has(id) || !layer.getBounds) return;
-      const b = layer.getBounds();
-      if (!b.isValid()) return;
-      bounds = bounds ? bounds.extend(b) : L.latLngBounds(b.getSouthWest(), b.getNorthEast());
-    });
-    const home = homeViewRef.current;
-    if (!bounds) return;
-    // Une portée peut être plus large que la vue d'ensemble : « Reste du Québec »
-    // contient Ungava, et s'y ajuster dézoomait à 4 — moins lisible que le défaut.
-    // Recadrer ne doit jamais reculer.
-    const target = map.getBoundsZoom(bounds, false, L.point(28, 28));
-    if (home && target <= home.zoom) {
-      map.setView(home.center, home.zoom, { animate: false });
-      focusedRef.current = true;
-      return;
-    }
-    // Recadrage sec, sans animation : le vol Leaflet passe par requestAnimationFrame,
-    // qui ne tourne pas dans un onglet masqué — la carte restait alors muette.
-    map.fitBounds(bounds, { padding: [28, 28], maxZoom: 12, animate: false });
-    focusedRef.current = true;
-  }, [loaded, focusKey, idProp]);
+    const matches = projected.filter((shape) => wanted.has(featureIdFor(shape, prop)));
+    if (!matches.length) return `0 0 ${mapWidth} ${mapHeight}`;
+    const x0 = Math.min(...matches.map((shape) => shape.bounds[0]));
+    const y0 = Math.min(...matches.map((shape) => shape.bounds[1]));
+    const x1 = Math.max(...matches.map((shape) => shape.bounds[2]));
+    const y1 = Math.max(...matches.map((shape) => shape.bounds[3]));
+    const pad = Math.max(18, Math.max(x1 - x0, y1 - y0) * .08);
+    const width = Math.max(120, x1 - x0 + pad * 2);
+    const height = Math.max(120, y1 - y0 + pad * 2);
+    return `${x0 - pad} ${y0 - pad} ${width} ${height}`;
+  }, [focusIds.join(','), projected, prop]);
 
-  const hint =
-    locale === 'fr'
-      ? 'Cliquez la carte pour activer le zoom à la molette'
-      : 'Click the map to enable scroll-wheel zoom';
+  const selected = selectedId ? ridingById.get(selectedId) ?? null : null;
+  const selectedHtml = selected
+    ? mode === 'heat' && heatKey
+      ? buildHeatPopupHtml(selected, parties, locale, heatKey, heatColor ?? '#888')
+      : scenario
+        ? buildScenarioPopupHtml(selected, parties, locale)
+        : buildPopupHtml(selected, parties, locale, baselineYear, winnerThreshold)
+    : '';
+  const insetLabels = [...new Set(projected.map((shape) => shape.inset).filter(Boolean))] as string[];
+
+  function styleFor(shape: ProjectedShape) {
+    const id = featureIdFor(shape, prop);
+    const riding = ridingById.get(id);
+    const isHighlighted = highlighted.has(id);
+    if (mode === 'heat') {
+      const value = riding?.projection.vote_mean[heatKey ?? ''] ?? 0;
+      return {
+        fill: hexToRgba(heatColor ?? '#888', riding ? heatOpacity(value, heatMaxResolved) : HEAT_OPACITY_MIN),
+        stroke: isHighlighted ? '#171714' : '#fff',
+        strokeWidth: isHighlighted ? 2.5 : .72,
+      };
+    }
+    const fill = riding && riding.projection.winner !== 'tossup' && riding.projection.p_winner >= winnerThreshold
+      ? partyColor.get(riding.projection.winner) ?? '#bbb'
+      : '#bbb';
+    return { fill, stroke: isHighlighted ? '#171714' : '#fff', strokeWidth: isHighlighted ? 2.5 : .72 };
+  }
 
   return (
     <div class="pe-chart-wrap" data-analytics-event="projection_map_interaction" data-analytics-once="true">
@@ -877,29 +591,82 @@ export default function RidingsMap({
           {error}
         </p>
       )}
-      {!error && !loaded && (
+      {!error && !features.length && (
         <p class="pe-chart-loading" role="status">
           {locale === 'fr' ? 'Chargement de la carte…' : 'Loading map…'}
         </p>
       )}
       <div
-        style="position:relative;"
+        class="rm-stage"
+        style={`--rm-height:${height}px;`}
         role="region"
         aria-label={
           locale === 'fr' ? 'Carte des circonscriptions' : 'Riding map'
         }
       >
-        <div
-          ref={mapRef}
-          class="pe-map"
-          style={`height:${height}px;width:100%;border-radius:4px;`}
-        />
-        {loaded && !zoomActive && (
-          <div
-            style="position:absolute;top:10px;right:50px;background:rgba(255,255,255,0.92);border:1px solid #ddd;border-radius:3px;padding:5px 9px;font-family:var(--mono,monospace);font-size:11px;color:#555;pointer-events:none;z-index:500;"
-          >
-            {hint}
-          </div>
+        <svg
+          class="rm-svg"
+          viewBox={viewBox}
+          preserveAspectRatio="xMidYMid meet"
+          aria-hidden="true"
+        >
+          <g class="rm-geography">
+            {projected.map((shape, index) => {
+              const id = featureIdFor(shape, prop);
+              const riding = ridingById.get(id);
+              const style = styleFor(shape);
+              const aria = riding
+                ? mode === 'heat' && heatKey
+                  ? buildHeatAriaLabel(riding, parties, locale, heatKey)
+                  : scenario
+                    ? buildScenarioAriaLabel(riding, parties, locale)
+                    : buildAriaLabel(riding, parties, locale, winnerThreshold)
+                : undefined;
+              return (
+                <path
+                  key={`${id}-${index}`}
+                  d={shape.path}
+                  fill={style.fill}
+                  stroke={style.stroke}
+                  stroke-width={style.strokeWidth}
+                  vector-effect="non-scaling-stroke"
+                  fill-rule="evenodd"
+                  class={`rm-district${selectedId === id ? ' is-selected' : ''}`}
+                  role={riding ? 'button' : undefined}
+                  tabindex={riding ? 0 : undefined}
+                  aria-label={aria}
+                  onClick={() => riding && setSelectedId(id)}
+                  onKeyDown={(event) => {
+                    if (riding && (event.key === 'Enter' || event.key === ' ')) {
+                      event.preventDefault();
+                      setSelectedId(id);
+                    }
+                  }}
+                >
+                  {riding && <title>{aria}</title>}
+                </path>
+              );
+            })}
+          </g>
+          {insetLabels.map((label) => {
+            const shapes = projected.filter((shape) => shape.inset === label);
+            const x = Math.min(...shapes.map((shape) => shape.bounds[0]));
+            const y = Math.min(...shapes.map((shape) => shape.bounds[1]));
+            return <text key={label} x={x} y={Math.max(12, y - 6)} class="rm-inset-label">{label}</text>;
+          })}
+        </svg>
+        {selected && (
+          <aside class="rm-detail-card" aria-live="polite">
+            <button
+              class="rm-detail-close"
+              type="button"
+              aria-label={locale === 'fr' ? 'Fermer les détails' : 'Close details'}
+              onClick={() => setSelectedId(null)}
+            >
+              ×
+            </button>
+            <div dangerouslySetInnerHTML={{ __html: selectedHtml }} />
+          </aside>
         )}
       </div>
       {mode === 'heat' ? (
@@ -947,6 +714,43 @@ export default function RidingsMap({
           ))}
         </ul>
       )}
+      <style>{`
+        .rm-stage { position: relative; width: 100%; min-height: min(var(--rm-height), 62vw); background: var(--paper, #fff); overflow: hidden; }
+        .rm-svg { display: block; width: 100%; height: min(var(--rm-height), 62vw); min-height: 280px; touch-action: manipulation; }
+        .rm-district { cursor: pointer; transition: filter 120ms ease, stroke-width 120ms ease; outline: none; }
+        .rm-district:hover, .rm-district:focus-visible, .rm-district.is-selected { filter: brightness(.88); stroke: var(--ink, #171714); stroke-width: 2.4; }
+        .rm-district:focus-visible { filter: drop-shadow(0 0 2px rgba(0,0,0,.5)); }
+        .rm-inset-label { font-family: var(--mono, ui-monospace, monospace); font-size: 13px; fill: var(--ink-3, #777); }
+        .rm-detail-card { position: absolute; left: 18px; right: 18px; bottom: 14px; z-index: 3; max-width: 560px; padding: 16px 44px 16px 18px; background: rgba(255,255,255,.97); border: 1px solid var(--rule, #d8d8d2); box-shadow: 0 4px 18px rgba(0,0,0,.22); }
+        .rm-detail-close { position: absolute; right: 10px; top: 8px; width: 32px; height: 32px; border: 0; background: transparent; color: var(--ink-2, #555); font: 24px/1 var(--sans, sans-serif); cursor: pointer; }
+        .rm-pop { font-family: var(--mono, ui-monospace, monospace); font-size: 12px; line-height: 1.4; color: var(--ink, #1a1a1a); }
+        .rm-pop-head { display: flex; align-items: baseline; gap: 8px; margin-bottom: 8px; }
+        .rm-pop-title { font-family: var(--serif, Georgia, serif); font-size: 18px; font-weight: 600; margin: 0; flex: 1 1 auto; }
+        .rm-pop-province { font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3, #888); }
+        .rm-pop-pill { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border: 1px solid; border-radius: 999px; font-size: 11px; font-weight: 600; margin-bottom: 12px; }
+        .rm-pop-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
+        .rm-pop-eyebrow { font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3, #888); margin: 10px 0 6px; }
+        .rm-pop-eyebrow-byel { color: var(--ink, #1a1a1a); font-weight: 700; }
+        .rm-pop-row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 2px 0; }
+        .rm-pop-key { color: var(--ink-2, #555); }
+        .rm-pop-num { font-weight: 600; color: var(--ink, #1a1a1a); font-variant-numeric: tabular-nums; }
+        .rm-pop-sep { height: 1px; background: var(--rule, #e5e5e0); margin: 8px 0 4px; }
+        .rm-pop-heat-big { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 6px; }
+        .rm-pop-heat-label { font-family: var(--serif, Georgia, serif); font-size: 15px; font-weight: 500; }
+        .rm-pop-heat-value { font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; }
+        @media (max-width: 640px) {
+          .rm-stage { min-height: 330px; overflow: visible; }
+          .rm-svg { height: auto; min-height: 330px; }
+          .rm-detail-card { position: absolute; left: 8px; right: 8px; bottom: 8px; max-height: 72%; overflow: auto; padding: 13px 40px 13px 14px; }
+          .rm-pop-title { font-size: 16px; }
+        }
+      `}</style>
     </div>
   );
+}
+
+function featureIdFor(shape: ProjectedShape, idProp: string): string {
+  const raw = String(shape.feature.properties?.[idProp] ?? shape.feature.properties?.riding_id ?? '');
+  const aliases = idAliases(raw);
+  return aliases[0] ?? raw;
 }

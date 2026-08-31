@@ -124,9 +124,15 @@ export default function TileMap({ blocs, canvas, ridings, locale, colors, labels
       </div>
 
       {/* La fiche ne déplace jamais la carte : c'est elle qui rend le zoom inutile. */}
-      <p class="tmap-detail" aria-live="polite">
+      <p class={`tmap-detail${cur ? ' is-open' : ''}`} aria-live="polite">
         {cur ? (
           <>
+            <button
+              class="tmap-close"
+              type="button"
+              aria-label={locale === 'fr' ? 'Fermer les détails' : locale === 'es' ? 'Cerrar detalles' : 'Close details'}
+              onClick={() => setSel(null)}
+            >×</button>
             <strong>{cur.name}</strong>
             <span class="tmap-who">
               <i style={{ background: (cur.winner && colors[cur.winner]) || GRIS }} aria-hidden="true" />

@@ -26,9 +26,9 @@ interface Props {
 }
 
 const COPY = {
-  fr: { tiles: 'Tuiles', map: 'Carte', flip: 'gain sur', search: 'Chercher une circonscription' },
-  en: { tiles: 'Tiles', map: 'Map', flip: 'gain from', search: 'Search a riding' },
-  es: { tiles: 'Mosaico', map: 'Mapa', flip: 'gana a', search: 'Buscar un distrito' },
+  fr: { tiles: 'Carte proportionnelle', map: 'Carte des circonscriptions', flip: 'gain sur', search: 'Chercher une circonscription' },
+  en: { tiles: 'Proportional map', map: 'District map', flip: 'gain from', search: 'Search a riding' },
+  es: { tiles: 'Mapa proporcional', map: 'Mapa de distritos', flip: 'gana a', search: 'Buscar un distrito' },
 } as const;
 
 export default function ProjectionTiles({
