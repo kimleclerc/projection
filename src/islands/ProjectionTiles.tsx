@@ -13,6 +13,7 @@ import type { RidingFull, MapParty } from './RidingsMap';
  */
 interface Props {
   blocs: TileBloc[];
+  canvas?: { w: number; h: number };
   ridings: RidingFull[];
   parties: MapParty[];
   locale: 'fr' | 'en' | 'es';
@@ -31,7 +32,7 @@ const COPY = {
 } as const;
 
 export default function ProjectionTiles({
-  blocs, ridings, parties, locale, geoUrl, center, zoom, idProp, baselineYear,
+  blocs, canvas, ridings, parties, locale, geoUrl, center, zoom, idProp, baselineYear,
   winnerThreshold = 0.5,
 }: Props) {
   const [vue, setVue] = useState<'tiles' | 'geo'>(blocs.length ? 'tiles' : 'geo');
@@ -80,7 +81,7 @@ export default function ProjectionTiles({
 
       {vue === 'tiles' && blocs.length > 0 ? (
         <TileMap
-          blocs={blocs} ridings={tuiles} locale={locale}
+          blocs={blocs} canvas={canvas} ridings={tuiles} locale={locale}
           colors={colors} labels={labels} query={q} flipWord={`${t.flip} ${baselineYear}`}
         />
       ) : (

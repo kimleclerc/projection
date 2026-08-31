@@ -589,20 +589,21 @@
 .msim-mapview button + button { border-left: 1px solid var(--rule); }
 .msim-mapview button[aria-pressed="true"] { background: var(--ink); color: var(--card); }
 
-.tmap-board {
-  display: grid; grid-template-columns: repeat(6, max-content); justify-content: space-between;
-  gap: 15px 10px; align-items: start; padding: 15px 16px;
-}
-.tmap-col { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+/* La toile porte les blocs à leur position géographique, en pourcentage : la
+   carte se met donc à l'échelle de son conteneur sans rien recalculer, et
+   garde la même forme du téléphone à l'écran large. */
+.tmap-board { position: relative; width: 100%; margin: 14px auto 0; }
+.tmap-bloc { position: absolute; }
 .tmap-bloc h3 {
-  display: flex; justify-content: space-between; align-items: baseline; gap: 5px;
-  margin: 0 0 4px; font-size: .64rem; font-weight: 600; color: var(--ink-2);
+  display: flex; justify-content: space-between; align-items: baseline; gap: 4px;
+  margin: 0 0 2px; font-size: clamp(7px, .95vw, 11px); font-weight: 600;
+  color: var(--ink-2); white-space: nowrap; overflow: hidden;
 }
-.tmap-bloc h3 em { font-family: var(--mono); font-style: normal; font-size: .58rem; color: var(--ink-3); }
-.tmap-cells { display: grid; gap: 2px; justify-content: start; }
+.tmap-bloc h3 em { font-family: var(--mono); font-style: normal; font-size: .85em; color: var(--ink-3); }
+.tmap-cells { display: grid; gap: 6%; }
 
 .tmap-tile {
-  width: var(--tmap-cell); height: var(--tmap-cell); border: 0; padding: 0; border-radius: 1px;
+  width: 100%; aspect-ratio: 1; border: 0; padding: 0; border-radius: 1px;
   cursor: pointer; transition: background-color .3s ease, box-shadow .15s ease, transform .15s ease;
 }
 .tmap-tile:hover, .tmap-tile:focus-visible {
@@ -629,8 +630,7 @@
 .tmap-vide { color: var(--ink-3); font-size: .8rem; }
 
 @media (max-width: 860px) {
-  .tmap-board { gap: 12px 6px; padding: 11px 10px; }
-  .tmap-bloc h3 { font-size: .58rem; letter-spacing: -.01em; }
+  .tmap-bloc h3 { letter-spacing: -.02em; }
 }
 
 /* Barre de bascule des cartes de projection. */

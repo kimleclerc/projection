@@ -418,9 +418,12 @@ const geoUrl = `/web_data/${jurisdiction.dataPath}/ridings.geojson`;
 // Blocs de la carte en tuiles, produits par le moteur dans simulator.json.
 // Best-effort : une juridiction sans découpage connu n'a que la géographique.
 let tileBlocs: any[] = [];
+let tileCanvas: any = undefined;
 try {
   const simPath = resolve(process.cwd(), 'web_data', jurisdiction.dataPath, 'simulator.json');
-  tileBlocs = JSON.parse(readFileSync(simPath, 'utf-8'))?.tiles?.blocs ?? [];
+  const tuiles = JSON.parse(readFileSync(simPath, 'utf-8'))?.tiles;
+  tileBlocs = tuiles?.blocs ?? [];
+  tileCanvas = tuiles?.canvas;
 } catch { tileBlocs = []; }
 
 // Top 5 mainstream parties (drop the catch-all "_oth" buckets).
@@ -738,6 +741,7 @@ const pageNavItems = [
     <article class="pe-chart-card">
       <ProjectionTiles
         blocs={tileBlocs}
+        canvas={tileCanvas}
         ridings={mapRidings}
         parties={mapParties}
         locale={locale}

@@ -485,6 +485,7 @@ export default function MiniSimulator({ doc, locale, map }: Props) {
           {doc.tiles && mapView === 'tiles' ? (
             <TileMap
               blocs={doc.tiles.blocs}
+              canvas={doc.tiles.canvas}
               ridings={ridingStates.map((r) => ({
                 id: r.id, name: r.name, winner: r.winner,
                 from: r.baselineWinner, changed: r.changed, margin: r.margin,

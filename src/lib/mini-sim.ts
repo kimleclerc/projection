@@ -59,10 +59,11 @@ export interface SimDoc {
   tiles?: {
     scheme: string;
     n_groups: number;
+    canvas: { w: number; h: number };
     blocs: {
       id: string;
       label_fr: string; label_en: string; label_es: string;
-      col: number; n: number; cols: number;
+      x: number; y: number; n: number; cols: number; rows: number;
       ids: string[];
     }[];
   };

@@ -31,12 +31,17 @@ export interface TileRiding {
 export interface TileBloc {
   id: string;
   label_fr: string; label_en: string; label_es: string;
-  col: number; n: number; cols: number;
+  /** Position du bloc sur la toile, en unités de tuile — sa VRAIE position
+   *  géographique, écartée juste assez pour ne chevaucher personne. */
+  x: number; y: number;
+  n: number; cols: number; rows: number;
   ids: string[];
 }
 
 interface Props {
   blocs: TileBloc[];
+  /** Dimensions de la toile, en unités de tuile. */
+  canvas?: { w: number; h: number };
   ridings: TileRiding[];
   locale: 'fr' | 'en' | 'es';
   colors: Record<string, string>;
@@ -54,14 +59,14 @@ const COPY = {
 
 const GRIS = '#b9b6ae';
 
-export default function TileMap({ blocs, ridings, locale, colors, labels, query = '', flipWord }: Props) {
+export default function TileMap({ blocs, canvas, ridings, locale, colors, labels, query = '', flipWord }: Props) {
   const [sel, setSel] = useState<string | null>(null);
   const t = COPY[locale] ?? COPY.fr;
   const byId = useMemo(() => new Map(ridings.map((r) => [r.id, r])), [ridings]);
-  const colonnes = useMemo(() => {
-    const max = blocs.reduce((m, b) => Math.max(m, b.col), 0);
-    return Array.from({ length: max + 1 }, (_, i) => blocs.filter((b) => b.col === i));
-  }, [blocs]);
+  const toile = canvas ?? {
+    w: Math.max(...blocs.map((b) => b.x + b.cols), 1),
+    h: Math.max(...blocs.map((b) => b.y + b.rows + 0.75), 1),
+  };
 
   if (!blocs.length) return null;
   const q = query.trim().toLocaleLowerCase();
@@ -73,38 +78,48 @@ export default function TileMap({ blocs, ridings, locale, colors, labels, query 
 
   return (
     <div class="tmap">
-      <div class="tmap-board">
-        {colonnes.map((col, ci) => (
-          <div class="tmap-col" key={ci}>
-            {col.map((b) => (
-              <section class="tmap-bloc" key={b.id} aria-labelledby={`tmap-${b.id}`}>
-                <h3 id={`tmap-${b.id}`}>
-                  <span>{locale === 'en' ? b.label_en : locale === 'es' ? b.label_es : b.label_fr}</span>
-                  <em>{b.n}</em>
-                </h3>
-                <div class="tmap-cells" style={{ gridTemplateColumns: `repeat(${b.cols},var(--tmap-cell))` }}>
-                  {b.ids.map((id) => {
-                    const r = byId.get(id);
-                    if (!r) return null;
-                    const dim = q.length > 0 && !r.name.toLocaleLowerCase().includes(q);
-                    return (
-                      <button
-                        key={id}
-                        type="button"
-                        class={`tmap-tile${r.changed ? ' is-flip' : ''}${dim ? ' is-dim' : ''}`}
-                        style={{ background: (r.winner && colors[r.winner]) || GRIS }}
-                        aria-pressed={sel === id}
-                        aria-label={`${r.name} — ${nom(r.winner)}${r.changed && r.from ? `, ${flipWord ?? t.from} ${nom(r.from)}` : ''}, ${t.margin} ${nf(r.margin)}`}
-                        onClick={() => setSel(id)}
-                        onMouseEnter={() => setSel(id)}
-                        onFocus={() => setSel(id)}
-                      />
-                    );
-                  })}
-                </div>
-              </section>
-            ))}
-          </div>
+      {/* Chaque bloc est posé à sa position géographique, en unités de tuile.
+          Les ranger en colonnes donnait un ORDRE, pas une FORME. */}
+      <div
+        class="tmap-board"
+        style={{ aspectRatio: `${toile.w} / ${toile.h}`, '--tmap-cols': toile.w }}
+      >
+        {blocs.map((b) => (
+          <section
+            class="tmap-bloc"
+            key={b.id}
+            aria-labelledby={`tmap-${b.id}`}
+            style={{
+              left: `${(b.x / toile.w) * 100}%`,
+              top: `${(b.y / toile.h) * 100}%`,
+              width: `${(b.cols / toile.w) * 100}%`,
+            }}
+          >
+            <h3 id={`tmap-${b.id}`}>
+              <span>{locale === 'en' ? b.label_en : locale === 'es' ? b.label_es : b.label_fr}</span>
+              <em>{b.n}</em>
+            </h3>
+            <div class="tmap-cells" style={{ gridTemplateColumns: `repeat(${b.cols},1fr)` }}>
+              {b.ids.map((id) => {
+                const r = byId.get(id);
+                if (!r) return null;
+                const dim = q.length > 0 && !r.name.toLocaleLowerCase().includes(q);
+                return (
+                  <button
+                    key={id}
+                    type="button"
+                    class={`tmap-tile${r.changed ? ' is-flip' : ''}${dim ? ' is-dim' : ''}`}
+                    style={{ background: (r.winner && colors[r.winner]) || GRIS }}
+                    aria-pressed={sel === id}
+                    aria-label={`${r.name} — ${nom(r.winner)}${r.changed && r.from ? `, ${flipWord ?? t.from} ${nom(r.from)}` : ''}, ${t.margin} ${nf(r.margin)}`}
+                    onClick={() => setSel(id)}
+                    onMouseEnter={() => setSel(id)}
+                    onFocus={() => setSel(id)}
+                  />
+                );
+              })}
+            </div>
+          </section>
         ))}
       </div>
 
