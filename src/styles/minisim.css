@@ -584,29 +584,39 @@
    carte se met donc à l'échelle de son conteneur sans rien recalculer, et
    garde la même forme du téléphone à l'écran large. */
 .tmap-board { position: relative; width: 100%; margin: 14px auto 0; }
-.tmap-bloc { position: absolute; }
-.tmap-bloc h3 {
-  display: flex; justify-content: space-between; align-items: baseline; gap: 4px;
-  margin: 0 0 2px; font-size: clamp(7px, .95vw, 11px); font-weight: 600;
-  color: var(--ink-2); white-space: nowrap; overflow: hidden;
-}
-.tmap-bloc h3 em { font-family: var(--mono); font-style: normal; font-size: .85em; color: var(--ink-3); }
-.tmap-cells { display: grid; }  /* l'écart est posé par TileMap : il dépend du nombre de colonnes */
 
-.tmap-tile {
-  width: 100%; aspect-ratio: 1; border: 0; padding: 0; border-radius: 1px;
-  cursor: pointer; transition: background-color .3s ease, box-shadow .15s ease, transform .15s ease;
+/* Les tuiles vivent dans UN SVG à viewBox : leurs coordonnées sont fixes, donc
+   leur égalité ne dépend d'aucun calcul de mise en page. Ne rien dimensionner
+   ici au-delà du remplissage du cadre — c'est le viewBox qui décide. */
+.tmap-svg { display: block; width: 100%; height: auto; overflow: visible; }
+
+/* L'étiquette est du HTML posé en POURCENTAGE au-dessus de son bloc, dans la
+   boîte que le moteur lui a réservée (label_w x label_h). Son corps a un
+   plancher : dans le SVG elle rétrécirait avec les tuiles, illisible à 7 px. */
+.tmap-label {
+  position: absolute; display: flex; justify-content: space-between; align-items: flex-end; gap: 4px;
+  margin: 0; padding: 0 0 1px; font-size: clamp(7px, .95vw, 11px); font-weight: 600;
+  line-height: 1.12; color: var(--ink-2); pointer-events: none;
 }
-.tmap-tile:hover, .tmap-tile:focus-visible {
-  outline: 0; box-shadow: 0 0 0 2px var(--ink); transform: scale(1.18); position: relative; z-index: 3;
-}
-.tmap-tile[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--ink); position: relative; z-index: 2; }
+/* Le pliage vient du moteur — c'est celui sur lequel il a mesuré la place.
+   Replier ici, ou laisser le navigateur le faire, rendrait la carte fausse. */
+.tmap-label .tmap-ligne { display: block; white-space: nowrap; }
+/* Quand l'étiquette est plus large que son bloc, elle doit déborder du côté où
+   il reste de la place — sinon elle se pose sur son voisin de droite. Le moteur
+   a tranché ; ici on ne fait qu'aligner le texte du bon côté pour que le
+   dépassement parte dans la bonne direction. */
+.tmap-label.is-end { flex-direction: row-reverse; text-align: right; }
+.tmap-label em { font-family: var(--mono); font-style: normal; font-size: .85em; color: var(--ink-3); }
+
+.tmap-tile rect { cursor: pointer; transition: opacity .3s ease; }
+.tmap-tile rect:focus-visible { outline: 0; }
 .tmap-tile.is-dim { opacity: .14; }
-/* Bascule : une HACHURE, pas une nuance — une texture reste lisible à 12 px. */
-.tmap-tile.is-flip {
-  background-image: repeating-linear-gradient(45deg, transparent 0 2px, rgba(0,0,0,.42) 2px 4px);
+/* Le liseré de sélection est un rectangle dessiné en dernier, jamais un contour
+   sur la tuile elle-même : les tuiles voisines, peintes après, le rogneraient. */
+.tmap-halo { fill: none; stroke: var(--ink); stroke-width: 2px; vector-effect: non-scaling-stroke; }
+.tmap-tile rect:focus-visible {
+  stroke: var(--ink); stroke-width: 2px; vector-effect: non-scaling-stroke;
 }
-@media (prefers-reduced-motion: reduce) { .tmap-tile { transition: none; } }
 
 .tmap-detail {
   display: flex; align-items: baseline; flex-wrap: wrap; gap: 5px 13px;
@@ -631,7 +641,7 @@
 .tmap-vide { color: var(--ink-3); font-size: .8rem; }
 
 @media (max-width: 860px) {
-  .tmap-bloc h3 { letter-spacing: -.02em; }
+  .tmap-label { letter-spacing: -.02em; }
 }
 
 /* Barre de bascule des cartes de projection. */
