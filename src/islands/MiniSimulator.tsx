@@ -1,4 +1,5 @@
 import { useMemo, useState, useEffect } from 'preact/hooks';
+import TileMap from './TileMap';
 import {
   simulate,
   simulateRidings,
@@ -50,6 +51,8 @@ const COPY = {
     changed: 'Bascule',
     more: (n: number) => `+ ${n} autres`,
     board: 'Qui détient quoi, dans votre scénario',
+    viewTiles: 'Tuiles',
+    viewGeo: 'Carte',
     total: 'Total',
     others: 'Autres partis',
     searchLabel: 'Filtrer par nom',
@@ -79,6 +82,8 @@ const COPY = {
     changed: 'Flip',
     more: (n: number) => `+ ${n} more`,
     board: 'Who holds what, in your scenario',
+    viewTiles: 'Tiles',
+    viewGeo: 'Map',
     total: 'Total',
     others: 'Other parties',
     searchLabel: 'Filter by name',
@@ -108,6 +113,8 @@ const COPY = {
     changed: 'Cambio',
     more: (n: number) => `+ ${n} más`,
     board: 'Quién tiene qué, en tu escenario',
+    viewTiles: 'Mosaico',
+    viewGeo: 'Mapa',
     total: 'Total',
     others: 'Otros partidos',
     searchLabel: 'Filtrar por nombre',
@@ -169,6 +176,10 @@ export default function MiniSimulator({ doc, locale, map }: Props) {
   // bascules. Il ouvre sur les bascules — c'est ce qu'on vient de provoquer —
   // et passe à l'ensemble d'un clic.
   const [ridingQuery, setRidingQuery] = useState('');
+  // La carte en tuiles est la vue par défaut quand la juridiction a un
+  // découpage connu : c'est la seule où toutes les circonscriptions sont
+  // visibles à la fois, sans zoom. La géographique reste d'un clic.
+  const [mapView, setMapView] = useState(doc.tiles ? 'tiles' : 'geo');
 
   // Lecture unique au mount : l'îlot est ensuite la source de vérité.
   useEffect(() => {
@@ -452,6 +463,12 @@ export default function MiniSimulator({ doc, locale, map }: Props) {
         <section class="msim-map-panel" aria-labelledby="msim-map-title">
           <div class="msim-map-head">
             <h2 id="msim-map-title">{t.map}</h2>
+            {doc.tiles && (
+              <div class="msim-mapview" role="group" aria-label={t.map}>
+                <button type="button" aria-pressed={mapView === 'tiles'} onClick={() => setMapView('tiles')}>{t.viewTiles}</button>
+                <button type="button" aria-pressed={mapView === 'geo'} onClick={() => setMapView('geo')}>{t.viewGeo}</button>
+              </div>
+            )}
             <div class="msim-legend" aria-label="Légende">
               {doc.parties.filter((party) => party.national >= 1.5).map((party) => (
                 <span key={party.code}>
@@ -462,6 +479,16 @@ export default function MiniSimulator({ doc, locale, map }: Props) {
             </div>
           </div>
 
+          {doc.tiles && mapView === 'tiles' ? (
+            <TileMap
+              doc={doc}
+              states={ridingStates}
+              locale={locale}
+              colors={Object.fromEntries(doc.parties.map((p) => [p.code, p.color]))}
+              labels={Object.fromEntries(doc.parties.map((p) => [p.code, partyLabel(p, locale)]))}
+              query={ridingQuery}
+            />
+          ) : (
           <div class="msim-map-stage">
             <RidingsMap
               geoUrl={map.geoUrl}
@@ -480,6 +507,7 @@ export default function MiniSimulator({ doc, locale, map }: Props) {
               height={620}
             />
           </div>
+          )}
 
           <div class="msim-moves">
             <div class="msim-moves-head">

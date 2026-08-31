@@ -571,3 +571,64 @@
   .msim-board { grid-template-columns: 1fr; }
   .msim-board-col li { padding: 8px 13px; font-size: .8rem; }
 }
+
+/* ── Carte en tuiles ───────────────────────────────────────────────────────
+ * Une tuile par circonscription, TOUTES de la même taille : c'est la promesse
+ * — un siège, un poids visuel. Laisser un bloc étirer ses tuiles pour remplir
+ * sa colonne la trahit (Nord-du-Québec, un siège, occupait alors plus de
+ * surface que six circonscriptions montréalaises). D'où la taille fixe.
+ * Même disposition sur ordinateur et sur téléphone : les tuiles rétrécissent,
+ * rien ne se replie. */
+.tmap { --tmap-cell: clamp(12px, 2.4vw, 30px); }
+
+.msim-mapview { display: inline-flex; margin-left: auto; border: 1px solid var(--rule); border-radius: 2px; overflow: hidden; }
+.msim-mapview button {
+  appearance: none; border: 0; background: var(--card); color: var(--ink-2); cursor: pointer;
+  padding: 5px 10px; font-family: var(--mono); font-size: .62rem; letter-spacing: .07em; text-transform: uppercase;
+}
+.msim-mapview button + button { border-left: 1px solid var(--rule); }
+.msim-mapview button[aria-pressed="true"] { background: var(--ink); color: var(--card); }
+
+.tmap-board {
+  display: grid; grid-template-columns: repeat(6, max-content); justify-content: space-between;
+  gap: 15px 10px; align-items: start; padding: 15px 16px;
+}
+.tmap-col { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.tmap-bloc h3 {
+  display: flex; justify-content: space-between; align-items: baseline; gap: 5px;
+  margin: 0 0 4px; font-size: .64rem; font-weight: 600; color: var(--ink-2);
+}
+.tmap-bloc h3 em { font-family: var(--mono); font-style: normal; font-size: .58rem; color: var(--ink-3); }
+.tmap-cells { display: grid; gap: 2px; justify-content: start; }
+
+.tmap-tile {
+  width: var(--tmap-cell); height: var(--tmap-cell); border: 0; padding: 0; border-radius: 1px;
+  cursor: pointer; transition: background-color .3s ease, box-shadow .15s ease, transform .15s ease;
+}
+.tmap-tile:hover, .tmap-tile:focus-visible {
+  outline: 0; box-shadow: 0 0 0 2px var(--ink); transform: scale(1.18); position: relative; z-index: 3;
+}
+.tmap-tile[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--ink); position: relative; z-index: 2; }
+.tmap-tile.is-dim { opacity: .14; }
+/* Bascule : une HACHURE, pas une nuance — une texture reste lisible à 12 px. */
+.tmap-tile.is-flip {
+  background-image: repeating-linear-gradient(45deg, transparent 0 2px, rgba(0,0,0,.42) 2px 4px);
+}
+@media (prefers-reduced-motion: reduce) { .tmap-tile { transition: none; } }
+
+.tmap-detail {
+  display: flex; align-items: baseline; flex-wrap: wrap; gap: 5px 13px;
+  margin: 0; padding: 11px 16px 13px; min-height: 42px;
+  border-top: 1px solid var(--rule); background: var(--paper-2);
+}
+.tmap-detail strong { font-size: .95rem; font-weight: 600; }
+.tmap-who { display: inline-flex; align-items: center; gap: 6px; font-size: .8rem; color: var(--ink-2); }
+.tmap-who i { width: 10px; height: 10px; border-radius: 2px; }
+.tmap-gain { font-family: var(--mono); font-size: .68rem; }
+.tmap-marge { font-family: var(--mono); font-size: .68rem; color: var(--ink-3); }
+.tmap-vide { color: var(--ink-3); font-size: .8rem; }
+
+@media (max-width: 860px) {
+  .tmap-board { gap: 12px 6px; padding: 11px 10px; }
+  .tmap-bloc h3 { font-size: .58rem; letter-spacing: -.01em; }
+}

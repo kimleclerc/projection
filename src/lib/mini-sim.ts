@@ -54,6 +54,18 @@ export interface SimDoc {
   regions: SimRegion[];
   anchor_offset: number[];
   ridings: SimRiding[];
+  /** Blocs de la carte en tuiles, quand la juridiction a un découpage connu.
+   *  Absent = pas de carte en tuiles, on retombe sur la géographique. */
+  tiles?: {
+    scheme: string;
+    n_groups: number;
+    blocs: {
+      id: string;
+      label_fr: string; label_en: string; label_es: string;
+      col: number; n: number; cols: number;
+      ids: string[];
+    }[];
+  };
 }
 
 /** Décalage national par parti, en points. */
