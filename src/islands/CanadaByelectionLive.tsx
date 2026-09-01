@@ -45,25 +45,38 @@ export default function CanadaByelectionLive({ eventId, ridingId, lang }: { even
   const [now, setNow] = useState(() => Date.now());
   const t = copy[lang];
 
+  const race = useMemo(() => data?.results?.find((item) => item.riding_id === ridingId), [data, ridingId]);
+  // Élections Canada publie le dénominateur des bureaux: reported >= total est le
+  // seul signal de fin qui ne dépende ni d'un call ni d'une heure.
+  const complete = race?.polls?.reported != null && !!race?.polls?.total
+    && race.polls.reported >= race.polls.total;
+
   // The payload only carries a new generated_at when the count actually moved, so
   // a long gap during counting means the producer stopped — not that nothing changed.
   useEffect(() => {
+    if (complete) return;
     const tick = window.setInterval(() => setNow(Date.now()), 30_000);
     return () => window.clearInterval(tick);
-  }, []);
+  }, [complete]);
 
   useEffect(() => {
+    // Tous les bureaux ont rapporté: la page cesse d'interroger l'API. Sans ça,
+    // chaque visiteur redemandait un résultat figé toutes les 20 s, indéfiniment.
+    if (complete) return;
     let active = true;
     const load = () => fetch(`https://vote-scope.com/api/v1/elections/${eventId}/live.json`, { cache: 'no-store' })
       .then((response) => response.ok ? response.json() : Promise.reject(new Error(String(response.status))))
       .then((payload) => { if (active) { setData(payload); setFailed(false); } })
       .catch(() => { if (active) setFailed(true); });
     load();
-    const timer = window.setInterval(load, 20_000);
+    // 90 s: la cadence d'Élections Canada elle-même (leur page n'offre pas plus
+    // rapide). Interroger aux 20 s demandait quatre fois la même donnée. Reste
+    // bien sous le seuil de péremption de 5 min, qui ne doit jamais se déclencher
+    // sur notre propre rythme de sondage plutôt que sur un vrai silence.
+    const timer = window.setInterval(load, 90_000);
     return () => { active = false; window.clearInterval(timer); };
-  }, [eventId]);
+  }, [eventId, complete]);
 
-  const race = useMemo(() => data?.results?.find((item) => item.riding_id === ridingId), [data, ridingId]);
   const call = useMemo(() => data?.calls?.find((item) => item.riding_id === ridingId), [data, ridingId]);
   const colors = useMemo(() => new Map((data?.projections ?? [])
     .find((item) => item.riding_id === ridingId)?.candidates
@@ -78,7 +91,10 @@ export default function CanadaByelectionLive({ eventId, ridingId, lang }: { even
   const ageMinutes = data?.generated_at ? Math.floor((now - new Date(data.generated_at).getTime()) / 60_000) : null;
   // Before the first box reports, an old waiting snapshot is expected and must not
   // look like a stalled count. Once votes exist, five quiet minutes are meaningful.
-  const stale = Boolean(leader) && ageMinutes != null && ageMinutes >= 5;
+  // Un dépouillement terminé n'est pas « en pause »: il est fini. Sans cette
+  // exception, la page annonçait une panne toute la nuit une fois le collecteur
+  // arrêté, sur un résultat pourtant complet.
+  const stale = Boolean(leader) && !complete && ageMinutes != null && ageMinutes >= 5;
 
   return <section className={stale ? "cblive cblive-is-stale" : "cblive"} aria-live="polite" aria-busy={!data && !failed}>
     <div className="cblive-head">
