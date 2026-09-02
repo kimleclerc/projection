@@ -162,7 +162,7 @@ export interface PrimaryResultRow {
   // null quand le scrutin est tranché mais qu'aucun total exact n'est encore
   // publié par l'autorité électorale (cf. CALLED_FEDERAL_RESULTS côté moteur).
   votes: number | null;
-  pct: number;
+  pct: number | null;
   outcome: 'won' | 'lost' | 'runoff' | 'advanced';
 }
 

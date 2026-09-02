@@ -26,7 +26,7 @@ const T = {
   en: {
     eyebrow: 'Primary race', pollTitle: 'Who leads in the primary', resultTitle: 'Primary results',
     polledCandidates: (n: number) => `${n} ${n === 1 ? 'candidate' : 'candidates'} polled`,
-    asOf: 'Latest poll', by: 'by', heldOn: 'Held', votes: 'votes',
+    asOf: 'Latest poll', by: 'by', heldOn: 'Held', votes: 'votes', pendingTotals: 'Totals pending',
     certified: 'Certified official result', uncertified: 'Official count — not yet certified',
     source: 'Official source', winner: 'Winner', advanced: 'Advanced to the general election',
     runoff: 'Advanced to a runoff', parties: { DEM: 'Democratic primary', REP: 'Republican primary', TOP_TWO: 'Top-two primary', OTHER: 'Other primary' },
@@ -35,7 +35,7 @@ const T = {
   fr: {
     eyebrow: 'Course primaire', pollTitle: 'Qui mène en primaire', resultTitle: 'Résultats de la primaire',
     polledCandidates: (n: number) => `${n} ${n === 1 ? 'candidat·e sondé·e' : 'candidat·e·s sondé·e·s'}`,
-    asOf: 'Dernier sondage', by: 'par', heldOn: 'Tenue le', votes: 'voix',
+    asOf: 'Dernier sondage', by: 'par', heldOn: 'Tenue le', votes: 'voix', pendingTotals: 'Totaux à venir',
     certified: 'Résultat officiel certifié', uncertified: 'Décompte officiel — non encore certifié',
     source: 'Source officielle', winner: 'Vainqueur', advanced: 'Qualifié·e pour l’élection générale',
     runoff: 'Qualifié·e pour le ballottage', parties: { DEM: 'Primaire démocrate', REP: 'Primaire républicaine', TOP_TWO: 'Primaire des deux premiers', OTHER: 'Autre primaire' },
@@ -44,7 +44,7 @@ const T = {
   es: {
     eyebrow: 'Primarias', pollTitle: 'Quién lidera la primaria', resultTitle: 'Resultados de las primarias',
     polledCandidates: (n: number) => `${n} ${n === 1 ? 'candidato sondeado' : 'candidatos sondeados'}`,
-    asOf: 'Último sondeo', by: 'por', heldOn: 'Celebrada el', votes: 'votos',
+    asOf: 'Último sondeo', by: 'por', heldOn: 'Celebrada el', votes: 'votos', pendingTotals: 'Totales pendientes',
     certified: 'Resultado oficial certificado', uncertified: 'Recuento oficial — aún no certificado',
     source: 'Fuente oficial', winner: 'Ganador', advanced: 'Pasa a las elecciones generales',
     runoff: 'Pasa a la segunda vuelta', parties: { DEM: 'Primaria demócrata', REP: 'Primaria republicana', TOP_TWO: 'Primaria de los dos primeros', OTHER: 'Otra primaria' },
@@ -100,7 +100,7 @@ function outcomeLabel(outcome: PrimaryResultRow['outcome']): string {
               {group.rows.map((row) => (
                 <div class="result-row">
                   <p class="outcome">{outcomeLabel(row.outcome)}</p>
-                  <p class="leader"><strong>{row.candidate_name}</strong> <span class="lead-pct">{row.pct.toFixed(1)}%</span></p>
+                  <p class="leader"><strong>{row.candidate_name}</strong> <span class="lead-pct">{row.pct !== null ? `${row.pct.toFixed(1)}%` : T.pendingTotals}</span></p>
                   {row.votes !== null && <p class="meta">{formatVotes(row.votes)} {T.votes}</p>}
                 </div>
               ))}
