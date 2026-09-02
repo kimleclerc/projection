@@ -1,0 +1,438 @@
+---
+// Desk de COURSE — partielle UK en cours, sans sondage de circonscription.
+//
+// Séparé de UkByelectionDesk, qui est le dossier de Clacton : cette page-là
+// porte des marchés de prédiction, un fil de dépouillement, une courbe de
+// participation et un sondage local, tous propres à cette course. Ici il n'y a
+// rien de tout ça — et c'est le sujet de la page. La règle posée à Clacton
+// s'applique : pas de point tant qu'aucun sondage local n'existe, donc on mène
+// avec les FOURCHETTES et avec le levier de champ.
+import EditorialLayout from '../layouts/EditorialLayout.astro';
+import GooglePreferredSource from './GooglePreferredSource.astro';
+import MethodologyNote from './MethodologyNote.astro';
+import holbornSpecial from '../../web_data/uk-holborn-special/latest.json';
+import { ukByelectionAlternates, type UkByelectionConfig, type UkByelectionLocale } from '../data/ukByelections';
+
+interface Props {
+  lang: UkByelectionLocale;
+  config: UkByelectionConfig;
+}
+const { lang, config } = Astro.props;
+
+const sp = holbornSpecial as any;
+const model = sp.model;
+const meta = sp.meta;
+const anchor = model.national_anchor;
+const field = model.field;
+
+const canonical = `https://vote-scope.com${config.paths[lang]}`;
+const alternates = ukByelectionAlternates(config);
+
+const fmt = (v: number, d = 1) =>
+  lang === 'en' ? v.toFixed(d) : v.toFixed(d).replace('.', ',');
+const pctProb = (v: number) => fmt(v * 100, 1);
+const nfmt = (v: number) => v.toLocaleString(lang === 'en' ? 'en-GB' : lang === 'es' ? 'es-ES' : 'fr-FR');
+const dateLabel = (iso: string) =>
+  new Date(`${iso}T12:00:00`).toLocaleDateString(
+    lang === 'en' ? 'en-GB' : lang === 'es' ? 'es-ES' : 'fr-FR',
+    { day: 'numeric', month: 'long', year: 'numeric' },
+  );
+
+// Ordre d'affichage : par médiane décroissante, pas par ordre alphabétique —
+// la page doit se lire comme le classement qu'elle projette.
+const buckets: string[] = Object.keys(model.candidates).sort(
+  (a, b) => model.candidates[b].share.q50 - model.candidates[a].share.q50,
+);
+const BUCKET_COLOR: Record<string, string> = {
+  lab: '#E4003B', grn: '#6AB023', ind: '#6b5b95', ref: '#12B6CF',
+  con: '#0087DC', ld: '#FAA61A', oth: '#9a938a',
+};
+// Échelle commune des barres : le maximum affiché, arrondi vers le haut.
+const scaleMax = Math.max(...buckets.map((k) => model.candidates[k].share.q90)) * 1.05;
+const pc = (v: number) => `${(v / scaleMax) * 100}%`;
+
+const scenarios = (model.scenarios as any[]) ?? [];
+const noteKey = lang === 'fr' ? 'note_fr' : lang === 'es' ? 'note_es' : 'note_en';
+const unconditional = model.p_lab_hold as number;
+
+const copy = {
+  en: {
+    kicker: 'U.K. by-election race desk · Holborn and St Pancras',
+    headline: 'Labour has to defend Starmer’s seat without Starmer.',
+    dek: 'Keir Starmer resigned from the Commons on 1 September 2026, ten weeks after leaving Downing Street. The writ has not been moved, no date is set, and nobody has declared. This page is what a forecast honestly looks like at that stage.',
+    statusLabel: 'Where the race stands',
+    statusWrit: 'Writ', statusWritValue: 'Not moved',
+    statusDate: 'Polling day', statusDateValue: 'Not set',
+    statusPoll: 'Constituency polls', statusPollValue: 'None',
+    statusVacancy: 'Vacant since',
+    whyLabel: 'Why there is no single number here',
+    whyBody: 'Vote-Scope does not publish a point estimate for a by-election with no constituency poll — the rule was set at Clacton and it holds here. What the model can do without one is bound the plausible range from the 2024 result and the live national posterior, and then say which unknown actually moves the outcome. In this race that unknown is not the swing. It is who stands.',
+    modelLabel: 'Projected shares',
+    modelRange: '10th–90th percentile, median marked',
+    holdLabel: 'Labour holds the seat',
+    holdSub: 'unconditional, across 50,000 simulations',
+    pathLabel: 'Path to victory',
+    pathIntro: 'Each row conditions on one field event, using the same draws as the headline number — so the probabilities are directly comparable to it and to each other.',
+    thScenario: 'If…', thShare: 'Share of draws', thHold: 'p(Labour hold)', thGreen: 'p(Green win)',
+    anchorLabel: 'The national anchor',
+    anchorIntro: 'The seat baseline is swung by the live U.K. posterior, weighted toward proportional rather than uniform swing: a bastion at 48.9% does not shed the national points the way an average seat does.',
+    thParty: 'Party', th2024: '2024 national', thNow: 'Model now', thSwing: 'Swing',
+    fieldLabel: 'The field',
+    fieldIntro: 'Nobody has formally declared. The names below are reported intentions, tracked so that the model follows the field rather than a guess about its size.',
+    fieldStatus: 'reported intention',
+    baseLabel: 'What happened here in 2024',
+    caveatLabel: 'Read this before quoting a number',
+    caveats: [
+      'No constituency poll, no polling date and no candidate list. Three first-order unknowns; the intervals shown are the model’s, not the world’s.',
+      'The probability that Feinstein or Polanski stands is a documented judgement, not a measurement. Those two numbers drive most of the spread, and any news about the field should update them before anything else in the model is touched.',
+      'Starmer’s personal vote is stripped with a prior centred on zero and an undetermined sign. The 2024 boundaries are new, so the repo has no earlier line for this seat and no London comparator — the level is not identified, and the model refuses to invent one.',
+      'There is no new-prime-minister honeymoon term. Burnham has been prime minister since July and the national posterior already measures him; adding a bounce would count it twice.',
+    ],
+    methodTitle: 'A by-election model that says what it does not know.',
+    methodBody: 'The engine simulates flows from the 2024 voter blocs, swings them by the live national posterior, and treats the two candidacy questions as explicit events rather than as variance folded into a wider interval. That is what lets the page answer “what would change this race?” instead of only “what is the number?”',
+  },
+  fr: {
+    kicker: 'Desk de course · partielle UK · Holborn and St Pancras',
+    headline: 'Le Labour doit défendre le siège de Starmer sans Starmer.',
+    dek: 'Keir Starmer a quitté les Communes le 1er septembre 2026, dix semaines après Downing Street. Le writ n’est pas déposé, aucune date n’est fixée, personne ne s’est déclaré. Cette page montre à quoi ressemble honnêtement une projection à ce stade.',
+    statusLabel: 'Où en est la course',
+    statusWrit: 'Writ', statusWritValue: 'Non déposé',
+    statusDate: 'Jour du scrutin', statusDateValue: 'Non fixé',
+    statusPoll: 'Sondages de circonscription', statusPollValue: 'Aucun',
+    statusVacancy: 'Vacant depuis le',
+    whyLabel: 'Pourquoi il n’y a pas un chiffre unique ici',
+    whyBody: 'Vote-Scope ne publie pas de point pour une partielle sans sondage de circonscription — la règle a été posée à Clacton et elle vaut ici. Ce que le modèle peut faire sans sondage, c’est borner la fourchette plausible à partir du résultat de 2024 et du posterior national du jour, puis dire quelle inconnue déplace réellement l’issue. Dans cette course, cette inconnue n’est pas le swing. C’est qui se présente.',
+    modelLabel: 'Parts projetées',
+    modelRange: '10e–90e percentile, médiane marquée',
+    holdLabel: 'Le Labour conserve le siège',
+    holdSub: 'inconditionnel, sur 50 000 simulations',
+    pathLabel: 'Path to victory',
+    pathIntro: 'Chaque ligne conditionne sur un événement de champ, à partir des mêmes tirages que le chiffre principal — les probabilités sont donc directement comparables entre elles et à lui.',
+    thScenario: 'Si…', thShare: 'Part des tirages', thHold: 'p(maintien Labour)', thGreen: 'p(victoire verte)',
+    anchorLabel: 'L’ancre nationale',
+    anchorIntro: 'La baseline du siège est déplacée par le posterior UK du jour, pondérée vers le swing proportionnel plutôt qu’uniforme : un bastion à 48,9 % ne perd pas les points nationaux comme un siège moyen.',
+    thParty: 'Parti', th2024: 'National 2024', thNow: 'Modèle aujourd’hui', thSwing: 'Swing',
+    fieldLabel: 'Le champ',
+    fieldIntro: 'Personne ne s’est formellement déclaré. Les noms ci-dessous sont des intentions rapportées, suivies pour que le modèle épouse le champ réel plutôt qu’une hypothèse sur sa taille.',
+    fieldStatus: 'intention rapportée',
+    baseLabel: 'Ce qui s’est passé ici en 2024',
+    caveatLabel: 'À lire avant de citer un chiffre',
+    caveats: [
+      'Aucun sondage de circonscription, aucune date de scrutin, aucune liste de candidats. Trois inconnues de premier ordre ; les intervalles affichés sont ceux du modèle, pas ceux du monde.',
+      'La probabilité que Feinstein ou Polanski se présente est un jugement documenté, pas une mesure. Ces deux nombres commandent l’essentiel de la dispersion : toute nouvelle sur le champ doit les mettre à jour avant qu’on touche à quoi que ce soit d’autre.',
+      'Le vote personnel de Starmer est dépouillé avec un prior centré sur zéro et un signe non déterminé. Les frontières de 2024 sont neuves : le dépôt n’a aucune ligne antérieure pour ce siège ni de comparateur londonien. Le niveau n’est pas identifié, et le modèle refuse d’en inventer un.',
+      'Il n’y a aucun terme de lune de miel du nouveau premier ministre. Burnham est PM depuis juillet et le posterior national le mesure déjà ; ajouter un rebond le compterait deux fois.',
+    ],
+    methodTitle: 'Un modèle de partielle qui dit ce qu’il ne sait pas.',
+    methodBody: 'Le moteur simule les flux depuis les blocs d’électeurs de 2024, les déplace par le posterior national du jour, et traite les deux questions de candidature comme des ÉVÉNEMENTS explicites plutôt que comme une variance noyée dans un intervalle plus large. C’est ce qui permet à la page de répondre « qu’est-ce qui changerait cette course ? » et pas seulement « quel est le chiffre ? ».',
+  },
+  es: {
+    kicker: 'Desk de contienda · parcial del Reino Unido · Holborn and St Pancras',
+    headline: 'El laborismo debe defender el escaño de Starmer sin Starmer.',
+    dek: 'Keir Starmer dejó los Comunes el 1 de septiembre de 2026, diez semanas después de Downing Street. No hay writ, no hay fecha y nadie se ha declarado. Esta página muestra cómo se ve honestamente un pronóstico en esa etapa.',
+    statusLabel: 'Cómo está la contienda',
+    statusWrit: 'Writ', statusWritValue: 'No presentado',
+    statusDate: 'Día de votación', statusDateValue: 'Sin fecha',
+    statusPoll: 'Encuestas de circunscripción', statusPollValue: 'Ninguna',
+    statusVacancy: 'Vacante desde el',
+    whyLabel: 'Por qué aquí no hay una cifra única',
+    whyBody: 'Vote-Scope no publica un punto para una parcial sin encuesta de circunscripción — la regla se fijó en Clacton y vale aquí. Lo que el modelo sí puede hacer es acotar el rango plausible a partir del resultado de 2024 y del posterior nacional del día, y luego decir qué incógnita mueve realmente el desenlace. En esta contienda esa incógnita no es el swing: es quién se presenta.',
+    modelLabel: 'Cuotas proyectadas',
+    modelRange: 'percentil 10–90, mediana marcada',
+    holdLabel: 'El laborismo retiene el escaño',
+    holdSub: 'incondicional, sobre 50 000 simulaciones',
+    pathLabel: 'Path to victory',
+    pathIntro: 'Cada fila condiciona sobre un evento de campo con los mismos sorteos que la cifra principal, así que las probabilidades son directamente comparables.',
+    thScenario: 'Si…', thShare: 'Parte de los sorteos', thHold: 'p(retención laborista)', thGreen: 'p(victoria verde)',
+    anchorLabel: 'El ancla nacional',
+    anchorIntro: 'La base del escaño se desplaza con el posterior británico del día, ponderado hacia el swing proporcional y no el uniforme: un bastión en 48,9 % no pierde los puntos nacionales como un escaño medio.',
+    thParty: 'Partido', th2024: 'Nacional 2024', thNow: 'Modelo hoy', thSwing: 'Swing',
+    fieldLabel: 'El campo',
+    fieldIntro: 'Nadie se ha declarado formalmente. Los nombres siguientes son intenciones reportadas, registradas para que el modelo siga el campo real y no una suposición sobre su tamaño.',
+    fieldStatus: 'intención reportada',
+    baseLabel: 'Lo que ocurrió aquí en 2024',
+    caveatLabel: 'Léase antes de citar una cifra',
+    caveats: [
+      'Sin encuesta de circunscripción, sin fecha y sin lista de candidatos. Tres incógnitas de primer orden; los intervalos son los del modelo, no los del mundo.',
+      'La probabilidad de que Feinstein o Polanski se presenten es un juicio documentado, no una medición. Esos dos números gobiernan casi toda la dispersión.',
+      'El voto personal de Starmer se descuenta con una previa centrada en cero y signo indeterminado: los límites de 2024 son nuevos y no hay comparador londinense, así que el nivel no está identificado y el modelo se niega a inventarlo.',
+      'No hay término de luna de miel del nuevo primer ministro. Burnham es PM desde julio y el posterior nacional ya lo mide; añadir un repunte lo contaría dos veces.',
+    ],
+    methodTitle: 'Un modelo de parcial que dice lo que no sabe.',
+    methodBody: 'El motor simula flujos desde los bloques de votantes de 2024, los desplaza con el posterior nacional del día y trata las dos preguntas de candidatura como eventos explícitos en vez de como varianza diluida en un intervalo más ancho.',
+  },
+}[lang];
+
+const t = copy;
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'NewsArticle',
+    headline: config.title[lang].replace(' — Vote-Scope', ''),
+    description: config.description[lang],
+    url: canonical,
+    inLanguage: lang,
+    dateModified: meta.run_date,
+    author: { '@type': 'Person', name: 'Kim Leclerc', url: 'https://kimleclerc.ca' },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: `https://vote-scope.com/${lang}/` },
+      { '@type': 'ListItem', position: 2, name: 'U.K.', item: `https://vote-scope.com/${lang}/uk/` },
+      { '@type': 'ListItem', position: 3, name: config.ridingName, item: canonical },
+    ],
+  },
+];
+---
+
+<EditorialLayout
+  title={config.title[lang]}
+  description={config.description[lang]}
+  canonical={canonical}
+  lang={lang}
+  currentPage="uk"
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={alternates}
+  jsonLd={jsonLd}
+>
+  <article class="ukrace">
+    <header class="ukrace-hero container">
+      <p class="ukrace-kicker">{t.kicker}</p>
+      <h1>{t.headline}</h1>
+      <p class="ukrace-dek">{t.dek}</p>
+      <GooglePreferredSource locale={lang} />
+    </header>
+
+    <section class="container" aria-labelledby="ukrace-status">
+      <p class="ukrace-label" id="ukrace-status">{t.statusLabel}</p>
+      <div class="ukrace-status-grid">
+        <div class="ukrace-status"><span>{t.statusWrit}</span><strong>{t.statusWritValue}</strong></div>
+        <div class="ukrace-status"><span>{t.statusDate}</span><strong>{t.statusDateValue}</strong></div>
+        <div class="ukrace-status"><span>{t.statusPoll}</span><strong>{t.statusPollValue}</strong></div>
+        <div class="ukrace-status"><span>{t.statusVacancy}</span><strong>{dateLabel(config.vacancyDate)}</strong></div>
+      </div>
+    </section>
+
+    <section class="container" aria-labelledby="ukrace-why">
+      <p class="ukrace-label" id="ukrace-why">{t.whyLabel}</p>
+      <p class="ukrace-body">{t.whyBody}</p>
+    </section>
+
+    <section class="container" aria-labelledby="ukrace-model">
+      <p class="ukrace-label" id="ukrace-model">{t.modelLabel}</p>
+      <div class="ukrace-headline-figure">
+        <strong>{pctProb(unconditional)}%</strong>
+        <span>{t.holdLabel}</span>
+        <em>{t.holdSub}</em>
+      </div>
+      <p class="ukrace-range-label">{t.modelRange}</p>
+      <div class="ukrace-ranges">
+        {buckets.map((key) => {
+          const c = model.candidates[key];
+          const color = BUCKET_COLOR[key] ?? '#9a938a';
+          return (
+            <div class="ukrace-range-row">
+              <div class="ukrace-range-name">
+                <i style={`background:${color}`}></i>
+                <span>{c.labels[lang] ?? c.labels.en}</span>
+              </div>
+              <div class="ukrace-range-track">
+                <div class="ukrace-range-band" style={`left:${pc(c.share.q10)};width:calc(${pc(c.share.q90)} - ${pc(c.share.q10)});background:${color}22;border-color:${color}`}></div>
+                <div class="ukrace-range-median" style={`left:${pc(c.share.q50)};background:${color}`}></div>
+              </div>
+              <div class="ukrace-range-nums">
+                <strong>{fmt(c.share.q50)}%</strong>
+                <small>[{fmt(c.share.q10, 0)}–{fmt(c.share.q90, 0)}]</small>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </section>
+
+    <section class="container" aria-labelledby="ukrace-path">
+      <p class="ukrace-label" id="ukrace-path">{t.pathLabel}</p>
+      <p class="ukrace-body">{t.pathIntro}</p>
+      <div class="ukrace-table-wrap">
+        <table class="ukrace-table">
+          <thead>
+            <tr><th>{t.thScenario}</th><th>{t.thShare}</th><th>{t.thHold}</th><th>{t.thGreen}</th></tr>
+          </thead>
+          <tbody>
+            {scenarios.map((sc) => (
+              <tr class={sc.p_lab_hold < unconditional - 0.15 ? 'is-pivotal' : ''}>
+                <td>{sc[noteKey]}</td>
+                <td>{fmt(sc.share_of_draws * 100, 0)}%</td>
+                <td><strong>{pctProb(sc.p_lab_hold)}%</strong></td>
+                <td>{pctProb(sc.p_grn_win)}%</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="container" aria-labelledby="ukrace-anchor">
+      <p class="ukrace-label" id="ukrace-anchor">{t.anchorLabel}</p>
+      <p class="ukrace-body">{t.anchorIntro}</p>
+      <div class="ukrace-table-wrap">
+        <table class="ukrace-table">
+          <thead>
+            <tr><th>{t.thParty}</th><th>{t.th2024}</th><th>{t.thNow}</th><th>{t.thSwing}</th></tr>
+          </thead>
+          <tbody>
+            {Object.keys(anchor.national_2024).map((k) => (
+              <tr>
+                <td>{model.candidates[k]?.labels?.[lang] ?? k.toUpperCase()}</td>
+                <td>{fmt(anchor.national_2024[k])}%</td>
+                <td>{fmt(anchor.national_now[k])}%</td>
+                <td class={anchor.swing_pts[k] >= 0 ? 'is-up' : 'is-down'}>
+                  {anchor.swing_pts[k] >= 0 ? '+' : '−'}{fmt(Math.abs(anchor.swing_pts[k]))}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="container" aria-labelledby="ukrace-field">
+      <p class="ukrace-label" id="ukrace-field">{t.fieldLabel}</p>
+      <p class="ukrace-body">{t.fieldIntro}</p>
+      <ul class="ukrace-field-list">
+        {(field.candidates as any[]).map((c) => (
+          <li>
+            <i style={`background:${BUCKET_COLOR[c.bucket] ?? '#9a938a'}`}></i>
+            <span class="ukrace-field-name">{c.name}</span>
+            <span class="ukrace-field-party">{c.party}</span>
+            <span class="ukrace-field-status">{t.fieldStatus}</span>
+          </li>
+        ))}
+      </ul>
+      {lang === 'fr' && field.note_fr && <p class="ukrace-note">{field.note_fr}</p>}
+    </section>
+
+    <section class="container" aria-labelledby="ukrace-2024">
+      <p class="ukrace-label" id="ukrace-2024">{t.baseLabel}</p>
+      <ol class="ukrace-past">
+        {config.last2024.candidates.map((c) => (
+          <li class={c.is_winner ? 'is-winner' : ''}>
+            <i style={`background:${c.color}`}></i>
+            <span class="ukrace-past-name">
+              {c.name || (lang === 'fr' ? c.party_label_fr : lang === 'es' ? c.party_label_es : c.party_label_en)}
+            </span>
+            <span class="ukrace-past-party">
+              {c.name ? (lang === 'fr' ? c.party_label_fr : lang === 'es' ? c.party_label_es : c.party_label_en) : ''}
+            </span>
+            <span class="ukrace-past-votes">{nfmt(c.votes)}</span>
+            <strong class="ukrace-past-pct">{fmt(c.pct)}%</strong>
+          </li>
+        ))}
+      </ol>
+      <p class="ukrace-note">
+        {lang === 'fr' ? config.last2024.turnout_note_fr : lang === 'es' ? config.last2024.turnout_note_es : config.last2024.turnout_note_en}
+      </p>
+    </section>
+
+    <section class="container" aria-labelledby="ukrace-caveats">
+      <p class="ukrace-label" id="ukrace-caveats">{t.caveatLabel}</p>
+      <ul class="ukrace-caveats">
+        {t.caveats.map((c) => <li>{c}</li>)}
+      </ul>
+    </section>
+
+    <MethodologyNote
+      title={t.methodTitle}
+      body={t.methodBody}
+      bullets={[
+        `${t.modelLabel} — run ${meta.run_date} · ${nfmt(meta.n_sims)} simulations · ${meta.model_version}`,
+        `${t.anchorLabel} — ${anchor.source}`,
+      ]}
+    />
+  </article>
+</EditorialLayout>
+
+<style>
+  .ukrace-hero { padding-top: 40px; }
+  .ukrace-kicker {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--ink-3);
+  }
+  .ukrace-hero h1 {
+    font-family: var(--serif); font-size: clamp(2rem, 4.4vw, 3.3rem);
+    line-height: 1.08; letter-spacing: -0.015em; margin: 0.35rem 0 1rem; max-width: 20ch;
+  }
+  .ukrace-dek { font-size: 17px; line-height: 1.6; max-width: 76ch; color: var(--ink-2); }
+  .ukrace-label {
+    margin-top: 42px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--ink-3);
+  }
+  .ukrace-body { margin-top: 10px; font-size: 15px; line-height: 1.65; max-width: 82ch; }
+  .ukrace-note { margin-top: 10px; font-family: var(--mono); font-size: 11px; line-height: 1.6; color: var(--ink-3); max-width: 82ch; }
+
+  .ukrace-status-grid { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 14px; margin-top: 14px; }
+  .ukrace-status {
+    border: 1px solid var(--rule); border-radius: 4px; background: var(--card);
+    padding: 14px; display: grid; gap: 5px;
+  }
+  .ukrace-status span { font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; color: var(--ink-3); }
+  .ukrace-status strong { font-family: var(--serif); font-size: 20px; font-weight: 430; }
+
+  .ukrace-headline-figure {
+    margin-top: 14px; padding: 20px 22px; border: 1px solid var(--rule);
+    border-left: 4px solid #E4003B; border-radius: 4px; background: var(--card);
+    display: grid; gap: 4px;
+  }
+  .ukrace-headline-figure strong { font-family: var(--serif); font-size: 46px; font-weight: 430; letter-spacing: -0.02em; line-height: 1; }
+  .ukrace-headline-figure span { font-size: 15px; }
+  .ukrace-headline-figure em { font-style: normal; font-family: var(--mono); font-size: 11px; color: var(--ink-3); }
+
+  .ukrace-range-label { margin-top: 24px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); }
+  .ukrace-ranges { margin-top: 10px; display: grid; gap: 10px; }
+  .ukrace-range-row { display: grid; grid-template-columns: minmax(120px, 1.1fr) 3fr minmax(96px, auto); gap: 14px; align-items: center; }
+  .ukrace-range-name { display: flex; align-items: center; gap: 8px; font-size: 14px; }
+  .ukrace-range-name i { width: 10px; height: 10px; border-radius: 2px; flex: none; }
+  .ukrace-range-track { position: relative; height: 16px; border-radius: 3px; background: var(--background-contrast-1, rgba(0,0,0,.05)); }
+  .ukrace-range-band { position: absolute; top: 0; bottom: 0; border: 1px solid; border-radius: 3px; }
+  .ukrace-range-median { position: absolute; top: -3px; bottom: -3px; width: 2px; }
+  .ukrace-range-nums { text-align: right; }
+  .ukrace-range-nums strong { font-family: var(--serif); font-size: 18px; font-weight: 430; }
+  .ukrace-range-nums small { display: block; font-family: var(--mono); font-size: 10px; color: var(--ink-3); }
+
+  .ukrace-table-wrap { margin-top: 14px; overflow-x: auto; }
+  .ukrace-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .ukrace-table th, .ukrace-table td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--rule-2); vertical-align: top; }
+  .ukrace-table th { font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); white-space: nowrap; }
+  .ukrace-table tr.is-pivotal td { background: rgba(106, 176, 35, 0.08); }
+  .ukrace-table td.is-up { color: #2f7d32; font-family: var(--mono); }
+  .ukrace-table td.is-down { color: #b0442f; font-family: var(--mono); }
+
+  .ukrace-field-list, .ukrace-past { list-style: none; margin: 14px 0 0; padding: 0; }
+  .ukrace-field-list li, .ukrace-past li {
+    display: grid; grid-template-columns: 10px minmax(120px, 1.1fr) minmax(90px, 1fr) auto 62px;
+    gap: 12px; align-items: baseline; padding: 10px 0; border-bottom: 1px solid var(--rule-2); font-size: 14px;
+  }
+  .ukrace-field-list li { grid-template-columns: 10px minmax(120px, 1fr) minmax(90px, 1fr) auto; }
+  .ukrace-field-list li:last-child, .ukrace-past li:last-child { border-bottom: 0; }
+  .ukrace-field-list i, .ukrace-past i { width: 10px; height: 10px; border-radius: 50%; align-self: center; }
+  .ukrace-field-party, .ukrace-past-party { font-family: var(--mono); font-size: 11px; color: var(--ink-2); }
+  .ukrace-field-status { font-family: var(--mono); font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); text-align: right; }
+  .ukrace-past li.is-winner .ukrace-past-name { font-weight: 650; }
+  .ukrace-past-votes { font-family: var(--mono); font-size: 12px; color: var(--ink-2); text-align: right; }
+  .ukrace-past-pct { font-family: var(--serif); font-size: 18px; font-weight: 430; text-align: right; }
+
+  .ukrace-caveats { margin-top: 12px; padding-left: 1.1rem; max-width: 82ch; }
+  .ukrace-caveats li { font-size: 14px; line-height: 1.65; margin-bottom: 10px; color: var(--ink-2); }
+
+  @media (max-width: 900px) {
+    .ukrace-status-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .ukrace-range-row { grid-template-columns: minmax(96px, 1fr) 2fr auto; }
+  }
+  @media (max-width: 720px) {
+    .ukrace-field-list li, .ukrace-past li { grid-template-columns: 10px 1fr auto 58px; }
+    .ukrace-field-party, .ukrace-past-party { grid-column: 2 / -1; }
+    .ukrace-field-status { grid-column: 2 / -1; text-align: left; }
+  }
+</style>

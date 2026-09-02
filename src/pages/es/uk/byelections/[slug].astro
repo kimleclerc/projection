@@ -1,5 +1,6 @@
 ---
 import UkByelectionDesk from '../../../../components/UkByelectionDesk.astro';
+import UkRaceDesk from '../../../../components/UkRaceDesk.astro';
 import { ukByelections } from '../../../../data/ukByelections';
 
 export function getStaticPaths() {
@@ -11,4 +12,12 @@ export function getStaticPaths() {
 const { config } = Astro.props;
 ---
 
-<UkByelectionDesk lang="es" config={config} />
+{/* UkByelectionDesk est le dossier de Clacton — marchés, fil de dépouillement,
+    courbe de participation, sondage local : tout est propre à cette course, et
+    il rend désormais son RÉSULTAT. Une course en cours sans sondage de
+    circonscription n'a rien de tout ça, d'où un desk distinct. */}
+{config.result ? (
+  <UkByelectionDesk lang="es" config={config} />
+) : (
+  <UkRaceDesk lang="es" config={config} />
+)}

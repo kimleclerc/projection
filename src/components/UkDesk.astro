@@ -9,7 +9,7 @@ import MethodologyNote from './MethodologyNote.astro';
 import DeskSections from './DeskSections.astro';
 import ukMeta from '../../web_data/uk/latest.json';
 import holbornSpecial from '../../web_data/uk-holborn-special/latest.json';
-import { ukPendingByelection, ukResolvedByelections2026 } from '../data/ukByelections';
+import { ukByelections, ukResolvedByelections2026 } from '../data/ukByelections';
 
 type Locale = 'en' | 'fr' | 'es';
 interface Props {
@@ -32,8 +32,8 @@ const compTotal = composition.reduce((acc, c) => acc + (c.seats ?? 0), 0);
 // Course en cours : Holborn and St Pancras (démission de Keir Starmer).
 // Aucun sondage de circonscription n'existe — on montre donc la fourchette et
 // le levier de champ, jamais un point (règle posée à Clacton).
-const race = ukPendingByelection;
-const racePath = race.constituencyPath[locale];
+const race = ukByelections.holborn;
+const racePath = race.paths[locale];
 const raceModel = (holbornSpecial as any).model;
 const pHold = Math.round(raceModel.p_lab_hold * 1000) / 10;
 const labShare = raceModel.candidates.lab.share;
@@ -73,7 +73,7 @@ const copy = {
     raceBody:
       `Fundamentals only — no constituency poll exists yet, so this is a range, not a number. Labour projects at ${fmt1(labShare.q50)}% (${fmt1(labShare.q10)}–${fmt1(labShare.q90)}) and holds in ${fmt1(pHold)}% of simulations; the Greens sit at ${fmt1(grnShare.q50)}% with a ${fmt1(pGreen)}% chance of the gain. The 2024 runner-up here was not a Conservative — it was an independent on 18.9%.`,
     raceLever: `If Green leader Zack Polanski stands, Labour’s hold probability falls to ${fmt1(pHoldIfPolanski)}%. That single unknown moves this race more than anything else on the board.`,
-    raceCta: 'Open the constituency profile →',
+    raceCta: 'Open the race desk →',
     resolvedLabel: '2026 by-elections — called and settled',
     resolvedNote: 'Clacton settled on 13 August: Reform hold, and the Commons vacancy that had been showing here is gone.',
     cards: [
@@ -115,7 +115,7 @@ const copy = {
     raceBody:
       `Fondamentaux seulement — aucun sondage de circonscription n’existe encore, donc une fourchette, pas un nombre. Le Labour se projette à ${fmt1(labShare.q50)} % (${fmt1(labShare.q10)}–${fmt1(labShare.q90)}) et conserve le siège dans ${fmt1(pHold)} % des simulations ; les Verts sont à ${fmt1(grnShare.q50)} % avec ${fmt1(pGreen)} % de chances de gain. Le deuxième de 2024 ici n’était pas un conservateur, mais un indépendant à 18,9 %.`,
     raceLever: `Si Zack Polanski, chef des Verts, se présente, la probabilité de maintien travailliste tombe à ${fmt1(pHoldIfPolanski)} %. Cette seule inconnue déplace la course plus que tout le reste.`,
-    raceCta: 'Ouvrir la fiche de circonscription →',
+    raceCta: 'Ouvrir le desk de course →',
     resolvedLabel: 'Partielles 2026 — jugées et réglées',
     resolvedNote: 'Clacton a été tranchée le 13 août : maintien Reform, et la vacance qui s’affichait ici a disparu.',
     cards: [
@@ -157,7 +157,7 @@ const copy = {
     raceBody:
       `Solo fundamentos — todavía no existe ninguna encuesta de circunscripción, así que es un rango, no un número. El laborismo se proyecta en ${fmt1(labShare.q50)} % (${fmt1(labShare.q10)}–${fmt1(labShare.q90)}) y retiene el escaño en ${fmt1(pHold)} % de las simulaciones; los Verdes están en ${fmt1(grnShare.q50)} % con ${fmt1(pGreen)} % de probabilidad de ganarlo. El segundo lugar de 2024 aquí no fue un conservador, sino un independiente con 18,9 %.`,
     raceLever: `Si se presenta Zack Polanski, líder de los Verdes, la probabilidad de retención laborista cae a ${fmt1(pHoldIfPolanski)} %. Esa sola incógnita mueve la contienda más que cualquier otra cosa.`,
-    raceCta: 'Abrir la ficha de circunscripción →',
+    raceCta: 'Abrir el desk de la contienda →',
     resolvedLabel: 'Parciales de 2026 — resueltas',
     resolvedNote: 'Clacton se resolvió el 13 de agosto: retención de Reform, y la vacante que aparecía aquí ya no existe.',
     cards: [
@@ -292,7 +292,9 @@ const dateLabel = (iso: string) => {
           {ukResolvedByelections2026.map((b) => (
             <div class="ukdesk-resolved-row">
               <i style={`background:${b.color}`}></i>
-              <span class="ukdesk-resolved-name">{b.name}</span>
+              <span class="ukdesk-resolved-name">
+                {b.paths ? <a href={b.paths[locale]}>{b.name}</a> : b.name}
+              </span>
               <span class="ukdesk-resolved-outcome">
                 {locale === 'fr' ? b.outcome_fr : locale === 'es' ? b.outcome_es : b.outcome_en}
               </span>
@@ -386,6 +388,7 @@ const dateLabel = (iso: string) => {
   .ukdesk-resolved-row:last-child { border-bottom: 0; }
   .ukdesk-resolved-row i { width: 9px; height: 9px; border-radius: 50%; align-self: center; }
   .ukdesk-resolved-name { font-weight: 600; }
+  .ukdesk-resolved-name a { color: inherit; }
   .ukdesk-resolved-outcome { color: var(--ink-2); line-height: 1.4; }
   .ukdesk-resolved-date { font-family: var(--mono); font-size: 11px; color: var(--ink-3); white-space: nowrap; }
   .ukdesk-cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
