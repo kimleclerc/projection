@@ -72,6 +72,16 @@ export interface UkResolvedByelection {
 
 export const ukResolvedByelections2026: UkResolvedByelection[] = [
   {
+    name: 'Clacton',
+    date: '2026-08-13',
+    winner_party: 'REF',
+    color: '#12B6CF',
+    pct: 63.3,
+    outcome_en: 'Reform hold — Farage back with 63.3% against Count Binface, on a 44.4% turnout.',
+    outcome_fr: 'Maintien Reform — Farage revient à 63,3 % face à Count Binface, participation 44,4 %.',
+    outcome_es: 'Retención de Reform — Farage vuelve con 63,3 % frente a Count Binface, participación 44,4 %.',
+  },
+  {
     name: 'Gorton and Denton',
     date: '2026-02-26',
     winner_party: 'GRN',
@@ -119,7 +129,9 @@ export const ukByelections: Record<string, UkByelectionConfig> = {
     ridingId: 'E14001174',
     ridingName: 'Clacton',
     constituencyPath: '/en/uk/constituencies/E14001174-clacton/',
-    status: 'scheduled',
+    // Scrutin tenu le 13 août 2026 (hold REF). La page reste en ligne comme
+    // archive de course ; le statut ne doit plus la faire passer pour vivante.
+    status: 'resolved',
     vacancyDate: '2026-07-07',
     electionDate: '2026-08-13',
     title: {
@@ -175,3 +187,44 @@ export function ukByelectionAlternates(config: UkByelectionConfig) {
     Object.entries(config.paths).map(([locale, path]) => [locale, `https://vote-scope.com${path}`]),
   ) as Record<UkByelectionLocale, string>;
 }
+
+
+/**
+ * Course EN COURS — reprise par le desk d'accueil UK.
+ *
+ * Volontairement séparée de `ukByelections` : la route [slug] rend
+ * `UkByelectionDesk`, encore entièrement câblé sur Clacton (JSON, îlot live,
+ * courbe de participation, copie). Y brancher Holborn produirait une page qui
+ * parlerait de Farage. Le jour où le desk devient générique, cette constante
+ * fusionne avec `ukByelections`.
+ *
+ * Chiffres : moteur `run_holborn_special_projection.py`, exposés par
+ * `web_data/uk-holborn-special/latest.json`. Aucun sondage de circonscription
+ * n'existe : la carte montre des FOURCHETTES et le levier de champ, jamais un
+ * point — règle posée à Clacton (docs/UK_HOLBORN_ST_PANCRAS_BYELECTION.md).
+ */
+export interface UkPendingByelection {
+  ridingId: string;
+  ridingName: string;
+  constituencyPath: Record<UkByelectionLocale, string>;
+  vacancyDate: string;
+  electionDate: string | null;
+  incumbent: string;
+  incumbentPartyLabel: Record<UkByelectionLocale, string>;
+  sourceUrl: string;
+}
+
+export const ukPendingByelection: UkPendingByelection = {
+  ridingId: 'E14001290',
+  ridingName: 'Holborn and St Pancras',
+  constituencyPath: {
+    en: '/en/uk/constituencies/E14001290-holborn-and-st-pancras/',
+    fr: '/fr/uk/circonscriptions/E14001290-holborn-and-st-pancras/',
+    es: '/es/uk/circunscripciones/E14001290-holborn-and-st-pancras/',
+  },
+  vacancyDate: '2026-09-01',
+  electionDate: null,
+  incumbent: 'Keir Starmer',
+  incumbentPartyLabel: { en: 'Labour', fr: 'Travailliste', es: 'Laborista' },
+  sourceUrl: 'https://en.wikipedia.org/wiki/2026_Holborn_and_St_Pancras_by-election',
+};

@@ -8,8 +8,8 @@ import EditorialHero from './EditorialHero.astro';
 import MethodologyNote from './MethodologyNote.astro';
 import DeskSections from './DeskSections.astro';
 import ukMeta from '../../web_data/uk/latest.json';
-import clactonSpecial from '../../web_data/uk-clacton-special/latest.json';
-import { ukByelections, ukResolvedByelections2026 } from '../data/ukByelections';
+import holbornSpecial from '../../web_data/uk-holborn-special/latest.json';
+import { ukPendingByelection, ukResolvedByelections2026 } from '../data/ukByelections';
 
 type Locale = 'en' | 'fr' | 'es';
 interface Props {
@@ -29,11 +29,18 @@ const leader = topParties[0];
 const runnerUp = topParties[1];
 const compTotal = composition.reduce((acc, c) => acc + (c.seats ?? 0), 0);
 
-const clacton = ukByelections.clacton;
-const clactonPath = clacton.paths[locale];
-const clactonModel = (clactonSpecial as any).model;
-const pFarage = Math.round(clactonModel.p_farage_win * 1000) / 10;
-const pBinface = Math.round(clactonModel.p_binface_win * 1000) / 10;
+// Course en cours : Holborn and St Pancras (démission de Keir Starmer).
+// Aucun sondage de circonscription n'existe — on montre donc la fourchette et
+// le levier de champ, jamais un point (règle posée à Clacton).
+const race = ukPendingByelection;
+const racePath = race.constituencyPath[locale];
+const raceModel = (holbornSpecial as any).model;
+const pHold = Math.round(raceModel.p_lab_hold * 1000) / 10;
+const labShare = raceModel.candidates.lab.share;
+const grnShare = raceModel.candidates.grn.share;
+const pGreen = Math.round(raceModel.candidates.grn.p_win * 1000) / 10;
+const polanski = (raceModel.scenarios as any[]).find((sc) => sc.id === 'polanski_runs');
+const pHoldIfPolanski = Math.round((polanski?.p_lab_hold ?? 0) * 1000) / 10;
 
 const partyLabel = (p: any) =>
   locale === 'fr' ? p.label_fr ?? p.label_en : locale === 'es' ? p.label_es ?? p.label_en : p.label_en;
@@ -45,7 +52,7 @@ const copy = {
   en: {
     title: 'U.K. Politics — Vote-Scope',
     description:
-      'The Vote-Scope U.K. desk: live general-election projection topline, real Commons composition, and by-election coverage including Clacton — updated as polls land.',
+      'The Vote-Scope U.K. desk: live general-election projection topline, real Commons composition, and the Holborn and St Pancras by-election opened by Keir Starmer’s resignation.',
     eyebrow: 'U.K. Desk',
     heroTitle: 'Where is the British map genuinely settled, and where is it quietly fragile?',
     promise: 'Constituency projections from bias-corrected Bayesian poll aggregation, calibrated on past elections — every seat, updated as new polls land.',
@@ -56,16 +63,19 @@ const copy = {
     votes: 'vote',
     seats: 'seats',
     compositionLabel: `Commons today — ${compTotal} of ${meta.total_seats} GB seats tracked`,
-    transitionTitle: 'Burnham is now prime minister — and the cabinet reset is real.',
-    transitionBody: 'Andy Burnham entered Downing Street on 20 July. John Healey moved to the Treasury, Wes Streeting to Defence, Angela Rayner returned to Housing and Miatta Fahnbulleh took Energy. The political regime has changed; the model waits for several post-transition polls before treating any bounce as durable.',
-    transitionCta: 'Official ministerial appointments →',
+    transitionKicker: '1 SEP 2026 · WESTMINSTER',
+    transitionTitle: 'Starmer has left the Commons — six weeks after leaving Downing Street.',
+    transitionBody: 'Keir Starmer stood down as MP for Holborn and St Pancras on 1 September, saying it was time to step aside for international work. Andy Burnham had already replaced him as prime minister on 20 July, with Healey at the Treasury, Streeting at Defence and Rayner back at Housing. Two things follow: the Commons has a vacancy again, and the model now reads Labour through a leader it has only a few months of polling on.',
+    transitionCta: 'The by-election, seat by seat →',
     byeLabel: 'By-elections',
-    clactonKicker: 'Live race · polling day 13 August',
-    clactonTitle: 'Farage vs Binface.',
-    clactonBody:
-      `Farage recontests his own seat against Count Binface while the major parties boycott. Dedicated Monte Carlo engine: Farage ${fmt1(pFarage)}%, Binface ${fmt1(pBinface)}% — with markets, odds and Binface's path to victory.`,
-    clactonCta: 'Open the special desk →',
+    raceKicker: 'Open race · writ not moved, no date set',
+    raceTitle: 'Labour has to defend Starmer’s seat without Starmer.',
+    raceBody:
+      `Fundamentals only — no constituency poll exists yet, so this is a range, not a number. Labour projects at ${fmt1(labShare.q50)}% (${fmt1(labShare.q10)}–${fmt1(labShare.q90)}) and holds in ${fmt1(pHold)}% of simulations; the Greens sit at ${fmt1(grnShare.q50)}% with a ${fmt1(pGreen)}% chance of the gain. The 2024 runner-up here was not a Conservative — it was an independent on 18.9%.`,
+    raceLever: `If Green leader Zack Polanski stands, Labour’s hold probability falls to ${fmt1(pHoldIfPolanski)}%. That single unknown moves this race more than anything else on the board.`,
+    raceCta: 'Open the constituency profile →',
     resolvedLabel: '2026 by-elections — called and settled',
+    resolvedNote: 'Clacton settled on 13 August: Reform hold, and the Commons vacancy that had been showing here is gone.',
     cards: [
       { href: '/en/uk/general-election/', eyebrow: 'General election projection', title: 'U.K. General Election', body: `650-seat projection. Bayesian poll aggregation, ${meta.n_simulations.toLocaleString('en-GB')} Monte Carlo simulations, seat-level probabilities.`, cta: 'Open projection →' },
       { href: '/en/uk/constituencies/', eyebrow: 'Constituency profiles', title: '650 Westminster constituencies', body: 'A page for every seat: projection, sitting MP, 2024 result, ONS demographics and neighbouring seats.', cta: 'Explore all 650 →' },
@@ -78,13 +88,13 @@ const copy = {
       'Polling aggregation uses a Bayesian BSTS model with region-level adjustments.',
       `${meta.n_simulations.toLocaleString('en-GB')} Monte Carlo simulations produce seat distributions and win probabilities.`,
       'Commons composition reflects resolved by-elections and current vacancies — not just the 2024 result.',
-      'By-elections get dedicated race desks — Clacton runs on its own Monte Carlo engine, with markets shown as external comparison.',
+      'By-elections get their own engine. Holborn and St Pancras runs on a dedicated Monte Carlo model with no constituency poll yet, so it publishes ranges and field scenarios rather than a point estimate.',
     ],
   },
   fr: {
     title: 'Politique britannique — Vote-Scope',
     description:
-      'Le desk UK de Vote-Scope : topline live de la projection, composition réelle des Communes et couverture des partielles dont Clacton — mis à jour au fil des sondages.',
+      'Le desk UK de Vote-Scope : topline live de la projection, composition réelle des Communes et la partielle de Holborn and St Pancras ouverte par la démission de Keir Starmer.',
     eyebrow: 'Bureau UK',
     heroTitle: 'Où la carte britannique est-elle vraiment jouée, et où est-elle discrètement fragile ?',
     promise: 'Projections par circonscription à partir d’une agrégation bayésienne des sondages, biais d’institut corrigés et calibrée sur le passé — chaque siège, mis à jour au fil des sondages.',
@@ -95,16 +105,19 @@ const copy = {
     votes: 'voix',
     seats: 'sièges',
     compositionLabel: `Les Communes aujourd'hui — ${compTotal} des ${meta.total_seats} sièges GB suivis`,
-    transitionTitle: 'Burnham est premier ministre — et le remaniement est majeur.',
-    transitionBody: 'Andy Burnham est entré au 10 Downing Street le 20 juillet. John Healey passe aux Finances, Wes Streeting à la Défense, Angela Rayner revient au Logement et Miatta Fahnbulleh prend l’Énergie. Le régime politique a changé; le modèle attend plusieurs sondages post-transition avant de traiter un rebond comme durable.',
-    transitionCta: 'Nominations ministérielles officielles →',
+    transitionKicker: '1ER SEPT. 2026 · WESTMINSTER',
+    transitionTitle: 'Starmer quitte les Communes — six semaines après avoir quitté Downing Street.',
+    transitionBody: 'Keir Starmer a démissionné de son siège de Holborn and St Pancras le 1er septembre, disant qu’il était temps de « s’effacer » pour se consacrer aux dossiers internationaux. Andy Burnham l’avait déjà remplacé comme premier ministre le 20 juillet, avec Healey aux Finances, Streeting à la Défense et Rayner de retour au Logement. Deux conséquences : les Communes ont de nouveau une vacance, et le modèle lit désormais le Labour à travers un chef sur lequel il n’a que quelques mois de sondages.',
+    transitionCta: 'La partielle, siège par siège →',
     byeLabel: 'Partielles',
-    clactonKicker: 'Course en direct · scrutin le 13 août',
-    clactonTitle: 'Farage vs Binface.',
-    clactonBody:
-      `Farage rejoue son propre siège face à Count Binface pendant que les grands partis boycottent. Moteur Monte Carlo dédié : Farage ${fmt1(pFarage)} %, Binface ${fmt1(pBinface)} % — avec marchés, cotes et le path to victory de Binface.`,
-    clactonCta: 'Ouvrir le desk spécial →',
+    raceKicker: 'Course ouverte · writ non déposé, date non fixée',
+    raceTitle: 'Le Labour doit défendre le siège de Starmer sans Starmer.',
+    raceBody:
+      `Fondamentaux seulement — aucun sondage de circonscription n’existe encore, donc une fourchette, pas un nombre. Le Labour se projette à ${fmt1(labShare.q50)} % (${fmt1(labShare.q10)}–${fmt1(labShare.q90)}) et conserve le siège dans ${fmt1(pHold)} % des simulations ; les Verts sont à ${fmt1(grnShare.q50)} % avec ${fmt1(pGreen)} % de chances de gain. Le deuxième de 2024 ici n’était pas un conservateur, mais un indépendant à 18,9 %.`,
+    raceLever: `Si Zack Polanski, chef des Verts, se présente, la probabilité de maintien travailliste tombe à ${fmt1(pHoldIfPolanski)} %. Cette seule inconnue déplace la course plus que tout le reste.`,
+    raceCta: 'Ouvrir la fiche de circonscription →',
     resolvedLabel: 'Partielles 2026 — jugées et réglées',
+    resolvedNote: 'Clacton a été tranchée le 13 août : maintien Reform, et la vacance qui s’affichait ici a disparu.',
     cards: [
       { href: '/fr/uk/general-election/', eyebrow: 'Projection de la générale', title: 'Générale britannique', body: `Projection des 650 sièges. Agrégation bayésienne des sondages, ${meta.n_simulations.toLocaleString('fr-FR')} simulations Monte Carlo, probabilités par siège.`, cta: 'Ouvrir la projection →' },
       { href: '/fr/uk/circonscriptions/', eyebrow: 'Fiches de circonscription', title: '650 circonscriptions de Westminster', body: 'Une page par siège : projection, député en poste, résultat 2024, démographie ONS et sièges voisins.', cta: 'Explorer les 650 →' },
@@ -117,13 +130,13 @@ const copy = {
       'Agrégation des sondages par modèle bayésien BSTS avec ajustements régionaux.',
       `${meta.n_simulations.toLocaleString('fr-FR')} simulations Monte Carlo produisent distributions de sièges et probabilités de victoire.`,
       'La composition des Communes reflète les partielles résolues et les vacances en cours — pas seulement le résultat 2024.',
-      'Les partielles ont leurs desks dédiés — Clacton tourne sur son propre moteur Monte Carlo, marchés affichés en comparaison externe.',
+      'Les partielles ont leur propre moteur. Holborn and St Pancras tourne sur un modèle Monte Carlo dédié, sans sondage de circonscription : il publie des fourchettes et des scénarios de champ, pas un point.',
     ],
   },
   es: {
     title: 'Política británica — Vote-Scope',
     description:
-      'El desk del Reino Unido de Vote-Scope: topline en vivo de la proyección, composición real de los Comunes y cobertura de parciales incluida Clacton.',
+      'El desk del Reino Unido de Vote-Scope: topline en vivo de la proyección, composición real de los Comunes y la parcial de Holborn and St Pancras abierta por la renuncia de Keir Starmer.',
     eyebrow: 'Desk del Reino Unido',
     heroTitle: '¿Dónde está realmente decidido el mapa británico y dónde es discretamente frágil?',
     promise: 'Proyecciones por circunscripción a partir de una agregación bayesiana de encuestas, con sesgos de encuestadora corregidos y calibrada sobre el pasado — cada escaño, actualizado con cada encuesta.',
@@ -134,16 +147,19 @@ const copy = {
     votes: 'voto',
     seats: 'escaños',
     compositionLabel: `Los Comunes hoy — ${compTotal} de los ${meta.total_seats} escaños GB seguidos`,
-    transitionTitle: 'Burnham ya es primer ministro — y el gabinete cambió de verdad.',
-    transitionBody: 'Andy Burnham entró en Downing Street el 20 de julio. John Healey pasó al Tesoro, Wes Streeting a Defensa, Angela Rayner volvió a Vivienda y Miatta Fahnbulleh asumió Energía. Cambió el régimen político; el modelo espera varias encuestas posteriores antes de tratar cualquier rebote como duradero.',
-    transitionCta: 'Nombramientos ministeriales oficiales →',
+    transitionKicker: '1 SEP 2026 · WESTMINSTER',
+    transitionTitle: 'Starmer deja los Comunes — seis semanas después de dejar Downing Street.',
+    transitionBody: 'Keir Starmer renunció a su escaño de Holborn and St Pancras el 1 de septiembre, diciendo que era hora de apartarse para dedicarse a asuntos internacionales. Andy Burnham ya lo había sustituido como primer ministro el 20 de julio, con Healey en el Tesoro, Streeting en Defensa y Rayner de vuelta en Vivienda. Dos consecuencias: los Comunes vuelven a tener una vacante, y el modelo lee ahora al laborismo a través de un líder del que solo tiene unos meses de encuestas.',
+    transitionCta: 'La parcial, escaño por escaño →',
     byeLabel: 'Parciales',
-    clactonKicker: 'Contienda en vivo · votación el 13 de agosto',
-    clactonTitle: 'Farage vs Binface.',
-    clactonBody:
-      `Farage disputa su propio escaño contra Count Binface mientras los grandes partidos boicotean. Motor Monte Carlo dedicado: Farage ${fmt1(pFarage)} %, Binface ${fmt1(pBinface)} % — con mercados, cuotas y el path to victory de Binface.`,
-    clactonCta: 'Abrir el desk especial →',
+    raceKicker: 'Contienda abierta · sin writ y sin fecha',
+    raceTitle: 'El laborismo debe defender el escaño de Starmer sin Starmer.',
+    raceBody:
+      `Solo fundamentos — todavía no existe ninguna encuesta de circunscripción, así que es un rango, no un número. El laborismo se proyecta en ${fmt1(labShare.q50)} % (${fmt1(labShare.q10)}–${fmt1(labShare.q90)}) y retiene el escaño en ${fmt1(pHold)} % de las simulaciones; los Verdes están en ${fmt1(grnShare.q50)} % con ${fmt1(pGreen)} % de probabilidad de ganarlo. El segundo lugar de 2024 aquí no fue un conservador, sino un independiente con 18,9 %.`,
+    raceLever: `Si se presenta Zack Polanski, líder de los Verdes, la probabilidad de retención laborista cae a ${fmt1(pHoldIfPolanski)} %. Esa sola incógnita mueve la contienda más que cualquier otra cosa.`,
+    raceCta: 'Abrir la ficha de circunscripción →',
     resolvedLabel: 'Parciales de 2026 — resueltas',
+    resolvedNote: 'Clacton se resolvió el 13 de agosto: retención de Reform, y la vacante que aparecía aquí ya no existe.',
     cards: [
       { href: '/es/uk/general-election/', eyebrow: 'Proyección de las generales', title: 'Generales británicas', body: `Proyección de 650 escaños. Agregación bayesiana de encuestas, ${meta.n_simulations.toLocaleString('es-ES')} simulaciones Monte Carlo, probabilidades por escaño.`, cta: 'Abrir la proyección →' },
       { href: '/es/uk/circunscripciones/', eyebrow: 'Fichas de circunscripción', title: '650 circunscripciones de Westminster', body: 'Una página por escaño: proyección, diputado en ejercicio, resultado 2024, demografía ONS y escaños vecinos.', cta: 'Explorar las 650 →' },
@@ -156,7 +172,7 @@ const copy = {
       'Agregación de encuestas con un modelo bayesiano BSTS y ajustes regionales.',
       `${meta.n_simulations.toLocaleString('es-ES')} simulaciones Monte Carlo producen distribuciones de escaños y probabilidades.`,
       'La composición de los Comunes refleja parciales resueltas y vacantes actuales — no solo el resultado de 2024.',
-      'Las parciales tienen desks dedicados — Clacton corre en su propio motor Monte Carlo, con mercados como comparación externa.',
+      'Las parciales tienen su propio motor. Holborn and St Pancras corre en un modelo Monte Carlo dedicado, sin encuesta de circunscripción: publica rangos y escenarios de campo, no un punto.',
     ],
   },
 }[locale];
@@ -222,10 +238,10 @@ const dateLabel = (iso: string) => {
   <section class="content-band">
     <div class="container">
       <article class="note-card" style="max-width:900px;border-left:4px solid var(--blue);">
-        <p class="eyebrow">20 JUL 2026 · DOWNING STREET</p>
+        <p class="eyebrow">{t.transitionKicker}</p>
         <h2 style="font-family:var(--serif);font-size:clamp(1.7rem,3vw,2.5rem);margin:.4rem 0 1rem;">{t.transitionTitle}</h2>
         <p>{t.transitionBody}</p>
-        <p style="margin-top:1rem;"><a class="cta-link" href="https://www.gov.uk/government/news/ministerial-appointments-july-2026" rel="noreferrer">{t.transitionCta}</a></p>
+        <p style="margin-top:1rem;"><a class="cta-link" href={racePath}>{t.transitionCta}</a></p>
       </article>
     </div>
   </section>
@@ -264,11 +280,12 @@ const dateLabel = (iso: string) => {
     <div class="container">
       <p class="ukdesk-label">{t.byeLabel}</p>
       <div class="content-grid-2" style="margin-top:14px;">
-        <a class="note-card ukdesk-clacton" href={clactonPath} style="text-decoration:none;color:inherit;">
-          <p class="eyebrow">{t.clactonKicker}</p>
-          <h3>{t.clactonTitle}</h3>
-          <p>{t.clactonBody}</p>
-          <footer style="margin-top:1rem;"><span class="cta-link">{t.clactonCta}</span></footer>
+        <a class="note-card ukdesk-race" href={racePath} style="text-decoration:none;color:inherit;">
+          <p class="eyebrow">{t.raceKicker}</p>
+          <h3>{t.raceTitle}</h3>
+          <p>{t.raceBody}</p>
+          <p class="ukdesk-race-lever">{t.raceLever}</p>
+          <footer style="margin-top:1rem;"><span class="cta-link">{t.raceCta}</span></footer>
         </a>
         <div class="ukdesk-resolved">
           <p class="eyebrow">{t.resolvedLabel}</p>
@@ -282,6 +299,7 @@ const dateLabel = (iso: string) => {
               <span class="ukdesk-resolved-date">{dateLabel(b.date)}</span>
             </div>
           ))}
+          <p class="ukdesk-resolved-note">{t.resolvedNote}</p>
         </div>
       </div>
     </div>
@@ -338,7 +356,24 @@ const dateLabel = (iso: string) => {
   .ukdesk-comp-bar { display: flex; height: 16px; border-radius: 3px; overflow: hidden; margin-top: 12px; }
   .ukdesk-comp-legend { display: flex; flex-wrap: wrap; gap: 8px 16px; margin-top: 10px; font-family: var(--mono); font-size: 11px; color: var(--ink-2); }
   .ukdesk-comp-legend i { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 5px; }
+  .ukdesk-race-lever {
+    margin-top: 12px;
+    padding-left: 12px;
+    border-left: 2px solid var(--blue);
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--ink-2);
+  }
   .ukdesk-resolved { border: 1px solid var(--rule); border-radius: 6px; background: var(--card); padding: 20px; }
+  .ukdesk-resolved-note {
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid var(--rule-2);
+    font-family: var(--mono);
+    font-size: 11px;
+    line-height: 1.6;
+    color: var(--ink-3);
+  }
   .ukdesk-resolved-row {
     display: grid;
     grid-template-columns: 10px minmax(90px, 0.6fr) 1.6fr auto;

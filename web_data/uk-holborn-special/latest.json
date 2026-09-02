@@ -1,0 +1,307 @@
+{
+  "meta": {
+    "generated_at": "2026-09-02T01:45:10.041490+00:00",
+    "run_date": "2026-09-01",
+    "vacancy_date": "2026-09-01",
+    "election_date": null,
+    "riding_id": "E14001290",
+    "riding_name": "Holborn and St Pancras",
+    "model_version": "v0.1-fundamentals",
+    "has_local_polls": false,
+    "n_sims": 50000,
+    "writ_moved": false,
+    "note_fr": "Projection de fondamentaux, sans aucun sondage de circonscription. Tant qu'il n'y en a pas, la page mène avec la COURSE et des fourchettes, jamais avec un point : c'est la règle posée à Clacton et elle vaut ici. La date du scrutin n'est pas fixée, ce qui élargit encore toutes les incertitudes.",
+    "note_en": "Fundamentals-only projection, with no constituency poll. Until one exists the page leads with the race and with ranges, never with a point estimate — the rule set at Clacton applies here. The polling date is not set, which widens every interval further.",
+    "note_es": "Proyección de fundamentos, sin ninguna encuesta de circunscripción. Mientras no exista, la página encabeza con la carrera y con rangos, nunca con un punto. La fecha de la elección no está fijada, lo que amplía todos los intervalos."
+  },
+  "model": {
+    "n_sims": 50000,
+    "label": "coupled",
+    "candidates": {
+      "lab": {
+        "labels": {
+          "fr": "Labour",
+          "en": "Labour",
+          "es": "Laborista"
+        },
+        "share": {
+          "q05": 24.42,
+          "q10": 26.82,
+          "q25": 30.88,
+          "q50": 35.33,
+          "q75": 39.65,
+          "q90": 43.53,
+          "q95": 45.8
+        },
+        "share_mean": 35.24,
+        "p_win": 0.82194
+      },
+      "grn": {
+        "labels": {
+          "fr": "Verts",
+          "en": "Green",
+          "es": "Verdes"
+        },
+        "share": {
+          "q05": 16.03,
+          "q10": 17.44,
+          "q25": 20.19,
+          "q50": 24.04,
+          "q75": 29.16,
+          "q90": 34.3,
+          "q95": 37.2
+        },
+        "share_mean": 25.05,
+        "p_win": 0.16886
+      },
+      "ind": {
+        "labels": {
+          "fr": "Indépendant de gauche",
+          "en": "Left independent",
+          "es": "Independiente de izquierda"
+        },
+        "share": {
+          "q05": 0.0,
+          "q10": 0.0,
+          "q25": 6.19,
+          "q50": 10.85,
+          "q75": 15.51,
+          "q90": 19.43,
+          "q95": 21.68
+        },
+        "share_mean": 10.81,
+        "p_win": 0.0089
+      },
+      "ref": {
+        "labels": {
+          "fr": "Reform UK",
+          "en": "Reform UK",
+          "es": "Reform UK"
+        },
+        "share": {
+          "q05": 9.76,
+          "q10": 10.53,
+          "q25": 11.95,
+          "q50": 13.68,
+          "q75": 15.63,
+          "q90": 17.54,
+          "q95": 18.82
+        },
+        "share_mean": 13.91,
+        "p_win": 0.0003
+      },
+      "con": {
+        "labels": {
+          "fr": "Conservateurs",
+          "en": "Conservative",
+          "es": "Conservadores"
+        },
+        "share": {
+          "q05": 3.56,
+          "q10": 3.88,
+          "q25": 4.49,
+          "q50": 5.24,
+          "q75": 6.1,
+          "q90": 6.95,
+          "q95": 7.52
+        },
+        "share_mean": 5.35,
+        "p_win": 0.0
+      },
+      "ld": {
+        "labels": {
+          "fr": "Libéraux-démocrates",
+          "en": "Liberal Democrats",
+          "es": "Liberal-demócratas"
+        },
+        "share": {
+          "q05": 3.6,
+          "q10": 3.89,
+          "q25": 4.42,
+          "q50": 5.07,
+          "q75": 5.81,
+          "q90": 6.53,
+          "q95": 7.0
+        },
+        "share_mean": 5.16,
+        "p_win": 0.0
+      },
+      "oth": {
+        "labels": {
+          "fr": "Autres candidats",
+          "en": "Other candidates",
+          "es": "Otras candidaturas"
+        },
+        "share": {
+          "q05": 2.36,
+          "q10": 2.69,
+          "q25": 3.35,
+          "q50": 4.3,
+          "q75": 5.42,
+          "q90": 6.55,
+          "q95": 7.27
+        },
+        "share_mean": 4.49,
+        "p_win": 0.0
+      }
+    },
+    "p_lab_hold": 0.82194,
+    "p_lab_loss": 0.17806,
+    "shock_diagnostics": {
+      "p_lab_loss_coupled": 0.17806,
+      "p_lab_loss_if_independent_shocks": 0.16962,
+      "joint_tail_ratio": 1.05,
+      "corr_shock_lab_share": -0.357,
+      "corr_shock_grn_share": 0.215,
+      "note_fr": "Un facteur latent unique frappe la démobilisation travailliste, la mobilisation verte et la rétention indépendante. Le contrefactuel retire le couplage en gardant les marges : l'écart mesure ce que le couplage ajoute à la queue « le Labour perd »."
+    },
+    "national_anchor": {
+      "source": "web_data/uk/latest.json",
+      "national_2024": {
+        "lab": 33.7,
+        "con": 23.7,
+        "ld": 12.22,
+        "ref": 14.29,
+        "grn": 6.75,
+        "oth": 3.78
+      },
+      "national_now": {
+        "con": 19.7,
+        "grn": 11.8,
+        "lab": 24.4,
+        "ld": 10.6,
+        "oth": 5.3,
+        "ref": 24.3
+      },
+      "swing_pts": {
+        "lab": -9.3,
+        "con": -4.0,
+        "ld": -1.62,
+        "ref": 10.01,
+        "grn": 5.05,
+        "oth": 1.52
+      },
+      "swing_ratio": {
+        "lab": 0.724,
+        "con": 0.831,
+        "ld": 0.867,
+        "ref": 1.7,
+        "grn": 1.748,
+        "oth": 1.402
+      }
+    },
+    "baseline_2024": {
+      "lab": 48.92,
+      "ind": 18.94,
+      "grn": 10.44,
+      "con": 7.19,
+      "ref": 6.14,
+      "ld": 5.79,
+      "oth": 2.58
+    },
+    "turnout_2024_pct": 54.1,
+    "field": {
+      "as_of": "2026-09-01",
+      "field_final": false,
+      "notice_of_election": null,
+      "nominations_open": null,
+      "nominations_close": null,
+      "sopn_total": null,
+      "note_fr": "Vacance du 1er septembre 2026, writ non déposé. Aucune candidature déclarée : le Labour n'a pas ouvert sa sélection, et les deux noms qui circulent ne sont que des intentions rapportées — Zack Polanski, chef des Verts, dont un porte-parole dit qu'il « n'exclut pas » de se présenter, et Count Binface, qui l'a laissé entendre. L'inconnue décisive n'est ni l'un ni l'autre : c'est Andrew Feinstein, deuxième en 2024 avec 18,94 %, dont l'intention n'est pas connue.",
+      "sources": [
+        "https://en.wikipedia.org/wiki/2026_Holborn_and_St_Pancras_by-election"
+      ],
+      "candidates": [
+        {
+          "name": "Zack Polanski",
+          "party": "Green Party",
+          "bucket": "grn",
+          "status": "speculated"
+        },
+        {
+          "name": "Andrew Feinstein",
+          "party": "Independent",
+          "bucket": "ind",
+          "status": "speculated"
+        },
+        {
+          "name": "Count Binface",
+          "party": "Count Binface Party",
+          "bucket": "oth",
+          "status": "speculated"
+        }
+      ]
+    },
+    "scenarios": [
+      {
+        "id": "feinstein_runs",
+        "n_draws": 22441,
+        "share_of_draws": 0.4488,
+        "p_lab_hold": 0.83067,
+        "p_grn_win": 0.14982,
+        "p_ind_win": 0.01916,
+        "note_fr": "Andrew Feinstein se représente : son bloc de 18,94 % garde son nom et sa structure.",
+        "note_en": "Andrew Feinstein stands again: his 18.94% bloc keeps its name and organisation.",
+        "note_es": "Andrew Feinstein se presenta de nuevo: su bloque del 18,94 % conserva nombre y estructura."
+      },
+      {
+        "id": "feinstein_absent",
+        "n_draws": 27559,
+        "share_of_draws": 0.5512,
+        "p_lab_hold": 0.81483,
+        "p_grn_win": 0.18437,
+        "p_ind_win": 0.00054,
+        "note_fr": "Feinstein ne se représente pas : son bloc se partage entre un remplaçant, les Verts et l'abstention.",
+        "note_en": "Feinstein does not stand: his bloc splits between a replacement, the Greens and abstention.",
+        "note_es": "Feinstein no se presenta: su bloque se reparte entre un sustituto, los Verdes y la abstención."
+      },
+      {
+        "id": "polanski_runs",
+        "n_draws": 12607,
+        "share_of_draws": 0.2521,
+        "p_lab_hold": 0.55842,
+        "p_grn_win": 0.44095,
+        "p_ind_win": 0.0004,
+        "note_fr": "Zack Polanski, chef des Verts, se présente : profil national, moyens, et siphon du vote indépendant de gauche.",
+        "note_en": "Green leader Zack Polanski stands: national profile, resources, and a squeeze on the left independent vote.",
+        "note_es": "Zack Polanski, líder verde, se presenta: perfil nacional, recursos y absorción del voto independiente de izquierda."
+      },
+      {
+        "id": "polanski_and_no_feinstein",
+        "n_draws": 6978,
+        "share_of_draws": 0.1396,
+        "p_lab_hold": 0.5652,
+        "p_grn_win": 0.43465,
+        "p_ind_win": 0.0,
+        "note_fr": "Le pire cas travailliste du champ : un chef de parti national face à une gauche locale sans candidat propre.",
+        "note_en": "Labour's worst field: a national party leader against a local left with no candidate of its own.",
+        "note_es": "El peor escenario laborista: un líder nacional frente a una izquierda local sin candidato propio."
+      },
+      {
+        "id": "left_revolt_high",
+        "n_draws": 5000,
+        "share_of_draws": 0.1,
+        "p_lab_hold": 0.5666,
+        "p_grn_win": 0.398,
+        "p_ind_win": 0.0344,
+        "note_fr": "Décile haut du facteur « révolte de gauche » : démobilisation travailliste et mobilisation verte simultanées.",
+        "note_en": "Top decile of the left-revolt factor: simultaneous Labour demobilisation and Green mobilisation.",
+        "note_es": "Decil superior del factor «revuelta de izquierda»: desmovilización laborista y movilización verde a la vez."
+      }
+    ],
+    "field_event_probabilities": {
+      "p_feinstein_runs": 0.45,
+      "p_polanski_runs": 0.25,
+      "p_replacement_ind": 0.8
+    }
+  },
+  "local_polls": {
+    "available": false,
+    "polls": [],
+    "note_fr": "Aucun sondage de circonscription au 2026-09-01. Le crochet de recentrage est câblé : le premier sondage repondérera les tirages par sa vraisemblance à n effectif dégonflé, sans réécrire les priors."
+  },
+  "markets": {
+    "available": false,
+    "note_fr": "Aucun marché de prédiction ouvert sur cette partielle au 2026-09-01."
+  }
+}
