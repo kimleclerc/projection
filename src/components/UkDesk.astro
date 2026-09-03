@@ -28,6 +28,35 @@ const topParties = [...parties]
   .slice(0, 5);
 const leader = topParties[0];
 const runnerUp = topParties[1];
+// Le meilleur en VOIX et le meilleur en SIÈGES ne sont pas le même parti, et
+// c'est l'histoire que ce desk raconte mieux que personne. Le titre se calcule
+// donc sur les données du run : il reste juste sans être réécrit à la main, et
+// il bascule tout seul si le croisement disparaît.
+const seatLeader = [...parties].sort((a, b) => (b.seats_mean ?? 0) - (a.seats_mean ?? 0))[0];
+// Les libellés du modèle sont des adjectifs (« Travailliste ») : parfaits dans
+// une légende, bancals en sujet de phrase. Deux formes, donc — une pour le
+// titre, une plus courte pour la ligne de chiffres.
+const SUBJECT: Record<string, Record<Locale, string>> = {
+  uk_lab: { fr: 'Le Labour', en: 'Labour', es: 'El laborismo' },
+  uk_ref: { fr: 'Reform UK', en: 'Reform UK', es: 'Reform UK' },
+  uk_con: { fr: 'Les conservateurs', en: 'The Conservatives', es: 'Los conservadores' },
+  uk_ld: { fr: 'Les libéraux-démocrates', en: 'The Liberal Democrats', es: 'Los liberal-demócratas' },
+  uk_grn: { fr: 'Les Verts', en: 'The Greens', es: 'Los Verdes' },
+  uk_snp: { fr: 'Le SNP', en: 'The SNP', es: 'El SNP' },
+};
+const SHORT: Record<string, Record<Locale, string>> = {
+  uk_lab: { fr: 'Labour', en: 'Labour', es: 'Labour' },
+  uk_ref: { fr: 'Reform UK', en: 'Reform UK', es: 'Reform UK' },
+  uk_con: { fr: 'Conservateurs', en: 'Conservatives', es: 'Conservadores' },
+  uk_ld: { fr: 'Lib-Dem', en: 'Lib Dems', es: 'Lib-Dem' },
+  uk_grn: { fr: 'Verts', en: 'Greens', es: 'Verdes' },
+  uk_snp: { fr: 'SNP', en: 'SNP', es: 'SNP' },
+};
+const subj = (p: any) => SUBJECT[p?.party]?.[locale] ?? partyLabel(p);
+const shortName = (p: any) => SHORT[p?.party]?.[locale] ?? partyLabel(p);
+const splitWinner = seatLeader && leader && seatLeader.party !== leader.party;
+const seatGap = splitWinner ? Math.round((seatLeader.seats_mean ?? 0) - (leader.seats_mean ?? 0)) : 0;
+const voteGap = splitWinner ? Math.abs((leader.vote_mean ?? 0) - (seatLeader.vote_mean ?? 0)) : 0;
 const compTotal = composition.reduce((acc, c) => acc + (c.seats ?? 0), 0);
 
 // Course en cours : Holborn and St Pancras (démission de Keir Starmer).
@@ -54,13 +83,16 @@ const fmt1 = (v: number) =>
 
 const copy = {
   en: {
-    title: 'U.K. Politics — Vote-Scope',
-    description:
-      'The Vote-Scope U.K. desk: live general-election projection topline, real Commons composition, and the Holborn and St Pancras by-election opened by Keir Starmer’s resignation.',
+    title: `U.K. General Election Poll Tracker & Seat Projection — ${shortName(leader)} ${fmt1(leader.vote_mean)}%, ${shortName(seatLeader)} ${Math.round(seatLeader.seats_mean)} Seats — Vote-Scope`,
+    description: splitWinner
+      ? `${subj(leader)} leads the polls on ${fmt1(leader.vote_mean)}% and still finishes ${seatGap} seats behind ${shortName(seatLeader)}. Vote-Scope projects all 650 Westminster constituencies, tracks every U.K. poll, and covers the Holborn and St Pancras by-election and the Clacton recall question.`
+      : `${partyLabel(leader)} leads on ${fmt1(leader.vote_mean)}% and ${Math.round(seatLeader.seats_mean)} seats. Vote-Scope projects all 650 Westminster constituencies, tracks every U.K. poll, and covers the live by-elections.`,
     eyebrow: 'U.K. Desk',
-    heroTitle: 'Where is the British map genuinely settled, and where is it quietly fragile?',
-    promise: 'Constituency projections from bias-corrected Bayesian poll aggregation, calibrated on past elections — every seat, updated as new polls land.',
-    question: `${partyLabel(leader)} leads on ${fmt1(leader.vote_mean)}% — but who actually banks the seats?`,
+    heroTitle: splitWinner
+      ? `${subj(leader)} is winning the polls. ${subj(seatLeader)} is winning ${seatGap} more seats.`
+      : `${partyLabel(leader)} leads on votes and on seats. How solid is it?`,
+    promise: 'Vote-Scope projects all 650 Westminster constituencies one by one, from polls corrected for house effects and calibrated on past elections. The gap between votes and seats is the whole story, and you can only see it seat by seat.',
+    question: `Today: ${shortName(seatLeader)} ${fmt1(seatLeader.vote_mean)}% → ${Math.round(seatLeader.seats_mean)} seats · ${shortName(leader)} ${fmt1(leader.vote_mean)}% → ${Math.round(leader.seats_mean)}.`,
     openProjection: 'Open projection',
     allIndexes: 'All indexes',
     toplineLabel: `Model topline · run ${meta.run_date} · ${meta.n_polls} polls`,
@@ -101,13 +133,16 @@ const copy = {
     ],
   },
   fr: {
-    title: 'Politique britannique — Vote-Scope',
-    description:
-      'Le desk UK de Vote-Scope : topline live de la projection, composition réelle des Communes et la partielle de Holborn and St Pancras ouverte par la démission de Keir Starmer.',
+    title: `Sondages et projection de sièges au Royaume-Uni — ${shortName(leader)} ${fmt1(leader.vote_mean)} %, ${shortName(seatLeader)} ${Math.round(seatLeader.seats_mean)} sièges — Vote-Scope`,
+    description: splitWinner
+      ? `${subj(leader)} mène les sondages à ${fmt1(leader.vote_mean)} % et finit quand même ${seatGap} sièges derrière ${shortName(seatLeader)}. Vote-Scope projette les 650 circonscriptions de Westminster, suit chaque sondage britannique et couvre la partielle de Holborn and St Pancras ainsi que la question du rappel à Clacton.`
+      : `${partyLabel(leader)} mène à ${fmt1(leader.vote_mean)} % et ${Math.round(seatLeader.seats_mean)} sièges. Vote-Scope projette les 650 circonscriptions de Westminster et suit chaque sondage britannique.`,
     eyebrow: 'Bureau UK',
-    heroTitle: 'Où la carte britannique est-elle vraiment jouée, et où est-elle discrètement fragile ?',
-    promise: 'Projections par circonscription à partir d’une agrégation bayésienne des sondages, biais d’institut corrigés et calibrée sur le passé — chaque siège, mis à jour au fil des sondages.',
-    question: `${partyLabel(leader)} mène à ${fmt1(leader.vote_mean)} % — mais qui encaisse vraiment les sièges ?`,
+    heroTitle: splitWinner
+      ? `${subj(leader)} gagne les sondages. ${subj(seatLeader)} gagne ${seatGap} sièges de plus.`
+      : `${partyLabel(leader)} mène aux voix comme aux sièges. Est-ce solide ?`,
+    promise: 'Vote-Scope projette les 650 circonscriptions de Westminster une par une, à partir des sondages corrigés des biais d’institut et calibrés sur les scrutins passés. L’écart entre les voix et les sièges est toute l’histoire, et il ne se voit que siège par siège.',
+    question: `Aujourd’hui : ${shortName(seatLeader)} ${fmt1(seatLeader.vote_mean)} % → ${Math.round(seatLeader.seats_mean)} sièges · ${shortName(leader)} ${fmt1(leader.vote_mean)} % → ${Math.round(leader.seats_mean)}.`,
     openProjection: 'Ouvrir la projection',
     allIndexes: 'Tous les indices',
     toplineLabel: `Topline du modèle · run ${meta.run_date} · ${meta.n_polls} sondages`,
@@ -148,13 +183,16 @@ const copy = {
     ],
   },
   es: {
-    title: 'Política británica — Vote-Scope',
-    description:
-      'El desk del Reino Unido de Vote-Scope: topline en vivo de la proyección, composición real de los Comunes y la parcial de Holborn and St Pancras abierta por la renuncia de Keir Starmer.',
+    title: `Encuestas y proyección de escaños en el Reino Unido — ${shortName(leader)} ${fmt1(leader.vote_mean)} %, ${shortName(seatLeader)} ${Math.round(seatLeader.seats_mean)} escaños — Vote-Scope`,
+    description: splitWinner
+      ? `${subj(leader)} lidera las encuestas con ${fmt1(leader.vote_mean)} % y aun así termina ${seatGap} escaños por detrás de ${shortName(seatLeader)}. Vote-Scope proyecta las 650 circunscripciones de Westminster, sigue cada encuesta británica y cubre la parcial de Holborn and St Pancras y la cuestión del recall en Clacton.`
+      : `${partyLabel(leader)} lidera con ${fmt1(leader.vote_mean)} % y ${Math.round(seatLeader.seats_mean)} escaños. Vote-Scope proyecta las 650 circunscripciones de Westminster.`,
     eyebrow: 'Desk del Reino Unido',
-    heroTitle: '¿Dónde está realmente decidido el mapa británico y dónde es discretamente frágil?',
-    promise: 'Proyecciones por circunscripción a partir de una agregación bayesiana de encuestas, con sesgos de encuestadora corregidos y calibrada sobre el pasado — cada escaño, actualizado con cada encuesta.',
-    question: `${partyLabel(leader)} lidera con ${fmt1(leader.vote_mean)} % — pero ¿quién se lleva realmente los escaños?`,
+    heroTitle: splitWinner
+      ? `${subj(leader)} gana las encuestas. ${subj(seatLeader)} gana ${seatGap} escaños más.`
+      : `${partyLabel(leader)} lidera en votos y en escaños. ¿Es sólido?`,
+    promise: 'Vote-Scope proyecta las 650 circunscripciones de Westminster una por una, con encuestas corregidas por sesgo de encuestadora y calibradas sobre elecciones pasadas. La brecha entre votos y escaños es toda la historia, y solo se ve escaño por escaño.',
+    question: `Hoy: ${shortName(seatLeader)} ${fmt1(seatLeader.vote_mean)} % → ${Math.round(seatLeader.seats_mean)} escaños · ${shortName(leader)} ${fmt1(leader.vote_mean)} % → ${Math.round(leader.seats_mean)}.`,
     openProjection: 'Abrir la proyección',
     allIndexes: 'Todos los índices',
     toplineLabel: `Topline del modelo · ejecución ${meta.run_date} · ${meta.n_polls} encuestas`,
