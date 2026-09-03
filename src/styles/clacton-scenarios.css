@@ -1,0 +1,90 @@
+/* Sélecteur de scénarios — Clacton 2.0 (îlot ClactonScenarioPicker). */
+.csp {
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  background: var(--card);
+  padding: 22px;
+  margin-top: 14px;
+}
+.csp-intro { margin: 0 0 18px; font-size: 14px; line-height: 1.6; color: var(--ink-2); max-width: 78ch; }
+
+.csp-controls { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 26px; }
+.csp-group { border: 0; margin: 0; padding: 0; min-width: 0; }
+.csp-group legend {
+  padding: 0 0 7px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.csp-seg { display: flex; flex-wrap: wrap; gap: 6px; }
+.csp-opt {
+  appearance: none;
+  border: 1px solid var(--rule);
+  background: transparent;
+  color: var(--ink-2);
+  border-radius: 3px;
+  padding: 7px 12px;
+  font: inherit;
+  font-size: 13px;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease, color 120ms ease;
+}
+.csp-opt:hover { border-color: var(--ink-3); }
+.csp-opt.is-on {
+  background: var(--ink-1, #1a1a1a);
+  border-color: var(--ink-1, #1a1a1a);
+  color: var(--card, #fff);
+  font-weight: 600;
+}
+.csp-opt:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+.csp-help { margin: 8px 0 0; font-size: 12px; line-height: 1.55; color: var(--ink-3); max-width: 60ch; }
+
+.csp-headline {
+  margin-top: 24px;
+  padding: 18px 20px;
+  border: 1px solid var(--rule);
+  border-left: 4px solid #12B6CF;
+  border-radius: 4px;
+  display: grid;
+  gap: 3px;
+}
+.csp-headline strong { font-family: var(--serif); font-size: 42px; font-weight: 430; letter-spacing: -0.02em; line-height: 1; }
+.csp-headline span { font-size: 14px; color: var(--ink-2); }
+
+.csp-range-label {
+  margin-top: 22px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.csp-rows { margin-top: 10px; display: grid; gap: 10px; }
+.csp-row { display: grid; grid-template-columns: minmax(130px, 1.1fr) 3fr minmax(96px, auto); gap: 14px; align-items: center; }
+.csp-name { display: flex; align-items: center; gap: 8px; font-size: 14px; min-width: 0; }
+.csp-name i { width: 10px; height: 10px; border-radius: 2px; flex: none; }
+.csp-name small { font-family: var(--mono); font-size: 10px; color: var(--ink-3); }
+.csp-track { position: relative; height: 16px; border-radius: 3px; background: var(--background-contrast-1, rgba(0, 0, 0, 0.05)); }
+.csp-band { position: absolute; top: 0; bottom: 0; border: 1px solid; border-radius: 3px; }
+.csp-median { position: absolute; top: -3px; bottom: -3px; width: 2px; }
+.csp-nums { text-align: right; }
+.csp-nums strong { font-family: var(--serif); font-size: 18px; font-weight: 430; }
+.csp-nums small { display: block; font-family: var(--mono); font-size: 10px; color: var(--ink-3); }
+
+.csp-caveat {
+  margin: 22px 0 0;
+  padding-top: 14px;
+  border-top: 1px solid var(--rule-2);
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--ink-3);
+  max-width: 80ch;
+}
+
+@media (max-width: 820px) {
+  .csp-controls { grid-template-columns: 1fr; }
+  .csp-row { grid-template-columns: minmax(100px, 1fr) 2fr auto; }
+}

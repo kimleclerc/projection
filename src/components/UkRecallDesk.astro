@@ -1,0 +1,338 @@
+---
+// Desk « Clacton 2.0 » — deux questions, tenues séparées.
+//
+//   1. Le siège retombe-t-il vacant, et quand ? (chaîne institutionnelle)
+//   2. Si oui, qui gagnerait ? (grille de 24 scénarios, sélectionnable)
+//
+// ⚠ CE QUE CETTE PAGE NE FAIT PAS. Elle ne dit pas si Nigel Farage a commis une
+// infraction : rien n'est jugé, il nie l'ensemble des allégations, et ce n'est
+// ni notre rôle ni une chose qu'un modèle tranche. Elle modélise un événement
+// institutionnel — une vacance de siège — dont les conditions sont écrites dans
+// le Recall of MPs Act 2015. Un gardien du moteur vérifie mécaniquement
+// qu'aucun paramètre ne porte de jugement de culpabilité.
+import EditorialLayout from '../layouts/EditorialLayout.astro';
+import GooglePreferredSource from './GooglePreferredSource.astro';
+import MethodologyNote from './MethodologyNote.astro';
+import ClactonScenarioPicker from '../islands/ClactonScenarioPicker.tsx';
+import recall from '../../web_data/uk-clacton-recall/latest.json';
+import '../styles/clacton-scenarios.css';
+
+type Locale = 'en' | 'fr' | 'es';
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+
+const d = recall as any;
+const race = d.race;
+const chain = d.chain;
+const horizons = d.horizons;
+const validation = race.validation_august_2026;
+
+const BUCKETS = ['ref', 'con', 'lab', 'ld', 'grn', 'binface', 'oth'];
+const COLORS: Record<string, string> = {
+  ref: '#12B6CF', con: '#0087DC', lab: '#E4003B', ld: '#FAA61A',
+  grn: '#6AB023', binface: '#1a1a1a', oth: '#9a938a',
+};
+
+const nf = (v: number, dg = 1) => (locale === 'en' ? v.toFixed(dg) : v.toFixed(dg).replace('.', ','));
+const pct = (v: number, dg = 1) => nf(v * 100, dg);
+const canonical = `https://vote-scope.com/${locale}/uk/byelections/clacton-next/`;
+const alternates = {
+  en: 'https://vote-scope.com/en/uk/byelections/clacton-next/',
+  fr: 'https://vote-scope.com/fr/uk/byelections/clacton-next/',
+  es: 'https://vote-scope.com/es/uk/byelections/clacton-next/',
+};
+
+const GATE_LABELS: Record<string, Record<Locale, string>> = {
+  resignation: { fr: 'Démission volontaire', en: 'Voluntary resignation', es: 'Renuncia voluntaria' },
+  standards_existing: { fr: 'Normes — enquête en cours (don Harborne)', en: 'Standards — existing inquiry (Harborne gift)', es: 'Normas — investigación en curso (donación Harborne)' },
+  standards_new: { fr: 'Normes — nouvelle enquête (matière Channel 4)', en: 'Standards — new inquiry (Channel 4 material)', es: 'Normas — nueva investigación (material de Channel 4)' },
+  criminal: { fr: 'Condamnation avec peine de prison', en: 'Conviction with a custodial sentence', es: 'Condena con pena de prisión' },
+};
+
+const copy = {
+  en: {
+    title: 'Will There Be a Second Clacton By-Election? Farage, the Recall Chain and 24 Race Scenarios — Vote-Scope',
+    description: `After the Channel 4 / Verbatim undercover investigation, Vote-Scope models whether Clacton falls vacant again — ${pct(horizons['2027-06-30'].p_byelection_held)}% by mid-2027 — and who would win it, across 24 selectable field scenarios.`,
+    kicker: 'U.K. by-election watch · Clacton · what happens next',
+    headline: 'Would there be a second Clacton by-election — and who would win it?',
+    dek: 'Channel 4 News and Verbatim published a year-long undercover investigation on 3 September. Reform UK, Nigel Farage, James Orr and Dan Jukes deny the allegations in full, and nothing has been charged or tried. This page does not ask whether anyone broke the law. It asks a narrower question we can actually model: does the seat fall vacant again, and if it does, what would the race look like?',
+    disclaimerLabel: 'What this page is, and is not',
+    disclaimer: 'Every allegation described here is an allegation. No charge has been brought, no court has ruled, and Reform UK, Mr Farage, Mr Orr and Mr Jukes deny all of it. Vote-Scope models an institutional event — a seat falling vacant — whose conditions are written into the Recall of MPs Act 2015. A guardian in the engine checks mechanically that no model parameter encodes a verdict of guilt.',
+    q1Label: 'Question one — does the seat fall vacant?',
+    thHorizon: 'By', thVacant: 'Seat vacant', thHeld: 'By-election held',
+    gatesLabel: 'Which door it comes through',
+    gatesIntro: 'Share of the probability mass by 2029. Three doors are written into statute; the fourth needs no condition at all.',
+    counterLabel: 'The result that runs against the intuition',
+    counterBody: `“Criminal risk” does not mean “by-election likely”, and the chain says so out loud. Recall requires a custodial sentence; party-funding offences are normally punished with fines; and the judicial calendar runs past the horizon — a median of ${chain.criminal.median_months_to_resolution} months to resolution. The criminal door therefore carries ${pct(d.gate_shares.criminal)}% of the mass. What keeps a second by-election alive is the first door: Farage demonstrated in July that he can convert a funding scandal into a mandate.`,
+    sensLabel: 'Push any single link and see',
+    sensIntro: 'A conditional chain is not defended by asserting its links but by showing which ones matter. Each row replays the model with one parameter pushed to an aggressive value.',
+    thVariant: 'Aggressive assumption', thBy2027: 'By-election by mid-2027', thBy2029: 'By mid-2029',
+    petitionLabel: 'The petition is not a formality — the Paisley point',
+    petitionBody: `A recall petition needs ${d.signatures_needed.toLocaleString('en-GB')} signatures, 10% of Clacton's ${d.registered_voters.toLocaleString('en-GB')} registered voters. Five of the six petitions ever held succeeded, which invites treating the threshold as a formality. The sixth is the right reference: Ian Paisley, North Antrim, 2018 — 9.4%, a narrow failure, in the only case where the MP was a strong local figure. Farage in Clacton is that case. The model uses 0.60, well under the naive 5-in-6.`,
+    q2Label: 'Question two — if it happens, who wins?',
+    q2Intro: 'August will not repeat itself mechanically. Five major parties boycotted that ballot; a by-election he did not choose has no reason to reproduce that field, and Farage might not stand in it. So the engine computes the whole grid and lets you pick.',
+    validationLabel: 'Replayed on the one race we already know',
+    validationIntro: 'A scenario engine that does not confront the ballot already counted is an opinion in a nice format. Replayed on 13 August:',
+    thBucket: 'Bloc', thModel: 'Model median', thActual: 'Actual', thError: 'Error',
+    marketsLabel: 'Markets: there is nothing to compare to',
+    marketsBody: 'No market exists on a second Clacton by-election, or on Farage’s seat — not on Polymarket, not on Kalshi, and not with the bookmakers, who hold only the settled August books. The nearest live contract is Polymarket’s “Nigel Farage out as Reform UK leader”: 8% by 31 December 2026, 23% by 31 March 2027. It fell 7 points in the 24 hours after the investigation aired — on $2,100 of volume, which forbids reading a signal into it. And it prices the party leadership, not the seat.',
+    methodTitle: 'Two questions, kept apart on purpose.',
+    methodBody: 'Merging “will it happen” with “who would win” is how forecasts of scandal-driven races go wrong: the second question is vivid and the first is the one that carries almost all the uncertainty. They are computed by two separate models here, and only the second one has a case to validate against.',
+  },
+  fr: {
+    title: 'Y aura-t-il une seconde partielle à Clacton ? Farage, la chaîne de rappel et 24 scénarios — Vote-Scope',
+    description: `Après l’enquête Channel 4 / Verbatim, Vote-Scope modélise si le siège de Clacton redevient vacant — ${pct(horizons['2027-06-30'].p_byelection_held)} % d’ici mi-2027 — et qui gagnerait la partielle, sur 24 scénarios de champ sélectionnables.`,
+    kicker: 'Veille partielle UK · Clacton · la suite',
+    headline: 'Y aurait-il une seconde partielle à Clacton — et qui la gagnerait ?',
+    dek: 'Channel 4 News et Verbatim ont publié le 3 septembre une enquête sous couverture d’un an. Reform UK, Nigel Farage, James Orr et Dan Jukes nient l’ensemble des allégations ; rien n’a été jugé, personne n’est accusé. Cette page ne demande pas si quelqu’un a enfreint la loi. Elle pose la question plus étroite qu’on sait modéliser : le siège redevient-il vacant, et si oui, à quoi ressemblerait la course ?',
+    disclaimerLabel: 'Ce que cette page est, et ce qu’elle n’est pas',
+    disclaimer: 'Tout ce qui est décrit ici est une allégation. Aucune accusation n’a été portée, aucun tribunal n’a statué, et Reform UK, MM. Farage, Orr et Jukes nient l’ensemble. Vote-Scope modélise un événement institutionnel — une vacance de siège — dont les conditions sont écrites dans le Recall of MPs Act 2015. Un gardien du moteur vérifie mécaniquement qu’aucun paramètre du modèle n’encode un jugement de culpabilité.',
+    q1Label: 'Première question — le siège redevient-il vacant ?',
+    thHorizon: 'D’ici', thVacant: 'Siège vacant', thHeld: 'Partielle tenue',
+    gatesLabel: 'Par quelle porte',
+    gatesIntro: 'Part de la masse de probabilité d’ici 2029. Trois portes sont écrites dans la loi ; la quatrième n’a besoin d’aucune condition.',
+    counterLabel: 'Le résultat qui va contre l’intuition',
+    counterBody: `« Risque criminel » ne veut pas dire « partielle probable », et la chaîne le dit franchement. Le rappel exige une peine de PRISON ; les infractions de financement se soldent d’ordinaire par des amendes ; et le calendrier judiciaire déborde l’horizon — médiane de ${chain.criminal.median_months_to_resolution} mois. La porte pénale porte donc ${pct(d.gate_shares.criminal)} % de la masse. Ce qui fait vivre l’hypothèse d’une seconde partielle, c’est la première porte : Farage a démontré en juillet qu’il savait convertir un scandale de financement en mandat.`,
+    sensLabel: 'Poussez n’importe quel maillon',
+    sensIntro: 'Une chaîne conditionnelle ne se défend pas en affirmant ses maillons, mais en montrant lesquels comptent. Chaque ligne rejoue le modèle avec UN paramètre poussé à une valeur agressive.',
+    thVariant: 'Hypothèse agressive', thBy2027: 'Partielle d’ici mi-2027', thBy2029: 'D’ici mi-2029',
+    petitionLabel: 'La pétition n’est pas une formalité — le point Paisley',
+    petitionBody: `Une pétition de rappel demande ${d.signatures_needed.toLocaleString('fr-FR')} signatures, soit 10 % des ${d.registered_voters.toLocaleString('fr-FR')} inscrits de Clacton. Cinq des six pétitions jamais tenues ont abouti, ce qui invite à traiter le seuil comme une formalité. La sixième est la bonne référence : Ian Paisley, North Antrim, 2018 — 9,4 %, échec de justesse, dans le seul cas où le député était une figure locale forte. Farage à Clacton est ce cas-là. Le modèle retient 0,60, nettement sous la base naïve de 5 sur 6.`,
+    q2Label: 'Deuxième question — si elle a lieu, qui gagne ?',
+    q2Intro: 'Août ne se rejouera pas mécaniquement. Cinq grands partis avaient boycotté ce bulletin ; une partielle subie n’a aucune raison de reproduire ce champ, et Farage pourrait ne pas s’y représenter. Le moteur calcule donc toute la grille et vous laisse choisir.',
+    validationLabel: 'Rejoué sur la seule course dont on connaît la réponse',
+    validationIntro: 'Un moteur de scénarios qui ne se confronte pas au scrutin déjà dépouillé est une opinion mise en forme. Rejoué sur le 13 août :',
+    thBucket: 'Bloc', thModel: 'Médiane du modèle', thActual: 'Réel', thError: 'Écart',
+    marketsLabel: 'Marchés : il n’y a rien à comparer',
+    marketsBody: 'Aucun marché n’existe sur une seconde partielle à Clacton, ni sur le siège de Farage — ni chez Polymarket, ni chez Kalshi, ni chez les bookmakers, qui n’ont que les carnets clos d’août. Le contrat vivant le plus proche est « Nigel Farage out as Reform UK leader » : 8 % d’ici le 31 décembre 2026, 23 % d’ici le 31 mars 2027. Il a baissé de 7 points dans les 24 h suivant la diffusion — sur 2 100 $ de volume, ce qui interdit d’y lire un signal. Et il porte sur la direction du parti, pas sur le siège.',
+    methodTitle: 'Deux questions, tenues séparées à dessein.',
+    methodBody: 'Confondre « est-ce que ça arrive » et « qui gagnerait » est la façon dont les prévisions de courses à scandale déraillent : la seconde question est spectaculaire, la première porte presque toute l’incertitude. Elles sont calculées ici par deux modèles distincts, et seule la seconde dispose d’un cas de validation.',
+  },
+  es: {
+    title: '¿Habrá una segunda parcial en Clacton? Farage, la cadena de recall y 24 escenarios — Vote-Scope',
+    description: `Tras la investigación de Channel 4 / Verbatim, Vote-Scope modela si el escaño de Clacton queda vacante otra vez — ${pct(horizons['2027-06-30'].p_byelection_held)} % antes de mediados de 2027 — y quién ganaría, con 24 escenarios seleccionables.`,
+    kicker: 'Vigilancia de parciales · Clacton · lo que viene',
+    headline: '¿Habría una segunda parcial en Clacton — y quién la ganaría?',
+    dek: 'Channel 4 News y Verbatim publicaron el 3 de septiembre una investigación encubierta de un año. Reform UK, Nigel Farage, James Orr y Dan Jukes niegan todas las alegaciones; nada ha sido juzgado ni imputado. Esta página no pregunta si alguien infringió la ley, sino algo más estrecho y modelable: ¿queda el escaño vacante otra vez y, si ocurre, cómo sería la contienda?',
+    disclaimerLabel: 'Qué es y qué no es esta página',
+    disclaimer: 'Todo lo descrito aquí es una alegación. No hay imputación ni resolución judicial, y Reform UK y los señores Farage, Orr y Jukes lo niegan por completo. Vote-Scope modela un evento institucional — un escaño que queda vacante — cuyas condiciones están escritas en el Recall of MPs Act 2015. Un guardián del motor verifica mecánicamente que ningún parámetro codifique un veredicto de culpabilidad.',
+    q1Label: 'Primera pregunta — ¿queda vacante el escaño?',
+    thHorizon: 'Antes de', thVacant: 'Escaño vacante', thHeld: 'Parcial celebrada',
+    gatesLabel: 'Por qué puerta',
+    gatesIntro: 'Parte de la masa de probabilidad hasta 2029. Tres puertas están en la ley; la cuarta no necesita condición alguna.',
+    counterLabel: 'El resultado que contradice la intuición',
+    counterBody: `«Riesgo penal» no significa «parcial probable». El recall exige pena de PRISIÓN; las infracciones de financiación se saldan con multas; y el calendario judicial desborda el horizonte — mediana de ${chain.criminal.median_months_to_resolution} meses. La puerta penal aporta ${pct(d.gate_shares.criminal)} % de la masa. Lo que mantiene viva la hipótesis es la primera puerta: Farage demostró en julio que sabe convertir un escándalo de financiación en mandato.`,
+    sensLabel: 'Empuje cualquier eslabón',
+    sensIntro: 'Una cadena condicional no se defiende afirmando sus eslabones sino mostrando cuáles importan. Cada fila reejecuta el modelo con un parámetro llevado a un valor agresivo.',
+    thVariant: 'Supuesto agresivo', thBy2027: 'Parcial antes de mediados de 2027', thBy2029: 'Antes de mediados de 2029',
+    petitionLabel: 'La petición no es un trámite — el punto Paisley',
+    petitionBody: `Una petición de recall necesita ${d.signatures_needed.toLocaleString('es-ES')} firmas, el 10 % de los ${d.registered_voters.toLocaleString('es-ES')} inscritos de Clacton. Cinco de las seis peticiones celebradas prosperaron, lo que invita a tratar el umbral como un trámite. La sexta es la referencia correcta: Ian Paisley, North Antrim, 2018 — 9,4 %, fracaso por poco, en el único caso donde el diputado era una figura local fuerte. Farage en Clacton es ese caso. El modelo usa 0,60.`,
+    q2Label: 'Segunda pregunta — si ocurre, ¿quién gana?',
+    q2Intro: 'Agosto no se repetirá mecánicamente. Cinco grandes partidos boicotearon aquella papeleta; una parcial no elegida no tiene por qué reproducir ese campo, y Farage podría no presentarse. El motor calcula toda la rejilla y usted elige.',
+    validationLabel: 'Reejecutado sobre la única contienda que ya conocemos',
+    validationIntro: 'Un motor de escenarios que no se confronta con la papeleta ya contada es una opinión con buen formato. Sobre el 13 de agosto:',
+    thBucket: 'Bloque', thModel: 'Mediana del modelo', thActual: 'Real', thError: 'Error',
+    marketsLabel: 'Mercados: no hay con qué comparar',
+    marketsBody: 'No existe mercado sobre una segunda parcial en Clacton ni sobre el escaño de Farage — ni en Polymarket, ni en Kalshi, ni en las casas de apuestas, que solo tienen los libros cerrados de agosto. El contrato vivo más próximo es «Nigel Farage out as Reform UK leader»: 8 % antes del 31 de diciembre de 2026, 23 % antes del 31 de marzo de 2027. Cayó 7 puntos en las 24 horas posteriores a la emisión — sobre 2 100 $ de volumen, lo que impide leer una señal. Y cotiza el liderazgo del partido, no el escaño.',
+    methodTitle: 'Dos preguntas, separadas a propósito.',
+    methodBody: 'Confundir «¿ocurrirá?» con «¿quién ganaría?» es como descarrilan los pronósticos de contiendas con escándalo: la segunda es vistosa y la primera concentra casi toda la incertidumbre. Aquí las calculan dos modelos distintos, y solo la segunda tiene un caso de validación.',
+  },
+}[locale];
+
+const t = copy;
+const HORIZON_ORDER = ['2026-12-31', '2027-06-30', '2028-09-03', '2029-06-30'];
+const gateShares = Object.entries(d.gate_shares).sort((a: any, b: any) => b[1] - a[1]) as Array<[string, number]>;
+const horizonLabel = (iso: string) =>
+  new Date(`${iso}T12:00:00`).toLocaleDateString(
+    locale === 'en' ? 'en-GB' : locale === 'es' ? 'es-ES' : 'fr-FR',
+    { month: 'long', year: 'numeric' },
+  );
+const SENS_LABELS: Record<string, Record<Locale, string>> = {
+  farage_charged_double: { fr: 'Farage mis en accusation deux fois plus probable (20 → 40 %)', en: 'Farage charged twice as likely (20 → 40%)', es: 'Farage imputado el doble de probable (20 → 40 %)' },
+  custodial_double: { fr: 'Peine de prison deux fois plus probable (20 → 40 %)', en: 'Custodial sentence twice as likely (20 → 40%)', es: 'Pena de prisión el doble de probable (20 → 40 %)' },
+  new_inquiry_certain: { fr: 'Nouvelle enquête du commissaire quasi certaine (45 → 90 %)', en: 'New standards inquiry near-certain (45 → 90%)', es: 'Nueva investigación casi segura (45 → 90 %)' },
+  suspension_severe: { fr: 'Suspension lourde deux fois plus probable (35 → 70 %)', en: 'Heavy suspension twice as likely (35 → 70%)', es: 'Suspensión grave el doble de probable (35 → 70 %)' },
+  petition_easy: { fr: 'Pétition traitée comme une formalité (60 → 83 %)', en: 'Petition treated as a formality (60 → 83%)', es: 'Petición tratada como trámite (60 → 83 %)' },
+  resigns_like_july: { fr: 'Il redémissionne au rythme de juillet', en: 'He resigns again at July’s rate', es: 'Vuelve a renunciar al ritmo de julio' },
+};
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'NewsArticle',
+    headline: t.headline,
+    description: t.description,
+    url: canonical,
+    inLanguage: locale,
+    dateModified: d.run_date,
+    author: { '@type': 'Person', name: 'Kim Leclerc', url: 'https://kimleclerc.ca' },
+  },
+];
+---
+
+<EditorialLayout
+  title={t.title}
+  description={t.description}
+  canonical={canonical}
+  lang={locale}
+  currentPage="uk"
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={alternates}
+  jsonLd={jsonLd}
+>
+  <article class="ukrecall">
+    <header class="ukrecall-hero container">
+      <p class="ukrecall-kicker">{t.kicker}</p>
+      <h1>{t.headline}</h1>
+      <p class="ukrecall-dek">{t.dek}</p>
+      <GooglePreferredSource locale={locale} />
+    </header>
+
+    <section class="container">
+      <div class="ukrecall-disclaimer">
+        <p class="ukrecall-disclaimer-label">{t.disclaimerLabel}</p>
+        <p>{t.disclaimer}</p>
+      </div>
+    </section>
+
+    <section class="container" aria-labelledby="ukrecall-q1">
+      <p class="ukrecall-label" id="ukrecall-q1">{t.q1Label}</p>
+      <div class="ukrecall-table-wrap">
+        <table class="ukrecall-table">
+          <thead><tr><th>{t.thHorizon}</th><th>{t.thVacant}</th><th>{t.thHeld}</th></tr></thead>
+          <tbody>
+            {HORIZON_ORDER.map((k) => (
+              <tr class={k === '2027-06-30' ? 'is-highlight' : ''}>
+                <td>{horizonLabel(k)}</td>
+                <td>{pct(horizons[k].p_seat_vacant)}%</td>
+                <td><strong>{pct(horizons[k].p_byelection_held)}%</strong></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <p class="ukrecall-label">{t.gatesLabel}</p>
+      <p class="ukrecall-body">{t.gatesIntro}</p>
+      <ul class="ukrecall-gates">
+        {gateShares.map(([gate, share]) => (
+          <li>
+            <div class="ukrecall-gate-bar"><div style={`width:${share * 100}%`}></div></div>
+            <span class="ukrecall-gate-name">{GATE_LABELS[gate][locale]}</span>
+            <strong class="ukrecall-gate-pct">{pct(share, 0)}%</strong>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <section class="container" aria-labelledby="ukrecall-counter">
+      <p class="ukrecall-label" id="ukrecall-counter">{t.counterLabel}</p>
+      <p class="ukrecall-body ukrecall-body-lead">{t.counterBody}</p>
+    </section>
+
+    <section class="container" aria-labelledby="ukrecall-sens">
+      <p class="ukrecall-label" id="ukrecall-sens">{t.sensLabel}</p>
+      <p class="ukrecall-body">{t.sensIntro}</p>
+      <div class="ukrecall-table-wrap">
+        <table class="ukrecall-table">
+          <thead><tr><th>{t.thVariant}</th><th>{t.thBy2027}</th><th>{t.thBy2029}</th></tr></thead>
+          <tbody>
+            {(d.sensitivity as any[]).map((s) => (
+              <tr>
+                <td>{SENS_LABELS[s.id]?.[locale] ?? s.id}</td>
+                <td>{pct(s.p_byelection_2027_06)}%</td>
+                <td>{pct(s.p_byelection_2029_06)}%</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="container" aria-labelledby="ukrecall-pet">
+      <p class="ukrecall-label" id="ukrecall-pet">{t.petitionLabel}</p>
+      <p class="ukrecall-body">{t.petitionBody}</p>
+    </section>
+
+    <section class="container" aria-labelledby="ukrecall-q2">
+      <p class="ukrecall-label" id="ukrecall-q2">{t.q2Label}</p>
+      <p class="ukrecall-body">{t.q2Intro}</p>
+      <ClactonScenarioPicker
+        grid={race.grid}
+        locale={locale}
+        buckets={BUCKETS}
+        colors={COLORS}
+        client:visible
+      />
+    </section>
+
+    <section class="container" aria-labelledby="ukrecall-val">
+      <p class="ukrecall-label" id="ukrecall-val">{t.validationLabel}</p>
+      <p class="ukrecall-body">{t.validationIntro}</p>
+      <div class="ukrecall-table-wrap">
+        <table class="ukrecall-table">
+          <thead><tr><th>{t.thBucket}</th><th>{t.thModel}</th><th>{t.thActual}</th><th>{t.thError}</th></tr></thead>
+          <tbody>
+            {(validation.rows as any[]).map((r) => (
+              <tr>
+                <td>{r.bucket === 'ref' ? 'Reform UK' : r.bucket === 'binface' ? 'Count Binface' : (locale === 'fr' ? 'Autres candidats' : locale === 'es' ? 'Otras candidaturas' : 'Other candidates')}</td>
+                <td>{nf(r.modelled_q50)}%</td>
+                <td>{nf(r.actual_pct, 2)}%</td>
+                <td class={Math.abs(r.error_pts) < 2 ? 'is-good' : ''}>{r.error_pts >= 0 ? '+' : '−'}{nf(Math.abs(r.error_pts), 2)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p class="ukrecall-note">{validation.note_fr && locale === 'fr' ? validation.note_fr : ''}</p>
+    </section>
+
+    <section class="container" aria-labelledby="ukrecall-mkt">
+      <p class="ukrecall-label" id="ukrecall-mkt">{t.marketsLabel}</p>
+      <p class="ukrecall-body">{t.marketsBody}</p>
+    </section>
+
+    <MethodologyNote
+      title={t.methodTitle}
+      body={t.methodBody}
+      bullets={[
+        `Run ${d.run_date} · ${d.n_sims.toLocaleString(locale === 'en' ? 'en-GB' : locale === 'es' ? 'es-ES' : 'fr-FR')} simulations · ${Object.keys(race.grid).length} scénarios de course`,
+        `Recall of MPs Act 2015 · ${d.signatures_needed.toLocaleString(locale === 'en' ? 'en-GB' : locale === 'es' ? 'es-ES' : 'fr-FR')} signatures = 10 %`,
+      ]}
+    />
+  </article>
+</EditorialLayout>
+
+<style>
+  .ukrecall-hero { padding-top: 40px; }
+  .ukrecall-kicker { font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-3); }
+  .ukrecall-hero h1 { font-family: var(--serif); font-size: clamp(2rem, 4.2vw, 3.1rem); line-height: 1.1; letter-spacing: -0.015em; margin: 0.35rem 0 1rem; max-width: 24ch; }
+  .ukrecall-dek { font-size: 17px; line-height: 1.6; max-width: 78ch; color: var(--ink-2); }
+  .ukrecall-label { margin-top: 42px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-3); }
+  .ukrecall-body { margin-top: 10px; font-size: 15px; line-height: 1.65; max-width: 82ch; }
+  .ukrecall-body-lead { font-size: 16px; }
+  .ukrecall-note { margin-top: 10px; font-family: var(--mono); font-size: 11px; line-height: 1.6; color: var(--ink-3); max-width: 82ch; }
+
+  .ukrecall-disclaimer { margin-top: 26px; padding: 18px 20px; border-left: 3px solid var(--ink-3); background: var(--card); }
+  .ukrecall-disclaimer-label { margin: 0 0 7px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-3); }
+  .ukrecall-disclaimer p { margin: 0; font-size: 14px; line-height: 1.65; color: var(--ink-2); max-width: 82ch; }
+
+  .ukrecall-table-wrap { margin-top: 14px; overflow-x: auto; }
+  .ukrecall-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .ukrecall-table th, .ukrecall-table td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--rule-2); }
+  .ukrecall-table th { font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); white-space: nowrap; }
+  .ukrecall-table tr.is-highlight td { background: rgba(18, 182, 207, 0.09); }
+  .ukrecall-table td.is-good { color: #2f7d32; font-family: var(--mono); }
+
+  .ukrecall-gates { list-style: none; margin: 14px 0 0; padding: 0; }
+  .ukrecall-gates li { display: grid; grid-template-columns: 160px 1fr auto; gap: 14px; align-items: center; padding: 9px 0; border-bottom: 1px solid var(--rule-2); font-size: 14px; }
+  .ukrecall-gates li:last-child { border-bottom: 0; }
+  .ukrecall-gate-bar { height: 12px; border-radius: 2px; background: var(--background-contrast-1, rgba(0,0,0,.05)); overflow: hidden; }
+  .ukrecall-gate-bar div { height: 100%; background: #12B6CF; }
+  .ukrecall-gate-pct { font-family: var(--serif); font-size: 17px; font-weight: 430; }
+
+  @media (max-width: 760px) {
+    .ukrecall-gates li { grid-template-columns: 1fr auto; }
+    .ukrecall-gate-bar { grid-column: 1 / -1; order: 2; }
+  }
+</style>

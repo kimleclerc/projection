@@ -1,0 +1,3771 @@
+{
+  "as_of": "2026-09-03",
+  "n_sims": 200000,
+  "seed": 20260903,
+  "registered_voters": 79785,
+  "signatures_needed": 7979,
+  "horizons": {
+    "2026-12-31": {
+      "months": 4,
+      "p_seat_vacant": 0.0862,
+      "p_byelection_held": 0.0438,
+      "by_gate": {
+        "resignation": 0.0851,
+        "standards_existing": 0.0011,
+        "standards_new": 0.0,
+        "criminal": 0.0
+      }
+    },
+    "2027-06-30": {
+      "months": 10,
+      "p_seat_vacant": 0.204,
+      "p_byelection_held": 0.1709,
+      "by_gate": {
+        "resignation": 0.1671,
+        "standards_existing": 0.0291,
+        "standards_new": 0.0077,
+        "criminal": 0.0
+      }
+    },
+    "2028-09-03": {
+      "months": 24,
+      "p_seat_vacant": 0.3233,
+      "p_byelection_held": 0.3138,
+      "by_gate": {
+        "resignation": 0.2464,
+        "standards_existing": 0.0337,
+        "standards_new": 0.0388,
+        "criminal": 0.0043
+      }
+    },
+    "2029-06-30": {
+      "months": 34,
+      "p_seat_vacant": 0.3593,
+      "p_byelection_held": 0.353,
+      "by_gate": {
+        "resignation": 0.2779,
+        "standards_existing": 0.0337,
+        "standards_new": 0.0393,
+        "criminal": 0.0084
+      }
+    }
+  },
+  "gate_shares": {
+    "resignation": 0.7735,
+    "standards_existing": 0.0939,
+    "standards_new": 0.1093,
+    "criminal": 0.0233
+  },
+  "chain": {
+    "criminal": {
+      "p_investigation": 0.85,
+      "p_farage_charged": 0.2,
+      "p_convicted": 0.65,
+      "p_custodial": 0.2,
+      "p_recall_trigger": 0.0223,
+      "median_months_to_resolution": 23.0
+    },
+    "standards_existing": {
+      "p_adverse": 0.55,
+      "p_suspension_ge10": 0.12,
+      "p_recall_trigger": 0.0648,
+      "median_months_to_report": 4.3
+    },
+    "standards_new": {
+      "p_inquiry_opened": 0.45,
+      "p_adverse": 0.55,
+      "p_suspension_ge10": 0.35,
+      "p_recall_trigger": 0.0858,
+      "median_months_to_report": 10.3
+    },
+    "petition": {
+      "signatures_needed": 7979,
+      "registered_voters": 79785,
+      "p_succeeds_mean": 0.6,
+      "p_succeeds_sd": 0.14,
+      "p_any_trigger_2029": 0.1642
+    }
+  },
+  "sensitivity": [
+    {
+      "id": "farage_charged_double",
+      "override": {
+        "p_farage_charged_given_investigation": 0.4
+      },
+      "p_byelection_2027_06": 0.1729,
+      "p_byelection_2029_06": 0.3637
+    },
+    {
+      "id": "custodial_double",
+      "override": {
+        "p_custodial_given_convicted": 0.4
+      },
+      "p_byelection_2027_06": 0.1729,
+      "p_byelection_2029_06": 0.3637
+    },
+    {
+      "id": "new_inquiry_certain",
+      "override": {
+        "p_new_inquiry_opened": 0.9
+      },
+      "p_byelection_2027_06": 0.1742,
+      "p_byelection_2029_06": 0.3908
+    },
+    {
+      "id": "suspension_severe",
+      "override": {
+        "p_new_suspension_ge10_given_adverse": 0.7
+      },
+      "p_byelection_2027_06": 0.1745,
+      "p_byelection_2029_06": 0.3897
+    },
+    {
+      "id": "petition_easy",
+      "override": {
+        "p_petition_succeeds": [
+          0.83,
+          0.1
+        ]
+      },
+      "p_byelection_2027_06": 0.1829,
+      "p_byelection_2029_06": 0.3824
+    },
+    {
+      "id": "resigns_like_july",
+      "override": {
+        "resign_hazard_peak_monthly": 0.06
+      },
+      "p_byelection_2027_06": 0.3706,
+      "p_byelection_2029_06": 0.5829
+    }
+  ],
+  "race": {
+    "baseline_2024": {
+      "ref": 46.18,
+      "con": 27.89,
+      "lab": 16.21,
+      "ld": 4.39,
+      "grn": 4.21,
+      "oth": 1.12
+    },
+    "august_2026": {
+      "farage_votes": 22239,
+      "total_votes": 35112,
+      "turnout_pct": 44.37,
+      "registered": 79785,
+      "farage_votes_2024": 21225,
+      "total_votes_2024": 38602
+    },
+    "national_anchor": {
+      "source": "web_data/uk/latest.json",
+      "national_2024": {
+        "ref": 14.29,
+        "con": 23.7,
+        "lab": 33.7,
+        "ld": 12.22,
+        "grn": 6.75
+      },
+      "national_now": {
+        "con": 20.6,
+        "grn": 11.5,
+        "lab": 24.7,
+        "ld": 11.1,
+        "ref": 23.2
+      }
+    },
+    "scenarios": [
+      {
+        "id": "full_field_farage",
+        "farage_stands": true,
+        "field": "all_parties",
+        "binface_stands": true,
+        "trigger": "forced",
+        "labels": {
+          "fr": "Champ complet, Farage se représente",
+          "en": "Full field, Farage stands again",
+          "es": "Campo completo, Farage se presenta"
+        },
+        "notes": {
+          "fr": "Le cas de référence d'une partielle SUBIE : les grands partis reviennent sur le bulletin, Farage défend son siège avec un verdict institutionnel déjà tombé sur lui.",
+          "en": "The reference case for a by-election he did not choose: the major parties are back on the ballot and Farage defends the seat with an institutional verdict already against him.",
+          "es": "El caso de referencia de una parcial no elegida: los grandes partidos vuelven a la papeleta y Farage defiende el escaño con un veredicto institucional ya en su contra."
+        },
+        "p_reform_hold": 0.9984,
+        "candidates": {
+          "ref": {
+            "labels": {
+              "fr": "Reform UK",
+              "en": "Reform UK",
+              "es": "Reform UK"
+            },
+            "share": {
+              "q05": 39.45,
+              "q10": 41.39,
+              "q25": 44.61,
+              "q50": 48.02,
+              "q75": 51.43,
+              "q90": 54.36,
+              "q95": 56.09
+            },
+            "p_win": 0.9984
+          },
+          "con": {
+            "labels": {
+              "fr": "Conservateurs",
+              "en": "Conservative",
+              "es": "Conservadores"
+            },
+            "share": {
+              "q05": 17.19,
+              "q10": 18.34,
+              "q25": 20.35,
+              "q50": 22.76,
+              "q75": 25.29,
+              "q90": 27.71,
+              "q95": 29.25
+            },
+            "p_win": 0.0016
+          },
+          "lab": {
+            "labels": {
+              "fr": "Labour",
+              "en": "Labour",
+              "es": "Laborista"
+            },
+            "share": {
+              "q05": 6.35,
+              "q10": 6.89,
+              "q25": 7.85,
+              "q50": 9.06,
+              "q75": 10.42,
+              "q90": 11.78,
+              "q95": 12.67
+            },
+            "p_win": 0.0
+          },
+          "ld": {
+            "labels": {
+              "fr": "Libéraux-démocrates",
+              "en": "Liberal Democrats",
+              "es": "Liberal-demócratas"
+            },
+            "share": {
+              "q05": 2.58,
+              "q10": 2.79,
+              "q25": 3.18,
+              "q50": 3.68,
+              "q75": 4.25,
+              "q90": 4.82,
+              "q95": 5.2
+            },
+            "p_win": 0.0
+          },
+          "grn": {
+            "labels": {
+              "fr": "Verts",
+              "en": "Green",
+              "es": "Verdes"
+            },
+            "share": {
+              "q05": 4.81,
+              "q10": 5.21,
+              "q25": 5.92,
+              "q50": 6.8,
+              "q75": 7.81,
+              "q90": 8.82,
+              "q95": 9.47
+            },
+            "p_win": 0.0
+          },
+          "binface": {
+            "labels": {
+              "fr": "Count Binface",
+              "en": "Count Binface",
+              "es": "Count Binface"
+            },
+            "share": {
+              "q05": 2.18,
+              "q10": 3.15,
+              "q25": 4.86,
+              "q50": 6.79,
+              "q75": 8.75,
+              "q90": 10.61,
+              "q95": 11.76
+            },
+            "p_win": 0.0
+          },
+          "oth": {
+            "labels": {
+              "fr": "Autres candidats",
+              "en": "Other candidates",
+              "es": "Otras candidaturas"
+            },
+            "share": {
+              "q05": 0.47,
+              "q10": 0.87,
+              "q25": 1.55,
+              "q50": 2.31,
+              "q75": 3.1,
+              "q90": 3.86,
+              "q95": 4.35
+            },
+            "p_win": 0.0
+          }
+        }
+      },
+      {
+        "id": "full_field_no_farage",
+        "farage_stands": false,
+        "field": "all_parties",
+        "binface_stands": true,
+        "trigger": "forced",
+        "labels": {
+          "fr": "Champ complet, sans Farage",
+          "en": "Full field, no Farage",
+          "es": "Campo completo, sin Farage"
+        },
+        "notes": {
+          "fr": "Le siège sans l'homme. Clacton donnait 46,2 % à Reform en 2024 quand le parti valait 14,3 % au national : une partie de cet écart part avec lui.",
+          "en": "The seat without the man. Clacton gave Reform 46.2% in 2024 when the party polled 14.3% nationally; part of that gap leaves with him.",
+          "es": "El escaño sin el hombre. Clacton dio 46,2 % a Reform en 2024 cuando el partido valía 14,3 % a nivel nacional; parte de esa brecha se va con él."
+        },
+        "p_reform_hold": 0.8082,
+        "candidates": {
+          "ref": {
+            "labels": {
+              "fr": "Reform UK",
+              "en": "Reform UK",
+              "es": "Reform UK"
+            },
+            "share": {
+              "q05": 27.26,
+              "q10": 29.93,
+              "q25": 34.16,
+              "q50": 38.69,
+              "q75": 43.0,
+              "q90": 46.71,
+              "q95": 48.93
+            },
+            "p_win": 0.8082
+          },
+          "con": {
+            "labels": {
+              "fr": "Conservateurs",
+              "en": "Conservative",
+              "es": "Conservadores"
+            },
+            "share": {
+              "q05": 21.39,
+              "q10": 22.92,
+              "q25": 25.66,
+              "q50": 28.88,
+              "q75": 32.34,
+              "q90": 35.76,
+              "q95": 37.87
+            },
+            "p_win": 0.1918
+          },
+          "lab": {
+            "labels": {
+              "fr": "Labour",
+              "en": "Labour",
+              "es": "Laborista"
+            },
+            "share": {
+              "q05": 6.98,
+              "q10": 7.6,
+              "q25": 8.68,
+              "q50": 10.05,
+              "q75": 11.61,
+              "q90": 13.19,
+              "q95": 14.22
+            },
+            "p_win": 0.0
+          },
+          "ld": {
+            "labels": {
+              "fr": "Libéraux-démocrates",
+              "en": "Liberal Democrats",
+              "es": "Liberal-demócratas"
+            },
+            "share": {
+              "q05": 2.83,
+              "q10": 3.08,
+              "q25": 3.53,
+              "q50": 4.09,
+              "q75": 4.73,
+              "q90": 5.39,
+              "q95": 5.81
+            },
+            "p_win": 0.0
+          },
+          "grn": {
+            "labels": {
+              "fr": "Verts",
+              "en": "Green",
+              "es": "Verdes"
+            },
+            "share": {
+              "q05": 5.31,
+              "q10": 5.76,
+              "q25": 6.58,
+              "q50": 7.57,
+              "q75": 8.69,
+              "q90": 9.84,
+              "q95": 10.59
+            },
+            "p_win": 0.0
+          },
+          "binface": {
+            "labels": {
+              "fr": "Count Binface",
+              "en": "Count Binface",
+              "es": "Count Binface"
+            },
+            "share": {
+              "q05": 2.47,
+              "q10": 3.51,
+              "q25": 5.4,
+              "q50": 7.53,
+              "q75": 9.74,
+              "q90": 11.78,
+              "q95": 13.05
+            },
+            "p_win": 0.0
+          },
+          "oth": {
+            "labels": {
+              "fr": "Autres candidats",
+              "en": "Other candidates",
+              "es": "Otras candidaturas"
+            },
+            "share": {
+              "q05": 0.53,
+              "q10": 0.98,
+              "q25": 1.71,
+              "q50": 2.55,
+              "q75": 3.43,
+              "q90": 4.27,
+              "q95": 4.82
+            },
+            "p_win": 0.0
+          }
+        }
+      },
+      {
+        "id": "boycott_repeat_farage",
+        "farage_stands": true,
+        "field": "boycott_repeat",
+        "binface_stands": true,
+        "trigger": "resignation",
+        "labels": {
+          "fr": "Août rejoué : boycott et démission choisie",
+          "en": "August replayed: boycott and a chosen resignation",
+          "es": "Agosto repetido: boicot y renuncia elegida"
+        },
+        "notes": {
+          "fr": "Le scénario d'août à l'identique — utile comme témoin : c'est celui qui a produit 63,3 %, et il montre à quel point ce chiffre tenait au champ.",
+          "en": "August repeated exactly — useful as a control: this is the field that produced 63.3%, and it shows how much that number owed to the boycott.",
+          "es": "Agosto repetido — útil como control: este es el campo que produjo 63,3 %, y muestra cuánto debía esa cifra al boicot."
+        },
+        "p_reform_hold": 0.9999,
+        "candidates": {
+          "ref": {
+            "labels": {
+              "fr": "Reform UK",
+              "en": "Reform UK",
+              "es": "Reform UK"
+            },
+            "share": {
+              "q05": 55.64,
+              "q10": 57.74,
+              "q25": 61.05,
+              "q50": 64.58,
+              "q75": 67.94,
+              "q90": 70.82,
+              "q95": 72.53
+            },
+            "p_win": 0.9999
+          },
+          "con": {
+            "labels": {
+              "fr": "Conservateurs",
+              "en": "Conservative",
+              "es": "Conservadores"
+            },
+            "share": {
+              "q05": 0.0,
+              "q10": 0.0,
+              "q25": 0.0,
+              "q50": 0.0,
+              "q75": 0.0,
+              "q90": 0.0,
+              "q95": 0.0
+            },
+            "p_win": 0.0
+          },
+          "lab": {
+            "labels": {
+              "fr": "Labour",
+              "en": "Labour",
+              "es": "Laborista"
+            },
+            "share": {
+              "q05": 0.0,
+              "q10": 0.0,
+              "q25": 0.0,
+              "q50": 0.0,
+              "q75": 0.0,
+              "q90": 0.0,
+              "q95": 0.0
+            },
+            "p_win": 0.0
+          },
+          "ld": {
+            "labels": {
+              "fr": "Libéraux-démocrates",
+              "en": "Liberal Democrats",
+              "es": "Liberal-demócratas"
+            },
+            "share": {
+              "q05": 0.0,
+              "q10": 0.0,
+              "q25": 0.0,
+              "q50": 0.0,
+              "q75": 0.0,
+              "q90": 0.0,
+              "q95": 0.0
+            },
+            "p_win": 0.0
+          },
+          "grn": {
+            "labels": {
+              "fr": "Verts",
+              "en": "Green",
+              "es": "Verdes"
+            },
+            "share": {
+              "q05": 0.0,
+              "q10": 0.0,
+              "q25": 0.0,
+              "q50": 0.0,
+              "q75": 0.0,
+              "q90": 0.0,
+              "q95": 0.0
+            },
+            "p_win": 0.0
+          },
+          "binface": {
+            "labels": {
+              "fr": "Count Binface",
+              "en": "Count Binface",
+              "es": "Count Binface"
+            },
+            "share": {
+              "q05": 19.48,
+              "q10": 20.9,
+              "q25": 23.49,
+              "q50": 26.56,
+              "q75": 29.85,
+              "q90": 32.94,
+              "q95": 34.88
+            },
+            "p_win": 0.0001
+          },
+          "oth": {
+            "labels": {
+              "fr": "Autres candidats",
+              "en": "Other candidates",
+              "es": "Otras candidaturas"
+            },
+            "share": {
+              "q05": 4.67,
+              "q10": 5.54,
+              "q25": 6.99,
+              "q50": 8.69,
+              "q75": 10.51,
+              "q90": 12.29,
+              "q95": 13.39
+            },
+            "p_win": 0.0
+          }
+        }
+      }
+    ],
+    "grid": {
+      "F|all_parties|bin|forced": {
+        "id": "F|all_parties|bin|forced",
+        "farage_stands": true,
+        "field": "all_parties",
+        "binface_stands": true,
+        "trigger": "forced",
+        "labels": {},
+        "notes": {},
+        "p_reform_hold": 0.9978,
+        "candidates": {
+          "ref": {
+            "labels": {
+              "fr": "Reform UK",
+              "en": "Reform UK",
+              "es": "Reform UK"
+            },
+            "share": {
+              "q05": 39.38,
+              "q10": 41.38,
+              "q25": 44.55,
+              "q50": 48.01,
+              "q75": 51.37,
+              "q90": 54.42,
+              "q95": 56.1
+            },
+            "p_win": 0.9978
+          },
+          "con": {
+            "labels": {
+              "fr": "Conservateurs",
+              "en": "Conservative",
+              "es": "Conservadores"
+            },
+            "share": {
+              "q05": 17.23,
+              "q10": 18.33,
+              "q25": 20.38,
+              "q50": 22.79,
+              "q75": 25.36,
+              "q90": 27.76,
+              "q95": 29.3
+            },
+            "p_win": 0.0022
+          },
+          "lab": {
+            "labels": {
+              "fr": "Labour",
+              "en": "Labour",
+              "es": "Laborista"
+            },
+            "share": {
+              "q05": 6.3,
+              "q10": 6.85,
+              "q25": 7.83,
+              "q50": 9.05,
+              "q75": 10.39,
+              "q90": 11.76,
+              "q95": 12.64
+            },
+            "p_win": 0.0
+          },
+          "ld": {
+            "labels": {
+              "fr": "Libéraux-démocrates",
+              "en": "Liberal Democrats",
+              "es": "Liberal-demócratas"
+            },
+            "share": {
+              "q05": 2.57,
+              "q10": 2.78,
+              "q25": 3.18,
+              "q50": 3.68,
+              "q75": 4.25,
+              "q90": 4.83,
+              "q95": 5.2
+            },
+            "p_win": 0.0
+          },
+          "grn": {
+            "labels": {
+              "fr": "Verts",
+              "en": "Green",
+              "es": "Verdes"
+            },
+            "share": {
+              "q05": 4.83,
+              "q10": 5.23,
+              "q25": 5.94,
+              "q50": 6.8,
+              "q75": 7.81,
+              "q90": 8.84,
+              "q95": 9.47
+            },
+            "p_win": 0.0
+          },
+          "binface": {
+            "labels": {
+              "fr": "Count Binface",
+              "en": "Count Binface",
+              "es": "Count Binface"
+            },
+            "share": {
+              "q05": 2.25,
+              "q10": 3.2,
+              "q25": 4.88,
+              "q50": 6.79,
+              "q75": 8.74,
+              "q90": 10.61,
+              "q95": 11.75
+            },
+            "p_win": 0.0
+          },
+          "oth": {
+            "labels": {
+              "fr": "Autres candidats",
+              "en": "Other candidates",
+              "es": "Otras candidaturas"
+            },
+            "share": {
+              "q05": 0.48,
+              "q10": 0.88,
+              "q25": 1.53,
+              "q50": 2.29,
+              "q75": 3.09,
+              "q90": 3.84,
+              "q95": 4.32
+            },
+            "p_win": 0.0
+          }
+        }
+      },
+      "F|all_parties|bin|resignation": {
+        "id": "F|all_parties|bin|resignation",
+        "farage_stands": true,
+        "field": "all_parties",
+        "binface_stands": true,
+        "trigger": "resignation",
+        "labels": {},
+        "notes": {},
+        "p_reform_hold": 0.9996,
+        "candidates": {
+          "ref": {
+            "labels": {
+              "fr": "Reform UK",
+              "en": "Reform UK",
+              "es": "Reform UK"
+            },
+            "share": {
+              "q05": 42.47,
+              "q10": 44.2,
+              "q25": 47.19,
+              "q50": 50.38,
+              "q75": 53.45,
+              "q90": 56.13,
+              "q95": 57.71
+            },
+            "p_win": 0.9996
+          },
+          "con": {
+            "labels": {
+              "fr": "Conservateurs",
+              "en": "Conservative",
+              "es": "Conservadores"
+            },
+            "share": {
+              "q05": 16.44,
+              "q10": 17.57,
+              "q25": 19.49,
+              "q50": 21.74,
+              "q75": 24.15,
+              "q90": 26.44,
+              "q95": 27.88
+            },
+            "p_win": 0.0004
+          },
+          "lab": {
+            "labels": {
+              "fr": "Labour",
+              "en": "Labour",
+              "es": "Laborista"
+            },
+            "share": {
+              "q05": 6.05,
+              "q10": 6.58,
+              "q25": 7.53,
+              "q50": 8.67,
+              "q75": 9.99,
+              "q90": 11.24,
+              "q95": 12.12
+            },
+            "p_win": 0.0
+          },
+          "ld": {
+            "labels": {
+              "fr": "Libéraux-démocrates",
+              "en": "Liberal Democrats",
+              "es": "Liberal-demócratas"
+            },
+            "share": {
+              "q05": 2.47,
+              "q10": 2.67,
+              "q25": 3.05,
+              "q50": 3.51,
+              "q75": 4.05,
+              "q90": 4.59,
+              "q95": 4.95
+            },
+            "p_win": 0.0
+          },
+          "grn": {
+            "labels": {
+              "fr": "Verts",
+              "en": "Green",
+              "es": "Verdes"
+            },
+            "share": {
+              "q05": 4.63,
+              "q10": 5.01,
+              "q25": 5.67,
+              "q50": 6.5,
+              "q75": 7.42,
+              "q90": 8.38,
+              "q95": 8.98
+            },
+            "p_win": 0.0
+          },
+          "binface": {
+            "labels": {
+              "fr": "Count Binface",
+              "en": "Count Binface",
+              "es": "Count Binface"
+            },
+            "share": {
+              "q05": 2.17,
+              "q10": 3.07,
+              "q25": 4.69,
+              "q50": 6.49,
+              "q75": 8.37,
+              "q90": 10.12,
+              "q95": 11.21
+            },
+            "p_win": 0.0
+          },
+          "oth": {
+            "labels": {
+              "fr": "Autres candidats",
+              "en": "Other candidates",
+              "es": "Otras candidaturas"
+            },
+            "share": {
+              "q05": 0.47,
+              "q10": 0.85,
+              "q25": 1.47,
+              "q50": 2.2,
+              "q75": 2.96,
+              "q90": 3.68,
+              "q95": 4.13
+            },
+            "p_win": 0.0
+          }
+        }
+      },
+      "F|all_parties|nobin|forced": {
+        "id": "F|all_parties|nobin|forced",
+        "farage_stands": true,
+        "field": "all_parties",
+        "binface_stands": false,
+        "trigger": "forced",
+        "labels": {},
+        "notes": {},
+        "p_reform_hold": 0.9984,
+        "candidates": {
+          "ref": {
+            "labels": {
+              "fr": "Reform UK",
+              "en": "Reform UK",
+              "es": "Reform UK"
+            },
+            "share": {
+              "q05": 42.26,
+              "q10": 44.22,
+              "q25": 47.48,
+              "q50": 50.95,
+              "q75": 54.22,
+              "q90": 57.06,
+              "q95": 58.71
+            },
+            "p_win": 0.9984
+          },
+          "con": {
+            "labels": {
+              "fr": "Conservateurs",
+              "en": "Conservative",
+              "es": "Conservadores"
+            },
+            "share": {
+              "q05": 18.18,
+              "q10": 19.42,
+              "q25": 21.59,
+              "q50": 24.13,
+              "q75": 26.8,
+              "q90": 29.38,
+              "q95": 30.94
+            },
+            "p_win": 0.0016
+          },
+          "lab": {
+            "labels": {
+              "fr": "Labour",
+              "en": "Labour",
+              "es": "Laborista"
+            },
+            "share": {
+              "q05": 7.88,
+              "q10": 8.49,
+              "q25": 9.6,
+              "q50": 10.97,
+              "q75": 12.48,
+              "q90": 13.98,
+              "q95": 14.91
+            },
+            "p_win": 0.0
+          },
+          "ld": {
+            "labels": {
+              "fr": "Libéraux-démocrates",
+              "en": "Liberal Democrats",
+              "es": "Liberal-demócratas"
+            },
+            "share": {
+              "q05": 2.73,
+              "q10": 2.96,
+              "q25": 3.37,
+              "q50": 3.91,
+              "q75": 4.51,
+              "q90": 5.13,
+              "q95": 5.53
+            },
+            "p_win": 0.0
+          },
+          "grn": {
+            "labels": {
+              "fr": "Verts",
+              "en": "Green",
+              "es": "Verdes"
+            },
+            "share": {
+              "q05": 5.1,
+              "q10": 5.52,
+              "q25": 6.27,
+              "q50": 7.22,
+              "q75": 8.27,
+              "q90": 9.32,
+              "q95": 9.98
+            },
+            "p_win": 0.0
+          },
+          "binface": {
+            "labels": {
+              "fr": "Count Binface",
+              "en": "Count Binface",
+              "es": "Count Binface"
+            },
+            "share": {
+              "q05": 0.0,
+              "q10": 0.0,
+              "q25": 0.0,
+              "q50": 0.0,
+              "q75": 0.0,
+              "q90": 0.0,
+              "q95": 0.0
+            },
+            "p_win": 0.0
+          },
+          "oth": {
+            "labels": {
+              "fr": "Autres candidats",
+              "en": "Other candidates",
+              "es": "Otras candidaturas"
+            },
+            "share": {
+              "q05": 0.52,
+              "q10": 0.93,
+              "q25": 1.64,
+              "q50": 2.43,
+              "q75": 3.26,
+              "q90": 4.07,
+              "q95": 4.56
+            },
+            "p_win": 0.0
+          }
+        }
+      },
+      "F|all_parties|nobin|resignation": {
+        "id": "F|all_parties|nobin|resignation",
+        "farage_stands": true,
+        "field": "all_parties",
+        "binface_stands": false,
+        "trigger": "resignation",
+        "labels": {},
+        "notes": {},
+        "p_reform_hold": 0.9999,
+        "candidates": {
+          "ref": {
+            "labels": {
+              "fr": "Reform UK",
+              "en": "Reform UK",
+              "es": "Reform UK"
+            },
+            "share": {
+              "q05": 45.33,
+              "q10": 47.15,
+              "q25": 50.11,
+              "q50": 53.23,
+              "q75": 56.24,
+              "q90": 58.8,
+              "q95": 60.34
+            },
+            "p_win": 0.9999
+          },
+          "con": {
+            "labels": {
+              "fr": "Conservateurs",
+              "en": "Conservative",
+              "es": "Conservadores"
+            },
+            "share": {
+              "q05": 17.51,
+              "q10": 18.64,
+              "q25": 20.62,
+              "q50": 22.98,
+              "q75": 25.53,
+              "q90": 27.91,
+              "q95": 29.41
+            },
+            "p_win": 0.0001
+          },
+          "lab": {
+            "labels": {
+              "fr": "Labour",
+              "en": "Labour",
+              "es": "Laborista"
+            },
+            "share": {
+              "q05": 7.52,
+              "q10": 8.08,
+              "q25": 9.16,
+              "q50": 10.44,
+              "q75": 11.85,
+              "q90": 13.28,
+              "q95": 14.18
+            },
+            "p_win": 0.0
+          },
+          "ld": {
+            "labels": {
+              "fr": "Libéraux-démocrates",
+              "en": "Liberal Democrats",
+              "es": "Liberal-demócratas"
+            },
+            "share": {
+              "q05": 2.63,
+              "q10": 2.84,
+              "q25": 3.23,
+              "q50": 3.72,
+              "q75": 4.29,
+              "q90": 4.84,
+              "q95": 5.22
+            },
+            "p_win": 0.0
+          },
+          "grn": {
+            "labels": {
+              "fr": "Verts",
+              "en": "Green",
+              "es": "Verdes"
+            },
+            "share": {
+              "q05": 4.88,
+              "q10": 5.27,
+              "q25": 6.0,
+              "q50": 6.87,
+              "q75": 7.87,
+              "q90": 8.87,
+              "q95": 9.5
+            },
+            "p_win": 0.0
+          },
+          "binface": {
+            "labels": {
+              "fr": "Count Binface",
+              "en": "Count Binface",
+              "es": "Count Binface"
+            },
+            "share": {
+              "q05": 0.0,
+              "q10": 0.0,
+              "q25": 0.0,
+              "q50": 0.0,
+              "q75": 0.0,
+              "q90": 0.0,
+              "q95": 0.0
+            },
+            "p_win": 0.0
+          },
+          "oth": {
+            "labels": {
+              "fr": "Autres candidats",
+              "en": "Other candidates",
+              "es": "Otras candidaturas"
+            },
+            "share": {
+              "q05": 0.48,
+              "q10": 0.89,
+              "q25": 1.57,
+              "q50": 2.34,
+              "q75": 3.13,
+              "q90": 3.88,
+              "q95": 4.36
+            },
+            "p_win": 0.0
+          }
+        }
+      },
+      "F|partial|bin|forced": {
+        "id": "F|partial|bin|forced",
+        "farage_stands": true,
+        "field": "partial",
+        "binface_stands": true,
+        "trigger": "forced",
+        "labels": {},
+        "notes": {},
+        "p_reform_hold": 0.9984,
+        "candidates": {
+          "ref": {
+            "labels": {
+              "fr": "Reform UK",
+              "en": "Reform UK",
+              "es": "Reform UK"
+            },
+            "share": {
+              "q05": 44.34,
+              "q10": 46.35,
+              "q25": 49.53,
+              "q50": 53.05,
+              "q75": 56.39,
+              "q90": 59.29,
+              "q95": 60.94
+            },
+            "p_win": 0.9984
+          },
+          "con": {
+            "labels": {
+              "fr": "Conservateurs",
+              "en": "Conservative",
+              "es": "Conservadores"
+            },
+            "share": {
+              "q05": 18.82,
+              "q10": 20.07,
+              "q25": 22.29,
+              "q50": 24.89,
+              "q75": 27.62,
+              "q90": 30.27,
+              "q95": 31.89
+            },
+            "p_win": 0.0016
+          },
+          "lab": {
+            "labels": {
+              "fr": "Labour",
+              "en": "Labour",
+              "es": "Laborista"
+            },
+            "share": {
+              "q05": 8.1,
+              "q10": 8.73,
+              "q25": 9.86,
+              "q50": 11.27,
+              "q75": 12.86,
+              "q90": 14.4,
+              "q95": 15.37
+            },
+            "p_win": 0.0
+          },
+          "ld": {
+            "labels": {
+              "fr": "Libéraux-démocrates",
+              "en": "Liberal Democrats",
+              "es": "Liberal-demócratas"
+            },
+            "share": {
+              "q05": 0.0,
+              "q10": 0.0,
+              "q25": 0.0,
+              "q50": 0.0,
+              "q75": 0.0,
+              "q90": 0.0,
+              "q95": 0.0
+            },
+            "p_win": 0.0
+          },
+          "grn": {
+            "labels": {
+              "fr": "Verts",
+              "en": "Green",
+              "es": "Verdes"
+            },
+            "share": {
+              "q05": 0.0,
+              "q10": 0.0,
+              "q25": 0.0,
+              "q50": 0.0,
+              "q75": 0.0,
+              "q90": 0.0,
+              "q95": 0.0
+            },
+            "p_win": 0.0
+          },
+          "binface": {
+            "labels": {
+              "fr": "Count Binface",
+              "en": "Count Binface",
+              "es": "Count Binface"
+            },
+            "share": {
+              "q05": 3.85,
+              "q10": 4.25,
+              "q25": 4.96,
+              "q50": 5.88,
+              "q75": 6.94,
+              "q90": 8.01,
+              "q95": 8.71
+            },
+            "p_win": 0.0
+          },
+          "oth": {
+            "labels": {
+              "fr": "Autres candidats",
+              "en": "Other candidates",
+              "es": "Otras candidaturas"
+            },
+            "share": {
+              "q05": 1.57,
+              "q10": 2.21,
+              "q25": 3.28,
+              "q50": 4.52,
+              "q75": 5.83,
+              "q90": 7.05,
+              "q95": 7.85
+            },
+            "p_win": 0.0
+          }
+        }
+      },
+      "F|partial|bin|resignation": {
+        "id": "F|partial|bin|resignation",
+        "farage_stands": true,
+        "field": "partial",
+        "binface_stands": true,
+        "trigger": "resignation",
+        "labels": {},
+        "notes": {},
+        "p_reform_hold": 0.9998,
+        "candidates": {
+          "ref": {
+            "labels": {
+              "fr": "Reform UK",
+              "en": "Reform UK",
+              "es": "Reform UK"
+            },
+            "share": {
+              "q05": 47.26,
+              "q10": 49.03,
+              "q25": 52.05,
+              "q50": 55.26,
+              "q75": 58.36,
+              "q90": 61.05,
+              "q95": 62.56
+            },
+            "p_win": 0.9998
+          },
+          "con": {
+            "labels": {
+              "fr": "Conservateurs",
+              "en": "Conservative",
+              "es": "Conservadores"
+            },
+            "share": {
+              "q05": 17.94,
+              "q10": 19.15,
+              "q25": 21.24,
+              "q50": 23.7,
+              "q75": 26.34,
+              "q90": 28.8,
+              "q95": 30.36
+            },
+            "p_win": 0.0002
+          },
+          "lab": {
+            "labels": {
+              "fr": "Labour",
+              "en": "Labour",
+              "es": "Laborista"
+            },
+            "share": {
+              "q05": 7.74,
+              "q10": 8.34,
+              "q25": 9.43,
+              "q50": 10.78,
+              "q75": 12.22,
+              "q90": 13.65,
+              "q95": 14.59
+            },
+            "p_win": 0.0
+          },
+          "ld": {
+            "labels": {
+              "fr": "Libéraux-démocrates",
+              "en": "Liberal Democrats",
+              "es": "Liberal-demócratas"
+            },
+            "share": {
+              "q05": 0.0,
+              "q10": 0.0,
+              "q25": 0.0,
+              "q50": 0.0,
+              "q75": 0.0,
+              "q90": 0.0,
+              "q95": 0.0
+            },
+            "p_win": 0.0
+          },
+          "grn": {
+            "labels": {
+              "fr": "Verts",
+              "en": "Green",
+              "es": "Verdes"
+            },
+            "share": {
+              "q05": 0.0,
+              "q10": 0.0,
+              "q25": 0.0,
+              "q50": 0.0,
+              "q75": 0.0,
+              "q90": 0.0,
+              "q95": 0.0
+            },
+            "p_win": 0.0
+          },
+          "binface": {
+            "labels": {
+              "fr": "Count Binface",
+              "en": "Count Binface",
+              "es": "Count Binface"
+            },
+            "share": {
+              "q05": 3.65,
+              "q10": 4.03,
+              "q25": 4.71,
+              "q50": 5.58,
+              "q75": 6.56,
+              "q90": 7.56,
+              "q95": 8.2
+            },
+            "p_win": 0.0
+          },
+          "oth": {
+            "labels": {
+              "fr": "Autres candidats",
+              "en": "Other candidates",
+              "es": "Otras candidaturas"
+            },
+            "share": {
+              "q05": 1.49,
+              "q10": 2.08,
+              "q25": 3.11,
+              "q50": 4.3,
+              "q75": 5.57,
+              "q90": 6.74,
+              "q95": 7.49
+            },
+            "p_win": 0.0
+          }
+        }
+      },
+      "F|partial|nobin|forced": {
+        "id": "F|partial|nobin|forced",
+        "farage_stands": true,
+        "field": "partial",
+        "binface_stands": false,
+        "trigger": "forced",
+        "labels": {},
+        "notes": {},
+        "p_reform_hold": 0.997,
+        "candidates": {
+          "ref": {
+            "labels": {
+              "fr": "Reform UK",
+              "en": "Reform UK",
+              "es": "Reform UK"
+            },
+            "share": {
+              "q05": 45.51,
+              "q10": 47.5,
+              "q25": 50.87,
+              "q50": 54.5,
+              "q75": 57.9,
+              "q90": 60.87,
+              "q95": 62.59
+            },
+            "p_win": 0.997
+          },
+          "con": {
+            "labels": {
+              "fr": "Conservateurs",
+              "en": "Conservative",
+              "es": "Conservadores"
+            },
+            "share": {
+              "q05": 20.78,
+              "q10": 22.09,
+              "q25": 24.51,
+              "q50": 27.26,
+              "q75": 30.24,
+              "q90": 33.03,
+              "q95": 34.88
+            },
+            "p_win": 0.003
+          },
+          "lab": {
+            "labels": {
+              "fr": "Labour",
+              "en": "Labour",
+              "es": "Laborista"
+            },
+            "share": {
+              "q05": 9.72,
+              "q10": 10.44,
+              "q25": 11.74,
+              "q50": 13.29,
+              "q75": 15.03,
+              "q90": 16.74,
+              "q95": 17.86
+            },
+            "p_win": 0.0
+          },
+          "ld": {
+            "labels": {
+              "fr": "Libéraux-démocrates",
+              "en": "Liberal Democrats",
+              "es": "Liberal-demócratas"
+            },
+            "share": {
+              "q05": 0.0,
+              "q10": 0.0,
+              "q25": 0.0,
+              "q50": 0.0,
+              "q75": 0.0,
+              "q90": 0.0,
+              "q95": 0.0
+            },
+            "p_win": 0.0
+          },
+          "grn": {
+            "labels": {
+              "fr": "Verts",
+              "en": "Green",
+              "es": "Verdes"
+            },
+            "share": {
+              "q05": 0.0,
+              "q10": 0.0,
+              "q25": 0.0,
+              "q50": 0.0,
+              "q75": 0.0,
+              "q90": 0.0,
+              "q95": 0.0
+            },
+            "p_win": 0.0
+          },
+          "binface": {
+            "labels": {
+              "fr": "Count Binface",
+              "en": "Count Binface",
+              "es": "Count Binface"
+            },
+            "share": {
+              "q05": 0.0,
+              "q10": 0.0,
+              "q25": 0.0,
+              "q50": 0.0,
+              "q75": 0.0,
+              "q90": 0.0,
+              "q95": 0.0
+            },
+            "p_win": 0.0
+          },
+          "oth": {
+            "labels": {
+              "fr": "Autres candidats",
+              "en": "Other candidates",
+              "es": "Otras candidaturas"
+            },
+            "share": {
+              "q05": 1.56,
+              "q10": 2.25,
+              "q25": 3.39,
+              "q50": 4.68,
+              "q75": 6.02,
+              "q90": 7.26,
+              "q95": 8.1
+            },
+            "p_win": 0.0
+          }
+        }
+      },
+      "F|partial|nobin|resignation": {
+        "id": "F|partial|nobin|resignation",
+        "farage_stands": true,
+        "field": "partial",
+        "binface_stands": false,
+        "trigger": "resignation",
+        "labels": {},
+        "notes": {},
+        "p_reform_hold": 0.9994,
+        "candidates": {
+          "ref": {
+            "labels": {
+              "fr": "Reform UK",
+              "en": "Reform UK",
+              "es": "Reform UK"
+            },
+            "share": {
+              "q05": 48.45,
+              "q10": 50.4,
+              "q25": 53.47,
+              "q50": 56.74,
+              "q75": 59.93,
+              "q90": 62.58,
+              "q95": 64.19
+            },
+            "p_win": 0.9994
+          },
+          "con": {
+            "labels": {
+              "fr": "Conservateurs",
+              "en": "Conservative",
+              "es": "Conservadores"
+            },
+            "share": {
+              "q05": 19.84,
+              "q10": 21.08,
+              "q25": 23.31,
+              "q50": 25.9,
+              "q75": 28.69,
+              "q90": 31.28,
+              "q95": 32.89
+            },
+            "p_win": 0.0006
+          },
+          "lab": {
+            "labels": {
+              "fr": "Labour",
+              "en": "Labour",
+              "es": "Laborista"
+            },
+            "share": {
+              "q05": 9.27,
+              "q10": 9.97,
+              "q25": 11.2,
+              "q50": 12.67,
+              "q75": 14.31,
+              "q90": 15.89,
+              "q95": 16.89
+            },
+            "p_win": 0.0
+          },
+          "ld": {
+            "labels": {
+              "fr": "Libéraux-démocrates",
+              "en": "Liberal Democrats",
+              "es": "Liberal-demócratas"
+            },
+            "share": {
+              "q05": 0.0,
+              "q10": 0.0,
+              "q25": 0.0,
+              "q50": 0.0,
+              "q75": 0.0,
+              "q90": 0.0,
+              "q95": 0.0
+            },
+            "p_win": 0.0
+          },
+          "grn": {
+            "labels": {
+              "fr": "Verts",
+              "en": "Green",
+              "es": "Verdes"
+            },
+            "share": {
+              "q05": 0.0,
+              "q10": 0.0,
+              "q25": 0.0,
+              "q50": 0.0,
+              "q75": 0.0,
+              "q90": 0.0,
+              "q95": 0.0
+            },
+            "p_win": 0.0
+          },
+          "binface": {
+            "labels": {
+              "fr": "Count Binface",
+              "en": "Count Binface",
+              "es": "Count Binface"
+            },
+            "share": {
+              "q05": 0.0,
+              "q10": 0.0,
+              "q25": 0.0,
+              "q50": 0.0,
+              "q75": 0.0,
+              "q90": 0.0,
+              "q95": 0.0
+            },
+            "p_win": 0.0
+          },
+          "oth": {
+            "labels": {
+              "fr": "Autres candidats",
+              "en": "Other candidates",
+              "es": "Otras candidaturas"
+            },
+            "share": {
+              "q05": 1.55,
+              "q10": 2.19,
+              "q25": 3.23,
+              "q50": 4.41,
+              "q75": 5.67,
+              "q90": 6.87,
+              "q95": 7.63
+            },
+            "p_win": 0.0
+          }
+        }
+      },
+      "F|boycott_repeat|bin|forced": {
+        "id": "F|boycott_repeat|bin|forced",
+        "farage_stands": true,
+        "field": "boycott_repeat",
+        "binface_stands": true,
+        "trigger": "forced",
+        "labels": {},
+        "notes": {},
+        "p_reform_hold": 0.9989,
+        "candidates": {
+          "ref": {
+            "labels": {
+              "fr": "Reform UK",
+              "en": "Reform UK",
+              "es": "Reform UK"
+            },
+            "share": {
+              "q05": 52.89,
+              "q10": 55.2,
+              "q25": 58.7,
+              "q50": 62.51,
+              "q75": 66.19,
+              "q90": 69.29,
+              "q95": 71.12
+            },
+            "p_win": 0.9989
+          },
+          "con": {
+            "labels": {
+              "fr": "Conservateurs",
+              "en": "Conservative",
+              "es": "Conservadores"
+            },
+            "share": {
+              "q05": 0.0,
+              "q10": 0.0,
+              "q25": 0.0,
+              "q50": 0.0,
+              "q75": 0.0,
+              "q90": 0.0,
+              "q95": 0.0
+            },
+            "p_win": 0.0
+          },
+          "lab": {
+            "labels": {
+              "fr": "Labour",
+              "en": "Labour",
+              "es": "Laborista"
+            },
+            "share": {
+              "q05": 0.0,
+              "q10": 0.0,
+              "q25": 0.0,
+              "q50": 0.0,
+              "q75": 0.0,
+              "q90": 0.0,
+              "q95": 0.0
+            },
+            "p_win": 0.0
+          },
+          "ld": {
+            "labels": {
+              "fr": "Libéraux-démocrates",
+              "en": "Liberal Democrats",
+              "es": "Liberal-demócratas"
+            },
+            "share": {
+              "q05": 0.0,
+              "q10": 0.0,
+              "q25": 0.0,
+              "q50": 0.0,
+              "q75": 0.0,
+              "q90": 0.0,
+              "q95": 0.0
+            },
+            "p_win": 0.0
+          },
+          "grn": {
+            "labels": {
+              "fr": "Verts",
+              "en": "Green",
+              "es": "Verdes"
+            },
+            "share": {
+              "q05": 0.0,
+              "q10": 0.0,
+              "q25": 0.0,
+              "q50": 0.0,
+              "q75": 0.0,
+              "q90": 0.0,
+              "q95": 0.0
+            },
+            "p_win": 0.0
+          },
+          "binface": {
+            "labels": {
+              "fr": "Count Binface",
+              "en": "Count Binface",
+              "es": "Count Binface"
+            },
+            "share": {
+              "q05": 20.54,
+              "q10": 22.0,
+              "q25": 24.79,
+              "q50": 28.08,
+              "q75": 31.57,
+              "q90": 34.92,
+              "q95": 36.86
+            },
+            "p_win": 0.0011
+          },
+          "oth": {
+            "labels": {
+              "fr": "Autres candidats",
+              "en": "Other candidates",
+              "es": "Otras candidaturas"
+            },
+            "share": {
+              "q05": 5.01,
+              "q10": 5.86,
+              "q25": 7.42,
+              "q50": 9.21,
+              "q75": 11.14,
+              "q90": 13.01,
+              "q95": 14.2
+            },
+            "p_win": 0.0
+          }
+        }
+      },
+      "F|boycott_repeat|bin|resignation": {
+        "id": "F|boycott_repeat|bin|resignation",
+        "farage_stands": true,
+        "field": "boycott_repeat",
+        "binface_stands": true,
+        "trigger": "resignation",
+        "labels": {},
+        "notes": {},
+        "p_reform_hold": 0.9999,
+        "candidates": {
+          "ref": {
+            "labels": {
+              "fr": "Reform UK",
+              "en": "Reform UK",
+              "es": "Reform UK"
+            },
+            "share": {
+              "q05": 55.64,
+              "q10": 57.67,
+              "q25": 61.0,
+              "q50": 64.51,
+              "q75": 67.86,
+              "q90": 70.82,
+              "q95": 72.51
+            },
+            "p_win": 0.9999
+          },
+          "con": {
+            "labels": {
+              "fr": "Conservateurs",
+              "en": "Conservative",
+              "es": "Conservadores"
+            },
+            "share": {
+              "q05": 0.0,
+              "q10": 0.0,
+              "q25": 0.0,
+              "q50": 0.0,
+              "q75": 0.0,
+              "q90": 0.0,
+              "q95": 0.0
+            },
+            "p_win": 0.0
+          },
+          "lab": {
+            "labels": {
+              "fr": "Labour",
+              "en": "Labour",
+              "es": "Laborista"
+            },
+            "share": {
+              "q05": 0.0,
+              "q10": 0.0,
+              "q25": 0.0,
+              "q50": 0.0,
+              "q75": 0.0,
+              "q90": 0.0,
+              "q95": 0.0
+            },
+            "p_win": 0.0
+          },
+          "ld": {
+            "labels": {
+              "fr": "Libéraux-démocrates",
+              "en": "Liberal Democrats",
+              "es": "Liberal-demócratas"
+            },
+            "share": {
+              "q05": 0.0,
+              "q10": 0.0,
+              "q25": 0.0,
+              "q50": 0.0,
+              "q75": 0.0,
+              "q90": 0.0,
+              "q95": 0.0
+            },
+            "p_win": 0.0
+          },
+          "grn": {
+            "labels": {
+              "fr": "Verts",
+              "en": "Green",
+              "es": "Verdes"
+            },
+            "share": {
+              "q05": 0.0,
+              "q10": 0.0,
+              "q25": 0.0,
+              "q50": 0.0,
+              "q75": 0.0,
+              "q90": 0.0,
+              "q95": 0.0
+            },
+            "p_win": 0.0
+          },
+          "binface": {
+            "labels": {
+              "fr": "Count Binface",
+              "en": "Count Binface",
+              "es": "Count Binface"
+            },
+            "share": {
+              "q05": 19.46,
+              "q10": 20.96,
+              "q25": 23.5,
+              "q50": 26.55,
+              "q75": 29.87,
+              "q90": 32.92,
+              "q95": 34.89
+            },
+            "p_win": 0.0001
+          },
+          "oth": {
+            "labels": {
+              "fr": "Autres candidats",
+              "en": "Other candidates",
+              "es": "Otras candidaturas"
+            },
+            "share": {
+              "q05": 4.75,
+              "q10": 5.56,
+              "q25": 7.0,
+              "q50": 8.73,
+              "q75": 10.56,
+              "q90": 12.28,
+              "q95": 13.35
+            },
+            "p_win": 0.0
+          }
+        }
+      },
+      "F|boycott_repeat|nobin|forced": {
+        "id": "F|boycott_repeat|nobin|forced",
+        "farage_stands": true,
+        "field": "boycott_repeat",
+        "binface_stands": false,
+        "trigger": "forced",
+        "labels": {},
+        "notes": {},
+        "p_reform_hold": 1.0,
+        "candidates": {
+          "ref": {
+            "labels": {
+              "fr": "Reform UK",
+              "en": "Reform UK",
+              "es": "Reform UK"
+            },
+            "share": {
+              "q05": 80.1,
+              "q10": 81.82,
+              "q25": 84.41,
+              "q50": 87.13,
+              "q75": 89.7,
+              "q90": 91.85,
+              "q95": 93.02
+            },
+            "p_win": 1.0
+          },
+          "con": {
+            "labels": {
+              "fr": "Conservateurs",
+              "en": "Conservative",
+              "es": "Conservadores"
+            },
+            "share": {
+              "q05": 0.0,
+              "q10": 0.0,
+              "q25": 0.0,
+              "q50": 0.0,
+              "q75": 0.0,
+              "q90": 0.0,
+              "q95": 0.0
+            },
+            "p_win": 0.0
+          },
+          "lab": {
+            "labels": {
+              "fr": "Labour",
+              "en": "Labour",
+              "es": "Laborista"
+            },
+            "share": {
+              "q05": 0.0,
+              "q10": 0.0,
+              "q25": 0.0,
+              "q50": 0.0,
+              "q75": 0.0,
+              "q90": 0.0,
+              "q95": 0.0
+            },
+            "p_win": 0.0
+          },
+          "ld": {
+            "labels": {
+              "fr": "Libéraux-démocrates",
+              "en": "Liberal Democrats",
+              "es": "Liberal-demócratas"
+            },
+            "share": {
+              "q05": 0.0,
+              "q10": 0.0,
+              "q25": 0.0,
+              "q50": 0.0,
+              "q75": 0.0,
+              "q90": 0.0,
+              "q95": 0.0
+            },
+            "p_win": 0.0
+          },
+          "grn": {
+            "labels": {
+              "fr": "Verts",
+              "en": "Green",
+              "es": "Verdes"
+            },
+            "share": {
+              "q05": 0.0,
+              "q10": 0.0,
+              "q25": 0.0,
+              "q50": 0.0,
+              "q75": 0.0,
+              "q90": 0.0,
+              "q95": 0.0
+            },
+            "p_win": 0.0
+          },
+          "binface": {
+            "labels": {
+              "fr": "Count Binface",
+              "en": "Count Binface",
+              "es": "Count Binface"
+            },
+            "share": {
+              "q05": 0.0,
+              "q10": 0.0,
+              "q25": 0.0,
+              "q50": 0.0,
+              "q75": 0.0,
+              "q90": 0.0,
+              "q95": 0.0
+            },
+            "p_win": 0.0
+          },
+          "oth": {
+            "labels": {
+              "fr": "Autres candidats",
+              "en": "Other candidates",
+              "es": "Otras candidaturas"
+            },
+            "share": {
+              "q05": 6.98,
+              "q10": 8.15,
+              "q25": 10.3,
+              "q50": 12.87,
+              "q75": 15.59,
+              "q90": 18.18,
+              "q95": 19.9
+            },
+            "p_win": 0.0
+          }
+        }
+      },
+      "F|boycott_repeat|nobin|resignation": {
+        "id": "F|boycott_repeat|nobin|resignation",
+        "farage_stands": true,
+        "field": "boycott_repeat",
+        "binface_stands": false,
+        "trigger": "resignation",
+        "labels": {},
+        "notes": {},
+        "p_reform_hold": 1.0,
+        "candidates": {
+          "ref": {
+            "labels": {
+              "fr": "Reform UK",
+              "en": "Reform UK",
+              "es": "Reform UK"
+            },
+            "share": {
+              "q05": 81.65,
+              "q10": 83.19,
+              "q25": 85.62,
+              "q50": 88.09,
+              "q75": 90.41,
+              "q90": 92.4,
+              "q95": 93.55
+            },
+            "p_win": 1.0
+          },
+          "con": {
+            "labels": {
+              "fr": "Conservateurs",
+              "en": "Conservative",
+              "es": "Conservadores"
+            },
+            "share": {
+              "q05": 0.0,
+              "q10": 0.0,
+              "q25": 0.0,
+              "q50": 0.0,
+              "q75": 0.0,
+              "q90": 0.0,
+              "q95": 0.0
+            },
+            "p_win": 0.0
+          },
+          "lab": {
+            "labels": {
+              "fr": "Labour",
+              "en": "Labour",
+              "es": "Laborista"
+            },
+            "share": {
+              "q05": 0.0,
+              "q10": 0.0,
+              "q25": 0.0,
+              "q50": 0.0,
+              "q75": 0.0,
+              "q90": 0.0,
+              "q95": 0.0
+            },
+            "p_win": 0.0
+          },
+          "ld": {
+            "labels": {
+              "fr": "Libéraux-démocrates",
+              "en": "Liberal Democrats",
+              "es": "Liberal-demócratas"
+            },
+            "share": {
+              "q05": 0.0,
+              "q10": 0.0,
+              "q25": 0.0,
+              "q50": 0.0,
+              "q75": 0.0,
+              "q90": 0.0,
+              "q95": 0.0
+            },
+            "p_win": 0.0
+          },
+          "grn": {
+            "labels": {
+              "fr": "Verts",
+              "en": "Green",
+              "es": "Verdes"
+            },
+            "share": {
+              "q05": 0.0,
+              "q10": 0.0,
+              "q25": 0.0,
+              "q50": 0.0,
+              "q75": 0.0,
+              "q90": 0.0,
+              "q95": 0.0
+            },
+            "p_win": 0.0
+          },
+          "binface": {
+            "labels": {
+              "fr": "Count Binface",
+              "en": "Count Binface",
+              "es": "Count Binface"
+            },
+            "share": {
+              "q05": 0.0,
+              "q10": 0.0,
+              "q25": 0.0,
+              "q50": 0.0,
+              "q75": 0.0,
+              "q90": 0.0,
+              "q95": 0.0
+            },
+            "p_win": 0.0
+          },
+          "oth": {
+            "labels": {
+              "fr": "Autres candidats",
+              "en": "Other candidates",
+              "es": "Otras candidaturas"
+            },
+            "share": {
+              "q05": 6.45,
+              "q10": 7.6,
+              "q25": 9.59,
+              "q50": 11.91,
+              "q75": 14.38,
+              "q90": 16.81,
+              "q95": 18.35
+            },
+            "p_win": 0.0
+          }
+        }
+      },
+      "noF|all_parties|bin|forced": {
+        "id": "noF|all_parties|bin|forced",
+        "farage_stands": false,
+        "field": "all_parties",
+        "binface_stands": true,
+        "trigger": "forced",
+        "labels": {},
+        "notes": {},
+        "p_reform_hold": 0.8096,
+        "candidates": {
+          "ref": {
+            "labels": {
+              "fr": "Reform UK",
+              "en": "Reform UK",
+              "es": "Reform UK"
+            },
+            "share": {
+              "q05": 27.27,
+              "q10": 29.91,
+              "q25": 34.19,
+              "q50": 38.63,
+              "q75": 43.03,
+              "q90": 46.8,
+              "q95": 48.92
+            },
+            "p_win": 0.8096
+          },
+          "con": {
+            "labels": {
+              "fr": "Conservateurs",
+              "en": "Conservative",
+              "es": "Conservadores"
+            },
+            "share": {
+              "q05": 21.37,
+              "q10": 22.91,
+              "q25": 25.56,
+              "q50": 28.87,
+              "q75": 32.4,
+              "q90": 35.76,
+              "q95": 37.91
+            },
+            "p_win": 0.1904
+          },
+          "lab": {
+            "labels": {
+              "fr": "Labour",
+              "en": "Labour",
+              "es": "Laborista"
+            },
+            "share": {
+              "q05": 6.99,
+              "q10": 7.62,
+              "q25": 8.71,
+              "q50": 10.07,
+              "q75": 11.62,
+              "q90": 13.16,
+              "q95": 14.13
+            },
+            "p_win": 0.0
+          },
+          "ld": {
+            "labels": {
+              "fr": "Libéraux-démocrates",
+              "en": "Liberal Democrats",
+              "es": "Liberal-demócratas"
+            },
+            "share": {
+              "q05": 2.83,
+              "q10": 3.08,
+              "q25": 3.52,
+              "q50": 4.09,
+              "q75": 4.74,
+              "q90": 5.39,
+              "q95": 5.83
+            },
+            "p_win": 0.0
+          },
+          "grn": {
+            "labels": {
+              "fr": "Verts",
+              "en": "Green",
+              "es": "Verdes"
+            },
+            "share": {
+              "q05": 5.29,
+              "q10": 5.75,
+              "q25": 6.57,
+              "q50": 7.57,
+              "q75": 8.72,
+              "q90": 9.87,
+              "q95": 10.6
+            },
+            "p_win": 0.0
+          },
+          "binface": {
+            "labels": {
+              "fr": "Count Binface",
+              "en": "Count Binface",
+              "es": "Count Binface"
+            },
+            "share": {
+              "q05": 2.39,
+              "q10": 3.52,
+              "q25": 5.44,
+              "q50": 7.51,
+              "q75": 9.68,
+              "q90": 11.75,
+              "q95": 12.96
+            },
+            "p_win": 0.0
+          },
+          "oth": {
+            "labels": {
+              "fr": "Autres candidats",
+              "en": "Other candidates",
+              "es": "Otras candidaturas"
+            },
+            "share": {
+              "q05": 0.55,
+              "q10": 1.0,
+              "q25": 1.72,
+              "q50": 2.55,
+              "q75": 3.44,
+              "q90": 4.27,
+              "q95": 4.83
+            },
+            "p_win": 0.0
+          }
+        }
+      },
+      "noF|all_parties|bin|resignation": {
+        "id": "noF|all_parties|bin|resignation",
+        "farage_stands": false,
+        "field": "all_parties",
+        "binface_stands": true,
+        "trigger": "resignation",
+        "labels": {},
+        "notes": {},
+        "p_reform_hold": 0.9158,
+        "candidates": {
+          "ref": {
+            "labels": {
+              "fr": "Reform UK",
+              "en": "Reform UK",
+              "es": "Reform UK"
+            },
+            "share": {
+              "q05": 31.67,
+              "q10": 33.96,
+              "q25": 37.57,
+              "q50": 41.67,
+              "q75": 45.63,
+              "q90": 48.99,
+              "q95": 50.89
+            },
+            "p_win": 0.9158
+          },
+          "con": {
+            "labels": {
+              "fr": "Conservateurs",
+              "en": "Conservative",
+              "es": "Conservadores"
+            },
+            "share": {
+              "q05": 20.48,
+              "q10": 21.96,
+              "q25": 24.48,
+              "q50": 27.51,
+              "q75": 30.74,
+              "q90": 33.85,
+              "q95": 35.83
+            },
+            "p_win": 0.0842
+          },
+          "lab": {
+            "labels": {
+              "fr": "Labour",
+              "en": "Labour",
+              "es": "Laborista"
+            },
+            "share": {
+              "q05": 6.64,
+              "q10": 7.23,
+              "q25": 8.28,
+              "q50": 9.55,
+              "q75": 10.98,
+              "q90": 12.41,
+              "q95": 13.31
+            },
+            "p_win": 0.0
+          },
+          "ld": {
+            "labels": {
+              "fr": "Libéraux-démocrates",
+              "en": "Liberal Democrats",
+              "es": "Liberal-demócratas"
+            },
+            "share": {
+              "q05": 2.7,
+              "q10": 2.93,
+              "q25": 3.36,
+              "q50": 3.89,
+              "q75": 4.49,
+              "q90": 5.11,
+              "q95": 5.51
+            },
+            "p_win": 0.0
+          },
+          "grn": {
+            "labels": {
+              "fr": "Verts",
+              "en": "Green",
+              "es": "Verdes"
+            },
+            "share": {
+              "q05": 5.07,
+              "q10": 5.49,
+              "q25": 6.25,
+              "q50": 7.19,
+              "q75": 8.26,
+              "q90": 9.32,
+              "q95": 9.99
+            },
+            "p_win": 0.0
+          },
+          "binface": {
+            "labels": {
+              "fr": "Count Binface",
+              "en": "Count Binface",
+              "es": "Count Binface"
+            },
+            "share": {
+              "q05": 2.33,
+              "q10": 3.32,
+              "q25": 5.13,
+              "q50": 7.13,
+              "q75": 9.23,
+              "q90": 11.12,
+              "q95": 12.31
+            },
+            "p_win": 0.0
+          },
+          "oth": {
+            "labels": {
+              "fr": "Autres candidats",
+              "en": "Other candidates",
+              "es": "Otras candidaturas"
+            },
+            "share": {
+              "q05": 0.52,
+              "q10": 0.94,
+              "q25": 1.64,
+              "q50": 2.44,
+              "q75": 3.27,
+              "q90": 4.06,
+              "q95": 4.56
+            },
+            "p_win": 0.0
+          }
+        }
+      },
+      "noF|all_parties|nobin|forced": {
+        "id": "noF|all_parties|nobin|forced",
+        "farage_stands": false,
+        "field": "all_parties",
+        "binface_stands": false,
+        "trigger": "forced",
+        "labels": {},
+        "notes": {},
+        "p_reform_hold": 0.8066,
+        "candidates": {
+          "ref": {
+            "labels": {
+              "fr": "Reform UK",
+              "en": "Reform UK",
+              "es": "Reform UK"
+            },
+            "share": {
+              "q05": 29.42,
+              "q10": 32.14,
+              "q25": 36.58,
+              "q50": 41.17,
+              "q75": 45.65,
+              "q90": 49.5,
+              "q95": 51.68
+            },
+            "p_win": 0.8066
+          },
+          "con": {
+            "labels": {
+              "fr": "Conservateurs",
+              "en": "Conservative",
+              "es": "Conservadores"
+            },
+            "share": {
+              "q05": 22.96,
+              "q10": 24.58,
+              "q25": 27.41,
+              "q50": 30.89,
+              "q75": 34.56,
+              "q90": 38.13,
+              "q95": 40.35
+            },
+            "p_win": 0.1934
+          },
+          "lab": {
+            "labels": {
+              "fr": "Labour",
+              "en": "Labour",
+              "es": "Laborista"
+            },
+            "share": {
+              "q05": 8.71,
+              "q10": 9.4,
+              "q25": 10.69,
+              "q50": 12.25,
+              "q75": 13.97,
+              "q90": 15.7,
+              "q95": 16.81
+            },
+            "p_win": 0.0
+          },
+          "ld": {
+            "labels": {
+              "fr": "Libéraux-démocrates",
+              "en": "Liberal Democrats",
+              "es": "Liberal-demócratas"
+            },
+            "share": {
+              "q05": 3.03,
+              "q10": 3.28,
+              "q25": 3.75,
+              "q50": 4.36,
+              "q75": 5.06,
+              "q90": 5.77,
+              "q95": 6.23
+            },
+            "p_win": 0.0
+          },
+          "grn": {
+            "labels": {
+              "fr": "Verts",
+              "en": "Green",
+              "es": "Verdes"
+            },
+            "share": {
+              "q05": 5.67,
+              "q10": 6.12,
+              "q25": 6.99,
+              "q50": 8.07,
+              "q75": 9.29,
+              "q90": 10.54,
+              "q95": 11.31
+            },
+            "p_win": 0.0
+          },
+          "binface": {
+            "labels": {
+              "fr": "Count Binface",
+              "en": "Count Binface",
+              "es": "Count Binface"
+            },
+            "share": {
+              "q05": 0.0,
+              "q10": 0.0,
+              "q25": 0.0,
+              "q50": 0.0,
+              "q75": 0.0,
+              "q90": 0.0,
+              "q95": 0.0
+            },
+            "p_win": 0.0
+          },
+          "oth": {
+            "labels": {
+              "fr": "Autres candidats",
+              "en": "Other candidates",
+              "es": "Otras candidaturas"
+            },
+            "share": {
+              "q05": 0.58,
+              "q10": 1.04,
+              "q25": 1.81,
+              "q50": 2.7,
+              "q75": 3.65,
+              "q90": 4.54,
+              "q95": 5.1
+            },
+            "p_win": 0.0
+          }
+        }
+      },
+      "noF|all_parties|nobin|resignation": {
+        "id": "noF|all_parties|nobin|resignation",
+        "farage_stands": false,
+        "field": "all_parties",
+        "binface_stands": false,
+        "trigger": "resignation",
+        "labels": {},
+        "notes": {},
+        "p_reform_hold": 0.9145,
+        "candidates": {
+          "ref": {
+            "labels": {
+              "fr": "Reform UK",
+              "en": "Reform UK",
+              "es": "Reform UK"
+            },
+            "share": {
+              "q05": 33.93,
+              "q10": 36.26,
+              "q25": 40.13,
+              "q50": 44.26,
+              "q75": 48.21,
+              "q90": 51.64,
+              "q95": 53.61
+            },
+            "p_win": 0.9145
+          },
+          "con": {
+            "labels": {
+              "fr": "Conservateurs",
+              "en": "Conservative",
+              "es": "Conservadores"
+            },
+            "share": {
+              "q05": 21.75,
+              "q10": 23.35,
+              "q25": 26.04,
+              "q50": 29.27,
+              "q75": 32.7,
+              "q90": 35.9,
+              "q95": 37.88
+            },
+            "p_win": 0.0855
+          },
+          "lab": {
+            "labels": {
+              "fr": "Labour",
+              "en": "Labour",
+              "es": "Laborista"
+            },
+            "share": {
+              "q05": 8.32,
+              "q10": 8.99,
+              "q25": 10.18,
+              "q50": 11.64,
+              "q75": 13.21,
+              "q90": 14.83,
+              "q95": 15.86
+            },
+            "p_win": 0.0
+          },
+          "ld": {
+            "labels": {
+              "fr": "Libéraux-démocrates",
+              "en": "Liberal Democrats",
+              "es": "Liberal-demócratas"
+            },
+            "share": {
+              "q05": 2.88,
+              "q10": 3.12,
+              "q25": 3.57,
+              "q50": 4.14,
+              "q75": 4.77,
+              "q90": 5.42,
+              "q95": 5.84
+            },
+            "p_win": 0.0
+          },
+          "grn": {
+            "labels": {
+              "fr": "Verts",
+              "en": "Green",
+              "es": "Verdes"
+            },
+            "share": {
+              "q05": 5.4,
+              "q10": 5.85,
+              "q25": 6.65,
+              "q50": 7.67,
+              "q75": 8.79,
+              "q90": 9.91,
+              "q95": 10.66
+            },
+            "p_win": 0.0
+          },
+          "binface": {
+            "labels": {
+              "fr": "Count Binface",
+              "en": "Count Binface",
+              "es": "Count Binface"
+            },
+            "share": {
+              "q05": 0.0,
+              "q10": 0.0,
+              "q25": 0.0,
+              "q50": 0.0,
+              "q75": 0.0,
+              "q90": 0.0,
+              "q95": 0.0
+            },
+            "p_win": 0.0
+          },
+          "oth": {
+            "labels": {
+              "fr": "Autres candidats",
+              "en": "Other candidates",
+              "es": "Otras candidaturas"
+            },
+            "share": {
+              "q05": 0.54,
+              "q10": 0.98,
+              "q25": 1.74,
+              "q50": 2.58,
+              "q75": 3.44,
+              "q90": 4.26,
+              "q95": 4.77
+            },
+            "p_win": 0.0
+          }
+        }
+      },
+      "noF|partial|bin|forced": {
+        "id": "noF|partial|bin|forced",
+        "farage_stands": false,
+        "field": "partial",
+        "binface_stands": true,
+        "trigger": "forced",
+        "labels": {},
+        "notes": {},
+        "p_reform_hold": 0.8202,
+        "candidates": {
+          "ref": {
+            "labels": {
+              "fr": "Reform UK",
+              "en": "Reform UK",
+              "es": "Reform UK"
+            },
+            "share": {
+              "q05": 31.16,
+              "q10": 33.92,
+              "q25": 38.44,
+              "q50": 43.24,
+              "q75": 47.78,
+              "q90": 51.59,
+              "q95": 53.79
+            },
+            "p_win": 0.8202
+          },
+          "con": {
+            "labels": {
+              "fr": "Conservateurs",
+              "en": "Conservative",
+              "es": "Conservadores"
+            },
+            "share": {
+              "q05": 23.57,
+              "q10": 25.3,
+              "q25": 28.3,
+              "q50": 31.84,
+              "q75": 35.79,
+              "q90": 39.57,
+              "q95": 41.82
+            },
+            "p_win": 0.1798
+          },
+          "lab": {
+            "labels": {
+              "fr": "Labour",
+              "en": "Labour",
+              "es": "Laborista"
+            },
+            "share": {
+              "q05": 9.04,
+              "q10": 9.8,
+              "q25": 11.1,
+              "q50": 12.7,
+              "q75": 14.51,
+              "q90": 16.29,
+              "q95": 17.49
+            },
+            "p_win": 0.0
+          },
+          "ld": {
+            "labels": {
+              "fr": "Libéraux-démocrates",
+              "en": "Liberal Democrats",
+              "es": "Liberal-demócratas"
+            },
+            "share": {
+              "q05": 0.0,
+              "q10": 0.0,
+              "q25": 0.0,
+              "q50": 0.0,
+              "q75": 0.0,
+              "q90": 0.0,
+              "q95": 0.0
+            },
+            "p_win": 0.0
+          },
+          "grn": {
+            "labels": {
+              "fr": "Verts",
+              "en": "Green",
+              "es": "Verdes"
+            },
+            "share": {
+              "q05": 0.0,
+              "q10": 0.0,
+              "q25": 0.0,
+              "q50": 0.0,
+              "q75": 0.0,
+              "q90": 0.0,
+              "q95": 0.0
+            },
+            "p_win": 0.0
+          },
+          "binface": {
+            "labels": {
+              "fr": "Count Binface",
+              "en": "Count Binface",
+              "es": "Count Binface"
+            },
+            "share": {
+              "q05": 4.27,
+              "q10": 4.72,
+              "q25": 5.56,
+              "q50": 6.6,
+              "q75": 7.79,
+              "q90": 8.97,
+              "q95": 9.79
+            },
+            "p_win": 0.0
+          },
+          "oth": {
+            "labels": {
+              "fr": "Autres candidats",
+              "en": "Other candidates",
+              "es": "Otras candidaturas"
+            },
+            "share": {
+              "q05": 1.76,
+              "q10": 2.49,
+              "q25": 3.69,
+              "q50": 5.08,
+              "q75": 6.54,
+              "q90": 7.92,
+              "q95": 8.82
+            },
+            "p_win": 0.0
+          }
+        }
+      },
+      "noF|partial|bin|resignation": {
+        "id": "noF|partial|bin|resignation",
+        "farage_stands": false,
+        "field": "partial",
+        "binface_stands": true,
+        "trigger": "resignation",
+        "labels": {},
+        "notes": {},
+        "p_reform_hold": 0.9198,
+        "candidates": {
+          "ref": {
+            "labels": {
+              "fr": "Reform UK",
+              "en": "Reform UK",
+              "es": "Reform UK"
+            },
+            "share": {
+              "q05": 35.72,
+              "q10": 38.05,
+              "q25": 42.0,
+              "q50": 46.28,
+              "q75": 50.33,
+              "q90": 53.69,
+              "q95": 55.71
+            },
+            "p_win": 0.9198
+          },
+          "con": {
+            "labels": {
+              "fr": "Conservateurs",
+              "en": "Conservative",
+              "es": "Conservadores"
+            },
+            "share": {
+              "q05": 22.62,
+              "q10": 24.15,
+              "q25": 26.92,
+              "q50": 30.24,
+              "q75": 33.81,
+              "q90": 37.26,
+              "q95": 39.32
+            },
+            "p_win": 0.0802
+          },
+          "lab": {
+            "labels": {
+              "fr": "Labour",
+              "en": "Labour",
+              "es": "Laborista"
+            },
+            "share": {
+              "q05": 8.59,
+              "q10": 9.29,
+              "q25": 10.51,
+              "q50": 11.95,
+              "q75": 13.64,
+              "q90": 15.31,
+              "q95": 16.34
+            },
+            "p_win": 0.0
+          },
+          "ld": {
+            "labels": {
+              "fr": "Libéraux-démocrates",
+              "en": "Liberal Democrats",
+              "es": "Liberal-demócratas"
+            },
+            "share": {
+              "q05": 0.0,
+              "q10": 0.0,
+              "q25": 0.0,
+              "q50": 0.0,
+              "q75": 0.0,
+              "q90": 0.0,
+              "q95": 0.0
+            },
+            "p_win": 0.0
+          },
+          "grn": {
+            "labels": {
+              "fr": "Verts",
+              "en": "Green",
+              "es": "Verdes"
+            },
+            "share": {
+              "q05": 0.0,
+              "q10": 0.0,
+              "q25": 0.0,
+              "q50": 0.0,
+              "q75": 0.0,
+              "q90": 0.0,
+              "q95": 0.0
+            },
+            "p_win": 0.0
+          },
+          "binface": {
+            "labels": {
+              "fr": "Count Binface",
+              "en": "Count Binface",
+              "es": "Count Binface"
+            },
+            "share": {
+              "q05": 4.06,
+              "q10": 4.48,
+              "q25": 5.26,
+              "q50": 6.25,
+              "q75": 7.38,
+              "q90": 8.49,
+              "q95": 9.24
+            },
+            "p_win": 0.0
+          },
+          "oth": {
+            "labels": {
+              "fr": "Autres candidats",
+              "en": "Other candidates",
+              "es": "Otras candidaturas"
+            },
+            "share": {
+              "q05": 1.68,
+              "q10": 2.34,
+              "q25": 3.5,
+              "q50": 4.81,
+              "q75": 6.18,
+              "q90": 7.49,
+              "q95": 8.33
+            },
+            "p_win": 0.0
+          }
+        }
+      },
+      "noF|partial|nobin|forced": {
+        "id": "noF|partial|nobin|forced",
+        "farage_stands": false,
+        "field": "partial",
+        "binface_stands": false,
+        "trigger": "forced",
+        "labels": {},
+        "notes": {},
+        "p_reform_hold": 0.7773,
+        "candidates": {
+          "ref": {
+            "labels": {
+              "fr": "Reform UK",
+              "en": "Reform UK",
+              "es": "Reform UK"
+            },
+            "share": {
+              "q05": 32.31,
+              "q10": 35.17,
+              "q25": 39.77,
+              "q50": 44.68,
+              "q75": 49.29,
+              "q90": 53.17,
+              "q95": 55.29
+            },
+            "p_win": 0.7773
+          },
+          "con": {
+            "labels": {
+              "fr": "Conservateurs",
+              "en": "Conservative",
+              "es": "Conservadores"
+            },
+            "share": {
+              "q05": 26.0,
+              "q10": 27.8,
+              "q25": 30.92,
+              "q50": 34.78,
+              "q75": 38.85,
+              "q90": 42.83,
+              "q95": 45.26
+            },
+            "p_win": 0.2227
+          },
+          "lab": {
+            "labels": {
+              "fr": "Labour",
+              "en": "Labour",
+              "es": "Laborista"
+            },
+            "share": {
+              "q05": 10.83,
+              "q10": 11.67,
+              "q25": 13.17,
+              "q50": 14.99,
+              "q75": 17.04,
+              "q90": 19.11,
+              "q95": 20.39
+            },
+            "p_win": 0.0
+          },
+          "ld": {
+            "labels": {
+              "fr": "Libéraux-démocrates",
+              "en": "Liberal Democrats",
+              "es": "Liberal-demócratas"
+            },
+            "share": {
+              "q05": 0.0,
+              "q10": 0.0,
+              "q25": 0.0,
+              "q50": 0.0,
+              "q75": 0.0,
+              "q90": 0.0,
+              "q95": 0.0
+            },
+            "p_win": 0.0
+          },
+          "grn": {
+            "labels": {
+              "fr": "Verts",
+              "en": "Green",
+              "es": "Verdes"
+            },
+            "share": {
+              "q05": 0.0,
+              "q10": 0.0,
+              "q25": 0.0,
+              "q50": 0.0,
+              "q75": 0.0,
+              "q90": 0.0,
+              "q95": 0.0
+            },
+            "p_win": 0.0
+          },
+          "binface": {
+            "labels": {
+              "fr": "Count Binface",
+              "en": "Count Binface",
+              "es": "Count Binface"
+            },
+            "share": {
+              "q05": 0.0,
+              "q10": 0.0,
+              "q25": 0.0,
+              "q50": 0.0,
+              "q75": 0.0,
+              "q90": 0.0,
+              "q95": 0.0
+            },
+            "p_win": 0.0
+          },
+          "oth": {
+            "labels": {
+              "fr": "Autres candidats",
+              "en": "Other candidates",
+              "es": "Otras candidaturas"
+            },
+            "share": {
+              "q05": 1.8,
+              "q10": 2.56,
+              "q25": 3.8,
+              "q50": 5.24,
+              "q75": 6.74,
+              "q90": 8.22,
+              "q95": 9.16
+            },
+            "p_win": 0.0
+          }
+        }
+      },
+      "noF|partial|nobin|resignation": {
+        "id": "noF|partial|nobin|resignation",
+        "farage_stands": false,
+        "field": "partial",
+        "binface_stands": false,
+        "trigger": "resignation",
+        "labels": {},
+        "notes": {},
+        "p_reform_hold": 0.8954,
+        "candidates": {
+          "ref": {
+            "labels": {
+              "fr": "Reform UK",
+              "en": "Reform UK",
+              "es": "Reform UK"
+            },
+            "share": {
+              "q05": 36.74,
+              "q10": 39.3,
+              "q25": 43.44,
+              "q50": 47.69,
+              "q75": 51.81,
+              "q90": 55.39,
+              "q95": 57.38
+            },
+            "p_win": 0.8954
+          },
+          "con": {
+            "labels": {
+              "fr": "Conservateurs",
+              "en": "Conservative",
+              "es": "Conservadores"
+            },
+            "share": {
+              "q05": 24.79,
+              "q10": 26.44,
+              "q25": 29.35,
+              "q50": 32.87,
+              "q75": 36.64,
+              "q90": 40.26,
+              "q95": 42.5
+            },
+            "p_win": 0.1046
+          },
+          "lab": {
+            "labels": {
+              "fr": "Labour",
+              "en": "Labour",
+              "es": "Laborista"
+            },
+            "share": {
+              "q05": 10.37,
+              "q10": 11.11,
+              "q25": 12.47,
+              "q50": 14.14,
+              "q75": 15.99,
+              "q90": 17.82,
+              "q95": 19.0
+            },
+            "p_win": 0.0
+          },
+          "ld": {
+            "labels": {
+              "fr": "Libéraux-démocrates",
+              "en": "Liberal Democrats",
+              "es": "Liberal-demócratas"
+            },
+            "share": {
+              "q05": 0.0,
+              "q10": 0.0,
+              "q25": 0.0,
+              "q50": 0.0,
+              "q75": 0.0,
+              "q90": 0.0,
+              "q95": 0.0
+            },
+            "p_win": 0.0
+          },
+          "grn": {
+            "labels": {
+              "fr": "Verts",
+              "en": "Green",
+              "es": "Verdes"
+            },
+            "share": {
+              "q05": 0.0,
+              "q10": 0.0,
+              "q25": 0.0,
+              "q50": 0.0,
+              "q75": 0.0,
+              "q90": 0.0,
+              "q95": 0.0
+            },
+            "p_win": 0.0
+          },
+          "binface": {
+            "labels": {
+              "fr": "Count Binface",
+              "en": "Count Binface",
+              "es": "Count Binface"
+            },
+            "share": {
+              "q05": 0.0,
+              "q10": 0.0,
+              "q25": 0.0,
+              "q50": 0.0,
+              "q75": 0.0,
+              "q90": 0.0,
+              "q95": 0.0
+            },
+            "p_win": 0.0
+          },
+          "oth": {
+            "labels": {
+              "fr": "Autres candidats",
+              "en": "Other candidates",
+              "es": "Otras candidaturas"
+            },
+            "share": {
+              "q05": 1.71,
+              "q10": 2.39,
+              "q25": 3.59,
+              "q50": 4.94,
+              "q75": 6.36,
+              "q90": 7.73,
+              "q95": 8.57
+            },
+            "p_win": 0.0
+          }
+        }
+      },
+      "noF|boycott_repeat|bin|forced": {
+        "id": "noF|boycott_repeat|bin|forced",
+        "farage_stands": false,
+        "field": "boycott_repeat",
+        "binface_stands": true,
+        "trigger": "forced",
+        "labels": {},
+        "notes": {},
+        "p_reform_hold": 0.8959,
+        "candidates": {
+          "ref": {
+            "labels": {
+              "fr": "Reform UK",
+              "en": "Reform UK",
+              "es": "Reform UK"
+            },
+            "share": {
+              "q05": 40.76,
+              "q10": 43.76,
+              "q25": 48.67,
+              "q50": 53.79,
+              "q75": 58.62,
+              "q90": 62.68,
+              "q95": 64.99
+            },
+            "p_win": 0.8959
+          },
+          "con": {
+            "labels": {
+              "fr": "Conservateurs",
+              "en": "Conservative",
+              "es": "Conservadores"
+            },
+            "share": {
+              "q05": 0.0,
+              "q10": 0.0,
+              "q25": 0.0,
+              "q50": 0.0,
+              "q75": 0.0,
+              "q90": 0.0,
+              "q95": 0.0
+            },
+            "p_win": 0.0
+          },
+          "lab": {
+            "labels": {
+              "fr": "Labour",
+              "en": "Labour",
+              "es": "Laborista"
+            },
+            "share": {
+              "q05": 0.0,
+              "q10": 0.0,
+              "q25": 0.0,
+              "q50": 0.0,
+              "q75": 0.0,
+              "q90": 0.0,
+              "q95": 0.0
+            },
+            "p_win": 0.0
+          },
+          "ld": {
+            "labels": {
+              "fr": "Libéraux-démocrates",
+              "en": "Liberal Democrats",
+              "es": "Liberal-demócratas"
+            },
+            "share": {
+              "q05": 0.0,
+              "q10": 0.0,
+              "q25": 0.0,
+              "q50": 0.0,
+              "q75": 0.0,
+              "q90": 0.0,
+              "q95": 0.0
+            },
+            "p_win": 0.0
+          },
+          "grn": {
+            "labels": {
+              "fr": "Verts",
+              "en": "Green",
+              "es": "Verdes"
+            },
+            "share": {
+              "q05": 0.0,
+              "q10": 0.0,
+              "q25": 0.0,
+              "q50": 0.0,
+              "q75": 0.0,
+              "q90": 0.0,
+              "q95": 0.0
+            },
+            "p_win": 0.0
+          },
+          "binface": {
+            "labels": {
+              "fr": "Count Binface",
+              "en": "Count Binface",
+              "es": "Count Binface"
+            },
+            "share": {
+              "q05": 25.18,
+              "q10": 27.17,
+              "q25": 30.89,
+              "q50": 35.21,
+              "q75": 39.93,
+              "q90": 44.52,
+              "q95": 47.34
+            },
+            "p_win": 0.1041
+          },
+          "oth": {
+            "labels": {
+              "fr": "Autres candidats",
+              "en": "Other candidates",
+              "es": "Otras candidaturas"
+            },
+            "share": {
+              "q05": 5.8,
+              "q10": 6.79,
+              "q25": 8.58,
+              "q50": 10.71,
+              "q75": 13.04,
+              "q90": 15.33,
+              "q95": 16.73
+            },
+            "p_win": 0.0
+          }
+        }
+      },
+      "noF|boycott_repeat|bin|resignation": {
+        "id": "noF|boycott_repeat|bin|resignation",
+        "farage_stands": false,
+        "field": "boycott_repeat",
+        "binface_stands": true,
+        "trigger": "resignation",
+        "labels": {},
+        "notes": {},
+        "p_reform_hold": 0.963,
+        "candidates": {
+          "ref": {
+            "labels": {
+              "fr": "Reform UK",
+              "en": "Reform UK",
+              "es": "Reform UK"
+            },
+            "share": {
+              "q05": 45.12,
+              "q10": 47.83,
+              "q25": 52.16,
+              "q50": 56.75,
+              "q75": 61.05,
+              "q90": 64.77,
+              "q95": 66.89
+            },
+            "p_win": 0.963
+          },
+          "con": {
+            "labels": {
+              "fr": "Conservateurs",
+              "en": "Conservative",
+              "es": "Conservadores"
+            },
+            "share": {
+              "q05": 0.0,
+              "q10": 0.0,
+              "q25": 0.0,
+              "q50": 0.0,
+              "q75": 0.0,
+              "q90": 0.0,
+              "q95": 0.0
+            },
+            "p_win": 0.0
+          },
+          "lab": {
+            "labels": {
+              "fr": "Labour",
+              "en": "Labour",
+              "es": "Laborista"
+            },
+            "share": {
+              "q05": 0.0,
+              "q10": 0.0,
+              "q25": 0.0,
+              "q50": 0.0,
+              "q75": 0.0,
+              "q90": 0.0,
+              "q95": 0.0
+            },
+            "p_win": 0.0
+          },
+          "ld": {
+            "labels": {
+              "fr": "Libéraux-démocrates",
+              "en": "Liberal Democrats",
+              "es": "Liberal-demócratas"
+            },
+            "share": {
+              "q05": 0.0,
+              "q10": 0.0,
+              "q25": 0.0,
+              "q50": 0.0,
+              "q75": 0.0,
+              "q90": 0.0,
+              "q95": 0.0
+            },
+            "p_win": 0.0
+          },
+          "grn": {
+            "labels": {
+              "fr": "Verts",
+              "en": "Green",
+              "es": "Verdes"
+            },
+            "share": {
+              "q05": 0.0,
+              "q10": 0.0,
+              "q25": 0.0,
+              "q50": 0.0,
+              "q75": 0.0,
+              "q90": 0.0,
+              "q95": 0.0
+            },
+            "p_win": 0.0
+          },
+          "binface": {
+            "labels": {
+              "fr": "Count Binface",
+              "en": "Count Binface",
+              "es": "Count Binface"
+            },
+            "share": {
+              "q05": 23.73,
+              "q10": 25.7,
+              "q25": 29.02,
+              "q50": 32.96,
+              "q75": 37.27,
+              "q90": 41.37,
+              "q95": 43.81
+            },
+            "p_win": 0.037
+          },
+          "oth": {
+            "labels": {
+              "fr": "Autres candidats",
+              "en": "Other candidates",
+              "es": "Otras candidaturas"
+            },
+            "share": {
+              "q05": 5.48,
+              "q10": 6.43,
+              "q25": 8.1,
+              "q50": 10.05,
+              "q75": 12.18,
+              "q90": 14.28,
+              "q95": 15.66
+            },
+            "p_win": 0.0
+          }
+        }
+      },
+      "noF|boycott_repeat|nobin|forced": {
+        "id": "noF|boycott_repeat|nobin|forced",
+        "farage_stands": false,
+        "field": "boycott_repeat",
+        "binface_stands": false,
+        "trigger": "forced",
+        "labels": {},
+        "notes": {},
+        "p_reform_hold": 0.9998,
+        "candidates": {
+          "ref": {
+            "labels": {
+              "fr": "Reform UK",
+              "en": "Reform UK",
+              "es": "Reform UK"
+            },
+            "share": {
+              "q05": 72.94,
+              "q10": 75.69,
+              "q25": 79.58,
+              "q50": 83.39,
+              "q75": 86.77,
+              "q90": 89.55,
+              "q95": 91.12
+            },
+            "p_win": 0.9998
+          },
+          "con": {
+            "labels": {
+              "fr": "Conservateurs",
+              "en": "Conservative",
+              "es": "Conservadores"
+            },
+            "share": {
+              "q05": 0.0,
+              "q10": 0.0,
+              "q25": 0.0,
+              "q50": 0.0,
+              "q75": 0.0,
+              "q90": 0.0,
+              "q95": 0.0
+            },
+            "p_win": 0.0
+          },
+          "lab": {
+            "labels": {
+              "fr": "Labour",
+              "en": "Labour",
+              "es": "Laborista"
+            },
+            "share": {
+              "q05": 0.0,
+              "q10": 0.0,
+              "q25": 0.0,
+              "q50": 0.0,
+              "q75": 0.0,
+              "q90": 0.0,
+              "q95": 0.0
+            },
+            "p_win": 0.0
+          },
+          "ld": {
+            "labels": {
+              "fr": "Libéraux-démocrates",
+              "en": "Liberal Democrats",
+              "es": "Liberal-demócratas"
+            },
+            "share": {
+              "q05": 0.0,
+              "q10": 0.0,
+              "q25": 0.0,
+              "q50": 0.0,
+              "q75": 0.0,
+              "q90": 0.0,
+              "q95": 0.0
+            },
+            "p_win": 0.0
+          },
+          "grn": {
+            "labels": {
+              "fr": "Verts",
+              "en": "Green",
+              "es": "Verdes"
+            },
+            "share": {
+              "q05": 0.0,
+              "q10": 0.0,
+              "q25": 0.0,
+              "q50": 0.0,
+              "q75": 0.0,
+              "q90": 0.0,
+              "q95": 0.0
+            },
+            "p_win": 0.0
+          },
+          "binface": {
+            "labels": {
+              "fr": "Count Binface",
+              "en": "Count Binface",
+              "es": "Count Binface"
+            },
+            "share": {
+              "q05": 0.0,
+              "q10": 0.0,
+              "q25": 0.0,
+              "q50": 0.0,
+              "q75": 0.0,
+              "q90": 0.0,
+              "q95": 0.0
+            },
+            "p_win": 0.0
+          },
+          "oth": {
+            "labels": {
+              "fr": "Autres candidats",
+              "en": "Other candidates",
+              "es": "Otras candidaturas"
+            },
+            "share": {
+              "q05": 8.88,
+              "q10": 10.45,
+              "q25": 13.23,
+              "q50": 16.61,
+              "q75": 20.42,
+              "q90": 24.31,
+              "q95": 27.06
+            },
+            "p_win": 0.0002
+          }
+        }
+      },
+      "noF|boycott_repeat|nobin|resignation": {
+        "id": "noF|boycott_repeat|nobin|resignation",
+        "farage_stands": false,
+        "field": "boycott_repeat",
+        "binface_stands": false,
+        "trigger": "resignation",
+        "labels": {},
+        "notes": {},
+        "p_reform_hold": 1.0,
+        "candidates": {
+          "ref": {
+            "labels": {
+              "fr": "Reform UK",
+              "en": "Reform UK",
+              "es": "Reform UK"
+            },
+            "share": {
+              "q05": 76.14,
+              "q10": 78.26,
+              "q25": 81.51,
+              "q50": 84.92,
+              "q75": 87.87,
+              "q90": 90.44,
+              "q95": 91.83
+            },
+            "p_win": 1.0
+          },
+          "con": {
+            "labels": {
+              "fr": "Conservateurs",
+              "en": "Conservative",
+              "es": "Conservadores"
+            },
+            "share": {
+              "q05": 0.0,
+              "q10": 0.0,
+              "q25": 0.0,
+              "q50": 0.0,
+              "q75": 0.0,
+              "q90": 0.0,
+              "q95": 0.0
+            },
+            "p_win": 0.0
+          },
+          "lab": {
+            "labels": {
+              "fr": "Labour",
+              "en": "Labour",
+              "es": "Laborista"
+            },
+            "share": {
+              "q05": 0.0,
+              "q10": 0.0,
+              "q25": 0.0,
+              "q50": 0.0,
+              "q75": 0.0,
+              "q90": 0.0,
+              "q95": 0.0
+            },
+            "p_win": 0.0
+          },
+          "ld": {
+            "labels": {
+              "fr": "Libéraux-démocrates",
+              "en": "Liberal Democrats",
+              "es": "Liberal-demócratas"
+            },
+            "share": {
+              "q05": 0.0,
+              "q10": 0.0,
+              "q25": 0.0,
+              "q50": 0.0,
+              "q75": 0.0,
+              "q90": 0.0,
+              "q95": 0.0
+            },
+            "p_win": 0.0
+          },
+          "grn": {
+            "labels": {
+              "fr": "Verts",
+              "en": "Green",
+              "es": "Verdes"
+            },
+            "share": {
+              "q05": 0.0,
+              "q10": 0.0,
+              "q25": 0.0,
+              "q50": 0.0,
+              "q75": 0.0,
+              "q90": 0.0,
+              "q95": 0.0
+            },
+            "p_win": 0.0
+          },
+          "binface": {
+            "labels": {
+              "fr": "Count Binface",
+              "en": "Count Binface",
+              "es": "Count Binface"
+            },
+            "share": {
+              "q05": 0.0,
+              "q10": 0.0,
+              "q25": 0.0,
+              "q50": 0.0,
+              "q75": 0.0,
+              "q90": 0.0,
+              "q95": 0.0
+            },
+            "p_win": 0.0
+          },
+          "oth": {
+            "labels": {
+              "fr": "Autres candidats",
+              "en": "Other candidates",
+              "es": "Otras candidaturas"
+            },
+            "share": {
+              "q05": 8.17,
+              "q10": 9.56,
+              "q25": 12.13,
+              "q50": 15.08,
+              "q75": 18.49,
+              "q90": 21.74,
+              "q95": 23.86
+            },
+            "p_win": 0.0
+          }
+        }
+      }
+    },
+    "validation_august_2026": {
+      "scenario": "boycott répété, Farage présent, démission choisie — le champ du 13 août",
+      "rows": [
+        {
+          "bucket": "ref",
+          "modelled_q50": 64.57,
+          "actual_pct": 63.34,
+          "error_pts": 1.23,
+          "inside_q10_q90": true
+        },
+        {
+          "bucket": "binface",
+          "modelled_q50": 26.53,
+          "actual_pct": 26.93,
+          "error_pts": -0.4,
+          "inside_q10_q90": true
+        },
+        {
+          "bucket": "oth",
+          "modelled_q50": 8.71,
+          "actual_pct": 8.74,
+          "error_pts": -0.03,
+          "inside_q10_q90": true
+        }
+      ],
+      "note_fr": "Le moteur rejoué sur août place Binface à moins d'un point du réel, ce qui valide la recalibration des reports orphelins. Il laisse Reform environ quatre points trop haut : la part restante de l'écart n'est pas expliquée et n'est pas maquillée."
+    }
+  },
+  "generated_at": "2026-09-03T20:29:18.786601+00:00",
+  "run_date": "2026-09-03"
+}
