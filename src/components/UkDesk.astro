@@ -9,6 +9,7 @@ import MethodologyNote from './MethodologyNote.astro';
 import DeskSections from './DeskSections.astro';
 import ukMeta from '../../web_data/uk/latest.json';
 import holbornSpecial from '../../web_data/uk-holborn-special/latest.json';
+import clactonRecall from '../../web_data/uk-clacton-recall/latest.json';
 import { ukByelections, ukResolvedByelections2026 } from '../data/ukByelections';
 
 type Locale = 'en' | 'fr' | 'es';
@@ -41,6 +42,9 @@ const grnShare = raceModel.candidates.grn.share;
 const pGreen = Math.round(raceModel.candidates.grn.p_win * 1000) / 10;
 const polanski = (raceModel.scenarios as any[]).find((sc) => sc.id === 'polanski_runs');
 const pHoldIfPolanski = Math.round((polanski?.p_lab_hold ?? 0) * 1000) / 10;
+
+// Clacton 2.0 : la nouvelle du jour mène le desk.
+const recallHeld = ((clactonRecall as any).horizons['2029-06-30']?.p_byelection_held ?? 0) as number;
 
 const partyLabel = (p: any) =>
   locale === 'fr' ? p.label_fr ?? p.label_en : locale === 'es' ? p.label_es ?? p.label_en : p.label_en;
@@ -76,7 +80,11 @@ const copy = {
     raceCta: 'Open the race desk →',
     resolvedLabel: '2026 by-elections — called and settled',
     resolvedNote: 'Clacton settled on 13 August: Reform hold, and the Commons vacancy that had been showing here is gone.',
-    watchCta: 'Could Clacton go again? The recall chain, and 24 race scenarios →',
+    leadKicker: '3 SEP 2026 · CLACTON',
+    leadTitle: 'Farage is filmed celebrating a secret foreign-funded polling scheme. Could Clacton vote again?',
+    leadBody: 'According to Channel 4 News and the investigative group Verbatim, senior Reform UK figures had three polls paid for by a US company and published as independent. Reform UK and Mr Farage deny the allegations in full; nothing has been charged. We are not waiting for that to resolve — the recall chain is modelled, and so is every field the race could take.',
+    leadStat: 'a second by-election by mid-2029',
+    leadCta: 'The recall chain and 24 race scenarios →',
     cards: [
       { href: '/en/uk/general-election/', eyebrow: 'General election projection', title: 'U.K. General Election', body: `650-seat projection. Bayesian poll aggregation, ${meta.n_simulations.toLocaleString('en-GB')} Monte Carlo simulations, seat-level probabilities.`, cta: 'Open projection →' },
       { href: '/en/uk/constituencies/', eyebrow: 'Constituency profiles', title: '650 Westminster constituencies', body: 'A page for every seat: projection, sitting MP, 2024 result, ONS demographics and neighbouring seats.', cta: 'Explore all 650 →' },
@@ -119,7 +127,11 @@ const copy = {
     raceCta: 'Ouvrir le desk de course →',
     resolvedLabel: 'Partielles 2026 — jugées et réglées',
     resolvedNote: 'Clacton a été tranchée le 13 août : maintien Reform, et la vacance qui s’affichait ici a disparu.',
-    watchCta: 'Clacton peut-elle revoter ? La chaîne de rappel et 24 scénarios de course →',
+    leadKicker: '3 SEPT. 2026 · CLACTON',
+    leadTitle: 'Farage filmé en train de se féliciter d’un montage de sondages payés de l’étranger. Clacton peut-elle revoter ?',
+    leadBody: 'Selon Channel 4 News et le groupe d’investigation Verbatim, des figures senior de Reform UK ont fait payer trois sondages par une société américaine, publiés comme indépendants. Reform UK et M. Farage nient l’ensemble des allégations ; rien n’est accusé. On n’attend pas que ça se dénoue — la chaîne de rappel est modélisée, et tous les champs que la course pourrait prendre aussi.',
+    leadStat: 'une seconde partielle d’ici mi-2029',
+    leadCta: 'La chaîne de rappel et 24 scénarios de course →',
     cards: [
       { href: '/fr/uk/general-election/', eyebrow: 'Projection de la générale', title: 'Générale britannique', body: `Projection des 650 sièges. Agrégation bayésienne des sondages, ${meta.n_simulations.toLocaleString('fr-FR')} simulations Monte Carlo, probabilités par siège.`, cta: 'Ouvrir la projection →' },
       { href: '/fr/uk/circonscriptions/', eyebrow: 'Fiches de circonscription', title: '650 circonscriptions de Westminster', body: 'Une page par siège : projection, député en poste, résultat 2024, démographie ONS et sièges voisins.', cta: 'Explorer les 650 →' },
@@ -162,7 +174,11 @@ const copy = {
     raceCta: 'Abrir el desk de la contienda →',
     resolvedLabel: 'Parciales de 2026 — resueltas',
     resolvedNote: 'Clacton se resolvió el 13 de agosto: retención de Reform, y la vacante que aparecía aquí ya no existe.',
-    watchCta: '¿Puede Clacton volver a votar? La cadena de recall y 24 escenarios →',
+    leadKicker: '3 SEP 2026 · CLACTON',
+    leadTitle: 'Farage, filmado celebrando un montaje de encuestas pagadas desde el extranjero. ¿Puede Clacton volver a votar?',
+    leadBody: 'Según Channel 4 News y el grupo de investigación Verbatim, figuras senior de Reform UK hicieron pagar tres encuestas a una empresa estadounidense, publicadas como independientes. Reform UK y el señor Farage niegan todas las alegaciones; nada ha sido imputado. No esperamos a que se resuelva: la cadena de recall está modelada, y también cada campo que la contienda podría tomar.',
+    leadStat: 'una segunda parcial antes de mediados de 2029',
+    leadCta: 'La cadena de recall y 24 escenarios →',
     cards: [
       { href: '/es/uk/general-election/', eyebrow: 'Proyección de las generales', title: 'Generales británicas', body: `Proyección de 650 escaños. Agregación bayesiana de encuestas, ${meta.n_simulations.toLocaleString('es-ES')} simulaciones Monte Carlo, probabilidades por escaño.`, cta: 'Abrir la proyección →' },
       { href: '/es/uk/circunscripciones/', eyebrow: 'Fichas de circunscripción', title: '650 circunscripciones de Westminster', body: 'Una página por escaño: proyección, diputado en ejercicio, resultado 2024, demografía ONS y escaños vecinos.', cta: 'Explorar las 650 →' },
@@ -240,6 +256,21 @@ const dateLabel = (iso: string) => {
 
   <section class="content-band">
     <div class="container">
+      <a class="ukdesk-lead" href={`/${locale}/uk/byelections/clacton-next/`}>
+        <p class="eyebrow">{t.leadKicker}</p>
+        <h2>{t.leadTitle}</h2>
+        <p class="ukdesk-lead-body">{t.leadBody}</p>
+        <p class="ukdesk-lead-figure">
+          <strong>{fmt1(recallHeld * 100)}%</strong>
+          <span>{t.leadStat}</span>
+        </p>
+        <footer><span class="cta-link">{t.leadCta}</span></footer>
+      </a>
+    </div>
+  </section>
+
+  <section class="content-band">
+    <div class="container">
       <article class="note-card" style="max-width:900px;border-left:4px solid var(--blue);">
         <p class="eyebrow">{t.transitionKicker}</p>
         <h2 style="font-family:var(--serif);font-size:clamp(1.7rem,3vw,2.5rem);margin:.4rem 0 1rem;">{t.transitionTitle}</h2>
@@ -305,9 +336,6 @@ const dateLabel = (iso: string) => {
             </div>
           ))}
           <p class="ukdesk-resolved-note">{t.resolvedNote}</p>
-          <p class="ukdesk-resolved-watch">
-            <a href={`/${locale}/uk/byelections/clacton-next/`}>{t.watchCta}</a>
-          </p>
         </div>
       </div>
     </div>
@@ -336,6 +364,38 @@ const dateLabel = (iso: string) => {
 </EditorialLayout>
 
 <style>
+  .ukdesk-lead {
+    display: block;
+    max-width: 900px;
+    padding: 26px 28px;
+    border: 1px solid var(--rule);
+    border-left: 5px solid #12B6CF;
+    border-radius: 5px;
+    background: var(--card);
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 140ms ease;
+  }
+  .ukdesk-lead:hover { border-color: #12B6CF; }
+  .ukdesk-lead h2 {
+    font-family: var(--serif);
+    font-size: clamp(1.6rem, 3.1vw, 2.4rem);
+    line-height: 1.14;
+    letter-spacing: -0.012em;
+    margin: 0.4rem 0 0.9rem;
+  }
+  .ukdesk-lead-body { margin: 0; font-size: 15px; line-height: 1.65; color: var(--ink-2); }
+  .ukdesk-lead-figure {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin: 18px 0 0;
+    padding-top: 16px;
+    border-top: 1px solid var(--rule-2);
+  }
+  .ukdesk-lead-figure strong { font-family: var(--serif); font-size: 40px; font-weight: 430; letter-spacing: -0.02em; line-height: 1; }
+  .ukdesk-lead-figure span { font-family: var(--mono); font-size: 11px; letter-spacing: 0.05em; color: var(--ink-3); }
+  .ukdesk-lead footer { margin-top: 16px; }
   .ukdesk-label {
     font-family: var(--mono);
     font-size: 11px;
@@ -373,7 +433,6 @@ const dateLabel = (iso: string) => {
     color: var(--ink-2);
   }
   .ukdesk-resolved { border: 1px solid var(--rule); border-radius: 6px; background: var(--card); padding: 20px; }
-  .ukdesk-resolved-watch { margin-top: 10px; font-size: 13px; line-height: 1.5; }
   .ukdesk-resolved-note {
     margin-top: 14px;
     padding-top: 12px;
