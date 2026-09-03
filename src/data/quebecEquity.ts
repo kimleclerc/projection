@@ -29,9 +29,30 @@ export interface Placement {
   p_permutation: number;
   p_wilcoxon: number;
   prob_superiorite: number;
+  /** Femmes dans le quintile le PLUS DÉFAVORABLE du parti (percentile <= 20),
+   *  pas le meilleur : le nom « q5 » se lit à l'envers. */
   q5_femmes_obs: number;
   q5_femmes_attendu: number;
   p_fisher_q5: number;
+}
+
+/**
+ * Zone gagnable ABSOLUE, en complément du percentile de placement. Le
+ * percentile est un rang dans la carte du parti : chez un parti à petite zone
+ * de victoire, son haut classe encore des défaites. `n` est publié avec le
+ * pourcentage parce que sans lui il n'est pas interprétable — 3 femmes sur
+ * 7 sièges bougent de 14 points pour une seule circonscription.
+ */
+export interface ZoneGagnableSeuil {
+  n: number;
+  femmes: number;
+  pct_femmes: number | null;
+}
+
+export interface ZoneGagnable {
+  sieges_esperes: number;
+  p50: ZoneGagnableSeuil;
+  p20: ZoneGagnableSeuil;
 }
 
 export interface Nomination {
@@ -47,13 +68,19 @@ export interface Nomination {
 export interface EquityCycle {
   cycle: string;
   n_total: number;
+  /** Toutes candidatures publiées, indépendants compris. */
   n_inconnu: number;
+  /** Candidatures des cinq partis — le périmètre que l'indice mesure. */
+  n_mesure?: number;
+  /** Genres inconnus DANS ce périmètre : c'est ce chiffre qu'il faut afficher. */
+  n_inconnu_mesure?: number;
   n_non_binaire: number;
   provisoire: boolean;
   objectif_sieges: number;
   meta?: { generated_at?: string; target_women?: number; target_source?: string };
   partis: Record<string, { parite_comptable?: PariteComptable; placement?: Placement }>;
   nominations: Record<string, Nomination>;
+  zone_gagnable?: Record<string, ZoneGagnable>;
   pooled: { ecart_pts: number; p_permutation_stratifiee: number; n: number };
 }
 
