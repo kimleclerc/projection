@@ -255,7 +255,7 @@ const labelFor = (party: string) =>
       <div class="container">
         <CanadaByelectionLive
           eventId={config.liveEventId}
-          ridingId={config.ridingId}
+          ridingId={config.liveRidingId ?? config.ridingId}
           lang={lang}
           client:load
         />

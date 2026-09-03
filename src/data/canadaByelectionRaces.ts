@@ -24,6 +24,10 @@ export interface ByelectionRaceConfig {
   province: string;
   /** Événement de résultats live, absent hors soirée électorale prise en charge. */
   liveEventId?: string;
+  // The engine keys races by the jurisdiction's OWN district number (Ontario
+  // publishes 37, not the zero-padded 00037 the rest of the site uses). When the
+  // two differ, this is the id to match the live payload on.
+  liveRidingId?: string;
   title: L<string>;
   description: L<string>;
   kicker: L<string>;

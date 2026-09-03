@@ -47,6 +47,8 @@ export const ontarioByelectionRaces = {
   'hamilton-est-stoney-creek': {
     slug: 'hamilton-est-stoney-creek',
     ridingId: '00037',
+    liveEventId: 'on-2026-09-03',
+    liveRidingId: '37',
     dataPath: 'ontario-byelection-hamilton-est-stoney-creek',
     currentPage: 'canada',
     status: 'scheduled',
@@ -110,6 +112,8 @@ export const ontarioByelectionRaces = {
   'scarborough-sud-ouest': {
     slug: 'scarborough-sud-ouest',
     ridingId: '00098',
+    liveEventId: 'on-2026-09-03',
+    liveRidingId: '98',
     dataPath: 'ontario-byelection-scarborough-sud-ouest',
     currentPage: 'canada',
     status: 'scheduled',
@@ -173,6 +177,8 @@ export const ontarioByelectionRaces = {
   'york-simcoe': {
     slug: 'york-simcoe',
     ridingId: '00121',
+    liveEventId: 'on-2026-09-03',
+    liveRidingId: '121',
     dataPath: 'ontario-byelection-york-simcoe',
     currentPage: 'canada',
     status: 'scheduled',
