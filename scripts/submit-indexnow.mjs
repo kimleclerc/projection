@@ -115,6 +115,22 @@ function readSitemapUrls() {
   return [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
 }
 
+/** IndexNow REFUSE les chemins relatifs, en silence pour le lot entier.
+ *
+ *  Mesuré le 2026-09-04 : `{"urlList":["/en/us/governors/"]}` → HTTP 422 ;
+ *  la même URL en absolu → HTTP 200. Or CURATED ne porte que des chemins
+ *  (`'/en/'`, `'/en/us/senate'`, …) et le lot ne passait que parce que les
+ *  pages tirées du sitemap, elles, sont absolues : l'API acceptait la requête
+ *  et les 86 hubs curatés étaient perdus à chaque envoi. Le script annonçait
+ *  « HTTP 200 ✓ » sans avoir soumis ce qu'il existe pour soumettre.
+ *
+ *  Les entrées déjà absolues passent inchangées (cas du sitemap et de --url). */
+function absolute(entry) {
+  const value = String(entry).trim();
+  if (/^https?:\/\//i.test(value)) return value;
+  return `https://${HOST}${value.startsWith('/') ? '' : '/'}${value}`;
+}
+
 async function submitBatch(urlList) {
   const body = JSON.stringify({ host: HOST, key: KEY, keyLocation: KEY_LOCATION, urlList });
   const res = await fetch(ENDPOINT, {
@@ -150,7 +166,7 @@ async function main() {
   }
 
   for (let i = 0; i < urls.length; i += BATCH_SIZE) {
-    const batch = urls.slice(i, i + BATCH_SIZE);
+    const batch = urls.slice(i, i + BATCH_SIZE).map(absolute);
     const status = await submitBatch(batch);
     // IndexNow returns 200 (accepted) or 202 (accepted, pending validation).
     const ok = status === 200 || status === 202;
