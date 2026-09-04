@@ -34,6 +34,12 @@ const PROJECTION_LABEL: L<string> = {
 };
 const SECTION: L<string> = { en: 'Ontario', fr: 'Ontario', es: 'Ontario' };
 
+const LIVE_SOURCE: L<string> = {
+  en: 'Elections Ontario',
+  fr: 'Élections Ontario',
+  es: 'Elections Ontario',
+};
+
 const attach = {
   hubPath: HUB,
   hubLabel: HUB_LABEL,
@@ -48,6 +54,7 @@ export const ontarioByelectionRaces = {
     slug: 'hamilton-est-stoney-creek',
     ridingId: '00037',
     liveEventId: 'on-2026-09-03',
+    liveSourceName: LIVE_SOURCE,
     liveRidingId: '37',
     dataPath: 'ontario-byelection-hamilton-est-stoney-creek',
     currentPage: 'canada',
@@ -113,6 +120,7 @@ export const ontarioByelectionRaces = {
     slug: 'scarborough-sud-ouest',
     ridingId: '00098',
     liveEventId: 'on-2026-09-03',
+    liveSourceName: LIVE_SOURCE,
     liveRidingId: '98',
     dataPath: 'ontario-byelection-scarborough-sud-ouest',
     currentPage: 'canada',
@@ -178,6 +186,7 @@ export const ontarioByelectionRaces = {
     slug: 'york-simcoe',
     ridingId: '00121',
     liveEventId: 'on-2026-09-03',
+    liveSourceName: LIVE_SOURCE,
     liveRidingId: '121',
     dataPath: 'ontario-byelection-york-simcoe',
     currentPage: 'canada',

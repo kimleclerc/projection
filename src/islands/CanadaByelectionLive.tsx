@@ -34,12 +34,12 @@ type LivePayload = {
 };
 
 const copy = {
-  en: { title: 'Live results', connecting: 'Connecting to the official count…', waiting: 'Waiting for the first official results', leading: 'Current leader', projected: 'Vote-Scope projects a win for', polls: 'Polls reporting', votes: 'votes', updated: 'Updated', source: 'Preliminary results · Elections Canada', unavailable: 'Live results temporarily unavailable', stale: 'Count paused — no new official data for', minutes: 'min', calledAt: 'Projected at', pollsShort: 'polls' },
-  fr: { title: 'Résultats en direct', connecting: 'Connexion au dépouillement officiel…', waiting: 'En attente des premiers résultats officiels', leading: 'Tendance actuelle', projected: 'Vote-Scope projette une victoire de', polls: 'Bureaux dépouillés', votes: 'voix', updated: 'Mise à jour', source: 'Résultats préliminaires · Élections Canada', unavailable: 'Résultats en direct temporairement indisponibles', stale: 'Dépouillement en pause — aucune donnée officielle depuis', minutes: 'min', calledAt: 'Projeté à', pollsShort: 'bureaux' },
-  es: { title: 'Resultados en directo', connecting: 'Conectando con el recuento oficial…', waiting: 'A la espera de los primeros resultados oficiales', leading: 'Tendencia actual', projected: 'Vote-Scope proyecta la victoria de', polls: 'Mesas escrutadas', votes: 'votos', updated: 'Actualizado', source: 'Resultados preliminares · Elections Canada', unavailable: 'Resultados en directo temporalmente no disponibles', stale: 'Recuento en pausa — sin datos oficiales desde hace', minutes: 'min', calledAt: 'Proyectado con', pollsShort: 'mesas' },
+  en: { title: 'Live results', connecting: 'Connecting to the official count…', waiting: 'Waiting for the first official results', leading: 'Current leader', projected: 'Vote-Scope projects a win for', polls: 'Polls reporting', votes: 'votes', updated: 'Updated', source: 'Preliminary results', sourceDefault: 'Elections Canada', unavailable: 'Live results temporarily unavailable', stale: 'Count paused — no new official data for', minutes: 'min', calledAt: 'Projected at', pollsShort: 'polls' },
+  fr: { title: 'Résultats en direct', connecting: 'Connexion au dépouillement officiel…', waiting: 'En attente des premiers résultats officiels', leading: 'Tendance actuelle', projected: 'Vote-Scope projette une victoire de', polls: 'Bureaux dépouillés', votes: 'voix', updated: 'Mise à jour', source: 'Résultats préliminaires', sourceDefault: 'Élections Canada', unavailable: 'Résultats en direct temporairement indisponibles', stale: 'Dépouillement en pause — aucune donnée officielle depuis', minutes: 'min', calledAt: 'Projeté à', pollsShort: 'bureaux' },
+  es: { title: 'Resultados en directo', connecting: 'Conectando con el recuento oficial…', waiting: 'A la espera de los primeros resultados oficiales', leading: 'Tendencia actual', projected: 'Vote-Scope proyecta la victoria de', polls: 'Mesas escrutadas', votes: 'votos', updated: 'Actualizado', source: 'Resultados preliminares', sourceDefault: 'Elections Canada', unavailable: 'Resultados en directo temporalmente no disponibles', stale: 'Recuento en pausa — sin datos oficiales desde hace', minutes: 'min', calledAt: 'Proyectado con', pollsShort: 'mesas' },
 };
 
-export default function CanadaByelectionLive({ eventId, ridingId, lang }: { eventId: string; ridingId: string; lang: Locale }) {
+export default function CanadaByelectionLive({ eventId, ridingId, lang, sourceName }: { eventId: string; ridingId: string; lang: Locale; sourceName?: string }) {
   const [data, setData] = useState<LivePayload | null>(null);
   const [failed, setFailed] = useState(false);
   const [now, setNow] = useState(() => Date.now());
@@ -121,6 +121,6 @@ export default function CanadaByelectionLive({ eventId, ridingId, lang }: { even
         </div>)}
       </div>
     </>}
-    <p className="cblive-source">{t.source}</p>
+    <p className="cblive-source">{t.source} · {sourceName || t.sourceDefault}</p>
   </section>;
 }
