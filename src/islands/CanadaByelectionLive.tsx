@@ -22,7 +22,7 @@ type Call = {
   /** The count frozen at approval time — never re-derived from the live payload. */
   as_of?: { polls?: { reported?: number | null; total?: number | null; pct?: number | null } };
 };
-type Projection = { riding_id: string; candidates: { party_code: string; color?: string }[] };
+type Projection = { riding_id: string; candidates: { party_code: string; color?: string; party_label?: Partial<Record<Locale, string>> }[] };
 type LivePayload = {
   generated_at?: string;
   source?: { source_updated_at?: string; healthy?: boolean };
@@ -81,6 +81,13 @@ export default function CanadaByelectionLive({ eventId, ridingId, lang, sourceNa
   const colors = useMemo(() => new Map((data?.projections ?? [])
     .find((item) => item.riding_id === ridingId)?.candidates
     .map((candidate) => [candidate.party_code, candidate.color]) ?? []), [data, ridingId]);
+  // Party codes are namespaced by jurisdiction in the engine (on_pc, qc_caq), so
+  // upper-casing the raw code prints "ON_PC" at the reader. Prefer the label the
+  // projection already carries; strip the namespace only as a fallback.
+  const labels = useMemo(() => new Map((data?.projections ?? [])
+    .find((item) => item.riding_id === ridingId)?.candidates
+    .map((candidate) => [candidate.party_code, candidate.party_label?.[lang]]) ?? []), [data, ridingId, lang]);
+  const partyLabel = (code: string) => labels.get(code) || code.replace(/^(on|qc|us|uk|fr)_/, '').toUpperCase();
   const candidates = (race?.candidates ?? []).filter((candidate) => candidate.votes > 0).slice(0, 5);
   const leader = candidates[0];
   const pollPct = race?.polls?.pct ?? (race?.polls?.reported != null && race?.polls?.total ? 100 * race.polls.reported / race.polls.total : 0);
@@ -115,7 +122,7 @@ export default function CanadaByelectionLive({ eventId, ridingId, lang, sourceNa
       <div className="cblive-results">
         {candidates.map((candidate) => <div className="cblive-row" key={`${candidate.party_code}-${candidate.candidate_name}`}>
           <i className="cblive-dot" style={{ background: colors.get(candidate.party_code) ?? '#8c8c8c' }} />
-          <span><strong>{candidate.candidate_name}</strong><small>{candidate.party_code.toUpperCase()}</small></span>
+          <span><strong>{candidate.candidate_name}</strong><small>{partyLabel(candidate.party_code)}</small></span>
           <b>{candidate.votes.toLocaleString(locale)} {t.votes}</b>
           <em>{candidate.vote_pct.toLocaleString(locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 })} %</em>
         </div>)}
