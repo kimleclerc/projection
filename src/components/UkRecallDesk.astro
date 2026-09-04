@@ -26,6 +26,7 @@ const race = d.race;
 const chain = d.chain;
 const horizons = d.horizons;
 const validation = race.validation_august_2026;
+const published = race.published_forecast_august_2026;
 
 const BUCKETS = ['ref', 'con', 'lab', 'ld', 'grn', 'binface', 'oth'];
 const COLORS: Record<string, string> = {
@@ -35,6 +36,11 @@ const COLORS: Record<string, string> = {
 
 const nf = (v: number, dg = 1) => (locale === 'en' ? v.toFixed(dg) : v.toFixed(dg).replace('.', ','));
 const pct = (v: number, dg = 1) => nf(v * 100, dg);
+const dayLabel = (iso: string) =>
+  new Date(`${iso}T12:00:00`).toLocaleDateString(
+    locale === 'en' ? 'en-GB' : locale === 'es' ? 'es-ES' : 'fr-FR',
+    { day: 'numeric', month: 'long', year: 'numeric' },
+  );
 const canonical = `https://vote-scope.com/${locale}/uk/byelections/clacton-next/`;
 const alternates = {
   en: 'https://vote-scope.com/en/uk/byelections/clacton-next/',
@@ -60,6 +66,9 @@ const copy = {
     sourceBody: 'According to Channel 4 News and the investigative group Verbatim, who spent a year on the story, senior Reform UK figures had three JL Partners polls — £32,500 in all — paid for by a US company and published as independent by the Telegraph and the Times. Farage was filmed at a dinner in Clacton in late July: “It worked. Boom.” A further £500,000, routed from an American father through his UK-resident son, was discussed and never materialised. Reform UK, Nigel Farage, James Orr and Dan Jukes deny the allegations in full. No charge has been brought and no court has ruled.',
     sourceStance: 'We are not waiting for that to resolve. We are ready for every branch it can take — including the one where nothing happens at all.',
     sourceLinks: 'Watch and read',
+    feedLabel: 'The story as reported, source by source',
+    feedIntro: 'A developing story, and we are not the ones reporting it. Each line below is attributed: a named outlet, or a public statement by the person or party who made it. We report the versions as they were put out — we do not adjudicate between them.',
+    feedKindReport: 'Reported by', feedKindReaction: 'Said', feedKindResponse: 'Response',
     linkVideo: 'The full investigation (Channel 4 News, YouTube)',
     linkArticle: 'Channel 4 News — the written story',
     linkSubstack: 'Channel 4 News — the longer Substack version',
@@ -77,9 +86,12 @@ const copy = {
     petitionBody: `A recall petition needs ${d.signatures_needed.toLocaleString('en-GB')} signatures, 10% of Clacton's ${d.registered_voters.toLocaleString('en-GB')} registered voters. Five of the six petitions ever held succeeded, which invites treating the threshold as a formality. The sixth is the right reference: Ian Paisley, North Antrim, 2018 — 9.4%, a narrow failure, in the only case where the MP was a strong local figure. Farage in Clacton is that case. The model uses 0.60, well under the naive 5-in-6.`,
     q2Label: 'Question two — if it happens, who wins?',
     q2Intro: 'August will not repeat itself mechanically. Five major parties boycotted that ballot; a by-election he did not choose has no reason to reproduce that field, and Farage might not stand in it. So the engine computes the whole grid and lets you pick.',
-    validationLabel: 'Replayed on the one race we already know',
-    validationIntro: 'A scenario engine that does not confront the ballot already counted is an opinion in a nice format. Replayed on 13 August:',
-    thBucket: 'Bloc', thModel: 'Model median', thActual: 'Actual', thError: 'Error',
+    validationLabel: 'What we published before the last one, and what happened',
+    validationIntro: `Vote-Scope’s final Clacton run went out on ${dayLabel(published?.run_date ?? '2026-08-12')} and put Farage at a ${nf(published?.rows?.[0]?.published_q50 ?? 0)}% median with a ${pct(published?.p_winner ?? 0)}% win probability. The count gave him 63.34% — ${nf(Math.abs(published?.winner_error_pts ?? 0), 2)} points of error on the winner’s share. Where it missed was below the fold: Binface was under-read by six points and the 31 micro-candidates over-read by four and a half.`,
+    thBucket: 'Bloc', thModel: 'Published forecast', thActual: 'Actual', thError: 'Error',
+    inSampleLabel: 'And a technical note, so nobody mistakes one for the other',
+    inSampleBody: `The scenario grid above uses orphan-transfer priors recalibrated on that same count, so replaying August through it lands within ${nf(1.3)} points on every bloc. That is not a forecast and it is not offered as one — it is fitted to the answer. It shows the field mechanics are coherent, nothing more. The number that counts as a forecast is the one that was published the day before the vote.`,
+    trackRecordCta: 'Every resolved call, hits and misses →',
     marketsLabel: 'Markets: there is nothing to compare to',
     marketsBody: 'No market exists on a second Clacton by-election, or on Farage’s seat — not on Polymarket, not on Kalshi, and not with the bookmakers, who hold only the settled August books. The nearest live contract is Polymarket’s “Nigel Farage out as Reform UK leader”: 8% by 31 December 2026, 23% by 31 March 2027. It fell 7 points in the 24 hours after the investigation aired — on $2,100 of volume, which forbids reading a signal into it. And it prices the party leadership, not the seat.',
     methodTitle: 'Two questions, kept apart on purpose.',
@@ -95,6 +107,9 @@ const copy = {
     sourceBody: 'Selon Channel 4 News et le groupe d’investigation Verbatim, qui y ont passé un an, des figures senior de Reform UK ont fait payer trois sondages JL Partners — 32 500 £ au total — par une société américaine, publiés comme indépendants par le Telegraph et le Times. Farage est filmé à un dîner à Clacton fin juillet : « It worked. Boom. » Un don supplémentaire d’environ 500 000 £, à faire transiter d’un père américain par son fils résident au Royaume-Uni, a été discuté sans se concrétiser. Reform UK, Nigel Farage, James Orr et Dan Jukes nient l’ensemble des allégations. Aucune accusation n’a été portée, aucun tribunal n’a statué.',
     sourceStance: 'On n’attend pas que ça se dénoue. On est prêts pour chacune des branches que ça peut prendre — y compris celle où il ne se passe rien.',
     sourceLinks: 'À regarder et à lire',
+    feedLabel: 'L’histoire telle qu’elle est rapportée, source par source',
+    feedIntro: 'C’est une histoire en développement, et ce n’est pas nous qui la rapportons. Chaque ligne ci-dessous est attribuée : un média nommé, ou une déclaration publique de la personne ou du parti qui l’a faite. On rapporte les versions telles qu’elles ont été présentées — on ne tranche pas entre elles.',
+    feedKindReport: 'Rapporté par', feedKindReaction: 'Déclaration', feedKindResponse: 'Réponse',
     linkVideo: 'L’enquête complète (Channel 4 News, YouTube)',
     linkArticle: 'Channel 4 News — l’article',
     linkSubstack: 'Channel 4 News — la version longue sur Substack',
@@ -112,9 +127,12 @@ const copy = {
     petitionBody: `Une pétition de rappel demande ${d.signatures_needed.toLocaleString('fr-FR')} signatures, soit 10 % des ${d.registered_voters.toLocaleString('fr-FR')} inscrits de Clacton. Cinq des six pétitions jamais tenues ont abouti, ce qui invite à traiter le seuil comme une formalité. La sixième est la bonne référence : Ian Paisley, North Antrim, 2018 — 9,4 %, échec de justesse, dans le seul cas où le député était une figure locale forte. Farage à Clacton est ce cas-là. Le modèle retient 0,60, nettement sous la base naïve de 5 sur 6.`,
     q2Label: 'Deuxième question — si elle a lieu, qui gagne ?',
     q2Intro: 'Août ne se rejouera pas mécaniquement. Cinq grands partis avaient boycotté ce bulletin ; une partielle subie n’a aucune raison de reproduire ce champ, et Farage pourrait ne pas s’y représenter. Le moteur calcule donc toute la grille et vous laisse choisir.',
-    validationLabel: 'Rejoué sur la seule course dont on connaît la réponse',
-    validationIntro: 'Un moteur de scénarios qui ne se confronte pas au scrutin déjà dépouillé est une opinion mise en forme. Rejoué sur le 13 août :',
-    thBucket: 'Bloc', thModel: 'Médiane du modèle', thActual: 'Réel', thError: 'Écart',
+    validationLabel: 'Ce qu’on avait publié pour la dernière, et ce qui s’est produit',
+    validationIntro: `Le dernier run de Vote-Scope sur Clacton est sorti le ${dayLabel(published?.run_date ?? '2026-08-12')} et plaçait Farage à ${nf(published?.rows?.[0]?.published_q50 ?? 0)} % de médiane, avec ${pct(published?.p_winner ?? 0)} % de probabilité de victoire. Le dépouillement lui a donné 63,34 % — ${nf(Math.abs(published?.winner_error_pts ?? 0), 2)} point d’écart sur la part du vainqueur. Là où ça a fauté, c’est en bas de tableau : Binface sous-estimé de six points, les 31 micro-candidats surestimés de quatre et demi.`,
+    thBucket: 'Bloc', thModel: 'Prévision publiée', thActual: 'Réel', thError: 'Écart',
+    inSampleLabel: 'Et une note technique, pour qu’on ne confonde pas les deux',
+    inSampleBody: `La grille de scénarios ci-dessus utilise des priors de report orphelin recalibrés SUR ce même dépouillement : rejouer août à travers elle tombe donc à ${nf(1.3)} point près sur chaque bloc. Ce n’est pas une prévision et ce n’est pas présenté comme telle — c’est ajusté sur la réponse. Ça montre que la mécanique du champ est cohérente, rien de plus. Le chiffre qui compte comme prévision est celui qui a été publié la veille du scrutin.`,
+    trackRecordCta: 'Tous les appels jugés, réussites et ratés →',
     marketsLabel: 'Marchés : il n’y a rien à comparer',
     marketsBody: 'Aucun marché n’existe sur une seconde partielle à Clacton, ni sur le siège de Farage — ni chez Polymarket, ni chez Kalshi, ni chez les bookmakers, qui n’ont que les carnets clos d’août. Le contrat vivant le plus proche est « Nigel Farage out as Reform UK leader » : 8 % d’ici le 31 décembre 2026, 23 % d’ici le 31 mars 2027. Il a baissé de 7 points dans les 24 h suivant la diffusion — sur 2 100 $ de volume, ce qui interdit d’y lire un signal. Et il porte sur la direction du parti, pas sur le siège.',
     methodTitle: 'Deux questions, tenues séparées à dessein.',
@@ -130,6 +148,9 @@ const copy = {
     sourceBody: 'Según Channel 4 News y el grupo de investigación Verbatim, que dedicaron un año al caso, figuras senior de Reform UK hicieron pagar tres encuestas de JL Partners — 32 500 £ en total — a una empresa estadounidense, publicadas como independientes por el Telegraph y el Times. Farage aparece filmado en una cena en Clacton a finales de julio: «It worked. Boom.» Se habló además de unas 500 000 £ que pasarían de un padre estadounidense a su hijo residente en el Reino Unido, sin llegar a concretarse. Reform UK, Nigel Farage, James Orr y Dan Jukes niegan todas las alegaciones. No hay imputación ni resolución judicial.',
     sourceStance: 'No esperamos a que se resuelva. Estamos listos para cada rama que pueda tomar — incluida aquella en la que no pasa nada.',
     sourceLinks: 'Ver y leer',
+    feedLabel: 'La historia tal como se informa, fuente por fuente',
+    feedIntro: 'Es una historia en desarrollo y no somos nosotros quienes la informamos. Cada línea está atribuida: un medio con nombre, o una declaración pública de quien la hizo. Reportamos las versiones tal como se presentaron — no arbitramos entre ellas.',
+    feedKindReport: 'Informado por', feedKindReaction: 'Declaración', feedKindResponse: 'Respuesta',
     linkVideo: 'La investigación completa (Channel 4 News, YouTube)',
     linkArticle: 'Channel 4 News — el artículo',
     linkSubstack: 'Channel 4 News — la versión larga en Substack',
@@ -147,9 +168,12 @@ const copy = {
     petitionBody: `Una petición de recall necesita ${d.signatures_needed.toLocaleString('es-ES')} firmas, el 10 % de los ${d.registered_voters.toLocaleString('es-ES')} inscritos de Clacton. Cinco de las seis peticiones celebradas prosperaron, lo que invita a tratar el umbral como un trámite. La sexta es la referencia correcta: Ian Paisley, North Antrim, 2018 — 9,4 %, fracaso por poco, en el único caso donde el diputado era una figura local fuerte. Farage en Clacton es ese caso. El modelo usa 0,60.`,
     q2Label: 'Segunda pregunta — si ocurre, ¿quién gana?',
     q2Intro: 'Agosto no se repetirá mecánicamente. Cinco grandes partidos boicotearon aquella papeleta; una parcial no elegida no tiene por qué reproducir ese campo, y Farage podría no presentarse. El motor calcula toda la rejilla y usted elige.',
-    validationLabel: 'Reejecutado sobre la única contienda que ya conocemos',
-    validationIntro: 'Un motor de escenarios que no se confronta con la papeleta ya contada es una opinión con buen formato. Sobre el 13 de agosto:',
-    thBucket: 'Bloque', thModel: 'Mediana del modelo', thActual: 'Real', thError: 'Error',
+    validationLabel: 'Lo que publicamos para la anterior, y lo que ocurrió',
+    validationIntro: `La última ejecución de Vote-Scope sobre Clacton salió el ${dayLabel(published?.run_date ?? '2026-08-12')} y situaba a Farage en ${nf(published?.rows?.[0]?.published_q50 ?? 0)} % de mediana, con ${pct(published?.p_winner ?? 0)} % de probabilidad de victoria. El recuento le dio 63,34 % — ${nf(Math.abs(published?.winner_error_pts ?? 0), 2)} puntos de error en la cuota del ganador. Donde falló fue abajo: Binface subestimado en seis puntos y las 31 micro-candidaturas sobreestimadas en cuatro y medio.`,
+    thBucket: 'Bloque', thModel: 'Pronóstico publicado', thActual: 'Real', thError: 'Error',
+    inSampleLabel: 'Y una nota técnica, para no confundir ambas cosas',
+    inSampleBody: `La rejilla de escenarios usa previas de traspaso recalibradas SOBRE ese mismo recuento, así que reejecutar agosto cae a ${nf(1.3)} puntos de cada bloque. Eso no es un pronóstico ni se presenta como tal: está ajustado a la respuesta. Muestra que la mecánica del campo es coherente, nada más. El número que cuenta como pronóstico es el que se publicó la víspera.`,
+    trackRecordCta: 'Todos los pronósticos resueltos, aciertos y fallos →',
     marketsLabel: 'Mercados: no hay con qué comparar',
     marketsBody: 'No existe mercado sobre una segunda parcial en Clacton ni sobre el escaño de Farage — ni en Polymarket, ni en Kalshi, ni en las casas de apuestas, que solo tienen los libros cerrados de agosto. El contrato vivo más próximo es «Nigel Farage out as Reform UK leader»: 8 % antes del 31 de diciembre de 2026, 23 % antes del 31 de marzo de 2027. Cayó 7 puntos en las 24 horas posteriores a la emisión — sobre 2 100 $ de volumen, lo que impide leer una señal. Y cotiza el liderazgo del partido, no el escaño.',
     methodTitle: 'Dos preguntas, separadas a propósito.',
@@ -158,6 +182,87 @@ const copy = {
 }[locale];
 
 const t = copy;
+
+// ── Le fil de l'histoire, source par source ──────────────────────────────
+// Règle : chaque item est attribué à un média nommé ou à une déclaration
+// publique nommée. On rapporte des VERSIONS telles que présentées, on n'en
+// endosse aucune. Les citations sont courtes et restent celles des personnes
+// concernées ou de leur parti.
+const FEED: Array<{
+  source: string; url: string; when: string;
+  fr: string; en: string; es: string; kind: 'report' | 'reaction' | 'response';
+}> = [
+  {
+    source: 'Channel 4 News / Verbatim', kind: 'report', when: '2026-09-03',
+    url: 'https://www.channel4.com/news/exclusive-nigel-farage-filmed-undercover-celebrating-secret-new-foreign-donations',
+    fr: 'Channel 4 News diffuse l’enquête de Verbatim : trois sondages JL Partners commandés par Reform et payés par une société américaine, publiés comme indépendants. Farage, filmé à Clacton fin juillet, y qualifie le sondage d’« amazing » et de « bang for buck », puis conclut : « It worked. Boom. »',
+    en: 'Channel 4 News broadcasts Verbatim’s investigation: three JL Partners polls commissioned by Reform and paid for by a US company, published as independent. Farage, filmed in Clacton in late July, calls the polling “amazing” and “bang for buck”, then: “It worked. Boom.”',
+    es: 'Channel 4 News emite la investigación de Verbatim: tres encuestas de JL Partners encargadas por Reform y pagadas por una empresa estadounidense, publicadas como independientes. Farage, filmado en Clacton a finales de julio, las llama «amazing» y «bang for buck», y concluye: «It worked. Boom.»',
+  },
+  {
+    source: 'The Guardian', kind: 'report', when: '2026-09-03',
+    url: 'https://www.theguardian.com/politics/2026/sep/03/reform-officials-plotted-to-break-law-on-foreign-donations-in-undercover-film',
+    fr: 'Le Guardian rapporte que le chef des politiques de Reform, James Orr, dit dans les images que Farage « doesn’t know, won’t know » et qu’il préférerait « rather not know », tout en jugeant le montage « totally legit ». Dan Jukes y présente l’opérateur infiltré comme un « key donor for off-the-book project » et décrit le sondage comme « clandestine ». Le journal souligne que l’enquête tombe la veille du congrès de Reform, où Farage doit parler vendredi.',
+    en: 'The Guardian reports that Reform’s head of policy James Orr says on camera that Farage “doesn’t know, won’t know” and would “rather not know”, while calling the arrangement “totally legit”. Dan Jukes introduces the undercover operative as a “key donor for off-the-book project” and describes the polling as “clandestine”. The paper notes the story lands on the eve of Reform’s conference, where Farage speaks on Friday.',
+    es: 'The Guardian informa de que el jefe de políticas de Reform, James Orr, dice en las imágenes que Farage «doesn’t know, won’t know» y que preferiría «rather not know», al tiempo que califica el montaje de «totally legit». Dan Jukes presenta al operativo encubierto como «key donor for off-the-book project». El diario subraya que la historia llega en vísperas del congreso de Reform.',
+  },
+  {
+    source: 'Reform UK', kind: 'response', when: '2026-09-03',
+    url: 'https://www.theguardian.com/politics/2026/sep/03/reform-officials-plotted-to-break-law-on-foreign-donations-in-undercover-film',
+    fr: 'Reform UK nie tout acte répréhensible et se dit cible d’un « hoax » monté par des militants climatiques financés de l’étranger se faisant passer pour des donateurs. Le parti affirme disposer d’un processus de vérification des donateurs approuvé par l’Electoral Commission et identifie Verbatim comme une société créée en juillet 2026 par le Centre for Climate Reporting.',
+    en: 'Reform UK denies any wrongdoing and says it was the target of a hoax by foreign-funded climate activists posing as would-be donors. The party says it has a donor vetting process approved by the Electoral Commission, and identifies Verbatim as a company incorporated in July 2026 by the Centre for Climate Reporting.',
+    es: 'Reform UK niega cualquier irregularidad y afirma haber sido objeto de un engaño de activistas climáticos financiados desde el extranjero que se hacían pasar por donantes. El partido dice tener un proceso de verificación aprobado por la Electoral Commission e identifica a Verbatim como una empresa creada en julio de 2026 por el Centre for Climate Reporting.',
+  },
+  {
+    source: 'Bridget Phillipson, présidente du Parti travailliste', kind: 'reaction', when: '2026-09-03',
+    url: 'https://www.theguardian.com/politics/2026/sep/03/reform-officials-plotted-to-break-law-on-foreign-donations-in-undercover-film',
+    fr: 'La présidente du Labour déclare que le scandale « goes right to the top of Reform UK » et demande à Farage de prouver que son équipe dirigeante n’a pas enfreint la loi.',
+    en: 'Labour’s party chair says the scandal “goes right to the top of Reform UK” and calls on Farage to prove his top team has not broken the law.',
+    es: 'La presidenta del laborismo afirma que el escándalo «goes right to the top of Reform UK» y pide a Farage que demuestre que su cúpula no infringió la ley.',
+  },
+  {
+    source: 'Ed Davey, chef des libéraux-démocrates', kind: 'reaction', when: '2026-09-03',
+    url: 'https://www.channel4.com/news/nigel-farage-should-face-full-force-of-law-if-found-guilty-of-election-rules-breach-sir-ed-davey',
+    fr: 'Ed Davey demande à la police et à l’Electoral Commission d’enquêter, et déclare à Channel 4 que Farage devrait affronter « toute la force » de la loi s’il était reconnu coupable d’une infraction aux règles électorales.',
+    en: 'Ed Davey calls on the police and the Electoral Commission to investigate, telling Channel 4 that Farage should face “the full force” of the law if found guilty of breaching election rules.',
+    es: 'Ed Davey pide a la policía y a la Electoral Commission que investiguen, y dice a Channel 4 que Farage debería afrontar «toda la fuerza» de la ley si fuera declarado culpable.',
+  },
+  {
+    source: 'ITV News', kind: 'report', when: '2026-09-03',
+    url: 'https://www.itv.com/news/2026-09-03/reform-reported-to-police-over-alleged-foreign-donations',
+    fr: 'ITV News rapporte que Reform a été signalé à la police à la suite de l’enquête.',
+    en: 'ITV News reports that Reform has been reported to the police following the investigation.',
+    es: 'ITV News informa de que Reform ha sido denunciado a la policía tras la investigación.',
+  },
+  {
+    source: 'Bob Posner, ancien directeur général de l’Electoral Commission', kind: 'reaction', when: '2026-09-03',
+    url: 'https://channel4news.substack.com/p/exclusive-nigel-farage-filmed-undercover',
+    fr: 'Interrogé par Channel 4, l’ancien directeur général de l’Electoral Commission estime que des « infractions pénales graves » pourraient avoir été commises et qu’une enquête criminelle s’impose. La Commission indique de son côté que toute tentative d’échapper aux règles sur les dons relève de la police.',
+    en: 'Asked by Channel 4, the Electoral Commission’s former chief executive says “serious criminal offences” may have been committed and that a criminal investigation is warranted. The Commission itself says any attempt to evade the donation rules is a matter for the police.',
+    es: 'Consultado por Channel 4, el ex director general de la Electoral Commission considera que pudieron cometerse «infracciones penales graves». La propia Comisión señala que cualquier intento de eludir las reglas sobre donaciones corresponde a la policía.',
+  },
+  {
+    source: 'Ofcom', kind: 'report', when: '2026-09-03',
+    url: 'https://www.aol.com/ofcom-not-investigate-channel-4-202132706.html',
+    fr: 'Ofcom fait savoir qu’il n’ouvrira pas d’enquête sur Channel 4 au sujet du reportage sous couverture.',
+    en: 'Ofcom says it will not investigate Channel 4 over the undercover report.',
+    es: 'Ofcom comunica que no investigará a Channel 4 por el reportaje encubierto.',
+  },
+  {
+    source: 'The Telegraph · The Times', kind: 'response', when: '2026-09-03',
+    url: 'https://www.theguardian.com/politics/2026/sep/03/reform-officials-plotted-to-break-law-on-foreign-donations-in-undercover-film',
+    fr: 'Le Telegraph indique avoir suspendu ses articles fondés sur ces sondages ; le Times dit ne pas avoir eu connaissance du lien avec Reform.',
+    en: 'The Telegraph says it has suspended the articles based on the polling; the Times says it was not aware of the relationship with Reform.',
+    es: 'The Telegraph dice haber suspendido los artículos basados en esas encuestas; el Times afirma que desconocía la relación con Reform.',
+  },
+];
+
+const PUBLISHED_LABELS: Record<string, Record<Locale, string>> = {
+  farage: { fr: 'Nigel Farage (Reform UK)', en: 'Nigel Farage (Reform UK)', es: 'Nigel Farage (Reform UK)' },
+  binface: { fr: 'Count Binface', en: 'Count Binface', es: 'Count Binface' },
+  fox: { fr: 'Laurence Fox (Reclaim)', en: 'Laurence Fox (Reclaim)', es: 'Laurence Fox (Reclaim)' },
+  others: { fr: '31 autres candidats', en: '31 other candidates', es: '31 otras candidaturas' },
+};
 const HORIZON_ORDER = ['2026-12-31', '2027-06-30', '2028-09-03', '2029-06-30'];
 const gateShares = Object.entries(d.gate_shares).sort((a: any, b: any) => b[1] - a[1]) as Array<[string, number]>;
 const horizonLabel = (iso: string) =>
@@ -221,6 +326,24 @@ const jsonLd = [
           <li><a href="https://www.channel4.com/news/nigel-farage-should-face-full-force-of-law-if-found-guilty-of-election-rules-breach-sir-ed-davey" rel="noreferrer">{t.linkReaction}</a></li>
         </ul>
       </div>
+    </section>
+
+    <section class="container" aria-labelledby="ukrecall-feed">
+      <p class="ukrecall-label" id="ukrecall-feed">{t.feedLabel}</p>
+      <p class="ukrecall-body">{t.feedIntro}</p>
+      <ol class="ukrecall-feed">
+        {FEED.map((item) => (
+          <li class={`is-${item.kind}`}>
+            <p class="ukrecall-feed-head">
+              <span class="ukrecall-feed-kind">
+                {item.kind === 'report' ? t.feedKindReport : item.kind === 'reaction' ? t.feedKindReaction : t.feedKindResponse}
+              </span>
+              <a href={item.url} rel="noreferrer">{item.source}</a>
+            </p>
+            <p class="ukrecall-feed-body">{item[locale]}</p>
+          </li>
+        ))}
+      </ol>
     </section>
 
     <section class="container" aria-labelledby="ukrecall-q1">
@@ -301,10 +424,10 @@ const jsonLd = [
         <table class="ukrecall-table">
           <thead><tr><th>{t.thBucket}</th><th>{t.thModel}</th><th>{t.thActual}</th><th>{t.thError}</th></tr></thead>
           <tbody>
-            {(validation.rows as any[]).map((r) => (
+            {(published?.rows ?? []).map((r: any) => (
               <tr>
-                <td>{r.bucket === 'ref' ? 'Reform UK' : r.bucket === 'binface' ? 'Count Binface' : (locale === 'fr' ? 'Autres candidats' : locale === 'es' ? 'Otras candidaturas' : 'Other candidates')}</td>
-                <td>{nf(r.modelled_q50)}%</td>
+                <td>{PUBLISHED_LABELS[r.bucket]?.[locale] ?? r.bucket}</td>
+                <td>{nf(r.published_q50)}% <small>[{nf(r.published_q10, 0)}–{nf(r.published_q90, 0)}]</small></td>
                 <td>{nf(r.actual_pct, 2)}%</td>
                 <td class={Math.abs(r.error_pts) < 2 ? 'is-good' : ''}>{r.error_pts >= 0 ? '+' : '−'}{nf(Math.abs(r.error_pts), 2)}</td>
               </tr>
@@ -312,7 +435,12 @@ const jsonLd = [
           </tbody>
         </table>
       </div>
-      <p class="ukrecall-note">{validation.note_fr && locale === 'fr' ? validation.note_fr : ''}</p>
+      <p class="ukrecall-body" style="margin-top:14px;">
+        <a class="cta-link" href={`/${locale}/track-record/`}>{t.trackRecordCta}</a>
+      </p>
+
+      <p class="ukrecall-label">{t.inSampleLabel}</p>
+      <p class="ukrecall-body">{t.inSampleBody}</p>
     </section>
 
     <section class="container" aria-labelledby="ukrecall-mkt">
@@ -349,6 +477,21 @@ const jsonLd = [
   .ukrecall-source-links { margin: 0; padding-left: 1.1rem; }
   .ukrecall-source-links li { font-size: 14px; line-height: 1.6; margin-bottom: 5px; }
 
+  .ukrecall-feed { list-style: none; margin: 16px 0 0; padding: 0; }
+  .ukrecall-feed li {
+    padding: 14px 0 14px 16px;
+    border-left: 3px solid var(--rule);
+    margin-bottom: 4px;
+  }
+  .ukrecall-feed li.is-response { border-left-color: #12B6CF; }
+  .ukrecall-feed li.is-reaction { border-left-color: var(--ink-3); }
+  .ukrecall-feed-head { margin: 0 0 5px; display: flex; flex-wrap: wrap; gap: 8px; align-items: baseline; }
+  .ukrecall-feed-kind {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--ink-3);
+  }
+  .ukrecall-feed-head a { font-weight: 600; font-size: 14px; }
+  .ukrecall-feed-body { margin: 0; font-size: 14px; line-height: 1.65; color: var(--ink-2); max-width: 82ch; }
   .ukrecall-table-wrap { margin-top: 14px; overflow-x: auto; }
   .ukrecall-table { width: 100%; border-collapse: collapse; font-size: 14px; }
   .ukrecall-table th, .ukrecall-table td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--rule-2); }
