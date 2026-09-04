@@ -127,6 +127,10 @@ const PALETTES: Record<string, Record<string, PartyMeta>> = {
   'uk': UK_PARTIES,
   'us-house': US_HOUSE_PARTIES,
   'us-senate': US_HOUSE_PARTIES,  // same Dem/Rep palette
+  // Gouverneurs : mêmes couleurs, mais l'indépendant y est un VAINQUEUR
+  // possible et pas un résidu — le modèle lui donne une probabilité de gagner,
+  // ce que la palette doit pouvoir nommer (us_ind / us_oth y sont déjà).
+  'us-governor': US_HOUSE_PARTIES,
   'france': FR_LEG_PARTIES,
 };
 

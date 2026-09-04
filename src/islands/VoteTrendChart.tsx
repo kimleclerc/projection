@@ -14,9 +14,12 @@ export interface TrendParty {
   label_en: string;
   label_fr: string;
   color: string;
-  vote_mean: number;
-  vote_ci_low_95: number;
-  vote_ci_high_95: number;
+  // OPTIONNELS : un desk en sièges seuls (Sénat, gouverneurs) n'a pas de part
+  // de vote nationale à projeter. Les déclarer obligatoires laissait le type
+  // affirmer une garantie que les données ne donnent pas.
+  vote_mean?: number;
+  vote_ci_low_95?: number;
+  vote_ci_high_95?: number;
 }
 
 interface Props {
@@ -92,7 +95,22 @@ export default function VoteTrendChart({
         // Date la plus récente, peu importe l'ordre de polls_history (desc sur
         // certaines juridictions — le losange du modèle se retrouvait en janvier).
         const lastDate = xDates.reduce((a, b) => (a > b ? a : b), xDates[0]);
-        const estimateTraces = orderedKeys.map((key) => {
+        // ── DESKS EN SIÈGES SEULS : PAS DE LOSANGE DE MODÈLE ──────────────
+        // Le Sénat et les gouverneurs ne projettent AUCUNE part de vote
+        // nationale — trente-six scrutins d'États ne s'additionnent pas en un
+        // vote populaire, et `parties[].vote_mean` est donc absent par
+        // conception (cf. `seatsOnly` dans scripts/publish-desk.mjs). Le
+        // gabarit lisait quand même `meta.vote_ci_low_95.toFixed(1)` et
+        // plantait : les deux pages affichaient « Cannot read properties of
+        // undefined » à la place du graphique, en production, à la date du
+        // 2026-09-04. Les sondages d'État (les points) restent tracés ; seule
+        // l'estimation nationale, qui n'existe pas, est omise.
+        const estimateTraces = orderedKeys.filter((key) => {
+          const meta = partyByKey.get(key)!;
+          return typeof meta?.vote_mean === 'number'
+            && typeof meta?.vote_ci_low_95 === 'number'
+            && typeof meta?.vote_ci_high_95 === 'number';
+        }).map((key) => {
           const meta = partyByKey.get(key)!;
           return {
             type: 'scatter' as const,

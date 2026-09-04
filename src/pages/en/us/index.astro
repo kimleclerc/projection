@@ -11,6 +11,7 @@ import { specialElections } from '../../../data/specialElections';
 import ldiData from '../../../../web_data/us-lame-duck/latest.json';
 import houseData from '../../../../web_data/us-house/latest.json';
 import senateData from '../../../../web_data/us-senate/latest.json';
+import governorData from '../../../../web_data/us-governor/latest.json';
 import showdownData from '../../../../web_data/cusma-showdown/latest.json';
 import presData from '../../../../web_data/us-president/latest.json';
 import primaryDesk from '../../../../web_data/us-primaries/latest.json';
@@ -26,6 +27,12 @@ const houseDem = (houseData.parties as Array<{party:string;seats_projected:numbe
 const houseRep = (houseData.parties as Array<{party:string;seats_projected:number;p_majority:number;label_en:string;color:string}>).find((p) => p.party === 'us_rep')!;
 const senateDem = (senateData.parties as Array<{party:string;seats_mean:number;p_majority:number;label_en:string;color:string}>).find((p) => p.party === 'us_dem')!;
 const senateRep = (senateData.parties as Array<{party:string;seats_mean:number;p_majority:number;label_en:string;color:string}>).find((p) => p.party === 'us_rep')!;
+const govParties = governorData.parties as Array<{party:string;seats_mean:number;p_majority:number;label_en:string;color:string}>;
+const govDem = govParties.find((p) => p.party === 'us_dem')!;
+const govRep = govParties.find((p) => p.party === 'us_rep')!;
+// Les sièges ouverts sont le fait saillant du cycle gubernatorial : la moitié
+// des courses n'a pas de sortant. Compté sur les données, jamais écrit en dur.
+const govOpenSeats = (governorData.ridings as Array<{open_seat?:boolean}>).filter((r) => r.open_seat).length;
 
 const specials = Object.values(specialElections);
 const deltaSign = ldi.delta_7d >= 0 ? '+' : '';
@@ -126,6 +133,16 @@ const presDemLead = presDem.standings.find((s: any) => s.status !== 'ineligible'
             </p>
             <p>D majority probability: <strong>{Math.round(senateDem.p_majority * 100)}%</strong></p>
             <a href="/en/us/senate/" class="cta-link" style="font-size:0.85rem;">Senate projection →</a>
+          </div>
+          <div class="note-card" style={`border-left:4px solid ${govDem.color};`}>
+            <p class="eyebrow">Governors 2026</p>
+            <p>
+              Dem ~<strong><AnimatedNumber client:visible value={Math.round(govDem.seats_mean)} /></strong> ·
+              Rep ~<strong><AnimatedNumber client:visible value={Math.round(govRep.seats_mean)} /></strong>
+              <span style="font-size:0.85rem;"> / 50</span>
+            </p>
+            <p style="font-size:0.85rem;">36 races on the ballot · {govOpenSeats} open seats.</p>
+            <a href="/en/us/governors/" class="cta-link" style="font-size:0.85rem;">Governor projection →</a>
           </div>
           <div class="note-card">
             <p class="eyebrow">Primaries 2026</p>

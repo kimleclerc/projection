@@ -20,17 +20,19 @@ const totalSeats = ctx.totalSeats ?? 343;
 /** Country / jurisdiction label for the national-average row. */
 const NATIONAL_LABEL_EN: Record<string, string> = {
   'federal-ca': 'Canada', 'quebec': 'Québec', 'ontario': 'Ontario',
-  'uk': 'United Kingdom', 'us-house': 'United States', 'us-senate': 'United States', 'france': 'France',
+  'uk': 'United Kingdom', 'us-house': 'United States', 'us-senate': 'United States',
+  'us-governor': 'United States', 'france': 'France',
 };
 const NATIONAL_LABEL_FR: Record<string, string> = {
   'federal-ca': 'Canada', 'quebec': 'Québec', 'ontario': 'Ontario',
-  'uk': 'Royaume-Uni', 'us-house': 'États-Unis', 'us-senate': 'États-Unis', 'france': 'France',
+  'uk': 'Royaume-Uni', 'us-house': 'États-Unis', 'us-senate': 'États-Unis', 'us-governor': 'États-Unis', 'france': 'France',
 };
 const NATIONAL_LABEL_ES: Record<string, string> = {
   'federal-ca': 'Canadá', 'quebec': 'Quebec', 'ontario': 'Ontario',
-  'uk': 'Reino Unido', 'us-house': 'Estados Unidos', 'us-senate': 'Estados Unidos', 'france': 'Francia',
+  'uk': 'Reino Unido', 'us-house': 'Estados Unidos', 'us-senate': 'Estados Unidos', 'us-governor': 'Estados Unidos', 'france': 'Francia',
 };
 const NATIONAL_BY_LANG = { en: NATIONAL_LABEL_EN, fr: NATIONAL_LABEL_FR, es: NATIONAL_LABEL_ES }[lang];
+const isExecutive = data.jurisdiction === 'us-governor';
 
 const PROVINCE_FR: Record<string, string> = {
   NL: 'Terre-Neuve-et-Labrador', PE: 'Île-du-Prince-Édouard', NS: 'Nouvelle-Écosse',
@@ -58,9 +60,9 @@ const topParties = data.parties.slice(0, 4);
 const ridingName = lang === 'fr' ? data.name.fr : data.name.en;
 
 const T = {
-  en: { eyebrow: 'In context', title: 'How this riding stacks up', here: 'Here', province: provLabel, national: NATIONAL_BY_LANG[data.jurisdiction] ?? 'Canada', prov_avg: 'Provincial average', nat_avg: 'National average' },
-  fr: { eyebrow: 'En contexte', title: 'Cette circonscription dans le tableau', here: 'Ici', province: provLabel, national: NATIONAL_BY_LANG[data.jurisdiction] ?? 'Canada', prov_avg: 'Moyenne provinciale', nat_avg: 'Moyenne nationale' },
-  es: { eyebrow: 'En contexto', title: 'Cómo se sitúa este distrito', here: 'Aquí', province: provLabel, national: NATIONAL_BY_LANG[data.jurisdiction] ?? 'Canadá', prov_avg: 'Media provincial', nat_avg: 'Media nacional' },
+  en: { eyebrow: 'In context', title: isExecutive ? 'How this race stacks up' : 'How this riding stacks up', here: 'Here', province: provLabel, national: NATIONAL_BY_LANG[data.jurisdiction] ?? 'Canada', prov_avg: 'Provincial average', nat_avg: 'National average' },
+  fr: { eyebrow: 'En contexte', title: isExecutive ? 'Cette course dans le tableau' : 'Cette circonscription dans le tableau', here: 'Ici', province: provLabel, national: NATIONAL_BY_LANG[data.jurisdiction] ?? 'Canada', prov_avg: 'Moyenne provinciale', nat_avg: 'Moyenne nationale' },
+  es: { eyebrow: 'En contexto', title: isExecutive ? 'Cómo se sitúa esta contienda' : 'Cómo se sitúa este distrito', here: 'Aquí', province: provLabel, national: NATIONAL_BY_LANG[data.jurisdiction] ?? 'Canadá', prov_avg: 'Media provincial', nat_avg: 'Media nacional' },
 }[lang];
 
 function delta(here: number, ref: number): { sign: string; val: number; cls: string } {
@@ -135,13 +137,13 @@ function delta(here: number, ref: number): { sign: string; val: number; cls: str
       const NOTE = {
         en: showProvince
           ? `Provincial averages computed across the ${totalSeats} riding-level projections (unweighted mean).`
-          : `Nationwide averages computed across the ${totalSeats} riding-level projections (unweighted mean).`,
+          : `Nationwide averages computed across the ${totalSeats} ${isExecutive ? 'state races' : 'riding-level projections'} (unweighted mean).`,
         fr: showProvince
           ? `Moyennes provinciales calculées à partir des ${totalSeats} circonscriptions (moyenne brute, non pondérée).`
-          : `Moyennes nationales calculées à partir des ${totalSeats} circonscriptions (moyenne brute, non pondérée).`,
+          : `Moyennes nationales calculées à partir des ${totalSeats} ${isExecutive ? "courses d'État" : 'circonscriptions'} (moyenne brute, non pondérée).`,
         es: showProvince
           ? `Medias provinciales calculadas a partir de los ${totalSeats} distritos (media bruta, no ponderada).`
-          : `Medias nacionales calculadas a partir de los ${totalSeats} distritos (media bruta, no ponderada).`,
+          : `Medias nacionales calculadas a partir de las ${totalSeats} ${isExecutive ? 'contiendas estatales' : 'distritos'} (media bruta, no ponderada).`,
       };
       return NOTE[lang];
     })()}</p>

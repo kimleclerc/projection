@@ -42,6 +42,12 @@ const DESKS = {
   // par conception, pas par accident. Le valider comme 'projection' rendait ce
   // desk impubliable par la passerelle (corrigé le 2026-08-03).
   'us-senate': { label: 'US Senate', json: 'web_data/us-senate/latest.json',          kind: 'projection', seatsOnly: true, contestedRange: [30, 40] },
+  // Gouverneurs : desk en POSTES, comme le Sénat. Trente-six courses sur
+  // cinquante postes, donc pas de part de vote nationale — `seatsOnly`. La
+  // fourchette tolérée est étroite (34-38) : le nombre de courses d'un cycle
+  // gubernatorial est connu d'avance, et un écart signalerait une géographie
+  // ou des métadonnées cassées, pas une actualité.
+  'us-governor': { label: 'US Governors', json: 'web_data/us-governor/latest.json', kind: 'projection', seatsOnly: true, contestedRange: [34, 38] },
   france:      { label: 'France présidentielle', json: 'web_data/france-presidential/latest.json', kind: 'france-pres' },
   mlb:         { label: 'MLB',       json: 'web_data/sports/mlb2026_latest.json',      kind: 'mlb' },
 };

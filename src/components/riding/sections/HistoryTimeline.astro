@@ -8,6 +8,13 @@ interface Props {
 }
 
 const { data, lang } = Astro.props;
+// `us_governor_2022`.replace('_', ' ') donnait « US GOVERNOR_2022 » : un seul
+// underscore remplacé, le reste tel quel. Ce qui intéresse le lecteur est
+// l'ANNÉE, et pour les gouverneurs elle n'est pas la même partout (2024 au
+// New Hampshire et au Vermont, qui votent tous les deux ans).
+const cycleYear = /(\d{4})$/.exec(String(data.baseline?.cycle ?? ''))?.[1];
+const cycleLabel = cycleYear
+  ?? String(data.baseline?.cycle ?? '').replace(/_/g, ' ').toUpperCase();
 if (!data.baseline) return null;
 
 const winnerMeta = partyMeta(data.jurisdiction, data.baseline.winner);
@@ -18,7 +25,7 @@ const swingSign = swing >= 0 ? '+' : '';
 const T = {
   en: {
     eyebrow: 'Previous election',
-    cycle: data.baseline.cycle.replace('_', ' ').toUpperCase(),
+    cycle: cycleLabel,
     won_by: 'Won by',
     margin: 'Margin',
     turnout: 'Turnout',
@@ -27,7 +34,7 @@ const T = {
   },
   fr: {
     eyebrow: 'Élection précédente',
-    cycle: data.baseline.cycle.replace('_', ' ').toUpperCase(),
+    cycle: cycleLabel,
     won_by: 'Vainqueur',
     margin: 'Marge',
     turnout: 'Participation',
@@ -36,7 +43,7 @@ const T = {
   },
   es: {
     eyebrow: 'Elección anterior',
-    cycle: data.baseline.cycle.replace('_', ' ').toUpperCase(),
+    cycle: cycleLabel,
     won_by: 'Ganador',
     margin: 'Margen',
     turnout: 'Participación',

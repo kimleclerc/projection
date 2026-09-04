@@ -1,4 +1,4 @@
-/** Dynamic social/download cards for the six ProjectionEngine forecasts. */
+/** Dynamic social/download cards for the seven ProjectionEngine forecasts. */
 import type { APIRoute, GetStaticPaths } from 'astro';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
@@ -6,7 +6,7 @@ import { renderPollCard, type CardEntry } from '../../../../lib/og/poll-card';
 
 type Lang = 'en' | 'fr' | 'es';
 const LANGS: Lang[] = ['en', 'fr', 'es'];
-const KEYS = ['federal', 'ontario', 'quebec', 'us-house', 'us-senate', 'uk'] as const;
+const KEYS = ['federal', 'ontario', 'quebec', 'us-house', 'us-senate', 'us-governor', 'uk'] as const;
 type Key = (typeof KEYS)[number];
 
 export const getStaticPaths: GetStaticPaths = () =>
@@ -18,6 +18,7 @@ const TITLES: Record<Key, Record<Lang, string>> = {
   quebec: { en: 'Quebec 2026 forecast', fr: 'Québec 2026 · Projection', es: 'Quebec 2026 · Pronóstico' },
   'us-house': { en: 'U.S. House forecast', fr: 'Projection · Chambre des États-Unis', es: 'Pronóstico · Cámara de EE. UU.' },
   'us-senate': { en: 'U.S. Senate forecast', fr: 'Projection · Sénat des États-Unis', es: 'Pronóstico · Senado de EE. UU.' },
+  'us-governor': { en: 'U.S. governor forecast', fr: 'Projection \u00b7 Gouverneurs am\u00e9ricains', es: 'Pron\u00f3stico \u00b7 Gobernadores de EE. UU.' },
   uk: { en: 'U.K. election forecast', fr: 'Royaume-Uni · Projection', es: 'Reino Unido · Pronóstico' },
 };
 

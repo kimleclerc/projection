@@ -11,6 +11,11 @@ const jurisdictions = [
   ['uk', 'FEDNUM'],
   ['us-house', 'FEDNUM'],
   ['us-senate', 'riding_id'],
+  // Gouverneurs : 36 courses d'État, même convention d'identifiant que le
+  // Sénat (FIPS de l'État zfillé). Sans cette ligne, le desk se publierait
+  // sans que personne vérifie que la carte, les données et le modèle portent
+  // les mêmes 36 États — le mode de panne que ce script existe pour attraper.
+  ['us-governor', 'riding_id'],
 ];
 
 const load = (file) => readFile(path.join(root, file), 'utf8').then(JSON.parse);

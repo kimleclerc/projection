@@ -9,6 +9,9 @@ interface Props {
 
 const { data, lang } = Astro.props;
 if (!data.neighbors || data.neighbors.length === 0) return null;
+// Une course de gouverneur n'a pas de voisine : l'État EST l'unité. Ce bloc
+// montre donc les autres courses de la carte, et il faut le dire.
+const isExecutive = data.jurisdiction === 'us-governor';
 
 const TONE_LABEL = {
   en: { safe: 'Safe seat', leaning: 'Party favoured', competitive: 'Competitive', tossup: 'Toss-up', vacant: 'Vacant' },
@@ -18,22 +21,22 @@ const TONE_LABEL = {
 
 const T = {
   en: {
-    eyebrow: 'Around the region',
-    title: 'Nearby ridings',
+    eyebrow: isExecutive ? 'Elsewhere on the map' : 'Around the region',
+    title: isExecutive ? 'Other races to watch' : 'Nearby ridings',
     cta: 'Open',
-    hint: "Tone only — pick a riding to see the numbers.",
+    hint: isExecutive ? 'Tone only — open a race to see the numbers.' : "Tone only — pick a riding to see the numbers.",
   },
   fr: {
-    eyebrow: 'Autour de la région',
-    title: 'Circonscriptions voisines',
+    eyebrow: isExecutive ? 'Ailleurs sur la carte' : 'Autour de la région',
+    title: isExecutive ? 'Autres courses à suivre' : 'Circonscriptions voisines',
     cta: 'Ouvrir',
-    hint: 'Ton éditorial seulement — choisissez une circonscription pour voir les chiffres.',
+    hint: isExecutive ? 'Ton éditorial seulement — ouvrez une course pour voir les chiffres.' : 'Ton éditorial seulement — choisissez une circonscription pour voir les chiffres.',
   },
   es: {
-    eyebrow: 'En la región',
-    title: 'Distritos cercanos',
+    eyebrow: isExecutive ? 'En el resto del mapa' : 'En la región',
+    title: isExecutive ? 'Otras contiendas a seguir' : 'Distritos cercanos',
     cta: 'Abrir',
-    hint: 'Solo tono editorial — abre un distrito para ver los números.',
+    hint: isExecutive ? 'Solo tono editorial — abre una contienda para ver los números.' : 'Solo tono editorial — abre un distrito para ver los números.',
   },
 }[lang];
 ---

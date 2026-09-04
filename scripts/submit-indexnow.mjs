@@ -50,6 +50,11 @@ const CURATED = [
   '/en/us/', '/fr/us/', '/es/us/',
   '/en/us/house', '/fr/us/chambre', '/es/us/house',
   '/en/us/senate', '/fr/us/senat', '/es/us/senate',
+  // Gouverneurs — section ouverte le 2026-09-04. Les trois pages de
+  // projection et les deux index bougent à chaque run nocturne.
+  '/en/us/governors', '/fr/us/gouverneurs', '/es/us/gobernadores',
+  '/en/us/governors/races/', '/fr/us/gouverneurs/courses/', '/es/us/gobernadores/carreras/',
+  '/en/us/governors/polls/', '/fr/us/gouverneurs/sondages/', '/es/us/gobernadores/sondeos/',
   '/en/us/indexes/lame-duck/', '/fr/us/indexes/lame-duck/', '/es/us/indexes/lame-duck/',
   // Les indices « maison » bougent tous les jours et n'étaient jamais soumis,
   // à l'exception du canard boiteux : le hub, la Bernache et surtout le pupitre

@@ -1,0 +1,53 @@
+---
+import EditorialLayout from '../../../../../layouts/EditorialLayout.astro';
+import RidingPage from '../../../../../components/riding/RidingPage.astro';
+import { getAllUSGovernorRaces } from '../../../../../lib/riding-adapters/us-governor';
+
+export function getStaticPaths() {
+  return getAllUSGovernorRaces().map((data) => ({
+    params: { id: data.slug },
+    props: { data },
+  }));
+}
+
+const { data } = Astro.props;
+const canonical = `https://vote-scope.com/en/us/governors/races/${data.slug}/`;
+const title = `${data.name.en} — 2026 governor race — Vote-Scope`;
+const description = `Vote-Scope projection for the ${data.name.en} governor race: vote share, win probability, previous result and whether the seat is open.`;
+---
+
+<EditorialLayout
+  title={title}
+  description={description}
+  canonical={canonical}
+  lang="en"
+  currentPage="us"
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={{
+    en: `https://vote-scope.com/en/us/governors/races/${data.slug}/`,
+    fr: `https://vote-scope.com/fr/us/gouverneurs/courses/${data.slug}/`,
+    es: `https://vote-scope.com/es/us/gobernadores/carreras/${data.slug}/`,
+  }}
+  jsonLd={[
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Place',
+      name: data.name.en,
+      containedInPlace: { '@type': 'AdministrativeArea', name: 'United States' },
+      url: canonical,
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Vote-Scope',   item: 'https://vote-scope.com/en/' },
+        { '@type': 'ListItem', position: 2, name: 'United States',   item: 'https://vote-scope.com/en/us/' },
+        { '@type': 'ListItem', position: 3, name: 'Governors',  item: 'https://vote-scope.com/en/us/governors/' },
+        { '@type': 'ListItem', position: 4, name: 'Races', item: 'https://vote-scope.com/en/us/governors/races/' },
+        { '@type': 'ListItem', position: 5, name: data.name.en, item: canonical },
+      ],
+    },
+  ]}
+>
+  <RidingPage data={data} lang="en" />
+</EditorialLayout>

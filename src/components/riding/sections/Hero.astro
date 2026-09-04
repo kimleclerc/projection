@@ -17,6 +17,7 @@ const PROVINCE_PREFIX_EN: Record<string, string> = {
   'uk':         'UK constituency —',
   'us-house':   'US House district —',
   'us-senate':  'US Senate seat —',
+  'us-governor': 'Governor race —',
   'france':     'Circonscription française —',
 };
 const PROVINCE_PREFIX_FR: Record<string, string> = {
@@ -26,6 +27,7 @@ const PROVINCE_PREFIX_FR: Record<string, string> = {
   'uk':         'Circonscription britannique —',
   'us-house':   'District US (Chambre) —',
   'us-senate':  'Siège US (Sénat) —',
+  'us-governor': 'Course au gouvernorat —',
   'france':     'Circonscription française —',
 };
 const PROVINCE_PREFIX_ES: Record<string, string> = {
@@ -35,22 +37,26 @@ const PROVINCE_PREFIX_ES: Record<string, string> = {
   'uk':         'Circunscripción británica —',
   'us-house':   'Distrito US (Cámara) —',
   'us-senate':  'Escaño US (Senado) —',
+  'us-governor': 'Contienda por la gobernación —',
   'france':     'Circunscripción francesa —',
 };
 const PROVINCE_PREFIX_BY_LANG = { en: PROVINCE_PREFIX_EN, fr: PROVINCE_PREFIX_FR, es: PROVINCE_PREFIX_ES };
+// « Profil de circonscription » ne veut rien dire pour un poste exécutif : un
+// gouverneur ne représente pas un district, il dirige un État.
+const IS_EXECUTIVE_RACE = data.jurisdiction === 'us-governor';
 const T = {
   en: {
-    eyebrow: data.isByelection ? 'Byelection' : 'Riding profile',
+    eyebrow: data.isByelection ? 'Byelection' : IS_EXECUTIVE_RACE ? 'Race profile' : 'Riding profile',
     province_prefix: PROVINCE_PREFIX_EN[data.jurisdiction] ?? 'Federal riding —',
     urban: { urban: 'Urban', rural: 'Rural', mixed: 'Mixed', suburban: 'Suburban' } as Record<string, string>,
   },
   fr: {
-    eyebrow: data.isByelection ? 'Élection partielle' : 'Profil de circonscription',
+    eyebrow: data.isByelection ? 'Élection partielle' : IS_EXECUTIVE_RACE ? 'Profil de course' : 'Profil de circonscription',
     province_prefix: PROVINCE_PREFIX_FR[data.jurisdiction] ?? 'Circonscription fédérale —',
     urban: { urban: 'Urbaine', rural: 'Rurale', mixed: 'Mixte', suburban: 'Banlieue' } as Record<string, string>,
   },
   es: {
-    eyebrow: data.isByelection ? 'Elección extraordinaria' : 'Perfil del distrito',
+    eyebrow: data.isByelection ? 'Elección extraordinaria' : IS_EXECUTIVE_RACE ? 'Perfil de contienda' : 'Perfil del distrito',
     province_prefix: PROVINCE_PREFIX_ES[data.jurisdiction] ?? 'Distrito federal —',
     urban: { urban: 'Urbano', rural: 'Rural', mixed: 'Mixto', suburban: 'Suburbano' } as Record<string, string>,
   },

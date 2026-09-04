@@ -180,6 +180,8 @@ const marketHref = marketConfig
   ? `https://polymarket.com/${locale === 'en' ? '' : `${locale}/`}event/${marketConfig.slug}`
   : locale === 'fr' ? '/fr/uk/byelections/clacton/' : locale === 'es' ? '/es/uk/byelections/clacton/' : '/en/uk/byelections/clacton/';
 const snapshotKicker = locale === 'fr' ? `TABLEAU DE COURSE · RUN ${meta.run_date}` : locale === 'es' ? `TABLERO DE CARRERA · ${meta.run_date}` : `RACE BOARD · RUN ${meta.run_date}`;
+const openSeatCount = (data.ridings ?? []).filter(
+  (r: any) => r?.open_seat).length;
 const leadLabel = partyLabel(lead);
 const secondLabel = partyLabel(second);
 const headlineById: Record<string, Record<Locale, string>> = {
@@ -192,6 +194,14 @@ const headlineById: Record<string, Record<Locale, string>> = {
     en: `${leadLabel} have the map. The market sees a much tighter chamber.`,
     fr: `${leadLabel} ont la carte. Le marché voit une chambre beaucoup plus serrée.`,
     es: `${leadLabel} tienen el mapa. El mercado ve una cámara mucho más cerrada.`,
+  },
+  // Le compte de sièges ouverts est LU dans les données, pas écrit dans la
+  // phrase : un gouverneur qui annonce son retrait en octobre changerait le
+  // titre le soir même, sans qu'on ait à y revenir.
+  'us-governor': {
+    en: `${openSeatCount} governors are leaving. Their states decide the fifty.`,
+    fr: `${openSeatCount} gouverneurs s’en vont. Leurs États décident des cinquante.`,
+    es: `${openSeatCount} gobernadores se van. Sus estados deciden las cincuenta.`,
   },
   quebec: {
     en: `${leadLabel} lead the seat count. A majority is another election.`,

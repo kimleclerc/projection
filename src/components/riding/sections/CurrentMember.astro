@@ -16,11 +16,15 @@ const electedMeta = m.party_elected ? partyMeta(data.jurisdiction, m.party_elect
 const currentLabel = lang === 'fr' ? currentMeta.label_fr : currentMeta.label_en;
 const electedLabel = electedMeta ? (lang === 'fr' ? electedMeta.label_fr : electedMeta.label_en) : null;
 const hasCrossed = !!(m.party_elected && m.party_current !== m.party_elected);
+// UN GOUVERNEUR N'EST PAS UN·E DÉPUTÉ·E, ET NE « SIÈGE » AVEC PERSONNE : il
+// dirige l'exécutif d'un État. Les libellés parlementaires seraient faux mot
+// pour mot sur ces trente-six pages.
+const isExecutive = data.jurisdiction === 'us-governor';
 
 const T = {
   en: {
-    eyebrow: 'Sitting member',
-    sits_with: 'Sits with',
+    eyebrow: isExecutive ? 'Sitting governor' : 'Sitting member',
+    sits_with: isExecutive ? 'Party' : 'Sits with',
     elected_as: 'Elected as',
     crossed: 'Floor-crossed',
     on_date: 'on',
@@ -31,8 +35,8 @@ const T = {
     change_floor_cross: 'Floor crossing',
   },
   fr: {
-    eyebrow: 'Député·e en exercice',
-    sits_with: 'Siège avec',
+    eyebrow: isExecutive ? 'Gouverneur·e en poste' : 'Député·e en exercice',
+    sits_with: isExecutive ? 'Parti' : 'Siège avec',
     elected_as: 'Élu·e sous',
     crossed: 'Traversée de plancher',
     on_date: 'le',
@@ -43,8 +47,8 @@ const T = {
     change_floor_cross: 'Traversée de plancher',
   },
   es: {
-    eyebrow: 'Representante en funciones',
-    sits_with: 'Vota con',
+    eyebrow: isExecutive ? 'Gobernador·a en funciones' : 'Representante en funciones',
+    sits_with: isExecutive ? 'Partido' : 'Vota con',
     elected_as: 'Electo bajo',
     crossed: 'Cambio de partido',
     on_date: 'el',

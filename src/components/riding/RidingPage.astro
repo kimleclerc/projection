@@ -55,7 +55,11 @@ const pageNavItems = [
   }] : []),
   ...(data.neighbors?.length ? [{
     href: '#nearby',
-    label: { en: 'Nearby districts', fr: 'Circonscriptions voisines', es: 'Distritos cercanos' }[lang],
+    // Une course de gouverneur n'a pas de circonscription voisine : le bloc
+    // montre les autres courses de la carte (cf. NeighborRidings.astro).
+    label: data.jurisdiction === 'us-governor'
+      ? { en: 'Other races', fr: 'Autres courses', es: 'Otras contiendas' }[lang]
+      : { en: 'Nearby districts', fr: 'Circonscriptions voisines', es: 'Distritos cercanos' }[lang],
   }] : []),
 ];
 ---

@@ -1,0 +1,53 @@
+---
+import EditorialLayout from '../../../../../layouts/EditorialLayout.astro';
+import RidingPage from '../../../../../components/riding/RidingPage.astro';
+import { getAllUSGovernorRaces } from '../../../../../lib/riding-adapters/us-governor';
+
+export function getStaticPaths() {
+  return getAllUSGovernorRaces().map((data) => ({
+    params: { id: data.slug },
+    props: { data },
+  }));
+}
+
+const { data } = Astro.props;
+const canonical = `https://vote-scope.com/fr/us/gouverneurs/courses/${data.slug}/`;
+const title = `${data.name.fr} — course au poste de gouverneur 2026 — Vote-Scope`;
+const description = `Projection Vote-Scope pour la course au poste de gouverneur ${data.name.fr} : parts de vote, probabilité de victoire, résultat précédent et siège ouvert ou non.`;
+---
+
+<EditorialLayout
+  title={title}
+  description={description}
+  canonical={canonical}
+  lang="fr"
+  currentPage="us"
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={{
+    en: `https://vote-scope.com/en/us/governors/races/${data.slug}/`,
+    fr: `https://vote-scope.com/fr/us/gouverneurs/courses/${data.slug}/`,
+    es: `https://vote-scope.com/es/us/gobernadores/carreras/${data.slug}/`,
+  }}
+  jsonLd={[
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Place',
+      name: data.name.fr,
+      containedInPlace: { '@type': 'AdministrativeArea', name: 'United States' },
+      url: canonical,
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Vote-Scope',   item: 'https://vote-scope.com/fr/' },
+        { '@type': 'ListItem', position: 2, name: 'États-Unis',   item: 'https://vote-scope.com/fr/us/' },
+        { '@type': 'ListItem', position: 3, name: 'Gouverneurs',  item: 'https://vote-scope.com/fr/us/gouverneurs/' },
+        { '@type': 'ListItem', position: 4, name: 'Courses', item: 'https://vote-scope.com/fr/us/gouverneurs/courses/' },
+        { '@type': 'ListItem', position: 5, name: data.name.fr, item: canonical },
+      ],
+    },
+  ]}
+>
+  <RidingPage data={data} lang="fr" />
+</EditorialLayout>

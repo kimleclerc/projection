@@ -1,0 +1,75 @@
+---
+import EditorialLayout from '../../../../../layouts/EditorialLayout.astro';
+import { getGovernorRaceSummaries } from '../../../../../lib/riding-adapters/us-governor';
+import { partyMeta } from '../../../../../lib/riding-adapters/parties';
+
+// Triées par SERRÉ D'ABORD : une liste alphabétique de 36 États enterre les
+// quatre courses qui décideront de la carte sous l'Alabama et l'Arkansas.
+const all = getGovernorRaceSummaries()
+  .slice()
+  .sort((a, b) => a.meanMargin - b.meanMargin);
+const openSeats = all.filter((r) => r.openSeat).length;
+
+const canonical = 'https://vote-scope.com/en/us/governors/races/';
+---
+
+<EditorialLayout
+  title="2026 US governor races — Vote-Scope"
+  description="All 36 states electing a governor in 2026, ranked from the closest race to the safest, with the Vote-Scope rating for each."
+  canonical={canonical}
+  lang="en"
+  currentPage="us"
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={{ en: 'https://vote-scope.com/en/us/governors/races/', fr: 'https://vote-scope.com/fr/us/gouverneurs/courses/', es: 'https://vote-scope.com/es/us/gobernadores/carreras/' }}
+  jsonLd={[
+    {
+      '@context': 'https://schema.org',
+      '@type': 'CollectionPage',
+      name: '2026 US governor races',
+      url: canonical,
+      inLanguage: 'en',
+      isPartOf: { '@type': 'WebSite', name: 'Vote-Scope', url: 'https://vote-scope.com/' },
+    },
+  ]}
+>
+  <section class="ridings-index-hero">
+    <div class="container">
+      <p class="eyebrow">Race index · US governors</p>
+      <h1>All 36 governor races, closest first.</h1>
+      <p class="lede">Projection, previous result, race rating and nearby contests for every state electing a governor in November — eighteen of them with no incumbent on the ballot.</p>
+    </div>
+  </section>
+
+  <section class="ridings-index">
+    <div class="container">
+      <ul class="riding-list">
+        {all.map((r) => {
+          const meta = partyMeta('us-governor', r.winner);
+          return (
+            <li>
+              <a href={`/en/us/governors/races/${r.slug}/`} style={`--accent:${meta.color}`}>
+                <span class="dot" aria-hidden="true"></span>
+                <span class="name">{r.name.en}{r.openSeat && <em class="open">open seat</em>}</span>
+                <span class="party">{r.rating ? r.rating.label_en : meta.label_en}</span>
+              </a>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  </section>
+</EditorialLayout>
+
+<style>
+  .ridings-index-hero { padding: 80px 0 32px; border-bottom: 1px solid var(--rule); background: var(--paper); }
+  .ridings-index-hero h1 { margin: 8px 0 16px; font-family: var(--serif); font-size: clamp(40px, 5vw, 64px); font-weight: 420; letter-spacing: -0.02em; line-height: 1.02; max-width: 900px; }
+  .ridings-index-hero .lede { max-width: 760px; font-family: var(--serif); font-size: clamp(17px, 1.8vw, 20px); line-height: 1.55; color: var(--ink-2); }
+  .ridings-index { padding: 48px 0; background: var(--paper-2); }
+  .riding-list { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 0; border-top: 1px solid var(--rule); border-left: 1px solid var(--rule); }
+  .riding-list a { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule); background: var(--card); text-decoration: none; color: inherit; transition: background .15s ease; }
+  .riding-list a:hover { background: color-mix(in oklab, var(--accent) 12%, var(--card)); }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+  .name { font-family: var(--serif); font-size: 15px; flex: 1; }
+  .name .open { font-family: var(--mono); font-size: 9px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); font-style: normal; margin-left: 6px; }
+  .party { font-family: var(--mono); font-size: 10px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-2); text-align: right; }
+</style>

@@ -13,6 +13,7 @@ export type JurisdictionKey =
   | 'ontario'
   | 'us-house'
   | 'us-senate'
+  | 'us-governor'
   | 'uk'
   | 'france';
 

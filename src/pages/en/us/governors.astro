@@ -1,0 +1,63 @@
+---
+import EditorialLayout from '../../../layouts/EditorialLayout.astro';
+import RidingsCta from '../../../components/RidingsCta.astro';
+import NewsletterCta from '../../../components/NewsletterCta.astro';
+import ProjectionEngine from '../../../components/ProjectionEngine.astro';
+import RaceNarrative from '../../../components/RaceNarrative.astro';
+import { jurisdictions } from '../../../data/jurisdictions';
+import governorMeta from '../../../../web_data/us-governor/latest.json';
+import { raceEditorial } from '../../../data/raceEditorial';
+
+const j = jurisdictions.usGovernor;
+const canonical = 'https://vote-scope.com/en/us/governors/';
+const alternates = {
+  en: 'https://vote-scope.com/en/us/governors/',
+  fr: 'https://vote-scope.com/fr/us/gouverneurs/',
+  es: 'https://vote-scope.com/es/us/gobernadores/',
+};
+---
+
+<EditorialLayout
+  title={j.pageTitle.en}
+  description={j.metaDescription.en}
+  canonical={canonical}
+  lang="en"
+  currentPage={j.currentPage}
+  ogImage="https://vote-scope.com/og/projections/us-governor/en.png"
+  alternates={alternates}
+  jsonLd={[
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Dataset',
+      name: '2026 U.S. Governor Projection',
+      description: j.metaDescription.en,
+      url: canonical,
+      dateModified: governorMeta.meta.run_date,
+      creator: { '@type': 'Person', name: 'Kim Leclerc', url: 'https://kimleclerc.ca' },
+      publisher: { '@type': 'Organization', name: 'Vote-Scope', url: 'https://vote-scope.com' },
+      license: 'https://vote-scope.com/en/terms/',
+      isAccessibleForFree: true,
+      distribution: { '@type': 'DataDownload', contentUrl: 'https://vote-scope.com/web_data/us-governor/latest.json', encodingFormat: 'application/json' },
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: 'https://vote-scope.com/en/' },
+        { '@type': 'ListItem', position: 2, name: 'U.S.', item: 'https://vote-scope.com/en/us/' },
+        { '@type': 'ListItem', position: 3, name: 'Governor Projection', item: canonical },
+      ],
+    },
+  ]}
+>
+  <ProjectionEngine jurisdiction={j} locale="en"><Fragment slot="narrative"><RaceNarrative locale="en" {...raceEditorial.usGovernor.en} /></Fragment></ProjectionEngine>
+
+  <RidingsCta
+    eyebrow="Race profile"
+    title="Dive into a specific governor race"
+    blurb="Projection, previous result, race rating and nearby contests — for each of the 36 states electing a governor in 2026, including the 18 open seats."
+    href="/en/us/governors/races/"
+    cta="Browse all 36 races →"
+  />
+  <NewsletterCta lang="en" placement="governors" />
+</EditorialLayout>

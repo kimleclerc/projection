@@ -277,6 +277,51 @@ export const jurisdictions: Record<string, Jurisdiction> = {
     currentPage: 'us',
   },
 
+  usGovernor: {
+    id: 'us-governor',
+    dataPath: 'us-governor',
+    geoPath: 'us-governor',
+    heroTitle: {
+      fr: 'Gouverneurs <em>am\u00e9ricains</em>',
+      en: 'U.S. <em>Governors</em>',
+      es: 'Gobernadores <em>de EE. UU.</em>',
+    },
+    institution: {
+      fr: 'R\u00e9partition actuelle des 50 gouverneurs',
+      en: 'Current Split of the 50 Governorships',
+      es: 'Reparto actual de las 50 gobernaciones',
+    },
+    source: {
+      fr: 'Sources : sondages publics agr\u00e9g\u00e9s par le NYT, PVI de Cook, r\u00e9sultats 2018-2024',
+      en: 'Sources: public polling via the NYT tracker, Cook PVI, 2018-2024 results',
+      es: 'Fuentes: sondeos p\u00fablicos v\u00eda el NYT, PVI de Cook, resultados 2018-2024',
+    },
+    mapSubtitle: {
+      fr: 'Projection des 36 courses de 2026. Les 14 \u00c9tats qui ne votent pas cette ann\u00e9e gardent leur gouverneur et restent en gris.',
+      en: 'Projection for the 36 races on the 2026 ballot. The 14 states not voting this year keep their governor and stay greyed out.',
+      es: 'Proyecci\u00f3n de las 36 contiendas de 2026. Los 14 estados que no votan este a\u00f1o conservan su gobernador y quedan en gris.',
+    },
+    pageTitle: {
+      fr: 'Qui gagnera les postes de gouverneur en 2026 ? \u2014 Vote-Scope',
+      en: 'Who Wins the 2026 Governor Races? \u2014 Vote-Scope',
+      es: '\u00bfQui\u00e9n ganar\u00e1 las gobernaciones en 2026? \u2014 Vote-Scope',
+    },
+    metaDescription: {
+      fr: 'Projection des 36 \u00e9lections de gouverneur de 2026, \u00c9tat par \u00c9tat : sondages agr\u00e9g\u00e9s, si\u00e8ges ouverts, courses serr\u00e9es et r\u00e9partition des 50 postes. Mise \u00e0 jour continue.',
+      en: 'All 36 governor races on the 2026 ballot, projected state by state: aggregated polls, open seats, toss-ups and the split of all 50 governorships. Updated continuously.',
+      es: 'Las 36 elecciones de gobernador de 2026, proyectadas estado por estado: sondeos agregados, puestos abiertos y el reparto de las 50 gobernaciones. Actualizado continuamente.',
+    },
+    baselineYear: 2022,
+    seatsTotal: 50,
+    byelections: false,
+    mapCenter: [39, -98],
+    mapZoom: 4,
+    idProp: 'riding_id',
+    parties: ['us_dem', 'us_rep'],
+    slug: { en: 'governors', fr: 'gouverneurs' },
+    currentPage: 'us',
+  },
+
   uk: {
     id: 'uk',
     dataPath: 'uk',

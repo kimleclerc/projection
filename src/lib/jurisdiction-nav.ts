@@ -75,6 +75,21 @@ export const JURISDICTION_NAV: JurisdictionNavEntry[] = [
     },
   },
   {
+    // Gouverneurs — 36 courses d'État en 2026. La section « districts » ne
+    // porte pas de sièges mais des COURSES : un gouverneur n'occupe pas un
+    // siège dans une chambre, et l'appeler « Seats » ferait lire la carte
+    // comme celle du Sénat.
+    webKey: 'us-governor', langs: ['en', 'fr', 'es'], group: GROUP_US,
+    label: { en: 'Governors', fr: 'Gouverneurs', es: 'Gobernadores' },
+    base: { en: '/en/us/governors', fr: '/fr/us/gouverneurs', es: '/es/us/gobernadores' },
+    sections: {
+      projection: { seg: SEG_NONE },
+      polls: { seg: SEG_POLLS },
+      districts: { seg: { en: 'races', fr: 'courses', es: 'carreras' },
+        label: { en: 'Races', fr: 'Courses', es: 'Contiendas' } },
+    },
+  },
+  {
     // Présidentielle US — desk « primaire invisible » (agrégat par parti) +
     // carte du collège électoral. Pas de projection par sièges : projection
     // uniquement pour l'instant.
@@ -172,6 +187,7 @@ const RIDING_JURISDICTION_TO_KEY: Record<string, string> = {
   ontario: 'ontario',
   'us-house': 'us-house',
   'us-senate': 'us-senate',
+  'us-governor': 'us-governor',
   uk: 'uk',
 };
 
