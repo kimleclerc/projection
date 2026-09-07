@@ -75,10 +75,25 @@ function check(juris) {
         errors.push(`${juris} : ${p.code} produit des sièges négatifs`);
       }
     }
+    // Le curseur doit aller dans le BON SENS — c'est une inversion de signe
+    // qu'on cherche, pas un gain garanti. Exiger `haut > ancre` était plus fort
+    // que nécessaire et cassait sur un cas parfaitement sain : un parti qui
+    // tient un seul siège très largement et dont la deuxième circonscription
+    // est hors de portée sature vers le haut.
+    //
+    // Mesuré le 2026-09-07 : `ontario/on_oth` (0,0 / 1,0 / 1,0) a fait échouer
+    // cinq desks d'affilée — le gardien est global, donc Ontario cassé bloque
+    // tout ce qui passe après. La circonscription 00034 donne « autre » à
+    // 64,1 %, et la suivante à 16,8 % derrière un NPD à 38,2 : +3,6 points de
+    // curseur ne peuvent pas combler 21 points, et c'est bien ainsi.
+    //
+    // La propriété qui attrape vraiment une inversion est `haut >= ancre >= bas`
+    // ET `haut > bas` : la course entière doit gagner des sièges, sans jamais
+    // reculer. Un signe inversé donne `haut < bas` et reste attrapé.
     if (p.seats_projected >= 1) {
       const haut = simulate(doc, { [p.code]: p.travel })[p.code];
       const bas = simulate(doc, { [p.code]: -p.travel })[p.code];
-      if (!(haut > anchor[p.code] && anchor[p.code] >= bas)) {
+      if (!(haut >= anchor[p.code] && anchor[p.code] >= bas && haut > bas)) {
         errors.push(
           `${juris}/${p.code} : curseur non monotone ` +
           `(${bas.toFixed(1)} / ${anchor[p.code].toFixed(1)} / ${haut.toFixed(1)})`,
