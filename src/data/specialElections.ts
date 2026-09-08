@@ -2,6 +2,13 @@ export type SpecialElectionLocale = 'en' | 'fr' | 'es';
 
 export interface SpecialElectionConfig {
   slug: string;
+  /**
+   * Jour du scrutin, ISO — `null` tant qu'une vacance attend son bref.
+   * Le desk s'en sert pour séparer les courses vives des archives : sans lui,
+   * un résultat d'avril s'affichait avec le même poids visuel qu'une course
+   * en attente, et rien ne signalait qu'un desk avait dépassé sa date.
+   */
+  electionDate: string | null;
   dataPath: string;
   currentPage: string;
   modelBadge: string;
@@ -32,6 +39,7 @@ export interface SpecialElectionConfig {
 export const specialElections = {
   ga13: {
     slug: 'ga13',
+    electionDate: '2026-08-25',
     dataPath: 'ga13-special',
     currentPage: 'usa-hub',
     modelBadge: 'Fundamentals-only · 50,000 simulations',
@@ -58,6 +66,7 @@ export const specialElections = {
   },
   fl20: {
     slug: 'fl20',
+    electionDate: null,
     dataPath: 'fl20-special',
     currentPage: 'usa-hub',
     modelBadge: 'Provisional party-control model',
@@ -79,6 +88,7 @@ export const specialElections = {
   },
   tx23: {
     slug: 'tx23',
+    electionDate: null,
     dataPath: 'tx23-special',
     currentPage: 'usa-hub',
     modelBadge: 'Provisional party-control model',
@@ -100,6 +110,7 @@ export const specialElections = {
   },
   ca1: {
     slug: 'ca1',
+    electionDate: '2026-06-02',
     dataPath: 'ca1-special',
     currentPage: 'usa-hub',
     modelBadge: 'Fundamentals-only',
@@ -129,6 +140,7 @@ export const specialElections = {
   },
   ca14: {
     slug: 'ca14',
+    electionDate: '2026-08-18',
     dataPath: 'ca14-special',
     currentPage: 'usa-hub',
     modelBadge: 'Fundamentals-only',
@@ -158,6 +170,7 @@ export const specialElections = {
   },
   ga14: {
     slug: 'ga14',
+    electionDate: '2026-04-07',
     dataPath: 'ga14-runoff',
     currentPage: 'usa-hub',
     modelBadge: 'Fundamentals-only',
@@ -190,6 +203,7 @@ export const specialElections = {
   },
   nj11: {
     slug: 'nj11',
+    electionDate: '2026-04-16',
     dataPath: 'nj11-special',
     currentPage: 'usa-hub',
     modelBadge: 'Fundamentals-only',

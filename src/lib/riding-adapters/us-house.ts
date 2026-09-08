@@ -23,7 +23,7 @@ import type {
 } from './types';
 import { ridingSlug } from './types';
 import { partyMeta } from './parties';
-import { getLocalPollsByRiding, type PollRow } from '../polls-adapter';
+import { getLocalPollsByRiding, depad, type PollRow } from '../polls-adapter';
 import ridingsSource from '../../../web_data/us-house/ridings.json';
 import membersSource from '../../../web_data/us-house/members.json';
 import candidatesSource from '../../../web_data/us-house/candidates_2026.json';
@@ -66,11 +66,10 @@ const redistrictingByRiding = redistrictingSource as Record<string, RidingData['
 const RIDINGS_WITH_HISTORY = new Set((historyIndex as { ridings_with_history: string[] }).ridings_with_history);
 
 /**
- * District-level polls, keyed by the engine's de-padded riding_id. The polls
- * export strips leading zeros from state FIPS ("06011" → "6011", "31001" stays),
- * so we look up by `String(Number(riding_id))`. At-large seats (AK "02000" vs
- * poll geography "2001") don't reconcile and stay unmatched — a known quirk,
- * not worth special-casing for one district.
+ * District-level polls, keyed by the engine's de-padded riding_id (`depad`).
+ * At-large seats used to stay unmatched — the NYT numbers AK's single district
+ * 1, the engine numbers it 0 — but the importer now translates at the source,
+ * so AK-AL and VT-AL join like any other district.
  */
 const LOCAL_POLLS_BY_RIDING = getLocalPollsByRiding('us-house');
 
@@ -93,7 +92,7 @@ function adaptPoll(p: PollRow): RidingPoll {
 
 /** District polls for a riding (already sorted field_end desc by the adapter). */
 function adaptPolls(rid: string): RidingPoll[] | undefined {
-  const rows = LOCAL_POLLS_BY_RIDING[String(Number(rid))];
+  const rows = LOCAL_POLLS_BY_RIDING[depad(rid)];
   if (!rows || rows.length === 0) return undefined;
   return rows.map(adaptPoll);
 }

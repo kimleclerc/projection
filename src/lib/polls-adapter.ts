@@ -210,15 +210,44 @@ export function getLocalPolls(webKey: string): PollRow[] {
   return idx.polls.filter((p) => !!p.geography).slice().sort(byFieldEndDesc);
 }
 
+/**
+ * What a polls hub should list.
+ *
+ * Most jurisdictions have a national topline (a generic ballot, a voting
+ * intention) plus, sometimes, district polls on top — the hub shows the
+ * national ones. But a Senate or Governor cycle has NO national race: every
+ * poll is a state poll. Those hubs listed all 294 / 271 of them only because
+ * the polls carried no geography; once the engine gives them their seat, the
+ * `!p.geography` filter would empty the page. So: national polls when the
+ * jurisdiction has any, every poll when it has none.
+ */
+export function getHubPolls(webKey: string): PollRow[] {
+  const national = getNationalPolls(webKey);
+  if (national.length > 0) return national;
+  const idx = INDEX_BY_KEY[webKey];
+  if (!idx) return [];
+  return idx.polls.slice().sort(byFieldEndDesc);
+}
+
 /** Local polls keyed by district riding_id — for joining into district pages. */
 export function getLocalPollsByRiding(webKey: string): Record<string, PollRow[]> {
   const out: Record<string, PollRow[]> = {};
   for (const p of getLocalPolls(webKey)) {
     const rid = p.geography?.riding_id;
     if (!rid) continue;
-    (out[rid] ??= []).push(p);
+    (out[depad(rid)] ??= []).push(p);
   }
   return out;
+}
+
+/**
+ * One spelling for one seat. The engine writes district ids as CSV numbers
+ * ("06007" reads back as 6007) but state ids zero-padded ("02000"), so the two
+ * families never matched the same key. Both sides go through this.
+ */
+export function depad(ridingId: string | number): string {
+  const text = String(ridingId).trim();
+  return /^\d+$/.test(text) ? String(Number(text)) : text;
 }
 
 /** Polls that earned a dedicated detail page (breakdowns present, no geography). */

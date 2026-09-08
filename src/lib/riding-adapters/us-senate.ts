@@ -14,9 +14,10 @@
  * comes in a follow-up.
  */
 import type {
-  RidingData, RidingMember, DeclaredCandidate, RidingNeighbor,
+  RidingData, RidingMember, DeclaredCandidate, RidingNeighbor, RidingPoll,
 } from './types';
 import { ridingSlug } from './types';
+import { getLocalPollsByRiding, depad, type PollRow } from '../polls-adapter';
 import { partyMeta } from './parties';
 import latestSource from '../../../web_data/us-senate/latest.json';
 import membersSource from '../../../web_data/us-senate/members.json';
@@ -58,6 +59,38 @@ type RawCandidate = { name: string; party_code: string; party_raw: string; ici_s
 const candidatesByRace = candidatesSource as Record<string, RawCandidate[] | undefined>;
 const primariesByRace = primariesSource as Record<string, RidingData['primaries']>;
 const RACES_WITH_HISTORY = new Set((historyIndex as { ridings_with_history: string[] }).ridings_with_history);
+
+/**
+ * Statewide polls for this race. A Senate cycle has no national topline:
+ * every poll is a state poll, and the engine already leans on them hard
+ * (run_us_senate.py gives a well-polled state 0.78 of its projected margin).
+ * They only failed to reach this page because the poll export classified them
+ * as national — no riding_id, no geography, nothing to join on.
+ */
+const LOCAL_POLLS_BY_RACE = getLocalPollsByRiding('us-senate');
+
+function adaptPoll(p: PollRow): RidingPoll {
+  return {
+    poll_id: p.poll_id,
+    firm_name: p.firm_name,
+    field_start: p.field_start,
+    field_end: p.field_end,
+    display_date: p.display_date,
+    release_date: p.release_date,
+    sample_size: p.sample_size,
+    population: p.population,
+    client: p.client,
+    source_url: p.source_url,
+    topline: p.topline,
+  };
+}
+
+/** State polls for a race (already sorted field_end desc by the adapter). */
+function adaptPolls(rid: string): RidingPoll[] | undefined {
+  const rows = LOCAL_POLLS_BY_RACE[depad(rid)];
+  if (!rows || rows.length === 0) return undefined;
+  return rows.map(adaptPoll);
+}
 
 /** Senate-wide vote_mean by party (unweighted mean across the 35
  *  contested races). */
@@ -185,6 +218,7 @@ function adaptOne(raw: RawRace): RidingData {
     baseline,
     member: members[raw.riding_id],
     declaredCandidates: adaptDeclared(raw.riding_id),
+    polls: adaptPolls(raw.riding_id),
     primaries: primariesByRace[raw.riding_id],
     runDate: META.run_date,
     hasProjectionHistory: RACES_WITH_HISTORY.has(raw.riding_id),

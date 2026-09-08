@@ -8,7 +8,7 @@ import EditorialLayout from '../layouts/EditorialLayout.astro';
 import PollsHub from './PollsHub.astro';
 import JurisdictionNav from './JurisdictionNav.astro';
 import {
-  getPollsMeta, getNationalPolls, getFirms, getPollsTrend, getRecentNationalPolls,
+  getPollsMeta, getHubPolls, getFirms, getPollsTrend, getRecentNationalPolls,
   getDisplayPartyCodes,
 } from '../lib/polls-adapter';
 import { pollPartyChips } from '../lib/poll-parties';
@@ -20,7 +20,7 @@ const { webKey, lang } = Astro.props as Props;
 const cfg = POLLS_HUBS[webKey];
 const copy = cfg.copy[lang];
 const meta = getPollsMeta(webKey)!;
-const polls = getNationalPolls(webKey);
+const polls = getHubPolls(webKey);
 const firms = getFirms(webKey);
 const trend = getPollsTrend(webKey);
 const chips = pollPartyChips(webKey, getDisplayPartyCodes(webKey), lang);

@@ -1,0 +1,582 @@
+---
+/**
+ * Desk États-Unis — un seul corps pour /en/us/, /fr/us/ et /es/us/.
+ *
+ * Les trois routes étaient trois copies de 218 lignes qui ne différaient que
+ * par la langue : chaque nouvel élément était empilé trois fois, jamais tout à
+ * fait pareil (la méthodologie espagnole parlait encore de Monte Carlo un mois
+ * après que les deux autres aient cessé). Une seule implémentation, une table
+ * de textes — le motif que PollsHubPage et SpecialElectionEngine suivent déjà.
+ *
+ * HIÉRARCHIE : le mi-mandat du 3 novembre d'abord, puis ce qui remplit encore
+ * sa carte (primaires, partielles vives), puis les indices, puis 2028, puis
+ * les archives. L'ancienne page ouvrait sur une carte affiliée et fondait sept
+ * objets sans rapport dans une seule grille « Instrument live ».
+ */
+import EditorialLayout from '../layouts/EditorialLayout.astro';
+import EditorialHero from './EditorialHero.astro';
+import MarketCheck from './MarketCheck.astro';
+import MethodologyNote from './MethodologyNote.astro';
+import AnimatedNumber from '../islands/AnimatedNumber';
+import PolymarketEmbed from './PolymarketEmbed.astro';
+import AffiliateCard from './AffiliateCard.astro';
+import DeskSections from './DeskSections.astro';
+import { specialElections } from '../data/specialElections';
+
+import ldiData from '../../web_data/us-lame-duck/latest.json';
+import houseData from '../../web_data/us-house/latest.json';
+import senateData from '../../web_data/us-senate/latest.json';
+import governorData from '../../web_data/us-governor/latest.json';
+import showdownData from '../../web_data/cusma-showdown/latest.json';
+import presData from '../../web_data/us-president/latest.json';
+import primaryDesk from '../../web_data/us-primaries/latest.json';
+
+type Lang = 'en' | 'fr' | 'es';
+interface Props { lang: Lang; }
+const { lang } = Astro.props as Props;
+
+/** Jour du mi-mandat — la seule date autour de laquelle cette page s'organise. */
+const MIDTERM = '2026-11-03';
+
+type SeatParty = { party: string; seats_projected?: number; seats_mean?: number; p_majority: number; color: string };
+const pick = (rows: SeatParty[], party: string) => rows.find((p) => p.party === party)!;
+
+const ldi = ldiData.ldi;
+const houseParties = houseData.parties as unknown as SeatParty[];
+const senateParties = senateData.parties as unknown as SeatParty[];
+const govParties = governorData.parties as unknown as SeatParty[];
+const houseDem = pick(houseParties, 'us_dem');
+const houseRep = pick(houseParties, 'us_rep');
+const senateDem = pick(senateParties, 'us_dem');
+const senateRep = pick(senateParties, 'us_rep');
+const govDem = pick(govParties, 'us_dem');
+const govRep = pick(govParties, 'us_rep');
+// Les sièges ouverts sont le fait saillant du cycle gubernatorial : la moitié
+// des courses n'a pas de sortant. Compté sur les données, jamais écrit en dur.
+const govOpenSeats = (governorData.ridings as Array<{ open_seat?: boolean }>).filter((r) => r.open_seat).length;
+
+const deltaSign = ldi.delta_7d >= 0 ? '+' : '';
+const primaryMeta = (primaryDesk as any).meta;
+const nextPrimary = (primaryDesk as any).upcoming?.[0];
+const nextPrimaryStates = [...new Set(((primaryDesk as any).upcoming ?? [])
+  .filter((g: any) => g.primary_date === nextPrimary?.primary_date)
+  .map((g: any) => g.state_name[lang]))].join(' · ');
+
+const presRep = (presData as any).primary.rep;
+const presDem = (presData as any).primary.dem;
+const presRepLead = presRep.standings.find((s: any) => s.status !== 'ineligible') ?? presRep.standings[0];
+const presDemLead = presDem.standings.find((s: any) => s.status !== 'ineligible') ?? presDem.standings[0];
+
+/**
+ * Partielles : une course sans date attend son bref, une course datée dans le
+ * futur est vive, une course datée dans le passé est une archive. Les sept
+ * étaient auparavant rendues à plat, un résultat d'avril à côté d'une vacance
+ * ouverte.
+ */
+const today = new Date().toISOString().slice(0, 10);
+const allSpecials = Object.values(specialElections);
+const liveSpecials = allSpecials.filter((s) => !s.electionDate || s.electionDate >= today);
+const pastSpecials = allSpecials
+  .filter((s) => s.electionDate && s.electionDate < today)
+  .sort((a, b) => (b.electionDate! < a.electionDate! ? -1 : 1));
+
+const specialHref = (s: (typeof allSpecials)[number]) => s.paths[lang] ?? s.paths.en ?? '#';
+
+const COPY = {
+  en: {
+    title: 'U.S. Politics — Vote-Scope',
+    description: 'House control, Senate fragility, special elections, and the Lame-Duck Index in one place. Live projections updated as polls arrive — Vote-Scope.',
+    breadcrumb: 'U.S.',
+    heroEyebrow: 'United States Desk',
+    heroTitle: 'Who controls Washington when the map stops being theoretical?',
+    heroPromise: 'House, Senate, governors and the races still filling in the map — projected from public polls and updated as new numbers land.',
+    heroQuestion: 'Is the U.S. map stable, fragile, or being misread by the market?',
+    heroPrimary: 'Open Lame-Duck', heroSecondary: 'All indexes',
+    midtermEyebrow: 'Midterms · November 3, 2026',
+    midtermTitle: 'Three chambers on one ballot.',
+    midtermLede: 'The House, a third of the Senate and 36 governorships are decided the same night. Everything else on this page feeds these three numbers.',
+    daysLabel: 'days to go', dayLabel: 'day to go', todayLabel: 'Election day',
+    house: 'House 2026', senate: 'Senate 2026', governors: 'Governors 2026',
+    houseCta: 'House projection →', senateCta: 'Senate projection →', govCta: 'Governor projection →',
+    majorityD: 'Chance of a D majority', seatsOf: 'of',
+    govRaces: (n: number) => `36 races on the ballot · ${n} open seats.`,
+    roadEyebrow: 'On the road to November',
+    roadTitle: 'The races still filling in the map.',
+    primaries: 'Primaries 2026', primariesNext: 'Next:', primariesCta: 'Primary tracker →',
+    primariesCount: (decided: number, awaiting: number) => `${decided} nominations settled · ${awaiting} races still awaiting official results.`,
+    liveSpecials: 'Special elections under way', noLiveSpecials: 'No special election is currently pending.',
+    indexEyebrow: 'Proprietary indexes',
+    indexTitle: 'Our own instruments.',
+    ldiCta: 'Full index →', delta7: '7-day delta',
+    radar: 'U.S. Latino Radar',
+    radarBody: 'The House and Senate races where Latino electoral weight, competitiveness, and control of Congress intersect — ranked on a 100-point scale.',
+    radarCta: 'Open the radar →', radarHref: '/en/us/latino-radar/',
+    cusma: 'CUSMA Showdown', cusmaGap: 'Leverage gap', cusmaCta: 'Goose vs Lame-Duck →',
+    beyondEyebrow: 'Beyond 2026',
+    pres: 'Presidential 2028 · The invisible primary',
+    presBody: 'Primary fields plus the electoral-college map.', presCta: 'Presidential desk →',
+    archiveEyebrow: 'Archive',
+    archiveTitle: 'Special elections already decided',
+    archiveHint: 'Kept for the record — these races are over.',
+    marketEyebrow: 'Prediction markets',
+    marketTitle: 'What the markets say alongside the model',
+    marketBalance: 'U.S. Midterms 2026 — balance of power',
+    marketPres: 'U.S. Presidential 2028',
+    mcKicker: 'Model vs Market', mcTitle: 'Where the model and the market disagree.',
+    mcBody: 'Control odds, race-level confidence, and the moments traders panic — set right next to our projection, so the gaps are easy to spot.',
+    mcModel: 'Vote-Scope model', mcMarket: 'Polymarket / odds',
+    mcNote: 'Polymarket benchmarks, refreshed daily next to every projection.',
+    methodTitle: 'How the U.S. projections are built.',
+    methodBody: 'House and Senate control, seat fragility, and market disagreement — each built from public polls in a bias-corrected Bayesian model, calibrated on past results, with the simulation only translating votes into seats. All open on the page.',
+    methodBullets: [
+      'House and Senate polls are sourced from the NYT tracker and aggregated with a Bayesian BSTS model, then run through district- and state-level simulations.',
+      'District and statewide polls anchor their own seat: a race with recent local polling is pulled toward it, and polls older than 180 days are dropped rather than faded.',
+      'The Lame-Duck Index (LDI) combines presidential approval, economic indicators, congressional district margins, and prediction-market odds into a single 0–100 drag score.',
+      'Special elections use a fundamentals model: incumbency, prior margin, candidate profile, and any available local polling.',
+      'Prediction-market benchmarks (Polymarket) are shown alongside model output as an independent disagreement signal, updated daily.',
+    ],
+    houseHref: '/en/us/house/', senateHref: '/en/us/senate/', govHref: '/en/us/governors/',
+    primariesHref: '/en/us/primaries/', presHref: '/en/us/president/',
+    ldiHref: '/en/us/indexes/lame-duck/', cusmaHref: '/en/indexes/cusma-showdown/',
+    indexesHref: '/en/indexes/', homeHref: 'https://vote-scope.com/en/',
+  },
+  fr: {
+    title: 'Politique américaine — Vote-Scope',
+    description: "Contrôle de la Chambre, fragilité du Sénat, partielles et Lame-Duck Index réunis. Projections en direct mises à jour à chaque nouveau sondage — Vote-Scope.",
+    breadcrumb: 'États-Unis',
+    heroEyebrow: 'Desk États-Unis',
+    heroTitle: "Qui contrôle Washington quand la carte cesse d'être théorique?",
+    heroPromise: "Chambre, Sénat, gouverneurs et les courses qui remplissent encore la carte — projetés à partir de sondages publics et mis à jour à mesure que les chiffres tombent.",
+    heroQuestion: "La carte américaine est-elle stable, fragile, ou mal lue par le marché?",
+    heroPrimary: 'Ouvrir Lame-Duck', heroSecondary: 'Tous les index',
+    midtermEyebrow: 'Mi-mandat · 3 novembre 2026',
+    midtermTitle: 'Trois chambres sur un même bulletin.',
+    midtermLede: "La Chambre, un tiers du Sénat et 36 postes de gouverneur se tranchent le même soir. Tout le reste de cette page alimente ces trois chiffres.",
+    daysLabel: 'jours avant le vote', dayLabel: 'jour avant le vote', todayLabel: 'Jour du scrutin',
+    house: 'Chambre 2026', senate: 'Sénat 2026', governors: 'Gouverneurs 2026',
+    houseCta: 'Projection Chambre →', senateCta: 'Projection Sénat →', govCta: 'Projection des gouverneurs →',
+    majorityD: 'Probabilité de majorité D', seatsOf: 'sur',
+    govRaces: (n: number) => `36 courses au bulletin · ${n} sièges ouverts.`,
+    roadEyebrow: 'En route vers novembre',
+    roadTitle: 'Les courses qui remplissent encore la carte.',
+    primaries: 'Primaires 2026', primariesNext: 'Prochaine :', primariesCta: 'Suivi des primaires →',
+    primariesCount: (decided: number, awaiting: number) => `${decided} investitures tranchées · ${awaiting} courses encore sans résultat officiel.`,
+    liveSpecials: 'Partielles en cours', noLiveSpecials: "Aucune partielle n'est en attente en ce moment.",
+    indexEyebrow: 'Indices propriétaires',
+    indexTitle: 'Nos propres instruments.',
+    ldiCta: 'Index complet →', delta7: 'Delta 7 jours',
+    radar: 'Radar Latino USA',
+    radarBody: "Les courses Chambre et Sénat où l’électorat latino, la compétitivité et le contrôle du Congrès se rencontrent — classées sur 100.",
+    radarCta: 'Ouvrir le radar →', radarHref: '/fr/us/radar-latino/',
+    cusma: 'Duel ACEUM', cusmaGap: 'Écart de levier', cusmaCta: 'Bernache vs Canard boiteux →',
+    beyondEyebrow: 'Au-delà de 2026',
+    pres: 'Présidentielle 2028 · La primaire invisible',
+    presBody: 'Champs de primaire + carte du collège électoral.', presCta: 'Desk présidentiel →',
+    archiveEyebrow: 'Archives',
+    archiveTitle: 'Partielles déjà tranchées',
+    archiveHint: 'Conservées pour mémoire — ces courses sont finies.',
+    marketEyebrow: 'Marchés de prédiction',
+    marketTitle: 'Ce que les marchés disent en parallèle du modèle',
+    marketBalance: 'Mi-mandat américain 2026 — équilibre des pouvoirs',
+    marketPres: 'Présidentielle américaine 2028',
+    mcKicker: 'Modèle vs marché', mcTitle: 'Là où le modèle et le marché divergent.',
+    mcBody: "Contrôle des chambres, confiance par course et les moments où les traders paniquent — placés juste à côté de notre projection, pour que les écarts sautent aux yeux.",
+    mcModel: 'Modèle', mcMarket: 'Marché',
+    mcNote: 'Repères Polymarket, actualisés chaque jour à côté de chaque projection.',
+    methodTitle: 'Comment les projections américaines sont bâties.',
+    methodBody: "Contrôle de la Chambre et du Sénat, fragilité des sièges et désaccord avec le marché — chacun bâti à partir de sondages publics dans un modèle bayésien aux biais corrigés, calibré sur les résultats passés, la simulation ne faisant que traduire les votes en sièges. Le tout ouvert sur la page.",
+    methodBullets: [
+      "Les sondages Chambre et Sénat viennent du suivi du NYT, sont agrégés par un modèle BSTS bayésien, puis passés en simulation par district et par État.",
+      "Les sondages de circonscription et d'État ancrent leur propre siège : une course récemment sondée est tirée vers son sondage, et un sondage de plus de 180 jours est écarté plutôt qu'atténué.",
+      "Le Lame-Duck Index (LDI) combine approbation présidentielle, indicateurs économiques, marges de district et cotes de marchés de prédiction en un score de 0 à 100.",
+      "Les élections partielles utilisent un modèle de fondamentaux : titularité, marge historique, profil des candidats, et sondages locaux disponibles.",
+      "Les repères de marchés de prédiction (Polymarket) sont affichés aux côtés du modèle comme signal de désaccord indépendant, mis à jour quotidiennement.",
+    ],
+    houseHref: '/fr/us/chambre/', senateHref: '/fr/us/senat/', govHref: '/fr/us/gouverneurs/',
+    primariesHref: '/fr/us/primaires/', presHref: '/fr/us/presidentielle/',
+    ldiHref: '/fr/us/indexes/lame-duck/', cusmaHref: '/fr/indexes/cusma-showdown/',
+    indexesHref: '/fr/indexes/', homeHref: 'https://vote-scope.com/fr/',
+  },
+  es: {
+    title: 'Política de EE. UU. — Vote-Scope',
+    description: 'Control de la Cámara, fragilidad del Senado, elecciones especiales y el Lame-Duck Index en un solo lugar. Proyecciones en vivo actualizadas con cada encuesta — Vote-Scope.',
+    breadcrumb: 'EE. UU.',
+    heroEyebrow: 'Desk Estados Unidos',
+    heroTitle: '¿Quién controla Washington cuando el mapa deja de ser teórico?',
+    heroPromise: 'Cámara, Senado, gobernadores y las contiendas que todavía completan el mapa — proyectados a partir de sondeos públicos y actualizados a medida que llegan los números.',
+    heroQuestion: '¿El mapa de EE. UU. es estable, frágil o mal leído por el mercado?',
+    heroPrimary: 'Abrir Lame-Duck', heroSecondary: 'Todos los índices',
+    midtermEyebrow: 'Intermedias · 3 de noviembre de 2026',
+    midtermTitle: 'Tres cámaras en una misma papeleta.',
+    midtermLede: 'La Cámara, un tercio del Senado y 36 gobernaciones se deciden la misma noche. Todo lo demás en esta página alimenta esas tres cifras.',
+    daysLabel: 'días para la elección', dayLabel: 'día para la elección', todayLabel: 'Día de la elección',
+    house: 'Cámara 2026', senate: 'Senado 2026', governors: 'Gobernadores 2026',
+    houseCta: 'Proyección Cámara →', senateCta: 'Proyección Senado →', govCta: 'Proyección de gobernadores →',
+    majorityD: 'Probabilidad de mayoría D', seatsOf: 'de',
+    govRaces: (n: number) => `36 contiendas en la papeleta · ${n} puestos abiertos.`,
+    roadEyebrow: 'Camino a noviembre',
+    roadTitle: 'Las contiendas que todavía completan el mapa.',
+    primaries: 'Primarias 2026', primariesNext: 'Próxima:', primariesCta: 'Seguimiento de primarias →',
+    primariesCount: (decided: number, awaiting: number) => `${decided} nominaciones decididas · ${awaiting} contiendas aún sin resultado oficial.`,
+    liveSpecials: 'Elecciones especiales en curso', noLiveSpecials: 'Ninguna elección especial está pendiente en este momento.',
+    indexEyebrow: 'Índices propios',
+    indexTitle: 'Nuestros propios instrumentos.',
+    ldiCta: 'Índice completo →', delta7: 'Delta 7 días',
+    radar: 'Radar Latino USA',
+    radarBody: 'Las contiendas de Cámara y Senado donde coinciden el peso electoral latino, la competitividad y el control del Congreso — clasificadas sobre 100.',
+    radarCta: 'Abrir el radar →', radarHref: '/es/us/radar-latino/',
+    cusma: 'Duelo T-MEC', cusmaGap: 'Brecha de ventaja', cusmaCta: 'Ganso vs Pato cojo →',
+    beyondEyebrow: 'Más allá de 2026',
+    pres: 'Presidencial 2028 · La primaria invisible',
+    presBody: 'Campos de primarias + mapa del colegio electoral.', presCta: 'Desk presidencial →',
+    archiveEyebrow: 'Archivo',
+    archiveTitle: 'Especiales ya decididas',
+    archiveHint: 'Conservadas como registro — estas contiendas terminaron.',
+    marketEyebrow: 'Mercados de predicción',
+    marketTitle: 'Lo que dicen los mercados junto al modelo',
+    marketBalance: 'Elecciones intermedias 2026 — equilibrio de poder',
+    marketPres: 'Elección presidencial 2028',
+    mcKicker: 'Modelo vs. mercado', mcTitle: 'Dónde difieren el modelo y el mercado.',
+    mcBody: 'Probabilidades de control, confianza por carrera y los momentos en que los traders entran en pánico — junto a nuestra proyección, para que las brechas se vean de inmediato.',
+    mcModel: 'Modelo Vote-Scope', mcMarket: 'Polymarket / cuotas',
+    mcNote: 'Referencias de Polymarket, actualizadas a diario junto a cada proyección.',
+    methodTitle: 'Cómo se construyen las proyecciones de EE. UU.',
+    methodBody: 'Control de la Cámara y el Senado, fragilidad de escaños y desacuerdo con el mercado — cada uno construido a partir de sondeos públicos en un modelo bayesiano con sesgos corregidos, calibrado sobre resultados pasados; la simulación solo traduce votos en escaños. Todo abierto en la página.',
+    methodBullets: [
+      'Las encuestas de Cámara y Senado provienen del seguimiento del NYT, se agregan con un modelo BSTS bayesiano y luego se simulan por distrito y por estado.',
+      'Las encuestas de distrito y estatales anclan su propio escaño: una contienda con sondeo local reciente se acerca a él, y un sondeo de más de 180 días se descarta en lugar de atenuarse.',
+      'El Lame-Duck Index (LDI) combina aprobación presidencial, indicadores económicos, márgenes de distrito y cuotas de mercados de predicción en un puntaje de 0 a 100.',
+      'Las elecciones especiales usan un modelo de fundamentos: incumbencia, margen histórico, perfil de candidatos y encuestas locales disponibles.',
+      'Los benchmarks de mercados de predicción (Polymarket) se muestran junto al modelo como señal de desacuerdo independiente, actualizada a diario.',
+    ],
+    houseHref: '/es/us/house/', senateHref: '/es/us/senate/', govHref: '/es/us/gobernadores/',
+    primariesHref: '/es/us/primarias/', presHref: '/es/us/presidencial/',
+    ldiHref: '/es/us/indexes/lame-duck/', cusmaHref: '/es/indexes/cusma-showdown/',
+    indexesHref: '/en/indexes/', homeHref: 'https://vote-scope.com/es/',
+  },
+} as const;
+
+const t = COPY[lang];
+const canonical = `https://vote-scope.com/${lang}/us/`;
+const ldiLabel = lang === 'fr' ? ldi.label_fr : ldi.label_en;
+const showdownLabel = lang === 'fr' ? showdownData.showdown.label_fr
+  : lang === 'es' ? showdownData.showdown.label_es : showdownData.showdown.label_en;
+---
+
+<EditorialLayout
+  title={t.title}
+  description={t.description}
+  canonical={canonical}
+  lang={lang}
+  currentPage="usa-hub"
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={{ en: 'https://vote-scope.com/en/us/', fr: 'https://vote-scope.com/fr/us/', es: 'https://vote-scope.com/es/us/' }}
+  jsonLd={[
+    {
+      '@context': 'https://schema.org',
+      '@type': 'CollectionPage',
+      name: t.title,
+      url: canonical,
+      inLanguage: lang,
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: t.homeHref },
+        { '@type': 'ListItem', position: 2, name: t.breadcrumb, item: canonical },
+      ],
+    },
+  ]}
+>
+  <EditorialHero
+    eyebrow={t.heroEyebrow}
+    title={t.heroTitle}
+    promise={t.heroPromise}
+    question={t.heroQuestion}
+    primaryHref={t.ldiHref}
+    primaryLabel={t.heroPrimary}
+    secondaryHref={t.indexesHref}
+    secondaryLabel={t.heroSecondary}
+    preferredSourceLocale={lang}
+  />
+
+  <section class="content-band us-midterm">
+    <div class="container">
+      <p class="eyebrow">{t.midtermEyebrow}</p>
+      <h2>{t.midtermTitle}</h2>
+      <p class="us-lede">{t.midtermLede}</p>
+      <p class="us-countdown">
+        <strong data-midterm-days data-midterm={MIDTERM}>—</strong>
+        <span
+          data-midterm-label
+          data-day={t.dayLabel}
+          data-days={t.daysLabel}
+          data-today={t.todayLabel}
+        >{t.daysLabel}</span>
+      </p>
+
+      <div class="us-chambers">
+        <article class="note-card us-chamber" style={`--accent:${houseDem.color};`}>
+          <p class="eyebrow">{t.house}</p>
+          <p class="us-seats">
+            <span class="us-seat-d"><AnimatedNumber client:visible value={houseDem.seats_projected!} /></span>
+            <span class="us-seat-sep">·</span>
+            <span class="us-seat-r"><AnimatedNumber client:visible value={houseRep.seats_projected!} /></span>
+            <span class="us-seat-total">{t.seatsOf} 435</span>
+          </p>
+          <p class="us-majority">{t.majorityD} : <strong>{Math.round(houseDem.p_majority * 100)} %</strong></p>
+          <a href={t.houseHref} class="cta-link">{t.houseCta}</a>
+        </article>
+
+        <article class="note-card us-chamber" style={`--accent:${senateDem.color};`}>
+          <p class="eyebrow">{t.senate}</p>
+          <p class="us-seats">
+            <span class="us-seat-d"><AnimatedNumber client:visible value={Math.round(senateDem.seats_mean!)} /></span>
+            <span class="us-seat-sep">·</span>
+            <span class="us-seat-r"><AnimatedNumber client:visible value={Math.round(senateRep.seats_mean!)} /></span>
+            <span class="us-seat-total">{t.seatsOf} 100</span>
+          </p>
+          <p class="us-majority">{t.majorityD} : <strong>{Math.round(senateDem.p_majority * 100)} %</strong></p>
+          <a href={t.senateHref} class="cta-link">{t.senateCta}</a>
+        </article>
+
+        <article class="note-card us-chamber" style={`--accent:${govDem.color};`}>
+          <p class="eyebrow">{t.governors}</p>
+          <p class="us-seats">
+            <span class="us-seat-d"><AnimatedNumber client:visible value={Math.round(govDem.seats_mean!)} /></span>
+            <span class="us-seat-sep">·</span>
+            <span class="us-seat-r"><AnimatedNumber client:visible value={Math.round(govRep.seats_mean!)} /></span>
+            <span class="us-seat-total">{t.seatsOf} 50</span>
+          </p>
+          <p class="us-majority">{t.govRaces(govOpenSeats)}</p>
+          <a href={t.govHref} class="cta-link">{t.govCta}</a>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="content-band">
+    <div class="container">
+      <p class="eyebrow">{t.roadEyebrow}</p>
+      <h2>{t.roadTitle}</h2>
+      <div class="content-grid-2">
+        <article class="note-card">
+          <p class="eyebrow">{t.primaries}</p>
+          {nextPrimary && <p><strong>{t.primariesNext} {nextPrimaryStates}</strong></p>}
+          <p class="us-small">{t.primariesCount(primaryMeta.n_races_decided, primaryMeta.n_races_awaiting)}</p>
+          <a href={t.primariesHref} class="cta-link">{t.primariesCta}</a>
+        </article>
+        <div class="us-stack">
+          <p class="eyebrow">{t.liveSpecials}</p>
+          {liveSpecials.length === 0 && <p class="us-small">{t.noLiveSpecials}</p>}
+          {liveSpecials.map((s) => (
+            <a class="note-card us-special" href={specialHref(s)}>
+              <p class="eyebrow">{s.kicker}</p>
+              <h3>{s.headline.replace(/\n/g, ' ')}</h3>
+              <p class="us-small">{s.dek.slice(0, 160)}…</p>
+            </a>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="content-band">
+    <div class="container">
+      <p class="eyebrow">{t.indexEyebrow}</p>
+      <h2>{t.indexTitle}</h2>
+      <div class="us-indexes">
+        <article class="note-card us-chamber" style={`--accent:${ldi.zone_color};`}>
+          <p class="eyebrow">Lame-Duck Index</p>
+          <p class="us-score">
+            <AnimatedNumber client:visible value={ldi.score} decimals={1} /><span>/100</span>
+          </p>
+          <p class="us-zone" style={`color:${ldi.zone_color};`}>{ldiLabel}</p>
+          <p class="us-small">{t.delta7} : <strong>{deltaSign}{ldi.delta_7d}</strong></p>
+          <a href={t.ldiHref} class="cta-link">{t.ldiCta}</a>
+        </article>
+        <article class="note-card us-chamber" style="--accent:#c64d2d;">
+          <p class="eyebrow">{t.radar}</p>
+          <p class="us-small">{t.radarBody}</p>
+          <a href={t.radarHref} class="cta-link">{t.radarCta}</a>
+        </article>
+        <article class="note-card us-chamber" style={`--accent:${showdownData.showdown.zone_color};`}>
+          <p class="eyebrow">{t.cusma}</p>
+          <p class="us-score" style={`color:${showdownData.showdown.zone_color};font-size:2.2rem;`}>
+            {showdownData.showdown.gap > 0 ? '+' : ''}{showdownData.showdown.gap}
+          </p>
+          <p class="us-small">{t.cusmaGap} — {showdownLabel}</p>
+          <a href={t.cusmaHref} class="cta-link">{t.cusmaCta}</a>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="content-band">
+    <div class="container">
+      <p class="eyebrow">{t.beyondEyebrow}</p>
+      <article class="note-card us-chamber" style={`--accent:${presRep.color};`}>
+        <p class="eyebrow">{t.pres}</p>
+        <p>
+          REP <strong>{presRepLead.short_label} {presRepLead.share.toFixed(0)} %</strong> ·
+          DEM <strong>{presDemLead.short_label} {presDemLead.share.toFixed(0)} %</strong>
+        </p>
+        <p class="us-small">{t.presBody}</p>
+        <a href={t.presHref} class="cta-link">{t.presCta}</a>
+      </article>
+    </div>
+  </section>
+
+  {pastSpecials.length > 0 && (
+    <section class="content-band">
+      <div class="container">
+        <p class="eyebrow">{t.archiveEyebrow}</p>
+        <details class="us-archive">
+          <summary>{t.archiveTitle} ({pastSpecials.length})</summary>
+          <p class="us-small">{t.archiveHint}</p>
+          <ul>
+            {pastSpecials.map((s) => (
+              <li>
+                <a href={specialHref(s)}>{s.headline.replace(/\n/g, ' ')}</a>
+                <span class="us-small"> — {s.electionDate}</span>
+              </li>
+            ))}
+          </ul>
+        </details>
+      </div>
+    </section>
+  )}
+
+  <section class="content-band">
+    <div class="container">
+      <p class="eyebrow">{t.marketEyebrow}</p>
+      <h2>{t.marketTitle}</h2>
+      <PolymarketEmbed slug="2026-balance-of-power-d-senate-d-house-949" title={t.marketBalance} />
+      <PolymarketEmbed slug="will-gavin-newsom-win-the-2028-us-presidential-election" title={t.marketPres} />
+    </div>
+  </section>
+
+  <MarketCheck
+    kicker={t.mcKicker}
+    title={t.mcTitle}
+    body={t.mcBody}
+    modelLabel={t.mcModel}
+    marketLabel={t.mcMarket}
+    note={t.mcNote}
+  />
+
+  <section class="content-band">
+    <div class="container">
+      <AffiliateCard partner="proton" lang={lang} visual placement="us-desk" />
+    </div>
+  </section>
+
+  <DeskSections lang={lang} desk="us" />
+
+  <MethodologyNote
+    title={t.methodTitle}
+    body={t.methodBody}
+    bullets={t.methodBullets}
+  />
+</EditorialLayout>
+
+<style>
+  .us-lede { max-width: 62ch; }
+
+  /* Le compte à rebours se calcule chez le lecteur : un nombre de jours figé au
+     build serait faux dès le lendemain d'une publication sans nouveau run. */
+  .us-countdown {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    margin: 1.25rem 0 0;
+  }
+  .us-countdown strong {
+    font-size: 3.4rem;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .us-countdown span {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+
+  .us-chambers,
+  .us-indexes {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-top: 30px;
+  }
+  .us-chamber { border-left: 4px solid var(--accent, var(--rule)); }
+
+  .us-seats {
+    display: flex;
+    align-items: baseline;
+    gap: 0.4rem;
+    margin: 0.4rem 0 0.6rem;
+    font-size: 2.4rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+  .us-seat-d { color: var(--accent); }
+  .us-seat-sep { color: var(--ink-3); font-weight: 300; }
+  .us-seat-total {
+    font-size: 0.8rem;
+    font-weight: 400;
+    color: var(--ink-3);
+    margin-left: 0.25rem;
+  }
+  .us-majority { margin: 0 0 0.9rem; }
+
+  .us-score {
+    font-size: 3rem;
+    font-weight: 600;
+    margin: 0.25rem 0;
+    line-height: 1;
+  }
+  .us-score span { font-size: 1.1rem; font-weight: 400; color: var(--ink-3); }
+  .us-zone { font-weight: 700; font-size: 1.05rem; margin: 0 0 0.4rem; }
+
+  .us-small { font-size: 0.88rem; }
+  .us-stack { display: flex; flex-direction: column; gap: 1rem; }
+  .us-special { text-decoration: none; color: inherit; display: block; }
+  .us-special h3 { margin: 0.25rem 0; }
+
+  .us-archive summary {
+    cursor: pointer;
+    font-family: var(--mono);
+    font-size: 13px;
+    letter-spacing: 0.04em;
+  }
+  .us-archive ul { margin: 0.75rem 0 0; padding-left: 1.1rem; }
+  .us-archive li { margin-bottom: 0.35rem; }
+
+  @media (max-width: 920px) {
+    .us-chambers,
+    .us-indexes { grid-template-columns: 1fr; }
+    .us-countdown strong { font-size: 2.6rem; }
+  }
+</style>
+
+<script>
+  // Jours restants avant le mi-mandat, calculés dans le navigateur du lecteur.
+  const node = document.querySelector<HTMLElement>('[data-midterm-days]');
+  const label = document.querySelector<HTMLElement>('[data-midterm-label]');
+  if (node && label) {
+    const target = new Date(`${node.dataset.midterm}T00:00:00`);
+    const now = new Date();
+    const days = Math.ceil((target.getTime() - new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime()) / 86_400_000);
+    if (days > 0) {
+      node.textContent = String(days);
+      label.textContent = days === 1 ? (label.dataset.day ?? '') : (label.dataset.days ?? '');
+    } else {
+      node.textContent = days === 0 ? '0' : '';
+      label.textContent = label.dataset.today ?? '';
+    }
+  }
+</script>
