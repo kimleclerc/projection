@@ -131,10 +131,12 @@ function fmtDate(iso: string) {
               <div class="track-pred-result">
                 <strong class={resultClass}>{resultPrefix}{pred.result}</strong>
               </div>
-              <div class="track-pred-volume">
-                <strong>{fmtCurrency(totalVol)}</strong>
-                <span>volume marché</span>
-              </div>
+              {totalVol > 0 && (
+                <div class="track-pred-volume">
+                  <strong>{fmtCurrency(totalVol)}</strong>
+                  <span>volume marché</span>
+                </div>
+              )}
               <div class="track-pred-badge">
                 {isResolvedCorrect && <span class="track-badge track-badge--correct">Correct</span>}
                 {isPending && <span class="track-badge track-badge--pending">En attente</span>}

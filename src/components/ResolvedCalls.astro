@@ -114,7 +114,9 @@ const groups = domains.map((d) => {
             <article class="rc-card">
               <p class="rc-card-eyebrow">
                 {c.competition[locale]} · {c.timing[locale]}
-                {c.result.status === 'correct' && <span class="rc-check"> ✓</span>}
+                {c.result.status === 'correct'
+                  ? <span class="rc-check"> ✓</span>
+                  : <span class="rc-miss"> ✗</span>}
               </p>
               <h3 class="rc-card-title">{c.text.title[locale]}</h3>
               <p class="rc-card-call">{c.text.call[locale]}</p>
@@ -178,6 +180,10 @@ const groups = domains.map((d) => {
     text-transform: uppercase; color: var(--ink-3);
   }
   .rc-check { color: var(--red); font-weight: 700; }
+  /* Un appel raté doit se voir sur sa carte, pas seulement dans le compteur :
+     seuls les bons portaient une marque, si bien qu'un raté se lisait comme un
+     appel ordinaire pour qui ne recomptait pas. */
+  .rc-miss { color: var(--ink-3); font-weight: 700; }
   .rc-card-title { margin: 8px 0 6px; font-family: var(--serif); font-size: 21px; font-weight: 440; line-height: 1.1; letter-spacing: -.01em; }
   .rc-card-call { margin: 0 0 14px; color: var(--ink-2); font-size: 14px; line-height: 1.55; }
   .rc-vs {
