@@ -22,7 +22,14 @@ export interface SpecialElectionConfig {
   kicker: string;
   headline: string;
   dek: string;
-  /** Spanish overrides for hero copy. Falls back to EN fields when absent. */
+  /**
+   * Overrides localisés du bandeau. Repli sur les champs EN quand absents —
+   * ce repli laissait une accroche anglaise au présent sur les pages FR d'une
+   * course déjà tranchée, d'où les variantes `_fr`.
+   */
+  kicker_fr?: string;
+  headline_fr?: string;
+  dek_fr?: string;
   kicker_es?: string;
   headline_es?: string;
   dek_es?: string;
@@ -43,25 +50,33 @@ export const specialElections = {
     dataPath: 'ga13-special',
     currentPage: 'usa-hub',
     modelBadge: 'Fundamentals-only · 50,000 simulations',
-    title: 'GA-13 Special Runoff Forecast 2026 — Vote-Scope',
-    title_fr: 'Partielle GA-13 2026 : projection du second tour — Vote-Scope',
-    title_es: 'Especial GA-13 2026: pronóstico de segunda vuelta — Vote-Scope',
-    description: 'Marcye Scott vs Everton Blair in the August 25, 2026 GA-13 special runoff. First-round anchored forecast and win probabilities.',
-    description_fr: 'Marcye Scott contre Everton Blair au second tour spécial de GA-13 le 25 août 2026. Projection ancrée au premier tour et probabilités de victoire.',
-    description_es: 'Marcye Scott contra Everton Blair en la segunda vuelta especial de GA-13 del 25 de agosto de 2026. Pronóstico anclado en la primera ronda.',
-    kicker: 'U.S. House special runoff · August 25',
-    headline: 'Scott leads Blair in GA‑13.',
-    dek: 'Marcye Scott entered the runoff with a 46.0% to 37.4% first-round lead. The model tests how much of that advantage survives a lower-turnout, all-Democratic final.',
-    kicker_es: 'Segunda vuelta especial · 25 de agosto',
-    headline_es: 'Scott aventaja a Blair en GA‑13.',
-    dek_es: 'Marcye Scott llegó a la segunda vuelta con una ventaja de 46,0 % a 37,4 %. El modelo prueba cuánto resiste esa ventaja en una final demócrata de menor participación.',
+    title: 'GA-13 Special Runoff Result — Vote-Scope',
+    title_fr: 'Second tour spécial GA-13 — résultat — Vote-Scope',
+    title_es: 'Segunda vuelta especial GA-13 — resultado — Vote-Scope',
+    description:
+      "Official August 25, 2026 result: Everton Blair beat Marcye Scott 53.95% to 46.05% in the GA-13 special runoff. Vote-Scope had Scott at 85.9% — the archive of a missed call.",
+    description_fr:
+      "Résultat officiel du 25 août 2026 : Everton Blair bat Marcye Scott 53,95 % contre 46,05 % au second tour spécial de GA-13. Vote-Scope donnait Scott à 85,9 % — l'archive d'un appel manqué.",
+    description_es:
+      'Resultado oficial del 25 de agosto de 2026: Everton Blair venció a Marcye Scott 53,95 % a 46,05 % en la segunda vuelta especial de GA-13. Vote-Scope daba a Scott un 85,9 % — el archivo de un pronóstico fallido.',
+    kicker: 'Resolved special runoff · August 25, 2026 · Georgia 13',
+    headline: 'Blair won.\nWe had Scott.',
+    dek:
+      "Everton Blair took the August 25 runoff with 9,895 votes to Marcye Scott's 8,447 — 53.95% to 46.05% on the Georgia Secretary of State's official count. Vote-Scope made Scott an 85.9% favorite by a mean margin of 7.9 points; she lost by 7.9 points, below the model's 5th percentile. The forecast is kept here unchanged, as the record of a miss.",
+    kicker_fr: 'Second tour spécial tranché · 25 août 2026 · Géorgie 13',
+    headline_fr: 'Blair a gagné.\nNous avions Scott.',
+    dek_fr:
+      "Everton Blair a emporté le second tour du 25 août par 9 895 voix contre 8 447 à Marcye Scott — 53,95 % contre 46,05 % au décompte officiel du secrétaire d'État de Géorgie. Vote-Scope donnait Scott favorite à 85,9 %, avec une marge moyenne de 7,9 points ; elle a perdu par 7,9 points, sous le 5e centile du modèle. La projection est conservée telle quelle : c'est l'archive d'un raté.",
+    kicker_es: 'Segunda vuelta especial resuelta · 25 de agosto de 2026 · Georgia 13',
+    headline_es: 'Blair ganó.\nNosotros teníamos a Scott.',
+    dek_es:
+      'Everton Blair ganó la segunda vuelta del 25 de agosto por 9 895 votos frente a los 8 447 de Marcye Scott — 53,95 % contra 46,05 % en el recuento oficial de la Secretaría de Estado de Georgia. Vote-Scope daba a Scott como favorita con un 85,9 % y una ventaja media de 7,9 puntos; perdió por 7,9 puntos, por debajo del percentil 5 del modelo. La proyección se conserva sin cambios: es el archivo de un fallo.',
     paths: {
       en: '/en/us/specials/ga13/',
       fr: '/fr/us/specials/ga13/',
       es: '/es/us/specials/ga13/',
     },
     translated: { en: true, fr: false, es: true },
-    countdownTitle: 'Polls close in',
     bookContext: 'ga13',
   },
   fl20: {
@@ -144,18 +159,27 @@ export const specialElections = {
     dataPath: 'ca14-special',
     currentPage: 'usa-hub',
     modelBadge: 'Fundamentals-only',
-    title: 'CA-14 Special Election 2026: Wahab vs Hernandez — Polls, Forecast & Polymarket Odds — Vote-Scope',
-    title_fr: 'Spéciale CA-14 2026 : Wahab contre Hernandez — sondages, projection et cotes — Vote-Scope',
-    title_es: 'Especial CA-14 2026: Wahab contra Hernandez — encuestas, proyección y cuotas — Vote-Scope',
-    description_fr: 'Suit la générale spéciale du 18 août 2026 dans CA-14 entre Aisha Wahab et Melissa Hernandez après la primaire certifiée de juin.',
-    description_es: 'Sigue la general especial del 18 de agosto de 2026 en CA-14 entre Aisha Wahab y Melissa Hernandez tras la primaria certificada de junio.',
-    description: 'Tracks the August 18, 2026 CA-14 special general between Aisha Wahab and Melissa Hernandez after the certified June primary.',
-    kicker: 'U.S. House special · August 18',
-    headline: 'CA-14 moves to an all-Democratic final.',
-    dek: 'Aisha Wahab led the certified June 16 primary with 42.8%, followed by Melissa Hernandez at 16.8%. Neither cleared 50%, so the two Democrats advance to the August 18 special general.',
-    kicker_es: 'Especial Cámara EE. UU. · 18 de agosto',
-    headline_es: 'CA-14 avanza a una final entre demócratas.',
-    dek_es: 'Aisha Wahab lideró la primaria certificada del 16 de junio con 42,8 %, seguida de Melissa Hernandez con 16,8 %. Como ninguna superó el 50 %, las dos demócratas avanzan a la elección especial del 18 de agosto.',
+    title: 'CA-14 Special Election Result — Vote-Scope',
+    title_fr: 'Élection spéciale CA-14 — résultat — Vote-Scope',
+    title_es: 'Elección especial CA-14 — resultado — Vote-Scope',
+    description:
+      'August 18, 2026 result: Aisha Wahab won the all-Democratic CA-14 special general 53.1% to 46.9% over Melissa Hernandez, and was sworn in on September 2.',
+    description_fr:
+      "Résultat du 18 août 2026 : Aisha Wahab remporte la générale spéciale de CA-14, entièrement démocrate, par 53,1 % contre 46,9 % à Melissa Hernandez, et prête serment le 2 septembre.",
+    description_es:
+      'Resultado del 18 de agosto de 2026: Aisha Wahab ganó la general especial de CA-14, entre dos demócratas, por 53,1 % frente al 46,9 % de Melissa Hernandez, y juró el cargo el 2 de septiembre.',
+    kicker: 'Resolved special election · August 18, 2026 · California 14',
+    headline: 'Wahab won CA‑14.',
+    dek:
+      "Aisha Wahab beat Melissa Hernandez 51,692 votes to 45,670 — 53.1% to 46.9% — in the August 18 all-Democratic special general, and was sworn in on September 2. The forecast on this page is the June 16 primary round only: it put Wahab first, which held, but understated her share and expected a different runner-up. Vote-Scope never published a projection for the August final. Counts are the Secretary of State's unofficial totals, due to be certified by September 25.",
+    kicker_fr: 'Élection spéciale tranchée · 18 août 2026 · Californie 14',
+    headline_fr: 'Wahab a gagné CA‑14.',
+    dek_fr:
+      "Aisha Wahab a battu Melissa Hernandez par 51 692 voix contre 45 670 — 53,1 % contre 46,9 % — à la générale spéciale du 18 août, entièrement démocrate, et a prêté serment le 2 septembre. La projection affichée ici ne porte que sur le premier tour du 16 juin : elle plaçait bien Wahab en tête, mais sous-estimait sa part et attendait une autre deuxième. Vote-Scope n'a jamais publié de prévision pour la finale d'août. Les décomptes sont les totaux non officiels du secrétaire d'État, à certifier d'ici le 25 septembre.",
+    kicker_es: 'Elección especial resuelta · 18 de agosto de 2026 · California 14',
+    headline_es: 'Wahab ganó CA‑14.',
+    dek_es:
+      'Aisha Wahab venció a Melissa Hernandez por 51 692 votos frente a 45 670 — 53,1 % contra 46,9 % — en la general especial del 18 de agosto, entre dos demócratas, y juró el cargo el 2 de septiembre. La proyección de esta página cubre solo la primaria del 16 de junio: situaba a Wahab en cabeza, lo que se cumplió, pero subestimaba su porcentaje y esperaba a otra segunda. Vote-Scope nunca publicó un pronóstico para la final de agosto. Las cifras son los totales no oficiales de la Secretaría de Estado, con certificación prevista para el 25 de septiembre.',
     paths: {
       en: '/en/us/specials/ca14/',
       fr: '/fr/us/specials/ca14/',

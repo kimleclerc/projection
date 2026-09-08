@@ -21,7 +21,7 @@ import AnimatedNumber from '../islands/AnimatedNumber';
 import PolymarketEmbed from './PolymarketEmbed.astro';
 import AffiliateCard from './AffiliateCard.astro';
 import DeskSections from './DeskSections.astro';
-import { specialElections } from '../data/specialElections';
+import { specialElections, type SpecialElectionConfig } from '../data/specialElections';
 
 import ldiData from '../../web_data/us-lame-duck/latest.json';
 import houseData from '../../web_data/us-house/latest.json';
@@ -81,6 +81,10 @@ const pastSpecials = allSpecials
   .sort((a, b) => (b.electionDate! < a.electionDate! ? -1 : 1));
 
 const specialHref = (s: (typeof allSpecials)[number]) => s.paths[lang] ?? s.paths.en ?? '#';
+
+// L'archive listait l'accroche anglaise quelle que soit la langue du desk.
+const specialHeadline = (s: SpecialElectionConfig) =>
+  (lang === 'fr' ? s.headline_fr : lang === 'es' ? s.headline_es : undefined) ?? s.headline;
 
 const COPY = {
   en: {
@@ -438,7 +442,7 @@ const showdownLabel = lang === 'fr' ? showdownData.showdown.label_fr
           <ul>
             {pastSpecials.map((s) => (
               <li>
-                <a href={specialHref(s)}>{s.headline.replace(/\n/g, ' ')}</a>
+                <a href={specialHref(s)}>{specialHeadline(s).replace(/\n/g, ' ')}</a>
                 <span class="us-small"> — {s.electionDate}</span>
               </li>
             ))}

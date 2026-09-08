@@ -88,6 +88,29 @@ const initialData = normalizeSpecialElectionData(rawData);
 
 const electionDate = (initialData.meta as Record<string, unknown>).election_date as string | undefined;
 
+// Bandeau localisé avec repli EN. Résolu ici une fois pour toutes : les
+// ternaires en ligne ne connaissaient que l'espagnol, si bien qu'une course
+// tranchée gardait son accroche anglaise au présent sur la page française.
+function heroCopy(c: SpecialElectionConfig, locale: SpecialElectionLocale) {
+  if (locale === 'fr') {
+    return {
+      kicker: c.kicker_fr ?? c.kicker,
+      headline: c.headline_fr ?? c.headline,
+      dek: c.dek_fr ?? c.dek,
+    };
+  }
+  if (locale === 'es') {
+    return {
+      kicker: c.kicker_es ?? c.kicker,
+      headline: c.headline_es ?? c.headline,
+      dek: c.dek_es ?? c.dek,
+    };
+  }
+  return { kicker: c.kicker, headline: c.headline, dek: c.dek };
+}
+
+const hero = heroCopy(config, lang);
+
 // Other specials for KeepDigging cross-links (excluding current)
 const otherSpecials = Object.values(specialElections)
   .filter((special) => special.slug !== config.slug)
@@ -95,7 +118,7 @@ const otherSpecials = Object.values(specialElections)
   .map((special) => ({
     href: special.paths[lang] ?? special.paths.en ?? '#',
     label: special.slug.toUpperCase(),
-    detail: lang === 'es' ? (special.kicker_es ?? special.kicker) : special.kicker,
+    detail: heroCopy(special, lang).kicker,
   }));
 
 const metaCopy = {
@@ -201,7 +224,7 @@ const jsonLd = [
         <ElectionCountdown
           targetDate={electionDate}
           locale={lang}
-          kicker={lang === 'es' ? (config.kicker_es ?? config.kicker) : config.kicker}
+          kicker={hero.kicker}
           title={config.countdownTitle}
           client:visible
         />
@@ -209,10 +232,10 @@ const jsonLd = [
     )}
 
     <header class="special-hero container">
-      <p class="special-kicker">{lang === 'es' ? (config.kicker_es ?? config.kicker) : config.kicker}</p>
-      <h1>{lang === 'es' ? (config.headline_es ?? config.headline) : config.headline}</h1>
+      <p class="special-kicker">{hero.kicker}</p>
+      <h1>{hero.headline}</h1>
       <p class="special-dek">
-        {lang === 'es' ? (config.dek_es ?? config.dek) : config.dek}
+        {hero.dek}
       </p>
       <div class="special-meta">
         <span>{mc.updated} {initialData.meta.run_date}</span>
