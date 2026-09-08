@@ -12,7 +12,10 @@ interface Remaining {
   hours: number;
   minutes: number;
   seconds: number;
+  /** Le scrutin a commencé — la journée électorale est en cours. */
   done: boolean;
+  /** Le scrutin est passé depuis plus d'une journée : il est tranché. */
+  over: boolean;
 }
 
 const MS_DAY = 24 * 60 * 60 * 1000;
@@ -26,7 +29,15 @@ function targetInstant(targetDate: string) {
 function getRemaining(targetDate: string): Remaining {
   const diff = targetInstant(targetDate) - Date.now();
   if (diff <= 0) {
-    return { days: 0, hours: 0, minutes: 0, seconds: 0, done: true };
+    // « Le scrutin est en cours » ne vaut que le jour même. Passé cette
+    // fenêtre la course est tranchée, et le bandeau disparaît : il annonçait
+    // encore une journée électorale en marche sur les cinq desks archivés,
+    // GA-14 (7 avril) compris.
+    return {
+      days: 0, hours: 0, minutes: 0, seconds: 0,
+      done: true,
+      over: -diff > MS_DAY,
+    };
   }
   return {
     days: Math.floor(diff / MS_DAY),
@@ -34,6 +45,7 @@ function getRemaining(targetDate: string): Remaining {
     minutes: Math.floor((diff % MS_HOUR) / MS_MINUTE),
     seconds: Math.floor((diff % MS_MINUTE) / 1000),
     done: false,
+    over: false,
   };
 }
 
@@ -117,6 +129,10 @@ export default function ElectionCountdown({
         ['--', t.minutes],
         ['--', t.seconds],
       ];
+
+  // Une course tranchée n'a pas de compte à rebours. Le résultat est déjà en
+  // tête de la fiche ; répéter « le scrutin est en cours » la contredit.
+  if (remaining?.over) return null;
 
   return (
     <aside class="election-countdown" aria-label={t.live}>
