@@ -84,6 +84,17 @@ const CURATED = [
   '/en/tools/canada-simulator/', '/fr/outils/simulateur-canada/', '/es/herramientas/simulador-canada/',
   '/en/tools/ontario-simulator/', '/fr/outils/simulateur-ontario/', '/es/herramientas/simulador-ontario/',
   '/en/tools/us-house-simulator/', '/fr/outils/simulateur-chambre-us/', '/es/herramientas/simulador-camara-us/',
+  // Palmarès, partielles et primaires — les trois pages qui portent le plus de
+  // contenu neuf et qui n'étaient dans aucune des deux listes. Ajoutées le
+  // 2026-09-09, le jour où GA-13 est entré au palmarès (11/12 au lieu de
+  // 11/11), où CA-14 et GA-13 sont passés au résultat, et où le suivi des
+  // primaires a gagné neuf États. Rien de tout ça n'aurait été annoncé.
+  '/en/track-record/', '/fr/track-record/', '/es/track-record/',
+  '/en/us/primaries/', '/fr/us/primaires/', '/es/us/primaries/',
+  '/en/us/specials/ga13/', '/fr/us/specials/ga13/', '/es/us/specials/ga13/',
+  '/en/us/specials/ca14/', '/fr/us/specials/ca14/', '/es/us/specials/ca14/',
+  '/en/us/specials/fl20/', '/fr/us/specials/fl20/', '/es/us/specials/fl20/',
+  '/en/us/specials/tx23/', '/fr/us/specials/tx23/', '/es/us/specials/tx23/',
 ].map((p) => `https://${HOST}${p}`);
 
 /** Desks de partielles individuels, repris du sitemap.
