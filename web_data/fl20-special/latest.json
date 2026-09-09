@@ -108,6 +108,10 @@
       {
         "label": "Special-election uncertainty",
         "note": "The distribution is deliberately wider than a normal general-election projection because date, turnout and nominees remain unknown."
+      },
+      {
+        "label": "A writ may never come",
+        "note": "This projection assumes a special election is eventually called. No writ had been issued for either seat five months after the vacancy, and leaving a seat vacant until the regular general is a live outcome — not an oversight to be projected away."
       }
     ]
   },
@@ -115,7 +119,13 @@
     "vacancy_date": "2026-04-21",
     "status": "vacant_pending_writ",
     "departing_member": "Sheila Cherfilus-McCormick",
-    "reason": "resignation"
+    "reason": "resignation",
+    "days_vacant_without_writ": 140,
+    "no_writ_fallback": {
+      "date": "2026-11-03",
+      "note": "If no writ is issued, the seat is not filled by a special election at all: it stays vacant until the regular general of November 3, 2026, whose winner is sworn in January 2027. That contest runs on the 2026 map and is covered by the House projection, not by this desk.",
+      "house_projection": "/en/us/house/districts/12020/"
+    }
   },
   "sources": [
     {
@@ -123,5 +133,5 @@
       "url": "https://clerk.house.gov/Members/ViewVacancies"
     }
   ],
-  "method_note": "A provisional party-control projection for a vacant seat before the writ, date and candidate field are known. It anchors to the 119th Congress district result and widens uncertainty for special-election turnout and candidate effects."
+  "method_note": "A provisional party-control projection for a vacant seat before the writ, date and candidate field are known. It anchors to the 119th Congress district result and widens uncertainty for special-election turnout and candidate effects. It assumes a special election is eventually called — see pending.no_writ_fallback for what governs the seat if none is."
 }
