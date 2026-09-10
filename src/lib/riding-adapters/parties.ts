@@ -19,6 +19,13 @@ export interface PartyMeta {
    *  Rendered by CandidateSlate / legends; falls back
    *  to the colour swatch when absent. */
   logo?: string;
+  /** Square-ish EMBLEM only, no wordmark (e.g. "uk-lab-icon.png") — the mark
+   *  that survives at chip size. `logo` is the full lockup and is often a
+   *  wordmark (Labour is 4.3:1, the Ontario NDP 7:1), unreadable once shrunk.
+   *  Absent where a party has no emblem, and deliberately absent for the
+   *  French BLOCS: a bloc is a coalition, and the RN's mark on "RN et alliés"
+   *  would pass one off as the other. */
+  icon?: string;
   /** Editorial reference, French — genitive form ("du PQ", "de la CAQ"). */
   mention_fr?: string;
   /** Editorial reference, English — usually "the X Party" or "X". */
@@ -30,32 +37,32 @@ export interface PartyMeta {
 }
 
 export const CA_FEDERAL_PARTIES: Record<string, PartyMeta> = {
-  lib:     { label_en: 'Liberal',      label_fr: 'Libéral',       color: '#D71920', logo: 'ca-lib.svg', mention_fr: 'du Parti libéral',      mention_en: 'the Liberal Party',      mention_es: 'el Partido Liberal' },
-  con:     { label_en: 'Conservative', label_fr: 'Conservateur',  color: '#1A4782', logo: 'ca-con.svg', mention_fr: 'du Parti conservateur', mention_en: 'the Conservative Party', mention_es: 'el Partido Conservador' },
-  ndp:     { label_en: 'NDP',          label_fr: 'NPD',           color: '#F37021', logo: 'ca-ndp.svg', mention_fr: 'du NPD',                mention_en: 'the NDP',                mention_es: 'el NPD' },
-  bq:      { label_en: 'Bloc',         label_fr: 'Bloc',          color: '#33B2CC', logo: 'ca-bq.svg', mention_fr: 'du Bloc québécois',     mention_en: 'the Bloc Québécois',     mention_es: 'el Bloque Quebequés' },
-  grn:     { label_en: 'Green',        label_fr: 'Vert',          color: '#3D9B35', logo: 'ca-grn.svg', mention_fr: 'du Parti vert',         mention_en: 'the Green Party',        mention_es: 'el Partido Verde' },
-  ppc:     { label_en: 'PPC',          label_fr: 'PPC',           color: '#4B306A', logo: 'ca-ppc.svg', mention_fr: 'du PPC',                mention_en: 'the PPC',                mention_es: 'el PPC' },
+  lib:     { label_en: 'Liberal',      label_fr: 'Libéral',       color: '#D71920', logo: 'ca-lib.svg', icon: 'ca-lib-icon.svg', mention_fr: 'du Parti libéral',      mention_en: 'the Liberal Party',      mention_es: 'el Partido Liberal' },
+  con:     { label_en: 'Conservative', label_fr: 'Conservateur',  color: '#1A4782', logo: 'ca-con.svg', icon: 'ca-con-icon.png', mention_fr: 'du Parti conservateur', mention_en: 'the Conservative Party', mention_es: 'el Partido Conservador' },
+  ndp:     { label_en: 'NDP',          label_fr: 'NPD',           color: '#F37021', logo: 'ca-ndp.svg', icon: 'ca-ndp-icon.png', mention_fr: 'du NPD',                mention_en: 'the NDP',                mention_es: 'el NPD' },
+  bq:      { label_en: 'Bloc',         label_fr: 'Bloc',          color: '#33B2CC', logo: 'ca-bq.svg', icon: 'ca-bq-icon.png', mention_fr: 'du Bloc québécois',     mention_en: 'the Bloc Québécois',     mention_es: 'el Bloque Quebequés' },
+  grn:     { label_en: 'Green',        label_fr: 'Vert',          color: '#3D9B35', logo: 'ca-grn.svg', icon: 'ca-grn-icon.svg', mention_fr: 'du Parti vert',         mention_en: 'the Green Party',        mention_es: 'el Partido Verde' },
+  ppc:     { label_en: 'PPC',          label_fr: 'PPC',           color: '#4B306A', logo: 'ca-ppc.svg', icon: 'ca-ppc-icon.png', mention_fr: 'du PPC',                mention_en: 'the PPC',                mention_es: 'el PPC' },
   ind:     { label_en: 'Independent',  label_fr: 'Indépendant·e', color: '#888888', mention_fr: 'indépendant·e',         mention_en: 'an independent',         mention_es: 'una candidatura independiente' },
   fed_oth: { label_en: 'Other',        label_fr: 'Autre',         color: '#999999', mention_fr: "d'un autre parti",      mention_en: 'another party',          mention_es: 'otro partido' },
 };
 
 export const ON_PARTIES: Record<string, PartyMeta> = {
-  on_pc:  { label_en: 'PC',  label_fr: 'PC',  color: '#0F4C81', logo: 'on-pc.svg', mention_fr: 'du PC',              mention_en: 'the PC Party',         mention_es: 'el PC' },
-  on_olp: { label_en: 'OLP', label_fr: 'OLP', color: '#ED1C24', logo: 'on-lib.svg', mention_fr: 'du PLO',             mention_en: 'the Ontario Liberals', mention_es: 'los Liberales de Ontario' },
-  on_lib: { label_en: 'OLP', label_fr: 'OLP', color: '#ED1C24', logo: 'on-lib.svg', mention_fr: 'du PLO',             mention_en: 'the Ontario Liberals', mention_es: 'los Liberales de Ontario' },
-  on_ndp: { label_en: 'NDP', label_fr: 'NPD', color: '#F37021', logo: 'on-ndp.svg', mention_fr: 'du NPD',             mention_en: 'the NDP',              mention_es: 'el NPD' },
-  on_grn: { label_en: 'GP',  label_fr: 'PV',  color: '#3D9B35', logo: 'on-grn.png', mention_fr: 'du Parti vert',      mention_en: 'the Green Party',      mention_es: 'el Partido Verde' },
+  on_pc:  { label_en: 'PC',  label_fr: 'PC',  color: '#0F4C81', logo: 'on-pc.svg', icon: 'on-pc-icon.png', mention_fr: 'du PC',              mention_en: 'the PC Party',         mention_es: 'el PC' },
+  on_olp: { label_en: 'OLP', label_fr: 'OLP', color: '#ED1C24', logo: 'on-lib.svg', icon: 'on-lib-icon.svg', mention_fr: 'du PLO',             mention_en: 'the Ontario Liberals', mention_es: 'los Liberales de Ontario' },
+  on_lib: { label_en: 'OLP', label_fr: 'OLP', color: '#ED1C24', logo: 'on-lib.svg', icon: 'on-lib-icon.svg', mention_fr: 'du PLO',             mention_en: 'the Ontario Liberals', mention_es: 'los Liberales de Ontario' },
+  on_ndp: { label_en: 'NDP', label_fr: 'NPD', color: '#F37021', logo: 'on-ndp.svg', icon: 'on-ndp-icon.png', mention_fr: 'du NPD',             mention_en: 'the NDP',              mention_es: 'el NPD' },
+  on_grn: { label_en: 'GP',  label_fr: 'PV',  color: '#3D9B35', logo: 'on-grn.png', icon: 'on-grn-icon.svg', mention_fr: 'du Parti vert',      mention_en: 'the Green Party',      mention_es: 'el Partido Verde' },
   on_ind: { label_en: 'IND', label_fr: 'IND', color: '#888888', mention_fr: 'indépendant·e',      mention_en: 'an independent',       mention_es: 'una candidatura independiente' },
   on_oth: { label_en: 'OTH', label_fr: 'AUT', color: '#999999', mention_fr: "d'un autre parti",   mention_en: 'another party',        mention_es: 'otro partido' },
 };
 
 export const QC_PARTIES: Record<string, PartyMeta> = {
-  caq:    { label_en: 'CAQ',          label_fr: 'CAQ',  color: '#03A9F4', logo: 'qc-caq.png', full_fr: 'Équipe Christine Fréchette – Coalition avenir Québec', full_en: 'Équipe Christine Fréchette – Coalition Avenir Québec', mention_fr: 'de la CAQ',           mention_en: 'the CAQ',                  mention_es: 'la CAQ' },
-  plq:    { label_en: 'QLP',          label_fr: 'PLQ',  color: '#D71920', logo: 'qc-plq.svg', full_fr: 'Parti libéral du Québec', full_en: 'Quebec Liberal Party',          mention_fr: 'du PLQ',              mention_en: 'the Quebec Liberals',      mention_es: 'el PLQ' },
-  pq:     { label_en: 'PQ',           label_fr: 'PQ',   color: '#004C9D', logo: 'qc-pq.svg', full_fr: 'Parti Québécois', full_en: 'Parti Québécois',                     mention_fr: 'du PQ',               mention_en: 'the PQ',                   mention_es: 'el PQ' },
-  qs:     { label_en: 'QS',           label_fr: 'QS',   color: '#F47C24', logo: 'qc-qs.svg', full_fr: 'Québec solidaire', full_en: 'Québec solidaire',                   mention_fr: 'de Québec solidaire', mention_en: 'Québec solidaire',         mention_es: 'Québec solidaire' },
-  pcq:    { label_en: 'PCQ',          label_fr: 'PCQ',  color: '#1F3864', logo: 'qc-pcq.svg', full_fr: 'Parti conservateur du Québec', full_en: 'Conservative Party of Quebec', mention_fr: 'du PCQ',              mention_en: 'the Quebec Conservatives', mention_es: 'el PCQ' },
+  caq:    { label_en: 'CAQ',          label_fr: 'CAQ',  color: '#03A9F4', logo: 'qc-caq.png', icon: 'qc-caq-icon.png', full_fr: 'Équipe Christine Fréchette – Coalition avenir Québec', full_en: 'Équipe Christine Fréchette – Coalition Avenir Québec', mention_fr: 'de la CAQ',           mention_en: 'the CAQ',                  mention_es: 'la CAQ' },
+  plq:    { label_en: 'QLP',          label_fr: 'PLQ',  color: '#D71920', logo: 'qc-plq.svg', icon: 'qc-plq-icon.png', full_fr: 'Parti libéral du Québec', full_en: 'Quebec Liberal Party',          mention_fr: 'du PLQ',              mention_en: 'the Quebec Liberals',      mention_es: 'el PLQ' },
+  pq:     { label_en: 'PQ',           label_fr: 'PQ',   color: '#004C9D', logo: 'qc-pq.svg', icon: 'qc-pq-icon.png', full_fr: 'Parti Québécois', full_en: 'Parti Québécois',                     mention_fr: 'du PQ',               mention_en: 'the PQ',                   mention_es: 'el PQ' },
+  qs:     { label_en: 'QS',           label_fr: 'QS',   color: '#F47C24', logo: 'qc-qs.svg', icon: 'qc-qs-icon.png', full_fr: 'Québec solidaire', full_en: 'Québec solidaire',                   mention_fr: 'de Québec solidaire', mention_en: 'Québec solidaire',         mention_es: 'Québec solidaire' },
+  pcq:    { label_en: 'PCQ',          label_fr: 'PCQ',  color: '#1F3864', logo: 'qc-pcq.svg', icon: 'qc-pcq-icon.png', full_fr: 'Parti conservateur du Québec', full_en: 'Conservative Party of Quebec', mention_fr: 'du PCQ',              mention_en: 'the Quebec Conservatives', mention_es: 'el PCQ' },
   qc_ind: { label_en: 'Independent',  label_fr: 'Indépendant·e', color: '#888888', mention_fr: 'indépendant·e',  mention_en: 'an independent',         mention_es: 'una candidatura independiente' },
   qc_oth: { label_en: 'Other',        label_fr: 'Autre',         color: '#999999', mention_fr: "d'un autre parti", mention_en: 'another party',          mention_es: 'otro partido' },
 };
@@ -69,22 +76,22 @@ export const QC_PARTIES: Record<string, PartyMeta> = {
  */
 export const UK_PARTIES: Record<string, PartyMeta> = {
   // Britain mainland
-  uk_lab: { label_en: 'Labour',       label_fr: 'Travailliste',         color: '#E4003B', logo: 'uk-lab.svg', mention_fr: 'des Travaillistes',        mention_en: 'Labour',                mention_es: 'los Laboristas' },
-  uk_con: { label_en: 'Conservative', label_fr: 'Conservateur',         color: '#0087DC', logo: 'uk-con.svg', mention_fr: 'des Conservateurs',        mention_en: 'the Conservatives',     mention_es: 'los Conservadores' },
-  uk_ld:  { label_en: 'Lib Dems',     label_fr: 'Libéraux-démocrates',  color: '#FAA61A', logo: 'uk-ld.svg', mention_fr: 'des Libéraux-démocrates',  mention_en: 'the Lib Dems',          mention_es: 'los Liberaldemócratas' },
-  uk_ref: { label_en: 'Reform UK',    label_fr: 'Reform UK',            color: '#12B6CF', logo: 'uk-ref.svg', mention_fr: 'de Reform UK',             mention_en: 'Reform UK',             mention_es: 'Reform UK' },
-  uk_grn: { label_en: 'Green',        label_fr: 'Vert·e·s',             color: '#6AB023', logo: 'uk-grn.jpg', mention_fr: 'des Vert·e·s',             mention_en: 'the Green Party',       mention_es: 'los Verdes' },
-  uk_snp: { label_en: 'SNP',          label_fr: 'SNP',                  color: '#FFF95D', logo: 'uk-snp.svg', mention_fr: 'du SNP',                   mention_en: 'the SNP',               mention_es: 'el SNP' },
-  uk_pc:  { label_en: 'Plaid Cymru',  label_fr: 'Plaid Cymru',          color: '#005B54', logo: 'uk-pc.svg', mention_fr: 'du Plaid Cymru',           mention_en: 'Plaid Cymru',           mention_es: 'el Plaid Cymru' },
+  uk_lab: { label_en: 'Labour',       label_fr: 'Travailliste',         color: '#E4003B', logo: 'uk-lab.svg', icon: 'uk-lab-icon.png', mention_fr: 'des Travaillistes',        mention_en: 'Labour',                mention_es: 'los Laboristas' },
+  uk_con: { label_en: 'Conservative', label_fr: 'Conservateur',         color: '#0087DC', logo: 'uk-con.svg', icon: 'uk-con-icon.png', mention_fr: 'des Conservateurs',        mention_en: 'the Conservatives',     mention_es: 'los Conservadores' },
+  uk_ld:  { label_en: 'Lib Dems',     label_fr: 'Libéraux-démocrates',  color: '#FAA61A', logo: 'uk-ld.svg', icon: 'uk-ld-icon.png', mention_fr: 'des Libéraux-démocrates',  mention_en: 'the Lib Dems',          mention_es: 'los Liberaldemócratas' },
+  uk_ref: { label_en: 'Reform UK',    label_fr: 'Reform UK',            color: '#12B6CF', logo: 'uk-ref.svg', icon: 'uk-ref-icon.svg', mention_fr: 'de Reform UK',             mention_en: 'Reform UK',             mention_es: 'Reform UK' },
+  uk_grn: { label_en: 'Green',        label_fr: 'Vert·e·s',             color: '#6AB023', logo: 'uk-grn.jpg', icon: 'uk-grn-icon.png', mention_fr: 'des Vert·e·s',             mention_en: 'the Green Party',       mention_es: 'los Verdes' },
+  uk_snp: { label_en: 'SNP',          label_fr: 'SNP',                  color: '#FFF95D', logo: 'uk-snp.svg', icon: 'uk-snp-icon.png', mention_fr: 'du SNP',                   mention_en: 'the SNP',               mention_es: 'el SNP' },
+  uk_pc:  { label_en: 'Plaid Cymru',  label_fr: 'Plaid Cymru',          color: '#005B54', logo: 'uk-pc.svg', icon: 'uk-pc-icon.png', mention_fr: 'du Plaid Cymru',           mention_en: 'Plaid Cymru',           mention_es: 'el Plaid Cymru' },
   uk_ind: { label_en: 'Independent',  label_fr: 'Indépendant·e',        color: '#888888', mention_fr: 'indépendant·e',            mention_en: 'an independent',        mention_es: 'una candidatura independiente' },
   uk_spk: { label_en: 'Speaker',      label_fr: 'Speaker',              color: '#444444', mention_fr: 'du président de la Chambre', mention_en: 'the Speaker',         mention_es: 'el presidente de la Cámara' },
   uk_oth: { label_en: 'Other',        label_fr: 'Autre',                color: '#999999', mention_fr: "d'un autre parti",         mention_en: 'another party',         mention_es: 'otro partido' },
   // Northern Ireland (remapped from uk_oth via party_raw)
   ni_dup:   { label_en: 'DUP',         label_fr: 'DUP',                 color: '#D46A4C', logo: 'ni-dup.svg', mention_fr: 'du DUP',                   mention_en: 'the DUP',               mention_es: 'el DUP' },
   ni_sf:    { label_en: 'Sinn Féin',   label_fr: 'Sinn Féin',           color: '#326760', logo: 'ni-sf.svg', mention_fr: 'du Sinn Féin',             mention_en: 'Sinn Féin',             mention_es: 'el Sinn Féin' },
-  ni_sdlp:  { label_en: 'SDLP',        label_fr: 'SDLP',                color: '#2AA82C', logo: 'ni-sdlp.svg', mention_fr: 'du SDLP',                  mention_en: 'the SDLP',              mention_es: 'el SDLP' },
+  ni_sdlp:  { label_en: 'SDLP',        label_fr: 'SDLP',                color: '#2AA82C', logo: 'ni-sdlp.svg', icon: 'ni-sdlp-icon.png', mention_fr: 'du SDLP',                  mention_en: 'the SDLP',              mention_es: 'el SDLP' },
   ni_apni:  { label_en: 'Alliance',    label_fr: 'Alliance',            color: '#F6CB2F', logo: 'ni-apni.svg', mention_fr: 'de l’Alliance',            mention_en: 'the Alliance Party',    mention_es: 'la Alianza' },
-  ni_uup:   { label_en: 'UUP',         label_fr: 'UUP',                 color: '#48A5EE', logo: 'ni-uup.png', mention_fr: 'de l’UUP',                 mention_en: 'the UUP',               mention_es: 'el UUP' },
+  ni_uup:   { label_en: 'UUP',         label_fr: 'UUP',                 color: '#48A5EE', logo: 'ni-uup.png', icon: 'ni-uup-icon.png', mention_fr: 'de l’UUP',                 mention_en: 'the UUP',               mention_es: 'el UUP' },
   ni_tuv:   { label_en: 'TUV',         label_fr: 'TUV',                 color: '#0095B6', logo: 'ni-tuv.svg', mention_fr: 'du TUV',                   mention_en: 'TUV',                   mention_es: 'el TUV' },
   ni_aontu: { label_en: 'Aontú',       label_fr: 'Aontú',               color: '#44532A', logo: 'ni-aontu.webp', mention_fr: 'd’Aontú',                  mention_en: 'Aontú',                 mention_es: 'Aontú' },
 };
@@ -95,11 +102,11 @@ export const UK_PARTIES: Record<string, PartyMeta> = {
  * minor-party candidates keep their identity in the candidates table.
  */
 export const US_HOUSE_PARTIES: Record<string, PartyMeta> = {
-  us_dem: { label_en: 'Democrat',    label_fr: 'Démocrate',     color: '#1375B7', logo: 'us-dem.svg', mention_fr: 'des Démocrates',    mention_en: 'the Democrats',    mention_es: 'los Demócratas' },
-  us_rep: { label_en: 'Republican',  label_fr: 'Républicain',   color: '#D2222D', logo: 'us-rep.svg', mention_fr: 'des Républicains',  mention_en: 'the Republicans',  mention_es: 'los Republicanos' },
+  us_dem: { label_en: 'Democrat',    label_fr: 'Démocrate',     color: '#1375B7', logo: 'us-dem.svg', icon: 'us-dem-icon.svg', mention_fr: 'des Démocrates',    mention_en: 'the Democrats',    mention_es: 'los Demócratas' },
+  us_rep: { label_en: 'Republican',  label_fr: 'Républicain',   color: '#D2222D', logo: 'us-rep.svg', icon: 'us-rep-icon.svg', mention_fr: 'des Républicains',  mention_en: 'the Republicans',  mention_es: 'los Republicanos' },
   us_ind: { label_en: 'Independent', label_fr: 'Indépendant·e', color: '#888888', mention_fr: 'indépendant·e',     mention_en: 'an independent',   mention_es: 'una candidatura independiente' },
-  us_grn: { label_en: 'Green',       label_fr: 'Vert·e·s',      color: '#3D9B35', logo: 'us-grn.svg', mention_fr: 'des Vert·e·s',      mention_en: 'the Greens',       mention_es: 'los Verdes' },
-  us_lib: { label_en: 'Libertarian', label_fr: 'Libertarien',   color: '#FED105', logo: 'us-lib.svg', mention_fr: 'des Libertariens',  mention_en: 'the Libertarians', mention_es: 'los Libertarios' },
+  us_grn: { label_en: 'Green',       label_fr: 'Vert·e·s',      color: '#3D9B35', logo: 'us-grn.svg', icon: 'us-grn-icon.svg', mention_fr: 'des Vert·e·s',      mention_en: 'the Greens',       mention_es: 'los Verdes' },
+  us_lib: { label_en: 'Libertarian', label_fr: 'Libertarien',   color: '#FED105', logo: 'us-lib.svg', icon: 'us-lib-icon.svg', mention_fr: 'des Libertariens',  mention_en: 'the Libertarians', mention_es: 'los Libertarios' },
   us_oth: { label_en: 'Other',       label_fr: 'Autre',         color: '#999999', mention_fr: "d'un autre parti",  mention_en: 'another party',    mention_es: 'otro partido' },
 };
 
