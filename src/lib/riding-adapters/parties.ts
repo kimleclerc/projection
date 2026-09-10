@@ -141,6 +141,25 @@ const PALETTES: Record<string, Record<string, PartyMeta>> = {
   'france': FR_LEG_PARTIES,
 };
 
+/**
+ * Fichier à afficher dans une pastille carrée : l'emblème s'il existe, sinon le
+ * verrouillage complet.
+ *
+ * Tous les emplacements qui montrent une marque de parti sur le site sont de
+ * petits carrés — 18 px dans la liste des candidats, 34 dans le simulateur, 54
+ * en tête de projection. Or `logo` est souvent un LOGOTYPE : « Conservative »
+ * fait 3,3:1, « Labour » 4,3:1, le NPD ontarien 7:1. Avec `object-fit: contain`
+ * dans un carré de 54, le logotype conservateur se rendait en 54×16 et son
+ * texte devenait une bavure illisible — à côté du titre « Conservative », qui
+ * le répétait déjà en toutes lettres.
+ *
+ * Le repli sur `logo` reste correct : là où aucun emblème n'existe, mieux vaut
+ * un logotype rétréci que rien du tout.
+ */
+export function partyMark(meta: PartyMeta): string | undefined {
+  return meta.icon ?? meta.logo;
+}
+
 export function partyMeta(jurisdiction: string, code: string): PartyMeta {
   const palette = PALETTES[jurisdiction] ?? CA_FEDERAL_PARTIES;
   return palette[code] ?? { label_en: code.toUpperCase(), label_fr: code.toUpperCase(), color: '#999' };

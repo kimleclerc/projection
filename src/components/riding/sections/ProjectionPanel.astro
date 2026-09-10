@@ -1,6 +1,6 @@
 ---
 import type { RidingData } from '../../../lib/riding-adapters/types';
-import { partyMeta } from '../../../lib/riding-adapters/parties';
+import { partyMeta, partyMark } from '../../../lib/riding-adapters/parties';
 
 interface Props {
   data: RidingData;
@@ -60,8 +60,8 @@ const competitiveness =
     <div>
       <p class="eyebrow">{T.eyebrow}</p>
       <h2 style={`--accent:${winnerMeta.color}`}>
-        {winnerMeta.logo
-          ? <img class="winner-logo" src={`/party-logos/${winnerMeta.logo}`} alt="" width="54" height="54" decoding="async" />
+        {partyMark(winnerMeta)
+          ? <img class="winner-logo" src={`/party-logos/${partyMark(winnerMeta)}`} alt="" width="54" height="54" decoding="async" />
           : <span class="dot" aria-hidden="true"></span>}
         {winnerLabel}
       </h2>

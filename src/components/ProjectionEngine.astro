@@ -17,7 +17,7 @@ import JurisdictionNav from './JurisdictionNav.astro';
 import OnThisPage from './OnThisPage.astro';
 import { getNavEntry, sectionUrl, type NavLang } from '../lib/jurisdiction-nav';
 import { byelectionFor } from '../lib/canada-byelection-overlay';
-import { partyMeta } from '../lib/riding-adapters/parties';
+import { partyMeta, partyMark } from '../lib/riding-adapters/parties';
 import { ridingSlug, type JurisdictionKey } from '../lib/riding-adapters/types';
 import polymarketData from '../../web_data/polymarket/latest.json';
 import clactonData from '../../web_data/uk-clacton-special/latest.json';
@@ -127,7 +127,7 @@ const projectionSegments = orderedParties
     label_fr: p.label_fr,
     color: p.color,
     seats,
-    logo: partyMeta(partyJurisdiction, p.party).logo,
+    logo: partyMark(partyMeta(partyJurisdiction, p.party)),
     pct: projectionTotal > 0 ? (seats / projectionTotal) * 100 : 0,
     p_majority: p.p_majority ?? 0,
     p_largest: p.p_largest ?? 0,
