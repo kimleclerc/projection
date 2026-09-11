@@ -431,10 +431,20 @@ const languageLinks = (['en', 'fr', 'es'] as Locale[])
   <link rel="icon" href="/favicon.ico" sizes="any" />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 
-  <!-- schema.org JSON-LD -->
-  {jsonLd && (
-    <script type="application/ld+json" set:html={JSON.stringify(Array.isArray(jsonLd) ? jsonLd : jsonLd)} />
-  )}
+  {/* schema.org JSON-LD — ONE <script> per schema, never a single array.
+
+      A JSON array in one block is valid schema.org and Google reads it fine,
+      but third-party scripts that scrape the page routinely do not: several
+      grab the parsed value and reach straight for `value["@context"]`, which
+      on an array is undefined, then call `.toLowerCase()` on it. That is the
+      `r["@context"].toLowerCase` TypeError Clarity logged ~117 times a week —
+      Safari only, and 8081 of our 8102 JSON-LD blocks were arrays.
+
+      Emitting one block per schema gives every object its own `@context`, so
+      the naive readers get what they expect. Same data, same validity. */}
+  {jsonLd && (Array.isArray(jsonLd) ? jsonLd : [jsonLd]).map((schema) => (
+    <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+  ))}
 
   <!-- Dark-mode: read preference before first paint to avoid FOUC -->
   <script is:inline>
