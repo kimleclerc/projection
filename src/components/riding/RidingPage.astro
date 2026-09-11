@@ -129,8 +129,12 @@ const pageNavItems = [
 
 {/* Marché de prédiction — s'allume dès que le registre porte cette course.
     Placé APRÈS la prévision : la page répond d'abord avec son propre modèle,
-    le marché est un point de comparaison, jamais la manchette. */}
-{data.isByelection && data.predictionMarket && (
+    le marché est un point de comparaison, jamais la manchette.
+    La condition portait `isByelection` du temps où le registre ne contenait
+    que des partielles. Polymarket cote désormais 21 circonscriptions de la
+    générale québécoise : c'est la présence au registre qui décide, pas la
+    nature du scrutin. */}
+{data.predictionMarket && (
   <section class="slot-market"><div class="container">
     <PolymarketEmbed
       slug={data.predictionMarket.slug}

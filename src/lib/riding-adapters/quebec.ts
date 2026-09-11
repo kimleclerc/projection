@@ -14,6 +14,7 @@ import type {
 } from './types';
 import { ridingSlug } from './types';
 import { partyMeta } from './parties';
+import { marketForRiding } from '../prediction-markets';
 import ridingsSource from '../../../web_data/quebec/ridings.json';
 import membersSource from '../../../web_data/quebec/members.json';
 import candidatesSource from '../../../web_data/quebec/candidates_2022.json';
@@ -208,6 +209,10 @@ function adaptOne(raw: RawRiding): RidingData {
     shapePath: SHAPES[raw.riding_id]?.path,
     shapeViewBox: SHAPES[raw.riding_id]?.viewBox,
     redistrictingOrigin: buildRedistrictingOrigin(raw.riding_id),
+    // Polymarket cote 21 des 127 circonscriptions pour le 5 octobre. Le
+    // registre décide lesquelles ; une circonscription sans entrée n'affiche
+    // rien du tout (cf. prediction-markets.ts).
+    predictionMarket: marketForRiding('qc', raw.riding_id),
   };
 }
 

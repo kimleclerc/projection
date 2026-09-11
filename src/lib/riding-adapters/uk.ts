@@ -15,6 +15,7 @@ import type {
 } from './types';
 import { ridingSlug } from './types';
 import { partyMeta } from './parties';
+import { marketForRiding } from '../prediction-markets';
 import ridingsSource from '../../../web_data/uk/ridings.json';
 import membersSource from '../../../web_data/uk/members.json';
 import candidatesSource from '../../../web_data/uk/candidates_2024.json';
@@ -172,6 +173,10 @@ function adaptOne(raw: RawRiding): RidingData {
     // archives riding_projection.csv per date.
     hasProjectionHistory: false,
     neighbors: buildNeighbors(raw.riding_id),
+    // Une seule circonscription britannique porte un marché aujourd'hui
+    // (Holborn and St Pancras) ; les 649 autres n'ont pas d'entrée et
+    // n'affichent rien.
+    predictionMarket: marketForRiding('uk', raw.riding_id),
     regionalContext: {
       province: {},
       national: NATIONAL_VOTE_MEAN,
