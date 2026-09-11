@@ -1,0 +1,285 @@
+---
+/**
+ * « Les courses les plus serrées » — la porte qui manquait dans la zone de
+ * réponse.
+ *
+ * Sur une page de projection, tout ce qui mène ailleurs (carte, table,
+ * « continuer à creuser ») vit au-delà de 4 500 px en mobile : le lecteur
+ * obtient son chiffre et n'a plus rien à cliquer pendant trois écrans. Ce bloc
+ * se place juste sous le snapshot et propose la question suivante évidente —
+ * quelles courses peuvent encore basculer.
+ *
+ * Les rangées sont fournies déjà normalisées par l'appelant : le R.-U. porte
+ * `p_leading`/`mean_margin` à la racine quand les autres juridictions les
+ * imbriquent sous `projection`, et c'est `mapRidings` (ProjectionEngine) ou
+ * l'adaptateur (pages de circo) qui absorbe cette différence. Le composant ne
+ * lit aucun schéma de données : il affiche des rangées.
+ */
+export interface CloseRace {
+  href?: string;
+  name: string;
+  partyLabel: string;
+  partyColor: string;
+  /** Probabilité de victoire du meneur, 0–1. */
+  pWinner: number;
+  /** Marge projetée, en points. */
+  margin: number;
+}
+
+interface Props {
+  locale: 'en' | 'fr' | 'es';
+  races: CloseRace[];
+  /** Index des circonscriptions/sièges/courses de la juridiction. */
+  allHref?: string;
+  /** Libellé de cet index, tel que le nomme la juridiction (Sièges, Districts…). */
+  allLabel?: string;
+  /** Valeur `module` envoyée à GA4 — sépare le bloc du desk de celui des circos. */
+  location: string;
+  /** `panel` sur une page de projection, `strip` en milieu de page de circo. */
+  variant?: 'panel' | 'strip';
+  /**
+   * Réservoir du tirage au sort. Plus large que les rangées affichées, sinon
+   * le dé retombe toujours sur les trois mêmes courses.
+   */
+  dicePool?: string[];
+  /** Identifiant de section, unique dans la page. */
+  id?: string;
+}
+
+const {
+  locale,
+  races,
+  allHref,
+  allLabel,
+  location,
+  variant = 'panel',
+  dicePool,
+  id = 'close-races',
+} = Astro.props;
+
+const isFr = locale === 'fr';
+const isEs = locale === 'es';
+
+const T = {
+  eyebrow: isFr ? 'À surveiller' : isEs ? 'Para seguir' : 'Watch list',
+  title: isFr
+    ? 'Les courses les plus serrées'
+    : isEs
+      ? 'Las contiendas más reñidas'
+      : 'The tightest races',
+  hint: isFr
+    ? 'Marge projetée la plus faible. Ouvrez-en une pour voir les chiffres.'
+    : isEs
+      ? 'El margen proyectado más pequeño. Abre una para ver los números.'
+      : 'Smallest projected margin. Open one for the numbers.',
+  dice: isFr
+    ? 'Une autre course serrée'
+    : isEs
+      ? 'Otra contienda reñida'
+      : 'Another close race',
+  margin: isFr ? 'pt de marge' : isEs ? 'pt de margen' : 'pt margin',
+};
+
+const pct = (p: number) => `${Math.round(p * 100)} %`;
+const margin = (m: number) =>
+  `${m.toLocaleString(isFr ? 'fr-CA' : isEs ? 'es-ES' : 'en-CA', {
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1,
+  })} ${T.margin}`;
+
+// Le dé n'est pas un bouton mort sans JavaScript : le lien pointe déjà sur une
+// course serrée, et le script ne fait que le retirer au hasard à chaque clic.
+const diceTargets = (dicePool ?? races.map((r) => r.href)).filter(
+  (h): h is string => Boolean(h),
+);
+const titleId = `${id}-title`;
+---
+
+{races.length > 0 && (
+  <section class={`close-races close-races-${variant}`} id={id} aria-labelledby={titleId}>
+    <header class="cr-head">
+      <p class="cr-eyebrow">{T.eyebrow}</p>
+      <h2 id={titleId}>{T.title}</h2>
+      <p class="cr-hint">{T.hint}</p>
+    </header>
+
+    <ol class="cr-list">
+      {races.map((race) => {
+        const Row = race.href ? 'a' : 'div';
+        return (
+          <li style={`--party:${race.partyColor}`}>
+            <Row
+              {...(race.href
+                ? {
+                    href: race.href,
+                    'data-analytics-event': 'content_next_step',
+                    'data-analytics-location': location,
+                  }
+                : {})}
+            >
+              <span class="cr-name">{race.name}</span>
+              <span class="cr-party">{race.partyLabel}</span>
+              <span class="cr-odds">
+                {pct(race.pWinner)}
+                <small>{margin(race.margin)}</small>
+              </span>
+            </Row>
+          </li>
+        );
+      })}
+    </ol>
+
+    {(allHref || diceTargets.length > 1) && (
+      <footer class="cr-foot">
+        {allHref && allLabel && (
+          <a
+            href={allHref}
+            data-analytics-event="content_next_step"
+            data-analytics-location={`${location}_all`}
+          >
+            {allLabel} →
+          </a>
+        )}
+        {diceTargets.length > 1 && (
+          <a
+            class="cr-dice"
+            href={diceTargets[0]}
+            data-close-race-dice={JSON.stringify(diceTargets)}
+            data-analytics-event="content_next_step"
+            data-analytics-location={`${location}_random`}
+          >
+            <span aria-hidden="true">🎲</span> {T.dice}
+          </a>
+        )}
+      </footer>
+    )}
+  </section>
+)}
+
+<script>
+  // Progressive enhancement : sans script, le lien mène à la première course
+  // de la liste — jamais à rien.
+  for (const el of document.querySelectorAll<HTMLAnchorElement>('[data-close-race-dice]')) {
+    let pool: string[] = [];
+    try {
+      pool = JSON.parse(el.dataset.closeRaceDice ?? '[]');
+    } catch {
+      pool = [];
+    }
+    if (pool.length < 2) continue;
+    const reroll = () => {
+      const next = pool[Math.floor(Math.random() * pool.length)];
+      if (next) el.href = next;
+    };
+    reroll();
+    el.addEventListener('mouseenter', reroll);
+    el.addEventListener('focus', reroll);
+  }
+</script>
+
+<style>
+  .close-races {
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    background: var(--card);
+    padding: 22px 24px;
+  }
+  .cr-eyebrow {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .cr-head h2 {
+    margin: 8px 0 6px;
+    font-family: var(--serif);
+    font-size: clamp(24px, 2.6vw, 32px);
+    font-weight: 430;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+  }
+  .cr-hint {
+    margin: 0;
+    color: var(--ink-3);
+    font-size: 13px;
+  }
+  .cr-list {
+    list-style: none;
+    margin: 16px 0 0;
+    padding: 0;
+    border-top: 1px solid var(--rule);
+  }
+  .cr-list li { border-bottom: 1px solid var(--rule); }
+  .cr-list a,
+  .cr-list div {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: 'name odds' 'party odds';
+    gap: 2px 14px;
+    align-items: center;
+    padding: 12px 0 12px 12px;
+    border-left: 3px solid var(--party, var(--rule));
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .cr-name {
+    grid-area: name;
+    font-family: var(--serif);
+    font-size: 19px;
+    line-height: 1.15;
+  }
+  .cr-party {
+    grid-area: party;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .cr-odds {
+    grid-area: odds;
+    display: grid;
+    justify-items: end;
+    font-family: var(--mono);
+    font-size: 16px;
+    font-variant-numeric: tabular-nums;
+  }
+  .cr-odds small {
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    color: var(--ink-3);
+  }
+  .cr-list a:hover .cr-name {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .cr-foot {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 20px;
+    margin-top: 14px;
+  }
+  .cr-foot a {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+  }
+  .cr-foot a:hover { color: var(--ink); }
+  /* Le dé est un caractère plein chasse : sans gap, la lettre suivante lui
+     rentre dedans une fois le libellé passé en majuscules espacées. */
+  .cr-dice { display: inline-flex; align-items: center; gap: 7px; }
+  .cr-dice span { font-size: 13px; letter-spacing: 0; }
+
+  /* Bande de milieu de page : plus basse, moins bavarde. */
+  .close-races-strip { padding: 18px 20px; }
+  .close-races-strip .cr-head h2 { font-size: clamp(21px, 2.2vw, 26px); }
+  .close-races-strip .cr-name { font-size: 17px; }
+
+  @media (max-width: 600px) {
+    .close-races { padding: 18px 16px; }
+    .cr-odds { font-size: 14px; }
+  }
+</style>

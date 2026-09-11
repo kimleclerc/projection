@@ -13,6 +13,8 @@ import RidingTable from '../islands/RidingTable.tsx';
 import ElectionCountdown from '../islands/ElectionCountdown.tsx';
 import ForecastShare from '../islands/lib/ForecastShare.tsx';
 import KeepDigging from './KeepDigging.astro';
+import CloseRaces from './CloseRaces.astro';
+import { closeRacesFor } from '../lib/close-races';
 import JurisdictionNav from './JurisdictionNav.astro';
 import OnThisPage from './OnThisPage.astro';
 import { getNavEntry, sectionUrl, type NavLang } from '../lib/jurisdiction-nav';
@@ -423,6 +425,27 @@ const mapParties = parties.map((p) => ({
   label_fr: p.label_fr,
   color: p.color,
 }));
+// Courses les plus serrées — la porte de la zone de réponse.
+//
+// Sur une page de projection, tout ce qui mène ailleurs (carte, table,
+// « continuer à creuser ») vit au-delà de 4 500 px en mobile, sur les sept
+// desks : le lecteur obtient son chiffre et n'a plus rien à cliquer pendant
+// trois écrans. Le classement vient de `close-races.ts`, partagé avec les
+// pages de circonscription, pour que les deux blocs disent la même chose.
+// `allHref`/`allLabel` viennent du même appel : « Circonscriptions »,
+// « Sièges », « Districts », « Courses » — chaque juridiction nomme son unité
+// dans le registre de nav, et le bloc reprend ce mot-là.
+const {
+  races: closeRaces,
+  dicePool: closeRaceDicePool,
+  allHref: closeRacesAllHref,
+  allLabel: closeRacesAllLabel,
+} = closeRacesFor({
+  webKey: jurisdiction.dataPath,
+  palette: partyJurisdiction,
+  lang: locale as NavLang,
+});
+
 const geoUrl = `/web_data/${jurisdiction.dataPath}/ridings.geojson`;
 
 // Blocs de la carte en tuiles, produits par le moteur dans simulator.json.
@@ -543,6 +566,10 @@ const pageNavItems = [
     href: '#forecast',
     label: locale === 'fr' ? 'Prévision' : locale === 'es' ? 'Pronóstico' : 'Forecast',
   },
+  ...(closeRaces.length > 0 ? [{
+    href: '#close-races',
+    label: locale === 'fr' ? 'Courses serrées' : locale === 'es' ? 'Contiendas reñidas' : 'Close races',
+  }] : []),
   {
     href: '#analysis',
     label: locale === 'fr' ? 'Analyse' : locale === 'es' ? 'Análisis' : 'Analysis',
@@ -591,7 +618,9 @@ const pageNavItems = [
       <article style={`--signal:${lead.color}`}><strong>{projectedSeatsFor(lead)}</strong><span>{leadLabel} · {locale === 'fr' ? 'sièges' : locale === 'es' ? 'escaños' : 'seats'}</span></article>
       <article style={`--signal:${lead.color}`}><strong>{pct(lead.p_largest)}</strong><span>{leadLabel} · {locale === 'fr' ? 'finit premier' : locale === 'es' ? 'queda primero' : 'finishes first'}</span></article>
       <article style={`--signal:${second.color}`}><strong>{projectedSeatsFor(second)}</strong><span>{secondLabel} · {locale === 'fr' ? 'sièges' : locale === 'es' ? 'escaños' : 'seats'}</span></article>
-      {liveMarketValue && <a class="pe-market-card" href={marketHref}><strong>{liveMarketValue}</strong><span>{liveMarketLabel} →</span></a>}
+      {/* Sortie vers Polymarket : nouvel onglet, sinon le clic le plus visible
+          de la zone de réponse est un clic de départ. */}
+      {liveMarketValue && <a class="pe-market-card" href={marketHref} target="_blank" rel="noopener"><strong>{liveMarketValue}</strong><span>{liveMarketLabel} →</span></a>}
     </div>
     <p class="pe-snapshot-note">{locale === 'fr' ? `${meta.n_polls} sondages · ${meta.n_simulations.toLocaleString('fr-CA')} simulations · notre lecture exclusive de la course` : locale === 'es' ? `${meta.n_polls} encuestas · ${meta.n_simulations.toLocaleString('es-ES')} simulaciones · nuestra lectura exclusiva de la carrera` : `${meta.n_polls} polls · ${meta.n_simulations.toLocaleString('en-CA')} simulations · our exclusive read of the race`}</p>
     <ForecastShare
@@ -602,6 +631,20 @@ const pageNavItems = [
       client:load
     />
   </section>
+
+  {closeRaces.length > 0 && (
+    <section class="pe-section container">
+      <CloseRaces
+        locale={locale}
+        races={closeRaces}
+        dicePool={closeRaceDicePool}
+        allHref={closeRacesAllHref}
+        allLabel={closeRacesAllLabel}
+        location="close_races_desk"
+        id="close-races"
+      />
+    </section>
+  )}
 
   {jurisdiction.electionDate && (
     <section

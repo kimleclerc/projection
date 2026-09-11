@@ -6,7 +6,8 @@
  * all ~600 pages automatically. Edit this file → every riding page rebuilds.
  */
 import type { RidingData } from '../../lib/riding-adapters/types';
-import { getNavEntryForRiding } from '../../lib/jurisdiction-nav';
+import { getNavEntryForRiding, type NavLang } from '../../lib/jurisdiction-nav';
+import { closeRacesFor, type CloseRacesResult } from '../../lib/close-races';
 import JurisdictionNav from '../JurisdictionNav.astro';
 import OnThisPage from '../OnThisPage.astro';
 import Hero from './sections/Hero.astro';
@@ -26,6 +27,7 @@ import CandidateSlate from './sections/CandidateSlate.astro';
 import ProjectionHistory from './sections/ProjectionHistory.astro';
 import RegionalContext from './sections/RegionalContext.astro';
 import NeighborRidings from './sections/NeighborRidings.astro';
+import CloseRaces from '../CloseRaces.astro';
 import LocalPolls from './sections/LocalPolls.astro';
 import PolymarketEmbed from '../PolymarketEmbed.astro';
 
@@ -36,6 +38,26 @@ interface Props {
 
 const { data, lang } = Astro.props;
 const navWebKey = data.navWebKey ?? getNavEntryForRiding(data.jurisdiction)?.webKey;
+
+// Porte de mi-page. Mesuré en prod : entre le ruban du haut et le bloc des
+// voisines, une page de circonscription offrait 6 100 px (AL-1) à 10 900 px
+// (Abitibi-Est) sans un seul lien vers une autre page — neuf écrans de mobile
+// pour le Québec. Les courses serrées de la juridiction remplissent ce vide.
+//
+// Volontairement les courses serrées et NON les voisines : `buildNeighbors`
+// n'est géographique que là où des centroïdes existent. Côté US House il prend
+// `.slice(0, 6)` du même État (us-house.ts), si bien que tous les districts de
+// Californie affichent les six mêmes « voisines ». Le classement par marge est
+// identique sur les huit juridictions.
+const closeRacesHere: CloseRacesResult = navWebKey
+  ? closeRacesFor({
+      webKey: navWebKey,
+      palette: data.jurisdiction,
+      lang: lang as NavLang,
+      excludeId: data.id,
+    })
+  : { races: [], dicePool: [] };
+
 const pageNavItems = [
   {
     href: '#projection',
@@ -45,6 +67,10 @@ const pageNavItems = [
     href: '#vote-share',
     label: { en: 'Vote share', fr: 'Intentions de vote', es: 'Intención de voto' }[lang],
   },
+  ...(closeRacesHere.races.length ? [{
+    href: '#close-races',
+    label: { en: 'Close races', fr: 'Courses serrées', es: 'Contiendas reñidas' }[lang],
+  }] : []),
   ...(data.polls?.length ? [{
     href: '#local-polls',
     label: { en: 'Local polls', fr: 'Sondages locaux', es: 'Sondeos locales' }[lang],
@@ -72,6 +98,20 @@ const pageNavItems = [
 {data.byelection && <ByelectionForecast data={data} lang={lang} />}
 <div id="projection" class="riding-anchor"><ProjectionPanel data={data} lang={lang} /></div>
 <div id="vote-share" class="riding-anchor"><VoteBars data={data} lang={lang} /></div>
+{closeRacesHere.races.length > 0 && (
+<section class="container riding-close-races">
+  <CloseRaces
+    locale={lang}
+    races={closeRacesHere.races}
+    dicePool={closeRacesHere.dicePool}
+    allHref={closeRacesHere.allHref}
+    allLabel={closeRacesHere.allLabel}
+    location="close_races_riding"
+    variant="strip"
+    id="close-races"
+  />
+</section>
+)}
 {data.regionalContext && <RegionalContext data={data} lang={lang} />}
 {data.hasProjectionHistory && <ProjectionHistory data={data} lang={lang} />}
 {data.polls && data.polls.length > 0 && <div id="local-polls" class="riding-anchor"><LocalPolls data={data} lang={lang} /></div>}
@@ -110,4 +150,5 @@ const pageNavItems = [
 
 <style>
   .riding-anchor { scroll-margin-top: 92px; }
+  .riding-close-races { scroll-margin-top: 92px; margin-block: 36px; }
 </style>

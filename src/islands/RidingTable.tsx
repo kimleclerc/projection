@@ -87,7 +87,12 @@ export default function RidingTable({
   const [partyFilter, setPartyFilter] = useState<Set<string>>(new Set());
   const [closeOnly, setCloseOnly] = useState(false);
   const [sortKey, setSortKey] = useState<SortKey>('margin');
-  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
+  // Marge CROISSANTE à l'ouverture : la table s'ouvrait sur la marge
+  // décroissante, c'est-à-dire sur les sièges les plus sûrs de la carte
+  // (Matane-Matapédia-Mitis à 58,5 points, p = 1,00). Les premières rangées
+  // visibles sont maintenant les courses qui peuvent encore basculer — le
+  // filtre « serrées seulement » existait déjà mais il fallait le cocher.
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
   const [pageLimit, setPageLimit] = useState(PAGE_SIZE);
 
   useEffect(() => {
