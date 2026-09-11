@@ -1,6 +1,7 @@
 ---
 import EditorialLayout from '../../layouts/EditorialLayout.astro';
 import LatinoRadarTable from '../../islands/LatinoRadarTable';
+import LatinoVoteIndex from './LatinoVoteIndex.astro';
 import { radarCopy, radarRoots, type RadarLocale } from '../../data/latinoRadar';
 import '../../styles/latino-radar.css';
 import radarData from '../../../web_data/us-latino-radar/latest.json';
@@ -51,6 +52,8 @@ const alternates = {
       <div class="radar-signal"><span>{copy.senate}</span><strong>{radarData.national_signals.senate.eligible_races}</strong><p>{copy.racesWord} · {copy.averageIndex} {radarData.national_signals.senate.average_index}</p></div>
       <div class="radar-signal"><span>{copy.president}</span><strong>2028</strong><p>{copy.preliminary}</p></div>
     </section>
+
+    <LatinoVoteIndex locale={locale} />
 
     <section class="radar-ranking">
       <div class="radar-container">
