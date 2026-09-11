@@ -95,6 +95,14 @@ const CURATED = [
   '/en/us/specials/ca14/', '/fr/us/specials/ca14/', '/es/us/specials/ca14/',
   '/en/us/specials/fl20/', '/fr/us/specials/fl20/', '/es/us/specials/fl20/',
   '/en/us/specials/tx23/', '/fr/us/specials/tx23/', '/es/us/specials/tx23/',
+  // Radar latino — le hub n'a jamais été soumis, alors que la section existe
+  // depuis juillet et que son classement est recalculé à chaque run Chambre ou
+  // Sénat. Ajouté le 2026-09-11, le jour où l'indice national du vote latino
+  // est arrivé sur la page : sans cette ligne, la nouveauté du jour n'aurait
+  // été annoncée à personne. Les 621 fiches de course restent hors liste —
+  // elles bougent aussi chaque nuit, mais les soumettre toutes chaque jour
+  // ferait passer un signal de fraîcheur pour du bruit.
+  '/en/us/latino-radar/', '/fr/us/radar-latino/', '/es/us/radar-latino/',
 ].map((p) => `https://${HOST}${p}`);
 
 /** Desks de partielles individuels, repris du sitemap.
