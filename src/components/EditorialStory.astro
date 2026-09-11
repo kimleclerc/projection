@@ -9,7 +9,7 @@ const { entry } = Astro.props;
 const d = entry.data;
 ---
 
-<article class="editorial-story">
+<article class="editorial-story" data-content-area>
   <header class="story-hero container">
     {d.eyebrow && <p class="eyebrow">{d.eyebrow}</p>}
     <h1 class="story-title" set:html={d.h1Html} />

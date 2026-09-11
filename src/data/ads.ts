@@ -15,6 +15,26 @@
  * Audience measurement is the opposite case and is ours: GA4 and Microsoft
  * Clarity run through Google Tag Manager, gated on analytics_storage by
  * src/lib/consent.ts.
+ *
+ * Where the ads go: the dashboard's Content Selector is set to `#main-content`
+ * (Settings -> Ad Settings -> Ad Placement Selectors). Journey inserts ads
+ * between the DIRECT children of each target it is given, and it does not
+ * descend into them -- divbuster is off. Our page bodies are single monolithic
+ * <article> wrappers, so `#main-content` alone yields two or three slots at the
+ * very bottom of a page: on /fr/canada/quebec/, article.projection-engine is
+ * 7824px of an 11330px page and used to receive none at all.
+ *
+ * Hence the bare `data-content-area` attribute on those 32 page wrappers. The
+ * wrapper queries `${content_selector}, [data-content-area]`, so each marked
+ * article becomes a target in its own right and its own sections become
+ * insertion points. Measured on the Quebec page: 3 slots -> 10, spread from
+ * 809px to 12861px, which is 18% ad density against the "Optimal" target of 20%.
+ *
+ * The attribute does NOTHING on its own. That query is only reached when
+ * content_selector is non-null -- an empty Content Selector short-circuits to an
+ * empty target list, which is exactly the state the site shipped in from
+ * 2026-08-21 to 2026-09-11, one adhesion unit per pageview and a $0.15 page RPM.
+ * If ads ever vanish from mid-content, check that field before touching markup.
  */
 
 export interface AdsConfig {
