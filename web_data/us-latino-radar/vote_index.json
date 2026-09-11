@@ -1,8 +1,8 @@
 {
  "meta": {
-  "index_version": "latino-vote-index-v0.1",
+  "index_version": "latino-vote-index-v0.2",
   "run_date": "2026-09-11",
-  "generated_at": "2026-09-11T14:08:14",
+  "generated_at": "2026-09-11T15:09:20",
   "half_life_days": 60.0,
   "class_weights": {
    "dedicated": 1.0,
@@ -10,12 +10,216 @@
   },
   "thin_effective_n": 2500,
   "headline_metric": "two_party_dem",
+  "track_rule": {
+   "fr": "Les maisons américaines sondent au moins deux populations — adultes et électeurs inscrits — et passent du bulletin générique au bulletin nommé à l'approche du scrutin. Les deux sont valides ; ce ne sont pas la même mesure. Mesuré chez nous : 66,1 % sur une vague adultes/générique terminée le 31 août, 56,3 % sur une vague inscrits/nommé terminée le 8 septembre, même maison, huit jours d'écart. L'indice garde donc des pistes séparées et ne moyenne jamais de l'une à l'autre.",
+   "en": "U.S. pollsters field at least two populations — adults and registered voters — and switch from a generic to a named ballot as the election nears. Both are valid; they are not the same measurement. Measured on our own data: 66.1% on an adults/generic wave ending 31 August, 56.3% on a registered-voter/named wave ending 8 September, same house, eight days apart. The index therefore keeps separate tracks and never averages across them.",
+   "es": "Las encuestadoras estadounidenses miden al menos dos poblaciones — adultos y votantes registrados — y pasan de la boleta genérica a la nominal según se acerca la elección. Ambas son válidas; no son la misma medición. Medido con nuestros propios datos: 66,1 % en una ola de adultos/genérica terminada el 31 de agosto y 56,3 % en una de votantes registrados/nominal terminada el 8 de septiembre, misma casa, ocho días de diferencia. El índice mantiene pistas separadas y nunca promedia entre ellas."
+  },
   "why_two_party": {
    "fr": "Les maisons ne traitent pas les indécis de la même façon : en mai 2026, UnidosUS et Equis placent toutes deux le démocrate à 54, mais le républicain à 27 et à 35. La part bipartite D/(D+R) est la seule forme comparable d'une maison à l'autre.",
    "en": "Houses handle undecideds differently: in May 2026 UnidosUS and Equis both put the Democrat at 54 but the Republican at 27 and 35. The two-party share D/(D+R) is the only form comparable across houses.",
    "es": "Las encuestadoras tratan a los indecisos de forma distinta: en mayo de 2026 UnidosUS y Equis situaban al demócrata en 54, pero al republicano en 27 y en 35. La proporción bipartidista D/(D+R) es la única forma comparable entre casas."
   }
  },
+ "headline_track": "dedicated_rv_generic",
+ "tracks": {
+  "crosstab_adults_generic": {
+   "two_party_dem": 62.69,
+   "two_party_margin_dem": 25.38,
+   "standard_error": 1.94,
+   "ci95": [
+    58.89,
+    66.49
+   ],
+   "effective_sample": 623,
+   "raw_sample": 1337,
+   "waves": 6,
+   "houses": [
+    "yougov"
+   ],
+   "latest_field": "2026-08-31",
+   "days_since_latest_field": 11,
+   "status": "thin",
+   "movement_within_track": {
+    "from": {
+     "date": "2026-01-26",
+     "two_party_dem": 64.06
+    },
+    "to": {
+     "date": "2026-08-31",
+     "two_party_dem": 66.13
+    },
+    "change": 2.07,
+    "span_days": 217
+   },
+   "series": [
+    {
+     "field_end": "2026-01-26",
+     "two_party_dem": 64.06,
+     "sample_size": 258,
+     "firm": "yougov"
+    },
+    {
+     "field_end": "2026-03-09",
+     "two_party_dem": 61.43,
+     "sample_size": 228,
+     "firm": "yougov"
+    },
+    {
+     "field_end": "2026-05-26",
+     "two_party_dem": 60.0,
+     "sample_size": 216,
+     "firm": "yougov"
+    },
+    {
+     "field_end": "2026-08-17",
+     "two_party_dem": 59.38,
+     "sample_size": 237,
+     "firm": "yougov"
+    },
+    {
+     "field_end": "2026-08-24",
+     "two_party_dem": 63.33,
+     "sample_size": 176,
+     "firm": "yougov"
+    },
+    {
+     "field_end": "2026-08-31",
+     "two_party_dem": 66.13,
+     "sample_size": 222,
+     "firm": "yougov"
+    }
+   ]
+  },
+  "crosstab_rv_named": {
+   "two_party_dem": 56.34,
+   "two_party_margin_dem": 12.68,
+   "standard_error": 3.39,
+   "ci95": [
+    49.69,
+    62.99
+   ],
+   "effective_sample": 213,
+   "raw_sample": 221,
+   "waves": 1,
+   "houses": [
+    "yougov"
+   ],
+   "latest_field": "2026-09-08",
+   "days_since_latest_field": 3,
+   "status": "thin",
+   "movement_within_track": null,
+   "series": [
+    {
+     "field_end": "2026-09-08",
+     "two_party_dem": 56.34,
+     "sample_size": 221,
+     "firm": "yougov"
+    }
+   ]
+  },
+  "dedicated_rv_generic": {
+   "two_party_dem": 65.1,
+   "two_party_margin_dem": 30.19,
+   "standard_error": 1.45,
+   "ci95": [
+    62.26,
+    67.93
+   ],
+   "effective_sample": 1086,
+   "raw_sample": 8000,
+   "waves": 3,
+   "houses": [
+    "BSP Research & Shaw & Company Research",
+    "Equis Research"
+   ],
+   "latest_field": "2026-05-14",
+   "days_since_latest_field": 120,
+   "status": "thin",
+   "movement_within_track": {
+    "from": {
+     "date": "2025-10-22",
+     "two_party_dem": 65.0
+    },
+    "to": {
+     "date": "2026-05-14",
+     "two_party_dem": 66.67
+    },
+    "change": 1.67,
+    "span_days": 204
+   },
+   "series": [
+    {
+     "field_end": "2025-10-22",
+     "two_party_dem": 65.0,
+     "sample_size": 3000,
+     "firm": "BSP Research & Shaw & Company Research"
+    },
+    {
+     "field_end": "2026-03-20",
+     "two_party_dem": 60.67,
+     "sample_size": 2000,
+     "firm": "Equis Research"
+    },
+    {
+     "field_end": "2026-05-14",
+     "two_party_dem": 66.67,
+     "sample_size": 3000,
+     "firm": "BSP Research & Shaw & Company Research"
+    }
+   ]
+  }
+ },
+ "cross_track_offsets": [
+  {
+   "tracks": [
+    "crosstab_adults_generic",
+    "crosstab_rv_named"
+   ],
+   "dates": [
+    "2026-08-31",
+    "2026-09-08"
+   ],
+   "days_apart": 8,
+   "difference": 9.79
+  },
+  {
+   "tracks": [
+    "crosstab_adults_generic",
+    "dedicated_rv_generic"
+   ],
+   "dates": [
+    "2026-03-09",
+    "2026-03-20"
+   ],
+   "days_apart": 11,
+   "difference": 0.76
+  },
+  {
+   "tracks": [
+    "crosstab_adults_generic",
+    "dedicated_rv_generic"
+   ],
+   "dates": [
+    "2026-05-26",
+    "2026-05-14"
+   ],
+   "days_apart": 12,
+   "difference": -6.67
+  },
+  {
+   "tracks": [
+    "crosstab_adults_generic",
+    "crosstab_rv_named"
+   ],
+   "dates": [
+    "2026-08-24",
+    "2026-09-08"
+   ],
+   "days_apart": 15,
+   "difference": 6.99
+  }
+ ],
  "index": {
   "status": "thin",
   "two_party_dem": 65.1,
@@ -33,7 +237,7 @@
    "us_latino_unidosus_2026_05"
   ],
   "distinct_houses": 2,
-  "days_since_latest_field": 109,
+  "days_since_latest_field": 120,
   "house_spread": {
    "by_house": {
     "BSP Research & Shaw & Company Research": 65.84,
