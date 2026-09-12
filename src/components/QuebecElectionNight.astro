@@ -1,0 +1,350 @@
+---
+/**
+ * Soirée électorale québécoise du 5 octobre 2026.
+ *
+ * Cette page est le GABARIT de soirée, pas une page d'événement : le 5 octobre
+ * elle reçoit la couche directe (dépouillement, sièges, appels) au-dessus des
+ * sections ci-dessous, à la MÊME URL. C'est pour ça qu'elle existe dès
+ * septembre — une URL créée le soir du scrutin n'a aucune chance d'être
+ * indexée le soir du scrutin, et les partielles ont montré qu'une page de
+ * soirée capte à elle seule une fraction majeure du trafic d'un mois.
+ *
+ * Tout ce qui est chiffré ici vient des données, jamais d'une valeur écrite en
+ * dur : la projection est relue à chaque build nocturne et la feuille de route
+ * est recomptée depuis le registre des appels résolus.
+ */
+import { getAllQuebecRidings } from '../lib/riding-adapters/quebec';
+import { partyMeta } from '../lib/riding-adapters/parties';
+import quebecMeta from '../../web_data/quebec/latest.json';
+import resolvedCalls from '../../web_data/resolved-calls.json';
+import type { Locale } from '../data/editorial';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+
+// ── Données ────────────────────────────────────────────────────────
+const meta = quebecMeta.meta;
+const totalSeats = meta.total_seats;
+const majority = meta.majority_threshold;
+const runDate = meta.run_date;
+
+const seatParties = quebecMeta.parties
+  .filter((p) => p.seats_projected > 0)
+  .slice()
+  .sort((a, b) => b.seats_projected - a.seats_projected);
+
+// Sélection par probabilité de course serrée — c'est elle qui dit si une course
+// PEUT basculer, pas l'écart seul. L'affichage, lui, est réordonné par écart :
+// une liste qui montre 2,1 pt avant 1,9 pt a l'air d'un tri cassé, même quand
+// le classement sous-jacent est le bon.
+const closest = getAllQuebecRidings()
+  .slice()
+  .sort((a, b) => b.projection.p_close_race - a.projection.p_close_race)
+  .slice(0, 8)
+  .sort((a, b) => a.projection.mean_margin - b.projection.mean_margin);
+
+// Feuille de route : recomptée, jamais écrite en dur.
+const electionCalls = (resolvedCalls.calls as Array<{ domain?: string; result?: { status?: string } }>)
+  .filter((c) => c.domain === 'election');
+const callsTotal = electionCalls.length;
+const callsCorrect = electionCalls.filter((c) => c.result?.status === 'correct').length;
+
+// Le point décimal est anglais : le français et l'espagnol prennent la virgule.
+// Même convention que CalibrationSection / CanadaByelectionRaceDesk.
+const num = (v: number, d = 1) =>
+  locale === 'en' ? v.toFixed(d) : v.toFixed(d).replace('.', ',');
+
+const ridingsBase = { fr: 'circonscriptions', en: 'ridings', es: 'distritos' }[locale];
+const pollsBase = { fr: 'sondages', en: 'polls', es: 'sondeos' }[locale];
+
+// ── Textes ─────────────────────────────────────────────────────────
+const COPY = {
+  fr: {
+    eyebrow: 'Élection générale québécoise · 5 octobre 2026',
+    h1: 'Résultats de l’élection québécoise du 5 octobre 2026',
+    lede: 'Le soir du scrutin, cette page portera le dépouillement en direct des 127 circonscriptions : voix, bureaux dépouillés, sièges, et nos appels de course dès qu’ils sont assez sûrs pour être publiés. D’ici là, voici ce qui s’y passera et où en est la course.',
+    scheduleTitle: 'Le déroulé de la soirée',
+    schedule: [
+      { time: '20 h 00', label: 'Fermeture des bureaux', text: 'Élections Québec commence à publier les résultats par bureau de vote. La source officielle se rafraîchit toutes les deux à cinq minutes; cette page suit la même cadence.' },
+      { time: '20 h 15', label: 'Les premiers bureaux', text: 'Une avance de quelques centaines de voix ne veut encore rien dire. Les bureaux ne se ressemblent pas, et l’ordre dans lequel ils rentrent fabrique des mirages — c’est le moment de la soirée où les chiffres bruts trompent le plus.' },
+      { time: 'En continu', label: 'Les appels', text: 'Dès qu’une circonscription franchit notre seuil de certitude, elle est appelée et change de couleur sur la carte. Les courses serrées attendent, parfois longtemps.' },
+      { time: 'Fin de soirée', label: 'Le portrait complet', text: 'Le décompte circonscription par circonscription, la composition de l’Assemblée nationale, et l’écart entre notre projection d’avant-scrutin et le résultat réel.' },
+    ],
+    methodTitle: 'Comment nous appelons une course',
+    methodLede: 'Un appel n’est pas une avance au décompte. C’est une affirmation que le meneur ne peut plus être rejoint — et elle engage notre feuille de route publique.',
+    thresholds: [
+      { value: '2,5 %', text: 'Le risque résiduel maximal pour une publication automatique, quand le résultat va dans le sens attendu.' },
+      { value: '1 %', text: 'Le seuil exigé quand le meneur n’est pas le favori, ou que la marge passe sous notre intervalle de prévision. Une surprise doit être plus solide qu’une confirmation.' },
+      { value: '5 %', text: 'La bande réservée à un humain : l’appel s’allume à la console, mais rien ne part sans qu’une personne l’ait regardé.' },
+    ],
+    methodNote: `Sur les ${callsTotal} appels électoraux résolus à ce jour, ${callsCorrect} se sont avérés. Chaque appel est publié avant le résultat, avec sa preuve d’antériorité.`,
+    trackCta: 'Voir la feuille de route complète →',
+    projectionTitle: 'Où en est la course aujourd’hui',
+    projectionLede: 'Ce n’est pas une prévision de la soirée : c’est l’état de la course au moment où vous lisez, recalculé chaque nuit jusqu’au scrutin.',
+    majorityLabel: `Majorité : ${majority} sièges`,
+    seatsLabel: 'sièges projetés',
+    runLabel: 'Projection du',
+    deskCta: 'Ouvrir la projection détaillée →',
+    closeTitle: 'Les courses qui se décideront tard',
+    closeLede: 'Les huit circonscriptions où l’écart projeté est le plus mince. Ce sont celles qui seront appelées en dernier, et souvent celles qui décident de la majorité.',
+    marginLabel: 'écart projeté',
+    linksTitle: 'Pendant ce temps',
+    links: [
+      { href: `/fr/canada/quebec/${ridingsBase}/`, label: 'Les 127 circonscriptions', text: 'Projection, député·e sortant·e, candidats déclarés et trajectoire, une page par circonscription.' },
+      { href: `/fr/canada/quebec/${pollsBase}/`, label: 'Tous les sondages', text: 'Chaque sondage québécois publié depuis 2022, avec sa maison, son terrain et son poids dans le modèle.' },
+      { href: '/fr/outils/simulateur-quebec/', label: 'Le simulateur', text: 'Faites bouger le vote et regardez les 127 circonscriptions réagir, sans confondre votre scénario avec notre projection.' },
+      { href: '/fr/methodologie/', label: 'La méthodologie', text: 'Comment le modèle passe des sondages aux sièges, et ce qu’il ne prétend pas savoir.' },
+    ],
+    sourceNote: 'Source officielle du dépouillement : Élections Québec. Les projections, les seuils de décision et les appels appartiennent à Vote-Scope; Élections Québec ne fait et ne fournit aucun appel.',
+  },
+  en: {
+    eyebrow: 'Quebec general election · October 5, 2026',
+    h1: 'Quebec election results — October 5, 2026',
+    lede: 'On election night, this page carries the live count across all 127 ridings: votes, polls reporting, seats, and our race calls the moment they are safe enough to publish. Until then, here is what will happen here and where the race stands.',
+    scheduleTitle: 'How the night unfolds',
+    schedule: [
+      { time: '8:00 p.m.', label: 'Polls close', text: 'Élections Québec begins publishing results poll by poll. The official source refreshes every two to five minutes; this page follows the same cadence.' },
+      { time: '8:15 p.m.', label: 'The first boxes', text: 'A lead of a few hundred votes means nothing yet. Polling stations are not alike, and the order they report in manufactures mirages — this is the hour of the night when raw numbers mislead most.' },
+      { time: 'Throughout', label: 'The calls', text: 'The moment a riding clears our certainty threshold, it is called and changes colour on the map. Close races wait, sometimes for a long time.' },
+      { time: 'Late night', label: 'The full picture', text: 'The count riding by riding, the composition of the National Assembly, and the gap between our pre-election projection and the actual result.' },
+    ],
+    methodTitle: 'How we call a race',
+    methodLede: 'A call is not a lead in the count. It is a claim that the leader can no longer be caught — and it goes on our public record.',
+    thresholds: [
+      { value: '2.5%', text: 'The maximum residual risk for an automatic call, when the result runs the way the forecast expected.' },
+      { value: '1%', text: 'The threshold required when the leader is not the favourite, or the margin drops below our forecast interval. An upset must be held to a higher standard than a confirmation.' },
+      { value: '5%', text: 'The band reserved for a human: the call lights up on the console, but nothing ships until a person has looked at it.' },
+    ],
+    methodNote: `Of the ${callsTotal} resolved election calls to date, ${callsCorrect} were right. Every call is published before the result, with timestamped proof.`,
+    trackCta: 'See the full track record →',
+    projectionTitle: 'Where the race stands today',
+    projectionLede: 'This is not a forecast of election night: it is the state of the race as you read it, recomputed every night until the vote.',
+    majorityLabel: `Majority: ${majority} seats`,
+    seatsLabel: 'projected seats',
+    runLabel: 'Projection of',
+    deskCta: 'Open the full forecast →',
+    closeTitle: 'The races that will be decided late',
+    closeLede: 'The eight ridings with the thinnest projected margin. These are the last to be called, and often the ones that decide the majority.',
+    marginLabel: 'projected margin',
+    linksTitle: 'In the meantime',
+    links: [
+      { href: `/en/canada/quebec/${ridingsBase}/`, label: 'All 127 ridings', text: 'Projection, sitting member, declared candidates and trajectory — one page per riding.' },
+      { href: `/en/canada/quebec/${pollsBase}/`, label: 'Every poll', text: 'Every Quebec poll published since 2022, with its firm, field dates and weight in the model.' },
+      { href: '/en/tools/quebec-simulator/', label: 'The simulator', text: 'Move the vote and watch all 127 ridings react, without confusing your scenario with our projection.' },
+      { href: '/en/methodology/', label: 'The methodology', text: 'How the model goes from polls to seats, and what it does not claim to know.' },
+    ],
+    sourceNote: 'Official count source: Élections Québec. Projections, decision thresholds and calls belong to Vote-Scope; Élections Québec makes and supplies no calls.',
+  },
+  es: {
+    eyebrow: 'Elección general de Quebec · 5 de octubre de 2026',
+    h1: 'Resultados de la elección de Quebec del 5 de octubre de 2026',
+    lede: 'La noche electoral, esta página lleva el recuento en directo de los 127 distritos: votos, mesas escrutadas, escaños y nuestros pronunciamientos en cuanto son lo bastante seguros para publicarse. Hasta entonces, esto es lo que ocurrirá aquí y cómo va la contienda.',
+    scheduleTitle: 'El desarrollo de la noche',
+    schedule: [
+      { time: '20:00', label: 'Cierre de las mesas', text: 'Élections Québec empieza a publicar los resultados mesa por mesa. La fuente oficial se actualiza cada dos a cinco minutos; esta página sigue la misma cadencia.' },
+      { time: '20:15', label: 'Las primeras mesas', text: 'Una ventaja de unos cientos de votos todavía no significa nada. Las mesas no se parecen entre sí, y el orden en que llegan fabrica espejismos: es el momento de la noche en que las cifras brutas más engañan.' },
+      { time: 'En continuo', label: 'Los pronunciamientos', text: 'En cuanto un distrito supera nuestro umbral de certeza, se adjudica y cambia de color en el mapa. Las contiendas ajustadas esperan, a veces mucho.' },
+      { time: 'Final de la noche', label: 'El panorama completo', text: 'El recuento distrito por distrito, la composición de la Asamblea Nacional y la distancia entre nuestra proyección previa y el resultado real.' },
+    ],
+    methodTitle: 'Cómo adjudicamos una contienda',
+    methodLede: 'Un pronunciamiento no es una ventaja en el recuento. Es afirmar que a quien va delante ya no se le puede alcanzar, y queda en nuestro historial público.',
+    thresholds: [
+      { value: '2,5 %', text: 'El riesgo residual máximo para una publicación automática, cuando el resultado va en el sentido previsto.' },
+      { value: '1 %', text: 'El umbral exigido cuando quien va delante no es el favorito, o el margen cae por debajo de nuestro intervalo. Una sorpresa debe sostenerse mejor que una confirmación.' },
+      { value: '5 %', text: 'La franja reservada a una persona: el pronunciamiento se enciende en la consola, pero nada sale sin que alguien lo haya mirado.' },
+    ],
+    methodNote: `De los ${callsTotal} pronunciamientos electorales ya resueltos, ${callsCorrect} acertaron. Cada uno se publica antes del resultado, con prueba de anterioridad.`,
+    trackCta: 'Ver el historial completo →',
+    projectionTitle: 'Cómo va la contienda hoy',
+    projectionLede: 'No es un pronóstico de la noche electoral: es el estado de la contienda en el momento en que usted lee, recalculado cada noche hasta la votación.',
+    majorityLabel: `Mayoría: ${majority} escaños`,
+    seatsLabel: 'escaños proyectados',
+    runLabel: 'Proyección del',
+    deskCta: 'Abrir la proyección detallada →',
+    closeTitle: 'Las contiendas que se decidirán tarde',
+    closeLede: 'Los ocho distritos con el margen proyectado más estrecho. Son los últimos en adjudicarse, y a menudo los que deciden la mayoría.',
+    marginLabel: 'margen proyectado',
+    linksTitle: 'Mientras tanto',
+    links: [
+      { href: `/es/canada/quebec/${ridingsBase}/`, label: 'Los 127 distritos', text: 'Proyección, diputado saliente, candidaturas declaradas y trayectoria: una página por distrito.' },
+      { href: `/es/canada/quebec/${pollsBase}/`, label: 'Todos los sondeos', text: 'Cada sondeo quebequés publicado desde 2022, con su casa, su trabajo de campo y su peso en el modelo.' },
+      { href: '/es/herramientas/simulador-quebec/', label: 'El simulador', text: 'Mueva el voto y vea reaccionar a los 127 distritos, sin confundir su escenario con nuestra proyección.' },
+      { href: '/es/metodologia/', label: 'La metodología', text: 'Cómo pasa el modelo de los sondeos a los escaños, y qué no pretende saber.' },
+    ],
+    sourceNote: 'Fuente oficial del recuento: Élections Québec. Las proyecciones, los umbrales de decisión y los pronunciamientos son de Vote-Scope; Élections Québec no emite ni suministra ningún pronunciamiento.',
+  },
+}[locale];
+
+const deskHref = `/${locale}/canada/quebec/`;
+const trackHref = `/${locale}/track-record/`;
+const seatTotal = seatParties.reduce((s, p) => s + p.seats_projected, 0) || totalSeats;
+const runDateText = new Intl.DateTimeFormat(
+  { fr: 'fr-CA', en: 'en-CA', es: 'es-ES' }[locale],
+  { day: 'numeric', month: 'long', year: 'numeric' },
+).format(new Date(`${runDate}T12:00:00Z`));
+---
+
+<section class="qen-hero">
+  <div class="container">
+    <p class="eyebrow">{COPY.eyebrow}</p>
+    <h1>{COPY.h1}</h1>
+    <p class="lede">{COPY.lede}</p>
+  </div>
+</section>
+
+<section class="qen-schedule">
+  <div class="container">
+    <h2>{COPY.scheduleTitle}</h2>
+    <ol class="qen-steps">
+      {COPY.schedule.map((s) => (
+        <li>
+          <span class="qen-time">{s.time}</span>
+          <h3>{s.label}</h3>
+          <p>{s.text}</p>
+        </li>
+      ))}
+    </ol>
+  </div>
+</section>
+
+<section class="qen-method">
+  <div class="container">
+    <h2>{COPY.methodTitle}</h2>
+    <p class="qen-lede">{COPY.methodLede}</p>
+    <ul class="qen-thresholds">
+      {COPY.thresholds.map((t) => (
+        <li>
+          <strong>{t.value}</strong>
+          <p>{t.text}</p>
+        </li>
+      ))}
+    </ul>
+    <p class="qen-note">{COPY.methodNote} <a href={trackHref}>{COPY.trackCta}</a></p>
+  </div>
+</section>
+
+<section class="qen-projection">
+  <div class="container">
+    <h2>{COPY.projectionTitle}</h2>
+    <p class="qen-lede">{COPY.projectionLede}</p>
+
+    <div class="qen-bar" role="img" aria-label={`${COPY.seatsLabel} — ${seatParties.map((p) => `${locale === 'fr' ? p.label_fr : p.label_en} ${p.seats_projected}`).join(', ')}`}>
+      {seatParties.map((p) => (
+        <span style={`--w:${(100 * p.seats_projected) / seatTotal}%;--c:${p.color}`}></span>
+      ))}
+      <i class="qen-majority" style={`--m:${(100 * majority) / totalSeats}%`} aria-hidden="true"></i>
+    </div>
+    <p class="qen-majority-label">{COPY.majorityLabel}</p>
+
+    <ul class="qen-legend">
+      {seatParties.map((p) => (
+        <li>
+          <i style={`--c:${p.color}`} aria-hidden="true"></i>
+          <span class="qen-party">{locale === 'fr' ? p.label_fr : p.label_en}</span>
+          <strong>{p.seats_projected}</strong>
+        </li>
+      ))}
+    </ul>
+
+    <p class="qen-note">
+      <span class="mono">{COPY.runLabel} {runDateText}</span> · <a href={deskHref}>{COPY.deskCta}</a>
+    </p>
+  </div>
+</section>
+
+<section class="qen-close">
+  <div class="container">
+    <h2>{COPY.closeTitle}</h2>
+    <p class="qen-lede">{COPY.closeLede}</p>
+    <ul class="qen-races">
+      {closest.map((r) => {
+        const pm = partyMeta(r.jurisdiction, r.projection.winner);
+        return (
+          <li>
+            <a href={`/${locale}/canada/quebec/${ridingsBase}/${r.slug}/`} style={`--c:${pm.color}`}>
+              <span class="qen-dot" aria-hidden="true"></span>
+              <span class="qen-riding">{locale === 'fr' ? r.name.fr : r.name.en}</span>
+              <span class="qen-lead">{locale === 'fr' ? pm.label_fr : pm.label_en}</span>
+              <span class="qen-margin">{num(r.projection.mean_margin)} pt · {COPY.marginLabel}</span>
+            </a>
+          </li>
+        );
+      })}
+    </ul>
+  </div>
+</section>
+
+<section class="qen-links">
+  <div class="container">
+    <h2>{COPY.linksTitle}</h2>
+    <ul class="qen-cards">
+      {COPY.links.map((l) => (
+        <li>
+          <a href={l.href}>
+            <h3>{l.label}</h3>
+            <p>{l.text}</p>
+          </a>
+        </li>
+      ))}
+    </ul>
+    <p class="qen-source">{COPY.sourceNote}</p>
+  </div>
+</section>
+
+<style>
+  .qen-hero { padding: 80px 0 40px; border-bottom: 1px solid var(--rule); background: var(--paper); }
+  .qen-hero h1 { margin: 8px 0 16px; font-family: var(--serif); font-size: clamp(38px, 5vw, 62px); font-weight: 420; letter-spacing: -0.02em; line-height: 1.04; max-width: 980px; }
+  .qen-hero .lede { max-width: 780px; font-family: var(--serif); font-size: clamp(17px, 1.8vw, 20px); line-height: 1.55; color: var(--ink-2); }
+
+  section h2 { font-family: var(--serif); font-size: clamp(26px, 3vw, 34px); font-weight: 460; letter-spacing: -0.01em; margin-bottom: 10px; }
+  .qen-lede { max-width: 720px; font-family: var(--serif); font-size: 17px; line-height: 1.6; color: var(--ink-2); margin-bottom: 28px; }
+  .qen-note { margin-top: 20px; font-size: 14px; line-height: 1.6; color: var(--ink-3); max-width: 720px; }
+  .qen-note a { color: var(--blue); text-decoration: underline; text-underline-offset: 3px; }
+
+  .qen-schedule { padding: 56px 0; background: var(--paper-2); border-bottom: 1px solid var(--rule); }
+  .qen-steps { list-style: none; margin-top: 24px; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 0; border-top: 1px solid var(--rule); border-left: 1px solid var(--rule); }
+  .qen-steps li { padding: 20px 18px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule); background: var(--card); }
+  .qen-time { font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--blue); }
+  .qen-steps h3 { margin: 8px 0 8px; font-family: var(--serif); font-size: 19px; font-weight: 500; }
+  .qen-steps p { font-size: 14px; line-height: 1.6; color: var(--ink-2); }
+
+  .qen-method { padding: 56px 0; background: var(--paper); border-bottom: 1px solid var(--rule); }
+  .qen-thresholds { list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; }
+  .qen-thresholds li { padding: 20px; border: 1px solid var(--rule); border-radius: 3px; background: var(--card); }
+  .qen-thresholds strong { display: block; font-family: var(--mono); font-size: 28px; font-weight: 500; color: var(--ink); margin-bottom: 8px; }
+  .qen-thresholds p { font-size: 14px; line-height: 1.6; color: var(--ink-2); }
+
+  .qen-projection { padding: 56px 0; background: var(--paper-2); border-bottom: 1px solid var(--rule); }
+  .qen-bar { position: relative; display: flex; height: 34px; border: 1px solid var(--rule); border-radius: 3px; overflow: hidden; background: var(--card); }
+  .qen-bar > span { width: var(--w); background: var(--c); }
+  .qen-majority { position: absolute; left: var(--m); top: -4px; bottom: -4px; width: 2px; background: var(--ink); }
+  .qen-majority-label { margin-top: 8px; font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
+  .qen-legend { list-style: none; display: flex; flex-wrap: wrap; gap: 8px 22px; margin-top: 18px; }
+  .qen-legend li { display: flex; align-items: center; gap: 8px; }
+  .qen-legend i { width: 10px; height: 10px; border-radius: 50%; background: var(--c); }
+  .qen-party { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); }
+  .qen-legend strong { font-family: var(--serif); font-size: 19px; font-weight: 500; }
+
+  .qen-close { padding: 56px 0; background: var(--paper); border-bottom: 1px solid var(--rule); }
+  .qen-races { list-style: none; display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 0; border-top: 1px solid var(--rule); border-left: 1px solid var(--rule); }
+  .qen-races a { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 4px 10px; padding: 14px 16px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule); background: var(--card); transition: background .15s ease; }
+  .qen-races a:hover { background: color-mix(in oklab, var(--c) 12%, var(--card)); }
+  .qen-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--c); }
+  .qen-riding { font-family: var(--serif); font-size: 16px; }
+  .qen-lead { font-family: var(--mono); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
+  .qen-margin { grid-column: 2 / -1; font-family: var(--mono); font-size: 11px; color: var(--ink-3); }
+
+  .qen-links { padding: 56px 0 72px; background: var(--paper-2); }
+  .qen-cards { list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; margin-top: 20px; }
+  .qen-cards a { display: block; height: 100%; padding: 20px; border: 1px solid var(--rule); border-radius: 3px; background: var(--card); transition: border-color .15s ease; }
+  .qen-cards a:hover { border-color: var(--blue); }
+  .qen-cards h3 { font-family: var(--serif); font-size: 19px; font-weight: 500; margin-bottom: 8px; }
+  .qen-cards p { font-size: 14px; line-height: 1.6; color: var(--ink-2); }
+  .qen-source { margin-top: 28px; max-width: 760px; font-size: 13px; line-height: 1.65; color: var(--ink-3); }
+
+  @media (max-width: 600px) {
+    .qen-hero { padding: 56px 0 32px; }
+  }
+</style>

@@ -1,0 +1,54 @@
+---
+import EditorialLayout from '../../../../../layouts/EditorialLayout.astro';
+import QuebecElectionNight from '../../../../../components/QuebecElectionNight.astro';
+
+const canonical = "https://vote-scope.com/fr/canada/quebec/resultats/";
+const title = "Résultats de l'élection québécoise du 5 octobre 2026 — Vote-Scope";
+const description = "Le dépouillement en direct des 127 circonscriptions le 5 octobre 2026 : voix, bureaux dépouillés, sièges et appels de course. Le déroulé de la soirée et l'état de la projection.";
+const eventName = "Élection générale québécoise de 2026";
+const alternates = {
+  fr: "https://vote-scope.com/fr/canada/quebec/resultats/",
+  en: "https://vote-scope.com/en/canada/quebec/results/",
+  es: "https://vote-scope.com/es/canada/quebec/resultados/",
+};
+---
+
+<EditorialLayout
+  title={title}
+  description={description}
+  canonical={canonical}
+  lang="fr"
+  currentPage="canada"
+  ogImage="https://vote-scope.com/og/projections/quebec/fr.png"
+  alternates={alternates}
+  jsonLd={[
+    {
+      '@context': 'https://schema.org',
+      '@type': 'WebPage',
+      name: title,
+      description,
+      url: canonical,
+      inLanguage: 'fr',
+      isPartOf: { '@type': 'WebSite', name: 'Vote-Scope', url: 'https://vote-scope.com/' },
+      about: {
+        '@type': 'Event',
+        name: eventName,
+        startDate: '2026-10-05T20:00:00-04:00',
+        eventStatus: 'https://schema.org/EventScheduled',
+        eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+        location: { '@type': 'Place', name: 'Québec', address: { '@type': 'PostalAddress', addressRegion: 'QC', addressCountry: 'CA' } },
+      },
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: 'https://vote-scope.com/fr/' },
+        { '@type': 'ListItem', position: 2, name: 'Canada', item: 'https://vote-scope.com/fr/canada/' },
+        { '@type': 'ListItem', position: 3, name: eventName, item: canonical },
+      ],
+    },
+  ]}
+>
+  <QuebecElectionNight locale="fr" />
+</EditorialLayout>
