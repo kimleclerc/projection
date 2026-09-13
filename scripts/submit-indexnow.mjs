@@ -26,7 +26,9 @@
  * Pages can't POST on deploy. Run it locally or from a deploy hook once the
  * new content is live.
  */
-import { readFileSync, existsSync } from 'node:fs';
+import { readFileSync, existsSync, appendFileSync, mkdirSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { execFileSync } from 'node:child_process';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -160,6 +162,42 @@ async function submitBatch(urlList) {
   return res.status;
 }
 
+const LOG_PATH = resolve(ROOT, 'logs/indexnow.jsonl');
+
+/**
+ * Journalise une soumission, une ligne JSON par lot.
+ *
+ * IndexNow ne se relit pas : le service ne donne aucun historique, et une
+ * fois le terminal fermé le « HTTP 200 » n'existe plus nulle part. Une
+ * soumission était donc invérifiable après coup — relevé le 2026-09-13, où
+ * rien dans le dépôt ne permettait de confirmer un envoi de la veille.
+ *
+ * Le fichier est SUIVI par git (à la différence de `*.log`, ignoré) : c'est
+ * ce qui le rend auditable depuis n'importe quel checkout. On garde le
+ * compte, l'empreinte de la liste et le commit déployé plutôt que les URL
+ * elles-mêmes — l'empreinte suffit à prouver que deux envois portaient bien
+ * la même liste, sans faire enfler l'historique de 182 lignes à chaque run.
+ *
+ * N'échoue JAMAIS la soumission : journaliser est utile, pas essentiel.
+ */
+function logSubmission(record) {
+  try {
+    mkdirSync(dirname(LOG_PATH), { recursive: true });
+    appendFileSync(LOG_PATH, JSON.stringify(record) + '\n', 'utf8');
+  } catch (e) {
+    console.error('  (journal non écrit :', e.message, ')');
+  }
+}
+
+function currentCommit() {
+  try {
+    return execFileSync('git', ['rev-parse', '--short', 'HEAD'],
+                        { cwd: ROOT, encoding: 'utf8' }).trim();
+  } catch {
+    return null;
+  }
+}
+
 async function main() {
   const args = process.argv.slice(2);
   let urls;
@@ -184,12 +222,30 @@ async function main() {
     process.exit(1);
   }
 
+  const commit = currentCommit();
+  const mode = args[0] === '--all' ? 'all'
+    : args[0] === '--url' ? 'explicit'
+    : 'curated';
+
   for (let i = 0; i < urls.length; i += BATCH_SIZE) {
     const batch = urls.slice(i, i + BATCH_SIZE).map(absolute);
+    const startedAt = new Date().toISOString();
     const status = await submitBatch(batch);
     // IndexNow returns 200 (accepted) or 202 (accepted, pending validation).
     const ok = status === 200 || status === 202;
     console.log(`  batch ${i / BATCH_SIZE + 1}: ${batch.length} URLs → HTTP ${status} ${ok ? '✓' : '✗'}`);
+    logSubmission({
+      submitted_at: startedAt,
+      host: HOST,
+      endpoint: ENDPOINT,
+      mode,
+      commit,
+      batch: i / BATCH_SIZE + 1,
+      urls: batch.length,
+      url_list_sha256: createHash('sha256').update(batch.join('\n')).digest('hex'),
+      http_status: status,
+      ok,
+    });
     if (!ok) {
       console.error('  Non-success status. Check key file is live at', KEY_LOCATION);
     }
