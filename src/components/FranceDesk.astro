@@ -21,6 +21,7 @@ import {
   blocLabel,
   statusLabel,
   fmtPct1,
+  scenarioProvenance,
   type FrScenario,
   type Locale,
 } from '../lib/fr-pres';
@@ -138,6 +139,10 @@ const heroCard = toScenarioCard(heroScenario, locale);
 const headlineName = rnDeclared?.candidate_name ?? heroCard.qualification[0]?.name ?? '';
 
 const explorerScenarios = buildExplorerCards(scenarios, heroId, locale);
+// Sur quoi repose le casting mis en avant, et depuis quand. Le hero est le
+// chiffre que la page affirme le plus fort : c'est là qu'une configuration
+// jamais sondée telle quelle doit le dire elle-même.
+const heroProvenance = scenarioProvenance(heroCard, locale);
 
 const registry = candidates
   .filter((c) => ['declared', 'probable'].includes(c.status))
@@ -339,6 +344,10 @@ const C = COPY[locale];
       <span aria-hidden="true">·</span>
       <span>{C.scenarios}</span>
     </div>
+
+    <p class={`fr-provenance${heroProvenance.stale ? ' is-stale' : ''}${heroProvenance.borrowed ? ' is-borrowed' : ''}`}>
+      {heroProvenance.text}
+    </p>
 
     {heroLead && heroSecond && (
       <div class="fr-hero-headline">
@@ -557,6 +566,22 @@ const C = COPY[locale];
   }
   .fr-meta span[aria-hidden] {
     color: var(--rule);
+  }
+  /* Provenance du casting mis en avant — discrète, mais jamais absente. */
+  .fr-provenance {
+    margin-top: 12px;
+    padding-left: 10px;
+    border-left: 2px solid var(--rule);
+    max-width: 62ch;
+    font-family: var(--mono);
+    font-size: 11px;
+    line-height: 1.5;
+    color: var(--ink-3);
+  }
+  .fr-provenance.is-stale,
+  .fr-provenance.is-borrowed {
+    border-left-color: var(--ink-4);
+    color: var(--ink-2);
   }
   .fr-cta-row {
     display: flex;

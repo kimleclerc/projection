@@ -131,6 +131,12 @@ export interface FrScenario {
     active_candidate_ids: string[];
     featured?: boolean;
     category?: string;
+    /** robust · usable · thin · stale · scaffold — voir curate_fr_pres_scenarios.py */
+    data_quality?: string;
+    /** Sondages portant CETTE configuration exacte (hors emprunts par proxy). */
+    n_polls?: number;
+    last_poll_date?: string | null;
+    days_since_last_poll?: number | null;
   };
   mode_fit: string;
   diagnostics: FrDiagnostics;
@@ -143,7 +149,14 @@ export interface ScenarioCard {
   id: string;
   label: string;
   category: string;
+  /** Sondages RETENUS, emprunts aux configurations voisines compris. */
   nPolls: number;
+  /** Sondages portant cette configuration exacte — 0 pour les scénarios
+   *  éditoriaux, dont le jeu de candidats n'a jamais été mis sur le terrain. */
+  ownPolls: number;
+  /** Âge du dernier sondage propre, en jours. null s'il n'y en a aucun. */
+  daysSinceLastPoll: number | null;
+  dataQuality: string;
   qualification: {
     id: string;
     name: string;
@@ -172,6 +185,9 @@ export function toScenarioCard(s: FrScenario, locale: Locale): ScenarioCard {
     label: s.scenario.public_label || s.scenario.scenario_name,
     category: s.scenario.category || 'other',
     nPolls: s.diagnostics?.n_polls_used ?? 0,
+    ownPolls: s.scenario.n_polls ?? 0,
+    daysSinceLastPoll: s.scenario.days_since_last_poll ?? null,
+    dataQuality: s.scenario.data_quality || 'scaffold',
     qualification: [...s.qualification]
       .sort((a, b) => b.first_round_mean - a.first_round_mean)
       .map((q) => ({
@@ -195,6 +211,74 @@ export function toScenarioCard(s: FrScenario, locale: Locale): ScenarioCard {
         }
       : null,
   };
+}
+
+/**
+ * Provenance d'un scénario, en une phrase.
+ *
+ * Le desk affichait les configurations côte à côte sans rien dire de leur
+ * fraîcheur : le 2026-09-14, un scénario dont le dernier sondage datait de
+ * 644 jours et un sondé quatre jours plus tôt étaient indiscernables à
+ * l'écran. La sélection et l'ordre ne changent pas — seule la provenance
+ * devient visible.
+ */
+export interface ScenarioProvenance {
+  text: string;
+  /** Le moteur a jugé la configuration périmée (plus de six mois). */
+  stale: boolean;
+  /** Aucun sondage propre : l'estimation vient des configurations voisines. */
+  borrowed: boolean;
+}
+
+function ageText(days: number, locale: Locale): string {
+  // Au-delà d'un mois et demi, un compte en jours ne se lit plus : « il y a
+  // 644 jours » demande une division mentale que « il y a 21 mois » évite.
+  const months = Math.round(days / 30.4);
+  if (locale === 'fr') {
+    if (days <= 0) return "aujourd'hui";
+    if (days < 45) return `il y a ${days} jour${days > 1 ? 's' : ''}`;
+    return `il y a ${months} mois`;
+  }
+  if (locale === 'es') {
+    if (days <= 0) return 'hoy';
+    if (days < 45) return `hace ${days} día${days > 1 ? 's' : ''}`;
+    return `hace ${months} mes${months > 1 ? 'es' : ''}`;
+  }
+  if (days <= 0) return 'today';
+  if (days < 45) return `${days} day${days > 1 ? 's' : ''} ago`;
+  return `${months} month${months > 1 ? 's' : ''} ago`;
+}
+
+export function scenarioProvenance(
+  card: Pick<ScenarioCard, 'ownPolls' | 'daysSinceLastPoll' | 'dataQuality'>,
+  locale: Locale,
+): ScenarioProvenance {
+  const borrowed = (card.ownPolls ?? 0) <= 0;
+  const stale = card.dataQuality === 'stale';
+
+  if (borrowed) {
+    return {
+      borrowed: true,
+      stale,
+      text: locale === 'fr'
+        ? "Aucun sondage sur cette configuration — estimée à partir des configurations voisines."
+        : locale === 'es'
+          ? 'Ningún sondeo sobre esta configuración — estimada a partir de configuraciones vecinas.'
+          : 'No poll on this configuration — estimated from neighbouring configurations.',
+    };
+  }
+
+  const n = card.ownPolls;
+  const d = card.daysSinceLastPoll;
+  const age = typeof d === 'number' ? ageText(d, locale) : null;
+
+  const text = locale === 'fr'
+    ? `${n} sondage${n > 1 ? 's' : ''} sur cette configuration${age ? ` · le dernier ${age}` : ''}`
+    : locale === 'es'
+      ? `${n} sondeo${n > 1 ? 's' : ''} sobre esta configuración${age ? ` · el último ${age}` : ''}`
+      : `${n} poll${n > 1 ? 's' : ''} on this configuration${age ? ` · latest ${age}` : ''}`;
+
+  return { borrowed: false, stale, text };
 }
 
 export const fmtPct1 = (v: number, locale: Locale) =>
