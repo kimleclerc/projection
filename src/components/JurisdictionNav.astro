@@ -2,8 +2,9 @@
 /**
  * JurisdictionNav — contextual sub-nav band shown under the global header on
  * jurisdiction pages. Two controls, both pure-HTML (no island):
- *   1. Section tabs for the CURRENT jurisdiction — projection · polls ·
- *      districts — so a reader moves laterally without going up to a hub.
+ *   1. Section tabs for the CURRENT jurisdiction — projection · uncertainty ·
+ *      polls · districts — so a reader moves laterally without going up to a
+ *      hub.
  *   2. A jurisdiction switcher (<details> disclosure) — jump to the SAME
  *      section in any other jurisdiction (or its projection if absent).
  *
@@ -26,7 +27,9 @@ const { webKey, lang, active } = Astro.props as Props;
 const entry = getNavEntry(webKey);
 
 // Order tabs predictably even if a jurisdiction omits one.
-const TAB_ORDER: SectionKey[] = ['projection', 'polls', 'districts'];
+// « Incertitude » suit immédiatement la prévision qu'elle qualifie :
+// fourchettes, rangs et trajectoire sont la lecture fine du même chiffre.
+const TAB_ORDER: SectionKey[] = ['projection', 'uncertainty', 'polls', 'districts'];
 
 const T = {
   en: { aria: 'Section navigation', switcher: 'Switch jurisdiction', here: 'You are here' },

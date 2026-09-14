@@ -1,0 +1,48 @@
+---
+import EditorialLayout from '../../../../../layouts/EditorialLayout.astro';
+import SeatUncertaintyPage from '../../../../../components/SeatUncertaintyPage.astro';
+import NewsletterCta from '../../../../../components/NewsletterCta.astro';
+import { jurisdictions } from '../../../../../data/jurisdictions';
+import projectionMeta from '../../../../../../web_data/quebec/latest.json';
+
+const j = jurisdictions.quebec;
+const canonical = 'https://vote-scope.com/en/canada/quebec/uncertainty/';
+const alternates = {
+  en: 'https://vote-scope.com/en/canada/quebec/uncertainty/',
+  fr: 'https://vote-scope.com/fr/canada/quebec/incertitude/',
+  es: 'https://vote-scope.com/es/canada/quebec/incertidumbre/',
+};
+const description = '80% and 95% seat ranges, probability of finishing first or second, and the run-by-run trajectory of our Quebec projections. The second level of the forecast.';
+---
+
+<EditorialLayout
+  title={'Quebec forecast uncertainty — seat ranges and trajectory — Vote-Scope'}
+  description={description}
+  canonical={canonical}
+  lang="en"
+  currentPage="canada"
+  alternates={alternates}
+  jsonLd={[
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Dataset',
+      name: 'Quebec forecast uncertainty',
+      description,
+      url: canonical,
+      dateModified: projectionMeta.meta.run_date,
+      creator: { '@type': 'Person', name: 'Kim Leclerc', url: 'https://kimleclerc.ca' },
+      publisher: { '@type': 'Organization', name: 'Vote-Scope', url: 'https://vote-scope.com' },
+      license: 'https://vote-scope.com/en/terms/',
+      isAccessibleForFree: true,
+      distribution: {
+        '@type': 'DataDownload',
+        contentUrl: 'https://vote-scope.com/web_data/quebec/latest.json',
+        encodingFormat: 'application/json',
+      },
+      isBasedOn: 'https://vote-scope.com/en/canada/quebec/',
+    },
+  ]}
+>
+  <SeatUncertaintyPage jurisdiction={j} locale="en" />
+  <NewsletterCta lang="en" placement="quebec-uncertainty" />
+</EditorialLayout>

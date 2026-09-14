@@ -1,0 +1,48 @@
+---
+import EditorialLayout from '../../../../../layouts/EditorialLayout.astro';
+import SeatUncertaintyPage from '../../../../../components/SeatUncertaintyPage.astro';
+import NewsletterCta from '../../../../../components/NewsletterCta.astro';
+import { jurisdictions } from '../../../../../data/jurisdictions';
+import projectionMeta from '../../../../../../web_data/quebec/latest.json';
+
+const j = jurisdictions.quebec;
+const canonical = 'https://vote-scope.com/es/canada/quebec/incertidumbre/';
+const alternates = {
+  en: 'https://vote-scope.com/en/canada/quebec/uncertainty/',
+  fr: 'https://vote-scope.com/fr/canada/quebec/incertitude/',
+  es: 'https://vote-scope.com/es/canada/quebec/incertidumbre/',
+};
+const description = 'Rangos de escaños al 80 % y 95 %, probabilidad de quedar primero o segundo y la trayectoria de nuestras proyecciones de Quebec corrida tras corrida.';
+---
+
+<EditorialLayout
+  title={'Incertidumbre de la proyección de Quebec — rangos de escaños y trayectoria — Vote-Scope'}
+  description={description}
+  canonical={canonical}
+  lang="es"
+  currentPage="canada"
+  alternates={alternates}
+  jsonLd={[
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Dataset',
+      name: 'Incertidumbre de la proyección de Quebec',
+      description,
+      url: canonical,
+      dateModified: projectionMeta.meta.run_date,
+      creator: { '@type': 'Person', name: 'Kim Leclerc', url: 'https://kimleclerc.ca' },
+      publisher: { '@type': 'Organization', name: 'Vote-Scope', url: 'https://vote-scope.com' },
+      license: 'https://vote-scope.com/es/terminos/',
+      isAccessibleForFree: true,
+      distribution: {
+        '@type': 'DataDownload',
+        contentUrl: 'https://vote-scope.com/web_data/quebec/latest.json',
+        encodingFormat: 'application/json',
+      },
+      isBasedOn: 'https://vote-scope.com/es/canada/quebec/',
+    },
+  ]}
+>
+  <SeatUncertaintyPage jurisdiction={j} locale="es" />
+  <NewsletterCta lang="es" placement="quebec-uncertainty" />
+</EditorialLayout>
