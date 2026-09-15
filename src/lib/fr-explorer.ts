@@ -25,17 +25,40 @@ export function pickHeroScenario(
   const defaultScenario =
     scenarios.find((s) => s.scenario.scenario_id === defaultId) ?? scenarios[0];
 
-  const declaredCandidates = candidates.filter((c) => c.status === 'declared');
-  const rnDeclared = declaredCandidates.find((c) => c.bloc === 'far_right');
-  const rnHeroScenario = rnDeclared
-    ? [...scenarios]
-        .filter(
-          (s) =>
-            s.scenario.featured &&
-            s.scenario.active_candidate_ids.includes(rnDeclared.candidate_id),
-        )
-        .sort(byCurrentEvidence)[0]
-    : undefined;
+  /* Quand PLUSIEURS candidats d'extrême droite sont déclarés, c'est le
+   * POLLING qui tranche, pas l'ordre du fichier.
+   *
+   * `declaredCandidates.find((c) => c.bloc === 'far_right')` retenait le
+   * premier venu dans l'ordre de la fiche de données. Ça marchait tant que
+   * Le Pen était seule déclarée — mais Zemmour est `far_right` et occupe la
+   * ligne suivante : le jour où son statut passe à `declared`, le hero aurait
+   * basculé sur un casting Zemmour sans que rien ne le signale. Le commentaire
+   * ci-dessus promet de suivre une rebascule automatiquement ; il faut que ce
+   * soit sur les preuves, pas sur un rang de ligne. */
+  const declaredFarRight = candidates.filter(
+    (c) => c.status === 'declared' && c.bloc === 'far_right',
+  );
+  const bestScenarioFor = (candidateId: string) =>
+    [...scenarios]
+      .filter(
+        (s) => s.scenario.featured && s.scenario.active_candidate_ids.includes(candidateId),
+      )
+      .sort(byCurrentEvidence)[0];
+
+  let rnDeclared: any | undefined;
+  let rnHeroScenario: FrScenario | undefined;
+  for (const candidate of declaredFarRight) {
+    const best = bestScenarioFor(candidate.candidate_id);
+    if (!best) continue;
+    if (!rnHeroScenario || byCurrentEvidence(best, rnHeroScenario) < 0) {
+      rnHeroScenario = best;
+      rnDeclared = candidate;
+    }
+  }
+  // Un candidat déclaré qu'aucun casting vedette ne teste reste le visage de
+  // la course dans le texte du desk, même si son scénario n'existe pas.
+  if (!rnDeclared) rnDeclared = declaredFarRight[0];
+
   const heroScenario = rnHeroScenario ?? defaultScenario;
   return { heroScenario, heroId: heroScenario.scenario.scenario_id, rnDeclared };
 }
