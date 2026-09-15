@@ -96,13 +96,15 @@ export const GET: APIRoute = async ({ params }) => {
   if (pl) meta2Parts.push(pl);
   if (p.client) meta2Parts.push(`${c.by} ${p.client}`);
 
+  const basis = p.vote_share_basis === 'decided_derived_proportional'
+    ? ({ fr: 'Décidés (calcul)', en: 'Decided (derived)', es: 'Decididos (cálculo)' }[lang]) : '';
   const png = await renderPollCard({
     eyebrow: cfg.copy[lang as HubLang].ogEyebrow,
     title: p.firm_name,
     subtitle: `${c.field} : ${fmtRange(p, loc)}`,
     meta2: meta2Parts.join('  ·  '),
     entries,
-    footerLeft: p.release_date ? `${c.pub} : ${fmtLong(p.release_date, loc)}` : '',
+    footerLeft: [p.release_date ? `${c.pub} : ${fmtLong(p.release_date, loc)}` : '', basis].filter(Boolean).join(' · '),
   });
 
   return new Response(new Uint8Array(png), {

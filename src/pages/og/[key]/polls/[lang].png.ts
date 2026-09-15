@@ -56,7 +56,9 @@ export const GET: APIRoute = async ({ params }) => {
   const png = await renderPollCard({
     eyebrow: copy.ogEyebrow,
     title: copy.ogTitle,
-    subtitle: copy.ogSub,
+    subtitle: ({ fr: `Moyenne simple · ${polls.length} sondages récents`,
+      en: `Simple average · ${polls.length} recent polls`,
+      es: `Promedio simple · ${polls.length} encuestas recientes` })[lang],
     entries,
     footerLeft: footByLang[lang](dateStr),
   });
