@@ -62,6 +62,8 @@ function fmtShort(iso: string): string {
 const T = {
   en: {
     table: 'Polls',
+    partisan: 'Party-commissioned poll',
+    derived: 'Decided respondents · calculated from published results',
     firm: 'Pollster',
     dates: 'Field dates',
     sample: 'Sample',
@@ -87,6 +89,8 @@ const T = {
   },
   fr: {
     table: 'Sondages',
+    partisan: 'Sondage commandé par un parti',
+    derived: 'Parmi les décidés · calculé à partir des résultats publiés',
     firm: 'Maison',
     dates: 'Terrain',
     sample: 'Échantillon',
@@ -112,6 +116,8 @@ const T = {
   },
   es: {
     table: 'Sondeos',
+    partisan: 'Encuesta encargada por un partido',
+    derived: 'Entre los decididos · calculado a partir de los resultados publicados',
     firm: 'Encuestadora',
     dates: 'Trabajo de campo',
     sample: 'Muestra',
@@ -283,6 +289,7 @@ const nFirms = firms.length || new Set(polls.map((p) => p.firm)).size;
                     <sup class="quarantine-mark" title={p.quarantine.reason} aria-label={p.quarantine.reason}>*</sup>
                   )}
                   {p.client && <span class="client">{p.client}</span>}
+                  {p.partisan_poll && <span class="client">{T.partisan}</span>}
                   {scope && (
                     <span class="scope-note">
                       <strong>{scope.title}</strong>
@@ -294,6 +301,7 @@ const nFirms = firms.length || new Set(polls.map((p) => p.firm)).size;
                 <td class="c-sample">{fmtSample(p.sample_size)}</td>
                 <td class="c-pop">{fmtPop(p.population)}</td>
                 <td class="c-result">
+                  {p.vote_share_basis === "decided_derived_proportional" && <span class="basis-note">{T.derived}</span>}
                   <div class="bars">
                     {entries.map(([code, v]) => (
                       <span class="bar-row">
@@ -372,6 +380,7 @@ const nFirms = firms.length || new Set(polls.map((p) => p.firm)).size;
   .firm-link { color: inherit; text-decoration: none; border-bottom: 1px solid var(--rule); }
   .firm-link:hover { border-bottom-color: var(--ink); }
   .quarantine-mark { color: #a45a00; font-family: var(--mono); font-weight: 700; margin-left: 3px; cursor: help; }
+  .basis-note { display: block; max-width: 28em; font-size: 11px; line-height: 1.4; color: var(--ink-2); margin-bottom: 8px; }
   .client { display: block; font-family: var(--mono); font-size: 10px; color: var(--ink-2); margin-top: 2px; }
   .scope-note { display: block; width: max-content; max-width: 190px; margin-top: 7px; padding: 5px 7px; border: 1px solid color-mix(in oklab, var(--accent, #7a5a16) 38%, var(--rule)); border-radius: 4px; background: color-mix(in oklab, var(--accent, #7a5a16) 7%, var(--card)); font-family: var(--mono); font-size: 9px; line-height: 1.35; color: var(--ink); }
   .scope-note strong, .scope-note span { display: block; }

@@ -50,6 +50,11 @@ export interface PollRow {
   population?: string | null;
   method?: string | null;
   client?: string | null;
+  partisan_poll?: boolean;
+  partisan_sponsor_party?: string | null;
+  vote_share_basis?: string;
+  published_undecided?: number | null;
+  published_topline?: PollTopline;
   source_url?: string | null;
   topline: PollTopline;
   /** Present when `topline` is a display-only subgroup result, not the
