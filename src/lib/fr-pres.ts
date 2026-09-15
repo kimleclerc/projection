@@ -137,6 +137,8 @@ export interface FrScenario {
     n_polls?: number;
     last_poll_date?: string | null;
     days_since_last_poll?: number | null;
+    /** Sondages de cette configuration encore dans la fenêtre de fraîcheur. */
+    n_polls_recent?: number;
   };
   mode_fit: string;
   diagnostics: FrDiagnostics;
