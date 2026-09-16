@@ -24,7 +24,7 @@ export const GET: APIRoute = async ({ params }) => {
   if (!cfg || !meta) return new Response('Not found', { status: 404 });
   const copy = cfg.copy[lang];
 
-  const polls = getHubPolls(key).slice(0, RECENT_N);
+  const polls = getHubPolls(key).filter((p) => !p.topline_scope).slice(0, RECENT_N);
   const sum: Record<string, number> = {};
   const cnt: Record<string, number> = {};
   for (const p of polls) {

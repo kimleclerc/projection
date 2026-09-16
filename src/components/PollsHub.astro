@@ -64,6 +64,7 @@ const T = {
     table: 'Polls',
     partisan: 'Party-commissioned poll',
     derived: 'Decided respondents · calculated from published results',
+    leaners: 'Decided respondents · including leaners',
     firm: 'Pollster',
     dates: 'Field dates',
     sample: 'Sample',
@@ -91,6 +92,7 @@ const T = {
     table: 'Sondages',
     partisan: 'Sondage commandé par un parti',
     derived: 'Parmi les décidés · calculé à partir des résultats publiés',
+    leaners: 'Décidés · inclut ceux qui penchent vers un parti',
     firm: 'Maison',
     dates: 'Terrain',
     sample: 'Échantillon',
@@ -118,6 +120,7 @@ const T = {
     table: 'Sondeos',
     partisan: 'Encuesta encargada por un partido',
     derived: 'Entre los decididos · calculado a partir de los resultados publicados',
+    leaners: 'Decididos · incluye inclinación por un partido',
     firm: 'Encuestadora',
     dates: 'Trabajo de campo',
     sample: 'Muestra',
@@ -167,6 +170,10 @@ function fmtPop(pop?: string | null): string {
 }
 
 function scopedNote(p: PollRow): { title: string; detail: string } | null {
+  if (p.topline_scope?.kind === 'region' && p.topline_scope.value === 'qc') {
+    return { title: lang === 'fr' ? 'Québec seulement' : lang === 'es' ? 'Solo Quebec' : 'Quebec only',
+      detail: lang === 'fr' ? 'Intentions fédérales au Québec' : lang === 'es' ? 'Intención de voto federal en Quebec' : 'Federal voting intentions in Quebec' };
+  }
   if (p.topline_scope?.kind === 'language' && p.topline_scope.value === 'nonfr') {
     return { title: T.nonfrOnly, detail: T.excludesFr };
   }
@@ -302,6 +309,7 @@ const nFirms = firms.length || new Set(polls.map((p) => p.firm)).size;
                 <td class="c-pop">{fmtPop(p.population)}</td>
                 <td class="c-result">
                   {p.vote_share_basis === "decided_derived_proportional" && <span class="basis-note">{T.derived}</span>}
+                  {p.vote_share_basis === "decided_including_leaners" && <span class="basis-note">{T.leaners}</span>}
                   <div class="bars">
                     {entries.map(([code, v]) => (
                       <span class="bar-row">
