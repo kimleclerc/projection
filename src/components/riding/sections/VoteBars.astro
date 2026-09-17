@@ -8,7 +8,22 @@ interface Props {
 
 const { data, lang } = Astro.props;
 const parties = data.parties.filter((p) => p.vote_mean_pct >= 0.5);
-const maxPct = Math.max(...parties.map((p) => p.vote_mean_pct), 1);
+
+// L'échelle doit accommoder les DEUX séries tracées sur la piste : la barre
+// projetée ET le repère du scrutin précédent. La borner à la seule plus grande
+// part PROJETÉE sort le repère de sa piste dès qu'un parti recule — 1399 des
+// 2292 courses du site, dont 95 % du Royaume-Uni et 68 % du Québec. La piste
+// est en `overflow: visible` à dessein (le repère déborde de 3px en haut et en
+// bas), alors le repère continuait vers la droite jusqu'à 199 % de la piste et
+// poussait la PAGE ENTIÈRE en défilement horizontal sur mobile.
+// Prix mesuré : la barre de tête tombe au pire à 50 % de la piste (Lothian
+// East), 97 % à la médiane, et 893 courses gardent leur échelle intacte.
+const baselinePct = (code: string) => data.baseline?.party_pcts[code];
+const maxPct = Math.max(
+  ...parties.map((p) => p.vote_mean_pct),
+  ...parties.map((p) => baselinePct(p.code) ?? 0),
+  1,
+);
 
 const T = {
   en: {
@@ -63,7 +78,7 @@ function rawPartyLabel(raw: string | undefined): string | undefined {
     <ul class="bars">
       {parties.map((p) => {
         const label = lang === 'fr' ? p.label_fr : p.label_en;
-        const baseline = data.baseline?.party_pcts[p.code];
+        const baseline = baselinePct(p.code);
         const widthPct = (p.vote_mean_pct / maxPct) * 100;
         return (
           <li>
