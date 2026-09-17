@@ -22,6 +22,15 @@ export type JurisdictionKey =
  *  intentional. */
 export type Lang = 'en' | 'fr' | 'es';
 
+/** La personne qui porte la part projetée d'un parti dans CETTE course.
+ *  Absente tant que le seau n'est pas tranché — deux qualifiés d'un même
+ *  parti en top-two, ou un second tour à venir. Voir ./nominees.ts. */
+export interface RidingNominee {
+  name: string;          // déjà mis en forme pour l'affichage
+  party_raw?: string;    // sigle réel du bulletin (GRE, LIB, IND…) sous 'oth'
+  status?: 'incumbent' | 'challenger' | 'open';
+}
+
 export interface RidingParty {
   code: string;          // 'lib', 'con', 'ndp', 'bq', 'grn', 'ppc', 'dem', 'rep', ...
   label_en: string;
@@ -29,6 +38,8 @@ export interface RidingParty {
   color: string;         // CSS color (hex or var)
   vote_mean_pct: number; // projected vote share
   win_prob: number;      // 0-1
+  /** Investi de ce parti, quand il est connu et unique. */
+  nominee?: RidingNominee;
 }
 
 export interface RidingProjection {

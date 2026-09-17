@@ -33,6 +33,7 @@ import type {
 import { ridingSlug } from './types';
 import { getLocalPollsByRiding, depad, type PollRow } from '../polls-adapter';
 import { partyMeta } from './parties';
+import { nomineesByParty } from './nominees';
 import latestSource from '../../../web_data/us-governor/latest.json';
 import membersSource from '../../../web_data/us-governor/members.json';
 import candidatesSource from '../../../web_data/us-governor/candidates_2026.json';
@@ -183,6 +184,10 @@ function adaptDeclared(raceId: string): DeclaredCandidate[] | undefined {
 
 function adaptOne(raw: RawRace): RidingData {
   const slug = ridingSlug(raw.riding_id, raw.name_en || raw.name_fr);
+  // La projection ne connaît que des seaux de parti ; l'investi de chacun se
+  // lit dans le slate. Sans ce rapprochement la barre annonçait une part sans
+  // jamais nommer qui la porte, alors que le nom était dans le même payload.
+  const nominees = nomineesByParty(candidatesByRace[raw.riding_id]);
   const parties = Object.keys(raw.projection.vote_mean)
     .map((code) => {
       const meta = partyMeta('us-governor', code);
@@ -193,6 +198,7 @@ function adaptOne(raw: RawRace): RidingData {
         color: meta.color,
         vote_mean_pct: raw.projection.vote_mean[code] ?? 0,
         win_prob: raw.projection.win_prob[code] ?? 0,
+        nominee: nominees[code],
       };
     })
     .filter((p) => p.vote_mean_pct > 0)

@@ -23,6 +23,7 @@ import type {
 } from './types';
 import { ridingSlug } from './types';
 import { partyMeta } from './parties';
+import { nomineesByParty } from './nominees';
 import { getLocalPollsByRiding, depad, type PollRow } from '../polls-adapter';
 import ridingsSource from '../../../web_data/us-house/ridings.json';
 import membersSource from '../../../web_data/us-house/members.json';
@@ -187,6 +188,10 @@ function adaptDeclared(rid: string): DeclaredCandidate[] | undefined {
 
 function adaptOne(raw: RawRiding): RidingData {
   const slug = ridingSlug(raw.riding_id, raw.name_en || raw.name_fr);
+  // La projection ne connaît que des seaux de parti ; l'investi de chacun se
+  // lit dans le slate. Sans ce rapprochement la barre annonçait une part sans
+  // jamais nommer qui la porte, alors que le nom était dans le même payload.
+  const nominees = nomineesByParty(candidatesByRiding[raw.riding_id]);
   const parties = Object.keys(raw.projection.vote_mean)
     .map((code) => {
       const meta = partyMeta('us-house', code);
@@ -197,6 +202,7 @@ function adaptOne(raw: RawRiding): RidingData {
         color: meta.color,
         vote_mean_pct: raw.projection.vote_mean[code] ?? 0,
         win_prob: raw.projection.win_prob[code] ?? 0,
+        nominee: nominees[code],
       };
     })
     .filter((p) => p.vote_mean_pct > 0)
