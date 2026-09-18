@@ -18,6 +18,14 @@ import { partyMeta } from '../lib/riding-adapters/parties';
 import quebecMeta from '../../web_data/quebec/latest.json';
 import resolvedCalls from '../../web_data/resolved-calls.json';
 import type { Locale } from '../data/editorial';
+import QuebecElectionNightLive from '../islands/QuebecElectionNightLive.tsx';
+
+// La couche directe lit le Worker de production ; en développement, une
+// variable PUBLIC_LIVE_API_BASE la pointe sur un Worker local (wrangler dev)
+// alimenté par le rejeu d'un enregistrement DGEQ. L'identifiant d'événement
+// est celui de fastest_call/config/qc-2026-10-05.json.
+const LIVE_EVENT_ID = 'qc-2026-10-05';
+const liveApiBase = import.meta.env.PUBLIC_LIVE_API_BASE ?? 'https://vote-scope.com';
 
 interface Props {
   locale: Locale;
@@ -191,6 +199,12 @@ const runDateText = new Intl.DateTimeFormat(
     <p class="eyebrow">{COPY.eyebrow}</p>
     <h1>{COPY.h1}</h1>
     <p class="lede">{COPY.lede}</p>
+  </div>
+</section>
+
+<section class="qen-live">
+  <div class="container">
+    <QuebecElectionNightLive client:load eventId={LIVE_EVENT_ID} lang={locale} apiBase={liveApiBase} />
   </div>
 </section>
 
