@@ -1,0 +1,50 @@
+---
+import EditorialLayout from '../../../../../layouts/EditorialLayout.astro';
+import RidingPage from '../../../../../components/riding/RidingPage.astro';
+import { getAllBcRidings } from '../../../../../lib/riding-adapters/bc';
+
+export function getStaticPaths() {
+  return getAllBcRidings().map((data) => ({
+    params: { id: data.slug },
+    props: { data },
+  }));
+}
+
+const { data } = Astro.props;
+const canonical = `https://vote-scope.com/en/canada/british-columbia/ridings/${data.slug}`;
+const alternates = { en: `https://vote-scope.com/en/canada/british-columbia/ridings/${data.slug}`, fr: `https://vote-scope.com/fr/canada/colombie-britannique/circonscriptions/${data.slug}`, es: `https://vote-scope.com/es/canada/columbia-britanica/distritos/${data.slug}` };
+const name = data.name.en;
+const title = `${name} — Provincial projection (British Columbia) — Vote-Scope`;
+const description = `Vote-Scope — ${name} : vote shares, win probability, sitting member and 2024 candidates.`;
+---
+
+<EditorialLayout
+  title={title}
+  description={description}
+  canonical={canonical}
+  lang="en"
+  currentPage="canada"
+  alternates={alternates}
+  jsonLd={[
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Place',
+      name,
+      containedInPlace: { '@type': 'AdministrativeArea', name: 'British Columbia' },
+      url: canonical,
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: 'https://vote-scope.com/en/' },
+        { '@type': 'ListItem', position: 2, name: 'Canada', item: 'https://vote-scope.com/en/canada/' },
+        { '@type': 'ListItem', position: 3, name: 'British Columbia', item: 'https://vote-scope.com/en/canada/british-columbia/' },
+        { '@type': 'ListItem', position: 4, name: 'Ridings', item: 'https://vote-scope.com/en/canada/british-columbia/ridings/' },
+        { '@type': 'ListItem', position: 5, name, item: canonical },
+      ],
+    },
+  ]}
+>
+  <RidingPage data={data} lang="en" />
+</EditorialLayout>

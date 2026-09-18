@@ -1,0 +1,70 @@
+---
+import EditorialLayout from '../../../../../layouts/EditorialLayout.astro';
+import { getAllBcRidings } from '../../../../../lib/riding-adapters/bc';
+import { partyMeta } from '../../../../../lib/riding-adapters/parties';
+
+const all = getAllBcRidings()
+  .slice()
+  .sort((a, b) => (a.name.fr || a.name.en).localeCompare(b.name.fr || b.name.en, 'fr'));
+
+const canonical = 'https://vote-scope.com/fr/canada/colombie-britannique/circonscriptions/';
+---
+
+<EditorialLayout
+  title="Circonscriptions provinciales de la Colombie-Britannique — Vote-Scope"
+  description="Les 93 circonscriptions provinciales de la Colombie-Britannique (bc_44), projection Vote-Scope par parti et député·e en poste. Index alphabétique."
+  canonical={canonical}
+  lang="fr"
+  currentPage="canada"
+  alternates={{ en: 'https://vote-scope.com/en/canada/british-columbia/ridings/', fr: 'https://vote-scope.com/fr/canada/colombie-britannique/circonscriptions/', es: 'https://vote-scope.com/es/canada/columbia-britanica/distritos/' }}
+  jsonLd={[
+    {
+      '@context': 'https://schema.org',
+      '@type': 'CollectionPage',
+      name: 'Circonscriptions provinciales de la Colombie-Britannique',
+      url: canonical,
+      inLanguage: 'fr',
+      isPartOf: { '@type': 'WebSite', name: 'Vote-Scope', url: 'https://vote-scope.com/' },
+    },
+  ]}
+>
+  <section class="ridings-index-hero">
+    <div class="container">
+      <p class="eyebrow">Index des circonscriptions · Colombie-Britannique</p>
+      <h1>Les 93 circonscriptions de la Colombie-Britannique.</h1>
+      <p class="lede">Projection, député·e en poste, candidats de 2024, trajectoire des projections. Seize des 44 élus conservateurs de 2024 ont quitté leur caucus : chaque fiche porte l'étiquette d'élection ET celle sous laquelle le siège est occupé aujourd'hui.</p>
+    </div>
+  </section>
+
+  <section class="ridings-index">
+    <div class="container">
+      <ul class="riding-list">
+        {all.map((r) => {
+          const meta = partyMeta(r.jurisdiction, r.projection.winner);
+          return (
+            <li>
+              <a href={`/fr/canada/colombie-britannique/circonscriptions/${r.slug}/`} style={`--accent:${meta.color}`}>
+                <span class="dot" aria-hidden="true"></span>
+                <span class="name">{r.name.fr || r.name.en}</span>
+                <span class="party">{meta.label_fr}</span>
+              </a>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  </section>
+</EditorialLayout>
+
+<style>
+  .ridings-index-hero { padding: 80px 0 32px; border-bottom: 1px solid var(--rule); background: var(--paper); }
+  .ridings-index-hero h1 { margin: 8px 0 16px; font-family: var(--serif); font-size: clamp(40px, 5vw, 64px); font-weight: 420; letter-spacing: -0.02em; line-height: 1.02; max-width: 900px; }
+  .ridings-index-hero .lede { max-width: 760px; font-family: var(--serif); font-size: clamp(17px, 1.8vw, 20px); line-height: 1.55; color: var(--ink-2); }
+  .ridings-index { padding: 48px 0; background: var(--paper-2); }
+  .riding-list { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 0; border-top: 1px solid var(--rule); border-left: 1px solid var(--rule); }
+  .riding-list a { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule); background: var(--card); text-decoration: none; color: inherit; transition: background .15s ease; }
+  .riding-list a:hover { background: color-mix(in oklab, var(--accent) 12%, var(--card)); }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+  .name { font-family: var(--serif); font-size: 15px; flex: 1; }
+  .party { font-family: var(--mono); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); }
+</style>

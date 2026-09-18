@@ -1,0 +1,55 @@
+---
+import EditorialLayout from '../../../layouts/EditorialLayout.astro';
+import RidingsCta from '../../../components/RidingsCta.astro';
+import NewsletterCta from '../../../components/NewsletterCta.astro';
+import ProjectionEngine from '../../../components/ProjectionEngine.astro';
+import { jurisdictions } from '../../../data/jurisdictions';
+import bcMeta from '../../../../web_data/british-columbia/latest.json';
+
+const j = jurisdictions.britishColumbia;
+const canonical = 'https://vote-scope.com/fr/canada/colombie-britannique/';
+const alternates = { en: 'https://vote-scope.com/en/canada/british-columbia/', fr: 'https://vote-scope.com/fr/canada/colombie-britannique/', es: 'https://vote-scope.com/es/canada/columbia-britanica/' };
+---
+
+<EditorialLayout
+  title={j.pageTitle.fr}
+  description={j.metaDescription.fr}
+  canonical={canonical}
+  lang="fr"
+  currentPage={j.currentPage}
+  alternates={alternates}
+  jsonLd={[
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Dataset',
+      name: 'Projection Colombie-Britannique',
+      description: j.metaDescription.fr,
+      url: canonical,
+      dateModified: bcMeta.meta.run_date,
+      creator: { '@type': 'Person', name: 'Kim Leclerc', url: 'https://kimleclerc.ca' },
+      publisher: { '@type': 'Organization', name: 'Vote-Scope', url: 'https://vote-scope.com' },
+      license: 'https://vote-scope.com/fr/conditions/',
+      isAccessibleForFree: true,
+      distribution: { '@type': 'DataDownload', contentUrl: 'https://vote-scope.com/web_data/british-columbia/latest.json', encodingFormat: 'application/json' },
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: 'https://vote-scope.com/fr/' },
+        { '@type': 'ListItem', position: 2, name: 'Canada', item: 'https://vote-scope.com/fr/canada/' },
+        { '@type': 'ListItem', position: 3, name: 'Colombie-Britannique', item: canonical },
+      ],
+    },
+  ]}
+>
+  <ProjectionEngine jurisdiction={j} locale="fr" />
+  <RidingsCta
+    eyebrow="Profil par circonscription"
+    title="Plonger dans une circonscription précise"
+    blurb="Projection, député·e en poste et étiquette sous laquelle il ou elle a été élu·e, candidats de 2024, trajectoire des projections et circonscriptions voisines — pour chacun des 93 sièges."
+    href="/fr/canada/colombie-britannique/circonscriptions/"
+    cta="Parcourir les 93 circonscriptions →"
+  />
+  <NewsletterCta lang="fr" placement="british-columbia" />
+</EditorialLayout>

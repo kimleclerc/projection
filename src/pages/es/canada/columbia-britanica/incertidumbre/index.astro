@@ -1,0 +1,44 @@
+---
+import EditorialLayout from '../../../../../layouts/EditorialLayout.astro';
+import SeatUncertaintyPage from '../../../../../components/SeatUncertaintyPage.astro';
+import NewsletterCta from '../../../../../components/NewsletterCta.astro';
+import { jurisdictions } from '../../../../../data/jurisdictions';
+import projectionMeta from '../../../../../../web_data/british-columbia/latest.json';
+
+const j = jurisdictions.britishColumbia;
+const canonical = 'https://vote-scope.com/es/canada/columbia-britanica/incertidumbre/';
+const alternates = { en: 'https://vote-scope.com/en/canada/british-columbia/uncertainty/', fr: 'https://vote-scope.com/fr/canada/colombie-britannique/incertitude/', es: 'https://vote-scope.com/es/canada/columbia-britanica/incertidumbre/' };
+const description = 'Rangos de escaños al 80 % y 95 %, probabilidad de terminar primero o segundo, y la trayectoria de nuestras proyecciones de Columbia Británica. La segunda capa del pronóstico.';
+---
+
+<EditorialLayout
+  title={'Incertidumbre de la proyección de Columbia Británica — rangos de escaños y trayectoria — Vote-Scope'}
+  description={description}
+  canonical={canonical}
+  lang="es"
+  currentPage="canada"
+  alternates={alternates}
+  jsonLd={[
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Dataset',
+      name: 'Incertidumbre de la proyección de Columbia Británica',
+      description,
+      url: canonical,
+      dateModified: projectionMeta.meta.run_date,
+      creator: { '@type': 'Person', name: 'Kim Leclerc', url: 'https://kimleclerc.ca' },
+      publisher: { '@type': 'Organization', name: 'Vote-Scope', url: 'https://vote-scope.com' },
+      license: 'https://vote-scope.com/es/conditions/',
+      isAccessibleForFree: true,
+      distribution: {
+        '@type': 'DataDownload',
+        contentUrl: 'https://vote-scope.com/web_data/british-columbia/latest.json',
+        encodingFormat: 'application/json',
+      },
+      isBasedOn: 'https://vote-scope.com/es/canada/columbia-britanica/',
+    },
+  ]}
+>
+  <SeatUncertaintyPage jurisdiction={j} locale="es" />
+  <NewsletterCta lang="es" placement="british-columbia-uncertainty" />
+</EditorialLayout>

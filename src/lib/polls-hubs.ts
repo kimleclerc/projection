@@ -141,6 +141,28 @@ export const POLLS_HUBS: Record<string, PollsHubConfig> = {
         ogEyebrow: 'SONDEOS · ONTARIO', ogTitle: 'Intención de voto en Ontario', ogSub: 'Vote-Scope · Asamblea Legislativa' },
     },
   },
+  'british-columbia': {
+    webKey: 'british-columbia', currentPage: 'canada', langs: ['en', 'fr', 'es'], seg: SEG,
+    base: {
+      en: '/en/canada/british-columbia',
+      fr: '/fr/canada/colombie-britannique',
+      es: '/es/canada/columbia-britanica',
+    },
+    copy: {
+      en: { eyebrow: 'Polls · British Columbia · Legislative Assembly', h1: 'British Columbia voting intention.',
+        lede1: 'NDP, Conservatives, Greens, OneBC, CentreBC: every published provincial poll on BC voting intention, pollster by pollster.',
+        lede2: 'Vote-Scope aggregates them and projects the Legislative Assembly. Below: the trend against the model estimate, then the full table.',
+        ogEyebrow: 'POLLS · BRITISH COLUMBIA', ogTitle: 'British Columbia voting intention', ogSub: 'Vote-Scope · Legislative Assembly' },
+      fr: { eyebrow: 'Sondages · Colombie-Britannique · Assemblée législative', h1: 'Intentions de vote en Colombie-Britannique.',
+        lede1: 'NPD, conservateurs, verts, OneBC, CentreBC : chaque sondage provincial publié sur les intentions de vote britanno-colombiennes, maison par maison.',
+        lede2: 'Vote-Scope les agrège et projette l’Assemblée législative. Ci-dessous : la tendance face à l’estimation du modèle, puis le tableau complet.',
+        ogEyebrow: 'SONDAGES · COLOMBIE-BRITANNIQUE', ogTitle: 'Intentions de vote en Colombie-Britannique', ogSub: 'Vote-Scope · Assemblée législative' },
+      es: { eyebrow: 'Sondeos · Columbia Británica · Asamblea Legislativa', h1: 'Intención de voto en Columbia Británica.',
+        lede1: 'NDP, conservadores, verdes, OneBC, CentreBC: cada sondeo provincial publicado sobre la intención de voto en Columbia Británica, encuestadora por encuestadora.',
+        lede2: 'Vote-Scope los agrega y proyecta la Asamblea Legislativa. Abajo: la tendencia frente a la estimación del modelo, y la tabla completa.',
+        ogEyebrow: 'SONDEOS · COLUMBIA BRITÁNICA', ogTitle: 'Intención de voto en Columbia Británica', ogSub: 'Vote-Scope · Asamblea Legislativa' },
+    },
+  },
   uk: {
     webKey: 'uk', currentPage: 'uk', langs: ['en', 'fr', 'es'], seg: SEG, hasCards: true,
     base: { en: '/en/uk', fr: '/fr/uk', es: '/es/uk' },

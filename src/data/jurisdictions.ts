@@ -141,6 +141,51 @@ export const jurisdictions: Record<string, Jurisdiction> = {
     currentPage: 'canada',
   },
 
+  britishColumbia: {
+    id: 'british-columbia',
+    dataPath: 'british-columbia',
+    geoPath: 'british-columbia',
+    heroTitle: {
+      fr: 'Prévision <em>britanno-colombienne</em>',
+      en: 'British Columbia <em>Forecast</em>',
+      es: 'Pronóstico <em>de Columbia Británica</em>',
+    },
+    institution: {
+      fr: 'Composition actuelle de l\'Assemblée législative',
+      en: 'Current Legislative Assembly Composition',
+      es: 'Composición actual de la Asamblea Legislativa',
+    },
+    source: {
+      fr: 'Sources : Elections BC, firmes de sondage publiques',
+      en: 'Sources: Elections BC, public polling firms',
+      es: 'Fuentes: Elections BC, sondeadoras públicas',
+    },
+    mapSubtitle: {
+      fr: 'Projection par circonscription fondée sur les résultats de 2024, les sondages provinciaux et les ajustements régionaux. Le scrutin de 2024 s\'est tenu sur la carte actuelle à 93 sièges.',
+      en: 'Riding projection based on the 2024 results, provincial polling and regional adjustments. The 2024 election was fought on the current 93-seat map.',
+      es: 'Proyección por distrito basada en los resultados de 2024, los sondeos provinciales y los ajustes regionales. La elección de 2024 se celebró con el mapa actual de 93 escaños.',
+    },
+    pageTitle: {
+      fr: 'Qui va gagner les prochaines élections en Colombie-Britannique ? — Vote-Scope',
+      en: 'Who Will Win the Next British Columbia Election? — Vote-Scope',
+      es: '¿Quién ganará las próximas elecciones de Columbia Británica? — Vote-Scope',
+    },
+    metaDescription: {
+      fr: 'Qui va gagner les prochaines élections en Colombie-Britannique ? Sondages provinciaux agrégés, projection des 93 circonscriptions, circonscriptions pivots et probabilité de majorité — avec le caucus conservateur éclaté et les seize départs depuis 2024. Mise à jour continue.',
+      en: 'Who wins the next British Columbia election? Provincial polls aggregated, all 93 ridings projected, tipping-point seats and majority odds — including the fractured Conservative caucus and its sixteen departures since 2024. Updated with every new poll.',
+      es: '¿Quién gana las próximas elecciones de Columbia Británica? Encuestas provinciales agregadas, 93 distritos proyectados, distritos clave y probabilidad de mayoría, con el caucus conservador fracturado. Actualizado continuamente.',
+    },
+    baselineYear: 2024,
+    seatsTotal: 93,
+    byelections: false,
+    mapCenter: [54, -125],
+    mapZoom: 5,
+    idProp: 'riding_id',
+    parties: ['bc_ndp', 'bc_con', 'bc_grn', 'bc_onebc', 'bc_centre', 'bc_oth'],
+    slug: { en: 'british-columbia', fr: 'colombie-britannique' },
+    currentPage: 'canada',
+  },
+
   quebec: {
     id: 'quebec',
     dataPath: 'quebec',

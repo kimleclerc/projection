@@ -117,6 +117,12 @@ export interface RidingMember {
   seat_status?: string;        // 'current', 'vacant', ...
   change_type?: string;        // 'floor_cross', 'byelection_win', ...
   change_date?: string;
+  /** Groupe parlementaire quand il n'est pas encore un parti enregistré.
+   *  Colombie-Britannique 2026 : sept des treize indépendants siègent
+   *  ensemble sous une direction intérimaire, dans une formation sans nom
+   *  déposé auprès d'Elections BC. Les compter comme treize solitudes
+   *  effacerait le fait central de cette législature. */
+  caucus_group?: string;
   source?: string;
 }
 
