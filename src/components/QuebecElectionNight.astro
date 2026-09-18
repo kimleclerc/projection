@@ -20,11 +20,12 @@ import resolvedCalls from '../../web_data/resolved-calls.json';
 import type { Locale } from '../data/editorial';
 import QuebecElectionNightLive from '../islands/QuebecElectionNightLive.tsx';
 
-// La couche directe lit le Worker de production ; en développement, une
-// variable PUBLIC_LIVE_API_BASE la pointe sur un Worker local (wrangler dev)
-// alimenté par le rejeu d'un enregistrement DGEQ. L'identifiant d'événement
-// est celui de fastest_call/config/qc-2026-10-05.json.
-const LIVE_EVENT_ID = 'qc-2026-10-05';
+// La couche directe lit le Worker de production sous l'identifiant du
+// scrutin. En développement et pour la simulation du 20 septembre, deux
+// variables la déplacent : PUBLIC_LIVE_API_BASE (un Worker local, wrangler
+// dev) et PUBLIC_LIVE_EVENT_ID (qc-2026-09-20-simulation). Sans elles, la
+// page lit qc-2026-10-05 sur vote-scope.com — jamais la simulation.
+const LIVE_EVENT_ID = import.meta.env.PUBLIC_LIVE_EVENT_ID ?? 'qc-2026-10-05';
 const liveApiBase = import.meta.env.PUBLIC_LIVE_API_BASE ?? 'https://vote-scope.com';
 
 interface Props {
