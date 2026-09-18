@@ -45,6 +45,9 @@ const race = EQUITY_PARTIES
   .map((code) => ({ code, ...current.nominations[code] }))
   .sort((a, b) => b.n - a.n);
 const objectif = current.objectif_sieges;
+// Les déclarations sont closes quand chaque parti a rempli sa carte : la course
+// devient un état, pas une progression, et le desk doit le dire.
+const slatesComplete = race.every((r) => r.restant <= 0);
 
 // Parité + placement par parti (ordre de la course).
 const rows = race.map(({ code }) => {
@@ -94,7 +97,7 @@ const pooled = current.pooled;
     {/* ── Course aux 127 candidatures ─────────────────────────── */}
     <section class="eq-sec">
       <h2>{t.trackTitle}</h2>
-      <p class="eq-sub">{t.trackLede}</p>
+      <p class="eq-sub">{slatesComplete ? t.trackLedeClosed : t.trackLede}</p>
       <div class="eq-race">
         {race.map((r) => (
           <div class="eq-race-row">
@@ -104,7 +107,7 @@ const pooled = current.pooled;
             </div>
             <span class="eq-race-count">
               <strong>{r.n}</strong><span class="eq-race-obj">/{objectif}</span>
-              <span class="eq-race-rem">· {r.restant} {t.trackRemaining}</span>
+              <span class="eq-race-rem">· {r.restant <= 0 ? t.trackComplete : r.restant + ' ' + t.trackRemaining}</span>
             </span>
           </div>
         ))}
