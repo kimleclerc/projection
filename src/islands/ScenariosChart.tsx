@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
+import { readChartTheme, onThemeChange } from './lib/chart-theme';
 
 export interface ScenarioParty {
   party: string;
@@ -14,10 +15,6 @@ export interface ScenarioParty {
 interface Props {
   parties: ScenarioParty[];
   locale: 'en' | 'fr';
-  /** CSS color resolved from --ink-3 for axis/tick text (Plotly cannot read CSS vars). */
-  axisColor?: string;
-  /** CSS color for grid lines (resolved from --rule). */
-  gridColor?: string;
 }
 
 const fmtPct = (v: number) => {
@@ -26,15 +23,13 @@ const fmtPct = (v: number) => {
   return `${(v * 100).toFixed(0)}%`;
 };
 
-export default function ScenariosChart({
-  parties,
-  locale,
-  axisColor = '#7a7568',
-  gridColor = '#d8d3c8',
-}: Props) {
+export default function ScenariosChart({ parties, locale }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const [error, setError] = useState<string | null>(null);
   const [loaded, setLoaded] = useState(false);
+  const [themeTick, setThemeTick] = useState(0);
+
+  useEffect(() => onThemeChange(() => setThemeTick((n) => n + 1)), []);
 
   useEffect(() => {
     let cancelled = false;
@@ -45,6 +40,10 @@ export default function ScenariosChart({
         const Plotly = (await import('plotly.js-basic-dist-min')).default ?? (await import('plotly.js-basic-dist-min'));
         plotlyRef = Plotly;
         if (cancelled || !ref.current) return;
+
+        // Résolu au rendu : les valeurs figées en clair laissaient une grille
+        // pâle et un texte d'axe brun sur fond sombre.
+        const { axis: axisColor, grid: gridColor } = readChartTheme();
 
         const filtered = parties
           .filter(
@@ -169,7 +168,7 @@ export default function ScenariosChart({
         }
       }
     };
-  }, [parties, locale, axisColor, gridColor]);
+  }, [parties, locale, themeTick]);
 
   return (
     <div class="pe-chart-wrap" data-analytics-event="projection_chart_interaction" data-analytics-chart-type="scenario" data-analytics-once="true">

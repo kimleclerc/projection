@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
+import { readChartTheme, onThemeChange } from './lib/chart-theme';
 
 export interface PollSnapshot {
   date: string;
@@ -28,8 +29,6 @@ interface Props {
   /** Party keys to plot, in display order (typically the top 5 mainstream parties). */
   partiesOrder: string[];
   locale: 'en' | 'fr' | 'es';
-  axisColor?: string;
-  gridColor?: string;
 }
 
 export default function VoteTrendChart({
@@ -37,12 +36,13 @@ export default function VoteTrendChart({
   parties,
   partiesOrder,
   locale,
-  axisColor = '#7a7568',
-  gridColor = '#d8d3c8',
 }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const [error, setError] = useState<string | null>(null);
   const [loaded, setLoaded] = useState(false);
+  const [themeTick, setThemeTick] = useState(0);
+
+  useEffect(() => onThemeChange(() => setThemeTick((n) => n + 1)), []);
 
   useEffect(() => {
     let cancelled = false;
@@ -55,6 +55,10 @@ export default function VoteTrendChart({
           (await import('plotly.js-basic-dist-min'));
         plotlyRef = Plotly;
         if (cancelled || !ref.current) return;
+
+        // Les couleurs étaient figées en clair : en mode sombre la grille
+        // restait claire et l'anneau des losanges s'affichait en blanc pur.
+        const { axis: axisColor, grid: gridColor, surface } = readChartTheme();
 
         if (!polls.length) {
           setError(
@@ -124,7 +128,7 @@ export default function VoteTrendChart({
               color: meta.color,
               size: 12,
               symbol: 'diamond',
-              line: { color: 'white', width: 1 },
+              line: { color: surface, width: 1 },
             },
             error_y: {
               type: 'data' as const,
@@ -193,7 +197,7 @@ export default function VoteTrendChart({
         }
       }
     };
-  }, [polls, parties, partiesOrder, locale, axisColor, gridColor]);
+  }, [polls, parties, partiesOrder, locale, themeTick]);
 
   return (
     <div class="pe-chart-wrap" data-analytics-event="projection_chart_interaction" data-analytics-chart-type="vote_trend" data-analytics-once="true">

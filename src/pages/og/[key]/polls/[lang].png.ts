@@ -24,7 +24,7 @@ export const GET: APIRoute = async ({ params }) => {
   if (!cfg || !meta) return new Response('Not found', { status: 404 });
   const copy = cfg.copy[lang];
 
-  const polls = getHubPolls(key).slice(0, RECENT_N);
+  const polls = getHubPolls(key).filter((p) => !p.topline_scope).slice(0, RECENT_N);
   const sum: Record<string, number> = {};
   const cnt: Record<string, number> = {};
   for (const p of polls) {
@@ -56,7 +56,9 @@ export const GET: APIRoute = async ({ params }) => {
   const png = await renderPollCard({
     eyebrow: copy.ogEyebrow,
     title: copy.ogTitle,
-    subtitle: copy.ogSub,
+    subtitle: ({ fr: `Moyenne simple · ${polls.length} sondages récents`,
+      en: `Simple average · ${polls.length} recent polls`,
+      es: `Promedio simple · ${polls.length} encuestas recientes` })[lang],
     entries,
     footerLeft: footByLang[lang](dateStr),
   });

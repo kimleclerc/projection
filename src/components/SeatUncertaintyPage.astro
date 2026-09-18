@@ -1,0 +1,508 @@
+---
+/**
+ * SeatUncertaintyPage — second niveau des juridictions à sièges.
+ *
+ * La page de prévision est déjà dense (instantané, composition, projection,
+ * courses serrées, deux graphiques, carte, circonscriptions). Plutôt que d'y
+ * empiler la lecture fine de l'incertitude, celle-ci vit sur sa propre page,
+ * atteignable par l'onglet « Incertitude » de JurisdictionNav — ajouté au
+ * registre, donc allumé d'un coup sur les quatre juridictions à sièges.
+ * La page de prévision N'A PAS bougé (décision Kim, 2026-09-14).
+ *
+ * Trois choses, toutes tirées de données que le moteur produit déjà :
+ *   1. les fourchettes de sièges à 80 % et 95 % du run du jour ;
+ *   2. la probabilité de finir premier / deuxième (p_second, ajouté au moteur
+ *      le 2026-09-14 — le gabarit se dégrade proprement sans elle) ;
+ *   3. la trajectoire des projections, depuis runs/index.json.
+ */
+import type { Jurisdiction, Locale, ProjectionData, PreviousRun } from '../data/jurisdictions';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import JurisdictionNav from './JurisdictionNav.astro';
+import OnThisPage from './OnThisPage.astro';
+import SeatHistoryChart from '../islands/SeatHistoryChart.tsx';
+import SeatRankChart from '../islands/SeatRankChart.tsx';
+import { getNavEntry, sectionUrl, type NavLang } from '../lib/jurisdiction-nav';
+
+interface Props {
+  jurisdiction: Jurisdiction;
+  locale: Locale;
+}
+
+const { jurisdiction, locale } = Astro.props as Props;
+
+const dataFilePath = resolve(
+  process.cwd(), 'web_data', jurisdiction.dataPath, 'latest.json',
+);
+const data: ProjectionData = JSON.parse(readFileSync(dataFilePath, 'utf-8'));
+const { meta, parties } = data;
+
+const totalSeats = meta.total_seats ?? jurisdiction.seatsTotal;
+const majorityThreshold = meta.majority_threshold ?? Math.floor(totalSeats / 2) + 1;
+
+const navEntry = getNavEntry(jurisdiction.dataPath);
+const forecastHref = navEntry
+  ? sectionUrl(navEntry, 'projection', locale as NavLang)
+  : null;
+
+// Ordre par sièges projetés décroissants — le même que la page de prévision.
+const ordered = [...parties].sort((a, b) => (b.seats_mean ?? 0) - (a.seats_mean ?? 0));
+const tableRows = ordered.filter((p) => (p.seats_mean ?? 0) > 0 || (p.p_largest ?? 0) > 0);
+
+const hasRanks = parties.some((p) => typeof p.p_second === 'number');
+
+// ── TRAJECTOIRE ───────────────────────────────────────────────────────────
+// `previous_runs` exclut volontairement le run du jour (export_json.py le
+// retire pour ne pas embarquer un résumé périmé du même jour). Sans le
+// rajouter ici, la courbe s'arrêterait la veille de ce que la page affiche
+// juste au-dessus.
+const previousRuns: PreviousRun[] = Array.isArray(data.previous_runs) ? data.previous_runs : [];
+const todayRun: PreviousRun = {
+  run_date: meta.run_date,
+  n_polls: meta.n_polls,
+  mode: meta.mode,
+  seats: Object.fromEntries(
+    parties
+      .filter((p) => typeof p.seats_mean === 'number')
+      .map((p) => [p.party, p.seats_mean]),
+  ),
+};
+const historyRuns: PreviousRun[] = [
+  ...previousRuns.filter((r) => r.run_date !== meta.run_date),
+  todayRun,
+].sort((a, b) => (a.run_date < b.run_date ? -1 : a.run_date > b.run_date ? 1 : 0));
+
+const historyRunsDesc = [...historyRuns].reverse();
+// Partis à montrer dans la trajectoire : ceux qui ont décroché au moins un
+// siège quelque part dans la fenêtre (même règle que le graphique).
+const historyKeys = jurisdiction.parties.filter((k) =>
+  historyRuns.some((r) => (r.seats?.[k] ?? 0) > 0));
+
+const partyByKey = new Map(parties.map((p) => [p.party, p]));
+const labelOf = (key: string) => {
+  const p = partyByKey.get(key);
+  if (!p) return key.toUpperCase();
+  return locale === 'fr' ? p.label_fr : p.label_en;
+};
+
+const num = (v: number | undefined, digits = 0) =>
+  typeof v === 'number' ? v.toFixed(digits) : '—';
+
+/** « 220–245 », ou un seul tiret quand la fourchette n'est pas publiée. */
+const range = (lo: number | undefined, hi: number | undefined) =>
+  typeof lo === 'number' && typeof hi === 'number'
+    ? `${lo.toFixed(0)}–${hi.toFixed(0)}`
+    : '—';
+
+const fmtPct = (v: number | undefined) => {
+  if (typeof v !== 'number') return '—';
+  if (v >= 0.995) return locale === 'fr' ? '> 99 %' : '>99%';
+  if (v > 0 && v < 0.005) return locale === 'fr' ? '< 1 %' : '<1%';
+  const n = Math.round(v * 100);
+  return locale === 'fr' ? `${n} %` : `${n}%`;
+};
+
+const jurLabel = navEntry ? navEntry.label[locale as NavLang] : jurisdiction.id;
+
+const T = {
+  fr: {
+    kicker: 'Second niveau',
+    title: 'Incertitude',
+    tagline: 'Ce que le modèle ne sait pas encore : fourchettes de sièges, probabilités de rang et trajectoire des projections.',
+    meta: `Run du ${meta.run_date} · ${meta.n_polls} sondages · ${meta.n_simulations.toLocaleString('fr-CA')} simulations`,
+    navRanges: 'Fourchettes',
+    navRanks: 'Rangs',
+    navTrajectory: 'Trajectoire',
+    rangesTitle: 'Fourchettes de sièges',
+    rangesLede: `Le chiffre affiché sur la page de prévision est le centre d'une distribution, pas une prédiction sèche. Sur ${meta.n_simulations.toLocaleString('fr-CA')} simulations, l'intervalle à 80 % contient le résultat dans huit cas sur dix : c'est la fourchette à citer. L'intervalle à 95 % est plus large et plus prudent ; il sert à voir jusqu'où le modèle admet que la course peut aller.`,
+    colParty: 'Parti',
+    colProjected: 'Projection',
+    colCi80: 'Fourchette 80 %',
+    colCi95: 'Fourchette 95 %',
+    colWidth: 'Amplitude 80 %',
+    colSeatsUnit: 'sièges',
+    widthHelp: "L'amplitude — la largeur de la fourchette à 80 % — est la mesure la plus honnête de l'incertitude d'un parti : un parti dont la fourchette s'étale sur soixante sièges n'est pas projeté, il est estimé.",
+    ranksTitle: 'Où chaque parti finit',
+    ranksLede: "Arriver premier et former le gouvernement sont deux questions ; arriver deuxième en est une troisième, et c'est elle qui décide de l'opposition officielle. Chaque barre répartit les simulations d'un parti entre ces issues.",
+    ranksMissing: "Les probabilités de rang seront publiées au prochain calcul du moteur.",
+    rankFirst: 'Finit premier',
+    rankSecond: 'Finit deuxième',
+    rankRest: 'Troisième ou moins',
+    ranksTieNote: "Convention : à égalité en tête, les deux partis comptent comme premiers, et cette simulation ne compte de deuxième pour personne.",
+    trajectoryTitle: 'Trajectoire des projections',
+    trajectoryLede: "Chaque point est un calcul complet publié ce jour-là, pas un sondage. La courbe montre donc comment NOTRE lecture de la course a bougé — sous l'effet des sondages entrants, mais aussi des corrections de modèle.",
+    trajectoryTable: 'Voir les chiffres en tableau',
+    colRun: 'Run',
+    footerNote: "Les fourchettes, les rangs et la trajectoire viennent tous du même calcul quotidien que la page de prévision.",
+    backToForecast: '← Retour à la prévision',
+  },
+  en: {
+    kicker: 'Second level',
+    title: 'Uncertainty',
+    tagline: 'What the model does not yet know: seat ranges, rank probabilities and the trajectory of the projections.',
+    meta: `Run of ${meta.run_date} · ${meta.n_polls} polls · ${meta.n_simulations.toLocaleString('en-CA')} simulations`,
+    navRanges: 'Ranges',
+    navRanks: 'Ranks',
+    navTrajectory: 'Trajectory',
+    rangesTitle: 'Seat ranges',
+    rangesLede: `The number on the forecast page is the centre of a distribution, not a flat prediction. Across ${meta.n_simulations.toLocaleString('en-CA')} simulations, the 80% interval contains the outcome eight times in ten — that is the range to quote. The 95% interval is wider and more cautious; it shows how far the model concedes the race could go.`,
+    colParty: 'Party',
+    colProjected: 'Projection',
+    colCi80: '80% range',
+    colCi95: '95% range',
+    colWidth: '80% width',
+    colSeatsUnit: 'seats',
+    widthHelp: 'Width — how wide the 80% range is — is the most honest single measure of a party’s uncertainty: a party whose range spans sixty seats is not projected, it is estimated.',
+    ranksTitle: 'Where each party lands',
+    ranksLede: 'Finishing first and forming a government are two questions; finishing second is a third, and it decides the official opposition. Each bar splits a party’s simulations across those outcomes.',
+    ranksMissing: 'Rank probabilities will be published with the next engine run.',
+    rankFirst: 'Finishes first',
+    rankSecond: 'Finishes second',
+    rankRest: 'Third or lower',
+    ranksTieNote: 'Convention: on a tie at the top, both parties count as first, and that simulation counts a second place for nobody.',
+    trajectoryTitle: 'Projection trajectory',
+    trajectoryLede: 'Each point is a full model run published that day, not a poll. The line shows how OUR read of the race moved — under incoming polls, but also under model corrections.',
+    trajectoryTable: 'See the numbers as a table',
+    colRun: 'Run',
+    footerNote: 'Ranges, ranks and trajectory all come from the same daily run as the forecast page.',
+    backToForecast: '← Back to the forecast',
+  },
+  es: {
+    kicker: 'Segundo nivel',
+    title: 'Incertidumbre',
+    tagline: 'Lo que el modelo aún no sabe: rangos de escaños, probabilidades de puesto y trayectoria de las proyecciones.',
+    meta: `Corrida del ${meta.run_date} · ${meta.n_polls} sondeos · ${meta.n_simulations.toLocaleString('es-ES')} simulaciones`,
+    navRanges: 'Rangos',
+    navRanks: 'Puestos',
+    navTrajectory: 'Trayectoria',
+    rangesTitle: 'Rangos de escaños',
+    rangesLede: `La cifra de la página de pronóstico es el centro de una distribución, no una predicción seca. En ${meta.n_simulations.toLocaleString('es-ES')} simulaciones, el intervalo del 80 % contiene el resultado ocho veces de cada diez: ese es el rango que conviene citar. El intervalo del 95 % es más amplio y más prudente.`,
+    colParty: 'Partido',
+    colProjected: 'Proyección',
+    colCi80: 'Rango 80 %',
+    colCi95: 'Rango 95 %',
+    colWidth: 'Amplitud 80 %',
+    colSeatsUnit: 'escaños',
+    widthHelp: 'La amplitud del rango del 80 % es la medida más honesta de la incertidumbre de un partido: un partido cuyo rango abarca sesenta escaños no está proyectado, está estimado.',
+    ranksTitle: 'Dónde queda cada partido',
+    ranksLede: 'Quedar primero y formar gobierno son dos preguntas; quedar segundo es una tercera, y decide la oposición oficial. Cada barra reparte las simulaciones de un partido entre esos desenlaces.',
+    ranksMissing: 'Las probabilidades de puesto se publicarán en la próxima corrida del motor.',
+    rankFirst: 'Queda primero',
+    rankSecond: 'Queda segundo',
+    rankRest: 'Tercero o menos',
+    ranksTieNote: 'Convención: en caso de empate en cabeza, ambos partidos cuentan como primeros y esa simulación no cuenta un segundo puesto para nadie.',
+    trajectoryTitle: 'Trayectoria de las proyecciones',
+    trajectoryLede: 'Cada punto es una corrida completa publicada ese día, no un sondeo. La línea muestra cómo se movió NUESTRA lectura de la carrera.',
+    trajectoryTable: 'Ver las cifras en tabla',
+    colRun: 'Corrida',
+    footerNote: 'Rangos, puestos y trayectoria salen de la misma corrida diaria que la página de pronóstico.',
+    backToForecast: '← Volver al pronóstico',
+  },
+}[locale] ?? null;
+
+const t = T!;
+
+// La section « rangs » existe toujours : sans `p_second`, elle porte le
+// message qui dit pourquoi. La retirer du sommaire laissait un titre sans
+// entrée correspondante.
+const pageNavItems = [
+  { href: '#ranges', label: t.navRanges },
+  { href: '#ranks', label: t.navRanks },
+  { href: '#trajectory', label: t.navTrajectory },
+];
+---
+
+{navEntry && <JurisdictionNav webKey={jurisdiction.dataPath} lang={locale as NavLang} active="uncertainty" />}
+
+<article class="unc" data-content-area>
+  <header class="unc-hero container">
+    <p class="unc-kicker">{t.kicker}</p>
+    <h1 class="unc-title">{t.title} — <em>{jurLabel}</em></h1>
+    <p class="unc-tagline">{t.tagline}</p>
+    <p class="unc-meta">{t.meta}</p>
+  </header>
+
+  <OnThisPage locale={locale} items={pageNavItems} />
+
+  <!-- FOURCHETTES -->
+  <section id="ranges" class="unc-section container" aria-labelledby="unc-ranges-title">
+    <h2 id="unc-ranges-title" class="unc-section-title">{t.rangesTitle}</h2>
+    <p class="unc-lede">{t.rangesLede}</p>
+
+    <div class="unc-table-scroll">
+      <table class="unc-table">
+        <thead>
+          <tr>
+            <th scope="col">{t.colParty}</th>
+            <th scope="col" class="num">{t.colProjected}</th>
+            <th scope="col" class="num">{t.colCi80}</th>
+            <th scope="col" class="num">{t.colCi95}</th>
+            <th scope="col" class="num">{t.colWidth}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {tableRows.map((p) => (
+            <tr>
+              <th scope="row">
+                <span class="unc-swatch" style={`background:${p.color}`} aria-hidden="true" />
+                {locale === 'fr' ? p.label_fr : p.label_en}
+              </th>
+              <td class="num strong">{p.seats_projected ?? Math.round(p.seats_mean)}</td>
+              <td class="num">{range(p.seats_ci_low_80, p.seats_ci_high_80)}</td>
+              <td class="num muted">{range(p.seats_ci_low_95, p.seats_ci_high_95)}</td>
+              <td class="num">
+                {typeof p.seats_ci_low_80 === 'number' && typeof p.seats_ci_high_80 === 'number'
+                  ? `±${Math.round((p.seats_ci_high_80 - p.seats_ci_low_80) / 2)}`
+                  : '—'}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <p class="unc-note">{t.widthHelp}</p>
+  </section>
+
+  <!-- RANGS -->
+  <section id="ranks" class="unc-section container" aria-labelledby="unc-ranks-title">
+    <h2 id="unc-ranks-title" class="unc-section-title">{t.ranksTitle}</h2>
+    <p class="unc-lede">{t.ranksLede}</p>
+    {hasRanks ? (
+      <article class="unc-chart-card">
+        <SeatRankChart parties={parties} locale={locale} client:only="preact" />
+        {/* Légende en gris neutre : la teinte de chaque barre appartient au
+            parti, l'INTENSITÉ porte le rang. Une pastille colorée ici
+            désignerait un parti au hasard. */}
+        <ul class="unc-rank-legend">
+          <li><span class="unc-rank-chip unc-rank-chip--first" aria-hidden="true" />{t.rankFirst}</li>
+          <li><span class="unc-rank-chip unc-rank-chip--second" aria-hidden="true" />{t.rankSecond}</li>
+          <li><span class="unc-rank-chip unc-rank-chip--rest" aria-hidden="true" />{t.rankRest}</li>
+        </ul>
+      </article>
+    ) : (
+      <p class="unc-empty">{t.ranksMissing}</p>
+    )}
+    <p class="unc-note">{t.ranksTieNote}</p>
+  </section>
+
+  <!-- TRAJECTOIRE -->
+  <section id="trajectory" class="unc-section container" aria-labelledby="unc-trajectory-title">
+    <h2 id="unc-trajectory-title" class="unc-section-title">{t.trajectoryTitle}</h2>
+    <p class="unc-lede">{t.trajectoryLede}</p>
+    <article class="unc-chart-card unc-chart-card--tall">
+      <SeatHistoryChart
+        runs={historyRuns}
+        parties={parties}
+        partiesOrder={jurisdiction.parties}
+        majorityThreshold={majorityThreshold}
+        locale={locale}
+        client:only="preact"
+      />
+    </article>
+
+    {/* Repli tabulaire : les couleurs de partis échouent la séparation
+        daltonienne et ne peuvent pas changer — le tableau est le canal qui
+        ne dépend d'aucune couleur. */}
+    <details class="unc-details">
+      <summary>{t.trajectoryTable}</summary>
+      <div class="unc-table-scroll">
+        <table class="unc-table unc-table--compact">
+          <thead>
+            <tr>
+              <th scope="col">{t.colRun}</th>
+              {historyKeys.map((k) => <th scope="col" class="num">{labelOf(k)}</th>)}
+            </tr>
+          </thead>
+          <tbody>
+            {historyRunsDesc.map((r) => (
+              <tr>
+                <th scope="row">{r.run_date}</th>
+                {historyKeys.map((k) => (
+                  <td class="num">{num(r.seats?.[k] ?? 0, 1)}</td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </details>
+  </section>
+
+  <footer class="unc-section container unc-footer">
+    <p class="unc-note">{t.footerNote}</p>
+    {forecastHref && <p><a class="unc-back" href={forecastHref}>{t.backToForecast}</a></p>}
+  </footer>
+</article>
+
+<style>
+  .unc { padding-block: 32px 96px; }
+  .unc-section { scroll-margin-top: 92px; margin-top: 56px; }
+
+  .unc-kicker,
+  .unc-meta {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .unc-title {
+    margin: 10px 0 12px;
+    font-family: var(--serif);
+    font-size: clamp(36px, 4.3vw, 54px);
+    font-weight: 420;
+    line-height: .98;
+    letter-spacing: -.035em;
+  }
+  .unc-title em { font-style: italic; }
+  .unc-tagline {
+    max-width: 62ch;
+    margin-bottom: 12px;
+    font-size: 17px;
+    line-height: 1.5;
+    color: var(--ink-2);
+  }
+
+  .unc-section-title {
+    font-family: var(--serif);
+    font-size: clamp(26px, 2.6vw, 34px);
+    font-weight: 430;
+    letter-spacing: -.02em;
+    line-height: 1.1;
+    margin-bottom: 12px;
+  }
+  .unc-lede {
+    max-width: 68ch;
+    margin-bottom: 22px;
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--ink-2);
+  }
+  .unc-note {
+    max-width: 68ch;
+    margin-top: 14px;
+    font-family: var(--mono);
+    font-size: 11px;
+    line-height: 1.55;
+    color: var(--ink-3);
+  }
+  .unc-empty {
+    padding: 28px 22px;
+    border: 1px dashed var(--rule);
+    border-radius: 4px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--ink-3);
+    text-align: center;
+  }
+
+  /* Le tableau déborde horizontalement dans SON conteneur, jamais la page. */
+  .unc-table-scroll { overflow-x: auto; }
+  .unc-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--mono);
+    font-size: 13px;
+  }
+  .unc-table th,
+  .unc-table td {
+    padding: 11px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--rule);
+    white-space: nowrap;
+  }
+  .unc-table thead th {
+    font-size: 10px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    font-weight: 500;
+    border-bottom-color: var(--ink-4);
+  }
+  .unc-table tbody th {
+    font-weight: 500;
+    color: var(--ink);
+  }
+  .unc-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .unc-table .strong { font-weight: 600; }
+  .unc-table .muted { color: var(--ink-3); }
+  .unc-table--compact th,
+  .unc-table--compact td { padding: 7px 12px; font-size: 12px; }
+
+  .unc-swatch {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    margin-right: 8px;
+    border-radius: 2px;
+    vertical-align: baseline;
+  }
+
+  .unc-chart-card {
+    border: 1px solid var(--rule);
+    background: var(--card);
+    border-radius: 4px;
+    padding: 22px 22px 18px;
+  }
+  /* Les îlots rendent leur DOM côté client : leurs classes internes
+     n'héritent pas du scope Astro — même motif que PollsHub. */
+  .unc-chart-card :global(.pe-chart-wrap) { position: relative; min-height: 300px; }
+  .unc-chart-card :global(.pe-chart) { width: 100%; height: 360px; }
+  .unc-chart-card--tall :global(.pe-chart) { height: 440px; }
+  .unc-chart-card :global(.pe-chart-loading),
+  .unc-chart-card :global(.pe-chart-error) {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    padding: 16px 20px;
+    text-align: center;
+    color: var(--ink-3);
+    font-family: var(--mono);
+    font-size: 12px;
+  }
+  .unc-chart-card :global(.pe-chart-error) { color: var(--ink-2); }
+
+  .unc-rank-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 20px;
+    margin-top: 6px;
+    list-style: none;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ink-3);
+  }
+  .unc-rank-legend li { display: flex; align-items: center; gap: 7px; }
+  .unc-rank-chip {
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+    background: var(--ink-3);
+  }
+  .unc-rank-chip--second { opacity: .42; }
+  .unc-rank-chip--rest { opacity: .16; }
+
+  .unc-details { margin-top: 18px; }
+  .unc-details summary {
+    cursor: pointer;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    padding: 8px 0;
+  }
+  .unc-details[open] summary { margin-bottom: 10px; }
+
+  .unc-footer { border-top: 1px solid var(--rule); padding-top: 22px; }
+  .unc-back {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--ink-2);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+</style>

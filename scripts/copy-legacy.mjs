@@ -29,10 +29,8 @@ function copyDirSync(src, dst) {
         skippedDataless += 1;
         continue;
       }
-      const currentSize = existsSync(target) ? statSync(target).size : -1;
       const nextSize = sourceStat.size;
       if (nextSize === 0) continue;
-      if (currentSize === nextSize) continue;
       copyFileSync(source, target);
     }
   }

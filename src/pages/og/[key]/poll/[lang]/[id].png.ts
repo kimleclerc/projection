@@ -91,18 +91,24 @@ export const GET: APIRoute = async ({ params }) => {
     }));
 
   const meta2Parts: string[] = [];
+  if (p.topline_scope?.kind === 'region' && p.topline_scope.value === 'qc') {
+    meta2Parts.push(({ fr: 'Québec seulement', en: 'Quebec only', es: 'Solo Quebec' })[lang]);
+  }
   if (p.sample_size && p.sample_size > 0) meta2Parts.push(`n = ${p.sample_size.toLocaleString(loc)}`);
   const pl = popLabel(p.population, c);
   if (pl) meta2Parts.push(pl);
   if (p.client) meta2Parts.push(`${c.by} ${p.client}`);
 
+  const basis = p.vote_share_basis === 'decided_derived_proportional'
+    ? ({ fr: 'Décidés (calcul)', en: 'Decided (derived)', es: 'Decididos (cálculo)' }[lang]) : p.vote_share_basis === 'decided_including_leaners'
+      ? ({ fr: 'Décidés + penchants', en: 'Decided + leaners', es: 'Decididos + inclinados' }[lang]) : '';
   const png = await renderPollCard({
     eyebrow: cfg.copy[lang as HubLang].ogEyebrow,
     title: p.firm_name,
     subtitle: `${c.field} : ${fmtRange(p, loc)}`,
     meta2: meta2Parts.join('  ·  '),
     entries,
-    footerLeft: p.release_date ? `${c.pub} : ${fmtLong(p.release_date, loc)}` : '',
+    footerLeft: [p.release_date ? `${c.pub} : ${fmtLong(p.release_date, loc)}` : '', basis].filter(Boolean).join(' · '),
   });
 
   return new Response(new Uint8Array(png), {

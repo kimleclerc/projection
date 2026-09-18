@@ -3,6 +3,7 @@ import {
   blocVar,
   blocLabel,
   fmtPct1,
+  scenarioProvenance,
   type Locale,
   type ScenarioCard,
 } from '../lib/fr-pres';
@@ -21,6 +22,7 @@ const COPY = {
   fr: {
     lineup: 'Casting testé',
     polls: (n: number) => `${n} sondage${n > 1 ? 's' : ''}`,
+    borrowed: 'estimé',
     firstRound: 'Premier tour',
     firstRoundHelp:
       'Intention de vote moyenne ± incertitude du modèle. Les deux premiers se qualifient pour le second tour.',
@@ -34,6 +36,7 @@ const COPY = {
   en: {
     lineup: 'Tested lineup',
     polls: (n: number) => `${n} poll${n > 1 ? 's' : ''}`,
+    borrowed: 'estimated',
     firstRound: 'First round',
     firstRoundHelp:
       'Mean voting intention ± model uncertainty. The top two advance to the runoff.',
@@ -47,6 +50,7 @@ const COPY = {
   es: {
     lineup: 'Combinación sondeada',
     polls: (n: number) => `${n} sondeo${n > 1 ? 's' : ''}`,
+    borrowed: 'estimado',
     firstRound: 'Primera vuelta',
     firstRoundHelp:
       'Intención de voto media ± incertidumbre del modelo. Los dos primeros pasan a la segunda vuelta.',
@@ -74,6 +78,7 @@ export default function FranceScenarioExplorer({ scenarios, locale, embedPath }:
   if (!current) return null;
 
   const maxMean = Math.max(...current.qualification.map((q) => q.mean), 1);
+  const prov = scenarioProvenance(current, locale);
 
   return (
     <div class="fse">
@@ -88,10 +93,21 @@ export default function FranceScenarioExplorer({ scenarios, locale, embedPath }:
             onClick={() => setSelectedId(s.id)}
           >
             <span class="fse-tab-label">{s.label}</span>
-            <span class="fse-tab-polls">{t.polls(s.nPolls)}</span>
+            {/* Un casting sans sondage propre affichait « 9 sondages » —
+                le compte des sondages EMPRUNTÉS aux configurations voisines.
+                Juste au-dessus d'une ligne disant « aucun sondage sur cette
+                configuration », ça se lisait comme une contradiction. */}
+            <span class="fse-tab-polls">
+              {s.ownPolls > 0 ? t.polls(s.ownPolls) : t.borrowed}
+            </span>
           </button>
         ))}
       </div>
+
+      {/* Provenance du casting affiché — ce qui l'appuie, et son âge. */}
+      <p class={`fse-provenance${prov.stale ? ' is-stale' : ''}${prov.borrowed ? ' is-borrowed' : ''}`}>
+        {prov.text}
+      </p>
 
       {/* Premier tour */}
       <section class="fse-block" aria-label={t.firstRound}>

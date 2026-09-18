@@ -1,0 +1,48 @@
+---
+import EditorialLayout from '../../../../layouts/EditorialLayout.astro';
+import SeatUncertaintyPage from '../../../../components/SeatUncertaintyPage.astro';
+import NewsletterCta from '../../../../components/NewsletterCta.astro';
+import { jurisdictions } from '../../../../data/jurisdictions';
+import projectionMeta from '../../../../../web_data/uk/latest.json';
+
+const j = jurisdictions.uk;
+const canonical = 'https://vote-scope.com/fr/uk/incertitude/';
+const alternates = {
+  en: 'https://vote-scope.com/en/uk/uncertainty/',
+  fr: 'https://vote-scope.com/fr/uk/incertitude/',
+  es: 'https://vote-scope.com/es/uk/incertidumbre/',
+};
+const description = 'Fourchettes de sièges à 80 % et 95 %, probabilité de finir premier ou deuxième, et trajectoire de nos projections britanniques run après run. Le second niveau de la prévision.';
+---
+
+<EditorialLayout
+  title={'Incertitude de la projection britannique — fourchettes de sièges et trajectoire — Vote-Scope'}
+  description={description}
+  canonical={canonical}
+  lang="fr"
+  currentPage="uk"
+  alternates={alternates}
+  jsonLd={[
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Dataset',
+      name: 'Incertitude de la projection britannique',
+      description,
+      url: canonical,
+      dateModified: projectionMeta.meta.run_date,
+      creator: { '@type': 'Person', name: 'Kim Leclerc', url: 'https://kimleclerc.ca' },
+      publisher: { '@type': 'Organization', name: 'Vote-Scope', url: 'https://vote-scope.com' },
+      license: 'https://vote-scope.com/fr/conditions/',
+      isAccessibleForFree: true,
+      distribution: {
+        '@type': 'DataDownload',
+        contentUrl: 'https://vote-scope.com/web_data/uk/latest.json',
+        encodingFormat: 'application/json',
+      },
+      isBasedOn: 'https://vote-scope.com/fr/uk/general-election/',
+    },
+  ]}
+>
+  <SeatUncertaintyPage jurisdiction={j} locale="fr" />
+  <NewsletterCta lang="fr" placement="uk-uncertainty" />
+</EditorialLayout>

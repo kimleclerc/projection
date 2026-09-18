@@ -182,3 +182,23 @@
     text-align: left;
   }
 }
+
+/* ── PROVENANCE DU CASTING ────────────────────────────────────────────────
+   Ce qui appuie la configuration affichée, et depuis quand. Sans cette
+   ligne, un casting sondé il y a 21 mois et un sondé il y a quatre jours
+   s'affichaient à l'identique. Discrète par défaut ; marquée quand le
+   moteur a jugé la configuration périmée ou empruntée. */
+.fse-provenance {
+  margin: 10px 0 0;
+  padding-left: 10px;
+  border-left: 2px solid var(--rule);
+  font-family: var(--mono);
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--ink-3);
+}
+.fse-provenance.is-stale,
+.fse-provenance.is-borrowed {
+  border-left-color: var(--ink-4);
+  color: var(--ink-2);
+}

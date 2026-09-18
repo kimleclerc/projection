@@ -25,23 +25,61 @@ export function pickHeroScenario(
   const defaultScenario =
     scenarios.find((s) => s.scenario.scenario_id === defaultId) ?? scenarios[0];
 
-  const declaredCandidates = candidates.filter((c) => c.status === 'declared');
-  const rnDeclared = declaredCandidates.find((c) => c.bloc === 'far_right');
-  const rnHeroScenario = rnDeclared
-    ? [...scenarios]
-        .filter(
-          (s) =>
-            s.scenario.featured &&
-            s.scenario.active_candidate_ids.includes(rnDeclared.candidate_id),
-        )
-        .sort((a, b) => (b.diagnostics?.n_polls_used ?? 0) - (a.diagnostics?.n_polls_used ?? 0))[0]
-    : undefined;
+  /* Quand PLUSIEURS candidats d'extrême droite sont déclarés, c'est le
+   * POLLING qui tranche, pas l'ordre du fichier.
+   *
+   * `declaredCandidates.find((c) => c.bloc === 'far_right')` retenait le
+   * premier venu dans l'ordre de la fiche de données. Ça marchait tant que
+   * Le Pen était seule déclarée — mais Zemmour est `far_right` et occupe la
+   * ligne suivante : le jour où son statut passe à `declared`, le hero aurait
+   * basculé sur un casting Zemmour sans que rien ne le signale. Le commentaire
+   * ci-dessus promet de suivre une rebascule automatiquement ; il faut que ce
+   * soit sur les preuves, pas sur un rang de ligne. */
+  const declaredFarRight = candidates.filter(
+    (c) => c.status === 'declared' && c.bloc === 'far_right',
+  );
+  const bestScenarioFor = (candidateId: string) =>
+    [...scenarios]
+      .filter(
+        (s) => s.scenario.featured && s.scenario.active_candidate_ids.includes(candidateId),
+      )
+      .sort(byCurrentEvidence)[0];
+
+  let rnDeclared: any | undefined;
+  let rnHeroScenario: FrScenario | undefined;
+  for (const candidate of declaredFarRight) {
+    const best = bestScenarioFor(candidate.candidate_id);
+    if (!best) continue;
+    if (!rnHeroScenario || byCurrentEvidence(best, rnHeroScenario) < 0) {
+      rnHeroScenario = best;
+      rnDeclared = candidate;
+    }
+  }
+  // Un candidat déclaré qu'aucun casting vedette ne teste reste le visage de
+  // la course dans le texte du desk, même si son scénario n'existe pas.
+  if (!rnDeclared) rnDeclared = declaredFarRight[0];
+
   const heroScenario = rnHeroScenario ?? defaultScenario;
   return { heroScenario, heroId: heroScenario.scenario.scenario_id, rnDeclared };
 }
 
-/* Explorateur : vedettes robustes (≥ 3 sondages), scénario du hero en tête,
- * castings Le Pen ensuite, puis par nombre de sondages. */
+/* LE CLASSEMENT SE FAIT SUR LES PREUVES ENCORE D'ACTUALITÉ.
+ *
+ * `n_polls_used` compte TOUS les sondages retenus, emprunts aux configurations
+ * voisines compris, et ne vieillit jamais. Trié là-dessus, le hero du desk
+ * s'est retrouvé le 2026-09-14 sur une configuration dont le dernier sondage
+ * datait de 644 jours — avant l'appel purgé de Le Pen, avant la montée de
+ * Bardella — pendant qu'une configuration à cinq sondages de quatre jours
+ * n'apparaissait nulle part. `n_polls_recent` (moteur : fenêtre de six mois)
+ * passe donc devant ; le total reste en départage à fraîcheur égale. */
+function byCurrentEvidence(a: FrScenario, b: FrScenario): number {
+  const recent = (s: FrScenario) => s.scenario.n_polls_recent ?? 0;
+  const used = (s: FrScenario) => s.diagnostics?.n_polls_used ?? 0;
+  return recent(b) - recent(a) || used(b) - used(a);
+}
+
+/* Explorateur : vedettes robustes (≥ 3 sondages retenus), scénario du hero en
+ * tête, castings Le Pen ensuite, puis par preuves encore d'actualité. */
 export function buildExplorerCards(
   scenarios: FrScenario[],
   heroId: string,
@@ -56,7 +94,7 @@ export function buildExplorerCards(
       const aLepen = a.scenario.category === 'le_pen' ? 1 : 0;
       const bLepen = b.scenario.category === 'le_pen' ? 1 : 0;
       if (aLepen !== bLepen) return bLepen - aLepen;
-      return (b.diagnostics?.n_polls_used ?? 0) - (a.diagnostics?.n_polls_used ?? 0);
+      return byCurrentEvidence(a, b);
     })
     .slice(0, 8)
     .map((s) => toScenarioCard(s, locale));

@@ -385,8 +385,32 @@ export interface ProjectionParty {
   seats_median: number;
   seats_ci_low_80: number;
   seats_ci_high_80: number;
+  /** 95 % — publié depuis toujours, resté hors des types jusqu'ici. */
+  seats_ci_low_95?: number;
+  seats_ci_high_95?: number;
+  vote_ci_low_95?: number;
+  vote_ci_high_95?: number;
   p_majority: number;
   p_largest: number;
+  p_strict_largest?: number;
+  p_tied_largest?: number;
+  /**
+   * Probabilité de finir DEUXIÈME en sièges. Ajoutée au moteur le 2026-09-14 :
+   * facultative parce qu'un `latest.json` produit avant cette date ne la porte
+   * pas, et que le site doit rester constructible sur un run antérieur.
+   */
+  p_second?: number;
+  p_strict_second?: number;
+  p_tied_second?: number;
+}
+
+/** Résumé compact d'un run archivé (web_data/<juridiction>/runs/index.json). */
+export interface PreviousRun {
+  run_date: string;
+  n_polls?: number;
+  mode?: string;
+  /** Sièges moyens par parti. Parti ABSENT = aucune projection ce run-là. */
+  seats: Record<string, number>;
 }
 
 export interface ProjectionMeta {
@@ -408,6 +432,6 @@ export interface ProjectionData {
   race_ratings?: unknown;
   polls_history?: unknown;
   tipping_points?: unknown;
-  previous_runs?: unknown;
+  previous_runs?: PreviousRun[];
   byelections?: unknown;
 }

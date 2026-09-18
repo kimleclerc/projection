@@ -14,6 +14,7 @@ import type {
 } from './types';
 import { ridingSlug } from './types';
 import { partyMeta } from './parties';
+import { nomineesByParty } from './nominees';
 import { marketForRiding } from '../prediction-markets';
 import ridingsSource from '../../../web_data/quebec/ridings.json';
 import membersSource from '../../../web_data/quebec/members.json';
@@ -131,6 +132,10 @@ function buildDemographics(): RidingDemographics | undefined {
 
 function adaptOne(raw: RawRiding): RidingData {
   const slug = ridingSlug(raw.riding_id, raw.name_fr || raw.name_en);
+  // Pas de primaire au Québec : le parti désigne, donc toute candidature
+  // déclarée est celle qui portera la part projetée de son parti. Le nom
+  // existait déjà dans le slate, il manquait seulement en face de la barre.
+  const nominees = nomineesByParty(declared2026ByRiding[raw.riding_id]);
   const parties = Object.keys(raw.projection.vote_mean)
     .map((code) => {
       const meta = partyMeta('quebec', code);
@@ -141,6 +146,7 @@ function adaptOne(raw: RawRiding): RidingData {
         color: meta.color,
         vote_mean_pct: raw.projection.vote_mean[code] ?? 0,
         win_prob: raw.projection.win_prob[code] ?? 0,
+        nominee: nominees[code],
       };
     })
     .filter((p) => p.vote_mean_pct > 0)

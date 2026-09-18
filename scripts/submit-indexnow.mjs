@@ -26,7 +26,10 @@
  * Pages can't POST on deploy. Run it locally or from a deploy hook once the
  * new content is live.
  */
-import { readFileSync, existsSync } from 'node:fs';
+import { readFileSync, existsSync, appendFileSync, mkdirSync } from 'node:fs';
+import { homedir } from 'node:os';
+import { createHash } from 'node:crypto';
+import { execFileSync } from 'node:child_process';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -164,6 +167,58 @@ async function submitBatch(urlList) {
   return res.status;
 }
 
+// Journal HORS DÉPÔT, et c'est délibéré. Un fichier suivi qu'aucun mécanisme
+// ne commite laisserait le checkout du site sale après CHAQUE soumission — or
+// un arbre sale est précisément ce qui a fait échouer le build Cloudflare du
+// 2026-09-13 (manifeste global décrivant des fichiers non commités). Le journal
+// ne doit pas pouvoir causer l'incident qu'il documente.
+//
+// Un chemin absolu stable reste lisible depuis n'importe quel checkout de la
+// machine, ce qui était le besoin réel : pouvoir confirmer après coup un envoi
+// qu'un autre outil a lancé.
+const LOG_PATH = process.env.INDEXNOW_LOG
+  ?? resolve(homedir(), 'Library/Logs/votescope/indexnow.jsonl');
+
+/**
+ * Journalise une soumission, une ligne JSON par tentative.
+ *
+ * IndexNow ne se relit pas : le service ne rend aucun historique, et une fois
+ * le terminal fermé le « HTTP 200 » n'existe plus nulle part.
+ *
+ * N'échoue JAMAIS la soumission : journaliser est utile, pas essentiel.
+ */
+function logSubmission(record) {
+  try {
+    mkdirSync(dirname(LOG_PATH), { recursive: true });
+    appendFileSync(LOG_PATH, JSON.stringify(record) + '\n', 'utf8');
+  } catch (e) {
+    console.error('  (journal non écrit :', e.message, ')');
+  }
+}
+
+/**
+ * Le commit que la PRODUCTION suit, pas le HEAD local.
+ *
+ * Le site se déploie depuis `origin/main` ; ce script tourne le plus souvent
+ * depuis `dev`, dont le HEAD peut porter du code absent de la production.
+ * Journaliser ce HEAD attribuerait la soumission au mauvais commit. On
+ * interroge donc le remote — et la ref locale `origin/main` ne suffit pas
+ * davantage, elle peut être périmée.
+ *
+ * Reste une approximation honnête : Cloudflare peut n'avoir pas encore bâti ce
+ * commit, ou avoir échoué dessus. D'où le nom du champ, `origin_main`, qui dit
+ * ce qu'il est et rien de plus.
+ */
+function originMain() {
+  try {
+    const out = execFileSync('git', ['ls-remote', 'origin', 'refs/heads/main'],
+                             { cwd: ROOT, encoding: 'utf8', timeout: 15000 }).trim();
+    return out ? out.split(/\s/)[0].slice(0, 9) : null;
+  } catch {
+    return null;
+  }
+}
+
 async function main() {
   const args = process.argv.slice(2);
   let urls;
@@ -188,16 +243,54 @@ async function main() {
     process.exit(1);
   }
 
+  const originMainSha = originMain();
+  const mode = args[0] === '--all' ? 'all'
+    : args[0] === '--url' ? 'explicit'
+    : 'curated';
+  let failed = false;
+
   for (let i = 0; i < urls.length; i += BATCH_SIZE) {
     const batch = urls.slice(i, i + BATCH_SIZE).map(absolute);
-    const status = await submitBatch(batch);
+    const startedAt = new Date().toISOString();
+    const numero = i / BATCH_SIZE + 1;
+    const trace = {
+      submitted_at: startedAt,
+      host: HOST,
+      endpoint: ENDPOINT,
+      mode,
+      origin_main: originMainSha,
+      batch: numero,
+      urls: batch.length,
+      url_list_sha256: createHash('sha256').update(batch.join('\n')).digest('hex'),
+    };
+
+    // Un échec réseau (DNS, timeout, connexion coupée) n'atteint jamais de
+    // statut HTTP. Sans ce catch, la tentative ne laissait AUCUNE trace — le
+    // journal taisait exactement les envois qu'on a le plus besoin d'auditer.
+    let status = null;
+    let erreur = null;
+    try {
+      status = await submitBatch(batch);
+    } catch (e) {
+      erreur = e?.message ?? String(e);
+    }
+
     // IndexNow returns 200 (accepted) or 202 (accepted, pending validation).
     const ok = status === 200 || status === 202;
-    console.log(`  batch ${i / BATCH_SIZE + 1}: ${batch.length} URLs → HTTP ${status} ${ok ? '✓' : '✗'}`);
+    logSubmission({ ...trace, http_status: status, ok, error: erreur });
+
+    if (erreur) {
+      console.error(`  batch ${numero}: ${batch.length} URLs → ÉCHEC RÉSEAU (${erreur}) ✗`);
+      failed = true;
+      continue;
+    }
+    console.log(`  batch ${numero}: ${batch.length} URLs → HTTP ${status} ${ok ? '✓' : '✗'}`);
     if (!ok) {
       console.error('  Non-success status. Check key file is live at', KEY_LOCATION);
+      failed = true;
     }
   }
+  if (failed) process.exitCode = 1;
   console.log('Done.');
 }
 

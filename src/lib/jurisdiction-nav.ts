@@ -15,7 +15,7 @@
  * POLLS_HUBS, and the band lights up across every shared page (uniformity).
  */
 export type NavLang = 'en' | 'fr' | 'es';
-export type SectionKey = 'projection' | 'polls' | 'districts';
+export type SectionKey = 'projection' | 'polls' | 'districts' | 'uncertainty';
 
 /** Per-language URL segment for a section ('' → the base path itself). */
 type Seg = Record<NavLang, string>;
@@ -37,6 +37,11 @@ export interface JurisdictionNavEntry {
 const SEG_POLLS: Seg = { en: 'polls', fr: 'sondages', es: 'sondeos' };
 const SEG_NONE: Seg = { en: '', fr: '', es: '' };
 const SEG_RIDINGS: Seg = { en: 'ridings', fr: 'circonscriptions', es: 'distritos' };
+// Section « incertitude » : le second niveau des juridictions à sièges, où
+// vivent les fourchettes, les probabilités de rang et la trajectoire des
+// projections. La page principale, déjà dense, n'a pas bougé.
+const SEG_UNCERTAINTY: Seg = { en: 'uncertainty', fr: 'incertitude', es: 'incertidumbre' };
+const LABEL_UNCERTAINTY = { en: 'Uncertainty', fr: 'Incertitude', es: 'Incertidumbre' };
 const LABEL_RIDINGS = { en: 'Ridings', fr: 'Circonscriptions', es: 'Distritos' };
 
 /** Generic labels for sections whose wording doesn't vary by jurisdiction. */
@@ -108,6 +113,7 @@ export const JURISDICTION_NAV: JurisdictionNavEntry[] = [
       projection: { seg: SEG_NONE },
       polls: { seg: SEG_POLLS },
       districts: { seg: SEG_RIDINGS, label: LABEL_RIDINGS },
+      uncertainty: { seg: SEG_UNCERTAINTY, label: LABEL_UNCERTAINTY },
     },
   },
   {
@@ -118,6 +124,7 @@ export const JURISDICTION_NAV: JurisdictionNavEntry[] = [
       projection: { seg: SEG_NONE },
       polls: { seg: SEG_POLLS },
       districts: { seg: SEG_RIDINGS, label: LABEL_RIDINGS },
+      uncertainty: { seg: SEG_UNCERTAINTY, label: LABEL_UNCERTAINTY },
     },
   },
   {
@@ -128,6 +135,7 @@ export const JURISDICTION_NAV: JurisdictionNavEntry[] = [
       projection: { seg: SEG_NONE },
       polls: { seg: SEG_POLLS },
       districts: { seg: SEG_RIDINGS, label: LABEL_RIDINGS },
+      uncertainty: { seg: SEG_UNCERTAINTY, label: LABEL_UNCERTAINTY },
     },
   },
   {
@@ -140,6 +148,7 @@ export const JURISDICTION_NAV: JurisdictionNavEntry[] = [
       polls: { seg: SEG_POLLS },
       districts: { seg: { en: 'constituencies', fr: 'circonscriptions', es: 'circunscripciones' },
         label: { en: 'Constituencies', fr: 'Circonscriptions', es: 'Circunscripciones' } },
+      uncertainty: { seg: SEG_UNCERTAINTY, label: LABEL_UNCERTAINTY },
     },
   },
   {
