@@ -8,6 +8,7 @@ import PolymarketEmbed from '../../../components/PolymarketEmbed.astro';
 import federalData from '../../../../web_data/federal/latest.json';
 import quebecData from '../../../../web_data/quebec/latest.json';
 import ontarioData from '../../../../web_data/ontario/latest.json';
+import bcData from '../../../../web_data/british-columbia/latest.json';
 import fraserData from '../../../../web_data/on-fraser-interim/latest.json';
 import gooseData from '../../../../web_data/ca-canada-goose/latest.json';
 import showdownData from '../../../../web_data/cusma-showdown/latest.json';
@@ -33,11 +34,14 @@ const qcMaj = Math.round(qcTop.p_majority * 100);
 const onParties = ontarioData.parties as Array<{party:string;label_fr:string;color:string;seats_projected:number;p_majority:number}>;
 const onTop = onParties.reduce((a,b)=>a.seats_projected>b.seats_projected?a:b);
 const onMaj = Math.round(onTop.p_majority * 100);
+const bcParties = bcData.parties as Array<{party:string;label_fr:string;label_en:string;color:string;seats_projected:number;p_majority:number}>;
+const bcTop = bcParties.reduce((a,b)=>a.seats_projected>b.seats_projected?a:b);
+const bcMaj = Math.round(bcTop.p_majority * 100);
 ---
 
 <EditorialLayout
   title="Canada — projections électorales fédérales et provinciales — Vote-Scope"
-  description="Projections fédérales, québécoises et ontariennes plus les partielles réunies. Découvrez quelles circonscriptions sont acquises et lesquelles sont discrètement fragiles — Vote-Scope."
+  description="Projections fédérales, québécoises, ontariennes et britanno-colombiennes, plus les partielles, réunies. Découvrez quelles circonscriptions sont acquises et lesquelles sont discrètement fragiles — Vote-Scope."
   canonical="https://vote-scope.com/fr/canada/"
   lang="fr"
   currentPage="canada"
@@ -159,6 +163,17 @@ const onMaj = Math.round(onTop.p_majority * 100);
         <p style="font-family:var(--mono);font-size:0.8rem;color:var(--ink-3);">Probabilit&#xe9; de majorit&#xe9;: {onMaj}%</p>
         <p style="margin-top:1rem;"><a href="/fr/canada/ontario/" class="cta-link" style="font-family:var(--mono);font-size:0.8rem;text-transform:uppercase;letter-spacing:.08em;">Ouvrir la projection Ontario &#x2192;</a></p>
         <p style="margin-top:0.35rem;"><a href="/fr/canada/ontario/circonscriptions/" class="cta-link" style="font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-3);">Parcourir les 124 circonscriptions &#x2192;</a></p>
+      </div>
+      <div class="note-card" style={`border-left:4px solid ${bcTop.color};`}>
+        <p class="eyebrow">Provincial &#xb7; Colombie-Britannique</p>
+        <h3 style="font-family:var(--serif);font-size:1.4rem;margin:0.25rem 0;">{bcTop.label_fr}</h3>
+        <p style="font-size:2rem;font-weight:700;margin:0.25rem 0;">
+          <AnimatedNumber client:visible value={bcTop.seats_projected} />
+          <span style="font-size:1rem;font-weight:400;"> / {bcData.meta.total_seats} si&#xe8;ges</span>
+        </p>
+        <p style="font-family:var(--mono);font-size:0.8rem;color:var(--ink-3);">Probabilit&#xe9; de majorit&#xe9;: {bcMaj}%</p>
+        <p style="margin-top:1rem;"><a href="/fr/canada/colombie-britannique/" class="cta-link" style="font-family:var(--mono);font-size:0.8rem;text-transform:uppercase;letter-spacing:.08em;">Ouvrir la projection C.-B. &#x2192;</a></p>
+        <p style="margin-top:0.35rem;"><a href="/fr/canada/colombie-britannique/circonscriptions/" class="cta-link" style="font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-3);">Parcourir les 93 circonscriptions &#x2192;</a></p>
       </div>
       <div class="note-card">
         <p class="eyebrow">Partielles &#xb7; F&#xe9;d&#xe9;ral</p>

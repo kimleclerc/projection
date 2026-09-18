@@ -14,6 +14,7 @@ const PROVINCE_PREFIX_EN: Record<string, string> = {
   'federal-ca': 'Federal riding —',
   'quebec':     'Provincial riding —',
   'ontario':    'Provincial riding —',
+  'british-columbia': 'Provincial riding —',
   'uk':         'UK constituency —',
   'us-house':   'US House district —',
   'us-senate':  'US Senate seat —',
@@ -24,6 +25,7 @@ const PROVINCE_PREFIX_FR: Record<string, string> = {
   'federal-ca': 'Circonscription fédérale —',
   'quebec':     'Circonscription provinciale —',
   'ontario':    'Circonscription provinciale —',
+  'british-columbia': 'Circonscription provinciale —',
   'uk':         'Circonscription britannique —',
   'us-house':   'District US (Chambre) —',
   'us-senate':  'Siège US (Sénat) —',
@@ -34,6 +36,7 @@ const PROVINCE_PREFIX_ES: Record<string, string> = {
   'federal-ca': 'Distrito federal —',
   'quebec':     'Distrito provincial —',
   'ontario':    'Distrito provincial —',
+  'british-columbia': 'Distrito provincial —',
   'uk':         'Circunscripción británica —',
   'us-house':   'Distrito US (Cámara) —',
   'us-senate':  'Escaño US (Senado) —',
@@ -62,7 +65,13 @@ const T = {
   },
 }[lang];
 
-const urbanLabel = data.urban_rural ? (T.urban[data.urban_rural] ?? data.urban_rural) : null;
+// Un champ géographique absent traverse pandas puis JSON sous la forme de la
+// chaîne « nan ». Elle s'affichait telle quelle, en majuscules, à côté du nom
+// de la circonscription — constaté en Colombie-Britannique, dont la table géo
+// ne porte volontairement pas de classement urbain/rural faute de source.
+const urbanValue = data.urban_rural && data.urban_rural.toLowerCase() !== 'nan'
+  ? data.urban_rural : null;
+const urbanLabel = urbanValue ? (T.urban[urbanValue] ?? urbanValue) : null;
 ---
 
 <section class="riding-hero">

@@ -86,16 +86,27 @@ const compositionOrder = [...partyOrder, ...compositionExtras]
   .filter((v, i, arr) => arr.indexOf(v) === i && v !== 'vacant')
   .sort((a, b) => (currentCompositionByKey[b] ?? 0) - (currentCompositionByKey[a] ?? 0))
   .concat('vacant');
+// Étiquettes de la barre de COMPOSITION. Elles sont plus longues que celles
+// des fiches de circonscription (« Indépendants » et non « IND »), d'où une
+// table à part plutôt qu'un branchement sur la palette des adaptateurs.
+//
+// ⚠ La règle est suffixée, pas énumérée. Une liste nommant `ind`, `qc_ind`,
+// `on_ind` et `us_ind` a laissé `bc_ind` s'afficher en code brut dans la
+// barre le jour où la Colombie-Britannique est arrivée — et c'était le
+// troisième groupe de la Chambre. Toute juridiction suivante est couverte.
 const fallbackPartyLabel = (key: string, targetLocale: Locale) => {
   const labels: Record<string, { en: string; fr: string }> = {
     vacant: { en: 'Vacant', fr: 'Vacants' },
-    ind: { en: 'Independent', fr: 'Indépendants' },
-    qc_ind: { en: 'Independent', fr: 'Indépendants' },
-    on_ind: { en: 'Independent', fr: 'Indépendants' },
-    us_ind: { en: 'Independent', fr: 'Indépendants' },
-    fed_oth: { en: 'Other', fr: 'Autres' },
   };
-  return labels[key]?.[targetLocale] ?? key;
+  const explicit = labels[key]?.[targetLocale];
+  if (explicit) return explicit;
+  if (key === 'ind' || key.endsWith('_ind')) {
+    return targetLocale === 'fr' ? 'Indépendants' : 'Independents';
+  }
+  if (key === 'oth' || key.endsWith('_oth')) {
+    return targetLocale === 'fr' ? 'Autres' : 'Other';
+  }
+  return key;
 };
 const compositionSegments = compositionOrder
   .map((key) => {
