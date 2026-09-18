@@ -1,4 +1,5 @@
 ---
+import { regionLabel } from '../../../lib/riding-adapters/regions';
 import type { RidingData } from '../../../lib/riding-adapters/types';
 import RidingShape from './RidingShape.astro';
 
@@ -69,6 +70,7 @@ const T = {
 // chaîne « nan ». Elle s'affichait telle quelle, en majuscules, à côté du nom
 // de la circonscription — constaté en Colombie-Britannique, dont la table géo
 // ne porte volontairement pas de classement urbain/rural faute de source.
+const regionName = regionLabel(data.jurisdiction, data.region, lang);
 const urbanValue = data.urban_rural && data.urban_rural.toLowerCase() !== 'nan'
   ? data.urban_rural : null;
 const urbanLabel = urbanValue ? (T.urban[urbanValue] ?? urbanValue) : null;
@@ -82,7 +84,7 @@ const urbanLabel = urbanValue ? (T.urban[urbanValue] ?? urbanValue) : null;
       <p class="meta">
         {T.province_prefix} <strong>{data.province}</strong>
         {urbanLabel && <> · {urbanLabel}</>}
-        {data.region && <> · <span class="region">{data.region.replace(/_/g, ' ')}</span></>}
+        {regionName && <> · <span class="region">{regionName}</span></>}
       </p>
     </div>
     {data.shapePath && <RidingShape data={data} lang={lang} />}
@@ -119,5 +121,6 @@ const urbanLabel = urbanValue ? (T.urban[urbanValue] ?? urbanValue) : null;
     letter-spacing: .04em;
     text-transform: uppercase;
   }
-  .region { text-transform: capitalize; }
+  /* La capitalisation vit dans regionLabel() : un nom déclaré doit garder
+     sa casse (« Vallée du Fraser », pas « Vallée Du Fraser »). */
 </style>
