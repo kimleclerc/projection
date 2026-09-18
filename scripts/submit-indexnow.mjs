@@ -50,6 +50,14 @@ const CURATED = [
   '/en/canada/federal', '/fr/canada/federal', '/es/canada/federal',
   '/en/canada/quebec', '/fr/canada/quebec', '/es/canada/quebec',
   '/en/canada/ontario', '/fr/canada/ontario', '/es/canada/ontario',
+  // Colombie-Britannique — desk ouvert le 2026-09-18, dans un contexte de
+  // scrutin anticipé possible : la projection et le hub de sondages bougent à
+  // chaque run, et l'index des 93 circonscriptions est la porte d'entrée des
+  // recherches par circonscription.
+  '/en/canada/british-columbia', '/fr/canada/colombie-britannique', '/es/canada/columbia-britanica',
+  '/en/canada/british-columbia/ridings/', '/fr/canada/colombie-britannique/circonscriptions/', '/es/canada/columbia-britanica/distritos/',
+  '/en/canada/british-columbia/polls/', '/fr/canada/colombie-britannique/sondages/', '/es/canada/columbia-britanica/sondeos/',
+  '/en/canada/british-columbia/uncertainty/', '/fr/canada/colombie-britannique/incertitude/', '/es/canada/columbia-britanica/incertidumbre/',
   '/en/us/', '/fr/us/', '/es/us/',
   '/en/us/house', '/fr/us/chambre', '/es/us/house',
   '/en/us/senate', '/fr/us/senat', '/es/us/senate',
