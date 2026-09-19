@@ -124,6 +124,67 @@ const compositionSegments = compositionOrder
   })
   .filter((s): s is NonNullable<typeof s> => s !== null);
 
+// ---------------------------------------------------------------------------
+// Barre de sièges graduée par cote (Solid / Likely / Lean / Toss-up).
+//
+// La barre de composition ne dit que « combien de sièges par parti ». Elle ne
+// dit pas SI ces sièges tiennent. Deux chambres au même score n'ont pas la même
+// fragilité : au 2026-09-19 le Sénat porte 4 toss-up sur 35 courses quand la
+// Chambre en porte 40 sur 435. La cote existe déjà par siège dans
+// `projection.rating` — elle n'était affichée que sur les pages de course.
+//
+// Encodage divergent : une seule rampe de luminosité, bleu foncé → bleu clair →
+// gris neutre → rouge clair → rouge foncé. L'intensité EST la solidité, donc la
+// barre se lit d'un coup d'œil, et même en niveaux de gris.
+//
+// ⚠ La paire « Lean R ↔ Toss-up » tombe à ΔE 7,0 en protanopie (validateur
+// dataviz). C'est admissible UNIQUEMENT avec un encodage secondaire, d'où les
+// trois présents ensemble : écart de 2 px entre segments, effectif écrit dans
+// chaque segment, et hachure à 45° sur le toss-up. Ne pas retirer la hachure en
+// croyant nettoyer le style : elle porte l'information pour un lecteur sur douze.
+const RATING_ORDER = ['solid_dem', 'likely_dem', 'lean_dem', 'tossup', 'lean_rep', 'likely_rep', 'solid_rep'] as const;
+const RATING_STYLE: Record<string, { light: string; dark: string; en: string; fr: string; es: string }> = {
+  solid_dem:  { light: '#17558F', dark: '#3D7CB4', en: 'Solid D',  fr: 'Sûr D',      es: 'Seguro D' },
+  likely_dem: { light: '#2E86D3', dark: '#4A9BE0', en: 'Likely D', fr: 'Probable D', es: 'Probable D' },
+  lean_dem:   { light: '#7FB5E4', dark: '#74B0E0', en: 'Lean D',   fr: 'Penche D',   es: 'Inclina D' },
+  tossup:     { light: '#8C8C8C', dark: '#8A8A8A', en: 'Toss-up',  fr: 'Incertain',  es: 'Incierto' },
+  lean_rep:   { light: '#F08A72', dark: '#E8907A', en: 'Lean R',   fr: 'Penche R',   es: 'Inclina R' },
+  likely_rep: { light: '#D2222D', dark: '#E14A4A', en: 'Likely R', fr: 'Probable R', es: 'Probable R' },
+  solid_rep:  { light: '#93202A', dark: '#BE3A42', en: 'Solid R',  fr: 'Sûr R',      es: 'Solide R' },
+};
+
+const ratingCounts: Record<string, number> = {};
+for (const r of ((data as any).ridings ?? [])) {
+  const code = r?.projection?.rating?.code;
+  if (code && code in RATING_STYLE) ratingCounts[code] = (ratingCounts[code] ?? 0) + 1;
+}
+const ratedTotal = Object.values(ratingCounts).reduce((a, b) => a + b, 0);
+// Seules les chambres dont CHAQUE siège porte une cote sont représentables :
+// une barre partielle mentirait sur la taille des blocs.
+const showRatingBar = ratedTotal > 0 && ratedTotal === ((data as any).ridings ?? []).length;
+const ratingSegments = showRatingBar
+  ? RATING_ORDER.filter((c) => (ratingCounts[c] ?? 0) > 0).map((c) => ({
+      code: c,
+      seats: ratingCounts[c],
+      pct: (ratingCounts[c] / ratedTotal) * 100,
+      label: RATING_STYLE[c][locale === 'fr' ? 'fr' : locale === 'es' ? 'es' : 'en'],
+      isTossup: c === 'tossup',
+    }))
+  : [];
+const tossupCount = ratingCounts['tossup'] ?? 0;
+const _rl = (fr: string, es: string, en: string) => (locale === 'fr' ? fr : locale === 'es' ? es : en);
+const ratingBarCopy = {
+  title: _rl('Solidité des sièges', 'Solidez de los escaños', 'How solid the seats are'),
+  lede: locale === 'fr'
+    ? `Chaque course classée de « sûr » à « incertain ». ${tossupCount} sur ${ratedTotal} sont trop serrées pour être attribuées.`
+    : locale === 'es'
+      ? `Cada contienda clasificada de « segura » a « incierta ». ${tossupCount} de ${ratedTotal} están demasiado reñidas para asignarse.`
+      : `Every race graded from solid to toss-up. ${tossupCount} of ${ratedTotal} are too close to call.`,
+  tableCaption: _rl('Sièges par cote', 'Escaños por calificación', 'Seats by rating'),
+  ratingCol: _rl('Cote', 'Calificación', 'Rating'),
+  seatsCol: _rl('Sièges', 'Escaños', 'Seats'),
+};
+
 // Build seat-projection bar segments
 const projectedSeatsFor = (p: any) =>
   p.seats_projected ?? p.seats_median ?? Math.round(p.seats_mean ?? 0);
@@ -706,6 +767,45 @@ const pageNavItems = [
         </li>
       ))}
     </ul>
+
+    {showRatingBar && (
+      <div class="pe-rating">
+        <h3 class="pe-rating-title">{ratingBarCopy.title}</h3>
+        <p class="pe-rating-lede">{ratingBarCopy.lede}</p>
+        <div class="pe-rating-bar" role="img" aria-label={ratingBarCopy.lede}>
+          {ratingSegments.map((seg) => (
+            <div
+              class:list={['pe-rating-seg', seg.isTossup && 'is-tossup']}
+              style={`width:${seg.pct}%; --seg:${RATING_STYLE[seg.code].light}; --seg-dark:${RATING_STYLE[seg.code].dark};`}
+              title={`${seg.label} — ${seg.seats}`}
+            >
+              <span class="pe-rating-seg-value">{seg.seats}</span>
+            </div>
+          ))}
+        </div>
+        <ul class="pe-rating-legend">
+          {ratingSegments.map((seg) => (
+            <li>
+              <span
+                class:list={['pe-rating-swatch', seg.isTossup && 'is-tossup']}
+                style={`--seg:${RATING_STYLE[seg.code].light}; --seg-dark:${RATING_STYLE[seg.code].dark};`}
+              />
+              <span class="pe-rating-legend-name">{seg.label}</span>
+              <span class="pe-rating-legend-value">{seg.seats}</span>
+            </li>
+          ))}
+        </ul>
+        <table class="pe-rating-table">
+          <caption>{ratingBarCopy.tableCaption}</caption>
+          <thead><tr><th scope="col">{ratingBarCopy.ratingCol}</th><th scope="col">{ratingBarCopy.seatsCol}</th></tr></thead>
+          <tbody>
+            {ratingSegments.map((seg) => (
+              <tr><th scope="row">{seg.label}</th><td>{seg.seats}</td></tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    )}
   </section>
 
   <!-- SEAT PROJECTION -->
@@ -1119,6 +1219,114 @@ const pageNavItems = [
 
   .pe-bar-segment-label {
     text-shadow: 0 1px 1px rgba(0, 0, 0, 0.25);
+  }
+
+  /* --- Barre de solidité (cotes) ------------------------------------------
+     L'écart de 2 px, l'effectif écrit dans le segment et la hachure du toss-up
+     sont l'encodage secondaire exigé par la faible séparation « Lean R ↔
+     Toss-up » en protanopie. Les trois vont ensemble. */
+  .pe-rating {
+    margin-top: 28px;
+    padding-top: 20px;
+    border-top: 1px solid var(--rule);
+  }
+
+  .pe-rating-title {
+    font-size: 15px;
+    margin: 0 0 4px;
+  }
+
+  .pe-rating-lede {
+    margin: 0 0 12px;
+    color: var(--ink-2);
+    font-size: 13px;
+    max-width: 60ch;
+  }
+
+  .pe-rating-bar {
+    display: flex;
+    gap: 2px;
+    height: 34px;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .pe-rating-seg {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2px;
+    background: var(--seg);
+    color: #fff;
+    font-family: var(--mono);
+    font-size: 12px;
+    transition: filter 0.15s ease;
+  }
+
+  .pe-rating-seg:first-child { border-radius: 4px 0 0 4px; }
+  .pe-rating-seg:last-child  { border-radius: 0 4px 4px 0; }
+  .pe-rating-seg:hover { filter: brightness(1.08); }
+
+  .pe-rating-seg.is-tossup,
+  .pe-rating-swatch.is-tossup {
+    background-image: repeating-linear-gradient(
+      45deg,
+      rgba(255, 255, 255, 0.34) 0 4px,
+      rgba(255, 255, 255, 0) 4px 8px
+    );
+  }
+
+  .pe-rating-seg-value {
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.35);
+  }
+
+  .pe-rating-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+    list-style: none;
+    margin: 12px 0 0;
+    padding: 0;
+    font-size: 12px;
+  }
+
+  .pe-rating-legend li {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .pe-rating-swatch {
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+    background: var(--seg);
+    flex: none;
+  }
+
+  .pe-rating-legend-name { color: var(--ink-2); }
+  .pe-rating-legend-value { font-family: var(--mono); color: var(--ink); }
+
+  /* Le tableau double la barre pour les lecteurs d'écran et l'impression. */
+  .pe-rating-table {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  [data-theme="dark"] .pe-rating-seg,
+  [data-theme="dark"] .pe-rating-swatch {
+    background-color: var(--seg-dark);
+  }
+
+  @media (forced-colors: active) {
+    .pe-rating-seg { forced-color-adjust: none; border: 1px solid CanvasText; }
   }
 
   .pe-bar-majority {
