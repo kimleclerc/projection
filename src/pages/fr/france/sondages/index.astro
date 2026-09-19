@@ -4,6 +4,9 @@ import FrancePollsPage from '../../../../components/FrancePollsPage.astro';
 import polls from '../../../../../web_data/france-presidential/polls.json';
 
 const meta = (polls as any).meta;
+const lastPoll = meta.last_release_date
+  ? new Date(meta.last_release_date + 'T12:00:00Z').toLocaleDateString('fr-CA', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })
+  : null;
 const canonical = 'https://vote-scope.com/fr/france/sondages/';
 const alternates = {
   en: 'https://vote-scope.com/en/france/polls/',
@@ -13,8 +16,10 @@ const alternates = {
 ---
 
 <EditorialLayout
-  title="Sondages présidentielle française 2027 — compilation Vote-Scope"
-  description={`Chaque sondage publié sur la présidentielle 2027, maison par maison : ${meta.n_first_round_polls} sondages de premier tour et ${meta.n_runoff_polls} duels de second tour, agrégés par Vote-Scope.`}
+  title={lastPoll
+    ? `Sondages présidentielle 2027 — le classement au ${lastPoll}`
+    : 'Sondages présidentielle 2027 — le classement à jour'}
+  description={`Où en est la présidentielle 2027 ? ${meta.n_first_round_polls} sondages de premier tour et ${meta.n_runoff_polls} duels de second tour${meta.n_firms ? ` de ${meta.n_firms} instituts` : ''}${lastPoll ? `, à jour au ${lastPoll}` : ''}. Moyenne pondérée et sondage par sondage.`}
   canonical={canonical}
   lang="fr"
   currentPage="france"
