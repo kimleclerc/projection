@@ -15,6 +15,14 @@ const { locale } = Astro.props;
 const data = pollsData as any;
 const cands = data.candidates as Record<string, { name: string; short_label: string; bloc: string }>;
 const firstRound = data.first_round as any[];
+
+// Slug identique à celui d'export_fr_pres_poll_pages.py : (firme, date). Il ne
+// doit pas diverger, sinon le lien pointe vers une page qui n'existe pas.
+const pollSeg = locale === 'fr' ? 'sondages' : locale === 'es' ? 'sondeos' : 'polls';
+const pollBase = `/${locale}/france/${pollSeg}`;
+const pollSlug = (firm: string, date: string) =>
+  `${firm.normalize('NFKD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}-${date}`;
+const seenPollSlug = new Set<string>();
 const runoff = data.runoff as any[];
 
 const dateLocale = locale === 'fr' ? 'fr-FR' : locale === 'es' ? 'es-ES' : 'en-CA';
@@ -23,6 +31,7 @@ const fmtDate = (iso: string | null): string =>
 
 const C = {
   fr: {
+    detail: 'Voir ce sondage →',
     eyebrow: 'Sondages · France · Présidentielle 2027',
     h1: 'Sondages de la présidentielle.',
     lede1: 'Chaque sondage publié sur la présidentielle 2027, maison par maison. Le modèle teste des castings : un sondage mesure une configuration de candidatures précise, pas une liste figée.',
@@ -36,6 +45,7 @@ const C = {
     vs: 'contre',
   },
   en: {
+    detail: 'See this poll →',
     eyebrow: 'Polls · France · 2027 Presidential',
     h1: 'Presidential polling.',
     lede1: 'Every published poll on the 2027 French presidential race, pollster by pollster. The model tests lineups: a poll measures one specific candidate configuration, not a fixed list.',
@@ -49,6 +59,7 @@ const C = {
     vs: 'vs',
   },
   es: {
+    detail: 'Ver este sondeo →',
     eyebrow: 'Encuestas · Francia · Presidencial 2027',
     h1: 'Encuestas presidenciales.',
     lede1: 'Cada encuesta publicada sobre la presidencial francesa de 2027, encuestadora por encuestadora. El modelo prueba combinaciones: una encuesta mide una configuración de candidaturas concreta, no una lista fija.',
@@ -92,6 +103,7 @@ const bloc = (id: string) => cands[id]?.bloc ?? 'other';
               <span class="frp-date">{fmtDate(p.release_date)}</span>
               {p.sample_size && <span class="frp-n">{C.sample} {p.sample_size.toLocaleString(dateLocale)}</span>}
               {p.source_url && <a class="frp-src" href={p.source_url} target="_blank" rel="noopener nofollow">{C.source} ↗</a>}
+              <a class="frp-detail" href={`${pollBase}/${pollSlug(p.firm, p.release_date)}/`}>{C.detail}</a>
             </div>
             <ul class="frp-bars">
               {p.entries.map((e: any, i: number) => (

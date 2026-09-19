@@ -1,0 +1,207 @@
+---
+/**
+ * Une page pour UN sondage de la présidentielle française.
+ *
+ * « sondage présidentielle 2027 » vaut 39 600 impressions de recherche sur trois
+ * mois : la plus grosse demande française du site. Les gens cherchent un
+ * sondage précis, dans le format que la presse leur a appris — « le sondage Ifop
+ * du 28 mai ». Nous n'avions qu'une compilation et des pages de scénario.
+ *
+ * ⚠ Une page par SONDAGE, jamais par scénario. Le modèle France est par
+ * castings : un même sondage teste plusieurs configurations de candidatures.
+ * Le 2026-09-19, 280 lignes de premier tour pour 59 sondages réels — un seul
+ * Harris en porte quatorze. Une page par configuration publierait quatorze
+ * quasi-doublons pour une enquête.
+ *
+ * La page ramène vers le moteur : la moyenne pondérée et la projection sont ce
+ * que le communiqué du sondeur ne donne pas.
+ */
+export interface PollEntry { id: string; name: string; share: number }
+export interface PollScenario { scenario_id: string; n_candidates: number; entries: PollEntry[] }
+export interface FrPoll {
+  slug: string; firm: string; firm_name: string; release_date: string;
+  field_start?: string | null; field_end?: string | null; sample_size?: number | null;
+  source_url?: string | null; n_scenarios: number;
+  lead_entries: PollEntry[]; scenarios: PollScenario[];
+  runoffs: Array<{ left: string; right: string; left_share: number; right_share: number }>;
+  newer_slug?: string | null; older_slug?: string | null;
+}
+
+interface Props { poll: FrPoll; locale: 'en' | 'fr' | 'es'; base: string; hubHref: string; deskHref: string; }
+const { poll, locale, base, hubHref, deskHref } = Astro.props as Props;
+
+const L = locale === 'fr' ? 'fr-CA' : locale === 'es' ? 'es-ES' : 'en-CA';
+const d = (iso?: string | null) => iso
+  ? new Date(`${iso}T12:00:00Z`).toLocaleDateString(L, { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })
+  : null;
+
+const copy = {
+  en: {
+    eyebrow: 'France · 2027 presidential poll',
+    fieldwork: 'Fieldwork', sample: 'Sample', published: 'Published', source: 'Pollster release',
+    respondents: (n: number) => `${n.toLocaleString(L)} respondents`,
+    firstRound: 'First round, voting intention',
+    scenarios: (n: number) => `This poll tested ${n} candidate line-ups`,
+    scenariosLede: 'French pollsters test several hypothetical fields in the same survey. Each one is shown below — the pollster’s own release rarely puts them side by side.',
+    runoffs: 'Run-off match-ups tested',
+    lineup: 'Line-up', candidates: 'candidates',
+    backHub: 'All 2027 presidential polls', backDesk: 'Our weighted average and projection',
+    newer: 'More recent poll', older: 'Earlier poll',
+    modelNote: 'A single poll is one measurement with its own margin of error. Our model weights every published poll, corrects for house effects and projects the range of plausible outcomes.',
+  },
+  fr: {
+    eyebrow: 'France · sondage présidentielle 2027',
+    fieldwork: 'Terrain', sample: 'Échantillon', published: 'Publication', source: 'Notice du sondeur',
+    respondents: (n: number) => `${n.toLocaleString(L)} personnes interrogées`,
+    firstRound: 'Premier tour, intentions de vote',
+    scenarios: (n: number) => `Ce sondage a testé ${n} configurations de candidatures`,
+    scenariosLede: 'Les instituts français testent plusieurs castings hypothétiques dans la même enquête. Ils sont tous ci-dessous — la notice du sondeur les met rarement côte à côte.',
+    runoffs: 'Duels de second tour testés',
+    lineup: 'Casting', candidates: 'candidats',
+    backHub: 'Tous les sondages de la présidentielle 2027', backDesk: 'Notre moyenne pondérée et notre projection',
+    newer: 'Sondage plus récent', older: 'Sondage précédent',
+    modelNote: 'Un sondage isolé est une mesure, avec sa marge d’erreur. Notre modèle pondère chaque sondage publié, corrige les biais d’institut et projette l’éventail des issues plausibles.',
+  },
+  es: {
+    eyebrow: 'Francia · sondeo presidencial 2027',
+    fieldwork: 'Trabajo de campo', sample: 'Muestra', published: 'Publicación', source: 'Nota del sondeador',
+    respondents: (n: number) => `${n.toLocaleString(L)} personas encuestadas`,
+    firstRound: 'Primera vuelta, intención de voto',
+    scenarios: (n: number) => `Este sondeo probó ${n} configuraciones de candidaturas`,
+    scenariosLede: 'Los institutos franceses prueban varias combinaciones hipotéticas en la misma encuesta. Todas aparecen abajo — la nota del sondeador rara vez las pone juntas.',
+    runoffs: 'Duelos de segunda vuelta probados',
+    lineup: 'Combinación', candidates: 'candidatos',
+    backHub: 'Todas las encuestas presidenciales de 2027', backDesk: 'Nuestro promedio ponderado y proyección',
+    newer: 'Sondeo más reciente', older: 'Sondeo anterior',
+    modelNote: 'Un sondeo aislado es una medición, con su margen de error. Nuestro modelo pondera cada sondeo publicado, corrige los sesgos de casa y proyecta el abanico de resultados plausibles.',
+  },
+}[locale];
+
+const maxShare = Math.max(...poll.lead_entries.map((e) => e.share), 1);
+---
+
+<article class="fpp" data-content-area>
+  <header class="fpp-head container">
+    <p class="fpp-eyebrow">{copy.eyebrow}</p>
+    <h1>{`${poll.firm_name} — ${d(poll.release_date)}`}</h1>
+    <dl class="fpp-meta">
+      {poll.field_start && poll.field_end && (
+        <div><dt>{copy.fieldwork}</dt><dd>{`${d(poll.field_start)} → ${d(poll.field_end)}`}</dd></div>
+      )}
+      {poll.sample_size && (
+        <div><dt>{copy.sample}</dt><dd>{copy.respondents(poll.sample_size)}</dd></div>
+      )}
+      <div><dt>{copy.published}</dt><dd>{d(poll.release_date)}</dd></div>
+      {poll.source_url && (
+        <div><dt>{copy.source}</dt>
+          <dd><a href={poll.source_url} rel="nofollow noopener" target="_blank">{copy.source} →</a></dd></div>
+      )}
+    </dl>
+  </header>
+
+  <section class="fpp-section container">
+    <h2>{copy.firstRound}</h2>
+    <ul class="fpp-bars">
+      {poll.lead_entries.map((e) => (
+        <li>
+          <span class="fpp-name">{e.name}</span>
+          <span class="fpp-track" aria-hidden="true">
+            <span class="fpp-fill" style={`width:${(e.share / maxShare) * 100}%`} />
+          </span>
+          <span class="fpp-share">{`${e.share}%`}</span>
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  {poll.runoffs.length > 0 && (
+    <section class="fpp-section container">
+      <h2>{copy.runoffs}</h2>
+      <ul class="fpp-duels">
+        {poll.runoffs.map((r) => (
+          <li>{`${r.left} ${r.left_share}% — ${r.right_share}% ${r.right}`}</li>
+        ))}
+      </ul>
+    </section>
+  )}
+
+  {poll.n_scenarios > 1 && (
+    <section class="fpp-section container">
+      <h2>{copy.scenarios(poll.n_scenarios)}</h2>
+      <p class="fpp-lede">{copy.scenariosLede}</p>
+      <div class="fpp-scenarios">
+        {poll.scenarios.map((sc, i) => (
+          <div class="fpp-scenario">
+            <h3>{`${copy.lineup} ${i + 1} · ${sc.n_candidates} ${copy.candidates}`}</h3>
+            <ul>
+              {sc.entries.map((e) => <li><span>{e.name}</span><b>{`${e.share}%`}</b></li>)}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </section>
+  )}
+
+  <section class="fpp-section container">
+    <p class="fpp-model">{copy.modelNote}</p>
+    <p class="fpp-links">
+      <a href={deskHref}>{copy.backDesk} →</a>
+      <a href={hubHref}>{copy.backHub} →</a>
+    </p>
+    <p class="fpp-nav">
+      {poll.newer_slug && <a href={`${base}/${poll.newer_slug}/`}>{`← ${copy.newer}`}</a>}
+      {poll.older_slug && <a href={`${base}/${poll.older_slug}/`}>{`${copy.older} →`}</a>}
+    </p>
+  </section>
+</article>
+
+<style>
+  .fpp { padding-bottom: 56px; }
+  .fpp-head { padding: 40px 0 8px; }
+  .fpp-eyebrow {
+    font-family: var(--mono); font-size: 11px; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--ink-3); margin: 0 0 6px;
+  }
+  .fpp h1 { font-size: 30px; margin: 0 0 16px; }
+
+  .fpp-meta { display: flex; flex-wrap: wrap; gap: 8px 28px; margin: 0 0 8px; }
+  .fpp-meta div { display: flex; flex-direction: column; gap: 2px; }
+  .fpp-meta dt {
+    font-family: var(--mono); font-size: 10px; letter-spacing: .06em;
+    text-transform: uppercase; color: var(--ink-3);
+  }
+  .fpp-meta dd { margin: 0; font-size: 14px; }
+
+  .fpp-section { padding: 28px 0 0; }
+  .fpp-section h2 { font-size: 18px; margin: 0 0 12px; }
+  .fpp-lede { margin: 0 0 16px; color: var(--ink-2); max-width: 66ch; font-size: 14px; }
+
+  .fpp-bars { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+  .fpp-bars li {
+    display: grid; grid-template-columns: minmax(9rem, 15rem) 1fr auto;
+    gap: 12px; align-items: center; font-size: 14px;
+  }
+  .fpp-track { height: 12px; border-radius: 6px; background: var(--rule); overflow: hidden; }
+  .fpp-fill { display: block; height: 100%; background: var(--ink-3); }
+  .fpp-share { font-family: var(--mono); font-size: 13px; min-width: 3.2rem; text-align: right; }
+
+  .fpp-duels { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; font-size: 14px; }
+
+  .fpp-scenarios {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px;
+  }
+  .fpp-scenario { border: 1px solid var(--rule); border-radius: 6px; padding: 14px 16px; }
+  .fpp-scenario h3 { font-size: 13px; margin: 0 0 8px; color: var(--ink-2); }
+  .fpp-scenario ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; font-size: 13px; }
+  .fpp-scenario li { display: flex; justify-content: space-between; gap: 10px; }
+  .fpp-scenario b { font-family: var(--mono); font-weight: 500; }
+
+  .fpp-model { color: var(--ink-2); font-size: 14px; max-width: 70ch; margin: 0 0 14px; }
+  .fpp-links { display: flex; flex-wrap: wrap; gap: 8px 22px; margin: 0 0 10px; font-size: 14px; }
+  .fpp-nav { display: flex; justify-content: space-between; gap: 16px; font-size: 13px; margin: 0; }
+
+  @media (max-width: 640px) {
+    .fpp-bars li { grid-template-columns: 1fr auto; }
+    .fpp-track { grid-column: 1 / -1; }
+  }
+</style>
