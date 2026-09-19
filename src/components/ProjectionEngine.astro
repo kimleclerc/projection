@@ -192,7 +192,18 @@ const projectionTotal = orderedParties.reduce(
   (sum, p) => sum + projectedSeatsFor(p),
   0,
 );
-const projectionSegments = orderedParties
+// Ordre de la barre : un indépendant se lit AU MILIEU, entre les deux grands,
+// parce que c'est sa place politique. Trié par taille il se retrouverait à
+// droite, collé au parti qu'il vient justement de battre.
+const isResidualParty = (key: string) => /_oth$|^oth$|ind$/.test(key);
+const projectionOrder = (() => {
+  const majors = orderedParties.filter((p) => !isResidualParty(p.party));
+  const residual = orderedParties.filter((p) => isResidualParty(p.party));
+  if (residual.length === 0 || majors.length < 2) return orderedParties;
+  return [majors[0], ...residual, ...majors.slice(1)];
+})();
+
+const projectionSegments = projectionOrder
   .map((p) => ({ party: p, seats: projectedSeatsFor(p) }))
   .filter(({ seats }) => seats > 0)
   .map(({ party: p, seats }) => ({
