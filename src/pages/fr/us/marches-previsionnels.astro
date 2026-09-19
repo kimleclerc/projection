@@ -1,0 +1,20 @@
+---
+import EditorialLayout from '../../../layouts/EditorialLayout.astro';
+import ModelVsMarkets from '../../../components/ModelVsMarkets.astro';
+import NewsletterCta from '../../../components/NewsletterCta.astro';
+
+const canonical = 'https://vote-scope.com/fr/us/marches-previsionnels/';
+---
+
+<EditorialLayout
+  title="Cotes des midterms 2026 : Kalshi, Polymarket et notre prévision — Vote-Scope"
+  description="Les cotes des midterms 2026 comparées : prix Kalshi, prix Polymarket et projection du modèle Vote-Scope pour le contrôle de la Chambre et du Sénat, côte à côte, mises à jour chaque jour."
+  canonical={canonical}
+  lang="fr"
+  currentPage="us"
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={{ en: 'https://vote-scope.com/en/us/prediction-markets/', fr: 'https://vote-scope.com/fr/us/marches-previsionnels/', es: 'https://vote-scope.com/es/us/mercados-de-prediccion/' }}
+>
+  <ModelVsMarkets locale="fr" />
+  <NewsletterCta lang="fr" placement="prediction-markets" />
+</EditorialLayout>

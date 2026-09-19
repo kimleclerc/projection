@@ -1,0 +1,203 @@
+---
+/**
+ * Desk « modèle contre marchés » — Vote-Scope, Kalshi, Polymarket.
+ *
+ * Pourquoi cette page existe, côté SEO : « kalshi » vaut 222 500 impressions de
+ * recherche sur trois mois et « polymarket » plus de 130 000 (Bing, relevé du
+ * 2026-09-19), quand le mot générique « market » n'en vaut aucune. Une page qui
+ * nomme les deux bourses et les compare honnêtement vise une demande réelle que
+ * ni l'une ni l'autre ne satisfait : aucune des deux ne montre l'autre.
+ *
+ * Ce que la page NE fait pas, et c'est délibéré :
+ *   • elle ne classe pas les trois sources et ne dit pas qui a raison ;
+ *   • elle ne mélange pas les catégories — un modèle et un prix de marché sont
+ *     étiquetés séparément, jamais alignés comme s'ils étaient commensurables ;
+ *   • elle n'affiche aucun logo ni aucune identité graphique tierce, seulement
+ *     les noms en texte, avec un lien vers la source ;
+ *   • elle ne revendique aucune supériorité. Une affirmation de performance
+ *     demande une méthodologie d'évaluation publiée, et c'est un autre produit.
+ *
+ * ⚠ Le comparatif PAR COURSE est volontairement absent pour l'instant. Nos
+ * probabilités de district sont trop serrées — écart-type implicite de 1,8 point
+ * sur la marge contre 5 à 8 points d'erreur réelle — si bien que les plus gros
+ * « désaccords » mesurent notre variance et non un avantage analytique. Le
+ * correctif est en cours côté moteur. Ne pas rebrancher la liste avant.
+ */
+import desk from '../../web_data/us-model-vs-markets/latest.json';
+
+interface Props { locale: 'en' | 'fr' | 'es'; }
+const { locale } = Astro.props as Props;
+
+const data = desk as {
+  meta: { run_date: string; sources: Array<{ id: string; kind: string; name: string; as_of: string; url: string }> };
+  chambers: Array<{
+    id: string; label_en: string; label_fr: string; label_es: string;
+    votescope: number | null; kalshi: number | null; polymarket: number | null;
+    gap_kalshi: number | null; gap_polymarket: number | null;
+    kalshi_url: string; polymarket_url: string; votescope_href: string;
+  }>;
+};
+
+const rows = (data.chambers ?? []).filter((c) => c.votescope !== null);
+const sources = data.meta?.sources ?? [];
+const srcOf = (id: string) => sources.find((s) => s.id === id);
+
+const copy = {
+  en: {
+    eyebrow: 'Model vs markets',
+    heading: 'Where our forecast disagrees with Kalshi and Polymarket',
+    lede: 'Three different ways of forecasting the same election, side by side: one statistical model and two exchanges where people bet real money. This is a comparison, not a ranking.',
+    model: 'Model', market: 'Market',
+    chamber: 'Race', gap: 'Gap vs Vote-Scope',
+    asOf: 'as of', seeSource: 'Source',
+    ourPage: 'Our forecast',
+    note: 'Methodologies differ and the figures are not necessarily directly comparable. A model states a probability; an exchange states a price that also reflects liquidity, fees and who happens to be trading.',
+    disclaimer: 'Independent comparison. Vote-Scope is not affiliated with or endorsed by the prediction markets shown. All third-party prices remain the property of their publishers and are linked to their original pages.',
+  },
+  fr: {
+    eyebrow: 'Modèle contre marchés',
+    heading: 'Là où notre prévision diverge de Kalshi et Polymarket',
+    lede: 'Trois façons différentes de prévoir la même élection, côte à côte : un modèle statistique et deux bourses où des gens engagent de l’argent. C’est une comparaison, pas un classement.',
+    model: 'Modèle', market: 'Marché',
+    chamber: 'Course', gap: 'Écart avec Vote-Scope',
+    asOf: 'au', seeSource: 'Source',
+    ourPage: 'Notre prévision',
+    note: 'Les méthodologies diffèrent et les chiffres ne sont pas nécessairement comparables directement. Un modèle énonce une probabilité ; une bourse énonce un prix, qui reflète aussi la liquidité, les frais et qui se trouve être à la table.',
+    disclaimer: 'Comparaison indépendante. Vote-Scope n’est ni affilié aux marchés de prévision présentés, ni approuvé par eux. Les cotes tierces demeurent la propriété de leurs éditeurs et renvoient à leur page d’origine.',
+  },
+  es: {
+    eyebrow: 'Modelo frente a mercados',
+    heading: 'Dónde nuestra previsión difiere de Kalshi y Polymarket',
+    lede: 'Tres maneras distintas de prever la misma elección, una al lado de la otra: un modelo estadístico y dos bolsas donde la gente arriesga dinero. Es una comparación, no una clasificación.',
+    model: 'Modelo', market: 'Mercado',
+    chamber: 'Contienda', gap: 'Diferencia con Vote-Scope',
+    asOf: 'al', seeSource: 'Fuente',
+    ourPage: 'Nuestra previsión',
+    note: 'Las metodologías difieren y las cifras no son necesariamente comparables de forma directa. Un modelo enuncia una probabilidad; una bolsa enuncia un precio, que refleja además la liquidez, las comisiones y quién está operando.',
+    disclaimer: 'Comparación independiente. Vote-Scope no está afiliado a los mercados de predicción mostrados ni cuenta con su respaldo. Los precios de terceros siguen siendo propiedad de sus editores y enlazan a su página original.',
+  },
+}[locale];
+
+const label = (c: { label_en: string; label_fr: string; label_es: string }) =>
+  locale === 'fr' ? c.label_fr : locale === 'es' ? c.label_es : c.label_en;
+const fmtDate = (iso?: string) => {
+  if (!iso) return '';
+  return new Date(`${iso}T12:00:00Z`).toLocaleDateString(
+    locale === 'fr' ? 'fr-CA' : locale === 'es' ? 'es-ES' : 'en-CA',
+    { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' },
+  );
+};
+const signed = (n: number | null) => (n === null ? '—' : `${n > 0 ? '+' : ''}${n.toFixed(1)}`);
+---
+
+<section class="mvm" aria-labelledby="mvm-heading">
+  <div class="container mvm-inner">
+    <p class="mvm-eyebrow">{copy.eyebrow}</p>
+    <h2 id="mvm-heading">{copy.heading}</h2>
+    <p class="mvm-lede">{copy.lede}</p>
+
+    <div class="mvm-scroll">
+      <table class="mvm-table">
+        <thead>
+          <tr>
+            <th scope="col">{copy.chamber}</th>
+            <th scope="col"><span class="mvm-kind mvm-kind--model">{copy.model}</span> Vote-Scope</th>
+            <th scope="col"><span class="mvm-kind mvm-kind--market">{copy.market}</span> Kalshi</th>
+            <th scope="col"><span class="mvm-kind mvm-kind--market">{copy.market}</span> Polymarket</th>
+            <th scope="col">{copy.gap}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((c) => (
+            <tr>
+              <th scope="row">{label(c)}</th>
+              <td class="mvm-num"><a href={c.votescope_href}>{c.votescope}%</a></td>
+              <td class="mvm-num">
+                {c.kalshi === null ? '—' : (
+                  <a href={c.kalshi_url} rel="nofollow noopener" target="_blank">{c.kalshi}%</a>
+                )}
+              </td>
+              <td class="mvm-num">
+                {c.polymarket === null ? '—' : (
+                  <a href={c.polymarket_url} rel="nofollow noopener" target="_blank">{c.polymarket}%</a>
+                )}
+              </td>
+              <td class="mvm-num mvm-gap">
+                {`K ${signed(c.gap_kalshi)} · P ${signed(c.gap_polymarket)}`}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    <ul class="mvm-sources">
+      {sources.map((s) => (
+        <li>
+          <span class:list={['mvm-kind', s.kind === 'model' ? 'mvm-kind--model' : 'mvm-kind--market']}>
+            {s.kind === 'model' ? copy.model : copy.market}
+          </span>
+          <a href={s.url} rel={s.id === 'votescope' ? undefined : 'nofollow noopener'}
+             target={s.id === 'votescope' ? undefined : '_blank'}>{s.name}</a>
+          <span class="mvm-asof">{`${copy.asOf} ${fmtDate(s.as_of)}`}</span>
+        </li>
+      ))}
+    </ul>
+
+    <p class="mvm-note">{copy.note}</p>
+    <p class="mvm-disclaimer">{copy.disclaimer}</p>
+  </div>
+</section>
+
+<style>
+  .mvm { padding: 56px 0; border-top: 1px solid var(--rule); }
+  .mvm-inner { max-width: 1080px; margin-inline: auto; padding-inline: 1.5rem; }
+
+  .mvm-eyebrow {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--ink-3); margin: 0 0 6px;
+  }
+
+  .mvm h2 { font-size: 26px; margin: 0 0 8px; }
+  .mvm-lede { margin: 0 0 24px; color: var(--ink-2); max-width: 66ch; }
+
+  .mvm-scroll { overflow-x: auto; }
+
+  .mvm-table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 640px; }
+
+  .mvm-table th, .mvm-table td {
+    text-align: left; padding: 12px 14px; border-bottom: 1px solid var(--rule);
+  }
+
+  .mvm-table thead th { font-size: 12px; color: var(--ink-2); font-weight: 600; }
+  .mvm-table tbody th { font-weight: 600; }
+
+  .mvm-num { font-family: var(--mono); text-align: right; }
+  .mvm-gap { color: var(--ink-2); white-space: nowrap; }
+
+  /* Un modèle et un prix ne se lisent pas pareil : l'étiquette de catégorie est
+     là pour empêcher de les prendre pour des chiffres commensurables. */
+  .mvm-kind {
+    display: inline-block; font-family: var(--mono); font-size: 10px;
+    letter-spacing: 0.06em; text-transform: uppercase; padding: 2px 6px;
+    border-radius: 3px; margin-right: 6px; border: 1px solid var(--rule);
+    color: var(--ink-2);
+  }
+
+  .mvm-kind--model { border-color: var(--ink-3); }
+  .mvm-kind--market { border-style: dashed; }
+
+  .mvm-sources {
+    list-style: none; margin: 20px 0 0; padding: 0;
+    display: flex; flex-wrap: wrap; gap: 8px 22px; font-size: 13px;
+  }
+
+  .mvm-sources li { display: flex; align-items: center; gap: 6px; }
+  .mvm-asof { color: var(--ink-3); font-size: 12px; }
+
+  .mvm-note { margin: 18px 0 0; font-size: 13px; color: var(--ink-2); max-width: 72ch; }
+
+  .mvm-disclaimer {
+    margin: 12px 0 0; font-size: 12px; color: var(--ink-3); max-width: 78ch;
+  }
+</style>
