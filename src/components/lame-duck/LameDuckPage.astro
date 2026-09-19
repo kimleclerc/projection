@@ -18,11 +18,23 @@ interface Props {
 
 const { data, locale, canonicalPath } = Astro.props;
 
+// « trump approval ratings today » vaut 22 100 impressions sur trois mois,
+// « trump polls » 9 200 (Bing, 2026-09-19) : le plus gros gisement du domaine.
+// Nous publiions l'approbation de Trump chaque jour SANS jamais l'écrire dans
+// un titre ni une description, donc sans être trouvables dessus. Le titre porte
+// maintenant le chiffre, pris sur la donnée du jour et non figé.
+const approvalForMeta = (data?.components ?? []).find((c: any) => c.id === 'net_approval') as any;
+const approvePct = typeof approvalForMeta?.approve === 'number' ? approvalForMeta.approve : null;
+const netApproval = typeof approvalForMeta?.raw_value === 'number' ? approvalForMeta.raw_value : null;
+
 const copy = {
   en: {
-    title: 'Lame-Duck Index — Vote-Scope',
-    description:
-      'Tracks how lame-duck Trump has become — updated daily. Four public signals: net approval, generic ballot, congressional control, and economic sentiment combined into one 0–100 score.',
+    title: approvePct
+      ? `Trump Approval Rating Today: ${approvePct}% — Lame-Duck Index — Vote-Scope`
+      : 'Trump Approval Rating & Lame-Duck Index — Vote-Scope',
+    description: approvePct
+      ? `Trump approval rating today: ${approvePct}% approve, net ${netApproval?.toFixed(1)} points, updated daily from public polls. Plus the Lame-Duck Index — generic ballot, congressional control and economic sentiment in one 0–100 score.`
+      : 'Trump approval rating updated daily from public polls, plus the Lame-Duck Index: generic ballot, congressional control and economic sentiment in one 0–100 score.',
     eyebrow: 'Vote-Scope USA · Live instrument',
     headline: 'The Trump Drag & Lame-Duck Index.',
     dek:
@@ -57,9 +69,12 @@ const copy = {
     tradeCta: 'Open the trade-war desk',
   },
   fr: {
-    title: 'Indice canard boiteux — Vote-Scope',
-    description:
-      'Mesure chaque jour à quel point Trump est devenu un canard boiteux. Quatre signaux publics combinés en un score de 0 à 100 : approbation nette, bulletin générique, contrôle du Congrès, humeur économique.',
+    title: approvePct
+      ? `Taux d'approbation de Trump aujourd'hui : ${approvePct} % — Indice canard boiteux — Vote-Scope`
+      : "Taux d'approbation de Trump — Indice canard boiteux — Vote-Scope",
+    description: approvePct
+      ? `Taux d'approbation de Trump aujourd'hui : ${approvePct} % d'opinions favorables, solde net de ${netApproval?.toFixed(1)} points, mis à jour chaque jour à partir des sondages publics. Avec l'indice canard boiteux : bulletin générique, contrôle du Congrès et humeur économique en un score de 0 à 100.`
+      : 'Approbation de Trump mise à jour chaque jour à partir des sondages publics, avec l\'indice canard boiteux : bulletin générique, contrôle du Congrès et humeur économique en un score de 0 à 100.',
     eyebrow: 'Vote-Scope USA · Instrument live',
     headline: 'Le Poids Trump & l’Indice canard boiteux.',
     dek:
@@ -94,9 +109,12 @@ const copy = {
     tradeCta: 'Ouvrir le pupitre',
   },
   es: {
-    title: 'Lame-Duck Index — Vote-Scope',
-    description:
-      'Mide cada día qué tan "pato cojo" se ha vuelto Trump. Cuatro señales públicas combinadas en un puntaje de 0 a 100: aprobación neta, boleta genérica, control del Congreso y sentimiento económico.',
+    title: approvePct
+      ? `Índice de aprobación de Trump hoy: ${approvePct} % — Índice del pato cojo — Vote-Scope`
+      : 'Índice de aprobación de Trump y el índice del pato cojo — Vote-Scope',
+    description: approvePct
+      ? `Índice de aprobación de Trump hoy: ${approvePct} % de aprobación, saldo neto de ${netApproval?.toFixed(1)} puntos, actualizado a diario con sondeos públicos. Con el índice del pato cojo: boleta genérica, control del Congreso y sentimiento económico en un puntaje de 0 a 100.`
+      : 'Aprobación de Trump actualizada a diario con sondeos públicos, con el índice del pato cojo: boleta genérica, control del Congreso y sentimiento económico en un puntaje de 0 a 100.',
     eyebrow: 'Vote-Scope EE. UU. · Instrumento en vivo',
     headline: 'El Trump Drag & Lame-Duck Index.',
     dek:

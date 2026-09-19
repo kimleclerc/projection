@@ -15,9 +15,21 @@ interface Props {
 
 const { data, locale, canonicalPath } = Astro.props;
 
+// Même motif que l'indice canard boiteux : l'approbation du gouvernement Carney
+// est publiée chaque jour dans cette page sans jamais apparaître dans un titre
+// ni une description, donc sans être trouvable. On nomme ce que la donnée
+// mesure — l'approbation du GOUVERNEMENT, pas la cote personnelle du premier
+// ministre — pour ne pas promettre autre chose que ce qu'on montre.
+const approvalForMeta = (data?.components ?? []).find((c: any) => c.id === 'government_approval') as any;
+const approvePct = typeof approvalForMeta?.raw_value === 'number'
+  ? Math.round(approvalForMeta.raw_value)
+  : null;
+
 const copy = {
   en: {
-    title: 'Canada Goose Index — Carney & the CUSMA / USMCA review — Vote-Scope',
+    title: approvePct
+      ? `Carney Government Approval Rating: ${approvePct}% — Canada Goose Index — Vote-Scope`
+      : 'Carney Government Approval & the Canada Goose Index — Vote-Scope',
     description:
       "Tracks Mark Carney's domestic political strength in Canada — the home-front standing behind his hand in the CUSMA (USMCA) review. Six public signals — Liberal lead, seat projection, government approval, Nanos confidence, national mood, and mandate runway — in one 0–100 score.",
     eyebrow: 'Vote-Scope Canada · Live instrument',
@@ -60,7 +72,9 @@ const copy = {
     cusmaCtaAlt: 'See the Lame-Duck Index',
   },
   fr: {
-    title: 'Indice Bernache — Carney et la révision de l’ACEUM (USMCA) — Vote-Scope',
+    title: approvePct
+      ? `Taux d'approbation du gouvernement Carney : ${approvePct} % — Indice Bernache — Vote-Scope`
+      : "Approbation du gouvernement Carney — Indice Bernache — Vote-Scope",
     description:
       "Mesure la force politique de Mark Carney au Canada — la solidité au pays derrière sa main dans la révision de l'ACEUM (USMCA). Six signaux publics — avance libérale, projection de sièges, approbation du gouvernement, confiance Nanos, humeur nationale et horizon de mandat — en un score de 0 à 100.",
     eyebrow: 'Vote-Scope Canada · Instrument live',
@@ -103,7 +117,9 @@ const copy = {
     cusmaCtaAlt: 'Voir l’Indice canard boiteux',
   },
   es: {
-    title: 'Canada Goose Index — Carney y la revisión del T-MEC (USMCA) — Vote-Scope',
+    title: approvePct
+      ? `Aprobación del gobierno de Carney: ${approvePct} % — Canada Goose Index — Vote-Scope`
+      : 'Aprobación del gobierno de Carney — Canada Goose Index — Vote-Scope',
     description:
       'Mide la fuerza política interna de Mark Carney en Canadá — el respaldo en casa detrás de su mano en la revisión del T-MEC (USMCA). Seis señales públicas combinadas en un puntaje de 0 a 100.',
     eyebrow: 'Vote-Scope Canadá · Instrumento en vivo',
