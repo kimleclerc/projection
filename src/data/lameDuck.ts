@@ -203,7 +203,7 @@ function buildTicker(data: Partial<LameDuckData>, locale: LameDuckLocale = 'en')
       senate: (pct: string) => `Probabilidad de control demócrata del Senado ${pct}%`,
       ballot: (rl: string) => `Termómetro de voto genérico ${rl}`,
       econ: (rl: string) => `Sentimiento del consumidor ${rl}`,
-      latest: 'reciente', tracker: 'sondeos', model: 'modelo', polls_time: 'sondeos',
+      latest: 'reciente', tracker: 'encuestas', model: 'modelo', polls_time: 'encuestas',
     },
   }[locale];
 

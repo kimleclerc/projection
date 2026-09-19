@@ -74,7 +74,7 @@ export const jurisdictions: Record<string, Jurisdiction> = {
     mapSubtitle: {
       fr: "Projection par circonscription basée sur les résultats 2025, les sondages nationaux et les ajustements régionaux.",
       en: 'Riding projection based on 2025 results, national polling and regional adjustments.',
-      es: 'Proyección por distrito basada en los resultados de 2025, los sondeos nacionales y los ajustes regionales.',
+      es: 'Proyección por distrito basada en los resultados de 2025, las encuestas nacionales y los ajustes regionales.',
     },
     pageTitle: {
       fr: 'Qui va gagner les élections fédérales au Canada ? — Vote-Scope',
@@ -118,7 +118,7 @@ export const jurisdictions: Record<string, Jurisdiction> = {
     mapSubtitle: {
       fr: 'Projection par circonscription basée sur les résultats 2022, les sondages provinciaux et les ajustements régionaux.',
       en: 'Riding projection based on 2022 results, provincial polling and regional adjustments.',
-      es: 'Proyección por distrito basada en los resultados de 2022, los sondeos provinciales y los ajustes regionales.',
+      es: 'Proyección por distrito basada en los resultados de 2022, las encuestas provinciales y los ajustes regionales.',
     },
     pageTitle: {
       fr: 'Qui va gagner les prochaines élections en Ontario ? — Vote-Scope',
@@ -163,7 +163,7 @@ export const jurisdictions: Record<string, Jurisdiction> = {
     mapSubtitle: {
       fr: 'Projection par circonscription fondée sur les résultats de 2024, les sondages provinciaux et les ajustements régionaux. Le scrutin de 2024 s\'est tenu sur la carte actuelle à 93 sièges.',
       en: 'Riding projection based on the 2024 results, provincial polling and regional adjustments. The 2024 election was fought on the current 93-seat map.',
-      es: 'Proyección por distrito basada en los resultados de 2024, los sondeos provinciales y los ajustes regionales. La elección de 2024 se celebró con el mapa actual de 93 escaños.',
+      es: 'Proyección por distrito basada en los resultados de 2024, las encuestas provinciales y los ajustes regionales. La elección de 2024 se celebró con el mapa actual de 93 escaños.',
     },
     pageTitle: {
       fr: 'Qui va gagner les prochaines élections en Colombie-Britannique ? — Vote-Scope',
@@ -208,7 +208,7 @@ export const jurisdictions: Record<string, Jurisdiction> = {
     mapSubtitle: {
       fr: 'Projection par circonscription basée sur les résultats 2022, les sondages provinciaux et les tendances régionales.',
       en: 'Riding projection based on 2022 results, provincial polling and regional trends.',
-      es: 'Proyección por distrito basada en los resultados de 2022, los sondeos provinciales y las tendencias regionales.',
+      es: 'Proyección por distrito basada en los resultados de 2022, las encuestas provinciales y las tendencias regionales.',
     },
     pageTitle: {
       fr: 'Qui va gagner les élections du Québec 2026 ? — Vote-Scope',
@@ -339,7 +339,7 @@ export const jurisdictions: Record<string, Jurisdiction> = {
     source: {
       fr: 'Sources : sondages publics agr\u00e9g\u00e9s par le NYT, PVI de Cook, r\u00e9sultats 2018-2024',
       en: 'Sources: public polling via the NYT tracker, Cook PVI, 2018-2024 results',
-      es: 'Fuentes: sondeos p\u00fablicos v\u00eda el NYT, PVI de Cook, resultados 2018-2024',
+      es: 'Fuentes: encuestas p\u00fablicos v\u00eda el NYT, PVI de Cook, resultados 2018-2024',
     },
     mapSubtitle: {
       fr: 'Projection des 36 courses de 2026. Les 14 \u00c9tats qui ne votent pas cette ann\u00e9e gardent leur gouverneur et restent en gris.',
@@ -354,7 +354,7 @@ export const jurisdictions: Record<string, Jurisdiction> = {
     metaDescription: {
       fr: 'Projection des 36 \u00e9lections de gouverneur de 2026, \u00c9tat par \u00c9tat : sondages agr\u00e9g\u00e9s, si\u00e8ges ouverts, courses serr\u00e9es et r\u00e9partition des 50 postes. Mise \u00e0 jour continue.',
       en: 'All 36 governor races on the 2026 ballot, projected state by state: aggregated polls, open seats, toss-ups and the split of all 50 governorships. Updated continuously.',
-      es: 'Las 36 elecciones de gobernador de 2026, proyectadas estado por estado: sondeos agregados, puestos abiertos y el reparto de las 50 gobernaciones. Actualizado continuamente.',
+      es: 'Las 36 elecciones de gobernador de 2026, proyectadas estado por estado: encuestas agregadas, puestos abiertos y el reparto de las 50 gobernaciones. Actualizado continuamente.',
     },
     baselineYear: 2022,
     seatsTotal: 50,
@@ -389,7 +389,7 @@ export const jurisdictions: Record<string, Jurisdiction> = {
     mapSubtitle: {
       fr: 'Projection par circonscription basée sur les résultats 2024, les sondages nationaux et les tendances régionales.',
       en: 'Constituency projection based on 2024 results, national polling and regional trends.',
-      es: 'Proyección por circunscripción basada en los resultados de 2024, los sondeos nacionales y las tendencias regionales.',
+      es: 'Proyección por circunscripción basada en los resultados de 2024, las encuestas nacionales y las tendencias regionales.',
     },
     pageTitle: {
       fr: 'Qui va gagner la prochaine élection au Royaume-Uni ? — Vote-Scope',

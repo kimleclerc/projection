@@ -49,7 +49,7 @@ export const editorialPhilosophy = {
       "No solo quién va adelante. Qué se está moviendo, qué es frágil y qué está perdiendo el mercado.",
     method: "una página, una pregunta",
     proof:
-      "Cada proyección parte de sondeos públicos, un método bayesiano abierto y los datos de origen — todo en la página.",
+      "Cada proyección parte de encuestas públicos, un método bayesiano abierto y los datos de origen — todo en la página.",
   },
 } as const;
 

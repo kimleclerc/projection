@@ -42,7 +42,7 @@ const cardIds = cfg.hasCards ? getRecentNationalPolls(webKey).map((p) => p.poll_
 const DATE_COPY = {
   fr: { locale: 'fr-CA', at: 'au', lead: (n: number, d: string) => `${n} sondages, le plus récent du ${d}.` },
   en: { locale: 'en-CA', at: 'as of', lead: (n: number, d: string) => `${n} polls, the most recent from ${d}.` },
-  es: { locale: 'es-ES', at: 'al', lead: (n: number, d: string) => `${n} sondeos, el más reciente del ${d}.` },
+  es: { locale: 'es-ES', at: 'al', lead: (n: number, d: string) => `${n} encuestas, el más reciente del ${d}.` },
 } as const;
 const dateCopy = DATE_COPY[lang] ?? DATE_COPY.en;
 const latestPollDate = meta.latest_field_end
