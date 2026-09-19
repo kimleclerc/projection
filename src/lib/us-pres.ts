@@ -39,7 +39,7 @@ export function laneLabel(lane: string, locale: Locale): string {
 export const STATUS_LABEL: Record<string, Record<Locale, string>> = {
   declared: { fr: 'Candidature déclarée', en: 'Declared', es: 'Candidatura declarada' },
   probable: { fr: 'Probable', en: 'Probable', es: 'Probable' },
-  testing: { fr: 'Testé·e', en: 'Tested', es: 'En sondeos' },
+  testing: { fr: 'Testé·e', en: 'Tested', es: 'En encuestas' },
   withdrawn: { fr: 'Retiré·e', en: 'Withdrawn', es: 'Retirado·a' },
   ineligible: { fr: 'Inéligible', en: 'Ineligible', es: 'Inelegible' },
 };

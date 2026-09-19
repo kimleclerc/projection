@@ -37,11 +37,11 @@ const COPY = {
   },
   es: {
     dem: 'Demócratas', rep: 'Republicanos',
-    polls: (n: number) => `${n} sondeo${n > 1 ? 's' : ''}`,
+    polls: (n: number) => `${n} encuesta${n > 1 ? 's' : ''}`,
     undecided: 'Indecisos / otro',
-    help: 'Media ponderada por calidad de los sondeos nacionales de primarias (recencia, tamaño, efecto casa, descuento intrafirma, tope de concentración). Cuota por candidato entre los sondeos que lo miden — no un campo renormalizado.',
+    help: 'Media ponderada por calidad de las encuestas nacionales de primarias (recencia, tamaño, efecto casa, descuento intrafirma, tope de concentración). Cuota por candidato entre las encuestas que lo miden — no un campo renormalizado.',
     lead: 'encabeza',
-    inelig: 'La 22.ª enmienda prohíbe a Trump un tercer mandato, pero los sondeos miden el escenario demasiado a menudo como para omitirlo — su cifra es la media de solo los sondeos que lo incluyen (no comparable con el resto del campo). Ver la',
+    inelig: 'La 22.ª enmienda prohíbe a Trump un tercer mandato, pero las encuestas miden el escenario demasiado a menudo como para omitirlo — su cifra es la media de solo las encuestas que lo incluyen (no comparable con el resto del campo). Ver la',
     ineligLink: 'propuesta de tercer mandato',
   },
 };

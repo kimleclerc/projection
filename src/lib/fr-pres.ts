@@ -87,7 +87,7 @@ export function blocLabel(bloc: string, locale: Locale): string {
 export const STATUS_LABELS: Record<string, { fr: string; en: string; es: string }> = {
   declared: { fr: 'Candidature déclarée', en: 'Declared', es: 'Candidatura declarada' },
   probable: { fr: 'Probable', en: 'Probable', es: 'Probable' },
-  testing: { fr: 'Testé·e', en: 'Tested', es: 'En sondeos' },
+  testing: { fr: 'Testé·e', en: 'Tested', es: 'En encuestas' },
   withdrawn: { fr: 'Retiré·e', en: 'Withdrawn', es: 'Retirado·a' },
 };
 
@@ -265,7 +265,7 @@ export function scenarioProvenance(
       text: locale === 'fr'
         ? "Aucun sondage sur cette configuration — estimée à partir des configurations voisines."
         : locale === 'es'
-          ? 'Ningún sondeo sobre esta configuración — estimada a partir de configuraciones vecinas.'
+          ? 'Ningún encuesta sobre esta configuración — estimada a partir de configuraciones vecinas.'
           : 'No poll on this configuration — estimated from neighbouring configurations.',
     };
   }
@@ -277,7 +277,7 @@ export function scenarioProvenance(
   const text = locale === 'fr'
     ? `${n} sondage${n > 1 ? 's' : ''} sur cette configuration${age ? ` · le dernier ${age}` : ''}`
     : locale === 'es'
-      ? `${n} sondeo${n > 1 ? 's' : ''} sobre esta configuración${age ? ` · el último ${age}` : ''}`
+      ? `${n} encuesta${n > 1 ? 's' : ''} sobre esta configuración${age ? ` · el último ${age}` : ''}`
       : `${n} poll${n > 1 ? 's' : ''} on this configuration${age ? ` · latest ${age}` : ''}`;
 
   return { borrowed: false, stale, text };
@@ -287,7 +287,7 @@ export const fmtPct1 = (v: number, locale: Locale) =>
   `${v.toFixed(1).replace('.', locale === 'en' ? '.' : ',')}%`;
 
 // ── Chemins d'URL par langue (slugs traduits comme le reste du site :
-// « distritos », « sondeos » côté es) ────────────────────────────────────────
+// « distritos », « encuestas » côté es) ────────────────────────────────────────
 export const franceBase = (locale: Locale): string => `/${locale}/france`;
 
 export const franceCandBase = (locale: Locale): string =>

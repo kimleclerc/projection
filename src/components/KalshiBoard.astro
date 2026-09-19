@@ -1,0 +1,189 @@
+---
+/**
+ * Tableau des cotes Kalshi sur le Congrès 2026.
+ *
+ * Pourquoi il existe : les bureaux américains montraient Polymarket et rien
+ * d'autre, alors que « kalshi » vaut 222 500 impressions de recherche sur trois
+ * mois contre 130 000 pour « polymarket » (Bing, relevé du 2026-09-19). Le mot
+ * générique « marché » n'en vaut aucune — c'est la MARQUE qui est cherchée, donc
+ * elle est nommée ici, en toutes lettres.
+ *
+ * Règle éditoriale, inchangée : un marché est un comparateur externe, jamais un
+ * arbitre. Les parieurs de Kalshi ne corrigent pas la projection Vote-Scope et
+ * n'entrent dans aucun prior. Le tableau se lit À CÔTÉ du modèle, et la note le
+ * dit sur la page plutôt que de le laisser deviner.
+ *
+ * Le tableau s'efface de lui-même si le pont n'a rien coté : mieux vaut aucune
+ * section qu'une section vide portant le nom d'une marque.
+ */
+import board from '../../web_data/us-markets/latest.json';
+
+interface Props {
+  locale: 'en' | 'fr' | 'es';
+  /** 'senate' | 'house' — ne montre que les tableaux qui concernent la chambre. */
+  chamber: 'senate' | 'house';
+}
+const { locale, chamber } = Astro.props as Props;
+
+const data = board as {
+  meta: { run_date: string; venue: string; venue_url: string };
+  boards: Array<{
+    id: string; url: string; chambers: string[];
+    title_en: string; title_fr: string; title_es: string;
+    open_interest: number;
+    outcomes: Array<{ label_en: string; label_fr: string; label_es: string; prob: number }>;
+  }>;
+};
+
+const boards = (data.boards ?? []).filter((b) => b.chambers.includes(chamber));
+
+const copy = {
+  en: {
+    eyebrow: 'Prediction markets · Kalshi',
+    heading: 'What Kalshi traders are paying',
+    lede: 'Live prices from the Kalshi elections exchange, shown beside our projection. Traders are not a poll and they do not feed the Vote-Scope model.',
+    oi: 'open interest',
+    asOf: (d: string) => `Kalshi prices as of ${d}`,
+    link: 'See the market on Kalshi →',
+    tableNote: 'Probability implied by the last traded price, or the bid-ask midpoint when a contract has not traded.',
+  },
+  fr: {
+    eyebrow: 'Marchés de prévision · Kalshi',
+    heading: 'Ce que paient les parieurs de Kalshi',
+    lede: 'Cotes en direct de la bourse électorale Kalshi, présentées à côté de notre projection. Des parieurs ne sont pas un sondage et n’alimentent pas le modèle Vote-Scope.',
+    oi: 'd’intérêt ouvert',
+    asOf: (d: string) => `Cotes Kalshi au ${d}`,
+    link: 'Voir le marché sur Kalshi →',
+    tableNote: 'Probabilité implicite du dernier prix échangé, ou du milieu bid-ask quand un contrat n’a pas été échangé.',
+  },
+  es: {
+    eyebrow: 'Mercados de predicción · Kalshi',
+    heading: 'Lo que pagan los operadores de Kalshi',
+    lede: 'Precios en vivo de la bolsa electoral Kalshi, junto a nuestra proyección. Los operadores no son una encuesta y no alimentan el modelo de Vote-Scope.',
+    oi: 'de interés abierto',
+    asOf: (d: string) => `Precios de Kalshi al ${d}`,
+    link: 'Ver el mercado en Kalshi →',
+    tableNote: 'Probabilidad implícita del último precio negociado, o del punto medio entre compra y venta si el contrato no se ha negociado.',
+  },
+}[locale];
+
+const fmtDate = new Date(`${data.meta?.run_date ?? ''}T12:00:00Z`).toLocaleDateString(
+  locale === 'fr' ? 'fr-CA' : locale === 'es' ? 'es-ES' : 'en-CA',
+  { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' },
+);
+const fmtMoney = (n: number) =>
+  new Intl.NumberFormat(locale === 'fr' ? 'fr-CA' : locale === 'es' ? 'es-ES' : 'en-CA', {
+    style: 'currency', currency: 'USD', maximumFractionDigits: 0, notation: 'compact',
+  }).format(n);
+const label = (o: { label_en: string; label_fr: string; label_es: string }) =>
+  locale === 'fr' ? o.label_fr : locale === 'es' ? o.label_es : o.label_en;
+const title = (b: { title_en: string; title_fr: string; title_es: string }) =>
+  locale === 'fr' ? b.title_fr : locale === 'es' ? b.title_es : b.title_en;
+---
+
+{boards.length > 0 && (
+  <section class="kalshi" aria-labelledby="kalshi-heading">
+    <div class="container kalshi-inner">
+      <p class="kalshi-eyebrow">{copy.eyebrow}</p>
+      <h2 id="kalshi-heading">{copy.heading}</h2>
+      <p class="kalshi-lede">{copy.lede}</p>
+
+      {boards.map((b) => (
+        <div class="kalshi-board">
+          <div class="kalshi-board-head">
+            <h3>{title(b)}</h3>
+            <span class="kalshi-oi">{`${fmtMoney(b.open_interest)} ${copy.oi}`}</span>
+          </div>
+          <ul class="kalshi-rows">
+            {b.outcomes.map((o) => (
+              <li>
+                <span class="kalshi-label">{label(o)}</span>
+                <span class="kalshi-track" aria-hidden="true">
+                  <span class="kalshi-fill" style={`width:${Math.max(o.prob, 1)}%`} />
+                </span>
+                <span class="kalshi-prob">{o.prob}%</span>
+              </li>
+            ))}
+          </ul>
+          <a class="kalshi-link" href={b.url} rel="nofollow noopener" target="_blank">{copy.link}</a>
+        </div>
+      ))}
+
+      <p class="kalshi-foot">{`${copy.asOf(fmtDate)} · ${copy.tableNote}`}</p>
+    </div>
+  </section>
+)}
+
+<style>
+  .kalshi {
+    padding: 56px 0;
+    border-top: 1px solid var(--rule);
+  }
+
+  .kalshi-inner { max-width: 1080px; margin-inline: auto; padding-inline: 1.5rem; }
+
+  .kalshi-eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    margin: 0 0 6px;
+  }
+
+  .kalshi h2 { font-size: 24px; margin: 0 0 8px; }
+
+  .kalshi-lede { margin: 0 0 24px; color: var(--ink-2); max-width: 64ch; }
+
+  .kalshi-board {
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 18px 20px;
+    margin-bottom: 16px;
+  }
+
+  .kalshi-board-head {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+
+  .kalshi-board-head h3 { font-size: 16px; margin: 0; }
+
+  .kalshi-oi { font-family: var(--mono); font-size: 12px; color: var(--ink-3); }
+
+  .kalshi-rows { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+
+  .kalshi-rows li {
+    display: grid;
+    grid-template-columns: minmax(9rem, 14rem) 1fr auto;
+    gap: 12px;
+    align-items: center;
+    font-size: 14px;
+  }
+
+  .kalshi-label { color: var(--ink); }
+
+  .kalshi-track {
+    height: 10px;
+    border-radius: 5px;
+    background: var(--rule-2, var(--rule));
+    overflow: hidden;
+  }
+
+  .kalshi-fill { display: block; height: 100%; background: var(--ink-3); }
+
+  .kalshi-prob { font-family: var(--mono); font-size: 13px; min-width: 3.4rem; text-align: right; }
+
+  .kalshi-link { font-size: 13px; display: inline-block; margin-top: 14px; }
+
+  .kalshi-foot { margin: 18px 0 0; font-size: 12px; color: var(--ink-3); max-width: 70ch; }
+
+  @media (max-width: 640px) {
+    .kalshi-rows li { grid-template-columns: 1fr auto; }
+    .kalshi-track { grid-column: 1 / -1; }
+  }
+</style>

@@ -136,7 +136,7 @@ export function getCandidateBySlug(slug: string): CandidateProfile | undefined {
 const STATUS_PHRASE: Record<string, { fr: string; en: string; es: string }> = {
   declared: { fr: 'officiellement candidat·e', en: 'an officially declared candidate', es: 'candidato·a oficialmente declarado·a' },
   probable: { fr: 'candidat·e probable', en: 'a probable candidate', es: 'candidato·a probable' },
-  testing: { fr: 'testé·e dans les sondages', en: 'a candidate tested in polls', es: 'candidato·a en sondeos' },
+  testing: { fr: 'testé·e dans les sondages', en: 'a candidate tested in polls', es: 'candidato·a en encuestas' },
 };
 
 export function candidateProse(c: CandidateProfile, locale: Locale): string[] {

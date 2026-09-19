@@ -47,7 +47,7 @@ const LABEL_RIDINGS = { en: 'Ridings', fr: 'Circonscriptions', es: 'Distritos' }
 /** Generic labels for sections whose wording doesn't vary by jurisdiction. */
 export const SECTION_LABEL: Record<'projection' | 'polls', Record<NavLang, string>> = {
   projection: { en: 'Forecast', fr: 'Prévision', es: 'Pronóstico' },
-  polls: { en: 'Polls', fr: 'Sondages', es: 'Sondeos' },
+  polls: { en: 'Polls', fr: 'Sondages', es: 'Encuestas' },
 };
 
 const GROUP_US = { en: 'United States', fr: 'États-Unis', es: 'EE. UU.' };
