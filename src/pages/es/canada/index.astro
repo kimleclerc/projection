@@ -37,10 +37,18 @@ const onMaj = Math.round(onTop.p_majority * 100);
 const bcParties = bcData.parties as Array<{party:string;label_fr:string;label_en:string;color:string;seats_projected:number;p_majority:number}>;
 const bcTop = bcParties.reduce((a,b)=>a.seats_projected>b.seats_projected?a:b);
 const bcMaj = Math.round(bcTop.p_majority * 100);
+
+// Une page, une question, une réponse. La question du carrefour canadien,
+// c'est le scrutin EN COURS : le Québec vote le 5 octobre. La réponse est un
+// chiffre du jour, pas une formule.
+const qcLeader = [...(quebecData.parties ?? [])]
+  .sort((a: any, b: any) => (b.seats_projected ?? b.seats_mean ?? 0) - (a.seats_projected ?? a.seats_mean ?? 0))[0] as any;
+const qcLeaderLabel = qcLeader?.label_fr ?? qcLeader?.label_en ?? '';
+const qcLeaderSeats = Math.round(qcLeader?.seats_projected ?? qcLeader?.seats_mean ?? 0);
 ---
 
 <EditorialLayout
-  title="Canadá — Vote-Scope"
+  title="Proyecciones electorales de Canadá — federal, Quebec, Ontario, C.B. — Vote-Scope"
   description="Proyecciones federales, de Quebec, de Ontario y de Columbia Británica, además de las elecciones extraordinarias. Descubre qué distritos están consolidados y cuáles son discretamente frágiles — Vote-Scope."
   canonical="https://vote-scope.com/es/canada/"
   lang="es"
@@ -67,9 +75,9 @@ const bcMaj = Math.round(bcTop.p_majority * 100);
 >
   <EditorialHero
     eyebrow="Desk Canadá"
-    title="¿Dónde es sólido el mapa canadiense y dónde solo lo finge?"
-    promise="Federal, Quebec, Ontario y elecciones extraordinarias — leídas carrera por carrera, de los sondeos públicos hasta el escaño."
-    question="¿Qué distritos están realmente decididos y cuáles son discretamente frágiles?"
+    title={`${qcLeaderLabel} lidera en Quebec con ${qcLeaderSeats} de 127 escaños.`}
+    promise="Federal, Quebec, Ontario, Columbia Británica y elecciones extraordinarias — leídas carrera por carrera, de los sondeos públicos hasta el escaño." lidera con ${qcLeaderSeats} de 127 escaños. Federal, Ontario y elecciones extraordinarias, leídas carrera por carrera, de los sondeos públicos hasta el escaño.`}
+    question="¿Quién ganará las elecciones de Quebec del 5 de octubre?"
     primaryHref="/es/indexes/"
     primaryLabel="Ver instrumentos"
     secondaryHref="/es/"

@@ -37,10 +37,18 @@ const onMaj = Math.round(onTop.p_majority * 100);
 const bcParties = bcData.parties as Array<{party:string;label_fr:string;label_en:string;color:string;seats_projected:number;p_majority:number}>;
 const bcTop = bcParties.reduce((a,b)=>a.seats_projected>b.seats_projected?a:b);
 const bcMaj = Math.round(bcTop.p_majority * 100);
+
+// Une page, une question, une réponse. La question du carrefour canadien,
+// c'est le scrutin EN COURS : le Québec vote le 5 octobre. La réponse est un
+// chiffre du jour, pas une formule.
+const qcLeader = [...(quebecData.parties ?? [])]
+  .sort((a: any, b: any) => (b.seats_projected ?? b.seats_mean ?? 0) - (a.seats_projected ?? a.seats_mean ?? 0))[0] as any;
+const qcLeaderLabel = qcLeader?.label_fr ?? qcLeader?.label_en ?? '';
+const qcLeaderSeats = Math.round(qcLeader?.seats_projected ?? qcLeader?.seats_mean ?? 0);
 ---
 
 <EditorialLayout
-  title="Canada — projections électorales fédérales et provinciales — Vote-Scope"
+  title="Projections électorales au Canada — fédéral, Québec, Ontario, C.-B. — Vote-Scope"
   description="Projections fédérales, québécoises, ontariennes et britanno-colombiennes, plus les partielles, réunies. Découvrez quelles circonscriptions sont acquises et lesquelles sont discrètement fragiles — Vote-Scope."
   canonical="https://vote-scope.com/fr/canada/"
   lang="fr"
@@ -67,9 +75,9 @@ const bcMaj = Math.round(bcTop.p_majority * 100);
 >
   <EditorialHero
     eyebrow="Desk Canada"
-    title="Où la carte canadienne est-elle solide, et où fait-elle seulement semblant?"
-    promise="Fédéral, Québec, Ontario et partielles — lus course par course, des sondages publics jusqu'au siège."
-    question="Quelles circonscriptions sont vraiment réglées, et lesquelles sont discrètement fragiles?"
+    title={`${qcLeaderLabel} mène au Québec avec ${qcLeaderSeats} sièges sur 127.`}
+    promise="Fédéral, Québec, Ontario, Colombie-Britannique et partielles — lus course par course, des sondages publics jusqu'au siège." mène à ${qcLeaderSeats} sièges sur 127. Fédéral, Ontario et partielles, lus course par course, des sondages publics jusqu'au siège.`}
+    question="Qui va gagner les élections québécoises du 5 octobre?"
     primaryHref="/fr/indexes/"
     primaryLabel="Voir les instruments"
     secondaryHref="/fr/"

@@ -86,15 +86,21 @@ const specialHref = (s: (typeof allSpecials)[number]) => s.paths[lang] ?? s.path
 const specialHeadline = (s: SpecialElectionConfig) =>
   (lang === 'fr' ? s.headline_fr : lang === 'es' ? s.headline_es : undefined) ?? s.headline;
 
+// Une page, une question, une réponse. La question doit être celle que les gens
+// tapent — « midterm elections 2026 » vaut 8 200 impressions sur trois mois —
+// et la réponse doit être un chiffre du jour, pas une formule.
+const pHouse = Math.round((houseDem?.p_majority ?? 0) * 100);
+const pSenate = Math.round((senateDem?.p_majority ?? 0) * 100);
+
 const COPY = {
   en: {
-    title: 'U.S. Politics — Vote-Scope',
+    title: '2026 Midterm Elections Forecast — House, Senate, Governors — Vote-Scope',
     description: 'House control, Senate fragility, special elections, and the Lame-Duck Index in one place. Live projections updated as polls arrive — Vote-Scope.',
     breadcrumb: 'U.S.',
     heroEyebrow: 'United States Desk',
-    heroTitle: 'Who controls Washington when the map stops being theoretical?',
-    heroPromise: 'House, Senate, governors and the races still filling in the map — projected from public polls and updated as new numbers land.',
-    heroQuestion: 'Is the U.S. map stable, fragile, or being misread by the market?',
+    heroTitle: `Democrats are favoured for the House at ${pHouse}%, and for the Senate at ${pSenate}%.`,
+    heroPromise: `Our model gives Democrats a ${pHouse}% chance of taking the House and ${pSenate}% of the Senate. House, Senate and governors projected from public polls, updated as new numbers land.`,
+    heroQuestion: 'Who will control Congress after the 2026 midterm elections?',
     heroPrimary: 'Open Lame-Duck', heroSecondary: 'All indexes',
     midtermEyebrow: 'Midterms · November 3, 2026',
     midtermTitle: 'Three chambers on one ballot.',
@@ -145,13 +151,13 @@ const COPY = {
     indexesHref: '/en/indexes/', homeHref: 'https://vote-scope.com/en/',
   },
   fr: {
-    title: 'Politique américaine — Vote-Scope',
+    title: 'Élections de mi-mandat 2026 — Chambre, Sénat, gouverneurs — Vote-Scope',
     description: "Contrôle de la Chambre, fragilité du Sénat, partielles et Lame-Duck Index réunis. Projections en direct mises à jour à chaque nouveau sondage — Vote-Scope.",
     breadcrumb: 'États-Unis',
     heroEyebrow: 'Desk États-Unis',
-    heroTitle: "Qui contrôle Washington quand la carte cesse d'être théorique?",
-    heroPromise: "Chambre, Sénat, gouverneurs et les courses qui remplissent encore la carte — projetés à partir de sondages publics et mis à jour à mesure que les chiffres tombent.",
-    heroQuestion: "La carte américaine est-elle stable, fragile, ou mal lue par le marché?",
+    heroTitle: `Les démocrates sont favoris pour la Chambre à ${pHouse} %, et pour le Sénat à ${pSenate} %.`,
+    heroPromise: `Notre modèle donne aux démocrates ${pHouse} % de chances de prendre la Chambre et ${pSenate} % le Sénat. Chambre, Sénat et gouverneurs projetés à partir des sondages publics, mis à jour à mesure que les chiffres tombent.`,
+    heroQuestion: 'Qui contrôlera le Congrès après les élections de mi-mandat 2026?',
     heroPrimary: 'Ouvrir Lame-Duck', heroSecondary: 'Tous les index',
     midtermEyebrow: 'Mi-mandat · 3 novembre 2026',
     midtermTitle: 'Trois chambres sur un même bulletin.',
@@ -202,13 +208,13 @@ const COPY = {
     indexesHref: '/fr/indexes/', homeHref: 'https://vote-scope.com/fr/',
   },
   es: {
-    title: 'Política de EE. UU. — Vote-Scope',
+    title: 'Elecciones intermedias 2026 — Cámara, Senado, gobernadores — Vote-Scope',
     description: 'Control de la Cámara, fragilidad del Senado, elecciones especiales y el Lame-Duck Index en un solo lugar. Proyecciones en vivo actualizadas con cada encuesta — Vote-Scope.',
     breadcrumb: 'EE. UU.',
     heroEyebrow: 'Desk Estados Unidos',
-    heroTitle: '¿Quién controla Washington cuando el mapa deja de ser teórico?',
-    heroPromise: 'Cámara, Senado, gobernadores y las contiendas que todavía completan el mapa — proyectados a partir de encuestas públicos y actualizados a medida que llegan los números.',
-    heroQuestion: '¿El mapa de EE. UU. es estable, frágil o mal leído por el mercado?',
+    heroTitle: `Los demócratas son favoritos para la Cámara con un ${pHouse} % y para el Senado con un ${pSenate} %.`,
+    heroPromise: `Nuestro modelo da a los demócratas un ${pHouse} % de probabilidades de ganar la Cámara y un ${pSenate} % el Senado. Cámara, Senado y gobernadores proyectados a partir de encuestas públicas, actualizados a medida que llegan los números.`,
+    heroQuestion: '¿Quién controlará el Congreso tras las elecciones intermedias de 2026?',
     heroPrimary: 'Abrir Lame-Duck', heroSecondary: 'Todos los índices',
     midtermEyebrow: 'Intermedias · 3 de noviembre de 2026',
     midtermTitle: 'Tres cámaras en una misma papeleta.',

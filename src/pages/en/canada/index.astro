@@ -38,10 +38,18 @@ const onMaj = Math.round(onTop.p_majority * 100);
 const bcParties = bcData.parties as Array<{party:string;label_fr:string;label_en:string;color:string;seats_projected:number;p_majority:number}>;
 const bcTop = bcParties.reduce((a,b)=>a.seats_projected>b.seats_projected?a:b);
 const bcMaj = Math.round(bcTop.p_majority * 100);
+
+// Une page, une question, une réponse. La question du carrefour canadien,
+// c'est le scrutin EN COURS : le Québec vote le 5 octobre. La réponse est un
+// chiffre du jour, pas une formule.
+const qcLeader = [...(quebecData.parties ?? [])]
+  .sort((a: any, b: any) => (b.seats_projected ?? b.seats_mean ?? 0) - (a.seats_projected ?? a.seats_mean ?? 0))[0] as any;
+const qcLeaderLabel = qcLeader?.label_en ?? qcLeader?.label_en ?? '';
+const qcLeaderSeats = Math.round(qcLeader?.seats_projected ?? qcLeader?.seats_mean ?? 0);
 ---
 
 <EditorialLayout
-  title="Canada — Federal & Provincial Election Projections — Vote-Scope"
+  title="Canada Election Projections — Federal, Quebec, Ontario, B.C. — Vote-Scope"
   description="Federal, Quebec, Ontario and British Columbia projections plus by-elections in one desk. Find out which ridings are settled and which are quietly fragile — Vote-Scope."
   canonical="https://vote-scope.com/en/canada/"
   lang="en"
@@ -68,9 +76,9 @@ const bcMaj = Math.round(bcTop.p_majority * 100);
 >
   <EditorialHero
     eyebrow="Canada Desk"
-    title="Where is the Canadian map stable, and where is it only pretending?"
-    promise="Federal, Quebec, Ontario, and by-elections — read race by race, from public polls down to the seat."
-    question="Which ridings are genuinely settled, and which are quietly fragile?"
+    title={`${qcLeaderLabel} leads Quebec at ${qcLeaderSeats} of 127 seats.`}
+    promise="Federal, Quebec, Ontario, British Columbia and by-elections — read race by race, from public polls down to the seat." leads at ${qcLeaderSeats} of 127 seats. Federal, Ontario and by-elections read race by race, from public polls down to the seat.`}
+    question="Who will win the Quebec election on October 5?"
     primaryHref="/en/indexes/"
     primaryLabel="View instruments"
     secondaryHref="/en/"
