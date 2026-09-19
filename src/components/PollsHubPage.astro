@@ -50,9 +50,12 @@ const latestPollDate = meta.latest_field_end
       day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC',
     })
   : null;
+// Le titre de page suit le mot CHERCHÉ ; `ogTitle` reste au service des
+// cartes sociales. Les deux n'ont pas le même métier.
+const titleBase = (copy as any).seoTitle ?? copy.ogTitle;
 const pageTitle = latestPollDate
-  ? `${copy.ogTitle} ${dateCopy.at} ${latestPollDate} — Vote-Scope`
-  : `${copy.ogTitle} — Vote-Scope`;
+  ? `${titleBase} ${dateCopy.at} ${latestPollDate} — Vote-Scope`
+  : `${titleBase} — Vote-Scope`;
 const lede = copy.lede1.replace(/<[^>]+>/g, '');
 const description = latestPollDate
   ? `${dateCopy.lead(meta.n_polls, latestPollDate)} ${lede}`

@@ -16,6 +16,12 @@ export interface HubCopy {
   lede2: string;
   ogEyebrow: string;
   ogTitle: string;
+  /** Titre de PAGE quand le mot cherché diffère du nôtre.
+   *  « intentions de vote » ne fait AUCUNE impression de recherche,
+   *  dans aucun pays ; « sondage » en fait 39 600 pour la France et
+   *  1 100 pour le Québec (Bing, 2026-09-19). `ogTitle` reste intact :
+   *  il alimente les cartes sociales, pas la recherche. */
+  seoTitle?: string;
   ogSub: string;
 }
 
@@ -98,7 +104,7 @@ export const POLLS_HUBS: Record<string, PollsHubConfig> = {
       fr: { eyebrow: 'Sondages · Canada · Chambre des communes', h1: 'Intentions de vote fédérales.',
         lede1: 'Qui formera le prochain gouvernement ? Chaque sondage national publié sur les intentions de vote fédérales, maison par maison.',
         lede2: 'Vote-Scope les agrège et projette les sièges aux Communes. Ci-dessous : la tendance face à l’estimation du modèle, puis le tableau complet.',
-        ogEyebrow: 'SONDAGES · CANADA FÉDÉRAL', ogTitle: 'Intentions de vote fédérales', ogSub: 'Vote-Scope · Chambre des communes' },
+        ogEyebrow: 'SONDAGES · CANADA FÉDÉRAL', ogTitle: 'Intentions de vote fédérales', seoTitle: 'Sondages fédéraux au Canada', ogSub: 'Vote-Scope · Chambre des communes' },
       es: { eyebrow: 'Encuestas · Canadá · Cámara de los Comunes', h1: 'Intención de voto federal.',
         lede1: '¿Quién formará el próximo gobierno? Cada encuesta nacional publicada sobre la intención de voto federal, encuestadora por encuestadora.',
         lede2: 'Vote-Scope las agrega y proyecta los escaños en los Comunes. Abajo: la tendencia frente a la estimación del modelo, y la tabla completa, sondeo por sondeo.',
@@ -112,15 +118,15 @@ export const POLLS_HUBS: Record<string, PollsHubConfig> = {
       en: { eyebrow: 'Polls · Quebec · National Assembly', h1: 'Quebec voting intention.',
         lede1: 'CAQ, PLQ, PQ, QS: every published provincial poll on Quebec voting intention, pollster by pollster.',
         lede2: 'Vote-Scope aggregates them and projects the National Assembly. Below: the trend against the model estimate, then the full table.',
-        ogEyebrow: 'POLLS · QUEBEC', ogTitle: 'Quebec voting intention', ogSub: 'Vote-Scope · National Assembly' },
+        ogEyebrow: 'POLLS · QUEBEC', ogTitle: 'Quebec voting intention', seoTitle: 'Quebec Election Polls', ogSub: 'Vote-Scope · National Assembly' },
       fr: { eyebrow: 'Sondages · Québec · Assemblée nationale', h1: 'Intentions de vote au Québec.',
         lede1: 'CAQ, PLQ, PQ, QS : chaque sondage provincial publié sur les intentions de vote au Québec, maison par maison.',
         lede2: 'Vote-Scope les agrège et projette l’Assemblée nationale. Ci-dessous : la tendance face à l’estimation du modèle, puis le tableau complet.',
-        ogEyebrow: 'SONDAGES · QUÉBEC', ogTitle: 'Intentions de vote au Québec', ogSub: 'Vote-Scope · Assemblée nationale' },
+        ogEyebrow: 'SONDAGES · QUÉBEC', ogTitle: 'Intentions de vote au Québec', seoTitle: 'Sondages élections Québec', ogSub: 'Vote-Scope · Assemblée nationale' },
       es: { eyebrow: 'Encuestas · Quebec · Asamblea Nacional', h1: 'Intención de voto en Quebec.',
         lede1: 'CAQ, PLQ, PQ, QS: cada encuesta provincial publicada sobre la intención de voto en Quebec, encuestadora por encuestadora.',
         lede2: 'Vote-Scope las agrega y proyecta la Asamblea Nacional. Abajo: la tendencia frente a la estimación del modelo, y la tabla completa, sondeo por sondeo.',
-        ogEyebrow: 'SONDEOS · QUEBEC', ogTitle: 'Intención de voto en Quebec', ogSub: 'Vote-Scope · Asamblea Nacional' },
+        ogEyebrow: 'SONDEOS · QUEBEC', ogTitle: 'Intención de voto en Quebec', seoTitle: 'Encuestas elecciones Quebec', ogSub: 'Vote-Scope · Asamblea Nacional' },
     },
   },
   ontario: {
@@ -134,7 +140,7 @@ export const POLLS_HUBS: Record<string, PollsHubConfig> = {
       fr: { eyebrow: 'Sondages · Ontario · Assemblée législative', h1: 'Intentions de vote en Ontario.',
         lede1: 'PC, PLO, NPD, Verts : chaque sondage provincial publié sur les intentions de vote en Ontario, maison par maison.',
         lede2: 'Vote-Scope les agrège et projette l’Assemblée législative. Ci-dessous : la tendance face à l’estimation du modèle, puis le tableau complet.',
-        ogEyebrow: 'SONDAGES · ONTARIO', ogTitle: 'Intentions de vote en Ontario', ogSub: 'Vote-Scope · Assemblée législative' },
+        ogEyebrow: 'SONDAGES · ONTARIO', ogTitle: 'Intentions de vote en Ontario', seoTitle: 'Sondages élections Ontario', ogSub: 'Vote-Scope · Assemblée législative' },
       es: { eyebrow: 'Encuestas · Ontario · Asamblea Legislativa', h1: 'Intención de voto en Ontario.',
         lede1: 'PC, OLP, NDP, Verdes: cada encuesta provincial publicada sobre la intención de voto en Ontario, encuestadora por encuestadora.',
         lede2: 'Vote-Scope las agrega y proyecta Queen’s Park. Abajo: la tendencia frente a la estimación del modelo, y la tabla completa, sondeo por sondeo.',
@@ -156,7 +162,7 @@ export const POLLS_HUBS: Record<string, PollsHubConfig> = {
       fr: { eyebrow: 'Sondages · Colombie-Britannique · Assemblée législative', h1: 'Intentions de vote en Colombie-Britannique.',
         lede1: 'NPD, conservateurs, verts, OneBC, CentreBC : chaque sondage provincial publié sur les intentions de vote britanno-colombiennes, maison par maison.',
         lede2: 'Vote-Scope les agrège et projette l’Assemblée législative. Ci-dessous : la tendance face à l’estimation du modèle, puis le tableau complet.',
-        ogEyebrow: 'SONDAGES · COLOMBIE-BRITANNIQUE', ogTitle: 'Intentions de vote en Colombie-Britannique', ogSub: 'Vote-Scope · Assemblée législative' },
+        ogEyebrow: 'SONDAGES · COLOMBIE-BRITANNIQUE', ogTitle: 'Intentions de vote en Colombie-Britannique', seoTitle: 'Sondages élections Colombie-Britannique', ogSub: 'Vote-Scope · Assemblée législative' },
       es: { eyebrow: 'Encuestas · Columbia Británica · Asamblea Legislativa', h1: 'Intención de voto en Columbia Británica.',
         lede1: 'NDP, conservadores, verdes, OneBC, CentreBC: cada encuesta provincial publicada sobre la intención de voto en Columbia Británica, encuestadora por encuestadora.',
         lede2: 'Vote-Scope las agrega y proyecta la Asamblea Legislativa. Abajo: la tendencia frente a la estimación del modelo, y la tabla completa, sondeo por sondeo.',

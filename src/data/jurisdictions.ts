@@ -211,9 +211,9 @@ export const jurisdictions: Record<string, Jurisdiction> = {
       es: 'Proyección por distrito basada en los resultados de 2022, las encuestas provinciales y las tendencias regionales.',
     },
     pageTitle: {
-      fr: 'Qui va gagner les élections du Québec 2026 ? — Vote-Scope',
+      fr: 'Sondages élections Québec 2026 — qui va gagner? — Vote-Scope',
       en: 'Who Will Win the 2026 Quebec Election? — Vote-Scope',
-      es: '¿Quién ganará las elecciones de Quebec 2026? — Vote-Scope',
+      es: 'Encuestas elecciones Quebec 2026 — ¿quién ganará? — Vote-Scope',
     },
     metaDescription: {
       fr: 'Qui va gagner les élections du Québec le 5 octobre 2026? Sondages Léger, Pallas et plus agrégés, projection des 127 circonscriptions de l\'Assemblée nationale, probabilités de majorité. Mise à jour continue.',
@@ -257,9 +257,9 @@ export const jurisdictions: Record<string, Jurisdiction> = {
       es: 'Proyección por distrito basada en resultados 2024, entorno nacional y clasificaciones de carrera.',
     },
     pageTitle: {
-      fr: 'Qui contrôlera la Chambre des représentants en 2026 ? — Vote-Scope',
-      en: 'Who Will Control the House After the 2026 Midterms? — Vote-Scope',
-      es: '¿Quién controlará la Cámara tras las intermedias de 2026? — Vote-Scope',
+      fr: 'Les républicains de Trump garderont-ils la Chambre en 2026? — Vote-Scope',
+      en: 'Will Republicans Keep the House in Trump\u2019s 2026 Midterms? — Vote-Scope',
+      es: '¿Los republicanos de Trump conservarán la Cámara en 2026? — Vote-Scope',
     },
     metaDescription: {
       fr: 'Qui contrôlera la Chambre après les mi-mandats 2026? Projection des 435 districts, sondages génériques agrégés, districts qui basculent, probabilités de contrôle et cotes Polymarket en direct. Mise à jour continue.',
@@ -302,9 +302,9 @@ export const jurisdictions: Record<string, Jurisdiction> = {
       es: 'Proyección de escaños en disputa en 2026 (Clase II). Los estados sin carrera este ciclo permanecen en gris.',
     },
     pageTitle: {
-      fr: 'Qui contrôlera le Sénat américain en 2026 ? — Vote-Scope',
-      en: 'Who Will Control the Senate After the 2026 Midterms? — Vote-Scope',
-      es: '¿Quién controlará el Senado tras las intermedias de 2026? — Vote-Scope',
+      fr: 'Les républicains de Trump garderont-ils le Sénat en 2026? — Vote-Scope',
+      en: 'Will Republicans Keep the Senate in Trump\u2019s 2026 Midterms? — Vote-Scope',
+      es: '¿Los republicanos de Trump conservarán el Senado en 2026? — Vote-Scope',
     },
     metaDescription: {
       fr: 'Qui contrôlera le Sénat après les mi-mandats 2026? Projection des sièges en jeu État par État, sondages agrégés, États pivots, probabilités de contrôle et cotes Polymarket en direct. Mise à jour continue.',
