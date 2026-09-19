@@ -224,6 +224,17 @@ const colorFor = (party: string) =>
   candidates.find((c: any) => c.party_code === party)?.color ?? '#9a938a';
 const labelFor = (party: string) =>
   candidates.find((c: any) => c.party_code === party)?.party_label?.[lang] ?? party.toUpperCase();
+
+// Le nom de circonscription manquait en haut des pages de partielle : on
+// arrivait sur « A name, not a margin. » sans savoir de quel siège il s'agit.
+// C'est aussi le mot tapé pour venir, donc il doit être haut dans le document.
+const prettySlug = (v: string) =>
+  v.split('-').map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join('—');
+const fromTitle = (config.title[lang] ?? '')
+  .split(/\s+(?:By-Election|Partielle|Parcial|by-election)/i)[0]
+  .split(' — ')[0]
+  .trim();
+const ridingName = data.district?.name ?? (fromTitle || prettySlug(config.slug));
 ---
 
 <Base
@@ -244,6 +255,11 @@ const labelFor = (party: string) =>
     )}
 
     <header class="cabye-hero container">
+      {/* Le nom de la circonscription manquait en haut de page : le lecteur
+          arrivait sur « A name, not a margin. » sans savoir de quel siège on
+          parle. C'est aussi le mot qu'il a tapé pour venir — « york simcoe
+          byelection » — donc il doit être visible et haut dans le document. */}
+      <p class="cabye-riding">{ridingName}</p>
       <p class="cabye-kicker">{config.kicker[lang]}</p>
       <h1>{config.headline[lang]}</h1>
       <p class="cabye-dek">{config.dek[lang]}</p>
@@ -450,6 +466,14 @@ const labelFor = (party: string) =>
   .cabye { padding-bottom: 64px; }
   .cabye .container { max-width: 920px; margin-inline: auto; padding-inline: 1.5rem; }
   .cabye-hero { padding-top: 40px; }
+  .cabye-riding {
+    font-size: clamp(20px, 3vw, 28px);
+    font-weight: 600;
+    line-height: 1.15;
+    margin: 0 0 4px;
+    color: var(--ink);
+  }
+
   .cabye-kicker {
     font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em;
     text-transform: uppercase; color: var(--ink-3);
