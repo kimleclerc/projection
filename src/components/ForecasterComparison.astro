@@ -39,8 +39,14 @@ type DirectoryRow = {
   id: string; name: string; category: string; url: string; access: string; checked: string;
 };
 
+type QuotedRow = {
+  id: string; name: string; seats_dem: number | null; seats_rep: number | null;
+  p_dem_control: number | null; gap_vs_votescope: number | null;
+  as_of: string; entered_on: string; url: string;
+};
+
 const jur = (data as any).jurisdictions[jurisdiction] as {
-  votescope: Snapshot; markets: MarketRow[]; directory: DirectoryRow[];
+  votescope: Snapshot; markets: MarketRow[]; quoted: QuotedRow[]; directory: DirectoryRow[];
 };
 
 const L = locale === 'fr' ? 'fr-CA' : locale === 'es' ? 'es-ES' : 'en-CA';
@@ -72,12 +78,19 @@ const copy = {
     ourForecast: 'Our forecast', seats: 'Projected seats', control: 'Democratic control',
     asOf: 'as of', unchangedSince: 'unchanged since', moved: 'was', on: 'on',
     markets: 'Prediction markets', gap: 'Gap vs Vote-Scope',
+    quoted: 'Other models that let us quote them',
+    quotedLede: 'Their own published topline, read from their site and attributed. We report it; it never enters our model.',
+    readOn: 'read on',
     directory: 'The other forecasters',
     directoryLede: 'We name and link them; we do not republish their numbers. Where a figure is missing, the reason is stated — it is never a broken feed.',
     cat: { modele: 'Probabilistic models', cotes_experts: 'Expert ratings', agregateur: 'Aggregators' },
     access: {
-      robots_bloque: 'This publisher does not allow automated reuse of its content',
-      permissif_a_verifier: 'Terms of use not yet reviewed on our side',
+      robots_bloque: 'Blocks automated reuse in its robots.txt',
+      conditions_restrictives: 'Its terms of use prohibit reuse of its content',
+      licence_commerciale: 'A licensed commercial product — no public terms',
+      flux_public_bloque_au_cdn: 'Publishes a ratings feed, but blocks non-browser clients',
+      extrait_attribue_permis: 'Allows short attributed excerpts — figure coming',
+      sans_conditions_publiees: 'Publishes no terms of use',
       api_cle: 'Published through an API that requires a key we do not have',
       non_verifie: 'Access policy not yet checked',
     } as Record<string, string>,
@@ -97,12 +110,19 @@ const copy = {
     ourForecast: 'Notre prévision', seats: 'Sièges projetés', control: 'Contrôle démocrate',
     asOf: 'au', unchangedSince: 'inchangé depuis le', moved: 'était à', on: 'le',
     markets: 'Marchés de prévision', gap: 'Écart avec Vote-Scope',
+    quoted: 'Les modèles qui nous autorisent à les citer',
+    quotedLede: 'Leur propre chiffre national, relevé sur leur site et attribué. Nous le rapportons ; il n’entre jamais dans notre modèle.',
+    readOn: 'relevé le',
     directory: 'Les autres prévisionnistes',
     directoryLede: 'Nous les nommons et nous les lions ; nous ne republions pas leurs chiffres. Quand une valeur manque, la raison est écrite — ce n’est jamais une panne.',
     cat: { modele: 'Modèles probabilistes', cotes_experts: 'Cotes d’experts', agregateur: 'Agrégateurs' },
     access: {
-      robots_bloque: 'Cet éditeur n’autorise pas la reprise automatisée de son contenu',
-      permissif_a_verifier: 'Conditions d’utilisation pas encore examinées de notre côté',
+      robots_bloque: 'Bloque la reprise automatisée dans son robots.txt',
+      conditions_restrictives: 'Ses conditions d’utilisation interdisent la reprise de son contenu',
+      licence_commerciale: 'Produit commercial sous licence — aucune condition publiée',
+      flux_public_bloque_au_cdn: 'Publie un flux de cotes, mais bloque les clients non navigateurs',
+      extrait_attribue_permis: 'Autorise les courts extraits attribués — chiffre à venir',
+      sans_conditions_publiees: 'Ne publie aucune condition d’utilisation',
       api_cle: 'Publié via une API qui exige une clé que nous n’avons pas',
       non_verifie: 'Politique d’accès pas encore vérifiée',
     } as Record<string, string>,
@@ -122,12 +142,19 @@ const copy = {
     ourForecast: 'Nuestro pronóstico', seats: 'Escaños proyectados', control: 'Control demócrata',
     asOf: 'al', unchangedSince: 'sin cambios desde el', moved: 'estaba en', on: 'el',
     markets: 'Mercados de predicción', gap: 'Diferencia con Vote-Scope',
+    quoted: 'Los modelos que nos permiten citarlos',
+    quotedLede: 'Su propia cifra nacional, tomada de su sitio y atribuida. La reportamos; nunca entra en nuestro modelo.',
+    readOn: 'tomado el',
     directory: 'Los demás pronosticadores',
     directoryLede: 'Los nombramos y los enlazamos; no republicamos sus cifras. Cuando falta un valor, la razón está escrita — nunca es una avería.',
     cat: { modele: 'Modelos probabilísticos', cotes_experts: 'Calificaciones de expertos', agregateur: 'Agregadores' },
     access: {
-      robots_bloque: 'Este editor no permite la reutilización automatizada de su contenido',
-      permissif_a_verifier: 'Condiciones de uso aún no revisadas por nuestra parte',
+      robots_bloque: 'Bloquea la reutilización automatizada en su robots.txt',
+      conditions_restrictives: 'Sus condiciones de uso prohíben la reutilización de su contenido',
+      licence_commerciale: 'Producto comercial con licencia — sin condiciones públicas',
+      flux_public_bloque_au_cdn: 'Publica un flujo de calificaciones, pero bloquea a los clientes que no son navegadores',
+      extrait_attribue_permis: 'Permite citas breves con atribución — cifra por llegar',
+      sans_conditions_publiees: 'No publica condiciones de uso',
       api_cle: 'Publicado mediante una API que exige una clave que no tenemos',
       non_verifie: 'Política de acceso aún no verificada',
     } as Record<string, string>,
@@ -184,6 +211,29 @@ const unchanged = prev && prev.p_dem_control !== null
           : ` · ${copy.moved} ${prev.p_dem_control !== null ? pct(prev.p_dem_control) : `${num(prev.seats_dem)} D`} ${copy.on} ${fmtDate(prev.as_of)}`)}
       </p>
     </div>
+
+    {jur.quoted.length > 0 && (
+      <div class="fcc-block">
+        <h2>{copy.quoted}</h2>
+        <p class="fcc-sublede">{copy.quotedLede}</p>
+        <ul class="fcc-rows">
+          {jur.quoted.map((q) => (
+            <li class="fcc-row">
+              <span class="fcc-name">
+                <a href={q.url} rel="nofollow noopener" target="_blank">{q.name}</a>
+              </span>
+              <span class="fcc-val">{pct(q.p_dem_control)}</span>
+              <span class="fcc-meta">
+                {q.seats_dem !== null && `${num(q.seats_dem)} D · ${num(q.seats_rep)} R · `}
+                {`${copy.gap} ${signed(q.gap_vs_votescope)}`}
+                {` · ${copy.asOf} ${fmtDate(q.as_of)}`}
+                {` · ${copy.readOn} ${fmtDate(q.entered_on)}`}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    )}
 
     {jur.markets.length > 0 && (
       <div class="fcc-block">

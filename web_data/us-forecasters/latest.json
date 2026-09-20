@@ -1,9 +1,9 @@
 {
  "meta": {
   "run_date": "2026-09-20",
-  "generated_at": "2026-09-20T00:44:42.397086+00:00",
+  "generated_at": "2026-09-20T01:16:52.445964+00:00",
   "n_sources": 18,
-  "n_quoted": 5,
+  "n_quoted": 8,
   "registry_checked": "2026-09-19"
  },
  "jurisdictions": {
@@ -45,6 +45,21 @@
      }
     }
    ],
+   "quoted": [
+    {
+     "as_of": "2026-09-19",
+     "entered_on": "2026-09-19",
+     "entered_from": "tableau de bord public",
+     "id": "electindex",
+     "name": "ElectIndex",
+     "category": "modele",
+     "seats_dem": 241.3,
+     "seats_rep": 193.7,
+     "p_dem_control": 75.6,
+     "gap_vs_votescope": -22.6,
+     "url": "https://electindex.com/forecasts/"
+    }
+   ],
    "directory": [
     {
      "id": "economist",
@@ -53,7 +68,7 @@
      "url": "https://www.economist.com/interactive/2026/us-midterms/prediction-model/house",
      "access": "robots_bloque",
      "checked": "2026-09-19",
-     "note": "robots.txt : ClaudeBot, anthropic-ai, GPTBot et CCBot en Disallow: / — pas d'ingestion automatisée"
+     "note": "robots.txt : ClaudeBot, anthropic-ai, GPTBot et CCBot en Disallow: /"
     },
     {
      "id": "silver_bulletin",
@@ -69,9 +84,9 @@
      "name": "Decision Desk HQ",
      "category": "modele",
      "url": "https://www.decisiondeskhq.com/",
-     "access": "permissif_a_verifier",
+     "access": "licence_commerciale",
      "checked": "2026-09-19",
-     "note": "robots.txt : Allow: / sans exception — conditions d'utilisation NON vérifiées"
+     "note": "robots.txt permissif MAIS aucune page de conditions dans tout le sitemap ; la prévision est un produit vendu à des clients (The Hill, Ballotpedia) — une licence se demande, elle ne se déduit pas d'un robots.txt muet"
     },
     {
      "id": "race_to_wh",
@@ -105,18 +120,9 @@
      "name": "Split Ticket (The Argument)",
      "category": "modele",
      "url": "https://www.theargumentmag.com/p/split-ticket-2026-midterms-model",
-     "access": "permissif_a_verifier",
+     "access": "conditions_restrictives",
      "checked": "2026-09-19",
-     "note": "publié sur Substack ; robots.txt permissif hors chemins applicatifs — conditions NON vérifiées"
-    },
-    {
-     "id": "electindex",
-     "name": "ElectIndex",
-     "category": "modele",
-     "url": "https://electindex.com/forecasts/",
-     "access": "permissif_a_verifier",
-     "checked": "2026-09-19",
-     "note": "robots.txt Disallow vide (tout permis) MAIS une partie du produit est réservée aux membres (« Forecast+ ») — demander plutôt que contourner"
+     "note": "publié sur Substack, donc régi par les conditions de Substack : interdiction de « crawls, scrapes or spiders any page, data, or portion of Substack (through use of manual or automated means) »"
     },
     {
      "id": "theo",
@@ -159,27 +165,27 @@
      "name": "Inside Elections",
      "category": "cotes_experts",
      "url": "https://insideelections.com/ratings/house",
-     "access": "permissif_a_verifier",
+     "access": "flux_public_bloque_au_cdn",
      "checked": "2026-09-19",
-     "note": "robots.txt WordPress standard (seul /wp-admin/ bloqué) — conditions NON vérifiées"
+     "note": "⚠ le plus intéressant du lot : la page de cotes est PUBLIQUE et porte ses propres boutons « API » et « XML » vers un JSON et un XML de ses cotes — mais Cloudflare répond 403 « Attention Required » à tout client non navigateur. Le site n'a aucune condition propre : son lien « Terms » pointe vers FeedBlitz, son infolettre. Demander une mise en liste blanche ; ne PAS déguiser le client en navigateur, ce serait contourner un contrôle d'accès"
     },
     {
      "id": "fox",
      "name": "Fox News Power Rankings",
      "category": "cotes_experts",
      "url": "https://www.foxnews.com/politics",
-     "access": "permissif_a_verifier",
+     "access": "conditions_restrictives",
      "checked": "2026-09-19",
-     "note": "robots.txt sans règle d'IA — conditions NON vérifiées"
+     "note": "conditions explicites : « you may not copy, download, stream, scrape, capture, reproduce, duplicate, archive, [...] frame, deep-link, make available or otherwise use any Content » — le lien profond lui-même y est nommé"
     },
     {
      "id": "270towin",
      "name": "270toWin",
      "category": "agregateur",
      "url": "https://www.270towin.com/2026-house-election-predictions/",
-     "access": "permissif_a_verifier",
+     "access": "sans_conditions_publiees",
      "checked": "2026-09-19",
-     "note": "agrège Cook, Crystal Ball, Inside Elections, DDHQ, Fox, Split Ticket et FiftyPlusOne + un Consensus Forecast ; reprendre son agrégation serait de la donnée de troisième main"
+     "note": "aucune page de conditions : le pied de page n'offre que Privacy, Site Map et About Us, sous « © 2026 Electoral Ventures LLC. All Rights Reserved. » ; agrège Cook, Crystal Ball, Inside Elections, DDHQ, Fox, Split Ticket et FiftyPlusOne et en tire un Consensus Forecast — un usage DÉRIVÉ, plus large que le nôtre, probablement sous entente"
     }
    ]
   },
@@ -221,6 +227,21 @@
      }
     }
    ],
+   "quoted": [
+    {
+     "as_of": "2026-09-19",
+     "entered_on": "2026-09-19",
+     "entered_from": "tableau de bord public",
+     "id": "electindex",
+     "name": "ElectIndex",
+     "category": "modele",
+     "seats_dem": 50.9,
+     "seats_rep": 49.1,
+     "p_dem_control": 53.2,
+     "gap_vs_votescope": -8.4,
+     "url": "https://electindex.com/forecasts/"
+    }
+   ],
    "directory": [
     {
      "id": "economist",
@@ -229,7 +250,7 @@
      "url": "https://www.economist.com/interactive/2026/us-midterms/prediction-model/senate",
      "access": "robots_bloque",
      "checked": "2026-09-19",
-     "note": "robots.txt : ClaudeBot, anthropic-ai, GPTBot et CCBot en Disallow: / — pas d'ingestion automatisée"
+     "note": "robots.txt : ClaudeBot, anthropic-ai, GPTBot et CCBot en Disallow: /"
     },
     {
      "id": "silver_bulletin",
@@ -245,9 +266,9 @@
      "name": "Decision Desk HQ",
      "category": "modele",
      "url": "https://www.decisiondeskhq.com/",
-     "access": "permissif_a_verifier",
+     "access": "licence_commerciale",
      "checked": "2026-09-19",
-     "note": "robots.txt : Allow: / sans exception — conditions d'utilisation NON vérifiées"
+     "note": "robots.txt permissif MAIS aucune page de conditions dans tout le sitemap ; la prévision est un produit vendu à des clients (The Hill, Ballotpedia) — une licence se demande, elle ne se déduit pas d'un robots.txt muet"
     },
     {
      "id": "race_to_wh",
@@ -281,18 +302,9 @@
      "name": "Split Ticket (The Argument)",
      "category": "modele",
      "url": "https://www.theargumentmag.com/p/split-ticket-2026-midterms-model",
-     "access": "permissif_a_verifier",
+     "access": "conditions_restrictives",
      "checked": "2026-09-19",
-     "note": "publié sur Substack ; robots.txt permissif hors chemins applicatifs — conditions NON vérifiées"
-    },
-    {
-     "id": "electindex",
-     "name": "ElectIndex",
-     "category": "modele",
-     "url": "https://electindex.com/forecasts/",
-     "access": "permissif_a_verifier",
-     "checked": "2026-09-19",
-     "note": "robots.txt Disallow vide (tout permis) MAIS une partie du produit est réservée aux membres (« Forecast+ ») — demander plutôt que contourner"
+     "note": "publié sur Substack, donc régi par les conditions de Substack : interdiction de « crawls, scrapes or spiders any page, data, or portion of Substack (through use of manual or automated means) »"
     },
     {
      "id": "theo",
@@ -335,27 +347,27 @@
      "name": "Inside Elections",
      "category": "cotes_experts",
      "url": "https://insideelections.com/ratings/senate",
-     "access": "permissif_a_verifier",
+     "access": "flux_public_bloque_au_cdn",
      "checked": "2026-09-19",
-     "note": "robots.txt WordPress standard (seul /wp-admin/ bloqué) — conditions NON vérifiées"
+     "note": "⚠ le plus intéressant du lot : la page de cotes est PUBLIQUE et porte ses propres boutons « API » et « XML » vers un JSON et un XML de ses cotes — mais Cloudflare répond 403 « Attention Required » à tout client non navigateur. Le site n'a aucune condition propre : son lien « Terms » pointe vers FeedBlitz, son infolettre. Demander une mise en liste blanche ; ne PAS déguiser le client en navigateur, ce serait contourner un contrôle d'accès"
     },
     {
      "id": "fox",
      "name": "Fox News Power Rankings",
      "category": "cotes_experts",
      "url": "https://www.foxnews.com/politics",
-     "access": "permissif_a_verifier",
+     "access": "conditions_restrictives",
      "checked": "2026-09-19",
-     "note": "robots.txt sans règle d'IA — conditions NON vérifiées"
+     "note": "conditions explicites : « you may not copy, download, stream, scrape, capture, reproduce, duplicate, archive, [...] frame, deep-link, make available or otherwise use any Content » — le lien profond lui-même y est nommé"
     },
     {
      "id": "270towin",
      "name": "270toWin",
      "category": "agregateur",
      "url": "https://www.270towin.com/2026-senate-election-predictions/",
-     "access": "permissif_a_verifier",
+     "access": "sans_conditions_publiees",
      "checked": "2026-09-19",
-     "note": "agrège Cook, Crystal Ball, Inside Elections, DDHQ, Fox, Split Ticket et FiftyPlusOne + un Consensus Forecast ; reprendre son agrégation serait de la donnée de troisième main"
+     "note": "aucune page de conditions : le pied de page n'offre que Privacy, Site Map et About Us, sous « © 2026 Electoral Ventures LLC. All Rights Reserved. » ; agrège Cook, Crystal Ball, Inside Elections, DDHQ, Fox, Split Ticket et FiftyPlusOne et en tire un Consensus Forecast — un usage DÉRIVÉ, plus large que le nôtre, probablement sous entente"
     }
    ]
   },
@@ -384,15 +396,30 @@
      "previous": null
     }
    ],
+   "quoted": [
+    {
+     "as_of": "2026-09-19",
+     "entered_on": "2026-09-19",
+     "entered_from": "tableau de bord public",
+     "id": "electindex",
+     "name": "ElectIndex",
+     "category": "modele",
+     "seats_dem": 26.0,
+     "seats_rep": 24.0,
+     "p_dem_control": 59.7,
+     "gap_vs_votescope": 6.7,
+     "url": "https://electindex.com/forecasts/"
+    }
+   ],
    "directory": [
     {
      "id": "ddhq",
      "name": "Decision Desk HQ",
      "category": "modele",
      "url": "https://www.decisiondeskhq.com/",
-     "access": "permissif_a_verifier",
+     "access": "licence_commerciale",
      "checked": "2026-09-19",
-     "note": "robots.txt : Allow: / sans exception — conditions d'utilisation NON vérifiées"
+     "note": "robots.txt permissif MAIS aucune page de conditions dans tout le sitemap ; la prévision est un produit vendu à des clients (The Hill, Ballotpedia) — une licence se demande, elle ne se déduit pas d'un robots.txt muet"
     },
     {
      "id": "race_to_wh",
@@ -417,18 +444,9 @@
      "name": "Split Ticket (The Argument)",
      "category": "modele",
      "url": "https://www.theargumentmag.com/p/split-ticket-2026-midterms-model",
-     "access": "permissif_a_verifier",
+     "access": "conditions_restrictives",
      "checked": "2026-09-19",
-     "note": "publié sur Substack ; robots.txt permissif hors chemins applicatifs — conditions NON vérifiées"
-    },
-    {
-     "id": "electindex",
-     "name": "ElectIndex",
-     "category": "modele",
-     "url": "https://electindex.com/forecasts/",
-     "access": "permissif_a_verifier",
-     "checked": "2026-09-19",
-     "note": "robots.txt Disallow vide (tout permis) MAIS une partie du produit est réservée aux membres (« Forecast+ ») — demander plutôt que contourner"
+     "note": "publié sur Substack, donc régi par les conditions de Substack : interdiction de « crawls, scrapes or spiders any page, data, or portion of Substack (through use of manual or automated means) »"
     },
     {
      "id": "theo",
@@ -471,18 +489,18 @@
      "name": "Inside Elections",
      "category": "cotes_experts",
      "url": "https://insideelections.com/ratings/governor",
-     "access": "permissif_a_verifier",
+     "access": "flux_public_bloque_au_cdn",
      "checked": "2026-09-19",
-     "note": "robots.txt WordPress standard (seul /wp-admin/ bloqué) — conditions NON vérifiées"
+     "note": "⚠ le plus intéressant du lot : la page de cotes est PUBLIQUE et porte ses propres boutons « API » et « XML » vers un JSON et un XML de ses cotes — mais Cloudflare répond 403 « Attention Required » à tout client non navigateur. Le site n'a aucune condition propre : son lien « Terms » pointe vers FeedBlitz, son infolettre. Demander une mise en liste blanche ; ne PAS déguiser le client en navigateur, ce serait contourner un contrôle d'accès"
     },
     {
      "id": "270towin",
      "name": "270toWin",
      "category": "agregateur",
      "url": "https://www.270towin.com/2026-governor-election-predictions/",
-     "access": "permissif_a_verifier",
+     "access": "sans_conditions_publiees",
      "checked": "2026-09-19",
-     "note": "agrège Cook, Crystal Ball, Inside Elections, DDHQ, Fox, Split Ticket et FiftyPlusOne + un Consensus Forecast ; reprendre son agrégation serait de la donnée de troisième main"
+     "note": "aucune page de conditions : le pied de page n'offre que Privacy, Site Map et About Us, sous « © 2026 Electoral Ventures LLC. All Rights Reserved. » ; agrège Cook, Crystal Ball, Inside Elections, DDHQ, Fox, Split Ticket et FiftyPlusOne et en tire un Consensus Forecast — un usage DÉRIVÉ, plus large que le nôtre, probablement sous entente"
     }
    ]
   }
