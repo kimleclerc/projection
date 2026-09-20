@@ -36,13 +36,18 @@ type MarketRow = {
   previous: { as_of: string; p_dem_control: number } | null;
 };
 type DirectoryRow = {
-  id: string; name: string; category: string; url: string; access: string; checked: string;
+  id: string; name: string; category: string; url: string;
+  acquisition: string; publication: string; checked: string;
 };
 
 type QuotedRow = {
-  id: string; name: string; seats_dem: number | null; seats_rep: number | null;
-  p_dem_control: number | null; gap_vs_votescope: number | null;
-  as_of: string; entered_on: string; url: string;
+  id: string; name: string; category: string; unit: string;
+  p_dem_control: number | null; seats_dem: number | null; seats_rep: number | null;
+  tossup: number | null; dem_side: number | null; rep_side: number | null;
+  delta_low: number | null; delta_high: number | null;
+  gap_vs_votescope: number | null;
+  as_of: string; entered_on: string; entered_from: string;
+  acquisition: string; url: string;
 };
 
 const jur = (data as any).jurisdictions[jurisdiction] as {
@@ -61,6 +66,10 @@ const num = (n: number | null | undefined, digits = 1) =>
   n === null || n === undefined
     ? '—'
     : n.toLocaleString(L, { minimumFractionDigits: digits, maximumFractionDigits: digits });
+// Un compte de sièges entier s'écrit 231, pas 231,0 — mais une moyenne de
+// simulation s'écrit bien 241,3. Le nombre décide, pas l'appelant.
+const seats = (n: number | null | undefined) =>
+  n === null || n === undefined ? '—' : num(n, Number.isInteger(n) ? 0 : 1);
 const pct = (n: number | null | undefined) => (n === null || n === undefined ? '—' : `${num(n)} %`.replace(' %', locale === 'en' ? '%' : ' %'));
 const signed = (n: number | null | undefined) =>
   n === null || n === undefined ? '—' : `${n > 0 ? '+' : ''}${num(n)}`;
@@ -78,11 +87,24 @@ const copy = {
     ourForecast: 'Our forecast', seats: 'Projected seats', control: 'Democratic control',
     asOf: 'as of', unchangedSince: 'unchanged since', moved: 'was', on: 'on',
     markets: 'Prediction markets', gap: 'Gap vs Vote-Scope',
-    quoted: 'Other models that let us quote them',
-    quotedLede: 'Their own published topline, read from their site and attributed. We report it; it never enters our model.',
+    quoted: 'What the other forecasters currently say',
+    quotedLede: 'Each one’s own published headline figure, attributed and linked. We report what they publish; none of it enters our model, and we reproduce none of their underlying data.',
     readOn: 'read on',
-    directory: 'The other forecasters',
-    directoryLede: 'We name and link them; we do not republish their numbers. Where a figure is missing, the reason is stated — it is never a broken feed.',
+    unitNote: {
+      probabilite: 'Probabilistic models',
+      cotes: 'Expert ratings — categories, not probabilities',
+      delta_sieges: 'Expert ratings — projected seat change',
+    } as Record<string, string>,
+    ratingLine: (t: string, d: string, r: string) => `${d} lean D · ${t} toss-up · ${r} lean R`,
+    deltaLine: (lo: string, hi: string) => `Democrats +${lo} to +${hi} seats`,
+    acq: {
+      api_sur_cle: 'Publishes an API; a key has to be requested',
+      manuel_seulement: 'Forbids automated collection — figure to be entered by hand',
+      page_publique: 'Public page — figure not yet recorded',
+      non_verifie: 'Access policy not yet checked',
+    } as Record<string, string>,
+    directory: 'Not yet recorded',
+    directoryLede: 'These publish a forecast too, and we link to each one. Their figure is not on this page yet — the reason is stated beside the name, and it is never a broken feed. Reporting what a forecaster says and fetching it automatically are two different questions; several of these allow the first and refuse the second.',
     cat: { modele: 'Probabilistic models', cotes_experts: 'Expert ratings', agregateur: 'Aggregators' },
     access: {
       robots_bloque: 'Blocks automated reuse in its robots.txt',
@@ -110,11 +132,24 @@ const copy = {
     ourForecast: 'Notre prévision', seats: 'Sièges projetés', control: 'Contrôle démocrate',
     asOf: 'au', unchangedSince: 'inchangé depuis le', moved: 'était à', on: 'le',
     markets: 'Marchés de prévision', gap: 'Écart avec Vote-Scope',
-    quoted: 'Les modèles qui nous autorisent à les citer',
-    quotedLede: 'Leur propre chiffre national, relevé sur leur site et attribué. Nous le rapportons ; il n’entre jamais dans notre modèle.',
+    quoted: 'Ce que disent les autres prévisionnistes',
+    quotedLede: 'Le chiffre de tête que chacun publie, attribué et lié. Nous rapportons ce qu’ils publient ; rien de cela n’entre dans notre modèle, et nous ne reproduisons aucune de leurs données sous-jacentes.',
     readOn: 'relevé le',
-    directory: 'Les autres prévisionnistes',
-    directoryLede: 'Nous les nommons et nous les lions ; nous ne republions pas leurs chiffres. Quand une valeur manque, la raison est écrite — ce n’est jamais une panne.',
+    unitNote: {
+      probabilite: 'Modèles probabilistes',
+      cotes: 'Cotes d’experts — des catégories, pas des probabilités',
+      delta_sieges: 'Cotes d’experts — variation de sièges projetée',
+    } as Record<string, string>,
+    ratingLine: (t: string, d: string, r: string) => `${d} penchant D · ${t} toss-up · ${r} penchant R`,
+    deltaLine: (lo: string, hi: string) => `Démocrates +${lo} à +${hi} sièges`,
+    acq: {
+      api_sur_cle: 'Publie une API ; une clé se demande',
+      manuel_seulement: 'Interdit la collecte automatisée — chiffre à saisir à la main',
+      page_publique: 'Page publique — chiffre pas encore relevé',
+      non_verifie: 'Politique d’accès pas encore vérifiée',
+    } as Record<string, string>,
+    directory: 'Pas encore relevés',
+    directoryLede: 'Eux aussi publient une prévision, et nous lions vers chacun. Leur chiffre n’est pas encore sur cette page — la raison est écrite à côté du nom, et ce n’est jamais une panne. Rapporter ce que dit un prévisionniste et aller le chercher automatiquement sont deux questions distinctes ; plusieurs autorisent la première et refusent la seconde.',
     cat: { modele: 'Modèles probabilistes', cotes_experts: 'Cotes d’experts', agregateur: 'Agrégateurs' },
     access: {
       robots_bloque: 'Bloque la reprise automatisée dans son robots.txt',
@@ -142,11 +177,24 @@ const copy = {
     ourForecast: 'Nuestro pronóstico', seats: 'Escaños proyectados', control: 'Control demócrata',
     asOf: 'al', unchangedSince: 'sin cambios desde el', moved: 'estaba en', on: 'el',
     markets: 'Mercados de predicción', gap: 'Diferencia con Vote-Scope',
-    quoted: 'Los modelos que nos permiten citarlos',
-    quotedLede: 'Su propia cifra nacional, tomada de su sitio y atribuida. La reportamos; nunca entra en nuestro modelo.',
+    quoted: 'Lo que dicen los demás pronosticadores',
+    quotedLede: 'La cifra principal que cada uno publica, atribuida y enlazada. Reportamos lo que publican; nada de ello entra en nuestro modelo, y no reproducimos ninguno de sus datos subyacentes.',
     readOn: 'tomado el',
-    directory: 'Los demás pronosticadores',
-    directoryLede: 'Los nombramos y los enlazamos; no republicamos sus cifras. Cuando falta un valor, la razón está escrita — nunca es una avería.',
+    unitNote: {
+      probabilite: 'Modelos probabilísticos',
+      cotes: 'Calificaciones de expertos — categorías, no probabilidades',
+      delta_sieges: 'Calificaciones de expertos — cambio de escaños proyectado',
+    } as Record<string, string>,
+    ratingLine: (t: string, d: string, r: string) => `${d} inclinación D · ${t} indecisos · ${r} inclinación R`,
+    deltaLine: (lo: string, hi: string) => `Demócratas +${lo} a +${hi} escaños`,
+    acq: {
+      api_sur_cle: 'Publica una API; hay que solicitar una clave',
+      manuel_seulement: 'Prohíbe la recolección automatizada — cifra por registrar a mano',
+      page_publique: 'Página pública — cifra aún no registrada',
+      non_verifie: 'Política de acceso aún no verificada',
+    } as Record<string, string>,
+    directory: 'Aún no registrados',
+    directoryLede: 'Ellos también publican un pronóstico, y enlazamos a cada uno. Su cifra todavía no está en esta página — la razón se indica junto al nombre, y nunca es una avería. Reportar lo que dice un pronosticador y obtenerlo automáticamente son dos preguntas distintas; varios permiten lo primero y rechazan lo segundo.',
     cat: { modele: 'Modelos probabilísticos', cotes_experts: 'Calificaciones de expertos', agregateur: 'Agregadores' },
     access: {
       robots_bloque: 'Bloquea la reutilización automatizada en su robots.txt',
@@ -168,6 +216,20 @@ const copy = {
 // dans le gabarit Astro : le parseur y lit `<string, string>` comme une balise.
 // Le typage se fait donc ici, dans le frontmatter.
 const catLabel = copy.cat as Record<string, string>;
+const acqLabel = copy.acq as Record<string, string>;
+const unitLabel = copy.unitNote as Record<string, string>;
+
+// Une ligne citée se lit différemment selon son unité. Composer la phrase ici
+// plutôt que dans le gabarit garde les trois langues alignées et testables.
+const quotedValue = (q: QuotedRow) =>
+  q.unit === 'probabilite' ? pct(q.p_dem_control)
+  : q.unit === 'delta_sieges' ? copy.deltaLine(num(q.delta_low, 0), num(q.delta_high, 0))
+  : copy.ratingLine(num(q.tossup, 0), num(q.dem_side, 0), num(q.rep_side, 0));
+
+// Les groupes d'unité, dans l'ordre où le fichier les a rangés.
+const quotedGroups = ['probabilite', 'cotes', 'delta_sieges']
+  .map((u) => ({ unit: u, rows: jur.quoted.filter((q) => q.unit === u) }))
+  .filter((g) => g.rows.length > 0);
 
 const CATEGORY_ORDER = ['modele', 'cotes_experts', 'agregateur'] as const;
 const grouped = CATEGORY_ORDER
@@ -200,7 +262,7 @@ const unchanged = prev && prev.p_dem_control !== null
         {ours.seats_dem !== null && (
           <div>
             <dt>{copy.seats}</dt>
-            <dd class="fcc-big">{`${num(ours.seats_dem)} D · ${num(ours.seats_rep)} R`}</dd>
+            <dd class="fcc-big">{`${seats(ours.seats_dem)} D · ${seats(ours.seats_rep)} R`}</dd>
           </div>
         )}
       </dl>
@@ -216,22 +278,28 @@ const unchanged = prev && prev.p_dem_control !== null
       <div class="fcc-block">
         <h2>{copy.quoted}</h2>
         <p class="fcc-sublede">{copy.quotedLede}</p>
-        <ul class="fcc-rows">
-          {jur.quoted.map((q) => (
-            <li class="fcc-row">
-              <span class="fcc-name">
-                <a href={q.url} rel="nofollow noopener" target="_blank">{q.name}</a>
-              </span>
-              <span class="fcc-val">{pct(q.p_dem_control)}</span>
-              <span class="fcc-meta">
-                {q.seats_dem !== null && `${num(q.seats_dem)} D · ${num(q.seats_rep)} R · `}
-                {`${copy.gap} ${signed(q.gap_vs_votescope)}`}
-                {` · ${copy.asOf} ${fmtDate(q.as_of)}`}
-                {` · ${copy.readOn} ${fmtDate(q.entered_on)}`}
-              </span>
-            </li>
-          ))}
-        </ul>
+        {quotedGroups.map((g) => (
+          <div class="fcc-group">
+            <h3>{unitLabel[g.unit]}</h3>
+            <ul class="fcc-rows">
+              {g.rows.map((q) => (
+                <li class="fcc-row">
+                  <span class="fcc-name">
+                    <a href={q.url} rel="nofollow noopener" target="_blank">{q.name}</a>
+                  </span>
+                  <span class:list={['fcc-val', q.unit !== 'probabilite' && 'fcc-val--text']}>
+                    {quotedValue(q)}
+                  </span>
+                  <span class="fcc-meta">
+                    {q.seats_dem !== null && `${seats(q.seats_dem)} D · ${seats(q.seats_rep)} R · `}
+                    {q.gap_vs_votescope !== null && `${copy.gap} ${signed(q.gap_vs_votescope)} · `}
+                    {`${copy.asOf} ${fmtDate(q.as_of)} · ${copy.readOn} ${fmtDate(q.entered_on)}`}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
       </div>
     )}
 
@@ -266,7 +334,7 @@ const unchanged = prev && prev.p_dem_control !== null
             {g.rows.map((r) => (
               <li>
                 <a href={r.url} rel="nofollow noopener" target="_blank">{r.name}</a>
-                <span class="fcc-why">{copy.access[r.access] ?? r.access}</span>
+                <span class="fcc-why">{acqLabel[r.acquisition] ?? r.acquisition}</span>
               </li>
             ))}
           </ul>
@@ -314,6 +382,9 @@ const unchanged = prev && prev.p_dem_control !== null
   }
   .fcc-name { font-weight: 600; }
   .fcc-val { font-family: var(--mono); font-size: 17px; font-variant-numeric: tabular-nums; }
+  /* Une fourchette de sièges ou un compte de cotes n'est pas un nombre qu'on
+     aligne : il se lit comme une phrase et doit respirer. */
+  .fcc-val--text { font-size: 13px; letter-spacing: .01em; }
   .fcc-meta { font-size: 13px; color: var(--ink-2); }
 
   .fcc-group { margin-bottom: 22px; }

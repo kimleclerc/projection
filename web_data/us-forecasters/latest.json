@@ -1,9 +1,9 @@
 {
  "meta": {
   "run_date": "2026-09-20",
-  "generated_at": "2026-09-20T01:16:52.445964+00:00",
+  "generated_at": "2026-09-20T02:56:05.617791+00:00",
   "n_sources": 18,
-  "n_quoted": 8,
+  "n_quoted": 16,
   "registry_checked": "2026-09-19"
  },
  "jurisdictions": {
@@ -47,17 +47,84 @@
    ],
    "quoted": [
     {
-     "as_of": "2026-09-19",
+     "id": "ddhq",
+     "name": "Decision Desk HQ",
+     "category": "modele",
+     "unit": "probabilite",
+     "p_dem_control": 70.0,
+     "seats_dem": 231.0,
+     "seats_rep": 204.0,
+     "tossup": null,
+     "dem_side": null,
+     "rep_side": null,
+     "delta_low": null,
+     "delta_high": null,
+     "as_of": "2026-09-18",
      "entered_on": "2026-09-19",
-     "entered_from": "tableau de bord public",
+     "entered_from": "page publique",
+     "acquisition": "page_publique",
+     "url": "https://votes.decisiondeskhq.com/forecast/house",
+     "gap_vs_votescope": -28.2
+    },
+    {
      "id": "electindex",
      "name": "ElectIndex",
      "category": "modele",
+     "unit": "probabilite",
+     "p_dem_control": 75.6,
      "seats_dem": 241.3,
      "seats_rep": 193.7,
-     "p_dem_control": 75.6,
-     "gap_vs_votescope": -22.6,
-     "url": "https://electindex.com/forecasts/"
+     "tossup": null,
+     "dem_side": null,
+     "rep_side": null,
+     "delta_low": null,
+     "delta_high": null,
+     "as_of": "2026-09-19",
+     "entered_on": "2026-09-19",
+     "entered_from": "page publique",
+     "acquisition": "page_publique",
+     "url": "https://electindex.com/forecasts/",
+     "gap_vs_votescope": -22.6
+    },
+    {
+     "id": "cook",
+     "name": "Cook Political Report",
+     "category": "cotes_experts",
+     "unit": "cotes",
+     "p_dem_control": null,
+     "seats_dem": null,
+     "seats_rep": null,
+     "tossup": 21.0,
+     "dem_side": 206.0,
+     "rep_side": 208.0,
+     "delta_low": null,
+     "delta_high": null,
+     "as_of": "2026-09-11",
+     "entered_on": "2026-09-19",
+     "entered_from": "page publique",
+     "acquisition": "page_publique",
+     "url": "https://www.cookpolitical.com/ratings/house-race-ratings",
+     "gap_vs_votescope": null
+    },
+    {
+     "id": "inside_elections",
+     "name": "Inside Elections",
+     "category": "cotes_experts",
+     "unit": "delta_sieges",
+     "p_dem_control": null,
+     "seats_dem": null,
+     "seats_rep": null,
+     "tossup": null,
+     "dem_side": null,
+     "rep_side": null,
+     "delta_low": 2.0,
+     "delta_high": 10.0,
+     "as_of": "2026-09-17",
+     "entered_on": "2026-09-19",
+     "entered_from": "page publique",
+     "acquisition": "page_publique",
+     "url": "https://insideelections.com/ratings/house",
+     "gap_vs_votescope": null
     }
    ],
    "directory": [
@@ -66,70 +133,68 @@
      "name": "The Economist",
      "category": "modele",
      "url": "https://www.economist.com/interactive/2026/us-midterms/prediction-model/house",
-     "access": "robots_bloque",
+     "acquisition": "manuel_seulement",
+     "publication": "fait_attribue",
      "checked": "2026-09-19",
-     "note": "robots.txt : ClaudeBot, anthropic-ai, GPTBot et CCBot en Disallow: /"
+     "note": "robots.txt : même Claude-User (relevé déclenché par un humain) est en Disallow: / hors /pro et /syndication. Aucun agent ne relève : un humain lit la page, saisit le chiffre."
     },
     {
      "id": "silver_bulletin",
      "name": "Silver Bulletin (FLIPR)",
      "category": "modele",
      "url": "https://www.natesilver.net/p/nate-silver-2026-midterm-election-polls-model",
-     "access": "robots_bloque",
+     "acquisition": "page_publique",
+     "publication": "fait_attribue",
      "checked": "2026-09-19",
-     "note": "robots.txt : ClaudeBot, Claude-Web, anthropic-ai, GPTBot en Disallow: / — successeur de FiveThirtyEight, qui est FERMÉ"
-    },
-    {
-     "id": "ddhq",
-     "name": "Decision Desk HQ",
-     "category": "modele",
-     "url": "https://www.decisiondeskhq.com/",
-     "access": "licence_commerciale",
-     "checked": "2026-09-19",
-     "note": "robots.txt permissif MAIS aucune page de conditions dans tout le sitemap ; la prévision est un produit vendu à des clients (The Hill, Ballotpedia) — une licence se demande, elle ne se déduit pas d'un robots.txt muet"
+     "note": "ClaudeBot (entraînement) bloqué, MAIS le groupe User-agent: * porte Content-Signal: search=yes, ai-input=yes — la lecture en temps réel est explicitement permise. ⚠ le billet est marqué PAID : seul le résumé libre se relève, le détail est derrière le mur."
     },
     {
      "id": "race_to_wh",
      "name": "Race to the WH",
      "category": "modele",
      "url": "https://www.racetothewh.com/house/26",
-     "access": "robots_bloque",
+     "acquisition": "manuel_seulement",
+     "publication": "fait_attribue",
      "checked": "2026-09-19",
-     "note": "robots.txt : ClaudeBot, anthropic-ai et 24 autres agents d'IA en Disallow"
+     "note": "robots.txt : 26 agents d'IA nommés en Disallow, et le groupe User-agent: * se termine par Disallow:/ — tout accès automatisé est refusé, pas seulement celui des robots d'IA."
     },
     {
      "id": "votehub",
      "name": "VoteHub",
      "category": "modele",
      "url": "https://votehub.com/",
-     "access": "robots_bloque",
+     "acquisition": "manuel_seulement",
+     "publication": "fait_attribue",
      "checked": "2026-09-19",
-     "note": "robots.txt : ClaudeBot, GPTBot, Google-Extended en Disallow: /"
+     "note": "robots.txt permissif pour * MAIS porte un avis explicite : « All data displayed on this site is the proprietary property of VoteHub. Any scraping, automated collection, or reproduction of our data without prior written permission is strictly prohibited […] To obtain a license or request permission, please contact us directly. »"
     },
     {
      "id": "fiftyplusone",
      "name": "FiftyPlusOne",
      "category": "modele",
      "url": "https://fiftyplusone.news/forecast/house",
-     "access": "api_cle",
+     "acquisition": "api_sur_cle",
+     "publication": "fait_attribue",
      "checked": "2026-09-19",
-     "note": "⚠ le domaine .com est PARQUÉ et en vente — le vrai site est fiftyplusone.news ; API CSV existante mais /api/csv répond 401 « Invalid or missing API key » : une clé se demande"
+     "note": "⚠ le domaine .com est PARQUÉ et en vente — le vrai site est fiftyplusone.news ; /api/csv répond 401 « Invalid or missing API key » : une clé se demande, elle ne se contourne pas."
     },
     {
      "id": "split_ticket",
      "name": "Split Ticket (The Argument)",
      "category": "modele",
      "url": "https://www.theargumentmag.com/p/split-ticket-2026-midterms-model",
-     "access": "conditions_restrictives",
+     "acquisition": "manuel_seulement",
+     "publication": "fait_attribue",
      "checked": "2026-09-19",
-     "note": "publié sur Substack, donc régi par les conditions de Substack : interdiction de « crawls, scrapes or spiders any page, data, or portion of Substack (through use of manual or automated means) »"
+     "note": "conditions de Substack : interdiction de « crawls, scrapes, or spiders any page, data, or portion of Substack (through use of manual or automated means) »."
     },
     {
      "id": "theo",
      "name": "Theo Elections",
      "category": "modele",
      "url": "https://theoelections.com/model/",
-     "access": "non_verifie",
+     "acquisition": "non_verifie",
+     "publication": "fait_attribue",
      "checked": "2026-09-19",
      "note": "Politique d'accès non inventoriée"
     },
@@ -138,54 +203,40 @@
      "name": "Call the Map",
      "category": "modele",
      "url": "https://www.callthemap.com/",
-     "access": "non_verifie",
+     "acquisition": "non_verifie",
+     "publication": "fait_attribue",
      "checked": "2026-09-19",
      "note": "Politique d'accès non inventoriée"
-    },
-    {
-     "id": "cook",
-     "name": "Cook Political Report",
-     "category": "cotes_experts",
-     "url": "https://www.cookpolitical.com/ratings/house-race-ratings",
-     "access": "robots_bloque",
-     "checked": "2026-09-19",
-     "note": "robots.txt nomme /ratings/ « the proprietary ratings dataset » ; Content-Signal ai-train=no pour tous, agents de réponse autorisés en temps réel mais PAS l'ingestion systématique"
     },
     {
      "id": "sabato",
      "name": "Sabato's Crystal Ball",
      "category": "cotes_experts",
      "url": "https://centerforpolitics.org/crystalball/",
-     "access": "non_verifie",
+     "acquisition": "non_verifie",
+     "publication": "fait_attribue",
      "checked": "2026-09-19",
      "note": "robots.txt renvoie 403 derrière Cloudflare — politique non lisible sans navigateur"
-    },
-    {
-     "id": "inside_elections",
-     "name": "Inside Elections",
-     "category": "cotes_experts",
-     "url": "https://insideelections.com/ratings/house",
-     "access": "flux_public_bloque_au_cdn",
-     "checked": "2026-09-19",
-     "note": "⚠ le plus intéressant du lot : la page de cotes est PUBLIQUE et porte ses propres boutons « API » et « XML » vers un JSON et un XML de ses cotes — mais Cloudflare répond 403 « Attention Required » à tout client non navigateur. Le site n'a aucune condition propre : son lien « Terms » pointe vers FeedBlitz, son infolettre. Demander une mise en liste blanche ; ne PAS déguiser le client en navigateur, ce serait contourner un contrôle d'accès"
     },
     {
      "id": "fox",
      "name": "Fox News Power Rankings",
      "category": "cotes_experts",
      "url": "https://www.foxnews.com/politics",
-     "access": "conditions_restrictives",
+     "acquisition": "manuel_seulement",
+     "publication": "fait_attribue",
      "checked": "2026-09-19",
-     "note": "conditions explicites : « you may not copy, download, stream, scrape, capture, reproduce, duplicate, archive, [...] frame, deep-link, make available or otherwise use any Content » — le lien profond lui-même y est nommé"
+     "note": "conditions explicites : « you may not copy, download, stream, scrape, capture, reproduce […] frame, deep-link, make available or otherwise use any Content ». Contraint notre ROBOT ; ne nous empêche pas de rapporter qu'ils ont publié tel pronostic."
     },
     {
      "id": "270towin",
      "name": "270toWin",
      "category": "agregateur",
      "url": "https://www.270towin.com/2026-house-election-predictions/",
-     "access": "sans_conditions_publiees",
+     "acquisition": "page_publique",
+     "publication": "fait_attribue",
      "checked": "2026-09-19",
-     "note": "aucune page de conditions : le pied de page n'offre que Privacy, Site Map et About Us, sous « © 2026 Electoral Ventures LLC. All Rights Reserved. » ; agrège Cook, Crystal Ball, Inside Elections, DDHQ, Fox, Split Ticket et FiftyPlusOne et en tire un Consensus Forecast — un usage DÉRIVÉ, plus large que le nôtre, probablement sous entente"
+     "note": "aucune page de conditions ; robots.txt permissif. Agrège Cook, Crystal Ball, Inside Elections, DDHQ, Fox, Split Ticket et FiftyPlusOne pour en DÉRIVER un Consensus Forecast — preuve que l'écosystème fonctionne depuis vingt ans par comparaison et attribution."
     }
    ]
   },
@@ -229,17 +280,104 @@
    ],
    "quoted": [
     {
-     "as_of": "2026-09-19",
+     "id": "ddhq",
+     "name": "Decision Desk HQ",
+     "category": "modele",
+     "unit": "probabilite",
+     "p_dem_control": 52.0,
+     "seats_dem": 51.0,
+     "seats_rep": 49.0,
+     "tossup": null,
+     "dem_side": null,
+     "rep_side": null,
+     "delta_low": null,
+     "delta_high": null,
+     "as_of": "2026-09-18",
      "entered_on": "2026-09-19",
-     "entered_from": "tableau de bord public",
+     "entered_from": "page publique",
+     "acquisition": "page_publique",
+     "url": "https://votes.decisiondeskhq.com/forecast/senate",
+     "gap_vs_votescope": -9.6
+    },
+    {
      "id": "electindex",
      "name": "ElectIndex",
      "category": "modele",
+     "unit": "probabilite",
+     "p_dem_control": 53.2,
      "seats_dem": 50.9,
      "seats_rep": 49.1,
-     "p_dem_control": 53.2,
-     "gap_vs_votescope": -8.4,
-     "url": "https://electindex.com/forecasts/"
+     "tossup": null,
+     "dem_side": null,
+     "rep_side": null,
+     "delta_low": null,
+     "delta_high": null,
+     "as_of": "2026-09-19",
+     "entered_on": "2026-09-19",
+     "entered_from": "page publique",
+     "acquisition": "page_publique",
+     "url": "https://electindex.com/forecasts/",
+     "gap_vs_votescope": -8.4
+    },
+    {
+     "id": "silver_bulletin",
+     "name": "Silver Bulletin (FLIPR)",
+     "category": "modele",
+     "unit": "probabilite",
+     "p_dem_control": 65.0,
+     "seats_dem": null,
+     "seats_rep": null,
+     "tossup": null,
+     "dem_side": null,
+     "rep_side": null,
+     "delta_low": null,
+     "delta_high": null,
+     "as_of": "2026-09-19",
+     "entered_on": "2026-09-19",
+     "entered_from": "résumé libre du billet",
+     "acquisition": "page_publique",
+     "url": "https://www.natesilver.net/p/nate-silver-2026-midterm-election-polls-model",
+     "gap_vs_votescope": 3.4
+    },
+    {
+     "id": "cook",
+     "name": "Cook Political Report",
+     "category": "cotes_experts",
+     "unit": "cotes",
+     "p_dem_control": null,
+     "seats_dem": null,
+     "seats_rep": null,
+     "tossup": 7.0,
+     "dem_side": 12.0,
+     "rep_side": 16.0,
+     "delta_low": null,
+     "delta_high": null,
+     "as_of": "2026-09-15",
+     "entered_on": "2026-09-19",
+     "entered_from": "page publique",
+     "acquisition": "page_publique",
+     "url": "https://www.cookpolitical.com/ratings/senate-race-ratings",
+     "gap_vs_votescope": null
+    },
+    {
+     "id": "inside_elections",
+     "name": "Inside Elections",
+     "category": "cotes_experts",
+     "unit": "delta_sieges",
+     "p_dem_control": null,
+     "seats_dem": null,
+     "seats_rep": null,
+     "tossup": null,
+     "dem_side": null,
+     "rep_side": null,
+     "delta_low": 2.0,
+     "delta_high": 4.0,
+     "as_of": "2026-09-17",
+     "entered_on": "2026-09-19",
+     "entered_from": "page publique",
+     "acquisition": "page_publique",
+     "url": "https://insideelections.com/ratings/senate",
+     "gap_vs_votescope": null
     }
    ],
    "directory": [
@@ -248,70 +386,58 @@
      "name": "The Economist",
      "category": "modele",
      "url": "https://www.economist.com/interactive/2026/us-midterms/prediction-model/senate",
-     "access": "robots_bloque",
+     "acquisition": "manuel_seulement",
+     "publication": "fait_attribue",
      "checked": "2026-09-19",
-     "note": "robots.txt : ClaudeBot, anthropic-ai, GPTBot et CCBot en Disallow: /"
-    },
-    {
-     "id": "silver_bulletin",
-     "name": "Silver Bulletin (FLIPR)",
-     "category": "modele",
-     "url": "https://www.natesilver.net/p/nate-silver-2026-midterm-election-polls-model",
-     "access": "robots_bloque",
-     "checked": "2026-09-19",
-     "note": "robots.txt : ClaudeBot, Claude-Web, anthropic-ai, GPTBot en Disallow: / — successeur de FiveThirtyEight, qui est FERMÉ"
-    },
-    {
-     "id": "ddhq",
-     "name": "Decision Desk HQ",
-     "category": "modele",
-     "url": "https://www.decisiondeskhq.com/",
-     "access": "licence_commerciale",
-     "checked": "2026-09-19",
-     "note": "robots.txt permissif MAIS aucune page de conditions dans tout le sitemap ; la prévision est un produit vendu à des clients (The Hill, Ballotpedia) — une licence se demande, elle ne se déduit pas d'un robots.txt muet"
+     "note": "robots.txt : même Claude-User (relevé déclenché par un humain) est en Disallow: / hors /pro et /syndication. Aucun agent ne relève : un humain lit la page, saisit le chiffre."
     },
     {
      "id": "race_to_wh",
      "name": "Race to the WH",
      "category": "modele",
      "url": "https://www.racetothewh.com/senate/26",
-     "access": "robots_bloque",
+     "acquisition": "manuel_seulement",
+     "publication": "fait_attribue",
      "checked": "2026-09-19",
-     "note": "robots.txt : ClaudeBot, anthropic-ai et 24 autres agents d'IA en Disallow"
+     "note": "robots.txt : 26 agents d'IA nommés en Disallow, et le groupe User-agent: * se termine par Disallow:/ — tout accès automatisé est refusé, pas seulement celui des robots d'IA."
     },
     {
      "id": "votehub",
      "name": "VoteHub",
      "category": "modele",
      "url": "https://votehub.com/",
-     "access": "robots_bloque",
+     "acquisition": "manuel_seulement",
+     "publication": "fait_attribue",
      "checked": "2026-09-19",
-     "note": "robots.txt : ClaudeBot, GPTBot, Google-Extended en Disallow: /"
+     "note": "robots.txt permissif pour * MAIS porte un avis explicite : « All data displayed on this site is the proprietary property of VoteHub. Any scraping, automated collection, or reproduction of our data without prior written permission is strictly prohibited […] To obtain a license or request permission, please contact us directly. »"
     },
     {
      "id": "fiftyplusone",
      "name": "FiftyPlusOne",
      "category": "modele",
      "url": "https://fiftyplusone.news/forecast/senate",
-     "access": "api_cle",
+     "acquisition": "api_sur_cle",
+     "publication": "fait_attribue",
      "checked": "2026-09-19",
-     "note": "⚠ le domaine .com est PARQUÉ et en vente — le vrai site est fiftyplusone.news ; API CSV existante mais /api/csv répond 401 « Invalid or missing API key » : une clé se demande"
+     "note": "⚠ le domaine .com est PARQUÉ et en vente — le vrai site est fiftyplusone.news ; /api/csv répond 401 « Invalid or missing API key » : une clé se demande, elle ne se contourne pas."
     },
     {
      "id": "split_ticket",
      "name": "Split Ticket (The Argument)",
      "category": "modele",
      "url": "https://www.theargumentmag.com/p/split-ticket-2026-midterms-model",
-     "access": "conditions_restrictives",
+     "acquisition": "manuel_seulement",
+     "publication": "fait_attribue",
      "checked": "2026-09-19",
-     "note": "publié sur Substack, donc régi par les conditions de Substack : interdiction de « crawls, scrapes or spiders any page, data, or portion of Substack (through use of manual or automated means) »"
+     "note": "conditions de Substack : interdiction de « crawls, scrapes, or spiders any page, data, or portion of Substack (through use of manual or automated means) »."
     },
     {
      "id": "theo",
      "name": "Theo Elections",
      "category": "modele",
      "url": "https://theoelections.com/model/",
-     "access": "non_verifie",
+     "acquisition": "non_verifie",
+     "publication": "fait_attribue",
      "checked": "2026-09-19",
      "note": "Politique d'accès non inventoriée"
     },
@@ -320,54 +446,40 @@
      "name": "Call the Map",
      "category": "modele",
      "url": "https://www.callthemap.com/",
-     "access": "non_verifie",
+     "acquisition": "non_verifie",
+     "publication": "fait_attribue",
      "checked": "2026-09-19",
      "note": "Politique d'accès non inventoriée"
-    },
-    {
-     "id": "cook",
-     "name": "Cook Political Report",
-     "category": "cotes_experts",
-     "url": "https://www.cookpolitical.com/ratings/senate-race-ratings",
-     "access": "robots_bloque",
-     "checked": "2026-09-19",
-     "note": "robots.txt nomme /ratings/ « the proprietary ratings dataset » ; Content-Signal ai-train=no pour tous, agents de réponse autorisés en temps réel mais PAS l'ingestion systématique"
     },
     {
      "id": "sabato",
      "name": "Sabato's Crystal Ball",
      "category": "cotes_experts",
      "url": "https://centerforpolitics.org/crystalball/",
-     "access": "non_verifie",
+     "acquisition": "non_verifie",
+     "publication": "fait_attribue",
      "checked": "2026-09-19",
      "note": "robots.txt renvoie 403 derrière Cloudflare — politique non lisible sans navigateur"
-    },
-    {
-     "id": "inside_elections",
-     "name": "Inside Elections",
-     "category": "cotes_experts",
-     "url": "https://insideelections.com/ratings/senate",
-     "access": "flux_public_bloque_au_cdn",
-     "checked": "2026-09-19",
-     "note": "⚠ le plus intéressant du lot : la page de cotes est PUBLIQUE et porte ses propres boutons « API » et « XML » vers un JSON et un XML de ses cotes — mais Cloudflare répond 403 « Attention Required » à tout client non navigateur. Le site n'a aucune condition propre : son lien « Terms » pointe vers FeedBlitz, son infolettre. Demander une mise en liste blanche ; ne PAS déguiser le client en navigateur, ce serait contourner un contrôle d'accès"
     },
     {
      "id": "fox",
      "name": "Fox News Power Rankings",
      "category": "cotes_experts",
      "url": "https://www.foxnews.com/politics",
-     "access": "conditions_restrictives",
+     "acquisition": "manuel_seulement",
+     "publication": "fait_attribue",
      "checked": "2026-09-19",
-     "note": "conditions explicites : « you may not copy, download, stream, scrape, capture, reproduce, duplicate, archive, [...] frame, deep-link, make available or otherwise use any Content » — le lien profond lui-même y est nommé"
+     "note": "conditions explicites : « you may not copy, download, stream, scrape, capture, reproduce […] frame, deep-link, make available or otherwise use any Content ». Contraint notre ROBOT ; ne nous empêche pas de rapporter qu'ils ont publié tel pronostic."
     },
     {
      "id": "270towin",
      "name": "270toWin",
      "category": "agregateur",
      "url": "https://www.270towin.com/2026-senate-election-predictions/",
-     "access": "sans_conditions_publiees",
+     "acquisition": "page_publique",
+     "publication": "fait_attribue",
      "checked": "2026-09-19",
-     "note": "aucune page de conditions : le pied de page n'offre que Privacy, Site Map et About Us, sous « © 2026 Electoral Ventures LLC. All Rights Reserved. » ; agrège Cook, Crystal Ball, Inside Elections, DDHQ, Fox, Split Ticket et FiftyPlusOne et en tire un Consensus Forecast — un usage DÉRIVÉ, plus large que le nôtre, probablement sous entente"
+     "note": "aucune page de conditions ; robots.txt permissif. Agrège Cook, Crystal Ball, Inside Elections, DDHQ, Fox, Split Ticket et FiftyPlusOne pour en DÉRIVER un Consensus Forecast — preuve que l'écosystème fonctionne depuis vingt ans par comparaison et attribution."
     }
    ]
   },
@@ -398,62 +510,84 @@
    ],
    "quoted": [
     {
-     "as_of": "2026-09-19",
-     "entered_on": "2026-09-19",
-     "entered_from": "tableau de bord public",
      "id": "electindex",
      "name": "ElectIndex",
      "category": "modele",
+     "unit": "probabilite",
+     "p_dem_control": 59.7,
      "seats_dem": 26.0,
      "seats_rep": 24.0,
-     "p_dem_control": 59.7,
-     "gap_vs_votescope": 6.7,
-     "url": "https://electindex.com/forecasts/"
+     "tossup": null,
+     "dem_side": null,
+     "rep_side": null,
+     "delta_low": null,
+     "delta_high": null,
+     "as_of": "2026-09-19",
+     "entered_on": "2026-09-19",
+     "entered_from": "page publique",
+     "acquisition": "page_publique",
+     "url": "https://electindex.com/forecasts/",
+     "gap_vs_votescope": 6.7
+    },
+    {
+     "id": "cook",
+     "name": "Cook Political Report",
+     "category": "cotes_experts",
+     "unit": "cotes",
+     "p_dem_control": null,
+     "seats_dem": null,
+     "seats_rep": null,
+     "tossup": 5.0,
+     "dem_side": 17.0,
+     "rep_side": 14.0,
+     "delta_low": null,
+     "delta_high": null,
+     "as_of": "2026-09-17",
+     "entered_on": "2026-09-19",
+     "entered_from": "page publique",
+     "acquisition": "page_publique",
+     "url": "https://www.cookpolitical.com/ratings/governor-race-ratings",
+     "gap_vs_votescope": null
     }
    ],
    "directory": [
-    {
-     "id": "ddhq",
-     "name": "Decision Desk HQ",
-     "category": "modele",
-     "url": "https://www.decisiondeskhq.com/",
-     "access": "licence_commerciale",
-     "checked": "2026-09-19",
-     "note": "robots.txt permissif MAIS aucune page de conditions dans tout le sitemap ; la prévision est un produit vendu à des clients (The Hill, Ballotpedia) — une licence se demande, elle ne se déduit pas d'un robots.txt muet"
-    },
     {
      "id": "race_to_wh",
      "name": "Race to the WH",
      "category": "modele",
      "url": "https://www.racetothewh.com/governor/26",
-     "access": "robots_bloque",
+     "acquisition": "manuel_seulement",
+     "publication": "fait_attribue",
      "checked": "2026-09-19",
-     "note": "robots.txt : ClaudeBot, anthropic-ai et 24 autres agents d'IA en Disallow"
+     "note": "robots.txt : 26 agents d'IA nommés en Disallow, et le groupe User-agent: * se termine par Disallow:/ — tout accès automatisé est refusé, pas seulement celui des robots d'IA."
     },
     {
      "id": "votehub",
      "name": "VoteHub",
      "category": "modele",
      "url": "https://votehub.com/",
-     "access": "robots_bloque",
+     "acquisition": "manuel_seulement",
+     "publication": "fait_attribue",
      "checked": "2026-09-19",
-     "note": "robots.txt : ClaudeBot, GPTBot, Google-Extended en Disallow: /"
+     "note": "robots.txt permissif pour * MAIS porte un avis explicite : « All data displayed on this site is the proprietary property of VoteHub. Any scraping, automated collection, or reproduction of our data without prior written permission is strictly prohibited […] To obtain a license or request permission, please contact us directly. »"
     },
     {
      "id": "split_ticket",
      "name": "Split Ticket (The Argument)",
      "category": "modele",
      "url": "https://www.theargumentmag.com/p/split-ticket-2026-midterms-model",
-     "access": "conditions_restrictives",
+     "acquisition": "manuel_seulement",
+     "publication": "fait_attribue",
      "checked": "2026-09-19",
-     "note": "publié sur Substack, donc régi par les conditions de Substack : interdiction de « crawls, scrapes or spiders any page, data, or portion of Substack (through use of manual or automated means) »"
+     "note": "conditions de Substack : interdiction de « crawls, scrapes, or spiders any page, data, or portion of Substack (through use of manual or automated means) »."
     },
     {
      "id": "theo",
      "name": "Theo Elections",
      "category": "modele",
      "url": "https://theoelections.com/model/",
-     "access": "non_verifie",
+     "acquisition": "non_verifie",
+     "publication": "fait_attribue",
      "checked": "2026-09-19",
      "note": "Politique d'accès non inventoriée"
     },
@@ -462,25 +596,18 @@
      "name": "Call the Map",
      "category": "modele",
      "url": "https://www.callthemap.com/",
-     "access": "non_verifie",
+     "acquisition": "non_verifie",
+     "publication": "fait_attribue",
      "checked": "2026-09-19",
      "note": "Politique d'accès non inventoriée"
-    },
-    {
-     "id": "cook",
-     "name": "Cook Political Report",
-     "category": "cotes_experts",
-     "url": "https://www.cookpolitical.com/ratings/governor-race-ratings",
-     "access": "robots_bloque",
-     "checked": "2026-09-19",
-     "note": "robots.txt nomme /ratings/ « the proprietary ratings dataset » ; Content-Signal ai-train=no pour tous, agents de réponse autorisés en temps réel mais PAS l'ingestion systématique"
     },
     {
      "id": "sabato",
      "name": "Sabato's Crystal Ball",
      "category": "cotes_experts",
      "url": "https://centerforpolitics.org/crystalball/",
-     "access": "non_verifie",
+     "acquisition": "non_verifie",
+     "publication": "fait_attribue",
      "checked": "2026-09-19",
      "note": "robots.txt renvoie 403 derrière Cloudflare — politique non lisible sans navigateur"
     },
@@ -489,18 +616,20 @@
      "name": "Inside Elections",
      "category": "cotes_experts",
      "url": "https://insideelections.com/ratings/governor",
-     "access": "flux_public_bloque_au_cdn",
+     "acquisition": "page_publique",
+     "publication": "fait_attribue",
      "checked": "2026-09-19",
-     "note": "⚠ le plus intéressant du lot : la page de cotes est PUBLIQUE et porte ses propres boutons « API » et « XML » vers un JSON et un XML de ses cotes — mais Cloudflare répond 403 « Attention Required » à tout client non navigateur. Le site n'a aucune condition propre : son lien « Terms » pointe vers FeedBlitz, son infolettre. Demander une mise en liste blanche ; ne PAS déguiser le client en navigateur, ce serait contourner un contrôle d'accès"
+     "note": "la page de cotes est publique et lisible ; ses boutons « API » et « XML » pointent vers un flux JSON que Cloudflare refuse à tout client non navigateur (403). Le site n'a pas de conditions propres — son lien « Terms » mène à FeedBlitz, son infolettre. Demander une liste blanche pour le flux ; ne PAS déguiser le client."
     },
     {
      "id": "270towin",
      "name": "270toWin",
      "category": "agregateur",
      "url": "https://www.270towin.com/2026-governor-election-predictions/",
-     "access": "sans_conditions_publiees",
+     "acquisition": "page_publique",
+     "publication": "fait_attribue",
      "checked": "2026-09-19",
-     "note": "aucune page de conditions : le pied de page n'offre que Privacy, Site Map et About Us, sous « © 2026 Electoral Ventures LLC. All Rights Reserved. » ; agrège Cook, Crystal Ball, Inside Elections, DDHQ, Fox, Split Ticket et FiftyPlusOne et en tire un Consensus Forecast — un usage DÉRIVÉ, plus large que le nôtre, probablement sous entente"
+     "note": "aucune page de conditions ; robots.txt permissif. Agrège Cook, Crystal Ball, Inside Elections, DDHQ, Fox, Split Ticket et FiftyPlusOne pour en DÉRIVER un Consensus Forecast — preuve que l'écosystème fonctionne depuis vingt ans par comparaison et attribution."
     }
    ]
   }
