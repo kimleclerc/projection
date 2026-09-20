@@ -20,8 +20,8 @@ import board from '../../web_data/us-markets/latest.json';
 
 interface Props {
   locale: 'en' | 'fr' | 'es';
-  /** 'senate' | 'house' — ne montre que les tableaux qui concernent la chambre. */
-  chamber: 'senate' | 'house';
+  /** Ne montre que les tableaux qui concernent ce bureau. */
+  chamber: 'senate' | 'house' | 'governor';
 }
 const { locale, chamber } = Astro.props as Props;
 

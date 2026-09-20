@@ -3,6 +3,7 @@ import EditorialLayout from '../../../layouts/EditorialLayout.astro';
 import RidingsCta from '../../../components/RidingsCta.astro';
 import NewsletterCta from '../../../components/NewsletterCta.astro';
 import ProjectionEngine from '../../../components/ProjectionEngine.astro';
+import KalshiBoard from '../../../components/KalshiBoard.astro';
 import RaceNarrative from '../../../components/RaceNarrative.astro';
 import { jurisdictions } from '../../../data/jurisdictions';
 import governorMeta from '../../../../web_data/us-governor/latest.json';
@@ -51,6 +52,8 @@ const alternates = {
   ]}
 >
   <ProjectionEngine jurisdiction={j} locale="en"><Fragment slot="narrative"><RaceNarrative locale="en" {...raceEditorial.usGovernor.en} /></Fragment></ProjectionEngine>
+
+  <KalshiBoard locale="en" chamber="governor" />
 
   <RidingsCta
     eyebrow="Race profile"
