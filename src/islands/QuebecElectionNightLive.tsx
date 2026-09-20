@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import '../styles/quebec-election-night-live.css';
+import { readDgeqDirect } from './dgeqDirect';
 
 /**
  * La couche directe de la soirée québécoise : sièges en tête et appelés, et
@@ -54,6 +55,7 @@ const copy = {
         riding: 'Circonscription', leader: 'Meneur', votes: 'Voix', polls: 'Bureaux', status: 'Statut', calledBadge: 'Appelé',
         leadingBadge: 'En tête', noVotes: '—', stale: 'Dépouillement en pause — aucune donnée officielle depuis', minutes: 'min',
         complete: 'Dépouillement terminé', source: 'Source officielle : Élections Québec. Les appels sont ceux de Vote-Scope.',
+        direct: 'Source directe du directeur général des élections — nos appels et nos projections ne sont pas disponibles.',
         search: 'Chercher une circonscription', anomalies: 'candidats ou partis inconnus du registre',
         anomaliesBlocked: 'aucun appel automatique possible', anomaliesOverridden: 'des appels automatiques ont été publiés malgré l’anomalie' },
   en: { live: 'Live', waiting: 'Waiting for the first official results', connecting: 'Connecting to the official count…',
@@ -62,6 +64,7 @@ const copy = {
         riding: 'Riding', leader: 'Leader', votes: 'Votes', polls: 'Polls', status: 'Status', calledBadge: 'Called',
         leadingBadge: 'Leading', noVotes: '—', stale: 'Count paused — no new official data for', minutes: 'min',
         complete: 'Count complete', source: 'Official source: Élections Québec. Calls are Vote-Scope’s.',
+        direct: 'Reading the chief electoral officer directly — our calls and projections are unavailable.',
         search: 'Find a riding', anomalies: 'candidates or parties unknown to the registry',
         anomaliesBlocked: 'no automatic call possible', anomaliesOverridden: 'automatic calls were published over the anomaly' },
   es: { live: 'En directo', waiting: 'A la espera de los primeros resultados oficiales', connecting: 'Conectando con el recuento oficial…',
@@ -70,6 +73,7 @@ const copy = {
         riding: 'Distrito', leader: 'Líder', votes: 'Votos', polls: 'Mesas', status: 'Estado', calledBadge: 'Asignado',
         leadingBadge: 'En cabeza', noVotes: '—', stale: 'Recuento en pausa — sin datos oficiales desde hace', minutes: 'min',
         complete: 'Recuento completo', source: 'Fuente oficial: Élections Québec. Las asignaciones son de Vote-Scope.',
+        direct: 'Lectura directa del director general de elecciones — nuestras asignaciones y proyecciones no están disponibles.',
         search: 'Buscar un distrito', anomalies: 'candidatos o partidos desconocidos para el registro',
         anomaliesBlocked: 'sin asignación automática', anomaliesOverridden: 'se publicaron asignaciones automáticas pese a la anomalía' },
 };
@@ -110,6 +114,8 @@ export default function QuebecElectionNightLive({ eventId, lang, apiBase, fallba
   const stopped = useRef(false);
   const sequence = useRef(-1);
   const fallbackUses = useRef(0);
+  const [direct, setDirect] = useState(false);
+  const lastPayload = useRef<LivePayload | null>(null);
 
   const complete = useMemo(() => {
     if (!data?.results?.length) return false;
@@ -154,6 +160,7 @@ export default function QuebecElectionNightLive({ eventId, lang, apiBase, fallba
         // le statique tombe ou se fige — une fraction infime du trafic, qui ne
         // peut donc pas épuiser le quota de requêtes.
         let payload: LivePayload;
+        let viaDirect = false;
         try {
           payload = await read(url);
           if (fallbackApiBase && ageOf(payload) > FALLBACK_AFTER_MS && fallbackUses.current < FALLBACK_MAX_USES) {
@@ -164,9 +171,27 @@ export default function QuebecElectionNightLive({ eventId, lang, apiBase, fallba
             } catch { /* le repli ne doit jamais faire échouer une lecture réussie */ }
           }
         } catch (primaryError) {
-          if (!fallbackApiBase || fallbackUses.current >= FALLBACK_MAX_USES) throw primaryError;
-          fallbackUses.current += 1;
-          payload = await read(endpoint(fallbackApiBase));
+          try {
+            if (!fallbackApiBase || fallbackUses.current >= FALLBACK_MAX_USES) throw primaryError;
+            fallbackUses.current += 1;
+            payload = await read(endpoint(fallbackApiBase));
+          } catch {
+            // TROISIÈME RAIL, hors Cloudflare et hors notre collecteur : le DGEQ
+            // lui-même. On y perd les appels et les projections — ils naissent du
+            // moteur, et si on est ici le moteur est tombé — mais le dépouillement
+            // officiel continue de s'afficher. On garde les projections déjà
+            // connues pour les couleurs et les libellés, rien de plus.
+            const reading = await readDgeqDirect();
+            payload = {
+              sequence: sequence.current,
+              event: { id: eventId },
+              source: { source_updated_at: reading.sourceUpdatedAt, healthy: true, anomaly_count: 0 },
+              results: reading.results,
+              calls: [],
+              projections: lastPayload.current?.projections ?? readStored(eventId)?.projections ?? [],
+            };
+            viaDirect = true;
+          }
         }
         const seq = payload.sequence ?? 0;
         if (seq < sequence.current) {
@@ -175,7 +200,9 @@ export default function QuebecElectionNightLive({ eventId, lang, apiBase, fallba
           failures.current = 0;
         } else {
           sequence.current = seq;
+          lastPayload.current = payload;
           setData(payload); setFromStorage(false); setFailed(false);
+          setDirect(viaDirect);
           writeStored(eventId, payload);
           failures.current = 0;
         }
@@ -256,7 +283,8 @@ export default function QuebecElectionNightLive({ eventId, lang, apiBase, fallba
         <span class="qcl-label"><i></i>{complete ? t.complete : t.live}</span>
         <span>{fromStorage ? `${t.lastKnown} · ` : ''}{sourceStamp ? `${t.updated} ${fmtTime(sourceStamp, lang)}` : ''}{typeof data.sequence === 'number' ? ` · #${data.sequence}` : ''}</span>
       </div>
-      {failed && <p class="qcl-warn">{t.unavailable}</p>}
+      {direct && <p class="qcl-warn">{t.direct}</p>}
+      {failed && !direct && <p class="qcl-warn">{t.unavailable}</p>}
       {stale && ageMin !== null && <p class="qcl-warn">{t.stale} {ageMin} {t.minutes}.</p>}
       {(data.source?.anomaly_count ?? 0) > 0 && (
         <p class="qcl-warn">{data.source?.anomaly_count} {t.anomalies}{anomalyClause ? ` — ${anomalyClause}` : ''}</p>
