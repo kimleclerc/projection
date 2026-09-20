@@ -46,7 +46,7 @@ type QuotedRow = {
   tossup: number | null; dem_side: number | null; rep_side: number | null;
   delta_low: number | null; delta_high: number | null;
   gap_vs_votescope: number | null;
-  as_of: string; entered_on: string; entered_from: string;
+  as_of: string; entered_on: string; entered_from: string; via: string | null;
   acquisition: string; url: string;
 };
 
@@ -95,6 +95,7 @@ const copy = {
       cotes: 'Expert ratings — categories, not probabilities',
       delta_sieges: 'Expert ratings — projected seat change',
     } as Record<string, string>,
+    via: (who: string) => `as reported by ${who}`,
     ratingLine: (t: string, d: string, r: string) => `${d} lean D · ${t} toss-up · ${r} lean R`,
     deltaLine: (lo: string, hi: string) => `Democrats +${lo} to +${hi} seats`,
     acq: {
@@ -140,6 +141,7 @@ const copy = {
       cotes: 'Cotes d’experts — des catégories, pas des probabilités',
       delta_sieges: 'Cotes d’experts — variation de sièges projetée',
     } as Record<string, string>,
+    via: (who: string) => `rapporté par ${who}`,
     ratingLine: (t: string, d: string, r: string) => `${d} penchant D · ${t} toss-up · ${r} penchant R`,
     deltaLine: (lo: string, hi: string) => `Démocrates +${lo} à +${hi} sièges`,
     acq: {
@@ -185,6 +187,7 @@ const copy = {
       cotes: 'Calificaciones de expertos — categorías, no probabilidades',
       delta_sieges: 'Calificaciones de expertos — cambio de escaños proyectado',
     } as Record<string, string>,
+    via: (who: string) => `reportado por ${who}`,
     ratingLine: (t: string, d: string, r: string) => `${d} inclinación D · ${t} indecisos · ${r} inclinación R`,
     deltaLine: (lo: string, hi: string) => `Demócratas +${lo} a +${hi} escaños`,
     acq: {
@@ -294,6 +297,7 @@ const unchanged = prev && prev.p_dem_control !== null
                     {q.seats_dem !== null && `${seats(q.seats_dem)} D · ${seats(q.seats_rep)} R · `}
                     {q.gap_vs_votescope !== null && `${copy.gap} ${signed(q.gap_vs_votescope)} · `}
                     {`${copy.asOf} ${fmtDate(q.as_of)} · ${copy.readOn} ${fmtDate(q.entered_on)}`}
+                    {q.via && ` · ${copy.via(q.via)}`}
                   </span>
                 </li>
               ))}
