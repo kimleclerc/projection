@@ -1,0 +1,490 @@
+{
+ "meta": {
+  "run_date": "2026-09-20",
+  "generated_at": "2026-09-20T00:44:42.397086+00:00",
+  "n_sources": 18,
+  "n_quoted": 5,
+  "registry_checked": "2026-09-19"
+ },
+ "jurisdictions": {
+  "house": {
+   "votescope": {
+    "seats_dem": 232.7,
+    "seats_rep": 202.3,
+    "p_dem_control": 98.2,
+    "as_of": "2026-09-14",
+    "previous": {
+     "as_of": "2026-09-13",
+     "seats_dem": 232.6,
+     "seats_rep": 202.4,
+     "p_dem_control": null
+    }
+   },
+   "markets": [
+    {
+     "id": "kalshi",
+     "name": "Kalshi",
+     "category": "marche",
+     "p_dem_control": 89.0,
+     "gap_vs_votescope": 9.2,
+     "as_of": "2026-09-20",
+     "url": "https://kalshi.com/markets/kxbalancepowercombo",
+     "previous": null
+    },
+    {
+     "id": "polymarket",
+     "name": "Polymarket",
+     "category": "marche",
+     "p_dem_control": 90.5,
+     "gap_vs_votescope": 7.7,
+     "as_of": "2026-09-19",
+     "url": "https://polymarket.com/event/will-the-democratic-party-control-the-house-after-the-2026-midterm-elections",
+     "previous": {
+      "as_of": "2026-09-11",
+      "p_dem_control": 87.5
+     }
+    }
+   ],
+   "directory": [
+    {
+     "id": "economist",
+     "name": "The Economist",
+     "category": "modele",
+     "url": "https://www.economist.com/interactive/2026/us-midterms/prediction-model/house",
+     "access": "robots_bloque",
+     "checked": "2026-09-19",
+     "note": "robots.txt : ClaudeBot, anthropic-ai, GPTBot et CCBot en Disallow: / — pas d'ingestion automatisée"
+    },
+    {
+     "id": "silver_bulletin",
+     "name": "Silver Bulletin (FLIPR)",
+     "category": "modele",
+     "url": "https://www.natesilver.net/p/nate-silver-2026-midterm-election-polls-model",
+     "access": "robots_bloque",
+     "checked": "2026-09-19",
+     "note": "robots.txt : ClaudeBot, Claude-Web, anthropic-ai, GPTBot en Disallow: / — successeur de FiveThirtyEight, qui est FERMÉ"
+    },
+    {
+     "id": "ddhq",
+     "name": "Decision Desk HQ",
+     "category": "modele",
+     "url": "https://www.decisiondeskhq.com/",
+     "access": "permissif_a_verifier",
+     "checked": "2026-09-19",
+     "note": "robots.txt : Allow: / sans exception — conditions d'utilisation NON vérifiées"
+    },
+    {
+     "id": "race_to_wh",
+     "name": "Race to the WH",
+     "category": "modele",
+     "url": "https://www.racetothewh.com/house/26",
+     "access": "robots_bloque",
+     "checked": "2026-09-19",
+     "note": "robots.txt : ClaudeBot, anthropic-ai et 24 autres agents d'IA en Disallow"
+    },
+    {
+     "id": "votehub",
+     "name": "VoteHub",
+     "category": "modele",
+     "url": "https://votehub.com/",
+     "access": "robots_bloque",
+     "checked": "2026-09-19",
+     "note": "robots.txt : ClaudeBot, GPTBot, Google-Extended en Disallow: /"
+    },
+    {
+     "id": "fiftyplusone",
+     "name": "FiftyPlusOne",
+     "category": "modele",
+     "url": "https://fiftyplusone.news/forecast/house",
+     "access": "api_cle",
+     "checked": "2026-09-19",
+     "note": "⚠ le domaine .com est PARQUÉ et en vente — le vrai site est fiftyplusone.news ; API CSV existante mais /api/csv répond 401 « Invalid or missing API key » : une clé se demande"
+    },
+    {
+     "id": "split_ticket",
+     "name": "Split Ticket (The Argument)",
+     "category": "modele",
+     "url": "https://www.theargumentmag.com/p/split-ticket-2026-midterms-model",
+     "access": "permissif_a_verifier",
+     "checked": "2026-09-19",
+     "note": "publié sur Substack ; robots.txt permissif hors chemins applicatifs — conditions NON vérifiées"
+    },
+    {
+     "id": "electindex",
+     "name": "ElectIndex",
+     "category": "modele",
+     "url": "https://electindex.com/forecasts/",
+     "access": "permissif_a_verifier",
+     "checked": "2026-09-19",
+     "note": "robots.txt Disallow vide (tout permis) MAIS une partie du produit est réservée aux membres (« Forecast+ ») — demander plutôt que contourner"
+    },
+    {
+     "id": "theo",
+     "name": "Theo Elections",
+     "category": "modele",
+     "url": "https://theoelections.com/model/",
+     "access": "non_verifie",
+     "checked": "2026-09-19",
+     "note": "Politique d'accès non inventoriée"
+    },
+    {
+     "id": "call_the_map",
+     "name": "Call the Map",
+     "category": "modele",
+     "url": "https://www.callthemap.com/",
+     "access": "non_verifie",
+     "checked": "2026-09-19",
+     "note": "Politique d'accès non inventoriée"
+    },
+    {
+     "id": "cook",
+     "name": "Cook Political Report",
+     "category": "cotes_experts",
+     "url": "https://www.cookpolitical.com/ratings/house-race-ratings",
+     "access": "robots_bloque",
+     "checked": "2026-09-19",
+     "note": "robots.txt nomme /ratings/ « the proprietary ratings dataset » ; Content-Signal ai-train=no pour tous, agents de réponse autorisés en temps réel mais PAS l'ingestion systématique"
+    },
+    {
+     "id": "sabato",
+     "name": "Sabato's Crystal Ball",
+     "category": "cotes_experts",
+     "url": "https://centerforpolitics.org/crystalball/",
+     "access": "non_verifie",
+     "checked": "2026-09-19",
+     "note": "robots.txt renvoie 403 derrière Cloudflare — politique non lisible sans navigateur"
+    },
+    {
+     "id": "inside_elections",
+     "name": "Inside Elections",
+     "category": "cotes_experts",
+     "url": "https://insideelections.com/ratings/house",
+     "access": "permissif_a_verifier",
+     "checked": "2026-09-19",
+     "note": "robots.txt WordPress standard (seul /wp-admin/ bloqué) — conditions NON vérifiées"
+    },
+    {
+     "id": "fox",
+     "name": "Fox News Power Rankings",
+     "category": "cotes_experts",
+     "url": "https://www.foxnews.com/politics",
+     "access": "permissif_a_verifier",
+     "checked": "2026-09-19",
+     "note": "robots.txt sans règle d'IA — conditions NON vérifiées"
+    },
+    {
+     "id": "270towin",
+     "name": "270toWin",
+     "category": "agregateur",
+     "url": "https://www.270towin.com/2026-house-election-predictions/",
+     "access": "permissif_a_verifier",
+     "checked": "2026-09-19",
+     "note": "agrège Cook, Crystal Ball, Inside Elections, DDHQ, Fox, Split Ticket et FiftyPlusOne + un Consensus Forecast ; reprendre son agrégation serait de la donnée de troisième main"
+    }
+   ]
+  },
+  "senate": {
+   "votescope": {
+    "seats_dem": 50.9,
+    "seats_rep": 48.6,
+    "p_dem_control": 61.6,
+    "as_of": "2026-09-19",
+    "previous": {
+     "seats_dem": 50.9,
+     "seats_rep": 48.6,
+     "p_dem_control": 61.6,
+     "as_of": "2026-09-14"
+    }
+   },
+   "markets": [
+    {
+     "id": "kalshi",
+     "name": "Kalshi",
+     "category": "marche",
+     "p_dem_control": 60.4,
+     "gap_vs_votescope": 1.2,
+     "as_of": "2026-09-20",
+     "url": "https://kalshi.com/markets/kxbalancepowercombo",
+     "previous": null
+    },
+    {
+     "id": "polymarket",
+     "name": "Polymarket",
+     "category": "marche",
+     "p_dem_control": 60.5,
+     "gap_vs_votescope": 1.1,
+     "as_of": "2026-09-19",
+     "url": "https://polymarket.com/event/will-the-democratic-party-control-the-senate-after-the-2026-midterm-elections",
+     "previous": {
+      "as_of": "2026-09-11",
+      "p_dem_control": 52.5
+     }
+    }
+   ],
+   "directory": [
+    {
+     "id": "economist",
+     "name": "The Economist",
+     "category": "modele",
+     "url": "https://www.economist.com/interactive/2026/us-midterms/prediction-model/senate",
+     "access": "robots_bloque",
+     "checked": "2026-09-19",
+     "note": "robots.txt : ClaudeBot, anthropic-ai, GPTBot et CCBot en Disallow: / — pas d'ingestion automatisée"
+    },
+    {
+     "id": "silver_bulletin",
+     "name": "Silver Bulletin (FLIPR)",
+     "category": "modele",
+     "url": "https://www.natesilver.net/p/nate-silver-2026-midterm-election-polls-model",
+     "access": "robots_bloque",
+     "checked": "2026-09-19",
+     "note": "robots.txt : ClaudeBot, Claude-Web, anthropic-ai, GPTBot en Disallow: / — successeur de FiveThirtyEight, qui est FERMÉ"
+    },
+    {
+     "id": "ddhq",
+     "name": "Decision Desk HQ",
+     "category": "modele",
+     "url": "https://www.decisiondeskhq.com/",
+     "access": "permissif_a_verifier",
+     "checked": "2026-09-19",
+     "note": "robots.txt : Allow: / sans exception — conditions d'utilisation NON vérifiées"
+    },
+    {
+     "id": "race_to_wh",
+     "name": "Race to the WH",
+     "category": "modele",
+     "url": "https://www.racetothewh.com/senate/26",
+     "access": "robots_bloque",
+     "checked": "2026-09-19",
+     "note": "robots.txt : ClaudeBot, anthropic-ai et 24 autres agents d'IA en Disallow"
+    },
+    {
+     "id": "votehub",
+     "name": "VoteHub",
+     "category": "modele",
+     "url": "https://votehub.com/",
+     "access": "robots_bloque",
+     "checked": "2026-09-19",
+     "note": "robots.txt : ClaudeBot, GPTBot, Google-Extended en Disallow: /"
+    },
+    {
+     "id": "fiftyplusone",
+     "name": "FiftyPlusOne",
+     "category": "modele",
+     "url": "https://fiftyplusone.news/forecast/senate",
+     "access": "api_cle",
+     "checked": "2026-09-19",
+     "note": "⚠ le domaine .com est PARQUÉ et en vente — le vrai site est fiftyplusone.news ; API CSV existante mais /api/csv répond 401 « Invalid or missing API key » : une clé se demande"
+    },
+    {
+     "id": "split_ticket",
+     "name": "Split Ticket (The Argument)",
+     "category": "modele",
+     "url": "https://www.theargumentmag.com/p/split-ticket-2026-midterms-model",
+     "access": "permissif_a_verifier",
+     "checked": "2026-09-19",
+     "note": "publié sur Substack ; robots.txt permissif hors chemins applicatifs — conditions NON vérifiées"
+    },
+    {
+     "id": "electindex",
+     "name": "ElectIndex",
+     "category": "modele",
+     "url": "https://electindex.com/forecasts/",
+     "access": "permissif_a_verifier",
+     "checked": "2026-09-19",
+     "note": "robots.txt Disallow vide (tout permis) MAIS une partie du produit est réservée aux membres (« Forecast+ ») — demander plutôt que contourner"
+    },
+    {
+     "id": "theo",
+     "name": "Theo Elections",
+     "category": "modele",
+     "url": "https://theoelections.com/model/",
+     "access": "non_verifie",
+     "checked": "2026-09-19",
+     "note": "Politique d'accès non inventoriée"
+    },
+    {
+     "id": "call_the_map",
+     "name": "Call the Map",
+     "category": "modele",
+     "url": "https://www.callthemap.com/",
+     "access": "non_verifie",
+     "checked": "2026-09-19",
+     "note": "Politique d'accès non inventoriée"
+    },
+    {
+     "id": "cook",
+     "name": "Cook Political Report",
+     "category": "cotes_experts",
+     "url": "https://www.cookpolitical.com/ratings/senate-race-ratings",
+     "access": "robots_bloque",
+     "checked": "2026-09-19",
+     "note": "robots.txt nomme /ratings/ « the proprietary ratings dataset » ; Content-Signal ai-train=no pour tous, agents de réponse autorisés en temps réel mais PAS l'ingestion systématique"
+    },
+    {
+     "id": "sabato",
+     "name": "Sabato's Crystal Ball",
+     "category": "cotes_experts",
+     "url": "https://centerforpolitics.org/crystalball/",
+     "access": "non_verifie",
+     "checked": "2026-09-19",
+     "note": "robots.txt renvoie 403 derrière Cloudflare — politique non lisible sans navigateur"
+    },
+    {
+     "id": "inside_elections",
+     "name": "Inside Elections",
+     "category": "cotes_experts",
+     "url": "https://insideelections.com/ratings/senate",
+     "access": "permissif_a_verifier",
+     "checked": "2026-09-19",
+     "note": "robots.txt WordPress standard (seul /wp-admin/ bloqué) — conditions NON vérifiées"
+    },
+    {
+     "id": "fox",
+     "name": "Fox News Power Rankings",
+     "category": "cotes_experts",
+     "url": "https://www.foxnews.com/politics",
+     "access": "permissif_a_verifier",
+     "checked": "2026-09-19",
+     "note": "robots.txt sans règle d'IA — conditions NON vérifiées"
+    },
+    {
+     "id": "270towin",
+     "name": "270toWin",
+     "category": "agregateur",
+     "url": "https://www.270towin.com/2026-senate-election-predictions/",
+     "access": "permissif_a_verifier",
+     "checked": "2026-09-19",
+     "note": "agrège Cook, Crystal Ball, Inside Elections, DDHQ, Fox, Split Ticket et FiftyPlusOne + un Consensus Forecast ; reprendre son agrégation serait de la donnée de troisième main"
+    }
+   ]
+  },
+  "governor": {
+   "votescope": {
+    "seats_dem": 25.6,
+    "seats_rep": 24.4,
+    "p_dem_control": 53.0,
+    "as_of": "2026-09-14",
+    "previous": {
+     "seats_dem": 25.7,
+     "seats_rep": 24.3,
+     "p_dem_control": 56.3,
+     "as_of": "2026-09-13"
+    }
+   },
+   "markets": [
+    {
+     "id": "kalshi",
+     "name": "Kalshi",
+     "category": "marche",
+     "p_dem_control": 62.5,
+     "gap_vs_votescope": -9.5,
+     "as_of": "2026-09-20",
+     "url": "https://kalshi.com/markets/kxgovwins",
+     "previous": null
+    }
+   ],
+   "directory": [
+    {
+     "id": "ddhq",
+     "name": "Decision Desk HQ",
+     "category": "modele",
+     "url": "https://www.decisiondeskhq.com/",
+     "access": "permissif_a_verifier",
+     "checked": "2026-09-19",
+     "note": "robots.txt : Allow: / sans exception — conditions d'utilisation NON vérifiées"
+    },
+    {
+     "id": "race_to_wh",
+     "name": "Race to the WH",
+     "category": "modele",
+     "url": "https://www.racetothewh.com/governor/26",
+     "access": "robots_bloque",
+     "checked": "2026-09-19",
+     "note": "robots.txt : ClaudeBot, anthropic-ai et 24 autres agents d'IA en Disallow"
+    },
+    {
+     "id": "votehub",
+     "name": "VoteHub",
+     "category": "modele",
+     "url": "https://votehub.com/",
+     "access": "robots_bloque",
+     "checked": "2026-09-19",
+     "note": "robots.txt : ClaudeBot, GPTBot, Google-Extended en Disallow: /"
+    },
+    {
+     "id": "split_ticket",
+     "name": "Split Ticket (The Argument)",
+     "category": "modele",
+     "url": "https://www.theargumentmag.com/p/split-ticket-2026-midterms-model",
+     "access": "permissif_a_verifier",
+     "checked": "2026-09-19",
+     "note": "publié sur Substack ; robots.txt permissif hors chemins applicatifs — conditions NON vérifiées"
+    },
+    {
+     "id": "electindex",
+     "name": "ElectIndex",
+     "category": "modele",
+     "url": "https://electindex.com/forecasts/",
+     "access": "permissif_a_verifier",
+     "checked": "2026-09-19",
+     "note": "robots.txt Disallow vide (tout permis) MAIS une partie du produit est réservée aux membres (« Forecast+ ») — demander plutôt que contourner"
+    },
+    {
+     "id": "theo",
+     "name": "Theo Elections",
+     "category": "modele",
+     "url": "https://theoelections.com/model/",
+     "access": "non_verifie",
+     "checked": "2026-09-19",
+     "note": "Politique d'accès non inventoriée"
+    },
+    {
+     "id": "call_the_map",
+     "name": "Call the Map",
+     "category": "modele",
+     "url": "https://www.callthemap.com/",
+     "access": "non_verifie",
+     "checked": "2026-09-19",
+     "note": "Politique d'accès non inventoriée"
+    },
+    {
+     "id": "cook",
+     "name": "Cook Political Report",
+     "category": "cotes_experts",
+     "url": "https://www.cookpolitical.com/ratings/governor-race-ratings",
+     "access": "robots_bloque",
+     "checked": "2026-09-19",
+     "note": "robots.txt nomme /ratings/ « the proprietary ratings dataset » ; Content-Signal ai-train=no pour tous, agents de réponse autorisés en temps réel mais PAS l'ingestion systématique"
+    },
+    {
+     "id": "sabato",
+     "name": "Sabato's Crystal Ball",
+     "category": "cotes_experts",
+     "url": "https://centerforpolitics.org/crystalball/",
+     "access": "non_verifie",
+     "checked": "2026-09-19",
+     "note": "robots.txt renvoie 403 derrière Cloudflare — politique non lisible sans navigateur"
+    },
+    {
+     "id": "inside_elections",
+     "name": "Inside Elections",
+     "category": "cotes_experts",
+     "url": "https://insideelections.com/ratings/governor",
+     "access": "permissif_a_verifier",
+     "checked": "2026-09-19",
+     "note": "robots.txt WordPress standard (seul /wp-admin/ bloqué) — conditions NON vérifiées"
+    },
+    {
+     "id": "270towin",
+     "name": "270toWin",
+     "category": "agregateur",
+     "url": "https://www.270towin.com/2026-governor-election-predictions/",
+     "access": "permissif_a_verifier",
+     "checked": "2026-09-19",
+     "note": "agrège Cook, Crystal Ball, Inside Elections, DDHQ, Fox, Split Ticket et FiftyPlusOne + un Consensus Forecast ; reprendre son agrégation serait de la donnée de troisième main"
+    }
+   ]
+  }
+ }
+}

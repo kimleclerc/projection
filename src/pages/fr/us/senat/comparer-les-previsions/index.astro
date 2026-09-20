@@ -1,0 +1,32 @@
+---
+import EditorialLayout from '../../../../../layouts/EditorialLayout.astro';
+import ForecasterComparison from '../../../../../components/ForecasterComparison.astro';
+import NewsletterCta from '../../../../../components/NewsletterCta.astro';
+
+const canonical = "https://vote-scope.com/fr/us/senat/comparer-les-previsions/";
+const pageName = "Comparer les prévisions du Sénat 2026";
+---
+
+<EditorialLayout
+  title={"Comparer les prévisions du Sénat 2026 — Vote-Scope"}
+  description={"Toutes les prévisions du Sénat 2026 en une page : le modèle Vote-Scope, les cotes de Kalshi et Polymarket, puis Cook, Sabato, Inside Elections, The Economist, Silver Bulletin, DDHQ et les autres, chacun avec son lien."}
+  canonical={canonical}
+  lang="fr"
+  currentPage="us"
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={{ en: "https://vote-scope.com/en/us/senate/compare-forecasts/", fr: "https://vote-scope.com/fr/us/senat/comparer-les-previsions/", es: "https://vote-scope.com/es/us/senate/comparar-pronosticos/" }}
+  jsonLd={[
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: 'https://vote-scope.com/fr/' },
+        { '@type': 'ListItem', position: 2, name: "États-Unis", item: 'https://vote-scope.com/fr/us/' },
+        { '@type': 'ListItem', position: 3, name: pageName, item: canonical },
+      ],
+    },
+  ]}
+>
+  <ForecasterComparison locale="fr" jurisdiction="senate" />
+  <NewsletterCta lang="fr" placement="compare-senate" />
+</EditorialLayout>

@@ -1,0 +1,293 @@
+---
+/**
+ * « Vote-Scope contre les autres » — une page par juridiction.
+ *
+ * Pourquoi : quelqu'un qui suit les midterms fait une ronde de trois ou quatre
+ * prévisions. Personne ne lui donne la ronde en une page. Une page qui envoie
+ * vers les concurrents est, paradoxe assumé, une page qu'on rouvre chaque jour.
+ *
+ * ⚠ Pourquoi la plupart des lignes n'ont pas de chiffre. Cinq des douze grands
+ * noms interdisent nommément l'ingestion automatisée dans leur robots.txt —
+ * The Economist, Silver Bulletin, Cook, Race to the WH, VoteHub. Cook qualifie
+ * même ses cotes de « proprietary ratings dataset ». Ce n'est pas une panne et
+ * ce n'est pas un obstacle technique : c'est la position de l'éditeur, et la
+ * page la dit en toutes lettres plutôt que de laisser une case vide mentir.
+ *
+ * Les catégories ne se mélangent jamais : un modèle probabiliste, des cotes
+ * d'experts, un agrégateur et un marché ne produisent pas la même chose. Aucun
+ * logo tiers, aucune revendication de supériorité, un lien vers chaque source.
+ */
+import data from '../../web_data/us-forecasters/latest.json';
+
+interface Props {
+  locale: 'en' | 'fr' | 'es';
+  jurisdiction: 'house' | 'senate' | 'governor';
+}
+const { locale, jurisdiction } = Astro.props as Props;
+
+type Snapshot = {
+  seats_dem: number | null; seats_rep: number | null;
+  p_dem_control: number | null; as_of: string | null;
+  previous?: Snapshot | null;
+};
+type MarketRow = {
+  id: string; name: string; p_dem_control: number; gap_vs_votescope: number | null;
+  as_of: string | null; url: string;
+  previous: { as_of: string; p_dem_control: number } | null;
+};
+type DirectoryRow = {
+  id: string; name: string; category: string; url: string; access: string; checked: string;
+};
+
+const jur = (data as any).jurisdictions[jurisdiction] as {
+  votescope: Snapshot; markets: MarketRow[]; directory: DirectoryRow[];
+};
+
+const L = locale === 'fr' ? 'fr-CA' : locale === 'es' ? 'es-ES' : 'en-CA';
+const fmtDate = (iso?: string | null) =>
+  iso ? new Date(`${iso}T12:00:00Z`).toLocaleDateString(L, {
+    day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC',
+  }) : '';
+// En français comme en espagnol, 98.2 s'écrit 98,2. Un chiffre non localisé
+// sur une page qui existe pour comparer des chiffres est la faute la plus
+// visible qu'elle puisse faire.
+const num = (n: number | null | undefined, digits = 1) =>
+  n === null || n === undefined
+    ? '—'
+    : n.toLocaleString(L, { minimumFractionDigits: digits, maximumFractionDigits: digits });
+const pct = (n: number | null | undefined) => (n === null || n === undefined ? '—' : `${num(n)} %`.replace(' %', locale === 'en' ? '%' : ' %'));
+const signed = (n: number | null | undefined) =>
+  n === null || n === undefined ? '—' : `${n > 0 ? '+' : ''}${num(n)}`;
+
+const copy = {
+  en: {
+    eyebrow: 'Forecast comparison',
+    chamber: { house: 'the House', senate: 'the Senate', governor: 'the governorships' }[jurisdiction],
+    heading: {
+      house: 'Who else forecasts the 2026 House, and where do they stand?',
+      senate: 'Who else forecasts the 2026 Senate, and where do they stand?',
+      governor: 'Who else forecasts the 2026 governor races, and where do they stand?',
+    }[jurisdiction],
+    lede: 'Every forecaster still publishing on the 2026 midterms, in one place, with our own number beside the ones we are allowed to carry. This is a comparison, not a ranking.',
+    ourForecast: 'Our forecast', seats: 'Projected seats', control: 'Democratic control',
+    asOf: 'as of', unchangedSince: 'unchanged since', moved: 'was', on: 'on',
+    markets: 'Prediction markets', gap: 'Gap vs Vote-Scope',
+    directory: 'The other forecasters',
+    directoryLede: 'We name and link them; we do not republish their numbers. Where a figure is missing, the reason is stated — it is never a broken feed.',
+    cat: { modele: 'Probabilistic models', cotes_experts: 'Expert ratings', agregateur: 'Aggregators' },
+    access: {
+      robots_bloque: 'This publisher does not allow automated reuse of its content',
+      permissif_a_verifier: 'Terms of use not yet reviewed on our side',
+      api_cle: 'Published through an API that requires a key we do not have',
+      non_verifie: 'Access policy not yet checked',
+    } as Record<string, string>,
+    checked: 'checked',
+    disclaimer: 'Independent comparison. Vote-Scope is not affiliated with, or endorsed by, any forecaster listed here. Every third-party forecast remains the property of its publisher and is linked to its original page. Methodologies differ: a model states a probability, an expert rating states a category, and an exchange states a price.',
+    visit: 'Visit',
+  },
+  fr: {
+    eyebrow: 'Comparaison des prévisions',
+    chamber: { house: 'la Chambre', senate: 'le Sénat', governor: 'les postes de gouverneur' }[jurisdiction],
+    heading: {
+      house: 'Qui d’autre prévoit la Chambre 2026, et où en sont-ils ?',
+      senate: 'Qui d’autre prévoit le Sénat 2026, et où en sont-ils ?',
+      governor: 'Qui d’autre prévoit les courses de gouverneur 2026, et où en sont-ils ?',
+    }[jurisdiction],
+    lede: 'Tous les prévisionnistes encore actifs sur les midterms 2026, en une page, avec notre propre chiffre à côté de ceux que nous avons le droit de porter. C’est une comparaison, pas un classement.',
+    ourForecast: 'Notre prévision', seats: 'Sièges projetés', control: 'Contrôle démocrate',
+    asOf: 'au', unchangedSince: 'inchangé depuis le', moved: 'était à', on: 'le',
+    markets: 'Marchés de prévision', gap: 'Écart avec Vote-Scope',
+    directory: 'Les autres prévisionnistes',
+    directoryLede: 'Nous les nommons et nous les lions ; nous ne republions pas leurs chiffres. Quand une valeur manque, la raison est écrite — ce n’est jamais une panne.',
+    cat: { modele: 'Modèles probabilistes', cotes_experts: 'Cotes d’experts', agregateur: 'Agrégateurs' },
+    access: {
+      robots_bloque: 'Cet éditeur n’autorise pas la reprise automatisée de son contenu',
+      permissif_a_verifier: 'Conditions d’utilisation pas encore examinées de notre côté',
+      api_cle: 'Publié via une API qui exige une clé que nous n’avons pas',
+      non_verifie: 'Politique d’accès pas encore vérifiée',
+    } as Record<string, string>,
+    checked: 'vérifié le',
+    disclaimer: 'Comparaison indépendante. Vote-Scope n’est affilié à aucun des prévisionnistes présentés, ni approuvé par eux. Chaque prévision tierce demeure la propriété de son éditeur et renvoie à sa page d’origine. Les méthodologies diffèrent : un modèle énonce une probabilité, une cote d’expert énonce une catégorie, une bourse énonce un prix.',
+    visit: 'Consulter',
+  },
+  es: {
+    eyebrow: 'Comparación de pronósticos',
+    chamber: { house: 'la Cámara', senate: 'el Senado', governor: 'las gobernaciones' }[jurisdiction],
+    heading: {
+      house: '¿Quién más pronostica la Cámara de 2026, y dónde están?',
+      senate: '¿Quién más pronostica el Senado de 2026, y dónde están?',
+      governor: '¿Quién más pronostica las gobernaciones de 2026, y dónde están?',
+    }[jurisdiction],
+    lede: 'Todos los pronosticadores que siguen publicando sobre las elecciones de medio mandato de 2026, en una sola página, con nuestra cifra junto a las que tenemos derecho a mostrar. Es una comparación, no una clasificación.',
+    ourForecast: 'Nuestro pronóstico', seats: 'Escaños proyectados', control: 'Control demócrata',
+    asOf: 'al', unchangedSince: 'sin cambios desde el', moved: 'estaba en', on: 'el',
+    markets: 'Mercados de predicción', gap: 'Diferencia con Vote-Scope',
+    directory: 'Los demás pronosticadores',
+    directoryLede: 'Los nombramos y los enlazamos; no republicamos sus cifras. Cuando falta un valor, la razón está escrita — nunca es una avería.',
+    cat: { modele: 'Modelos probabilísticos', cotes_experts: 'Calificaciones de expertos', agregateur: 'Agregadores' },
+    access: {
+      robots_bloque: 'Este editor no permite la reutilización automatizada de su contenido',
+      permissif_a_verifier: 'Condiciones de uso aún no revisadas por nuestra parte',
+      api_cle: 'Publicado mediante una API que exige una clave que no tenemos',
+      non_verifie: 'Política de acceso aún no verificada',
+    } as Record<string, string>,
+    checked: 'verificado el',
+    disclaimer: 'Comparación independiente. Vote-Scope no está afiliado a ninguno de los pronosticadores presentados ni cuenta con su respaldo. Cada pronóstico de terceros sigue siendo propiedad de su editor y enlaza a su página original. Las metodologías difieren: un modelo enuncia una probabilidad, una calificación de experto enuncia una categoría y una bolsa enuncia un precio.',
+    visit: 'Ver',
+  },
+}[locale];
+
+// ⚠ Le générique TypeScript en ligne (`as Record<string, string>`) ne passe PAS
+// dans le gabarit Astro : le parseur y lit `<string, string>` comme une balise.
+// Le typage se fait donc ici, dans le frontmatter.
+const catLabel = copy.cat as Record<string, string>;
+
+const CATEGORY_ORDER = ['modele', 'cotes_experts', 'agregateur'] as const;
+const grouped = CATEGORY_ORDER
+  .map((c) => ({ category: c, rows: jur.directory.filter((r) => r.category === c) }))
+  .filter((g) => g.rows.length > 0);
+
+const ours = jur.votescope;
+const prev = ours.previous;
+// « Inchangé » est une information, pas une absence : quand nos chiffres n'ont
+// pas bougé alors que les marchés l'ont fait, c'est la phrase la plus utile de
+// la page.
+const unchanged = prev && prev.p_dem_control !== null
+  ? prev.p_dem_control === ours.p_dem_control
+  : prev && prev.seats_dem === ours.seats_dem;
+---
+
+<section class="fcc" aria-labelledby="fcc-heading">
+  <div class="container fcc-inner">
+    <p class="fcc-eyebrow">{copy.eyebrow}</p>
+    <h1 id="fcc-heading">{copy.heading}</h1>
+    <p class="fcc-lede">{copy.lede}</p>
+
+    <div class="fcc-ours">
+      <h2>{copy.ourForecast}</h2>
+      <dl class="fcc-stats">
+        <div>
+          <dt>{copy.control}</dt>
+          <dd class="fcc-big">{pct(ours.p_dem_control)}</dd>
+        </div>
+        {ours.seats_dem !== null && (
+          <div>
+            <dt>{copy.seats}</dt>
+            <dd class="fcc-big">{`${num(ours.seats_dem)} D · ${num(ours.seats_rep)} R`}</dd>
+          </div>
+        )}
+      </dl>
+      <p class="fcc-asof">
+        {`${copy.asOf} ${fmtDate(ours.as_of)}`}
+        {prev && (unchanged
+          ? ` · ${copy.unchangedSince} ${fmtDate(prev.as_of)}`
+          : ` · ${copy.moved} ${prev.p_dem_control !== null ? pct(prev.p_dem_control) : `${num(prev.seats_dem)} D`} ${copy.on} ${fmtDate(prev.as_of)}`)}
+      </p>
+    </div>
+
+    {jur.markets.length > 0 && (
+      <div class="fcc-block">
+        <h2>{copy.markets}</h2>
+        <ul class="fcc-rows">
+          {jur.markets.map((m) => (
+            <li class="fcc-row">
+              <span class="fcc-name">
+                <a href={m.url} rel="nofollow noopener" target="_blank">{m.name}</a>
+              </span>
+              <span class="fcc-val">{pct(m.p_dem_control)}</span>
+              <span class="fcc-meta">
+                {`${copy.gap} ${signed(m.gap_vs_votescope)}`}
+                {m.as_of && ` · ${copy.asOf} ${fmtDate(m.as_of)}`}
+                {m.previous && ` · ${copy.moved} ${pct(m.previous.p_dem_control)} ${copy.on} ${fmtDate(m.previous.as_of)}`}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    )}
+
+    <div class="fcc-block">
+      <h2>{copy.directory}</h2>
+      <p class="fcc-sublede">{copy.directoryLede}</p>
+      {grouped.map((g) => (
+        <div class="fcc-group">
+          <h3>{catLabel[g.category]}</h3>
+          <ul class="fcc-dir">
+            {g.rows.map((r) => (
+              <li>
+                <a href={r.url} rel="nofollow noopener" target="_blank">{r.name}</a>
+                <span class="fcc-why">{copy.access[r.access] ?? r.access}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+
+    <p class="fcc-disclaimer">{copy.disclaimer}</p>
+  </div>
+</section>
+
+<style>
+  .fcc { padding: 40px 0 56px; }
+  .fcc-inner { max-width: 940px; margin-inline: auto; padding-inline: 1.5rem; }
+
+  .fcc-eyebrow {
+    font-family: var(--mono); font-size: 11px; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--ink-3); margin: 0 0 6px;
+  }
+  .fcc h1 { font-size: 30px; margin: 0 0 10px; line-height: 1.2; }
+  .fcc-lede { margin: 0 0 32px; color: var(--ink-2); max-width: 66ch; }
+
+  .fcc-ours { border: 1px solid var(--rule); border-radius: 8px; padding: 20px 22px; }
+  .fcc-ours h2, .fcc-block h2 { font-size: 18px; margin: 0 0 14px; }
+
+  .fcc-stats { display: flex; flex-wrap: wrap; gap: 12px 44px; margin: 0 0 10px; }
+  .fcc-stats div { display: flex; flex-direction: column; gap: 4px; }
+  .fcc-stats dt {
+    font-family: var(--mono); font-size: 10px; letter-spacing: .06em;
+    text-transform: uppercase; color: var(--ink-3);
+  }
+  .fcc-stats dd { margin: 0; }
+  .fcc-big { font-size: 26px; font-variant-numeric: tabular-nums; }
+
+  .fcc-asof { margin: 0; font-size: 13px; color: var(--ink-2); }
+
+  .fcc-block { padding-top: 34px; }
+  .fcc-sublede { margin: 0 0 18px; color: var(--ink-2); max-width: 68ch; font-size: 14px; }
+
+  .fcc-rows { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+  .fcc-row {
+    display: grid; grid-template-columns: minmax(7rem, 11rem) auto 1fr;
+    gap: 6px 18px; align-items: baseline;
+    padding: 12px 0; border-bottom: 1px solid var(--rule);
+  }
+  .fcc-name { font-weight: 600; }
+  .fcc-val { font-family: var(--mono); font-size: 17px; font-variant-numeric: tabular-nums; }
+  .fcc-meta { font-size: 13px; color: var(--ink-2); }
+
+  .fcc-group { margin-bottom: 22px; }
+  .fcc-group h3 {
+    font-family: var(--mono); font-size: 11px; letter-spacing: .06em;
+    text-transform: uppercase; color: var(--ink-3);
+    margin: 0 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--rule);
+  }
+  .fcc-dir { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+  .fcc-dir li {
+    display: grid; grid-template-columns: minmax(10rem, 15rem) 1fr;
+    gap: 4px 18px; align-items: baseline; font-size: 14px;
+  }
+  .fcc-why { font-size: 13px; color: var(--ink-3); }
+
+  .fcc-disclaimer {
+    margin: 34px 0 0; font-size: 12px; color: var(--ink-3); max-width: 80ch;
+    padding-top: 16px; border-top: 1px solid var(--rule);
+  }
+
+  @media (max-width: 620px) {
+    .fcc h1 { font-size: 24px; }
+    .fcc-row { grid-template-columns: 1fr auto; }
+    .fcc-meta { grid-column: 1 / -1; }
+    .fcc-dir li { grid-template-columns: 1fr; }
+  }
+</style>
