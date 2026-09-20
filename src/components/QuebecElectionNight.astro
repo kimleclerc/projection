@@ -107,6 +107,7 @@ const COPY = {
       { href: '/fr/methodologie/', label: 'La méthodologie', text: 'Comment le modèle passe des sondages aux sièges, et ce qu’il ne prétend pas savoir.' },
     ],
     sourceNote: 'Source officielle du dépouillement : Élections Québec. Les projections, les seuils de décision et les appels appartiennent à Vote-Scope; Élections Québec ne fait et ne fournit aucun appel.',
+    licenceNote: 'Comprend des données ouvertes octroyées sous la licence d’utilisation des données ouvertes du directeur général des élections disponible à l’adresse Web dgeq.org. L’octroi de la licence n’implique aucune approbation par le directeur général des élections de l’utilisation des données ouvertes qui en est faite.',
   },
   en: {
     eyebrow: 'Quebec general election · October 5, 2026',
@@ -145,6 +146,7 @@ const COPY = {
       { href: '/en/methodology/', label: 'The methodology', text: 'How the model goes from polls to seats, and what it does not claim to know.' },
     ],
     sourceNote: 'Official count source: Élections Québec. Projections, decision thresholds and calls belong to Vote-Scope; Élections Québec makes and supplies no calls.',
+    licenceNote: 'Comprend des données ouvertes octroyées sous la licence d’utilisation des données ouvertes du directeur général des élections disponible à l’adresse Web dgeq.org. L’octroi de la licence n’implique aucune approbation par le directeur général des élections de l’utilisation des données ouvertes qui en est faite. (Contains open data licensed under the Chief Electoral Officer’s open data licence, available at dgeq.org; the licence implies no endorsement of how the data is used.)',
   },
   es: {
     eyebrow: 'Elección general de Quebec · 5 de octubre de 2026',
@@ -183,6 +185,7 @@ const COPY = {
       { href: '/es/metodologia/', label: 'La metodología', text: 'Cómo pasa el modelo de los sondeos a los escaños, y qué no pretende saber.' },
     ],
     sourceNote: 'Fuente oficial del recuento: Élections Québec. Las proyecciones, los umbrales de decisión y los pronunciamientos son de Vote-Scope; Élections Québec no emite ni suministra ningún pronunciamiento.',
+    licenceNote: 'Comprend des données ouvertes octroyées sous la licence d’utilisation des données ouvertes du directeur général des élections disponible à l’adresse Web dgeq.org. L’octroi de la licence n’implique aucune approbation par le directeur général des élections de l’utilisation des données ouvertes qui en est faite. (Incluye datos abiertos bajo la licencia de datos abiertos del director general de elecciones, disponible en dgeq.org; la licencia no implica aprobación alguna del uso que se hace de los datos.)',
   },
 }[locale];
 
@@ -305,6 +308,7 @@ const runDateText = new Intl.DateTimeFormat(
       ))}
     </ul>
     <p class="qen-source">{COPY.sourceNote}</p>
+    <p class="qen-licence">{COPY.licenceNote}</p>
   </div>
 </section>
 
@@ -358,6 +362,8 @@ const runDateText = new Intl.DateTimeFormat(
   .qen-cards h3 { font-family: var(--serif); font-size: 19px; font-weight: 500; margin-bottom: 8px; }
   .qen-cards p { font-size: 14px; line-height: 1.6; color: var(--ink-2); }
   .qen-source { margin-top: 28px; max-width: 760px; font-size: 13px; line-height: 1.65; color: var(--ink-3); }
+  /* Mention exigée par la licence du DGEQ : elle doit être affichée en tout temps. */
+  .qen-licence { margin-top: 10px; max-width: 760px; font-size: 12px; line-height: 1.6; color: var(--ink-3); }
 
   @media (max-width: 600px) {
     .qen-hero { padding: 56px 0 32px; }
