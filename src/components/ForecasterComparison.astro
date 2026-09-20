@@ -96,6 +96,7 @@ const copy = {
       delta_sieges: 'Expert ratings — projected seat change',
     } as Record<string, string>,
     via: (who: string) => `as reported by ${who}`,
+    byHand: 'entered by hand',
     ratingLine: (t: string, d: string, r: string) => `${d} lean D · ${t} toss-up · ${r} lean R`,
     deltaLine: (lo: string, hi: string) => `Democrats +${lo} to +${hi} seats`,
     acq: {
@@ -142,6 +143,7 @@ const copy = {
       delta_sieges: 'Cotes d’experts — variation de sièges projetée',
     } as Record<string, string>,
     via: (who: string) => `rapporté par ${who}`,
+    byHand: 'saisi à la main',
     ratingLine: (t: string, d: string, r: string) => `${d} penchant D · ${t} toss-up · ${r} penchant R`,
     deltaLine: (lo: string, hi: string) => `Démocrates +${lo} à +${hi} sièges`,
     acq: {
@@ -188,6 +190,7 @@ const copy = {
       delta_sieges: 'Calificaciones de expertos — cambio de escaños proyectado',
     } as Record<string, string>,
     via: (who: string) => `reportado por ${who}`,
+    byHand: 'registrado a mano',
     ratingLine: (t: string, d: string, r: string) => `${d} inclinación D · ${t} indecisos · ${r} inclinación R`,
     deltaLine: (lo: string, hi: string) => `Demócratas +${lo} a +${hi} escaños`,
     acq: {
@@ -298,6 +301,7 @@ const unchanged = prev && prev.p_dem_control !== null
                     {q.gap_vs_votescope !== null && `${copy.gap} ${signed(q.gap_vs_votescope)} · `}
                     {`${copy.asOf} ${fmtDate(q.as_of)} · ${copy.readOn} ${fmtDate(q.entered_on)}`}
                     {q.via && ` · ${copy.via(q.via)}`}
+                    {!q.via && q.acquisition === 'manuel_seulement' && ` · ${copy.byHand}`}
                   </span>
                 </li>
               ))}
