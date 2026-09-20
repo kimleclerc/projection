@@ -21,7 +21,9 @@ type Result = {
   polls?: { reported?: number | null; total?: number | null; pct?: number | null };
   ballots_counted?: number; candidates: Candidate[];
 };
-type Call = { riding_id: string; party_code: string; candidate_name: string; called_at?: string };
+type Call = { riding_id: string; party_code: string; candidate_name: string; called_at?: string;
+  /** posé par le collecteur quand l'appel a été publié PAR-DESSUS une anomalie de source. */
+  source_anomalies_overridden?: boolean };
 type ProjCandidate = { party_code: string; candidate_name?: string | null; color?: string; party_label?: Partial<Record<Locale, string>> };
 type Projection = { riding_id: string; candidates: ProjCandidate[] };
 type LivePayload = {
@@ -35,6 +37,9 @@ const MAJORITY = 64;
 const TOTAL = 127;
 const BASE_INTERVAL_MS = 90_000;
 const STALE_AFTER_MS = 7 * 60_000;
+// Répétitions : le collecteur republie `demo` sur un rejeu de fixture même quand
+// la configuration dit `simulation`. Ni l'un ni l'autre n'est le vrai scrutin.
+const REHEARSAL_MODES = new Set(['simulation', 'demo']);
 
 const copy = {
   fr: { live: 'En direct', waiting: 'En attente des premiers résultats officiels', connecting: 'Connexion au dépouillement officiel…',
@@ -43,21 +48,24 @@ const copy = {
         riding: 'Circonscription', leader: 'Meneur', votes: 'Voix', polls: 'Bureaux', status: 'Statut', calledBadge: 'Appelé',
         leadingBadge: 'En tête', noVotes: '—', stale: 'Dépouillement en pause — aucune donnée officielle depuis', minutes: 'min',
         complete: 'Dépouillement terminé', source: 'Source officielle : Élections Québec. Les appels sont ceux de Vote-Scope.',
-        search: 'Chercher une circonscription', anomalies: 'candidats ou partis inconnus du registre (aucun appel automatique possible)' },
+        search: 'Chercher une circonscription', anomalies: 'candidats ou partis inconnus du registre',
+        anomaliesBlocked: 'aucun appel automatique possible', anomaliesOverridden: 'des appels automatiques ont été publiés malgré l’anomalie' },
   en: { live: 'Live', waiting: 'Waiting for the first official results', connecting: 'Connecting to the official count…',
         unavailable: 'Live results temporarily unavailable', lastKnown: 'Last known update', updated: 'Data as of',
         seats: 'Seats', called: 'called', leading: 'leading', majority: `Majority: ${MAJORITY}`, ridings: 'Ridings',
         riding: 'Riding', leader: 'Leader', votes: 'Votes', polls: 'Polls', status: 'Status', calledBadge: 'Called',
         leadingBadge: 'Leading', noVotes: '—', stale: 'Count paused — no new official data for', minutes: 'min',
         complete: 'Count complete', source: 'Official source: Élections Québec. Calls are Vote-Scope’s.',
-        search: 'Find a riding', anomalies: 'candidates or parties unknown to the registry (no automatic call possible)' },
+        search: 'Find a riding', anomalies: 'candidates or parties unknown to the registry',
+        anomaliesBlocked: 'no automatic call possible', anomaliesOverridden: 'automatic calls were published over the anomaly' },
   es: { live: 'En directo', waiting: 'A la espera de los primeros resultados oficiales', connecting: 'Conectando con el recuento oficial…',
         unavailable: 'Resultados en directo temporalmente no disponibles', lastKnown: 'Última actualización conocida', updated: 'Datos del',
         seats: 'Escaños', called: 'asignados', leading: 'en cabeza', majority: `Mayoría: ${MAJORITY}`, ridings: 'Distritos',
         riding: 'Distrito', leader: 'Líder', votes: 'Votos', polls: 'Mesas', status: 'Estado', calledBadge: 'Asignado',
         leadingBadge: 'En cabeza', noVotes: '—', stale: 'Recuento en pausa — sin datos oficiales desde hace', minutes: 'min',
         complete: 'Recuento completo', source: 'Fuente oficial: Élections Québec. Las asignaciones son de Vote-Scope.',
-        search: 'Buscar un distrito', anomalies: 'candidatos o partidos desconocidos para el registro (sin asignación automática)' },
+        search: 'Buscar un distrito', anomalies: 'candidatos o partidos desconocidos para el registro',
+        anomaliesBlocked: 'sin asignación automática', anomaliesOverridden: 'se publicaron asignaciones automáticas pese a la anomalía' },
 };
 
 function storageKey(eventId: string) { return `vs-live-${eventId}`; }
@@ -193,6 +201,12 @@ export default function QuebecElectionNightLive({ eventId, lang, apiBase }: { ev
   const ageMin = sourceStamp ? Math.floor((now - new Date(sourceStamp).getTime()) / 60_000) : null;
   const stale = !complete && !!data && !fromStorage && data.source?.healthy !== false && ageMin !== null && ageMin * 60_000 > STALE_AFTER_MS;
   const decided = rows.filter((r) => r.party).length;
+  // Une anomalie de source n'interdit un appel automatique que hors répétition.
+  // En simulation, `allow_source_anomalies` peut lever le garde-fou : on ne
+  // promet donc rien tant qu'aucun appel n'a porté la dérogation.
+  const anomalyOverridden = (data?.calls ?? []).some((c) => c.source_anomalies_overridden);
+  const anomalyClause = anomalyOverridden ? t.anomaliesOverridden
+    : REHEARSAL_MODES.has(data?.event?.mode ?? '') ? null : t.anomaliesBlocked;
   const visible = filter ? rows.filter((r) => r.name.toLowerCase().includes(filter.toLowerCase())) : rows;
 
   if (!data) {
@@ -208,7 +222,9 @@ export default function QuebecElectionNightLive({ eventId, lang, apiBase }: { ev
       </div>
       {failed && <p class="qcl-warn">{t.unavailable}</p>}
       {stale && ageMin !== null && <p class="qcl-warn">{t.stale} {ageMin} {t.minutes}.</p>}
-      {(data.source?.anomaly_count ?? 0) > 0 && <p class="qcl-warn">{data.source?.anomaly_count} {t.anomalies}</p>}
+      {(data.source?.anomaly_count ?? 0) > 0 && (
+        <p class="qcl-warn">{data.source?.anomaly_count} {t.anomalies}{anomalyClause ? ` — ${anomalyClause}` : ''}</p>
+      )}
 
       {decided === 0 ? <p class="qcl-state">{t.waiting}</p> : (
         <div class="qcl-seats">
