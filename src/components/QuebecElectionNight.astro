@@ -20,13 +20,23 @@ import resolvedCalls from '../../web_data/resolved-calls.json';
 import type { Locale } from '../data/editorial';
 import QuebecElectionNightLive from '../islands/QuebecElectionNightLive.tsx';
 
-// La couche directe lit le Worker de production sous l'identifiant du
-// scrutin. En développement et pour la simulation du 20 septembre, deux
-// variables la déplacent : PUBLIC_LIVE_API_BASE (un Worker local, wrangler
-// dev) et PUBLIC_LIVE_EVENT_ID (qc-2026-09-20-simulation). Sans elles, la
-// page lit qc-2026-10-05 sur vote-scope.com — jamais la simulation.
+// LECTURE PUBLIQUE = RAIL STATIQUE. Chaque lecture du Worker est une invocation
+// facturée, même servie par `caches.default` : le cache protège le Durable
+// Object, pas le quota. Le plan gratuit plafonne à 100 000 requêtes/jour, soit
+// ~830 onglets sur une soirée à un sondage/90 s — et la seule page Clacton a
+// fait 3 665 vues en une partielle. Le service s'arrêterait net en plein
+// dépouillement. Les actifs statiques de Pages n'ont pas de plafond publié.
+// Voir `models/docs/NOTE_VOLUME_SOIREE_QC_2026-10-05.md` §3.2 et §3.5.
+//
+// Le Worker reste le REPLI, pas le chemin : une fraction infime du trafic, donc
+// sans risque de quota, mais une panne du statique ne nous laisse pas muets.
+//
+// `votescope-live.pages.dev` est le nom actuel du projet ; `live.vote-scope.com`
+// est le nom visé une fois l'enregistrement DNS posé — changer la valeur par
+// défaut ci-dessous le jour où il existe.
 const LIVE_EVENT_ID = import.meta.env.PUBLIC_LIVE_EVENT_ID ?? 'qc-2026-10-05';
-const liveApiBase = import.meta.env.PUBLIC_LIVE_API_BASE ?? 'https://vote-scope.com';
+const liveApiBase = import.meta.env.PUBLIC_LIVE_API_BASE ?? 'https://votescope-live.pages.dev';
+const liveFallbackApiBase = import.meta.env.PUBLIC_LIVE_FALLBACK_API_BASE ?? 'https://vote-scope.com';
 
 interface Props {
   locale: Locale;
@@ -208,7 +218,7 @@ const runDateText = new Intl.DateTimeFormat(
 
 <section class="qen-live">
   <div class="container">
-    <QuebecElectionNightLive client:load eventId={LIVE_EVENT_ID} lang={locale} apiBase={liveApiBase} />
+    <QuebecElectionNightLive client:load eventId={LIVE_EVENT_ID} lang={locale} apiBase={liveApiBase} fallbackApiBase={liveFallbackApiBase} />
   </div>
 </section>
 

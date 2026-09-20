@@ -37,6 +37,12 @@ const MAJORITY = 64;
 const TOTAL = 127;
 const BASE_INTERVAL_MS = 90_000;
 const STALE_AFTER_MS = 7 * 60_000;
+// Au-delà, on tente le repli : le statique est peut-être figé sur un PoP.
+const FALLBACK_AFTER_MS = 3 * 60_000;
+// PLAFOND DUR. Sans lui, un statique figé — la fin de soirée, par exemple —
+// enverrait CHAQUE onglet sur le Worker à chaque tour, et la falaise de quota
+// reviendrait par la porte d'en arrière. Le repli est un secours, pas un régime.
+const FALLBACK_MAX_USES = 3;
 // Répétitions : le collecteur republie `demo` sur un rejeu de fixture même quand
 // la configuration dit `simulation`. Ni l'un ni l'autre n'est le vrai scrutin.
 const REHEARSAL_MODES = new Set(['simulation', 'demo']);
@@ -89,7 +95,8 @@ function num(v: number, locale: Locale, digits = 1): string {
   return v.toLocaleString(locale === 'en' ? 'en-CA' : locale === 'es' ? 'es-ES' : 'fr-CA', { minimumFractionDigits: digits, maximumFractionDigits: digits });
 }
 
-export default function QuebecElectionNightLive({ eventId, lang, apiBase }: { eventId: string; lang: Locale; apiBase: string }) {
+export default function QuebecElectionNightLive({ eventId, lang, apiBase, fallbackApiBase }:
+  { eventId: string; lang: Locale; apiBase: string; fallbackApiBase?: string }) {
   const t = copy[lang];
   const [data, setData] = useState<LivePayload | null>(null);
   const [fromStorage, setFromStorage] = useState(false);
@@ -102,6 +109,7 @@ export default function QuebecElectionNightLive({ eventId, lang, apiBase }: { ev
   const timer = useRef<number | null>(null);
   const stopped = useRef(false);
   const sequence = useRef(-1);
+  const fallbackUses = useRef(0);
 
   const complete = useMemo(() => {
     if (!data?.results?.length) return false;
@@ -113,7 +121,21 @@ export default function QuebecElectionNightLive({ eventId, lang, apiBase }: { ev
     const stored = readStored(eventId);
     if (stored && isValid(stored)) { setData(stored); setFromStorage(true); sequence.current = stored.sequence ?? -1; }
 
-    const url = `${apiBase.replace(/\/$/, '')}/api/v1/elections/${eventId}/live.json`;
+    const endpoint = (base: string) => `${base.replace(/\/$/, '')}/api/v1/elections/${eventId}/live.json`;
+    const url = endpoint(apiBase);
+
+    // `cache: 'default'` laisse HTTP travailler : un 304 coûte quelques octets.
+    const read = async (from: string): Promise<LivePayload> => {
+      const response = await fetch(from, { cache: 'default' });
+      if (!response.ok) throw new Error(`http ${response.status}`);
+      const body = await response.json();
+      if (!isValid(body)) throw new Error('payload invalide');
+      return body as LivePayload;
+    };
+    const ageOf = (p: LivePayload) => {
+      const stamp = p.source?.source_updated_at;
+      return stamp ? Date.now() - new Date(stamp).getTime() : Number.POSITIVE_INFINITY;
+    };
 
     const schedule = (ms: number) => {
       if (stopped.current) return;
@@ -128,10 +150,24 @@ export default function QuebecElectionNightLive({ eventId, lang, apiBase }: { ev
       if (inFlight.current) { schedule(jittered()); return; }   // jamais deux lectures en vol
       inFlight.current = true;
       try {
-        const response = await fetch(url, { cache: 'default' });
-        if (!response.ok) throw new Error(`http ${response.status}`);
-        const payload = await response.json();
-        if (!isValid(payload)) throw new Error('payload invalide');
+        // Le rail statique d'abord, TOUJOURS. Le Worker n'est sollicité que si
+        // le statique tombe ou se fige — une fraction infime du trafic, qui ne
+        // peut donc pas épuiser le quota de requêtes.
+        let payload: LivePayload;
+        try {
+          payload = await read(url);
+          if (fallbackApiBase && ageOf(payload) > FALLBACK_AFTER_MS && fallbackUses.current < FALLBACK_MAX_USES) {
+            fallbackUses.current += 1;
+            try {
+              const spare = await read(endpoint(fallbackApiBase));
+              if (ageOf(spare) < ageOf(payload)) payload = spare;
+            } catch { /* le repli ne doit jamais faire échouer une lecture réussie */ }
+          }
+        } catch (primaryError) {
+          if (!fallbackApiBase || fallbackUses.current >= FALLBACK_MAX_USES) throw primaryError;
+          fallbackUses.current += 1;
+          payload = await read(endpoint(fallbackApiBase));
+        }
         const seq = payload.sequence ?? 0;
         if (seq < sequence.current) {
           // GARDE DE SÉQUENCE : un instantané plus ancien (cache, second point
