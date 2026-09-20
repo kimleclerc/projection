@@ -67,6 +67,17 @@ const CURATED = [
   '/en/us/governors/races/', '/fr/us/gouverneurs/courses/', '/es/us/gobernadores/carreras/',
   '/en/us/governors/polls/', '/fr/us/gouverneurs/sondages/', '/es/us/gobernadores/sondeos/',
   '/en/us/indexes/lame-duck/', '/fr/us/indexes/lame-duck/', '/es/us/indexes/lame-duck/',
+  // Desk des marchés et comparateur de modèles, ouverts le 2026-09-19. Le
+  // premier suit deux bourses en direct, le second porte les toplines de sept
+  // prévisionnistes : ces douze pages changent tous les jours, et « kalshi »
+  // vaut à lui seul 222 500 impressions de recherche sur trois mois.
+  '/en/us/prediction-markets/', '/fr/us/marches-previsionnels/', '/es/us/mercados-de-prediccion/',
+  '/en/us/house/compare-forecasts/', '/fr/us/chambre/comparer-les-previsions/', '/es/us/house/comparar-pronosticos/',
+  '/en/us/senate/compare-forecasts/', '/fr/us/senat/comparer-les-previsions/', '/es/us/senate/comparar-pronosticos/',
+  '/en/us/governors/compare-forecasts/', '/fr/us/gouverneurs/comparer-les-previsions/', '/es/us/gobernadores/comparar-pronosticos/',
+  // Pages de sondage France, une par enquête réelle — la plus grosse demande
+  // française du site (« sondage présidentielle 2027 », 39 600 impressions).
+  '/en/france/polls/', '/fr/france/sondages/', '/es/france/sondeos/',
   // Les indices « maison » bougent tous les jours et n'étaient jamais soumis,
   // à l'exception du canard boiteux : le hub, la Bernache et surtout le pupitre
   // de la guerre commerciale, qui se met à jour avec les marchés live.
