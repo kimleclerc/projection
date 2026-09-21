@@ -1,18 +1,22 @@
-/** Dynamic social/download cards for the seven ProjectionEngine forecasts. */
+/** Dynamic social/download cards for every ProjectionEngine forecast. */
 import type { APIRoute, GetStaticPaths } from 'astro';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { renderPollCard, type CardEntry } from '../../../../lib/og/poll-card';
+import { jurisdictions } from '../../../../data/jurisdictions';
 
 type Lang = 'en' | 'fr' | 'es';
+type Key = string;
 const LANGS: Lang[] = ['en', 'fr', 'es'];
-const KEYS = ['federal', 'ontario', 'quebec', 'us-house', 'us-senate', 'us-governor', 'uk'] as const;
-type Key = (typeof KEYS)[number];
+// Derived from the jurisdiction registry rather than hand-kept: this file
+// listed seven desks, and British Columbia — added later — served a 404 under
+// the "download PNG" button of its own forecast page.
+const KEYS: Key[] = Object.values(jurisdictions).map((j) => j.dataPath);
 
 export const getStaticPaths: GetStaticPaths = () =>
   KEYS.flatMap((key) => LANGS.map((lang) => ({ params: { key, lang } })));
 
-const TITLES: Record<Key, Record<Lang, string>> = {
+const TITLES: Record<string, Record<Lang, string>> = {
   federal: { en: 'Canada federal forecast', fr: 'Projection fédérale · Canada', es: 'Pronóstico federal · Canadá' },
   ontario: { en: 'Ontario election forecast', fr: 'Ontario · Projection électorale', es: 'Ontario · Pronóstico electoral' },
   quebec: { en: 'Quebec 2026 forecast', fr: 'Québec 2026 · Projection', es: 'Quebec 2026 · Pronóstico' },
@@ -20,7 +24,18 @@ const TITLES: Record<Key, Record<Lang, string>> = {
   'us-senate': { en: 'U.S. Senate forecast', fr: 'Projection · Sénat des États-Unis', es: 'Pronóstico · Senado de EE. UU.' },
   'us-governor': { en: 'U.S. governor forecast', fr: 'Projection \u00b7 Gouverneurs am\u00e9ricains', es: 'Pron\u00f3stico \u00b7 Gobernadores de EE. UU.' },
   uk: { en: 'U.K. election forecast', fr: 'Royaume-Uni · Projection', es: 'Reino Unido · Pronóstico' },
+  'british-columbia': { en: 'British Columbia forecast', fr: 'Colombie-Britannique · Projection', es: 'Columbia Británica · Pronóstico' },
 };
+
+/** Fallback title for a desk not named above: its page h1, stripped of markup,
+ *  rather than a build-time crash. */
+function cardTitle(key: Key, lang: Lang): string {
+  const named = TITLES[key]?.[lang];
+  if (named) return named;
+  const j = Object.values(jurisdictions).find((x) => x.dataPath === key);
+  const hero = j?.heroTitle[lang] ?? j?.heroTitle.en ?? key;
+  return hero.replace(/<[^>]+>/g, '');
+}
 
 const PARTY_SHORT: Record<string, Partial<Record<Lang, string>>> = {
   lib: { en: 'Liberal', fr: 'Libéral', es: 'Liberal' },
@@ -40,6 +55,11 @@ const PARTY_SHORT: Record<string, Partial<Record<Lang, string>>> = {
   uk_lab: { en: 'Labour', fr: 'Travaillistes', es: 'Laboristas' },
   uk_con: { en: 'Conservatives', fr: 'Conservateurs', es: 'Conservadores' },
   uk_ld: { en: 'Lib Dem', fr: 'Lib. dém.', es: 'Lib. dem.' },
+  bc_ndp: { en: 'BC NDP', fr: 'NPD de la C.-B.', es: 'NDP de BC' },
+  bc_con: { en: 'BC Conservatives', fr: 'Conservateurs C.-B.', es: 'Conservadores de BC' },
+  bc_grn: { en: 'BC Greens', fr: 'Verts de la C.-B.', es: 'Verdes de BC' },
+  bc_centre: { en: 'CentreBC', fr: 'CentreBC', es: 'CentreBC' },
+  bc_onebc: { en: 'OneBC', fr: 'OneBC', es: 'OneBC' },
 };
 
 const LABELS = {
@@ -78,7 +98,7 @@ export const GET: APIRoute = async ({ params }) => {
 
   const png = await renderPollCard({
     eyebrow: t.eyebrow,
-    title: TITLES[key][lang],
+    title: cardTitle(key, lang),
     subtitle: `${partyLabel(lead, lang)} ${projectedSeats(lead)} ${t.seats} · ${Math.round(probability * 100)}% ${probabilityLabel}`,
     meta2: `${formatter.format(data.meta.n_polls ?? 0)} ${t.polls} · ${formatter.format(data.meta.n_simulations ?? 0)} ${t.simulations} · ${t.threshold} ${data.meta.majority_threshold}`,
     entries,

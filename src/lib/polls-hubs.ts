@@ -32,7 +32,7 @@ export interface PollsHubConfig {
   base: Record<HubLang, string>;  // path prefix per language
   seg: Record<HubLang, string>;   // localized "polls" segment
   copy: Record<HubLang, HubCopy>;
-  hasCards?: boolean;             // emit per-poll share PNGs for this hub (us-house, federal, uk, quebec)
+  hasCards?: boolean;             // emit per-poll share PNGs for this hub (us-house, federal, uk, quebec, british-columbia)
 }
 
 const SEG: Record<HubLang, string> = { en: 'polls', fr: 'sondages', es: 'sondeos' };
@@ -148,7 +148,7 @@ export const POLLS_HUBS: Record<string, PollsHubConfig> = {
     },
   },
   'british-columbia': {
-    webKey: 'british-columbia', currentPage: 'canada', langs: ['en', 'fr', 'es'], seg: SEG,
+    webKey: 'british-columbia', currentPage: 'canada', langs: ['en', 'fr', 'es'], seg: SEG, hasCards: true,
     base: {
       en: '/en/canada/british-columbia',
       fr: '/fr/canada/colombie-britannique',

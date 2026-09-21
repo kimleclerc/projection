@@ -22,9 +22,9 @@ const LOCALE: Record<Lang, string> = { es: 'es-ES', en: 'en-US', fr: 'fr-CA' };
 // Language-generic labels; the jurisdiction-specific eyebrow comes from
 // POLLS_HUBS[key].copy[lang].ogEyebrow so each hub keeps its own wording.
 const COPY = {
-  es: { field: 'Campo', pub: 'Publicado', by: 'Encargado por', lv: 'votantes probables', rv: 'votantes registrados', a: 'adultos', nonfr: 'solo anglófonos + alófonos · excluye francófonos' },
-  en: { field: 'Field', pub: 'Released', by: 'Sponsored by', lv: 'likely voters', rv: 'registered voters', a: 'adults', nonfr: 'anglophones + allophones only · francophones excluded' },
-  fr: { field: 'Terrain', pub: 'Publié', by: 'Commandé par', lv: 'électeurs probables', rv: 'électeurs inscrits', a: 'adultes', nonfr: 'anglophones + allophones seulement · francophones exclus' },
+  es: { field: 'Campo', pub: 'Publicado', by: 'Encargado por', lv: 'votantes probables', rv: 'votantes registrados', a: 'adultos', ev: 'votantes elegibles', dl: 'decididos + inclinados', nonfr: 'solo anglófonos + alófonos · excluye francófonos' },
+  en: { field: 'Field', pub: 'Released', by: 'Sponsored by', lv: 'likely voters', rv: 'registered voters', a: 'adults', ev: 'eligible voters', dl: 'decided + leaning', nonfr: 'anglophones + allophones only · francophones excluded' },
+  fr: { field: 'Terrain', pub: 'Publié', by: 'Commandé par', lv: 'électeurs probables', rv: 'électeurs inscrits', a: 'adultes', ev: 'électeurs admissibles', dl: 'décidés + penchants', nonfr: 'anglophones + allophones seulement · francophones exclus' },
 } as const;
 
 function fmtLong(iso: string | null | undefined, loc: string): string {
@@ -50,8 +50,10 @@ function popLabel(pop: string | null | undefined, c: typeof COPY[Lang]): string 
   if (k === 'lv') return c.lv;
   if (k === 'rv') return c.rv;
   if (k === 'a' || k === 'adults') return c.a;
+  if (k === 'eligible_voters') return c.ev;
+  if (k === 'decided_and_leaning') return c.dl;
   if (k === 'anglophone_allophone_eligible_voters') return c.nonfr;
-  return pop.toUpperCase();
+  return pop.replace(/_/g, ' ');
 }
 
 export const getStaticPaths: GetStaticPaths = () =>

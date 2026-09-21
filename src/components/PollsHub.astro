@@ -80,6 +80,8 @@ const T = {
     pop_lv: 'LV',
     pop_rv: 'RV',
     pop_a: 'Adults',
+    pop_ev: 'Eligible voters',
+    pop_dl: 'Decided + leaning',
     src: 'link',
     note:
       'National and big-regional polls only. District-level polls appear on each district’s forecast page.',
@@ -108,6 +110,8 @@ const T = {
     pop_lv: 'él. prob.',
     pop_rv: 'él. ins.',
     pop_a: 'adultes',
+    pop_ev: 'électeurs admissibles',
+    pop_dl: 'décidés + penchants',
     src: 'lien',
     note:
       'Sondages nationaux et grands régionaux seulement. Les sondages de circonscription apparaissent sur la page de prévision de chaque circonscription.',
@@ -136,6 +140,8 @@ const T = {
     pop_lv: 'vot. prob.',
     pop_rv: 'vot. reg.',
     pop_a: 'adultos',
+    pop_ev: 'votantes elegibles',
+    pop_dl: 'decididos + inclinados',
     src: 'enlace',
     note:
       'Solo encuestas nacionales y grandes regionales. Los encuestas por distrito aparecen en la página de proyección de cada distrito.',
@@ -165,8 +171,12 @@ function fmtPop(pop?: string | null): string {
   if (k === 'lv') return T.pop_lv;
   if (k === 'rv') return T.pop_rv;
   if (k === 'a' || k === 'adults') return T.pop_a;
+  if (k === 'eligible_voters') return T.pop_ev;
+  if (k === 'decided_and_leaning') return T.pop_dl;
   if (k === 'anglophone_allophone_eligible_voters') return T.nonfrOnly;
-  return pop.toUpperCase();
+  // An unknown code used to surface as raw caps — "DECIDED_AND_LEANING" read
+  // that way on all thirty-eight rows of the British Columbia table.
+  return pop.replace(/_/g, ' ').replace(/^./, (c) => c.toUpperCase());
 }
 
 function scopedNote(p: PollRow): { title: string; detail: string } | null {
