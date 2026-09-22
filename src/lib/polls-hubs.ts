@@ -158,7 +158,7 @@ export const POLLS_HUBS: Record<string, PollsHubConfig> = {
       en: { eyebrow: 'Polls · British Columbia · Legislative Assembly', h1: 'British Columbia voting intention.',
         lede1: 'NDP, Conservatives, Greens, OneBC, CentreBC: every published provincial poll on BC voting intention, pollster by pollster.',
         lede2: 'Vote-Scope aggregates them and projects the Legislative Assembly. Below: the trend against the model estimate, then the full table.',
-        ogEyebrow: 'POLLS · BRITISH COLUMBIA', ogTitle: 'British Columbia voting intention', seoTitle: 'BC election polls 2026', ogSub: 'Vote-Scope · Legislative Assembly' },
+        ogEyebrow: 'POLLS · BRITISH COLUMBIA', ogTitle: 'British Columbia voting intention', seoTitle: 'BC Election Polls 2026', ogSub: 'Vote-Scope · Legislative Assembly' },
       fr: { eyebrow: 'Sondages · Colombie-Britannique · Assemblée législative', h1: 'Intentions de vote en Colombie-Britannique.',
         lede1: 'NPD, conservateurs, verts, OneBC, CentreBC : chaque sondage provincial publié sur les intentions de vote britanno-colombiennes, maison par maison.',
         lede2: 'Vote-Scope les agrège et projette l’Assemblée législative. Ci-dessous : la tendance face à l’estimation du modèle, puis le tableau complet.',
