@@ -79,14 +79,14 @@ export const jurisdictions: Record<string, Jurisdiction> = {
       es: 'Proyección por distrito basada en los resultados de 2025, las encuestas nacionales y los ajustes regionales.',
     },
     pageTitle: {
-      fr: 'Qui va gagner les élections fédérales au Canada ? — Vote-Scope',
-      en: 'Who Will Win the Canadian Federal Election? — Vote-Scope',
-      es: '¿Quién ganará las elecciones federales de Canadá? — Vote-Scope',
+      fr: 'Sondages Carney–Poilievre : Carney est-il aussi fort qu’on le dit ? — Vote-Scope',
+      en: 'Carney Polls: How Strong Is Mark Carney? Canada Federal Forecast — Vote-Scope',
+      es: 'Encuestas de Carney: ¿cuánta fuerza tiene Mark Carney? Pronóstico federal — Vote-Scope',
     },
     metaDescription: {
-      fr: 'Qui va gagner les élections fédérales au Canada? Agrégation de plus de 240 sondages, 50 000 simulations, projection des 343 sièges circonscription par circonscription. Mise à jour quotidienne.',
-      en: 'Who wins the next Canadian federal election? 240+ polls aggregated, 50,000 simulations, all 343 ridings projected seat by seat. Updated daily with every new poll.',
-      es: '¿Quién gana las elecciones federales de Canadá? Más de 240 encuestas agregadas, 50.000 simulaciones, los 343 escaños proyectados distrito por distrito. Actualizado a diario.',
+      fr: 'Mark Carney face à Pierre Poilievre : à quel point les libéraux dominent-ils? Agrégation de plus de 240 sondages, 50 000 simulations, projection des 343 sièges circonscription par circonscription. Mise à jour quotidienne.',
+      en: 'How strong is Mark Carney against Pierre Poilievre? 240+ polls aggregated, 50,000 simulations, all 343 ridings projected seat by seat. Updated daily with every new poll.',
+      es: '¿Qué ventaja tiene Mark Carney frente a Pierre Poilievre? Más de 240 encuestas agregadas, 50.000 simulaciones, los 343 escaños proyectados distrito por distrito. Actualizado a diario.',
     },
     baselineYear: 2025,
     seatsTotal: 343,
@@ -268,9 +268,9 @@ export const jurisdictions: Record<string, Jurisdiction> = {
       es: 'Proyección por distrito basada en resultados 2024, entorno nacional y clasificaciones de carrera.',
     },
     pageTitle: {
-      fr: 'Les républicains de Trump garderont-ils la Chambre en 2026? — Vote-Scope',
-      en: 'Will Republicans Keep the House in Trump\u2019s 2026 Midterms? — Vote-Scope',
-      es: '¿Los republicanos de Trump conservarán la Cámara en 2026? — Vote-Scope',
+      fr: 'Midterms 2026 : Trump gardera-t-il la Chambre? Sondages et projection — Vote-Scope',
+      en: '2026 Midterm Elections Forecast: Can Trump Keep the House? — Vote-Scope',
+      es: 'Elecciones intermedias 2026 en EE. UU.: ¿conservará Trump la Cámara? — Vote-Scope',
     },
     metaDescription: {
       fr: 'Qui contrôlera la Chambre après les mi-mandats 2026? Projection des 435 districts, sondages génériques agrégés, districts qui basculent, probabilités de contrôle et cotes Polymarket en direct. Mise à jour continue.',
@@ -313,9 +313,9 @@ export const jurisdictions: Record<string, Jurisdiction> = {
       es: 'Proyección de escaños en disputa en 2026 (Clase II). Los estados sin carrera este ciclo permanecen en gris.',
     },
     pageTitle: {
-      fr: 'Les républicains de Trump garderont-ils le Sénat en 2026? — Vote-Scope',
-      en: 'Will Republicans Keep the Senate in Trump\u2019s 2026 Midterms? — Vote-Scope',
-      es: '¿Los republicanos de Trump conservarán el Senado en 2026? — Vote-Scope',
+      fr: 'Midterms 2026 : Trump gardera-t-il le Sénat? Sondages et projection — Vote-Scope',
+      en: '2026 Senate Forecast: Can Trump Keep the Senate in the Midterms? — Vote-Scope',
+      es: 'Elecciones intermedias 2026 en EE. UU.: ¿conservará Trump el Senado? — Vote-Scope',
     },
     metaDescription: {
       fr: 'Qui contrôlera le Sénat après les mi-mandats 2026? Projection des sièges en jeu État par État, sondages agrégés, États pivots, probabilités de contrôle et cotes Polymarket en direct. Mise à jour continue.',
