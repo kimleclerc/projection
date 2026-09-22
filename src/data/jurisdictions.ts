@@ -169,13 +169,13 @@ export const jurisdictions: Record<string, Jurisdiction> = {
     },
     pageTitle: {
       fr: 'Élections Colombie-Britannique 2026 — qui va gagner le 24 octobre ? — Vote-Scope',
-      en: 'Who Will Win the 2026 British Columbia Election? — Vote-Scope',
+      en: 'BC Election 2026: Polls & Forecast for October 24 — Vote-Scope',
       es: 'Elecciones Columbia Británica 2026 — ¿quién ganará el 24 de octubre? — Vote-Scope',
     },
     metaDescription: {
-      fr: 'Qui va gagner les élections en Colombie-Britannique le 24 octobre 2026 ? Sondages provinciaux agrégés, projection des 93 circonscriptions, circonscriptions pivots et probabilité de majorité — NPD, conservateurs, CentreBC, verts. Mise à jour continue.',
-      en: 'Who wins the British Columbia election on October 24, 2026? Provincial polls aggregated, all 93 ridings projected, tipping-point seats and majority odds — NDP, Conservatives, CentreBC, Greens. Updated with every new poll.',
-      es: '¿Quién gana las elecciones de Columbia Británica del 24 de octubre de 2026? Encuestas provinciales agregadas, 93 distritos proyectados, distritos clave y probabilidad de mayoría. Actualizado continuamente.',
+      fr: 'Qui va gagner les élections en Colombie-Britannique le 24 octobre 2026 ? Sondages provinciaux agrégés, projection des 93 circonscriptions, circonscriptions pivots et probabilité de majorité — après un mois de défections sans précédent à droite. Mise à jour continue.',
+      en: 'Who wins the British Columbia election on October 24, 2026? Provincial polls aggregated, all 93 ridings projected, tipping-point seats and majority odds — after a month of unprecedented defections on the right. Updated with every new poll.',
+      es: '¿Quién gana las elecciones de Columbia Británica del 24 de octubre de 2026? Encuestas provinciales agregadas, 93 distritos proyectados, distritos clave y probabilidad de mayoría, tras un mes de deserciones sin precedentes en la derecha. Actualizado continuamente.',
     },
     baselineYear: 2024,
     seatsTotal: 93,

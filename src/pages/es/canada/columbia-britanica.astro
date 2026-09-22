@@ -3,6 +3,8 @@ import EditorialLayout from '../../../layouts/EditorialLayout.astro';
 import RidingsCta from '../../../components/RidingsCta.astro';
 import NewsletterCta from '../../../components/NewsletterCta.astro';
 import ProjectionEngine from '../../../components/ProjectionEngine.astro';
+import RaceNarrative from '../../../components/RaceNarrative.astro';
+import { raceEditorial } from '../../../data/raceEditorial';
 import MethodologyNote from '../../../components/MethodologyNote.astro';
 import { jurisdictions } from '../../../data/jurisdictions';
 import bcMeta from '../../../../web_data/british-columbia/latest.json';
@@ -44,10 +46,10 @@ const alternates = { en: 'https://vote-scope.com/en/canada/british-columbia/', f
     },
   ]}
 >
-  <ProjectionEngine jurisdiction={j} locale="es" />
+  <ProjectionEngine jurisdiction={j} locale="es"><Fragment slot="narrative"><RaceNarrative locale="es" {...raceEditorial.britishColumbia.es} /></Fragment></ProjectionEngine>
   <MethodologyNote
     title="Lo que el modelo supone, y lo que no afirma"
-    body="Dos de los partidos de esta proyección no existían en la elección de 2024, y catorce de los cuarenta y cuatro electos conservadores ocupan hoy su escaño fuera de ese caucus. Las hipótesis que cubren esos dos vacíos son exploratorias, y se enuncian aquí en lugar de disolverse en una cifra."
+    body="Dos de los partidos de esta proyección no existían en la elección de 2024, y veinte de los cuarenta y cuatro electos conservadores han abandonado ese grupo parlamentario al menos una vez desde entonces; algunos volvieron días después. Las hipótesis que cubren esos dos vacíos son exploratorias, y se enuncian aquí en lugar de disolverse en una cifra."
     bullets={[
       "CentreBC y OneBC no tienen base de 2024. Su apoyo provincial se reparte entre los distritos según una afinidad medida — la cuota liberal de 2020 para CentreBC, la conservadora de 2024 para OneBC — de la cual un tercio queda deliberadamente uniforme, porque nadie sabe dónde son fuertes.",
       "El modelo no otorga ningún escaño a CentreBC, ni siquiera elevándolo al 12 % provincial. Es una propiedad del modelo, no una imposibilidad real: ocho diputados defienden su escaño, y un arraigo local concentrado puede lograr lo que una cuota provincial no logra.",
