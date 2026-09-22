@@ -1,4 +1,4 @@
-/** Dynamic social/download cards for the seven ProjectionEngine forecasts. */
+/** Dynamic social/download cards for the eight ProjectionEngine forecasts. */
 import type { APIRoute, GetStaticPaths } from 'astro';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
@@ -6,7 +6,7 @@ import { renderPollCard, type CardEntry } from '../../../../lib/og/poll-card';
 
 type Lang = 'en' | 'fr' | 'es';
 const LANGS: Lang[] = ['en', 'fr', 'es'];
-const KEYS = ['federal', 'ontario', 'quebec', 'us-house', 'us-senate', 'us-governor', 'uk'] as const;
+const KEYS = ['federal', 'ontario', 'quebec', 'us-house', 'us-senate', 'us-governor', 'uk', 'british-columbia'] as const;
 type Key = (typeof KEYS)[number];
 
 export const getStaticPaths: GetStaticPaths = () =>
@@ -20,6 +20,7 @@ const TITLES: Record<Key, Record<Lang, string>> = {
   'us-senate': { en: 'U.S. Senate forecast', fr: 'Projection · Sénat des États-Unis', es: 'Pronóstico · Senado de EE. UU.' },
   'us-governor': { en: 'U.S. governor forecast', fr: 'Projection \u00b7 Gouverneurs am\u00e9ricains', es: 'Pron\u00f3stico \u00b7 Gobernadores de EE. UU.' },
   uk: { en: 'U.K. election forecast', fr: 'Royaume-Uni · Projection', es: 'Reino Unido · Pronóstico' },
+  'british-columbia': { en: 'British Columbia forecast', fr: 'Colombie-Britannique · Projection', es: 'Columbia Británica · Pronóstico' },
 };
 
 const PARTY_SHORT: Record<string, Partial<Record<Lang, string>>> = {
@@ -40,6 +41,11 @@ const PARTY_SHORT: Record<string, Partial<Record<Lang, string>>> = {
   uk_lab: { en: 'Labour', fr: 'Travaillistes', es: 'Laboristas' },
   uk_con: { en: 'Conservatives', fr: 'Conservateurs', es: 'Conservadores' },
   uk_ld: { en: 'Lib Dem', fr: 'Lib. dém.', es: 'Lib. dem.' },
+  bc_ndp: { en: 'BC NDP', fr: 'NPD', es: 'NPD' },
+  bc_con: { en: 'Conservatives', fr: 'Conservateurs', es: 'Conservadores' },
+  bc_grn: { en: 'Greens', fr: 'Verts', es: 'Verdes' },
+  bc_centre: { en: 'CentreBC', fr: 'CentreBC', es: 'CentreBC' },
+  bc_onebc: { en: 'OneBC', fr: 'OneBC', es: 'OneBC' },
 };
 
 const LABELS = {
