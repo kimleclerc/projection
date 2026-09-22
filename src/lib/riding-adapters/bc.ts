@@ -11,7 +11,7 @@
  *   pourcentage que lorsqu'il était SEUL dans son bloc de partis —
  *   Elections BC ne publie 2024 qu'en PDF, et notre résultat est par bloc ;
  * · le député en poste porte `party_elected` et `caucus_group`, parce que
- *   seize des 44 élus conservateurs de 2024 ont quitté leur caucus et que
+ *   quatorze des 44 élus conservateurs de 2024 siègent hors de leur caucus et que
  *   l'étiquette d'élection ne dit plus où ils siègent.
  */
 import type {
