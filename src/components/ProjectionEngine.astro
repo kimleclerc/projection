@@ -729,20 +729,16 @@ const pageNavItems = [
     </section>
   )}
 
-  {jurisdiction.electionDate && (
+  {jurisdiction.electionDate && jurisdiction.countdown && (
     <section
       class="pe-section container"
-      aria-label={locale === 'fr' ? 'Compte à rebours électoral' : 'Election countdown'}
+      aria-label={locale === 'fr' ? 'Compte à rebours électoral' : locale === 'es' ? 'Cuenta atrás electoral' : 'Election countdown'}
     >
       <ElectionCountdown
         targetDate={jurisdiction.electionDate}
         locale={locale}
-        title={
-          locale === 'fr'
-            ? 'Le Québec vote le 5 octobre.'
-            : 'Quebec votes on October 5.'
-        }
-        kicker={locale === 'fr' ? 'Compte à rebours Québec 2026' : 'Quebec 2026 countdown'}
+        title={jurisdiction.countdown.title[locale] ?? jurisdiction.countdown.title.en}
+        kicker={jurisdiction.countdown.kicker[locale] ?? jurisdiction.countdown.kicker.en}
         client:load
       />
     </section>

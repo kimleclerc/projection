@@ -49,6 +49,8 @@ export interface Jurisdiction {
   currentPage: string;
   /** Optional election day for live countdown islands, ISO date. */
   electionDate?: string;
+  /** Countdown copy shown with `electionDate`; required when it is set. */
+  countdown?: { title: JurisdictionLocalized; kicker: JurisdictionLocalized };
 }
 
 export const jurisdictions: Record<string, Jurisdiction> = {
@@ -166,14 +168,14 @@ export const jurisdictions: Record<string, Jurisdiction> = {
       es: 'Proyección por distrito basada en los resultados de 2024, las encuestas provinciales y los ajustes regionales. La elección de 2024 se celebró con el mapa actual de 93 escaños.',
     },
     pageTitle: {
-      fr: 'Qui va gagner les prochaines élections en Colombie-Britannique ? — Vote-Scope',
-      en: 'Who Will Win the Next British Columbia Election? — Vote-Scope',
-      es: '¿Quién ganará las próximas elecciones de Columbia Británica? — Vote-Scope',
+      fr: 'Élections Colombie-Britannique 2026 — qui va gagner le 24 octobre ? — Vote-Scope',
+      en: 'Who Will Win the 2026 British Columbia Election? — Vote-Scope',
+      es: 'Elecciones Columbia Británica 2026 — ¿quién ganará el 24 de octubre? — Vote-Scope',
     },
     metaDescription: {
-      fr: 'Qui va gagner les prochaines élections en Colombie-Britannique ? Sondages provinciaux agrégés, projection des 93 circonscriptions, circonscriptions pivots et probabilité de majorité — avec le caucus conservateur éclaté et les seize départs depuis 2024. Mise à jour continue.',
-      en: 'Who wins the next British Columbia election? Provincial polls aggregated, all 93 ridings projected, tipping-point seats and majority odds — including the fractured Conservative caucus and its sixteen departures since 2024. Updated with every new poll.',
-      es: '¿Quién gana las próximas elecciones de Columbia Británica? Encuestas provinciales agregadas, 93 distritos proyectados, distritos clave y probabilidad de mayoría, con el caucus conservador fracturado. Actualizado continuamente.',
+      fr: 'Qui va gagner les élections en Colombie-Britannique le 24 octobre 2026 ? Sondages provinciaux agrégés, projection des 93 circonscriptions, circonscriptions pivots et probabilité de majorité — NPD, conservateurs, CentreBC, verts. Mise à jour continue.',
+      en: 'Who wins the British Columbia election on October 24, 2026? Provincial polls aggregated, all 93 ridings projected, tipping-point seats and majority odds — NDP, Conservatives, CentreBC, Greens. Updated with every new poll.',
+      es: '¿Quién gana las elecciones de Columbia Británica del 24 de octubre de 2026? Encuestas provinciales agregadas, 93 distritos proyectados, distritos clave y probabilidad de mayoría. Actualizado continuamente.',
     },
     baselineYear: 2024,
     seatsTotal: 93,
@@ -184,6 +186,11 @@ export const jurisdictions: Record<string, Jurisdiction> = {
     parties: ['bc_ndp', 'bc_con', 'bc_grn', 'bc_onebc', 'bc_centre', 'bc_oth'],
     slug: { en: 'british-columbia', fr: 'colombie-britannique' },
     currentPage: 'canada',
+    electionDate: '2026-10-24',
+    countdown: {
+      title: { fr: 'La Colombie-Britannique vote le 24 octobre.', en: 'British Columbia votes on October 24.', es: 'Columbia Británica vota el 24 de octubre.' },
+      kicker: { fr: 'Compte à rebours C.-B. 2026', en: 'B.C. 2026 countdown', es: 'Cuenta atrás C. B. 2026' },
+    },
   },
 
   quebec: {
@@ -230,6 +237,10 @@ export const jurisdictions: Record<string, Jurisdiction> = {
     slug: { en: 'quebec', fr: 'quebec' },
     currentPage: 'canada',
     electionDate: '2026-10-05',
+    countdown: {
+      title: { fr: 'Le Québec vote le 5 octobre.', en: 'Quebec votes on October 5.', es: 'Quebec vota el 5 de octubre.' },
+      kicker: { fr: 'Compte à rebours Québec 2026', en: 'Quebec 2026 countdown', es: 'Cuenta atrás Quebec 2026' },
+    },
   },
 
   usHouse: {
