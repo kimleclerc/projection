@@ -173,9 +173,9 @@ export const jurisdictions: Record<string, Jurisdiction> = {
       es: 'Elecciones provinciales de Columbia Británica 2026: encuestas y pronóstico — Vote-Scope',
     },
     metaDescription: {
-      fr: 'Élections anticipées en Colombie-Britannique le 24 octobre 2026 : sondages agrégés et projection des 93 circonscriptions. Le NPD de David Eby face aux conservateurs, à CentreBC et à OneBC, après un mois de défections sans précédent. Mise à jour à chaque sondage.',
-      en: 'BC election 2026 on October 24: polls and seat forecast for all 93 ridings. David Eby’s NDP against the BC Conservatives, CentreBC and OneBC after a month of unprecedented defections. Updated with every new poll.',
-      es: 'Elecciones provinciales anticipadas en Columbia Británica el 24 de octubre de 2026: encuestas y pronóstico de los 93 distritos. El NDP de David Eby frente a los conservadores, CentreBC y OneBC, tras un mes de deserciones sin precedentes. Actualizado con cada encuesta.',
+      fr: 'Élections anticipées en Colombie-Britannique le 24 octobre 2026 : sondages agrégés et projection des 93 circonscriptions. Le NPD de David Eby face aux conservateurs, fusionnés avec CentreBC, et à OneBC, après un mois de défections sans précédent. Mise à jour à chaque sondage.',
+      en: 'BC election 2026 on October 24: polls and seat forecast for all 93 ridings. David Eby’s NDP against the BC Conservatives, now merged with CentreBC, and OneBC after a month of unprecedented defections. Updated with every new poll.',
+      es: 'Elecciones provinciales anticipadas en Columbia Británica el 24 de octubre de 2026: encuestas y pronóstico de los 93 distritos. El NDP de David Eby frente a los conservadores, fusionados con CentreBC, y OneBC, tras un mes de deserciones sin precedentes. Actualizado con cada encuesta.',
     },
     baselineYear: 2024,
     seatsTotal: 93,
