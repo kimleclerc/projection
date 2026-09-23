@@ -47,7 +47,9 @@ const forecastHref = navEntry
 
 // Ordre par sièges projetés décroissants — le même que la page de prévision.
 const ordered = [...parties].sort((a, b) => (b.seats_mean ?? 0) - (a.seats_mean ?? 0));
-const tableRows = ordered.filter((p) => (p.seats_mean ?? 0) > 0 || (p.p_largest ?? 0) > 0);
+const showAtZero = new Set(jurisdiction.showAtZeroSeats ?? []);
+const tableRows = ordered.filter((p) =>
+  (p.seats_mean ?? 0) > 0 || (p.p_largest ?? 0) > 0 || showAtZero.has(p.party));
 
 const hasRanks = parties.some((p) => typeof p.p_second === 'number');
 

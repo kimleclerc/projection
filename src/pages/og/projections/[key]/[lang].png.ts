@@ -3,6 +3,7 @@ import type { APIRoute, GetStaticPaths } from 'astro';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { renderPollCard, type CardEntry } from '../../../../lib/og/poll-card';
+import { jurisdictions } from '../../../../data/jurisdictions';
 
 type Lang = 'en' | 'fr' | 'es';
 const LANGS: Lang[] = ['en', 'fr', 'es'];
@@ -65,9 +66,13 @@ export const GET: APIRoute = async ({ params }) => {
   const lang = (params.lang as Lang) ?? 'en';
   const t = LABELS[lang];
   const data = JSON.parse(readFileSync(resolve(process.cwd(), 'web_data', key, 'latest.json'), 'utf8'));
+  // Même liste que les cartes de la page : un parti suivi par les sondeurs
+  // reste sur l'image à zéro siège.
+  const showAtZero = new Set(
+    Object.values(jurisdictions).find((j) => j.dataPath === key)?.showAtZeroSeats ?? []);
   const parties = [...data.parties]
     .sort((a: any, b: any) => projectedSeats(b) - projectedSeats(a))
-    .filter((party: any) => projectedSeats(party) > 0);
+    .filter((party: any) => projectedSeats(party) > 0 || showAtZero.has(party.party));
   const lead = parties[0];
   const majorityProbability = Number(lead.p_majority ?? 0);
   const firstProbability = Number(lead.p_largest ?? 0);
@@ -75,7 +80,7 @@ export const GET: APIRoute = async ({ params }) => {
   const probabilityLabel = majorityProbability >= 0.01 ? t.majority : t.largest;
   const formatter = new Intl.NumberFormat(lang === 'fr' ? 'fr-CA' : lang === 'es' ? 'es-ES' : 'en-CA');
 
-  const entries: CardEntry[] = parties.slice(0, 4).map((party: any) => ({
+  const entries: CardEntry[] = parties.slice(0, Math.max(4, 3 + showAtZero.size)).map((party: any) => ({
     label: partyLabel(party, lang),
     color: party.color,
     value: projectedSeats(party),

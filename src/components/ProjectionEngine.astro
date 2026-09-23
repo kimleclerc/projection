@@ -203,10 +203,12 @@ const projectionOrder = (() => {
   return [majors[0], ...residual, ...majors.slice(1)];
 })();
 
-const projectionSegments = projectionOrder
-  .map((p) => ({ party: p, seats: projectedSeatsFor(p) }))
-  .filter(({ seats }) => seats > 0)
-  .map(({ party: p, seats }) => ({
+// La barre ne montre que les partis qui ont des sièges (un segment de largeur
+// nulle n'existe pas). Les cartes, elles, montrent aussi les partis que la
+// juridiction liste dans `showAtZeroSeats` (CentreBC, OneBC) : les sondeurs
+// les suivent à part, les cacher laisserait croire que le modèle les ignore.
+const showAtZero = new Set(jurisdiction.showAtZeroSeats ?? []);
+const toSegment = ({ party: p, seats }: { party: any; seats: number }) => ({
     key: p.party,
     label_en: p.label_en,
     label_fr: p.label_fr,
@@ -219,7 +221,19 @@ const projectionSegments = projectionOrder
     vote_mean: p.vote_mean,
     trend_direction: p.trend_direction ?? 'flat',
     trend_7d: p.trend_7d,
-  }));
+  });
+const projectionSegments = projectionOrder
+  .map((p) => ({ party: p, seats: projectedSeatsFor(p) }))
+  .filter(({ seats }) => seats > 0)
+  .map(toSegment);
+const projectionCards = [
+  ...projectionSegments,
+  ...orderedParties
+    .map((p) => ({ party: p, seats: projectedSeatsFor(p) }))
+    .filter(({ party: p, seats }) => seats === 0 && showAtZero.has(p.party))
+    .sort((a, b) => (b.party.vote_mean ?? 0) - (a.party.vote_mean ?? 0))
+    .map(toSegment),
+];
 
 const majorityMarkerPct = (majorityThreshold / totalSeats) * 100;
 
@@ -834,7 +848,7 @@ const pageNavItems = [
       <span class="pe-bar-majority-label">{t.majorityNeeded}</span>
     </div>
     <div class="pe-projection-grid">
-      {projectionSegments.map((s) => (
+      {projectionCards.map((s) => (
         <div class="pe-projection-card">
           <header>
             {s.logo

@@ -51,6 +51,11 @@ export interface Jurisdiction {
   electionDate?: string;
   /** Countdown copy shown with `electionDate`; required when it is set. */
   countdown?: { title: JurisdictionLocalized; kicker: JurisdictionLocalized };
+  /** Partis affichés en carte même à zéro siège projeté (les sondeurs les
+   *  suivent à part). Liste explicite : on retire un parti d'une ligne quand
+   *  les sondages le laissent tomber. La barre de sièges, elle, n'affiche
+   *  jamais un segment vide. */
+  showAtZeroSeats?: string[];
 }
 
 export const jurisdictions: Record<string, Jurisdiction> = {
@@ -184,6 +189,7 @@ export const jurisdictions: Record<string, Jurisdiction> = {
     mapZoom: 5,
     idProp: 'riding_id',
     parties: ['bc_ndp', 'bc_con', 'bc_grn', 'bc_onebc', 'bc_centre', 'bc_oth'],
+    showAtZeroSeats: ['bc_centre', 'bc_onebc'],
     slug: { en: 'british-columbia', fr: 'colombie-britannique' },
     currentPage: 'canada',
     electionDate: '2026-10-24',
