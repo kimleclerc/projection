@@ -140,7 +140,7 @@ const STATUS_PHRASE: Record<string, { fr: string; en: string; es: string }> = {
 };
 
 export function candidateProse(c: CandidateProfile, locale: Locale): string[] {
-  const party = blocLabel(c.bloc, locale);
+  const party = blocLabel(c.bloc, locale, c.partyFamily);
   const phrase =
     STATUS_PHRASE[c.status]?.[locale] ??
     (locale === 'fr' ? 'candidat·e' : locale === 'es' ? 'candidato·a' : 'a candidate');
@@ -163,7 +163,7 @@ export function candidateProse(c: CandidateProfile, locale: Locale): string[] {
   if (locale === 'fr') {
     const p1 = `${c.name} (${party}) est ${phrase} à l'élection présidentielle française de 2027. Nos agrégations le/la testent dans ${c.activeScenarios} configurations de candidatures, avec une intention de vote au premier tour ${range} selon le casting.`;
     const p2 = bestDuel
-      ? `Au second tour, dans le casting « ${bestDuel.scenarioLabel} », notre forecast ${bestDuel.wins ? 'le/la donne vainqueur' : 'le/la donne battu·e'} face à ${bestDuel.opponentName} (${bestDuel.ownShare.toFixed(1).replace('.', ',')} % contre ${bestDuel.opponentShare.toFixed(1).replace('.', ',')} %). C’est notre meilleure estimation centrale pour ce scénario, au sein d’une plage d’issues plausibles.`
+      ? `Au second tour, dans l’hypothèse « ${bestDuel.scenarioLabel} », notre projection ${bestDuel.wins ? 'le/la donne vainqueur' : 'le/la donne battu·e'} face à ${bestDuel.opponentName} (${bestDuel.ownShare.toFixed(1).replace('.', ',')} % contre ${bestDuel.opponentShare.toFixed(1).replace('.', ',')} %). C’est notre meilleure estimation centrale pour ce scénario, au sein d’une plage d’issues plausibles.`
       : '';
     return [p1, p2].filter(Boolean);
   }

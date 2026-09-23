@@ -3,14 +3,23 @@ import EditorialLayout from '../../../layouts/EditorialLayout.astro';
 import FranceDesk from '../../../components/FranceDesk.astro';
 import latest from '../../../../web_data/france-presidential/latest.json';
 import DeskSections from '../../../components/DeskSections.astro';
+import dataSheets from '../../../../web_data/france-presidential/data_sheets.json';
+import { pickHeroScenario } from '../../../lib/fr-explorer';
+import { toScenarioCard, fmtPct1 } from '../../../lib/fr-pres';
 
 const meta = (latest as any).meta;
+// Chiffres du jour dans la description : même hypothèse que l'en-tête de page.
+const { heroScenario } = pickHeroScenario((latest as any).scenarios, (dataSheets as any).candidates ?? [], (latest as any).default_scenario_id);
+const heroTop = toScenarioCard(heroScenario, 'fr').qualification.slice(0, 3);
+const leadName = heroTop[0]?.name ?? '';
+const seo = heroTop.map((q) => `${q.name} ${fmtPct1(q.mean, 'fr')}`).join(', ');
+const seoDate = new Date(`${meta.run_date}T12:00:00Z`).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
 const canonical = 'https://vote-scope.com/fr/france/';
 ---
 
 <EditorialLayout
-  title="Sondages présidentielle 2027 et projection — Vote-Scope"
-  description={`Les sondages de la présidentielle française 2027 agrégés en projection : premier tour, duels du second tour et castings hypothétiques. ${meta.n_first_round_polls} sondages, mise à jour du ${meta.run_date}.`}
+  title="Présidentielle 2027 : qui va gagner ? Projection des sondages — Vote-Scope"
+  description={`Qui va gagner la présidentielle 2027 ? Notre moyenne des sondages : ${seo}. Qui affronterait ${leadName} au second tour, et avec quel score. Mise à jour le ${seoDate}.`}
   canonical={canonical}
   lang="fr"
   currentPage="france"

@@ -35,8 +35,13 @@ export function pickHeroScenario(
    * basculé sur un casting Zemmour sans que rien ne le signale. Le commentaire
    * ci-dessus promet de suivre une rebascule automatiquement ; il faut que ce
    * soit sur les preuves, pas sur un rang de ligne. */
+  // Le candidat du RN, pas « un » candidat d'extrême droite : Zemmour
+  // (Reconquête) s'est déclaré le 17 septembre 2026 et figure dans les mêmes
+  // castings que Le Pen. À égalité de preuves, l'ordre du fichier aurait pu en
+  // faire le visage de la course — et le texte du desk le présente comme
+  // candidat du Rassemblement national.
   const declaredFarRight = candidates.filter(
-    (c) => c.status === 'declared' && c.bloc === 'far_right',
+    (c) => c.status === 'declared' && (c.party_family ? c.party_family === 'rn' : c.bloc === 'far_right'),
   );
   const bestScenarioFor = (candidateId: string) =>
     [...scenarios]

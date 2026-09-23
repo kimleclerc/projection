@@ -7,6 +7,9 @@ const meta = (polls as any).meta;
 const lastPoll = meta.last_release_date
   ? new Date(meta.last_release_date + 'T12:00:00Z').toLocaleDateString('fr-CA', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })
   : null;
+const lastPollShort = meta.last_release_date
+  ? new Date(meta.last_release_date + 'T12:00:00Z').toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', timeZone: 'UTC' })
+  : null;
 const canonical = 'https://vote-scope.com/fr/france/sondages/';
 const alternates = {
   en: 'https://vote-scope.com/en/france/polls/',
@@ -16,9 +19,9 @@ const alternates = {
 ---
 
 <EditorialLayout
-  title={lastPoll
-    ? `Sondages présidentielle 2027 — le classement au ${lastPoll}`
-    : 'Sondages présidentielle 2027 — le classement à jour'}
+  title={lastPollShort
+    ? `Sondage présidentielle 2027 : dernier sondage au ${lastPollShort}`
+    : 'Sondage présidentielle 2027 : le dernier sondage et la moyenne'}
   description={`Où en est la présidentielle 2027 ? ${meta.n_first_round_polls} sondages de premier tour et ${meta.n_runoff_polls} duels de second tour${meta.n_firms ? ` de ${meta.n_firms} instituts` : ''}${lastPoll ? `, à jour au ${lastPoll}` : ''}. Moyenne pondérée et sondage par sondage.`}
   canonical={canonical}
   lang="fr"

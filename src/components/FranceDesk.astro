@@ -15,6 +15,7 @@ import latest from '../../web_data/france-presidential/latest.json';
 import dataSheets from '../../web_data/france-presidential/data_sheets.json';
 import barrageLatest from '../../web_data/fr-barrage/latest.json';
 import frLegLatest from '../../web_data/france-legislative/latest.json';
+import byPoll from '../../web_data/france-presidential/polls_by_poll.json';
 import {
   toScenarioCard,
   blocVar,
@@ -45,19 +46,19 @@ const legCopy = {
     eyebrow: 'Législatives — en cas de dissolution',
     title: `p(majorité absolue RN) : ${legPMaj} % si front républicain au niveau 2024`,
     body: 'Les sondages législatifs français sont événementiels — il n’y en a presque jamais hors crise. Le modèle ancre donc sa projection au dernier sondage direct (oct. 2025) et lui applique le mouvement des intentions présidentielles, mesurées en continu : c’est le pont différentiel. Les 577 circonscriptions sont ensuite simulées avec des reports et désistements calibrés sur les 1 646 seconds tours de 2017-2024, en trois scénarios de front républicain.',
-    cta: 'Ouvrir le desk législatif',
+    cta: 'Voir la projection des législatives',
   },
   en: {
     eyebrow: 'Legislative — if dissolved today',
     title: `p(absolute RN majority): ${legPMaj}% under a 2024-level republican front`,
     body: 'French legislative polling is event-driven — it all but disappears outside crises. The model therefore anchors its projection to the last direct poll (Oct. 2025) and applies the movement of continuously-measured presidential intentions: the differential bridge. The 577 constituencies are then simulated with transfers and withdrawals calibrated on the 1,646 runoffs of 2017-2024, across three republican-front scenarios.',
-    cta: 'Open the legislative desk',
+    cta: 'See the legislative forecast',
   },
   es: {
     eyebrow: 'Legislativas — si se disolviera hoy',
     title: `p(mayoría absoluta RN): ${legPMaj}% con frente republicano al nivel de 2024`,
     body: 'Las encuestas legislativas francesas son episódicas — casi desaparecen fuera de las crisis. El modelo ancla su proyección a la última encuesta directa (oct. 2025) y le aplica el movimiento de las intenciones presidenciales, medidas en continuo: el puente diferencial. Las 577 circunscripciones se simulan luego con transferencias y retiradas calibradas sobre las 1.646 segundas vueltas de 2017-2024, en tres escenarios de frente republicano.',
-    cta: 'Abrir el desk legislativo',
+    cta: 'Ver la proyección legislativa',
   },
 }[locale];
 
@@ -87,7 +88,7 @@ const mapsCopy = {
 const marketCopy = {
   fr: {
     title: 'Marché — vainqueur de la présidentielle française 2027',
-    subtitle: 'Probabilités implicites des traders, présentées comme repère indépendant du forecast Vote-Scope.',
+    subtitle: 'Probabilités implicites des traders, présentées comme repère indépendant de la projection Vote-Scope.',
   },
   en: {
     title: 'Market — winner of the 2027 French presidential election',
@@ -104,22 +105,22 @@ const bfi = (barrageLatest as any).bfi ?? {};
 const barrageHref = `/${locale}/france/indexes/barrage/`;
 const barrageCopy = {
   fr: {
-    eyebrow: 'Instrument live',
-    title: 'Barrage Index',
+    eyebrow: 'Indicateur suivi en continu',
+    title: 'Indice du barrage',
     question: 'Le barrage républicain tient-il face au RN ?',
     zone: bfi.label_fr,
-    cta: "Ouvrir l'instrument",
+    cta: "Voir l'indice",
   },
   en: {
-    eyebrow: 'Live instrument',
+    eyebrow: 'Tracked continuously',
     title: 'Barrage Index',
     question: 'Does France’s republican front still hold against the RN?',
     zone: bfi.label_en,
     cta: 'Open the instrument',
   },
   es: {
-    eyebrow: 'Instrumento en vivo',
-    title: 'Barrage Index',
+    eyebrow: 'Indicador en continuo',
+    title: 'Índice del barrage',
     question: '¿Aguanta el frente republicano francés ante el RN?',
     zone: bfi.label_es,
     cta: 'Abrir el instrumento',
@@ -159,6 +160,69 @@ const nPolls = meta.n_first_round_polls;
 const heroLead = heroCard.qualification[0];
 const heroSecond = heroCard.qualification[1];
 
+const firstRoundDate = new Date(`${meta.election_date_first_round}T00:00:00`);
+const dateLocale = locale === 'fr' ? 'fr-FR' : locale === 'es' ? 'es-ES' : 'en-CA';
+const dateLong = firstRoundDate.toLocaleDateString(dateLocale, {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
+const runDateLong = new Date(`${runDate}T12:00:00Z`).toLocaleDateString(dateLocale, {
+  year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC',
+});
+const fmtDay = (iso: string) =>
+  new Date(`${iso}T12:00:00Z`).toLocaleDateString(dateLocale, { day: 'numeric', month: 'long', timeZone: 'UTC' });
+
+// ── Derniers sondages — ce que les lecteurs viennent chercher ─────────────
+// « sondage présidentielle 2027 aujourd'hui », « dernier sondage… » : l'en-tête
+// montre d'abord les enquêtes les plus récentes, chacune liée à sa page.
+const pollsBase = { fr: '/fr/france/sondages/', en: '/en/france/polls/', es: '/es/france/sondeos/' }[locale];
+const shortById = new Map(candidates.map((c) => [c.candidate_id, c.short_label]));
+const pollAnchor = (x: any) => String(x.field_end ?? x.release_date ?? '');
+const latestPolls = [...(((byPoll as any).polls ?? []) as any[])]
+  .sort((a, b) => pollAnchor(b).localeCompare(pollAnchor(a)) || String(b.release_date).localeCompare(String(a.release_date)))
+  .slice(0, 4);
+const nSurveys: number = (byPoll as any).meta?.n_polls ?? latestPolls.length;
+// « 9-10 septembre » plutôt que « 9 septembre – 10 septembre ».
+const fieldLabel = (x: any) => {
+  if (!x.field_start || x.field_start === x.field_end) return fmtDay(pollAnchor(x));
+  const sameMonth = String(x.field_start).slice(0, 7) === String(x.field_end).slice(0, 7);
+  if (!sameMonth) return `${fmtDay(x.field_start)} – ${fmtDay(x.field_end)}`;
+  const day = Number(String(x.field_start).slice(8, 10));
+  return locale === 'en'
+    ? `${fmtDay(x.field_end).replace(/\d+/, (d) => `${day}–${d}`)}`
+    : `${day}-${fmtDay(x.field_end)}`;
+};
+const pollTop = (x: any, n = 3) =>
+  ((x.lead_entries ?? []) as any[]).slice(0, n).map((e) => ({
+    name: shortById.get(e.id) ?? e.name,
+    share: e.share,
+  }));
+
+// ── Qui affronterait le premier au second tour ────────────────────────────
+// Ce qu'aucun sondage isolé ne donne : la chance de chaque candidat d'être
+// au second tour, et le score de son duel face au premier. On n'affiche PAS
+// de probabilité de victoire globale ici : à sept mois, le modèle la donne
+// trop tranchée (calibration de la confiance à revoir).
+const leader = heroCard.qualification[0];
+const heroDuels = ((heroScenario as any).duels ?? []) as any[];
+const opponents = heroCard.qualification
+  .filter((q) => q.id !== leader?.id && q.pTop2 >= 0.05)
+  .sort((a, b) => b.pTop2 - a.pTop2)
+  .slice(0, 3)
+  .map((q) => {
+    const d = heroDuels.find(
+      (x) =>
+        (x.duel_left_id === q.id && x.duel_right_id === leader?.id) ||
+        (x.duel_right_id === q.id && x.duel_left_id === leader?.id),
+    );
+    const share: number | null = d
+      ? d.duel_left_id === q.id ? d.left_share_expressed_mean : d.right_share_expressed_mean
+      : null;
+    return { ...q, duelShare: share };
+  });
+const pctInt = (v: number) => `${Math.round(v * 100)}${locale === 'en' ? '%' : ' %'}`;
+
 // ── Prose SEO auto-générée (change à chaque run/sondage) ──────────────────
 // Vrai texte au-dessus des graphiques, dérivé du run courant : donne aux
 // moteurs de recherche autre chose à citer que des cellules de barre, et
@@ -183,8 +247,8 @@ const introParagraphs =
     ? [
         heroLead && heroSecond
           ? headlineLeads
-            ? `Según nuestra agregación de ${nPolls} encuestas (ejecución del ${runDate}), en la combinación más sondeada ${headlineName} — candidata de la Agrupación Nacional oficialmente declarada — encabeza la primera vuelta con ${fmtPct1(heroLead.mean, locale)}, por delante de ${heroSecond.name} con ${fmtPct1(heroSecond.mean, locale)}. Ambos pasarían a la segunda vuelta.`
-            : `Según nuestra agregación de ${nPolls} encuestas (ejecución del ${runDate}), en la combinación más sondeada que incluye a ${headlineName} (candidata de la Agrupación Nacional oficialmente declarada), ${heroLead.name} encabeza la primera vuelta con ${fmtPct1(heroLead.mean, locale)}, por delante de ${heroSecond.name} con ${fmtPct1(heroSecond.mean, locale)}. Ambos pasarían a la segunda vuelta.`
+            ? `Según nuestra agregación de ${nPolls} encuestas (actualización del ${runDateLong}), en la combinación más sondeada ${headlineName} — candidata de la Agrupación Nacional oficialmente declarada — encabeza la primera vuelta con ${fmtPct1(heroLead.mean, locale)}, por delante de ${heroSecond.name} con ${fmtPct1(heroSecond.mean, locale)}. Ambos pasarían a la segunda vuelta.`
+            : `Según nuestra agregación de ${nPolls} encuestas (actualización del ${runDateLong}), en la combinación más sondeada que incluye a ${headlineName} (candidata de la Agrupación Nacional oficialmente declarada), ${heroLead.name} encabeza la primera vuelta con ${fmtPct1(heroLead.mean, locale)}, por delante de ${heroSecond.name} con ${fmtPct1(heroSecond.mean, locale)}. Ambos pasarían a la segunda vuelta.`
           : '',
         hDuel
           ? `En segunda vuelta, nuestro pronóstico sitúa a ${duelWinnerName} en cabeza con ${fmtPct1(duelWinShare, locale)} frente a ${duelLoserName} (${fmtPct1(duelLoseShare, locale)}), a partir de encuestas de duelo y transferencias históricas. Es nuestra mejor estimación central para esta combinación, dentro de un abanico de resultados plausibles; la campaña de 2027 apenas comienza y el campo de ${nDeclared} candidaturas declaradas sigue cambiando.`
@@ -194,207 +258,377 @@ const introParagraphs =
     ? [
         heroLead && heroSecond
           ? headlineLeads
-            ? `D'après notre agrégation de ${nPolls} sondages (run du ${runDate}), dans le casting le plus testé, ${headlineName} — candidate du Rassemblement national officiellement déclarée — mène le premier tour à ${fmtPct1(heroLead.mean, locale)}, devant ${heroSecond.name} à ${fmtPct1(heroSecond.mean, locale)}. Les deux se qualifieraient pour le second tour.`
-            : `D'après notre agrégation de ${nPolls} sondages (run du ${runDate}), dans le casting le plus testé incluant ${headlineName} (candidate du Rassemblement national officiellement déclarée), ${heroLead.name} mène le premier tour à ${fmtPct1(heroLead.mean, locale)}, devant ${heroSecond.name} à ${fmtPct1(heroSecond.mean, locale)}. Les deux se qualifieraient pour le second tour.`
+            ? `D'après notre moyenne des sondages (${nSurveys} enquêtes, ${nPolls} hypothèses testées, mise à jour du ${runDateLong}), dans l’hypothèse la plus testée, ${headlineName} — candidate du Rassemblement national officiellement déclarée — mène le premier tour à ${fmtPct1(heroLead.mean, locale)}, devant ${heroSecond.name} à ${fmtPct1(heroSecond.mean, locale)}. Les deux se qualifieraient pour le second tour.`
+            : `D'après notre moyenne des sondages (${nSurveys} enquêtes, ${nPolls} hypothèses testées, mise à jour du ${runDateLong}), dans l’hypothèse la plus testée incluant ${headlineName} (candidate du Rassemblement national officiellement déclarée), ${heroLead.name} mène le premier tour à ${fmtPct1(heroLead.mean, locale)}, devant ${heroSecond.name} à ${fmtPct1(heroSecond.mean, locale)}. Les deux se qualifieraient pour le second tour.`
           : '',
         hDuel
-          ? `Au second tour, notre forecast donne ${duelWinnerName} en tête à ${fmtPct1(duelWinShare, locale)} face à ${duelLoserName} (${fmtPct1(duelLoseShare, locale)}), à partir des sondages de duel et des reports historiques. C’est notre meilleure estimation centrale pour ce casting, entourée d’une plage d’issues plausibles; la campagne 2027 ne fait que commencer et le champ des ${nDeclared} candidatures déclarées continue d’évoluer.`
+          ? `Au second tour, notre projection donne ${duelWinnerName} en tête à ${fmtPct1(duelWinShare, locale)} face à ${duelLoserName} (${fmtPct1(duelLoseShare, locale)}), à partir des sondages de duel et des reports historiques. C’est notre estimation centrale pour cette hypothèse, entourée d’une marge d’incertitude ; la campagne ne fait que commencer et le champ des ${nDeclared} candidatures déclarées continue d’évoluer.`
           : '',
       ]
     : [
         heroLead && heroSecond
           ? headlineLeads
-            ? `Based on our aggregation of ${nPolls} polls (run of ${runDate}), in the most-polled lineup ${headlineName} — the officially declared National Rally candidate — leads the first round at ${fmtPct1(heroLead.mean, locale)}, ahead of ${heroSecond.name} at ${fmtPct1(heroSecond.mean, locale)}. Both would advance to the runoff.`
-            : `Based on our aggregation of ${nPolls} polls (run of ${runDate}), in the most-polled lineup featuring ${headlineName} (the officially declared National Rally candidate), ${heroLead.name} leads the first round at ${fmtPct1(heroLead.mean, locale)}, ahead of ${heroSecond.name} at ${fmtPct1(heroSecond.mean, locale)}. Both would advance to the runoff.`
+            ? `Based on our aggregation of ${nPolls} polls (updated ${runDateLong}), in the most-polled lineup ${headlineName} — the officially declared National Rally candidate — leads the first round at ${fmtPct1(heroLead.mean, locale)}, ahead of ${heroSecond.name} at ${fmtPct1(heroSecond.mean, locale)}. Both would advance to the runoff.`
+            : `Based on our aggregation of ${nPolls} polls (updated ${runDateLong}), in the most-polled lineup featuring ${headlineName} (the officially declared National Rally candidate), ${heroLead.name} leads the first round at ${fmtPct1(heroLead.mean, locale)}, ahead of ${heroSecond.name} at ${fmtPct1(heroSecond.mean, locale)}. Both would advance to the runoff.`
           : '',
         hDuel
           ? `In the runoff, our forecast has ${duelWinnerName} ahead at ${fmtPct1(duelWinShare, locale)} against ${duelLoserName} (${fmtPct1(duelLoseShare, locale)}), based on head-to-head polls and historical transfers. This is our best central estimate for that lineup, surrounded by a range of plausible outcomes; the 2027 campaign is just starting and the field of ${nDeclared} declared candidates keeps shifting.`
           : '',
       ];
 
-const firstRoundDate = new Date(`${meta.election_date_first_round}T00:00:00`);
-const dateLocale = locale === 'fr' ? 'fr-FR' : locale === 'es' ? 'es-ES' : 'en-CA';
-const dateLong = firstRoundDate.toLocaleDateString(dateLocale, {
-  year: 'numeric',
-  month: 'long',
-  day: 'numeric',
-});
 
 const COPY = {
   fr: {
-        kicker: 'Présidentielle 2027 · Modèle par scénarios',
-        titleA: 'La France vote en ',
-        titleEm: 'avril 2027',
-        dekA: 'Notre modèle ne projette pas des sièges mais des ',
-        dekStrong: 'castings',
-        dekB: " : pour chaque configuration de candidatures, l'intention de vote au premier tour et l'issue probable du duel de second tour. Scénario de référence : ",
-        pollsAgg: `${nPolls} sondages agrégés`,
-        scenarios: `${meta.n_scenarios} scénarios`,
-        runOf: `Run du ${runDate}`,
-        firstLead: 'Premier tour — tête',
-        secondProj: 'Second tour projeté',
-        wins: "l'emporte",
-        ctaExplore: 'Explorer les castings',
-        ctaMethod: 'Méthodologie',
-        methodHref: '/fr/methodologie/',
-        countdownTitle: `Premier tour le ${dateLong}.`,
-        explorerTitle: 'Explorer les castings',
-        explorerHelp:
-          'Chaque casting est une hypothèse de candidatures réellement testée par les sondeurs. Basculez pour comparer premier tour et second tour projetés.',
-        registryTitle: 'Candidats suivis',
-        registryHelp: `Statut au ${runDate}. Cliquez un candidat pour sa fiche — bio, sondages et duels. La projection s'ajuste lorsqu'un candidat se déclare.`,
-        allCandidates: 'Tous les candidats',
-        kdEyebrow: 'Continuer à creuser',
-        kdTitle: 'La projection continue ailleurs.',
-        kdBody: "Comparez les autres instruments Vote-Scope en attendant l'ouverture de la campagne 2027.",
-        kdLinks: [
-          { href: '/fr/uk/', label: 'Élection générale R.-U.', detail: 'Projection Westminster' },
-          { href: '/fr/canada/federal/', label: 'Canada fédéral', detail: '343 sièges' },
-          { href: '/fr/us/indexes/lame-duck/', label: 'Index canard boiteux', detail: 'Pression pré-électorale US' },
-          { href: '/fr/', label: 'Tous les bureaux', detail: 'Tous les instruments' },
-        ],
-        summaryLabel: 'Résumé de la projection',
-      },
+    kicker: 'Présidentielle 2027 · Moyenne des sondages et projection',
+    titleA: 'Présidentielle 2027 : qui peut ',
+    titleEm: 'gagner',
+    titleB: ' ?',
+    dek: 'Tous les sondages publiés, réunis en une moyenne, et l’élection simulée 50 000 fois : qui passe au second tour, et qui le gagne.',
+    voteDay: `Premier tour le ${dateLong}`,
+    updated: `Mis à jour le ${runDateLong}`,
+    surveys: `${nSurveys} enquêtes`,
+    tested: `${nPolls} hypothèses testées`,
+    latestLabel: 'Dernier sondage',
+    firstAvg: 'Premier tour — notre moyenne',
+    secondWho: (name: string) => `Qui affronterait ${name} au second tour ?`,
+    qualifies: 'de chances d’y être',
+    duelLabel: 'Second tour :',
+    seePoll: 'Voir ce sondage',
+    latestTitle: 'Les derniers sondages',
+    allPolls: 'Tous les sondages de la présidentielle',
+    sample: (n: number) => `${n.toLocaleString('fr-FR')} pers.`,
+    ctaExplore: 'Comparer les hypothèses',
+    ctaMethod: 'Méthodologie',
+    methodHref: '/fr/methodologie/',
+    countdownTitle: `Premier tour le ${dateLong}.`,
+    explorerTitle: 'Comparer les hypothèses de candidatures',
+    explorerHelp:
+      'Tant que les candidatures ne sont pas arrêtées, les instituts testent plusieurs listes de candidats. Choisissez-en une : vous voyez notre moyenne du premier tour et le second tour le plus probable.',
+    addTitle: 'Ce que Vote-Scope ajoute aux sondages',
+    addItems: [
+      { h: 'Tous les sondages au même endroit', p: 'Ifop, Ipsos BVA, Elabe, OpinionWay, Harris, Odoxa, Cluster17, Verian… Chaque enquête déposée à la Commission des sondages entre dans la moyenne à la mise à jour suivante, avec toutes ses hypothèses.' },
+      { h: 'Une moyenne plutôt qu’un sondage isolé', p: 'Un sondage seul peut s’écarter de deux ou trois points. Chaque enquête pèse selon sa date, sa taille et les écarts habituels de son institut : la moyenne bouge moins, et bouge pour de vraies raisons.' },
+      { h: 'Le second tour, calculé', p: 'Les instituts ne testent que quelques duels. Nous simulons le premier tour, puis chaque duel possible avec les reports de voix observés depuis 2017 : qui a le plus de chances de se qualifier, et avec quel score.' },
+    ],
+    howTitle: 'Comment lire cette page',
+    howItems: [
+      'En haut : le dernier sondage publié, et notre moyenne pour l’hypothèse la plus testée.',
+      'Le comparateur montre l’effet d’une candidature : avec ou sans Attal, Philippe ou Hollande.',
+      'Chaque candidat a sa fiche et chaque sondage sa page, avec la notice officielle.',
+    ],
+    registryTitle: 'Les candidats',
+    registryHelp: `Statut au ${runDateLong}. Cliquez sur un nom pour sa fiche : parcours, sondages et duels.`,
+    allCandidates: 'Tous les candidats',
+    moreTitle: 'Aller plus loin',
+    kdEyebrow: 'Continuer à creuser',
+    kdTitle: 'Nos autres projections.',
+    kdBody: 'Élections et sondages suivis par Vote-Scope ailleurs dans le monde.',
+    kdLinks: [
+      { href: '/fr/uk/', label: 'Élection générale R.-U.', detail: 'Projection Westminster' },
+      { href: '/fr/canada/federal/', label: 'Canada fédéral', detail: '343 sièges' },
+      { href: '/fr/us/indexes/lame-duck/', label: 'Index canard boiteux', detail: 'Pression pré-électorale US' },
+      { href: '/fr/', label: 'Toutes les élections', detail: 'Accueil Vote-Scope' },
+    ],
+    summaryLabel: 'Résumé de la projection',
+  },
   en: {
-        kicker: '2027 Presidential · Scenario model',
-        titleA: 'France votes in ',
-        titleEm: 'April 2027',
-        dekA: 'Our model does not project seats but ',
-        dekStrong: 'lineups',
-        dekB: ': for each configuration of candidates, first-round voting intention and the likely outcome of the runoff. Reference scenario: ',
-        pollsAgg: `${nPolls} polls aggregated`,
-        scenarios: `${meta.n_scenarios} scenarios`,
-        runOf: `Run of ${runDate}`,
-        firstLead: 'First round — leaders',
-        secondProj: 'Projected runoff',
-        wins: 'wins',
-        ctaExplore: 'Explore the lineups',
-        ctaMethod: 'Methodology',
-        methodHref: '/en/methodology/',
-        countdownTitle: `First round on ${dateLong}.`,
-        explorerTitle: 'Explore the lineups',
-        explorerHelp:
-          'Each lineup is a candidate configuration actually tested by pollsters. Switch to compare projected first and second rounds.',
-        registryTitle: 'Candidates tracked',
-        registryHelp: `Status as of ${runDate}. Click a candidate for their profile — bio, polls and matchups. The projection adjusts when a candidate declares.`,
-        allCandidates: 'All candidates',
-        kdEyebrow: 'Keep digging',
-        kdTitle: 'The projection keeps going.',
-        kdBody: 'Compare the other Vote-Scope instruments while the 2027 campaign gets going.',
-        kdLinks: [
-          { href: '/en/uk/', label: 'U.K. general election', detail: 'Westminster projection' },
-          { href: '/en/canada/federal/', label: 'Canada federal', detail: '343 seats' },
-          { href: '/en/us/indexes/lame-duck/', label: 'Lame-Duck Index', detail: 'U.S. pre-election drag' },
-          { href: '/en/', label: 'All desks', detail: 'Every instrument' },
-        ],
-        summaryLabel: 'Projection summary',
-      },
+    kicker: '2027 French presidential · Polling average and forecast',
+    titleA: 'France 2027: who can ',
+    titleEm: 'win',
+    titleB: '?',
+    dek: 'Every published poll, combined into one average, and the election simulated 50,000 times: who reaches the runoff, and who wins it.',
+    voteDay: `First round on ${dateLong}`,
+    updated: `Updated ${runDateLong}`,
+    surveys: `${nSurveys} surveys`,
+    tested: `${nPolls} lineups tested`,
+    latestLabel: 'Latest poll',
+    firstAvg: 'First round — our average',
+    secondWho: (name: string) => `Who would face ${name} in the runoff?`,
+    qualifies: 'chance to get there',
+    duelLabel: 'Runoff:',
+    seePoll: 'See this poll',
+    latestTitle: 'Latest polls',
+    allPolls: 'All 2027 presidential polls',
+    sample: (n: number) => `n=${n.toLocaleString('en-CA')}`,
+    ctaExplore: 'Compare the lineups',
+    ctaMethod: 'Methodology',
+    methodHref: '/en/methodology/',
+    countdownTitle: `First round on ${dateLong}.`,
+    explorerTitle: 'Compare candidate lineups',
+    explorerHelp:
+      'Until candidacies are final, French pollsters test several candidate lists. Pick one to see our first-round average and the most likely runoff.',
+    addTitle: 'What Vote-Scope adds to the polls',
+    addItems: [
+      { h: 'Every poll in one place', p: 'Ifop, Ipsos BVA, Elabe, OpinionWay, Harris, Odoxa, Cluster17, Verian… Every survey filed with France’s polling commission joins the average at the next update, with all of its lineups.' },
+      { h: 'An average, not a single poll', p: 'One poll can be off by two or three points. Each survey is weighted by date, size and its pollster’s usual lean, so the average moves less, and for real reasons.' },
+      { h: 'The runoff, calculated', p: 'Pollsters test only a few head-to-heads. We simulate the first round, then every possible runoff using vote transfers observed since 2017: who is most likely to qualify, and by what margin.' },
+    ],
+    howTitle: 'How to read this page',
+    howItems: [
+      'At the top: the latest published poll and our average for the most-tested lineup.',
+      'The comparison shows what one candidacy changes: with or without Attal, Philippe or Hollande.',
+      'Every candidate has a profile and every poll its own page, with the official notice.',
+    ],
+    registryTitle: 'The candidates',
+    registryHelp: `Status as of ${runDateLong}. Click a name for their profile: background, polls and runoffs.`,
+    allCandidates: 'All candidates',
+    moreTitle: 'Go further',
+    kdEyebrow: 'Keep digging',
+    kdTitle: 'Our other forecasts.',
+    kdBody: 'Elections and polls Vote-Scope tracks around the world.',
+    kdLinks: [
+      { href: '/en/uk/', label: 'U.K. general election', detail: 'Westminster projection' },
+      { href: '/en/canada/federal/', label: 'Canada federal', detail: '343 seats' },
+      { href: '/en/us/indexes/lame-duck/', label: 'Lame-Duck Index', detail: 'U.S. pre-election drag' },
+      { href: '/en/', label: 'All elections', detail: 'Vote-Scope home' },
+    ],
+    summaryLabel: 'Forecast summary',
+  },
   es: {
-        kicker: 'Presidencial 2027 · Modelo por escenarios',
-        titleA: 'Francia vota en ',
-        titleEm: 'abril de 2027',
-        dekA: 'Nuestro modelo no proyecta escaños sino ',
-        dekStrong: 'combinaciones',
-        dekB: ': para cada configuración de candidaturas, la intención de voto en primera vuelta y el resultado probable de la segunda vuelta. Escenario de referencia: ',
-        pollsAgg: `${nPolls} encuestas agregadas`,
-        scenarios: `${meta.n_scenarios} escenarios`,
-        runOf: `Ejecución del ${runDate}`,
-        firstLead: 'Primera vuelta — cabeza',
-        secondProj: 'Segunda vuelta proyectada',
-        wins: 'gana',
-        ctaExplore: 'Explorar las combinaciones',
-        ctaMethod: 'Metodología',
-        methodHref: '/es/metodologia/',
-        countdownTitle: `Primera vuelta el ${dateLong}.`,
-        explorerTitle: 'Explorar las combinaciones',
-        explorerHelp:
-          'Cada combinación es una configuración de candidaturas realmente sondeada. Cambie para comparar la primera y la segunda vuelta proyectadas.',
-        registryTitle: 'Candidatos seguidos',
-        registryHelp: `Estado al ${runDate}. Haga clic en un candidato para su ficha — biografía, encuestas y duelos. La proyección se ajusta cuando un candidato se declara.`,
-        allCandidates: 'Todos los candidatos',
-        kdEyebrow: 'Seguir explorando',
-        kdTitle: 'La proyección continúa.',
-        kdBody: 'Compare los demás instrumentos de Vote-Scope mientras arranca la campaña de 2027.',
-        kdLinks: [
-          { href: '/es/uk/', label: 'Elección general R.U.', detail: 'Proyección Westminster' },
-          { href: '/es/canada/federal/', label: 'Canadá federal', detail: '343 escaños' },
-          { href: '/es/us/indexes/lame-duck/', label: 'Índice Lame-Duck', detail: 'Presión preelectoral EE. UU.' },
-          { href: '/es/', label: 'Todas las mesas', detail: 'Todos los instrumentos' },
-        ],
-        summaryLabel: 'Resumen de la proyección',
-      },
-} as const;
+    kicker: 'Presidencial francesa 2027 · Promedio de encuestas y pronóstico',
+    titleA: 'Francia 2027: ¿quién puede ',
+    titleEm: 'ganar',
+    titleB: '?',
+    dek: 'Todas las encuestas publicadas, reunidas en un promedio, y la elección simulada 50.000 veces: quién pasa a la segunda vuelta y quién la gana.',
+    voteDay: `Primera vuelta el ${dateLong}`,
+    updated: `Actualizado el ${runDateLong}`,
+    surveys: `${nSurveys} encuestas`,
+    tested: `${nPolls} combinaciones probadas`,
+    latestLabel: 'Última encuesta',
+    firstAvg: 'Primera vuelta — nuestro promedio',
+    secondWho: (name: string) => `¿Quién se enfrentaría a ${name} en la segunda vuelta?`,
+    qualifies: 'de probabilidad de llegar',
+    duelLabel: 'Segunda vuelta:',
+    seePoll: 'Ver esta encuesta',
+    latestTitle: 'Últimas encuestas',
+    allPolls: 'Todas las encuestas presidenciales de 2027',
+    sample: (n: number) => `${n.toLocaleString('es-ES')} pers.`,
+    ctaExplore: 'Comparar las combinaciones',
+    ctaMethod: 'Metodología',
+    methodHref: '/es/metodologia/',
+    countdownTitle: `Primera vuelta el ${dateLong}.`,
+    explorerTitle: 'Comparar las combinaciones de candidatos',
+    explorerHelp:
+      'Mientras las candidaturas no sean definitivas, los institutos prueban varias listas de candidatos. Elija una para ver nuestro promedio de la primera vuelta y la segunda vuelta más probable.',
+    addTitle: 'Lo que Vote-Scope añade a las encuestas',
+    addItems: [
+      { h: 'Todas las encuestas en un solo lugar', p: 'Ifop, Ipsos BVA, Elabe, OpinionWay, Harris, Odoxa, Cluster17, Verian… Cada encuesta registrada ante la comisión francesa de sondeos entra en el promedio en la siguiente actualización, con todas sus combinaciones.' },
+      { h: 'Un promedio, no una encuesta aislada', p: 'Una encuesta sola puede desviarse dos o tres puntos. Cada una pesa según su fecha, su tamaño y el sesgo habitual de su instituto: el promedio se mueve menos, y por razones reales.' },
+      { h: 'La segunda vuelta, calculada', p: 'Los institutos solo prueban algunos duelos. Simulamos la primera vuelta y luego cada duelo posible con las transferencias de voto observadas desde 2017: quién tiene más probabilidades de clasificarse, y con qué resultado.' },
+    ],
+    howTitle: 'Cómo leer esta página',
+    howItems: [
+      'Arriba: la última encuesta publicada y nuestro promedio para la combinación más probada.',
+      'El comparador muestra el efecto de una candidatura: con o sin Attal, Philippe u Hollande.',
+      'Cada candidato tiene su ficha y cada encuesta su página, con la nota oficial.',
+    ],
+    registryTitle: 'Los candidatos',
+    registryHelp: `Estado al ${runDateLong}. Haga clic en un nombre para ver su ficha: trayectoria, encuestas y duelos.`,
+    allCandidates: 'Todos los candidatos',
+    moreTitle: 'Ir más lejos',
+    kdEyebrow: 'Seguir explorando',
+    kdTitle: 'Nuestros otros pronósticos.',
+    kdBody: 'Elecciones y encuestas que Vote-Scope sigue en el mundo.',
+    kdLinks: [
+      { href: '/es/uk/', label: 'Elección general R.U.', detail: 'Proyección Westminster' },
+      { href: '/es/canada/federal/', label: 'Canadá federal', detail: '343 escaños' },
+      { href: '/es/us/indexes/lame-duck/', label: 'Índice Lame-Duck', detail: 'Presión preelectoral EE. UU.' },
+      { href: '/es/', label: 'Todas las elecciones', detail: 'Inicio de Vote-Scope' },
+    ],
+    summaryLabel: 'Resumen del pronóstico',
+  },
+};
 const C = COPY[locale];
 ---
 
 <JurisdictionNav webKey="france" lang={locale} active="projection" />
 
 <article class="fr-desk" data-content-area>
-  <!-- HERO -->
+  <!-- EN-TÊTE — ce qu'on fait et les chiffres clés (dernier sondage, notre
+       moyenne, second tour) dans le premier écran. Les pubs s'insèrent entre
+       les enfants directs de l'article : cinq petits encarts en tête
+       repoussaient les chiffres à 5 268 px, derrière six pubs. Règle : les
+       chiffres d'abord, la pub au premier défilement. -->
   <header class="fr-hero container" aria-label={C.summaryLabel}>
     <p class="fr-kicker">{C.kicker}</p>
-    <h1 class="fr-title">{C.titleA}<em>{C.titleEm}</em>.</h1>
-    <p class="fr-dek">
-      {C.dekA}<strong>{C.dekStrong}</strong>{C.dekB}<strong>{heroCard.label}</strong>.
-    </p>
+    <h1 class="fr-title">{C.titleA}<em>{C.titleEm}</em>{C.titleB}</h1>
+    <p class="fr-dek">{C.dek}</p>
     <div class="fr-meta">
-      <span>{C.runOf}</span>
+      <span>{C.updated}</span>
       <span aria-hidden="true">·</span>
-      <span>{C.pollsAgg}</span>
+      <span>{C.surveys}</span>
       <span aria-hidden="true">·</span>
-      <span>{C.scenarios}</span>
+      <span>{C.tested}</span>
+      <span aria-hidden="true">·</span>
+      <span>{C.voteDay}</span>
+    </div>
+
+    <div class="fr-hero-headline">
+      {latestPolls[0] && (
+        <a class="fr-hl-card fr-hl-latest" href={`${pollsBase}${latestPolls[0].slug}/`}>
+          <span class="fr-hl-label">{C.latestLabel}</span>
+          <p class="fr-hl-firm">{latestPolls[0].firm_name}<span>{fieldLabel(latestPolls[0])}</span></p>
+          <div class="fr-hl-pair">
+            {pollTop(latestPolls[0]).map((e) => (
+              <span class="fr-hl-cand">{e.name} <b>{fmtPct1(e.share, locale)}</b></span>
+            ))}
+          </div>
+          <span class="fr-hl-more">{C.seePoll} →</span>
+        </a>
+      )}
+      {heroLead && (
+        <div class="fr-hl-card">
+          <span class="fr-hl-label">{C.firstAvg}</span>
+          <p class="fr-hl-scenario">{heroCard.label}</p>
+          <div class="fr-hl-pair">
+            {heroCard.qualification.slice(0, 4).map((q) => (
+              <span class="fr-hl-cand">
+                <span class="fr-swatch" style={`background:${blocVar(q.bloc)}`} />
+                {q.name} <b>{fmtPct1(q.mean, locale)}</b>
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+      {leader && opponents.length > 0 && (
+        <div class="fr-hl-card">
+          <span class="fr-hl-label">{C.secondWho(leader.name)}</span>
+          <ul class="fr-hl-opp">
+            {opponents.map((o) => (
+              <li>
+                <span class="fr-hl-opp-name">
+                  <span class="fr-swatch" style={`background:${blocVar(o.bloc)}`} />
+                  {o.name}
+                </span>
+                <span class="fr-hl-opp-p"><b>{pctInt(o.pTop2)}</b> {C.qualifies}</span>
+                {typeof o.duelShare === 'number' && (
+                  <span class="fr-hl-opp-duel">
+                    {C.duelLabel} {shortById.get(o.id) ?? o.name} {fmtPct1(o.duelShare, locale)} – {shortById.get(leader.id) ?? leader.name} {fmtPct1(100 - o.duelShare, locale)}
+                  </span>
+                )}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
 
     <p class={`fr-provenance${heroProvenance.stale ? ' is-stale' : ''}${heroProvenance.borrowed ? ' is-borrowed' : ''}`}>
       {heroProvenance.text}
     </p>
 
-    {heroLead && heroSecond && (
-      <div class="fr-hero-headline">
-        <div class="fr-hero-first">
-          <span class="fr-hl-label">{C.firstLead}</span>
-          <div class="fr-hl-pair">
-            <span class="fr-hl-cand">
-              <span class="fr-swatch" style={`background:${blocVar(heroLead.bloc)}`} />
-              {heroLead.name} <b>{fmtPct1(heroLead.mean, locale)}</b>
-            </span>
-            <span class="fr-hl-cand">
-              <span class="fr-swatch" style={`background:${blocVar(heroSecond.bloc)}`} />
-              {heroSecond.name} <b>{fmtPct1(heroSecond.mean, locale)}</b>
-            </span>
-          </div>
-        </div>
-        {heroCard.duel && (
-          <div class="fr-hero-duel">
-            <span class="fr-hl-label">{C.secondProj}</span>
-            <p class="fr-hl-duel">
-              <b>
-                {heroCard.duel.winnerId === heroCard.duel.leftId
-                  ? heroCard.duel.leftName
-                  : heroCard.duel.rightName}
-              </b>{' '}
-              {C.wins} —{' '}
-              {fmtPct1(Math.max(heroCard.duel.leftShare, heroCard.duel.rightShare), locale)}{' '}
-              vs {fmtPct1(Math.min(heroCard.duel.leftShare, heroCard.duel.rightShare), locale)}
-            </p>
-          </div>
-        )}
-      </div>
-    )}
-
-    <div class="fr-cta-row">
-      <a class="fr-cta fr-cta-strong" href="#fr-explorer-title">{C.ctaExplore} ↓</a>
-      <a class="fr-cta" href={C.methodHref}>{C.ctaMethod} →</a>
-    </div>
     <GooglePreferredSource locale={locale} />
   </header>
 
-  <!-- INTRO SEO (auto-générée depuis le run) -->
-  <section class="fr-section container fr-intro" aria-label={C.summaryLabel}>
-    {introParagraphs.filter(Boolean).map((p) => <p>{p}</p>)}
+  <!-- DERNIERS SONDAGES — après la première pub : le lecteur a déjà vu les
+       chiffres clés en haut, la pub passe au premier défilement. -->
+  {latestPolls.length > 1 && (
+    <section class="fr-section container fr-latest" aria-labelledby="fr-latest-title">
+      <h2 id="fr-latest-title" class="fr-section-title">{C.latestTitle}</h2>
+      <ol class="fr-latest-list">
+        {latestPolls.map((x) => (
+          <li>
+            <a href={`${pollsBase}${x.slug}/`}>
+              <span class="fr-latest-firm">{x.firm_name}</span>
+              <span class="fr-latest-date">{fieldLabel(x)}{x.sample_size ? ` · ${C.sample(x.sample_size)}` : ''}</span>
+              <span class="fr-latest-top">
+                {pollTop(x).map((e) => <span>{e.name} <b>{fmtPct1(e.share, locale)}</b></span>)}
+              </span>
+            </a>
+          </li>
+        ))}
+      </ol>
+      <div class="fr-cta-row">
+        <a class="fr-cta fr-cta-strong" href={pollsBase}>{C.allPolls} →</a>
+        <a class="fr-cta" href="#fr-explorer-title">{C.ctaExplore} ↓</a>
+      </div>
+    </section>
+  )}
+
+  <!-- COMPARATEUR — les chiffres, après les derniers sondages -->
+  <section id="fr-explorer" class="fr-section container" aria-labelledby="fr-explorer-title">
+    <h2 id="fr-explorer-title" class="fr-section-title">{C.explorerTitle}</h2>
+    <p class="fr-section-help">{C.explorerHelp}</p>
+    <div class="fr-explorer-card">
+      <FranceScenarioExplorer scenarios={explorerScenarios} locale={locale} embedPath={`/${locale}/embed/france-scenarios`} client:visible />
+    </div>
   </section>
 
-  <!-- MARCHÉ DE PRÉDICTION — même repère indépendant que les desks US/Canada -->
+  <!-- CE QU'ON AJOUTE AUX SONDAGES + COMMENT LIRE LA PAGE -->
+  <section class="fr-section container fr-explain" aria-labelledby="fr-explain-title">
+    <h2 id="fr-explain-title" class="fr-section-title">{C.addTitle}</h2>
+    <ol class="fr-add">
+      {C.addItems.map((it, i) => (
+        <li><span class="fr-add-n">{i + 1}</span><h3>{it.h}</h3><p>{it.p}</p></li>
+      ))}
+    </ol>
+    <div class="fr-how">
+      <h3>{C.howTitle}</h3>
+      <ul>{C.howItems.map((t) => <li>{t}</li>)}</ul>
+      <a class="fr-cta" href={C.methodHref}>{C.ctaMethod} →</a>
+    </div>
+  </section>
+
+  <!-- RÉSUMÉ EN PROSE (auto-généré depuis le run) -->
+  <section class="fr-section container fr-intro" aria-label={C.summaryLabel}>
+    {introParagraphs.filter(Boolean).map((para) => <p>{para}</p>)}
+  </section>
+
+  <!-- CANDIDATS -->
+  <section class="fr-section container" aria-labelledby="fr-registry-title">
+    <h2 id="fr-registry-title" class="fr-section-title">{C.registryTitle}</h2>
+    <p class="fr-section-help">{C.registryHelp}</p>
+    <ul class="fr-registry">
+      {registry.map((c) => (
+        <li>
+          <a class="fr-reg-item" href={`${candBase}/${slugify(c.candidate_name)}/`}>
+            <span class="fr-swatch" style={`background:${blocVar(c.bloc)}`} />
+            <span class="fr-reg-name">{c.candidate_name}</span>
+            <span class="fr-reg-bloc">{blocLabel(c.bloc, locale, c.party_family)}</span>
+            <span class={`fr-reg-status is-${c.status}`}>{statusLabel(c.status, locale)}</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+    <div class="fr-cta-row" style="margin-top:18px;">
+      <a class="fr-cta" href={candBase}>{C.allCandidates} →</a>
+    </div>
+  </section>
+
+  <!-- ALLER PLUS LOIN — un seul bloc (une seule insertion publicitaire) -->
+  <section class="fr-section container" aria-labelledby="fr-more-title">
+    <h2 id="fr-more-title" class="fr-section-title">{C.moreTitle}</h2>
+    <div class="fr-more-grid">
+      <div class="fr-more-countdown">
+        <ElectionCountdown
+          targetDate={meta.election_date_first_round}
+          locale={locale}
+          title={C.countdownTitle}
+          client:load
+        />
+      </div>
+      <a class="note-card" href={barrageHref} style={`display:block;text-decoration:none;color:inherit;border-left:4px solid ${bfi.zone_color ?? 'var(--ink-3)'};`}>
+        <p class="eyebrow">{barrageCopy.eyebrow}</p>
+        <h3 style="margin:0.25rem 0;">{barrageCopy.title} — <span style={`color:${bfi.zone_color ?? 'inherit'}`}>{typeof bfi.score === 'number' ? (locale === 'en' ? bfi.score.toFixed(1) : bfi.score.toFixed(1).replace('.', ',')) : '—'}/100 · {barrageCopy.zone ?? ''}</span></h3>
+        <p>{barrageCopy.question}</p>
+        <footer style="margin-top:0.75rem;"><span class="cta-link">{barrageCopy.cta} →</span></footer>
+      </a>
+      <a class="note-card" href={legHref} style="display:block;text-decoration:none;color:inherit;border-left:4px solid var(--bloc-far_right, #2b4f8c);">
+        <p class="eyebrow">{legCopy.eyebrow}</p>
+        <h3 style="margin:0.25rem 0;">{legCopy.title}</h3>
+        <p>{legCopy.body}</p>
+        <footer style="margin-top:0.75rem;"><span class="cta-link">{legCopy.cta} →</span></footer>
+      </a>
+      <a class="note-card" href={mapsHref} style="display:block;text-decoration:none;color:inherit;border-left:4px solid var(--bloc-centre, #b7860f);">
+        <p class="eyebrow">{mapsCopy.eyebrow}</p>
+        <h3 style="margin:0.25rem 0;">{mapsCopy.title}</h3>
+        <p>{mapsCopy.body}</p>
+        <footer style="margin-top:0.75rem;"><span class="cta-link">{mapsCopy.cta} →</span></footer>
+      </a>
+    </div>
+  </section>
+
+  <!-- MARCHÉ DE PRÉDICTION — repère indépendant, plus bas -->
   <section class="fr-section container fr-market" aria-label={marketCopy.title}>
     <PolymarketEmbed
       slug="next-french-presidential-election"
@@ -405,76 +639,6 @@ const C = COPY[locale];
       subtitle={marketCopy.subtitle}
       height={520}
     />
-  </section>
-
-  <!-- COMPTE À REBOURS -->
-  <section class="fr-section container">
-    <ElectionCountdown
-      targetDate={meta.election_date_first_round}
-      locale={locale}
-      title={C.countdownTitle}
-      client:load
-    />
-  </section>
-
-  <!-- BARRAGE INDEX (instrument live) -->
-  <section class="fr-section container" aria-label={barrageCopy.title}>
-    <a class="note-card" href={barrageHref} style={`display:block;text-decoration:none;color:inherit;border-left:4px solid ${bfi.zone_color ?? 'var(--ink-3)'};`}>
-      <p class="eyebrow">{barrageCopy.eyebrow}</p>
-      <h3 style="margin:0.25rem 0;">{barrageCopy.title} — <span style={`color:${bfi.zone_color ?? 'inherit'}`}>{typeof bfi.score === 'number' ? (locale === 'en' ? bfi.score.toFixed(1) : bfi.score.toFixed(1).replace('.', ',')) : '—'}/100 · {barrageCopy.zone ?? ''}</span></h3>
-      <p>{barrageCopy.question}</p>
-      <footer style="margin-top:0.75rem;"><span class="cta-link">{barrageCopy.cta} →</span></footer>
-    </a>
-  </section>
-
-  <!-- LÉGISLATIVES (desk complet, nowcast indirect) -->
-  <section class="fr-section container" aria-label={legCopy.eyebrow}>
-    <a class="note-card" href={legHref} style="display:block;text-decoration:none;color:inherit;border-left:4px solid var(--bloc-far_right, #2b4f8c);">
-      <p class="eyebrow">{legCopy.eyebrow}</p>
-      <h3 style="margin:0.25rem 0;">{legCopy.title}</h3>
-      <p>{legCopy.body}</p>
-      <footer style="margin-top:0.75rem;"><span class="cta-link">{legCopy.cta} →</span></footer>
-    </a>
-  </section>
-
-  <!-- CARTES 2022 (résultats réels par circonscription) -->
-  <section class="fr-section container" aria-label={mapsCopy.eyebrow}>
-    <a class="note-card" href={mapsHref} style="display:block;text-decoration:none;color:inherit;border-left:4px solid var(--bloc-centre, #b7860f);">
-      <p class="eyebrow">{mapsCopy.eyebrow}</p>
-      <h3 style="margin:0.25rem 0;">{mapsCopy.title}</h3>
-      <p>{mapsCopy.body}</p>
-      <footer style="margin-top:0.75rem;"><span class="cta-link">{mapsCopy.cta} →</span></footer>
-    </a>
-  </section>
-
-  <!-- EXPLORATEUR -->
-  <section id="fr-explorer" class="fr-section container" aria-labelledby="fr-explorer-title">
-    <h2 id="fr-explorer-title" class="fr-section-title">{C.explorerTitle}</h2>
-    <p class="fr-section-help">{C.explorerHelp}</p>
-    <div class="fr-explorer-card">
-      <FranceScenarioExplorer scenarios={explorerScenarios} locale={locale} embedPath={`/${locale}/embed/france-scenarios`} client:visible />
-    </div>
-  </section>
-
-  <!-- REGISTRE -->
-  <section class="fr-section container" aria-labelledby="fr-registry-title">
-    <h2 id="fr-registry-title" class="fr-section-title">{C.registryTitle}</h2>
-    <p class="fr-section-help">{C.registryHelp}</p>
-    <ul class="fr-registry">
-      {registry.map((c) => (
-        <li>
-          <a class="fr-reg-item" href={`${candBase}/${slugify(c.candidate_name)}/`}>
-            <span class="fr-swatch" style={`background:${blocVar(c.bloc)}`} />
-            <span class="fr-reg-name">{c.candidate_name}</span>
-            <span class="fr-reg-bloc">{blocLabel(c.bloc, locale)}</span>
-            <span class={`fr-reg-status is-${c.status}`}>{statusLabel(c.status, locale)}</span>
-          </a>
-        </li>
-      ))}
-    </ul>
-    <div class="fr-cta-row" style="margin-top:18px;">
-      <a class="fr-cta" href={candBase}>{C.allCandidates} →</a>
-    </div>
   </section>
 
   <section class="fr-section container">
@@ -540,7 +704,7 @@ const C = COPY[locale];
   .fr-title {
     margin: 0 0 18px;
     font-family: var(--serif);
-    font-size: clamp(44px, 6.5vw, 78px);
+    font-size: clamp(36px, 6.5vw, 78px);
     font-weight: 420;
     letter-spacing: -0.02em;
     line-height: 1;
@@ -630,13 +794,6 @@ const C = COPY[locale];
     gap: 16px;
     margin-top: 28px;
   }
-  .fr-hero-first,
-  .fr-hero-duel {
-    border: 1px solid var(--rule);
-    border-radius: 6px;
-    background: var(--card);
-    padding: 16px 18px;
-  }
   .fr-hl-label {
     display: block;
     font-family: var(--mono);
@@ -663,19 +820,83 @@ const C = COPY[locale];
     margin-left: auto;
     color: var(--ink);
   }
-  .fr-hl-duel {
-    margin: 0;
-    font-family: var(--serif);
-    font-size: 20px;
-    line-height: 1.3;
-    color: var(--ink);
-  }
   .fr-swatch {
     width: 12px;
     height: 12px;
     border-radius: 3px;
     flex: none;
   }
+
+  .fr-hl-card {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    background: var(--card);
+    padding: 16px 18px;
+    color: inherit;
+    text-decoration: none;
+  }
+  a.fr-hl-card { transition: border-color 0.15s ease; }
+  a.fr-hl-card:hover { border-color: var(--ink); }
+  .fr-hl-latest { border-top: 3px solid var(--ink); }
+  .fr-hl-firm {
+    margin: 0 0 10px;
+    font-family: var(--serif);
+    font-size: 20px;
+    color: var(--ink);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .fr-hl-firm span, .fr-hl-scenario {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ink-3);
+  }
+  .fr-hl-scenario { margin: -4px 0 10px; }
+  .fr-hl-more {
+    margin-top: auto;
+    padding-top: 12px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ink-2);
+  }
+  .fr-hl-opp { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+  .fr-hl-opp li { display: grid; gap: 2px; }
+  .fr-hl-opp-name { display: flex; align-items: center; gap: 8px; font-family: var(--serif); font-size: 17px; color: var(--ink); }
+  .fr-hl-opp-p { font-family: var(--mono); font-size: 12px; color: var(--ink-2); }
+  .fr-hl-opp-p b { color: var(--ink); }
+  .fr-hl-opp-duel { font-family: var(--mono); font-size: 11px; color: var(--ink-3); }
+  .fr-latest-list { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--rule); }
+  .fr-latest-list a {
+    display: grid;
+    grid-template-columns: minmax(110px, 160px) minmax(150px, 220px) 1fr;
+    gap: 6px 16px;
+    align-items: baseline;
+    padding: 12px 2px;
+    border-bottom: 1px solid var(--rule);
+    color: inherit;
+    text-decoration: none;
+  }
+  .fr-latest-list a:hover { background: var(--card); }
+  .fr-latest-firm { font-family: var(--serif); font-size: 17px; color: var(--ink); }
+  .fr-latest-date { font-family: var(--mono); font-size: 11px; color: var(--ink-3); }
+  .fr-latest-top { display: flex; flex-wrap: wrap; gap: 4px 14px; font-family: var(--mono); font-size: 13px; color: var(--ink-2); }
+  .fr-latest-top b { color: var(--ink); }
+  @media (max-width: 640px) {
+    .fr-latest-list a { grid-template-columns: 1fr; }
+  }
+  .fr-add { list-style: none; margin: 8px 0 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+  .fr-add li { border: 1px solid var(--rule); border-radius: 6px; background: var(--card); padding: 18px; }
+  .fr-add-n { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: var(--ink); color: var(--paper-3); font-family: var(--mono); font-size: 12px; }
+  .fr-add h3 { margin: 10px 0 6px; font-family: var(--serif); font-size: 19px; font-weight: 450; }
+  .fr-add p { margin: 0; color: var(--ink-2); font-size: 15px; line-height: 1.6; }
+  .fr-how { margin-top: 22px; padding: 16px 18px; border-left: 3px solid var(--ink); max-width: 760px; }
+  .fr-how h3 { margin: 0 0 8px; font-family: var(--serif); font-size: 19px; font-weight: 450; }
+  .fr-how ul { margin: 0 0 14px; padding-left: 18px; color: var(--ink-2); line-height: 1.7; }
+  .fr-more-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+  .fr-more-countdown { grid-column: 1 / -1; }
 
   .fr-section {
     max-width: 1080px;

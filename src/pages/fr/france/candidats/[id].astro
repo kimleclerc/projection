@@ -16,7 +16,7 @@ const { candidate } = Astro.props;
 const meta = (latest as any).meta;
 const canonical = `https://vote-scope.com/fr/france/candidats/${candidate.slug}/`;
 const enSlug = slugify(candidate.name);
-const desc = `${candidate.name} — présidentielle française 2027 : ${statusLabel(candidate.status, 'fr').toLowerCase()}, ${blocLabel(candidate.bloc, 'fr')}. Intentions de vote au premier tour et duels de second tour, sur ${candidate.activeScenarios} castings. Run du ${meta.run_date}.`;
+const desc = `${candidate.name} — présidentielle française 2027 : ${statusLabel(candidate.status, 'fr').toLowerCase()}, ${blocLabel(candidate.bloc, 'fr', candidate.partyFamily)}. Intentions de vote au premier tour et duels de second tour, sur ${candidate.activeScenarios} hypothèses de candidatures. Mise à jour du ${meta.run_date}.`;
 ---
 
 <EditorialLayout
@@ -37,7 +37,7 @@ const desc = `${candidate.name} — présidentielle française 2027 : ${statusLa
       '@type': 'Person',
       name: candidate.name,
       url: canonical,
-      description: `Candidat à l'élection présidentielle française de 2027 (${blocLabel(candidate.bloc, 'fr')}).`,
+      description: `Candidat à l'élection présidentielle française de 2027 (${blocLabel(candidate.bloc, 'fr', candidate.partyFamily)}).`,
     },
   ]}
 >

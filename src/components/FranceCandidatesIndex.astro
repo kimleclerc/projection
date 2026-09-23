@@ -20,8 +20,8 @@ const COPY = {
         dek: `Une page par candidat : bio, intentions de vote au premier tour et duels de second tour. ${declared.length} candidatures déclarées, ${probable.length} probables.`,
         declared: 'Candidatures déclarées',
         probable: 'Candidatures probables',
-        best: 'meilleur casting',
-        back: '← Desk France',
+        best: 'meilleure hypothèse',
+        back: '← Présidentielle 2027',
       },
   en: {
         kicker: '2027 Presidential · Candidates',
@@ -68,7 +68,7 @@ const groups = [
               <span class="frci-swatch" style={`background:${blocVar(c.bloc)}`} />
               <span class="frci-card-body">
                 <span class="frci-card-name">{c.name}</span>
-                <span class="frci-card-bloc">{blocLabel(c.bloc, locale)}</span>
+                <span class="frci-card-bloc">{blocLabel(c.bloc, locale, c.partyFamily)}</span>
               </span>
               {typeof c.bestMean === 'number' && (
                 <span class="frci-card-mean">

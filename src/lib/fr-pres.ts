@@ -79,9 +79,37 @@ export function blocHex(bloc: string): string {
   return BLOC_HEX[bloc] ?? BLOC_HEX.other;
 }
 
-export function blocLabel(bloc: string, locale: Locale): string {
+// Famille politique SANS parti : le parti vient de la candidature, pas du bloc.
+// BLOC_LABELS collait « (RN) » à tout le bloc d'extrême droite — Zemmour
+// devenait RN, Glucksmann (Place publique) PS, Villepin et Lecornu Horizons.
+const BLOC_GENERIC: Record<Bloc, { fr: string; en: string; es: string }> = {
+  far_left: { fr: 'Extrême gauche', en: 'Far left', es: 'Extrema izquierda' },
+  left: { fr: 'Gauche', en: 'Left', es: 'Izquierda' },
+  left_radical: { fr: 'Gauche radicale', en: 'Radical left', es: 'Izquierda radical' },
+  left_populist: { fr: 'Gauche populaire', en: 'Populist left', es: 'Izquierda popular' },
+  left_social_dem: { fr: 'Sociaux-démocrates', en: 'Social democrats', es: 'Socialdemócratas' },
+  greens: { fr: 'Écologistes', en: 'Greens', es: 'Ecologistas' },
+  centre: { fr: 'Centre', en: 'Centre', es: 'Centro' },
+  centre_right: { fr: 'Centre droit', en: 'Centre-right', es: 'Centroderecha' },
+  right: { fr: 'Droite', en: 'Right', es: 'Derecha' },
+  sovereignist: { fr: 'Souverainistes', en: 'Sovereignist', es: 'Soberanistas' },
+  far_right: { fr: 'Extrême droite', en: 'Far right', es: 'Extrema derecha' },
+  other: { fr: 'Autres', en: 'Other', es: 'Otros' },
+};
+
+/** Sigle du parti par `party_family` du registre. Absent = pas de sigle
+ * (indépendants, et les écologistes, dont le nom de parti répète le bloc). */
+const PARTY_ABBR: Record<string, string> = {
+  rn: 'RN', reconquete: 'Reconquête', renaissance: 'Renaissance', modem: 'MoDem',
+  horizons: 'Horizons', lr: 'LR', nous_france: 'Nous France', humanist_france: 'La France humaniste',
+  lfi: 'LFI', ps: 'PS', ps_place_publique: 'Place publique', la_convention: 'La Convention',
+  pcf: 'PCF', picardie_debout: 'Picardie debout', lo: 'LO', npa: 'NPA', dlf: 'DLF', upr: 'UPR',
+};
+
+export function blocLabel(bloc: string, locale: Locale, partyFamily?: string): string {
   const b = (BLOC_ORDER as string[]).includes(bloc) ? (bloc as Bloc) : 'other';
-  return BLOC_LABELS[b][locale];
+  const abbr = partyFamily ? PARTY_ABBR[partyFamily] : undefined;
+  return abbr ? `${BLOC_GENERIC[b][locale]} (${abbr})` : BLOC_GENERIC[b][locale];
 }
 
 export const STATUS_LABELS: Record<string, { fr: string; en: string; es: string }> = {
