@@ -24,10 +24,18 @@ export interface FrPoll {
   source_url?: string | null; n_scenarios: number;
   lead_entries: PollEntry[]; scenarios: PollScenario[];
   runoffs: Array<{ left: string; right: string; left_share: number; right_share: number }>;
+  /** Lecture automatique (export_fr_pres_poll_pages.py) — toujours sur des hypothèses identiques. */
+  reading?: {
+    vs_model?: { scenario_label: string; items: Array<{ id: string; name: string; poll: number; model: number; delta: number }> };
+    vs_previous?: { slug: string; release_date: string; stable: boolean;
+      items: Array<{ id: string; name: string; now: number; before: number; delta: number }> };
+    house?: Array<{ id: string; name: string; delta: number; n: number }>;
+  };
   newer_slug?: string | null; older_slug?: string | null;
 }
 
 import dataSheets from '../../web_data/france-presidential/data_sheets.json';
+import JurisdictionNav from './JurisdictionNav.astro';
 
 interface Props { poll: FrPoll; locale: 'en' | 'fr' | 'es'; base: string; hubHref: string; deskHref: string; }
 const { poll, locale, base, hubHref, deskHref } = Astro.props as Props;
@@ -86,6 +94,62 @@ const maxShare = Math.max(...poll.lead_entries.map((e) => e.share), 1);
 const nf = new Intl.NumberFormat(L, { maximumFractionDigits: 1 });
 const pct = (v: number) => `${nf.format(v)}${locale === 'en' ? '%' : '\u00a0%'}`;
 
+// ── Notre lecture ────────────────────────────────────────────────────────
+// Ce que le communiqué ne dit pas : écart à notre moyenne (sondages récents),
+// mouvement depuis la vague précédente du même institut, effet maison. Les
+// trois portent sur des hypothèses IDENTIQUES.
+const reading = poll.reading ?? {};
+const pts = (v: number) => {
+  const abs = nf.format(Math.abs(v));
+  const sign = v > 0 ? '+' : '−';
+  if (locale === 'en') return `${sign}${abs} pt${Math.abs(v) >= 2 ? 's' : ''}`;
+  if (locale === 'es') return `${sign}${abs} pt${Math.abs(v) >= 2 ? 's' : ''}`;
+  return `${sign}${abs} pt${Math.abs(v) >= 2 ? 's' : ''}`;
+};
+// Sans signe quand le sens est dit en toutes lettres (« 3,7 pts plus bas »).
+const ptsAbs = (v: number) => `${nf.format(Math.abs(v))} pt${Math.abs(v) >= 2 ? 's' : ''}`;
+const readShort = (id: string, fallback: string) => shortById.get(id) ?? fallback;
+const R = {
+  fr: {
+    title: 'Notre lecture de ce sondage',
+    vsModel: (label: string) => `Par rapport à notre moyenne sur la même hypothèse (« ${label} ») :`,
+    modelAligned: (label: string) => `Sur l’hypothèse « ${label} », ce sondage est aligné sur notre moyenne : aucun écart d’un point ou plus.`,
+    vsPrev: (d: string) => `Depuis la vague précédente de l’institut (${d}), sur la même hypothèse :`,
+    prevStable: (d: string) => `Rien ne bouge d’un point ou plus depuis la vague précédente de l’institut (${d}), sur la même hypothèse.`,
+    house: (firm: string) => `Effet maison : sur les mêmes hypothèses, ${firm} place habituellement`,
+    houseItem: (name: string, v: number) => `${name} ${ptsAbs(v)} ${v > 0 ? 'plus haut' : 'plus bas'}`,
+    houseTail: (n: number) => `que les autres instituts (${n} comparaisons à moins de 60 jours). Ce n’est pas une erreur : chaque institut a sa méthode, notre moyenne en tient compte.`,
+    vs: 'contre', prevLink: 'Voir la vague précédente',
+    effectLink: 'À qui chaque candidature prend ses voix : l’effet candidature',
+  },
+  en: {
+    title: 'Our reading of this poll',
+    vsModel: (label: string) => `Compared with our average for the same lineup (“${label}”):`,
+    modelAligned: (label: string) => `On the “${label}” lineup, this poll is in line with our average: no gap of a point or more.`,
+    vsPrev: (d: string) => `Since the pollster’s previous wave (${d}), same lineup:`,
+    prevStable: (d: string) => `Nothing moved by a point or more since the pollster’s previous wave (${d}), same lineup.`,
+    house: (firm: string) => `House effect: on the same lineups, ${firm} usually puts`,
+    houseItem: (name: string, v: number) => `${name} ${ptsAbs(v)} ${v > 0 ? 'higher' : 'lower'}`,
+    houseTail: (n: number) => `than other pollsters (${n} comparisons within 60 days). Not an error: each pollster has its method, and our average accounts for it.`,
+    vs: 'vs', prevLink: 'See the previous wave',
+    effectLink: 'Where each candidacy takes its votes from: the candidacy effect',
+  },
+  es: {
+    title: 'Nuestra lectura de esta encuesta',
+    vsModel: (label: string) => `Frente a nuestro promedio para la misma combinación («${label}»):`,
+    modelAligned: (label: string) => `En la combinación «${label}», esta encuesta coincide con nuestro promedio: ninguna diferencia de un punto o más.`,
+    vsPrev: (d: string) => `Desde la oleada anterior del instituto (${d}), misma combinación:`,
+    prevStable: (d: string) => `Nada se mueve un punto o más desde la oleada anterior del instituto (${d}), misma combinación.`,
+    house: (firm: string) => `Efecto de la casa: en las mismas combinaciones, ${firm} suele situar a`,
+    houseItem: (name: string, v: number) => `${name} ${ptsAbs(v)} ${v > 0 ? 'más arriba' : 'más abajo'}`,
+    houseTail: (n: number) => `que los demás institutos (${n} comparaciones a menos de 60 días). No es un error: cada instituto tiene su método y nuestro promedio lo tiene en cuenta.`,
+    vs: 'frente a', prevLink: 'Ver la oleada anterior',
+    effectLink: 'De quién toma sus votos cada candidatura: el efecto candidatura',
+  },
+}[locale];
+const effectHref = { fr: '/fr/france/effet-candidature/', en: '/en/france/candidacy-effect/', es: '/es/france/efecto-candidatura/' }[locale];
+const hasReading = Boolean(reading.vs_model || reading.vs_previous || reading.house?.length);
+
 // Une hypothèse se nomme par ce qui la DISTINGUE des autres hypothèses du
 // même sondage (« avec Glucksmann »), comme dans la presse — pas par un
 // numéro et un nombre de candidats.
@@ -103,6 +167,8 @@ const lineupLabel = (sc: PollScenario) => {
   return absent.length ? `${copy.without} ${absent.join(', ')}` : `${sc.n_candidates} ${copy.candidates}`;
 };
 ---
+
+<JurisdictionNav webKey="france" lang={locale} active="polls" />
 
 <article class="fpp" data-content-area>
   <header class="fpp-head container">
@@ -137,6 +203,53 @@ const lineupLabel = (sc: PollScenario) => {
       ))}
     </ul>
   </section>
+
+  {hasReading && (
+    <section class="fpp-section container" aria-labelledby="fpp-reading-title">
+     <div class="fpp-reading">
+      <h2 id="fpp-reading-title">{R.title}</h2>
+      {reading.vs_model && (reading.vs_model.items.length > 0 ? (
+        <div class="fpp-read-block">
+          <p>{R.vsModel(reading.vs_model.scenario_label)}</p>
+          <ul>
+            {reading.vs_model.items.map((i) => (
+              <li><b>{readShort(i.id, i.name)}</b> {pct(i.poll)} {R.vs} {pct(i.model)} <span class={i.delta > 0 ? 'is-up' : 'is-down'}>({pts(i.delta)})</span></li>
+            ))}
+          </ul>
+        </div>
+      ) : (
+        <div class="fpp-read-block"><p>{R.modelAligned(reading.vs_model.scenario_label)}</p></div>
+      ))}
+      {reading.vs_previous && (
+        <div class="fpp-read-block">
+          {reading.vs_previous.stable
+            ? <p>{R.prevStable(d(reading.vs_previous.release_date) ?? '')}</p>
+            : <>
+                <p>{R.vsPrev(d(reading.vs_previous.release_date) ?? '')}</p>
+                <ul>
+                  {reading.vs_previous.items.map((i) => (
+                    <li><b>{readShort(i.id, i.name)}</b> {pct(i.before)} → {pct(i.now)} <span class={i.delta > 0 ? 'is-up' : 'is-down'}>({pts(i.delta)})</span></li>
+                  ))}
+                </ul>
+              </>}
+          <a class="fpp-read-link" href={`${base}/${reading.vs_previous.slug}/`}>{R.prevLink} →</a>
+        </div>
+      )}
+      {reading.house && reading.house.length > 0 && (
+        <div class="fpp-read-block">
+          <p>
+            {R.house(poll.firm_name)}{' '}
+            {reading.house.map((h, i) => (
+              <>{i > 0 ? (i === reading.house!.length - 1 ? (locale === 'en' ? ' and ' : locale === 'es' ? ' y ' : ' et ') : ', ') : ''}<b>{R.houseItem(readShort(h.id, h.name), h.delta)}</b></>
+            ))}{' '}
+            {R.houseTail(Math.max(...reading.house.map((h) => h.n)))}
+          </p>
+        </div>
+      )}
+      <a class="fpp-read-link" href={effectHref}>{R.effectLink} →</a>
+     </div>
+    </section>
+  )}
 
   {poll.runoffs.length > 0 && (
     <section class="fpp-section container">
@@ -181,12 +294,22 @@ const lineupLabel = (sc: PollScenario) => {
 
 <style>
   .fpp { padding-bottom: 56px; }
-  .fpp-head { padding: 40px 0 8px; }
+  /* padding-block seulement : `padding: 40px 0 8px` annulait la marge
+     latérale de .container — la page collait au bord de l'écran. */
+  .fpp-head { padding-block: 40px 8px; max-width: 1080px; }
+  .fpp-reading { border-left: 3px solid var(--ink); padding-left: 18px; max-width: 760px; }
+  .fpp-read-block { margin: 0 0 14px; color: var(--ink-2); line-height: 1.6; }
+  .fpp-read-block p { margin: 0 0 6px; }
+  .fpp-read-block ul { margin: 0 0 6px; padding-left: 18px; }
+  .fpp-read-block b { color: var(--ink); }
+  .fpp-read-block .is-up { color: var(--ink); font-family: var(--mono); font-size: 13px; }
+  .fpp-read-block .is-down { color: var(--ink-3); font-family: var(--mono); font-size: 13px; }
+  .fpp-read-link { display: inline-block; margin-top: 4px; font-family: var(--mono); font-size: 12px; color: var(--ink-2); }
   .fpp-eyebrow {
     font-family: var(--mono); font-size: 11px; letter-spacing: .08em;
     text-transform: uppercase; color: var(--ink-3); margin: 0 0 6px;
   }
-  .fpp h1 { font-size: 30px; margin: 0 0 16px; }
+  .fpp h1 { font-family: var(--serif); font-size: clamp(30px, 4.5vw, 46px); font-weight: 430; letter-spacing: -0.01em; line-height: 1.05; margin: 0 0 18px; }
 
   .fpp-meta { display: flex; flex-wrap: wrap; gap: 8px 28px; margin: 0 0 8px; }
   .fpp-meta div { display: flex; flex-direction: column; gap: 2px; }
@@ -196,8 +319,8 @@ const lineupLabel = (sc: PollScenario) => {
   }
   .fpp-meta dd { margin: 0; font-size: 14px; }
 
-  .fpp-section { padding: 28px 0 0; }
-  .fpp-section h2 { font-size: 18px; margin: 0 0 12px; }
+  .fpp-section { padding-top: 32px; max-width: 1080px; }
+  .fpp-section h2 { font-family: var(--serif); font-size: clamp(22px, 2.6vw, 28px); font-weight: 430; margin: 0 0 12px; }
   .fpp-lede { margin: 0 0 16px; color: var(--ink-2); max-width: 66ch; font-size: 14px; }
 
   .fpp-bars { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
@@ -215,7 +338,7 @@ const lineupLabel = (sc: PollScenario) => {
     display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px;
   }
   .fpp-scenario { border: 1px solid var(--rule); border-radius: 6px; padding: 14px 16px; }
-  .fpp-scenario h3 { font-size: 13px; margin: 0 0 8px; color: var(--ink-2); }
+  .fpp-scenario h3 { font-family: var(--serif); font-size: 15px; font-weight: 450; margin: 0 0 8px; color: var(--ink); }
   .fpp-scenario ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; font-size: 13px; }
   .fpp-scenario li { display: flex; justify-content: space-between; gap: 10px; }
   .fpp-scenario b { font-family: var(--mono); font-weight: 500; }

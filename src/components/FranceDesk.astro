@@ -16,6 +16,7 @@ import dataSheets from '../../web_data/france-presidential/data_sheets.json';
 import barrageLatest from '../../web_data/fr-barrage/latest.json';
 import frLegLatest from '../../web_data/france-legislative/latest.json';
 import byPoll from '../../web_data/france-presidential/polls_by_poll.json';
+import candidacyEffects from '../../web_data/france-presidential/candidacy_effects.json';
 import {
   toScenarioCard,
   blocVar,
@@ -99,6 +100,18 @@ const marketCopy = {
     subtitle: 'Probabilidades implícitas de los operadores, como referencia independiente junto al pronóstico de Vote-Scope.',
   },
 }[locale];
+
+// Effet candidature — la carte s'accroche au plus gros report mesuré.
+const effectHref = { fr: '/fr/france/effet-candidature/', en: '/en/france/candidacy-effect/', es: '/es/france/efecto-candidatura/' }[locale];
+const topExit = (((candidacyEffects as any).exits ?? []) as any[])
+  .filter((e) => e.destinations?.length)
+  .sort((a, b) => b.own.mean - a.own.mean)[0];
+const topShare = topExit ? Math.round(topExit.destinations[0].share_of_votes * 100) : 0;
+const effectCopy = topExit ? {
+  fr: { eyebrow: 'Effet candidature', title: `Sans ${topExit.short}, ${topShare} % de ses électeurs vont à ${topExit.destinations[0].short}`, body: 'Mesuré dans les sondages eux-mêmes : deux hypothèses d’une même enquête, un seul nom qui change. À qui chaque candidature prend ses voix.', cta: 'Voir l’effet candidature' },
+  en: { eyebrow: 'Candidacy effect', title: `Without ${topExit.short}, ${topShare}% of those voters go to ${topExit.destinations[0].short}`, body: 'Measured inside the polls: two lineups from the same survey, one name changed. Where each candidacy takes its votes from.', cta: 'See the candidacy effect' },
+  es: { eyebrow: 'Efecto candidatura', title: `Sin ${topExit.short}, el ${topShare} % de sus votantes va a ${topExit.destinations[0].short}`, body: 'Medido dentro de las encuestas: dos combinaciones de una misma encuesta, un solo nombre distinto. De quién toma sus votos cada candidatura.', cta: 'Ver el efecto candidatura' },
+}[locale] : null;
 
 // Barrage Index — carte promo live vers l'instrument (web_data/fr-barrage).
 const bfi = (barrageLatest as any).bfi ?? {};
@@ -607,6 +620,14 @@ const C = COPY[locale];
           client:load
         />
       </div>
+      {effectCopy && (
+        <a class="note-card" href={effectHref} style="display:block;text-decoration:none;color:inherit;border-left:4px solid var(--ink);">
+          <p class="eyebrow">{effectCopy.eyebrow}</p>
+          <h3 style="margin:0.25rem 0;">{effectCopy.title}</h3>
+          <p>{effectCopy.body}</p>
+          <footer style="margin-top:0.75rem;"><span class="cta-link">{effectCopy.cta} →</span></footer>
+        </a>
+      )}
       <a class="note-card" href={barrageHref} style={`display:block;text-decoration:none;color:inherit;border-left:4px solid ${bfi.zone_color ?? 'var(--ink-3)'};`}>
         <p class="eyebrow">{barrageCopy.eyebrow}</p>
         <h3 style="margin:0.25rem 0;">{barrageCopy.title} — <span style={`color:${bfi.zone_color ?? 'inherit'}`}>{typeof bfi.score === 'number' ? (locale === 'en' ? bfi.score.toFixed(1) : bfi.score.toFixed(1).replace('.', ',')) : '—'}/100 · {barrageCopy.zone ?? ''}</span></h3>
