@@ -8,6 +8,14 @@
     "total_seats": 50,
     "contested_seats": 36,
     "n_simulations": 50000,
+    "uncertainty": {
+      "calibration": "us_race_uncertainty.json",
+      "source_sha256": "9f0b185506e59117c150fb988e73b612346effe8e3a8f0d90fdafcad07f54756",
+      "common_sd": 2.867,
+      "common_df": 30.0,
+      "local_df": 7.82,
+      "recent_window_days": 60
+    },
     "pipeline_version": "4.0",
     "national_environment": {
       "generic_ballot_margin_dem": 7.89,
@@ -24,12 +32,12 @@
       "color": "#1f77d0",
       "seats_mean": 26.0,
       "seats_median": 26.0,
-      "seats_ci_low_80": 24.0,
-      "seats_ci_high_80": 28.0,
-      "seats_ci_low_95": 23.0,
-      "seats_ci_high_95": 29.0,
-      "p_majority": 0.6351,
-      "p_largest": 0.6352
+      "seats_ci_low_80": 23.0,
+      "seats_ci_high_80": 29.0,
+      "seats_ci_low_95": 21.0,
+      "seats_ci_high_95": 31.0,
+      "p_majority": 0.5872,
+      "p_largest": 0.5877
     },
     {
       "party": "us_rep",
@@ -38,12 +46,12 @@
       "color": "#c62828",
       "seats_mean": 24.0,
       "seats_median": 24.0,
-      "seats_ci_low_80": 22.0,
-      "seats_ci_high_80": 26.0,
-      "seats_ci_low_95": 21.0,
-      "seats_ci_high_95": 27.0,
-      "p_majority": 0.1508,
-      "p_largest": 0.151
+      "seats_ci_low_80": 21.0,
+      "seats_ci_high_80": 27.0,
+      "seats_ci_low_95": 19.0,
+      "seats_ci_high_95": 29.0,
+      "p_majority": 0.2804,
+      "p_largest": 0.281
     },
     {
       "party": "us_oth",
@@ -91,7 +99,14 @@
       "side": "tossup",
       "label_en": "Toss Up",
       "label_fr": "Toss-up",
-      "count": 6
+      "count": 5
+    },
+    {
+      "code": "lean_rep",
+      "side": "rep",
+      "label_en": "Lean Republican",
+      "label_fr": "Avantage républicain",
+      "count": 1
     },
     {
       "code": "likely_rep",
@@ -130,17 +145,17 @@
       },
       "projection": {
         "winner": "us_rep",
-        "p_winner": 0.7363,
-        "mean_margin": 3.81,
-        "p_close_race": 0.7022,
+        "p_winner": 0.6408,
+        "mean_margin": 6.22,
+        "p_close_race": 0.4933,
         "vote_mean": {
-          "us_dem": 48.55,
-          "us_rep": 51.05,
+          "us_dem": 48.57,
+          "us_rep": 51.04,
           "us_oth": 0.4
         },
         "win_prob": {
-          "us_dem": 0.2637,
-          "us_rep": 0.7363,
+          "us_dem": 0.3592,
+          "us_rep": 0.6408,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -161,7 +176,7 @@
         "environment_shift": 7.89,
         "margin": -6.34,
         "poll_weight": 0.66,
-        "margin_sd": 4.0
+        "margin_sd": 7.0
       },
       "baseline_result": {
         "cycle": "us_governor_2022",
@@ -193,17 +208,17 @@
       },
       "projection": {
         "winner": "us_rep",
-        "p_winner": 0.993,
-        "mean_margin": 15.03,
-        "p_close_race": 0.049,
+        "p_winner": 0.9548,
+        "mean_margin": 15.53,
+        "p_close_race": 0.1037,
         "vote_mean": {
-          "us_dem": 42.3,
-          "us_rep": 57.3,
-          "us_oth": 0.4
+          "us_dem": 42.26,
+          "us_rep": 57.33,
+          "us_oth": 0.41
         },
         "win_prob": {
-          "us_dem": 0.007,
-          "us_rep": 0.993,
+          "us_dem": 0.0452,
+          "us_rep": 0.9548,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -224,7 +239,7 @@
         "environment_shift": 7.89,
         "margin": -22.58,
         "poll_weight": 0.52,
-        "margin_sd": 6.0
+        "margin_sd": 8.62
       },
       "baseline_result": {
         "cycle": "us_governor_2022",
@@ -256,17 +271,17 @@
       },
       "projection": {
         "winner": "us_rep",
-        "p_winner": 0.9884,
-        "mean_margin": 13.69,
-        "p_close_race": 0.0727,
+        "p_winner": 0.9411,
+        "mean_margin": 14.29,
+        "p_close_race": 0.1324,
         "vote_mean": {
-          "us_dem": 39.68,
-          "us_rep": 53.32,
+          "us_dem": 39.65,
+          "us_rep": 53.34,
           "us_oth": 7.0
         },
         "win_prob": {
-          "us_dem": 0.0116,
-          "us_rep": 0.9884,
+          "us_dem": 0.0589,
+          "us_rep": 0.9411,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -287,7 +302,7 @@
         "environment_shift": 10.69,
         "margin": -20.1,
         "poll_weight": 0.426,
-        "margin_sd": 6.0
+        "margin_sd": 8.62
       },
       "baseline_result": {
         "cycle": "us_governor_2022",
@@ -319,17 +334,17 @@
       },
       "projection": {
         "winner": "us_dem",
-        "p_winner": 0.96,
-        "mean_margin": 7.74,
-        "p_close_race": 0.2682,
+        "p_winner": 0.8999,
+        "mean_margin": 8.26,
+        "p_close_race": 0.3028,
         "vote_mean": {
-          "us_dem": 53.21,
+          "us_dem": 53.2,
           "us_rep": 45.6,
           "us_oth": 1.19
         },
         "win_prob": {
-          "us_dem": 0.96,
-          "us_rep": 0.04,
+          "us_dem": 0.8999,
+          "us_rep": 0.1001,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -350,7 +365,7 @@
         "environment_shift": 10.69,
         "margin": 8.3,
         "poll_weight": 0.78,
-        "margin_sd": 4.31
+        "margin_sd": 5.42
       },
       "baseline_result": {
         "cycle": "us_governor_2022",
@@ -382,17 +397,17 @@
       },
       "projection": {
         "winner": "us_dem",
-        "p_winner": 1.0,
-        "mean_margin": 24.02,
-        "p_close_race": 0.0,
+        "p_winner": 0.9988,
+        "mean_margin": 24.11,
+        "p_close_race": 0.0039,
         "vote_mean": {
-          "us_dem": 61.81,
-          "us_rep": 37.79,
+          "us_dem": 61.85,
+          "us_rep": 37.75,
           "us_oth": 0.4
         },
         "win_prob": {
-          "us_dem": 1.0,
-          "us_rep": 0.0,
+          "us_dem": 0.9988,
+          "us_rep": 0.0012,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -413,7 +428,7 @@
         "environment_shift": 7.89,
         "margin": 27.74,
         "poll_weight": 0.78,
-        "margin_sd": 4.0
+        "margin_sd": 6.03
       },
       "baseline_result": {
         "cycle": "us_governor_2022",
@@ -445,17 +460,17 @@
       },
       "projection": {
         "winner": "us_dem",
-        "p_winner": 0.9873,
-        "mean_margin": 15.78,
-        "p_close_race": 0.061,
+        "p_winner": 0.96,
+        "mean_margin": 16.09,
+        "p_close_race": 0.0927,
         "vote_mean": {
-          "us_dem": 57.66,
+          "us_dem": 57.64,
           "us_rep": 41.94,
-          "us_oth": 0.39
+          "us_oth": 0.42
         },
         "win_prob": {
-          "us_dem": 0.9873,
-          "us_rep": 0.0127,
+          "us_dem": 0.96,
+          "us_rep": 0.04,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -476,7 +491,7 @@
         "environment_shift": 7.89,
         "margin": 17.18,
         "poll_weight": 0.3,
-        "margin_sd": 7.0
+        "margin_sd": 8.62
       },
       "baseline_result": {
         "cycle": "us_governor_2022",
@@ -508,17 +523,17 @@
       },
       "projection": {
         "winner": "us_dem",
-        "p_winner": 0.9996,
-        "mean_margin": 15.59,
-        "p_close_race": 0.0091,
+        "p_winner": 0.9884,
+        "mean_margin": 15.62,
+        "p_close_race": 0.0471,
         "vote_mean": {
-          "us_dem": 57.59,
-          "us_rep": 42.01,
+          "us_dem": 57.57,
+          "us_rep": 42.03,
           "us_oth": 0.4
         },
         "win_prob": {
-          "us_dem": 0.9996,
-          "us_rep": 0.0004,
+          "us_dem": 0.9884,
+          "us_rep": 0.0116,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -539,7 +554,7 @@
         "environment_shift": 10.69,
         "margin": 20.6,
         "poll_weight": 0.78,
-        "margin_sd": 4.45
+        "margin_sd": 5.82
       },
       "baseline_result": {
         "cycle": "us_governor_2022",
@@ -571,17 +586,17 @@
       },
       "projection": {
         "winner": "us_rep",
-        "p_winner": 0.5306,
-        "mean_margin": 3.21,
-        "p_close_race": 0.7877,
+        "p_winner": 0.5256,
+        "mean_margin": 5.16,
+        "p_close_race": 0.5797,
         "vote_mean": {
-          "us_dem": 49.64,
-          "us_rep": 49.95,
+          "us_dem": 49.61,
+          "us_rep": 49.98,
           "us_oth": 0.41
         },
         "win_prob": {
-          "us_dem": 0.4694,
-          "us_rep": 0.5306,
+          "us_dem": 0.4744,
+          "us_rep": 0.5256,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -602,7 +617,7 @@
         "environment_shift": 7.89,
         "margin": -4.06,
         "poll_weight": 0.78,
-        "margin_sd": 4.0
+        "margin_sd": 6.03
       },
       "baseline_result": {
         "cycle": "us_governor_2022",
@@ -634,17 +649,17 @@
       },
       "projection": {
         "winner": "us_dem",
-        "p_winner": 0.5369,
-        "mean_margin": 3.85,
-        "p_close_race": 0.6994,
+        "p_winner": 0.5269,
+        "mean_margin": 5.4,
+        "p_close_race": 0.5561,
         "vote_mean": {
-          "us_dem": 50.02,
-          "us_rep": 49.58,
+          "us_dem": 50.04,
+          "us_rep": 49.57,
           "us_oth": 0.4
         },
         "win_prob": {
-          "us_dem": 0.5369,
-          "us_rep": 0.4631,
+          "us_dem": 0.5269,
+          "us_rep": 0.4731,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -665,7 +680,7 @@
         "environment_shift": 7.89,
         "margin": 3.56,
         "poll_weight": 0.78,
-        "margin_sd": 4.78
+        "margin_sd": 6.37
       },
       "baseline_result": {
         "cycle": "us_governor_2022",
@@ -697,17 +712,17 @@
       },
       "projection": {
         "winner": "us_dem",
-        "p_winner": 1.0,
-        "mean_margin": 34.15,
-        "p_close_race": 0.0001,
+        "p_winner": 0.9989,
+        "mean_margin": 34.07,
+        "p_close_race": 0.0023,
         "vote_mean": {
-          "us_dem": 66.87,
-          "us_rep": 32.72,
-          "us_oth": 0.4
+          "us_dem": 66.82,
+          "us_rep": 32.77,
+          "us_oth": 0.41
         },
         "win_prob": {
-          "us_dem": 1.0,
-          "us_rep": 0.0,
+          "us_dem": 0.9989,
+          "us_rep": 0.0011,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -728,7 +743,7 @@
         "environment_shift": 10.69,
         "margin": 34.1,
         "poll_weight": 0.0,
-        "margin_sd": 8.0
+        "margin_sd": 8.62
       },
       "baseline_result": {
         "cycle": "us_governor_2022",
@@ -760,17 +775,17 @@
       },
       "projection": {
         "winner": "us_dem",
-        "p_winner": 0.8886,
-        "mean_margin": 5.32,
-        "p_close_race": 0.5031,
+        "p_winner": 0.8005,
+        "mean_margin": 6.38,
+        "p_close_race": 0.454,
         "vote_mean": {
-          "us_dem": 52.25,
-          "us_rep": 47.35,
+          "us_dem": 52.27,
+          "us_rep": 47.34,
           "us_oth": 0.4
         },
         "win_prob": {
-          "us_dem": 0.8886,
-          "us_rep": 0.1114,
+          "us_dem": 0.8005,
+          "us_rep": 0.1995,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -791,7 +806,7 @@
         "environment_shift": 7.89,
         "margin": -5.78,
         "poll_weight": 0.78,
-        "margin_sd": 4.0
+        "margin_sd": 5.49
       },
       "baseline_result": {
         "cycle": "us_governor_2022",
@@ -823,17 +838,17 @@
       },
       "projection": {
         "winner": "us_rep",
-        "p_winner": 1.0,
-        "mean_margin": 29.79,
-        "p_close_race": 0.0001,
+        "p_winner": 0.9975,
+        "mean_margin": 29.87,
+        "p_close_race": 0.0054,
         "vote_mean": {
-          "us_dem": 30.1,
-          "us_rep": 59.9,
+          "us_dem": 30.08,
+          "us_rep": 59.92,
           "us_oth": 10.0
         },
         "win_prob": {
-          "us_dem": 0.0,
-          "us_rep": 1.0,
+          "us_dem": 0.0025,
+          "us_rep": 0.9975,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -854,7 +869,7 @@
         "environment_shift": 10.69,
         "margin": -32.5,
         "poll_weight": 0.234,
-        "margin_sd": 6.5
+        "margin_sd": 8.62
       },
       "baseline_result": {
         "cycle": "us_governor_2022",
@@ -886,17 +901,17 @@
       },
       "projection": {
         "winner": "us_dem",
-        "p_winner": 0.9981,
-        "mean_margin": 20.32,
-        "p_close_race": 0.0139,
+        "p_winner": 0.9839,
+        "mean_margin": 20.38,
+        "p_close_race": 0.036,
         "vote_mean": {
-          "us_dem": 59.95,
-          "us_rep": 39.65,
-          "us_oth": 0.4
+          "us_dem": 59.9,
+          "us_rep": 39.69,
+          "us_oth": 0.41
         },
         "win_prob": {
-          "us_dem": 0.9981,
-          "us_rep": 0.0019,
+          "us_dem": 0.9839,
+          "us_rep": 0.0161,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -917,7 +932,7 @@
         "environment_shift": 10.69,
         "margin": 20.2,
         "poll_weight": 0.3,
-        "margin_sd": 7.0
+        "margin_sd": 8.62
       },
       "baseline_result": {
         "cycle": "us_governor_2022",
@@ -949,17 +964,17 @@
       },
       "projection": {
         "winner": "us_rep",
-        "p_winner": 0.9624,
-        "mean_margin": 7.24,
-        "p_close_race": 0.3008,
+        "p_winner": 0.8571,
+        "mean_margin": 8.26,
+        "p_close_race": 0.3288,
         "vote_mean": {
           "us_dem": 46.24,
           "us_rep": 53.36,
           "us_oth": 0.4
         },
         "win_prob": {
-          "us_dem": 0.0376,
-          "us_rep": 0.9624,
+          "us_dem": 0.1429,
+          "us_rep": 0.8571,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -980,7 +995,7 @@
         "environment_shift": 7.89,
         "margin": -8.35,
         "poll_weight": 0.66,
-        "margin_sd": 4.0
+        "margin_sd": 6.37
       },
       "baseline_result": {
         "cycle": "us_governor_2022",
@@ -1012,17 +1027,17 @@
       },
       "projection": {
         "winner": "us_dem",
-        "p_winner": 1.0,
-        "mean_margin": 29.37,
-        "p_close_race": 0.0,
+        "p_winner": 0.9991,
+        "mean_margin": 29.39,
+        "p_close_race": 0.0022,
         "vote_mean": {
-          "us_dem": 64.48,
-          "us_rep": 35.12,
+          "us_dem": 64.49,
+          "us_rep": 35.11,
           "us_oth": 0.4
         },
         "win_prob": {
-          "us_dem": 1.0,
-          "us_rep": 0.0,
+          "us_dem": 0.9991,
+          "us_rep": 0.0009,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -1043,7 +1058,7 @@
         "environment_shift": 10.69,
         "margin": 36.8,
         "poll_weight": 0.66,
-        "margin_sd": 4.92
+        "margin_sd": 7.0
       },
       "baseline_result": {
         "cycle": "us_governor_2022",
@@ -1075,17 +1090,17 @@
       },
       "projection": {
         "winner": "us_dem",
-        "p_winner": 1.0,
+        "p_winner": 0.9986,
         "mean_margin": 32.26,
-        "p_close_race": 0.0,
+        "p_close_race": 0.0031,
         "vote_mean": {
-          "us_dem": 65.93,
+          "us_dem": 65.91,
           "us_rep": 33.67,
-          "us_oth": 0.4
+          "us_oth": 0.41
         },
         "win_prob": {
-          "us_dem": 1.0,
-          "us_rep": 0.0,
+          "us_dem": 0.9986,
+          "us_rep": 0.0014,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -1106,7 +1121,7 @@
         "environment_shift": 10.69,
         "margin": 40.1,
         "poll_weight": 0.52,
-        "margin_sd": 6.0
+        "margin_sd": 8.62
       },
       "baseline_result": {
         "cycle": "us_governor_2022",
@@ -1138,17 +1153,17 @@
       },
       "projection": {
         "winner": "us_dem",
-        "p_winner": 0.9986,
-        "mean_margin": 11.86,
-        "p_close_race": 0.0419,
+        "p_winner": 0.9632,
+        "mean_margin": 12.12,
+        "p_close_race": 0.1302,
         "vote_mean": {
-          "us_dem": 55.32,
+          "us_dem": 55.31,
           "us_rep": 43.46,
-          "us_oth": 1.23
+          "us_oth": 1.22
         },
         "win_prob": {
-          "us_dem": 0.9986,
-          "us_rep": 0.0014,
+          "us_dem": 0.9632,
+          "us_rep": 0.0368,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -1169,7 +1184,7 @@
         "environment_shift": 7.89,
         "margin": 13.37,
         "poll_weight": 0.78,
-        "margin_sd": 4.0
+        "margin_sd": 6.03
       },
       "baseline_result": {
         "cycle": "us_governor_2022",
@@ -1201,17 +1216,17 @@
       },
       "projection": {
         "winner": "us_dem",
-        "p_winner": 0.9587,
-        "mean_margin": 8.05,
-        "p_close_race": 0.258,
+        "p_winner": 0.9132,
+        "mean_margin": 8.45,
+        "p_close_race": 0.2848,
         "vote_mean": {
-          "us_dem": 53.42,
+          "us_dem": 53.41,
           "us_rep": 45.52,
           "us_oth": 1.07
         },
         "win_prob": {
-          "us_dem": 0.9587,
-          "us_rep": 0.0413,
+          "us_dem": 0.9132,
+          "us_rep": 0.0868,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -1232,7 +1247,7 @@
         "environment_shift": 7.89,
         "margin": 6.17,
         "poll_weight": 0.78,
-        "margin_sd": 4.51
+        "margin_sd": 5.26
       },
       "baseline_result": {
         "cycle": "us_governor_2022",
@@ -1264,17 +1279,17 @@
       },
       "projection": {
         "winner": "us_dem",
-        "p_winner": 0.9605,
-        "mean_margin": 9.39,
-        "p_close_race": 0.209,
+        "p_winner": 0.9215,
+        "mean_margin": 9.75,
+        "p_close_race": 0.2319,
         "vote_mean": {
-          "us_dem": 53.3,
-          "us_rep": 44.08,
+          "us_dem": 53.27,
+          "us_rep": 44.11,
           "us_oth": 2.62
         },
         "win_prob": {
-          "us_dem": 0.9605,
-          "us_rep": 0.0395,
+          "us_dem": 0.9215,
+          "us_rep": 0.0785,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -1295,7 +1310,7 @@
         "environment_shift": 7.89,
         "margin": 11.34,
         "poll_weight": 0.66,
-        "margin_sd": 5.27
+        "margin_sd": 6.03
       },
       "baseline_result": {
         "cycle": "us_governor_2022",
@@ -1327,17 +1342,17 @@
       },
       "projection": {
         "winner": "us_rep",
-        "p_winner": 0.9721,
-        "mean_margin": 14.05,
+        "p_winner": 0.9626,
+        "mean_margin": 14.25,
         "p_close_race": 0.1053,
         "vote_mean": {
-          "us_dem": 37.13,
-          "us_rep": 51.02,
-          "us_oth": 11.84
+          "us_dem": 37.11,
+          "us_rep": 51.05,
+          "us_oth": 11.85
         },
         "win_prob": {
-          "us_dem": 0.0279,
-          "us_rep": 0.9721,
+          "us_dem": 0.0374,
+          "us_rep": 0.9626,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -1390,17 +1405,17 @@
       },
       "projection": {
         "winner": "us_rep",
-        "p_winner": 0.9475,
-        "mean_margin": 10.0,
-        "p_close_race": 0.2088,
+        "p_winner": 0.9249,
+        "mean_margin": 10.34,
+        "p_close_race": 0.2131,
         "vote_mean": {
-          "us_dem": 44.59,
-          "us_rep": 54.32,
+          "us_dem": 44.56,
+          "us_rep": 54.34,
           "us_oth": 1.09
         },
         "win_prob": {
-          "us_dem": 0.0525,
-          "us_rep": 0.9475,
+          "us_dem": 0.0751,
+          "us_rep": 0.9249,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -1421,7 +1436,7 @@
         "environment_shift": 10.53,
         "margin": -1.72,
         "poll_weight": 0.66,
-        "margin_sd": 6.04
+        "margin_sd": 6.37
       },
       "baseline_result": {
         "cycle": "us_governor_2024",
@@ -1453,17 +1468,17 @@
       },
       "projection": {
         "winner": "us_dem",
-        "p_winner": 0.9113,
-        "mean_margin": 10.58,
-        "p_close_race": 0.2301,
+        "p_winner": 0.9064,
+        "mean_margin": 10.75,
+        "p_close_race": 0.2193,
         "vote_mean": {
-          "us_dem": 54.78,
-          "us_rep": 44.81,
+          "us_dem": 54.75,
+          "us_rep": 44.84,
           "us_oth": 0.4
         },
         "win_prob": {
-          "us_dem": 0.9113,
-          "us_rep": 0.0887,
+          "us_dem": 0.9064,
+          "us_rep": 0.0936,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -1516,17 +1531,17 @@
       },
       "projection": {
         "winner": "us_dem",
-        "p_winner": 0.5123,
-        "mean_margin": 3.35,
-        "p_close_race": 0.7671,
+        "p_winner": 0.5082,
+        "mean_margin": 5.85,
+        "p_close_race": 0.5217,
         "vote_mean": {
-          "us_dem": 49.43,
-          "us_rep": 49.29,
-          "us_oth": 1.27
+          "us_dem": 49.42,
+          "us_rep": 49.3,
+          "us_oth": 1.28
         },
         "win_prob": {
-          "us_dem": 0.5123,
-          "us_rep": 0.4877,
+          "us_dem": 0.5082,
+          "us_rep": 0.4918,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -1547,7 +1562,7 @@
         "environment_shift": 10.69,
         "margin": 6.2,
         "poll_weight": 0.78,
-        "margin_sd": 4.2
+        "margin_sd": 7.0
       },
       "baseline_result": {
         "cycle": "us_governor_2022",
@@ -1579,17 +1594,17 @@
       },
       "projection": {
         "winner": "us_dem",
-        "p_winner": 0.9921,
-        "mean_margin": 13.14,
-        "p_close_race": 0.0673,
+        "p_winner": 0.979,
+        "mean_margin": 13.23,
+        "p_close_race": 0.0905,
         "vote_mean": {
-          "us_dem": 56.36,
-          "us_rep": 43.25,
+          "us_dem": 56.35,
+          "us_rep": 43.26,
           "us_oth": 0.4
         },
         "win_prob": {
-          "us_dem": 0.9921,
-          "us_rep": 0.0079,
+          "us_dem": 0.979,
+          "us_rep": 0.021,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -1610,7 +1625,7 @@
         "environment_shift": 10.69,
         "margin": 14.1,
         "poll_weight": 0.78,
-        "margin_sd": 5.42
+        "margin_sd": 5.67
       },
       "baseline_result": {
         "cycle": "us_governor_2022",
@@ -1642,17 +1657,17 @@
       },
       "projection": {
         "winner": "us_dem",
-        "p_winner": 0.5512,
-        "mean_margin": 3.2,
-        "p_close_race": 0.7856,
+        "p_winner": 0.5334,
+        "mean_margin": 5.16,
+        "p_close_race": 0.5745,
         "vote_mean": {
           "us_dem": 48.6,
-          "us_rep": 48.1,
+          "us_rep": 48.11,
           "us_oth": 3.29
         },
         "win_prob": {
-          "us_dem": 0.5512,
-          "us_rep": 0.4488,
+          "us_dem": 0.5334,
+          "us_rep": 0.4666,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -1673,7 +1688,7 @@
         "environment_shift": 7.89,
         "margin": -4.32,
         "poll_weight": 0.78,
-        "margin_sd": 4.0
+        "margin_sd": 6.03
       },
       "baseline_result": {
         "cycle": "us_governor_2022",
@@ -1705,17 +1720,17 @@
       },
       "projection": {
         "winner": "us_rep",
-        "p_winner": 0.9989,
-        "mean_margin": 24.99,
-        "p_close_race": 0.0061,
+        "p_winner": 0.9941,
+        "mean_margin": 25.11,
+        "p_close_race": 0.0147,
         "vote_mean": {
-          "us_dem": 36.1,
-          "us_rep": 61.09,
+          "us_dem": 36.07,
+          "us_rep": 61.12,
           "us_oth": 2.81
         },
         "win_prob": {
-          "us_dem": 0.0011,
-          "us_rep": 0.9989,
+          "us_dem": 0.0059,
+          "us_rep": 0.9941,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -1736,7 +1751,7 @@
         "environment_shift": 7.89,
         "margin": -24.99,
         "poll_weight": 0.0,
-        "margin_sd": 8.0
+        "margin_sd": 8.62
       },
       "baseline_result": {
         "cycle": "us_governor_2022",
@@ -1768,17 +1783,17 @@
       },
       "projection": {
         "winner": "us_dem",
-        "p_winner": 0.7626,
-        "mean_margin": 5.96,
-        "p_close_race": 0.4872,
+        "p_winner": 0.6949,
+        "mean_margin": 7.88,
+        "p_close_race": 0.3963,
         "vote_mean": {
-          "us_dem": 50.18,
+          "us_dem": 50.17,
           "us_rep": 45.88,
           "us_oth": 3.94
         },
         "win_prob": {
-          "us_dem": 0.7626,
-          "us_rep": 0.2374,
+          "us_dem": 0.6949,
+          "us_rep": 0.3051,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -1799,7 +1814,7 @@
         "environment_shift": 10.69,
         "margin": 11.1,
         "poll_weight": 0.52,
-        "margin_sd": 6.0
+        "margin_sd": 8.62
       },
       "baseline_result": {
         "cycle": "us_governor_2022",
@@ -1831,17 +1846,17 @@
       },
       "projection": {
         "winner": "us_dem",
-        "p_winner": 1.0,
-        "mean_margin": 22.39,
-        "p_close_race": 0.0006,
+        "p_winner": 0.9982,
+        "mean_margin": 22.44,
+        "p_close_race": 0.0071,
         "vote_mean": {
-          "us_dem": 60.92,
-          "us_rep": 38.53,
-          "us_oth": 0.55
+          "us_dem": 60.94,
+          "us_rep": 38.52,
+          "us_oth": 0.54
         },
         "win_prob": {
-          "us_dem": 1.0,
-          "us_rep": 0.0,
+          "us_dem": 0.9982,
+          "us_rep": 0.0018,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -1862,7 +1877,7 @@
         "environment_shift": 10.69,
         "margin": 22.5,
         "poll_weight": 0.78,
-        "margin_sd": 5.49
+        "margin_sd": 6.03
       },
       "baseline_result": {
         "cycle": "us_governor_2022",
@@ -1894,18 +1909,18 @@
       },
       "projection": {
         "winner": "us_dem",
-        "p_winner": 0.9994,
-        "mean_margin": 24.03,
-        "p_close_race": 0.003,
+        "p_winner": 0.9945,
+        "mean_margin": 23.21,
+        "p_close_race": 0.0182,
         "vote_mean": {
-          "us_dem": 51.9,
-          "us_rep": 25.76,
-          "us_oth": 22.34
+          "us_dem": 51.89,
+          "us_rep": 25.8,
+          "us_oth": 22.31
         },
         "win_prob": {
-          "us_dem": 0.9994,
-          "us_rep": 0.0,
-          "us_oth": 0.0006
+          "us_dem": 0.9945,
+          "us_rep": 0.0015,
+          "us_oth": 0.004
         },
         "oth_is_contender": true,
         "oth_ballot_share": null,
@@ -1925,7 +1940,7 @@
         "environment_shift": 10.69,
         "margin": 26.7,
         "poll_weight": 0.297,
-        "margin_sd": 5.65
+        "margin_sd": 7.0
       },
       "baseline_result": {
         "cycle": "us_governor_2022",
@@ -1957,17 +1972,17 @@
       },
       "projection": {
         "winner": "us_rep",
-        "p_winner": 0.9901,
-        "mean_margin": 9.26,
-        "p_close_race": 0.1422,
+        "p_winner": 0.8608,
+        "mean_margin": 10.69,
+        "p_close_race": 0.2512,
         "vote_mean": {
-          "us_dem": 45.18,
+          "us_dem": 45.17,
           "us_rep": 54.42,
-          "us_oth": 0.4
+          "us_oth": 0.41
         },
         "win_prob": {
-          "us_dem": 0.0099,
-          "us_rep": 0.9901,
+          "us_dem": 0.1392,
+          "us_rep": 0.8608,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -1988,7 +2003,7 @@
         "environment_shift": 7.89,
         "margin": -9.26,
         "poll_weight": 0.52,
-        "margin_sd": 4.0
+        "margin_sd": 8.62
       },
       "baseline_result": {
         "cycle": "us_governor_2022",
@@ -2020,17 +2035,17 @@
       },
       "projection": {
         "winner": "us_rep",
-        "p_winner": 0.9911,
-        "mean_margin": 19.16,
-        "p_close_race": 0.0373,
+        "p_winner": 0.98,
+        "mean_margin": 19.36,
+        "p_close_race": 0.0476,
         "vote_mean": {
-          "us_dem": 38.99,
-          "us_rep": 58.1,
-          "us_oth": 2.91
+          "us_dem": 38.98,
+          "us_rep": 58.13,
+          "us_oth": 2.9
         },
         "win_prob": {
-          "us_dem": 0.0089,
-          "us_rep": 0.9911,
+          "us_dem": 0.02,
+          "us_rep": 0.98,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -2051,7 +2066,7 @@
         "environment_shift": 10.69,
         "margin": -19.1,
         "poll_weight": 0.0,
-        "margin_sd": 8.0
+        "margin_sd": 8.62
       },
       "baseline_result": {
         "cycle": "us_governor_2022",
@@ -2083,17 +2098,17 @@
       },
       "projection": {
         "winner": "us_rep",
-        "p_winner": 0.9948,
-        "mean_margin": 18.27,
-        "p_close_race": 0.0319,
+        "p_winner": 0.9874,
+        "mean_margin": 18.4,
+        "p_close_race": 0.0389,
         "vote_mean": {
-          "us_dem": 35.55,
-          "us_rep": 53.8,
-          "us_oth": 10.65
+          "us_dem": 35.53,
+          "us_rep": 53.83,
+          "us_oth": 10.64
         },
         "win_prob": {
-          "us_dem": 0.0052,
-          "us_rep": 0.9948,
+          "us_dem": 0.0126,
+          "us_rep": 0.9874,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -2146,26 +2161,26 @@
       },
       "projection": {
         "winner": "us_rep",
-        "p_winner": 0.8132,
-        "mean_margin": 3.74,
-        "p_close_race": 0.7077,
+        "p_winner": 0.7053,
+        "mean_margin": 5.24,
+        "p_close_race": 0.5581,
         "vote_mean": {
-          "us_dem": 47.94,
-          "us_rep": 50.99,
+          "us_dem": 47.95,
+          "us_rep": 50.98,
           "us_oth": 1.07
         },
         "win_prob": {
-          "us_dem": 0.1868,
-          "us_rep": 0.8132,
+          "us_dem": 0.2947,
+          "us_rep": 0.7053,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
         "oth_ballot_share": null,
         "rating": {
-          "code": "tossup",
-          "side": "tossup",
-          "label_en": "Toss Up",
-          "label_fr": "Toss-up"
+          "code": "lean_rep",
+          "side": "rep",
+          "label_en": "Lean Republican",
+          "label_fr": "Avantage républicain"
         },
         "projection_cycle": "us_governor_2026"
       },
@@ -2177,7 +2192,7 @@
         "environment_shift": 10.69,
         "margin": -3.2,
         "poll_weight": 0.78,
-        "margin_sd": 3.39
+        "margin_sd": 5.17
       },
       "baseline_result": {
         "cycle": "us_governor_2022",
@@ -2209,17 +2224,17 @@
       },
       "projection": {
         "winner": "us_rep",
-        "p_winner": 1.0,
-        "mean_margin": 36.71,
-        "p_close_race": 0.0,
+        "p_winner": 0.9992,
+        "mean_margin": 36.75,
+        "p_close_race": 0.0016,
         "vote_mean": {
-          "us_dem": 30.18,
-          "us_rep": 66.89,
+          "us_dem": 30.16,
+          "us_rep": 66.91,
           "us_oth": 2.93
         },
         "win_prob": {
-          "us_dem": 0.0,
-          "us_rep": 1.0,
+          "us_dem": 0.0008,
+          "us_rep": 0.9992,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -2240,7 +2255,7 @@
         "environment_shift": 10.53,
         "margin": -44.02,
         "poll_weight": 0.234,
-        "margin_sd": 2.83
+        "margin_sd": 8.62
       },
       "baseline_result": {
         "cycle": "us_governor_2024",
@@ -2272,17 +2287,17 @@
       },
       "projection": {
         "winner": "us_dem",
-        "p_winner": 0.8782,
-        "mean_margin": 5.09,
-        "p_close_race": 0.5314,
+        "p_winner": 0.7687,
+        "mean_margin": 6.49,
+        "p_close_race": 0.4567,
         "vote_mean": {
-          "us_dem": 52.11,
+          "us_dem": 52.1,
           "us_rep": 47.5,
           "us_oth": 0.4
         },
         "win_prob": {
-          "us_dem": 0.8782,
-          "us_rep": 0.1218,
+          "us_dem": 0.7687,
+          "us_rep": 0.2313,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -2303,7 +2318,7 @@
         "environment_shift": 7.89,
         "margin": 5.84,
         "poll_weight": 0.78,
-        "margin_sd": 4.0
+        "margin_sd": 6.03
       },
       "baseline_result": {
         "cycle": "us_governor_2022",
@@ -2335,17 +2350,17 @@
       },
       "projection": {
         "winner": "us_rep",
-        "p_winner": 1.0,
-        "mean_margin": 37.66,
-        "p_close_race": 0.0,
+        "p_winner": 0.9996,
+        "mean_margin": 37.73,
+        "p_close_race": 0.0009,
         "vote_mean": {
-          "us_dem": 26.12,
-          "us_rep": 63.78,
+          "us_dem": 26.08,
+          "us_rep": 63.81,
           "us_oth": 10.1
         },
         "win_prob": {
-          "us_dem": 0.0,
-          "us_rep": 1.0,
+          "us_dem": 0.0004,
+          "us_rep": 0.9996,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -2366,7 +2381,7 @@
         "environment_shift": 7.89,
         "margin": -37.67,
         "poll_weight": 0.0,
-        "margin_sd": 8.0
+        "margin_sd": 8.62
       },
       "baseline_result": {
         "cycle": "us_governor_2022",

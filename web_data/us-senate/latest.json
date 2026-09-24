@@ -8,6 +8,14 @@
     "total_seats": 100,
     "contested_seats": 35,
     "n_simulations": 50000,
+    "uncertainty": {
+      "calibration": "us_race_uncertainty.json",
+      "source_sha256": "9f0b185506e59117c150fb988e73b612346effe8e3a8f0d90fdafcad07f54756",
+      "common_sd": 2.867,
+      "common_df": 30.0,
+      "local_df": 7.82,
+      "recent_window_days": 60
+    },
     "pipeline_version": "4.0"
   },
   "parties": [
@@ -17,14 +25,14 @@
       "label_fr": "Démocrate",
       "color": "#1f77d0",
       "seats_projected": 52,
-      "seats_mean": 51.5,
-      "seats_median": 51.0,
-      "seats_ci_low_80": 50.0,
-      "seats_ci_high_80": 53.0,
-      "seats_ci_low_95": 49.0,
-      "seats_ci_high_95": 54.0,
-      "p_majority": 0.7461,
-      "p_largest": 0.8194
+      "seats_mean": 51.4,
+      "seats_median": 52.0,
+      "seats_ci_low_80": 48.0,
+      "seats_ci_high_80": 55.0,
+      "seats_ci_low_95": 46.0,
+      "seats_ci_high_95": 57.0,
+      "p_majority": 0.6336,
+      "p_largest": 0.6821
     },
     {
       "party": "us_rep",
@@ -32,14 +40,14 @@
       "label_fr": "Républicain",
       "color": "#c62828",
       "seats_projected": 48,
-      "seats_mean": 48.0,
+      "seats_mean": 48.1,
       "seats_median": 48.0,
-      "seats_ci_low_80": 46.0,
-      "seats_ci_high_80": 50.0,
-      "seats_ci_low_95": 45.0,
-      "seats_ci_high_95": 51.0,
-      "p_majority": 0.0594,
-      "p_largest": 0.0872
+      "seats_ci_low_80": 44.0,
+      "seats_ci_high_80": 52.0,
+      "seats_ci_low_95": 42.0,
+      "seats_ci_high_95": 54.0,
+      "p_majority": 0.2112,
+      "p_largest": 0.248
     },
     {
       "party": "us_oth",
@@ -122,19 +130,21 @@
       "incumbent_party": "us_rep",
       "is_special": false,
       "poll_count": 19,
+      "recent_poll_count": 6,
       "projection": {
         "winner": "us_rep",
-        "p_winner": 0.7436,
-        "mean_margin": 2.74,
-        "p_close_race": 0.8587,
+        "p_winner": 0.6226,
+        "mean_margin": 5.18,
+        "p_close_race": 0.5731,
+        "margin_sd_local": 5.67,
         "vote_mean": {
-          "us_dem": 48.88,
-          "us_rep": 50.72,
+          "us_dem": 48.89,
+          "us_rep": 50.71,
           "us_oth": 0.4
         },
         "win_prob": {
-          "us_dem": 0.2564,
-          "us_rep": 0.7436,
+          "us_dem": 0.3774,
+          "us_rep": 0.6226,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -164,19 +174,21 @@
       "incumbent_party": "us_rep",
       "is_special": false,
       "poll_count": 1,
+      "recent_poll_count": 0,
       "projection": {
         "winner": "us_rep",
-        "p_winner": 0.9936,
-        "mean_margin": 15.28,
-        "p_close_race": 0.0452,
+        "p_winner": 0.9567,
+        "mean_margin": 15.76,
+        "p_close_race": 0.1001,
+        "margin_sd_local": 8.62,
         "vote_mean": {
-          "us_dem": 42.17,
-          "us_rep": 57.43,
-          "us_oth": 0.4
+          "us_dem": 42.13,
+          "us_rep": 57.45,
+          "us_oth": 0.41
         },
         "win_prob": {
-          "us_dem": 0.0064,
-          "us_rep": 0.9936,
+          "us_dem": 0.0433,
+          "us_rep": 0.9567,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -206,19 +218,21 @@
       "incumbent_party": "us_rep",
       "is_special": false,
       "poll_count": 4,
+      "recent_poll_count": 2,
       "projection": {
         "winner": "us_rep",
-        "p_winner": 0.9994,
-        "mean_margin": 25.79,
-        "p_close_race": 0.0047,
+        "p_winner": 0.9961,
+        "mean_margin": 25.89,
+        "p_close_race": 0.0093,
+        "margin_sd_local": 8.0,
         "vote_mean": {
-          "us_dem": 36.91,
-          "us_rep": 62.7,
+          "us_dem": 36.88,
+          "us_rep": 62.72,
           "us_oth": 0.4
         },
         "win_prob": {
-          "us_dem": 0.0006,
-          "us_rep": 0.9994,
+          "us_dem": 0.0039,
+          "us_rep": 0.9961,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -248,19 +262,21 @@
       "incumbent_party": "us_dem",
       "is_special": false,
       "poll_count": 0,
+      "recent_poll_count": 0,
       "projection": {
         "winner": "us_dem",
-        "p_winner": 0.9959,
-        "mean_margin": 16.99,
-        "p_close_race": 0.033,
+        "p_winner": 0.9692,
+        "mean_margin": 17.28,
+        "p_close_race": 0.0752,
+        "margin_sd_local": 8.62,
         "vote_mean": {
           "us_dem": 57.32,
-          "us_rep": 40.35,
-          "us_oth": 2.33
+          "us_rep": 40.34,
+          "us_oth": 2.34
         },
         "win_prob": {
-          "us_dem": 0.9959,
-          "us_rep": 0.0041,
+          "us_dem": 0.9692,
+          "us_rep": 0.0308,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -290,19 +306,21 @@
       "incumbent_party": "us_dem",
       "is_special": false,
       "poll_count": 0,
+      "recent_poll_count": 0,
       "projection": {
         "winner": "us_dem",
-        "p_winner": 1.0,
-        "mean_margin": 29.12,
-        "p_close_race": 0.0001,
+        "p_winner": 0.9976,
+        "mean_margin": 29.27,
+        "p_close_race": 0.0056,
+        "margin_sd_local": 8.62,
         "vote_mean": {
-          "us_dem": 63.23,
-          "us_rep": 34.11,
+          "us_dem": 63.29,
+          "us_rep": 34.05,
           "us_oth": 2.67
         },
         "win_prob": {
-          "us_dem": 1.0,
-          "us_rep": 0.0,
+          "us_dem": 0.9976,
+          "us_rep": 0.0024,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -332,19 +350,21 @@
       "incumbent_party": "us_dem",
       "is_special": false,
       "poll_count": 19,
+      "recent_poll_count": 4,
       "projection": {
         "winner": "us_dem",
-        "p_winner": 0.9331,
-        "mean_margin": 8.48,
-        "p_close_race": 0.2717,
+        "p_winner": 0.8975,
+        "mean_margin": 8.87,
+        "p_close_race": 0.2817,
+        "margin_sd_local": 6.03,
         "vote_mean": {
-          "us_dem": 53.84,
+          "us_dem": 53.82,
           "us_rep": 45.69,
-          "us_oth": 0.48
+          "us_oth": 0.49
         },
         "win_prob": {
-          "us_dem": 0.9331,
-          "us_rep": 0.0669,
+          "us_dem": 0.8975,
+          "us_rep": 0.1025,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -374,20 +394,22 @@
       "incumbent_party": "us_rep",
       "is_special": false,
       "poll_count": 6,
+      "recent_poll_count": 3,
       "projection": {
         "winner": "us_rep",
-        "p_winner": 0.9195,
-        "mean_margin": 17.45,
-        "p_close_race": 0.1196,
+        "p_winner": 0.9144,
+        "mean_margin": 17.49,
+        "p_close_race": 0.1247,
+        "margin_sd_local": 8.0,
         "vote_mean": {
-          "us_dem": 19.26,
-          "us_rep": 49.17,
+          "us_dem": 19.24,
+          "us_rep": 49.2,
           "us_oth": 31.57
         },
         "win_prob": {
-          "us_dem": 0.0001,
-          "us_rep": 0.9195,
-          "us_oth": 0.0804
+          "us_dem": 0.0009,
+          "us_rep": 0.9144,
+          "us_oth": 0.0848
         },
         "oth_is_contender": true,
         "oth_ballot_share": null,
@@ -416,19 +438,21 @@
       "incumbent_party": "us_dem",
       "is_special": false,
       "poll_count": 0,
+      "recent_poll_count": 0,
       "projection": {
         "winner": "us_dem",
-        "p_winner": 0.9998,
-        "mean_margin": 23.74,
-        "p_close_race": 0.0022,
+        "p_winner": 0.9924,
+        "mean_margin": 23.73,
+        "p_close_race": 0.0187,
+        "margin_sd_local": 8.62,
         "vote_mean": {
-          "us_dem": 58.77,
-          "us_rep": 35.03,
+          "us_dem": 58.73,
+          "us_rep": 35.07,
           "us_oth": 6.2
         },
         "win_prob": {
-          "us_dem": 0.9998,
-          "us_rep": 0.0002,
+          "us_dem": 0.9924,
+          "us_rep": 0.0076,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -458,19 +482,21 @@
       "incumbent_party": "us_rep",
       "is_special": false,
       "poll_count": 21,
+      "recent_poll_count": 11,
       "projection": {
         "winner": "us_dem",
-        "p_winner": 0.6426,
-        "mean_margin": 3.19,
-        "p_close_race": 0.7893,
+        "p_winner": 0.5947,
+        "mean_margin": 4.81,
+        "p_close_race": 0.6053,
+        "margin_sd_local": 5.33,
         "vote_mean": {
-          "us_dem": 50.48,
+          "us_dem": 50.49,
           "us_rep": 49.12,
           "us_oth": 0.4
         },
         "win_prob": {
-          "us_dem": 0.6426,
-          "us_rep": 0.3574,
+          "us_dem": 0.5947,
+          "us_rep": 0.4053,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -500,19 +526,21 @@
       "incumbent_party": "us_rep",
       "is_special": false,
       "poll_count": 7,
+      "recent_poll_count": 4,
       "projection": {
         "winner": "us_rep",
-        "p_winner": 0.6789,
-        "mean_margin": 2.89,
-        "p_close_race": 0.8326,
+        "p_winner": 0.5977,
+        "mean_margin": 5.35,
+        "p_close_race": 0.5578,
+        "margin_sd_local": 6.03,
         "vote_mean": {
-          "us_dem": 49.04,
-          "us_rep": 50.56,
+          "us_dem": 49.02,
+          "us_rep": 50.58,
           "us_oth": 0.4
         },
         "win_prob": {
-          "us_dem": 0.3211,
-          "us_rep": 0.6789,
+          "us_dem": 0.4023,
+          "us_rep": 0.5977,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -542,19 +570,21 @@
       "incumbent_party": "us_rep",
       "is_special": false,
       "poll_count": 2,
+      "recent_poll_count": 1,
       "projection": {
         "winner": "us_rep",
-        "p_winner": 1.0,
-        "mean_margin": 12.77,
-        "p_close_race": 0.0011,
+        "p_winner": 0.9259,
+        "mean_margin": 13.44,
+        "p_close_race": 0.1558,
+        "margin_sd_local": 8.62,
         "vote_mean": {
-          "us_dem": 43.42,
-          "us_rep": 56.18,
-          "us_oth": 0.4
+          "us_dem": 43.44,
+          "us_rep": 56.15,
+          "us_oth": 0.41
         },
         "win_prob": {
-          "us_dem": 0.0,
-          "us_rep": 1.0,
+          "us_dem": 0.0741,
+          "us_rep": 0.9259,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -584,19 +614,21 @@
       "incumbent_party": "us_rep",
       "is_special": false,
       "poll_count": 1,
+      "recent_poll_count": 1,
       "projection": {
         "winner": "us_rep",
-        "p_winner": 0.9863,
-        "mean_margin": 13.26,
-        "p_close_race": 0.084,
+        "p_winner": 0.9341,
+        "mean_margin": 13.91,
+        "p_close_race": 0.1413,
+        "margin_sd_local": 8.62,
         "vote_mean": {
-          "us_dem": 43.2,
-          "us_rep": 56.4,
-          "us_oth": 0.4
+          "us_dem": 43.17,
+          "us_rep": 56.42,
+          "us_oth": 0.41
         },
         "win_prob": {
-          "us_dem": 0.0137,
-          "us_rep": 0.9863,
+          "us_dem": 0.0659,
+          "us_rep": 0.9341,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -626,19 +658,21 @@
       "incumbent_party": "us_rep",
       "is_special": false,
       "poll_count": 37,
+      "recent_poll_count": 8,
       "projection": {
         "winner": "us_dem",
-        "p_winner": 0.535,
-        "mean_margin": 3.18,
-        "p_close_race": 0.7889,
+        "p_winner": 0.5156,
+        "mean_margin": 4.77,
+        "p_close_race": 0.6118,
+        "margin_sd_local": 5.49,
         "vote_mean": {
-          "us_dem": 49.97,
-          "us_rep": 49.63,
+          "us_dem": 49.94,
+          "us_rep": 49.66,
           "us_oth": 0.4
         },
         "win_prob": {
-          "us_dem": 0.535,
-          "us_rep": 0.465,
+          "us_dem": 0.5156,
+          "us_rep": 0.4844,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -668,19 +702,21 @@
       "incumbent_party": "us_dem",
       "is_special": false,
       "poll_count": 11,
+      "recent_poll_count": 2,
       "projection": {
         "winner": "us_dem",
-        "p_winner": 0.9987,
-        "mean_margin": 23.86,
-        "p_close_race": 0.009,
+        "p_winner": 0.9942,
+        "mean_margin": 23.9,
+        "p_close_race": 0.0145,
+        "margin_sd_local": 8.0,
         "vote_mean": {
-          "us_dem": 61.73,
-          "us_rep": 37.87,
+          "us_dem": 61.72,
+          "us_rep": 37.88,
           "us_oth": 0.4
         },
         "win_prob": {
-          "us_dem": 0.9987,
-          "us_rep": 0.0013,
+          "us_dem": 0.9942,
+          "us_rep": 0.0058,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -710,19 +746,21 @@
       "incumbent_party": "us_dem",
       "is_special": false,
       "poll_count": 38,
+      "recent_poll_count": 20,
       "projection": {
         "winner": "us_dem",
-        "p_winner": 0.8192,
-        "mean_margin": 5.26,
-        "p_close_race": 0.5322,
+        "p_winner": 0.7807,
+        "mean_margin": 5.88,
+        "p_close_race": 0.4948,
+        "margin_sd_local": 5.13,
         "vote_mean": {
-          "us_dem": 51.97,
-          "us_rep": 47.63,
+          "us_dem": 51.98,
+          "us_rep": 47.62,
           "us_oth": 0.4
         },
         "win_prob": {
-          "us_dem": 0.8192,
-          "us_rep": 0.1808,
+          "us_dem": 0.7807,
+          "us_rep": 0.2193,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -752,19 +790,21 @@
       "incumbent_party": "us_dem",
       "is_special": false,
       "poll_count": 10,
+      "recent_poll_count": 5,
       "projection": {
         "winner": "us_dem",
-        "p_winner": 0.9475,
-        "mean_margin": 4.32,
-        "p_close_race": 0.6213,
+        "p_winner": 0.7517,
+        "mean_margin": 6.18,
+        "p_close_race": 0.4772,
+        "margin_sd_local": 5.82,
         "vote_mean": {
-          "us_dem": 50.97,
-          "us_rep": 46.76,
+          "us_dem": 50.96,
+          "us_rep": 46.77,
           "us_oth": 2.27
         },
         "win_prob": {
-          "us_dem": 0.9475,
-          "us_rep": 0.0525,
+          "us_dem": 0.7517,
+          "us_rep": 0.2483,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -794,19 +834,21 @@
       "incumbent_party": "us_rep",
       "is_special": false,
       "poll_count": 3,
+      "recent_poll_count": 1,
       "projection": {
         "winner": "us_rep",
-        "p_winner": 0.8101,
-        "mean_margin": 8.69,
-        "p_close_race": 0.3321,
+        "p_winner": 0.7979,
+        "mean_margin": 9.21,
+        "p_close_race": 0.3186,
+        "margin_sd_local": 8.62,
         "vote_mean": {
           "us_dem": 46.29,
           "us_rep": 53.3,
-          "us_oth": 0.41
+          "us_oth": 0.42
         },
         "win_prob": {
-          "us_dem": 0.1899,
-          "us_rep": 0.8101,
+          "us_dem": 0.2021,
+          "us_rep": 0.7979,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -836,19 +878,21 @@
       "incumbent_party": "us_rep",
       "is_special": false,
       "poll_count": 14,
+      "recent_poll_count": 6,
       "projection": {
         "winner": "us_rep",
-        "p_winner": 0.8274,
-        "mean_margin": 9.03,
-        "p_close_race": 0.3194,
+        "p_winner": 0.8305,
+        "mean_margin": 9.19,
+        "p_close_race": 0.3116,
+        "margin_sd_local": 8.0,
         "vote_mean": {
           "us_dem": 38.49,
           "us_rep": 46.03,
           "us_oth": 15.48
         },
         "win_prob": {
-          "us_dem": 0.1726,
-          "us_rep": 0.8274,
+          "us_dem": 0.1695,
+          "us_rep": 0.8305,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -878,19 +922,21 @@
       "incumbent_party": "us_rep",
       "is_special": false,
       "poll_count": 6,
+      "recent_poll_count": 3,
       "projection": {
         "winner": "us_rep",
-        "p_winner": 0.982,
-        "mean_margin": 8.38,
-        "p_close_race": 0.1999,
+        "p_winner": 0.8947,
+        "mean_margin": 9.19,
+        "p_close_race": 0.2729,
+        "margin_sd_local": 6.37,
         "vote_mean": {
-          "us_dem": 45.64,
-          "us_rep": 53.97,
+          "us_dem": 45.61,
+          "us_rep": 53.99,
           "us_oth": 0.4
         },
         "win_prob": {
-          "us_dem": 0.018,
-          "us_rep": 0.982,
+          "us_dem": 0.1053,
+          "us_rep": 0.8947,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -920,19 +966,21 @@
       "incumbent_party": "us_dem",
       "is_special": false,
       "poll_count": 24,
+      "recent_poll_count": 6,
       "projection": {
         "winner": "us_dem",
-        "p_winner": 0.9352,
-        "mean_margin": 8.15,
-        "p_close_race": 0.2831,
+        "p_winner": 0.8975,
+        "mean_margin": 8.52,
+        "p_close_race": 0.2941,
+        "margin_sd_local": 5.67,
         "vote_mean": {
-          "us_dem": 53.41,
-          "us_rep": 45.55,
+          "us_dem": 53.39,
+          "us_rep": 45.57,
           "us_oth": 1.04
         },
         "win_prob": {
-          "us_dem": 0.9352,
-          "us_rep": 0.0648,
+          "us_dem": 0.8975,
+          "us_rep": 0.1025,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -962,19 +1010,21 @@
       "incumbent_party": "us_dem",
       "is_special": false,
       "poll_count": 0,
+      "recent_poll_count": 0,
       "projection": {
         "winner": "us_dem",
-        "p_winner": 0.9999,
-        "mean_margin": 23.96,
-        "p_close_race": 0.0017,
+        "p_winner": 0.9925,
+        "mean_margin": 23.98,
+        "p_close_race": 0.0189,
+        "margin_sd_local": 8.62,
         "vote_mean": {
-          "us_dem": 61.05,
-          "us_rep": 37.09,
-          "us_oth": 1.86
+          "us_dem": 61.02,
+          "us_rep": 37.11,
+          "us_oth": 1.87
         },
         "win_prob": {
-          "us_dem": 0.9999,
-          "us_rep": 0.0001,
+          "us_dem": 0.9925,
+          "us_rep": 0.0075,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -1004,19 +1054,21 @@
       "incumbent_party": "us_dem",
       "is_special": false,
       "poll_count": 1,
+      "recent_poll_count": 1,
       "projection": {
         "winner": "us_dem",
-        "p_winner": 0.9915,
-        "mean_margin": 14.42,
-        "p_close_race": 0.0598,
+        "p_winner": 0.9465,
+        "mean_margin": 14.86,
+        "p_close_race": 0.1146,
+        "margin_sd_local": 8.62,
         "vote_mean": {
-          "us_dem": 56.99,
-          "us_rep": 42.6,
-          "us_oth": 0.4
+          "us_dem": 56.95,
+          "us_rep": 42.63,
+          "us_oth": 0.42
         },
         "win_prob": {
-          "us_dem": 0.9915,
-          "us_rep": 0.0085,
+          "us_dem": 0.9465,
+          "us_rep": 0.0535,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -1046,19 +1098,21 @@
       "incumbent_party": "us_rep",
       "is_special": false,
       "poll_count": 37,
+      "recent_poll_count": 14,
       "projection": {
         "winner": "us_dem",
-        "p_winner": 0.944,
-        "mean_margin": 7.99,
-        "p_close_race": 0.283,
+        "p_winner": 0.9084,
+        "mean_margin": 8.29,
+        "p_close_race": 0.2944,
+        "margin_sd_local": 5.23,
         "vote_mean": {
-          "us_dem": 53.68,
-          "us_rep": 45.92,
+          "us_dem": 53.66,
+          "us_rep": 45.94,
           "us_oth": 0.4
         },
         "win_prob": {
-          "us_dem": 0.944,
-          "us_rep": 0.056,
+          "us_dem": 0.9084,
+          "us_rep": 0.0916,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -1088,19 +1142,21 @@
       "incumbent_party": "us_rep",
       "is_special": false,
       "poll_count": 1,
+      "recent_poll_count": 1,
       "projection": {
         "winner": "us_rep",
-        "p_winner": 1.0,
-        "mean_margin": 23.51,
-        "p_close_race": 0.0012,
+        "p_winner": 0.992,
+        "mean_margin": 23.63,
+        "p_close_race": 0.0191,
+        "margin_sd_local": 8.62,
         "vote_mean": {
-          "us_dem": 34.25,
-          "us_rep": 57.76,
-          "us_oth": 7.99
+          "us_dem": 34.23,
+          "us_rep": 57.77,
+          "us_oth": 8.0
         },
         "win_prob": {
-          "us_dem": 0.0,
-          "us_rep": 1.0,
+          "us_dem": 0.008,
+          "us_rep": 0.992,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -1130,19 +1186,21 @@
       "incumbent_party": "us_dem",
       "is_special": false,
       "poll_count": 0,
+      "recent_poll_count": 0,
       "projection": {
         "winner": "us_dem",
-        "p_winner": 1.0,
-        "mean_margin": 25.25,
-        "p_close_race": 0.0006,
+        "p_winner": 0.9945,
+        "mean_margin": 25.3,
+        "p_close_race": 0.0134,
+        "margin_sd_local": 8.62,
         "vote_mean": {
           "us_dem": 60.74,
-          "us_rep": 35.49,
-          "us_oth": 3.77
+          "us_rep": 35.5,
+          "us_oth": 3.76
         },
         "win_prob": {
-          "us_dem": 1.0,
-          "us_rep": 0.0,
+          "us_dem": 0.9945,
+          "us_rep": 0.0055,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -1172,19 +1230,21 @@
       "incumbent_party": "us_dem",
       "is_special": false,
       "poll_count": 3,
+      "recent_poll_count": 1,
       "projection": {
         "winner": "us_dem",
-        "p_winner": 1.0,
-        "mean_margin": 26.85,
-        "p_close_race": 0.0,
+        "p_winner": 0.9952,
+        "mean_margin": 26.84,
+        "p_close_race": 0.0104,
+        "margin_sd_local": 8.62,
         "vote_mean": {
-          "us_dem": 61.64,
-          "us_rep": 34.79,
+          "us_dem": 61.61,
+          "us_rep": 34.82,
           "us_oth": 3.57
         },
         "win_prob": {
-          "us_dem": 1.0,
-          "us_rep": 0.0,
+          "us_dem": 0.9952,
+          "us_rep": 0.0048,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -1214,19 +1274,21 @@
       "incumbent_party": "us_rep",
       "is_special": false,
       "poll_count": 7,
+      "recent_poll_count": 3,
       "projection": {
         "winner": "us_rep",
-        "p_winner": 0.7621,
-        "mean_margin": 5.38,
-        "p_close_race": 0.5328,
+        "p_winner": 0.7222,
+        "mean_margin": 6.33,
+        "p_close_race": 0.4734,
+        "margin_sd_local": 6.37,
         "vote_mean": {
-          "us_dem": 47.87,
-          "us_rep": 51.73,
+          "us_dem": 47.86,
+          "us_rep": 51.74,
           "us_oth": 0.4
         },
         "win_prob": {
-          "us_dem": 0.2379,
-          "us_rep": 0.7621,
+          "us_dem": 0.2778,
+          "us_rep": 0.7222,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -1256,20 +1318,22 @@
       "incumbent_party": "us_rep",
       "is_special": false,
       "poll_count": 7,
+      "recent_poll_count": 2,
       "projection": {
         "winner": "us_rep",
-        "p_winner": 0.6139,
-        "mean_margin": 10.48,
-        "p_close_race": 0.2938,
+        "p_winner": 0.6141,
+        "mean_margin": 10.51,
+        "p_close_race": 0.2981,
+        "margin_sd_local": 8.0,
         "vote_mean": {
-          "us_dem": 12.5,
-          "us_rep": 45.57,
-          "us_oth": 41.93
+          "us_dem": 12.56,
+          "us_rep": 45.55,
+          "us_oth": 41.89
         },
         "win_prob": {
-          "us_dem": 0.0,
-          "us_rep": 0.6139,
-          "us_oth": 0.3861
+          "us_dem": 0.0001,
+          "us_rep": 0.6141,
+          "us_oth": 0.3858
         },
         "oth_is_contender": true,
         "oth_ballot_share": 1.0,
@@ -1298,19 +1362,21 @@
       "incumbent_party": "us_rep",
       "is_special": false,
       "poll_count": 1,
+      "recent_poll_count": 1,
       "projection": {
         "winner": "us_rep",
-        "p_winner": 1.0,
-        "mean_margin": 23.41,
-        "p_close_race": 0.0009,
+        "p_winner": 0.9921,
+        "mean_margin": 23.55,
+        "p_close_race": 0.0202,
+        "margin_sd_local": 8.62,
         "vote_mean": {
-          "us_dem": 35.79,
-          "us_rep": 59.2,
+          "us_dem": 35.76,
+          "us_rep": 59.24,
           "us_oth": 5.0
         },
         "win_prob": {
-          "us_dem": 0.0,
-          "us_rep": 1.0,
+          "us_dem": 0.0079,
+          "us_rep": 0.9921,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -1340,19 +1406,21 @@
       "incumbent_party": "us_rep",
       "is_special": false,
       "poll_count": 45,
+      "recent_poll_count": 19,
       "projection": {
         "winner": "us_dem",
-        "p_winner": 0.6683,
-        "mean_margin": 3.17,
-        "p_close_race": 0.7919,
+        "p_winner": 0.6101,
+        "mean_margin": 4.74,
+        "p_close_race": 0.6117,
+        "margin_sd_local": 5.14,
         "vote_mean": {
-          "us_dem": 50.59,
-          "us_rep": 49.01,
+          "us_dem": 50.58,
+          "us_rep": 49.02,
           "us_oth": 0.4
         },
         "win_prob": {
-          "us_dem": 0.6683,
-          "us_rep": 0.3317,
+          "us_dem": 0.6101,
+          "us_rep": 0.3899,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -1382,19 +1450,21 @@
       "incumbent_party": "us_dem",
       "is_special": false,
       "poll_count": 1,
+      "recent_poll_count": 0,
       "projection": {
         "winner": "us_dem",
-        "p_winner": 0.9852,
-        "mean_margin": 13.17,
-        "p_close_race": 0.0879,
+        "p_winner": 0.9327,
+        "mean_margin": 13.75,
+        "p_close_race": 0.1435,
+        "margin_sd_local": 8.62,
         "vote_mean": {
-          "us_dem": 56.35,
-          "us_rep": 43.25,
+          "us_dem": 56.33,
+          "us_rep": 43.26,
           "us_oth": 0.41
         },
         "win_prob": {
-          "us_dem": 0.9852,
-          "us_rep": 0.0148,
+          "us_dem": 0.9327,
+          "us_rep": 0.0673,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -1424,19 +1494,21 @@
       "incumbent_party": "us_rep",
       "is_special": false,
       "poll_count": 0,
+      "recent_poll_count": 0,
       "projection": {
         "winner": "us_rep",
-        "p_winner": 1.0,
-        "mean_margin": 38.41,
-        "p_close_race": 0.0,
+        "p_winner": 0.9995,
+        "mean_margin": 38.46,
+        "p_close_race": 0.0007,
+        "margin_sd_local": 8.62,
         "vote_mean": {
-          "us_dem": 29.44,
-          "us_rep": 67.84,
-          "us_oth": 2.72
+          "us_dem": 29.42,
+          "us_rep": 67.87,
+          "us_oth": 2.71
         },
         "win_prob": {
-          "us_dem": 0.0,
-          "us_rep": 1.0,
+          "us_dem": 0.0005,
+          "us_rep": 0.9995,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -1466,19 +1538,21 @@
       "incumbent_party": "us_rep",
       "is_special": false,
       "poll_count": 0,
+      "recent_poll_count": 0,
       "projection": {
         "winner": "us_rep",
-        "p_winner": 1.0,
-        "mean_margin": 40.19,
-        "p_close_race": 0.0,
+        "p_winner": 0.9996,
+        "mean_margin": 40.17,
+        "p_close_race": 0.0006,
+        "margin_sd_local": 8.62,
         "vote_mean": {
-          "us_dem": 28.54,
-          "us_rep": 68.72,
+          "us_dem": 28.55,
+          "us_rep": 68.71,
           "us_oth": 2.74
         },
         "win_prob": {
-          "us_dem": 0.0,
-          "us_rep": 1.0,
+          "us_dem": 0.0004,
+          "us_rep": 0.9996,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -1508,19 +1582,21 @@
       "incumbent_party": "us_rep",
       "is_special": true,
       "poll_count": 17,
+      "recent_poll_count": 4,
       "projection": {
         "winner": "us_rep",
-        "p_winner": 0.9095,
-        "mean_margin": 5.4,
-        "p_close_race": 0.4875,
+        "p_winner": 0.7944,
+        "mean_margin": 6.75,
+        "p_close_race": 0.4333,
+        "margin_sd_local": 6.03,
         "vote_mean": {
-          "us_dem": 47.26,
-          "us_rep": 52.34,
+          "us_dem": 47.24,
+          "us_rep": 52.36,
           "us_oth": 0.4
         },
         "win_prob": {
-          "us_dem": 0.0905,
-          "us_rep": 0.9095,
+          "us_dem": 0.2056,
+          "us_rep": 0.7944,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -1550,19 +1626,21 @@
       "incumbent_party": "us_rep",
       "is_special": true,
       "poll_count": 21,
+      "recent_poll_count": 7,
       "projection": {
         "winner": "us_dem",
-        "p_winner": 0.7909,
-        "mean_margin": 4.68,
-        "p_close_race": 0.5916,
+        "p_winner": 0.7302,
+        "mean_margin": 5.74,
+        "p_close_race": 0.5158,
+        "margin_sd_local": 5.57,
         "vote_mean": {
           "us_dem": 51.33,
           "us_rep": 47.71,
           "us_oth": 0.96
         },
         "win_prob": {
-          "us_dem": 0.7909,
-          "us_rep": 0.2091,
+          "us_dem": 0.7302,
+          "us_rep": 0.2698,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
