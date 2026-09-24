@@ -75,6 +75,8 @@ const fmtMoney = (n: number) =>
   new Intl.NumberFormat(locale === 'fr' ? 'fr-CA' : locale === 'es' ? 'es-ES' : 'en-CA', {
     style: 'currency', currency: 'USD', maximumFractionDigits: 0, notation: 'compact',
   }).format(n);
+const pctK = (n: number) =>
+  `${n.toLocaleString(locale === 'fr' ? 'fr-CA' : locale === 'es' ? 'es-ES' : 'en-CA', { maximumFractionDigits: 1 })}${locale === 'en' ? '%' : '\u00a0%'}`;
 const label = (o: { label_en: string; label_fr: string; label_es: string }) =>
   locale === 'fr' ? o.label_fr : locale === 'es' ? o.label_es : o.label_en;
 const title = (b: { title_en: string; title_fr: string; title_es: string }) =>
@@ -101,7 +103,7 @@ const title = (b: { title_en: string; title_fr: string; title_es: string }) =>
                 <span class="kalshi-track" aria-hidden="true">
                   <span class="kalshi-fill" style={`width:${Math.max(o.prob, 1)}%`} />
                 </span>
-                <span class="kalshi-prob">{o.prob}%</span>
+                <span class="kalshi-prob">{pctK(o.prob)}</span>
               </li>
             ))}
           </ul>

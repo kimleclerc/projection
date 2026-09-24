@@ -95,7 +95,11 @@ const fmtDate = (iso?: string) => {
     { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' },
   );
 };
-const signed = (n: number | null) => (n === null ? '—' : `${n > 0 ? '+' : ''}${n.toFixed(1)}`);
+// « 72,3 % » en français et en espagnol : le gabarit écrivait `${v}%` partout.
+const NL = locale === 'fr' ? 'fr-CA' : locale === 'es' ? 'es-ES' : 'en-CA';
+const num = (n: number) => n.toLocaleString(NL, { maximumFractionDigits: 1 });
+const pct = (n: number) => `${num(n)}${locale === 'en' ? '%' : '\u00a0%'}`;
+const signed = (n: number | null) => (n === null ? '—' : `${n > 0 ? '+' : n < 0 ? '−' : ''}${Math.abs(n).toLocaleString(NL, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}`);
 ---
 
 <section class="mvm" aria-labelledby="mvm-heading">
@@ -119,15 +123,15 @@ const signed = (n: number | null) => (n === null ? '—' : `${n > 0 ? '+' : ''}$
           {rows.map((c) => (
             <tr>
               <th scope="row">{label(c)}</th>
-              <td class="mvm-num"><a href={c.votescope_href}>{c.votescope}%</a></td>
+              <td class="mvm-num"><a href={c.votescope_href}>{pct(c.votescope)}</a></td>
               <td class="mvm-num">
                 {c.kalshi === null ? '—' : (
-                  <a href={c.kalshi_url} rel="nofollow noopener" target="_blank">{c.kalshi}%</a>
+                  <a href={c.kalshi_url} rel="nofollow noopener" target="_blank">{pct(c.kalshi)}</a>
                 )}
               </td>
               <td class="mvm-num">
                 {c.polymarket === null ? '—' : (
-                  <a href={c.polymarket_url} rel="nofollow noopener" target="_blank">{c.polymarket}%</a>
+                  <a href={c.polymarket_url} rel="nofollow noopener" target="_blank">{pct(c.polymarket)}</a>
                 )}
               </td>
               <td class="mvm-num mvm-gap">

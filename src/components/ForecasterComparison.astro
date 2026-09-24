@@ -18,6 +18,10 @@
  * logo tiers, aucune revendication de supériorité, un lien vers chaque source.
  */
 import data from '../../web_data/us-forecasters/latest.json';
+import senateLatest from '../../web_data/us-senate/latest.json';
+import houseLatest from '../../web_data/us-house/latest.json';
+import governorLatest from '../../web_data/us-governor/latest.json';
+import { RATING_ORDER, RATING_STYLE } from '../lib/race-ratings';
 
 interface Props {
   locale: 'en' | 'fr' | 'es';
@@ -46,6 +50,7 @@ type QuotedRow = {
   tossup: number | null; dem_side: number | null; rep_side: number | null;
   delta_low: number | null; delta_high: number | null;
   gap_vs_votescope: number | null;
+  ratings?: Record<string, number | null> | null;
   as_of: string; entered_on: string; entered_from: string; via: string | null;
   acquisition: string; url: string;
 };
@@ -96,30 +101,19 @@ const copy = {
       delta_sieges: 'Expert ratings — projected seat change',
     } as Record<string, string>,
     via: (who: string) => `as reported by ${who}`,
-    byHand: 'entered by hand',
     ratingLine: (t: string, d: string, r: string) => `${d} lean D · ${t} toss-up · ${r} lean R`,
     deltaLine: (lo: string, hi: string) => `Democrats +${lo} to +${hi} seats`,
-    acq: {
-      api_sur_cle: 'Publishes an API; a key has to be requested',
-      manuel_seulement: 'Forbids automated collection — figure to be entered by hand',
-      page_publique: 'Public page — figure not yet recorded',
-      non_verifie: 'Access policy not yet checked',
-    } as Record<string, string>,
-    directory: 'Not yet recorded',
-    directoryLede: 'These publish a forecast too, and we link to each one. Their figure is not on this page yet — the reason is stated beside the name, and it is never a broken feed. Reporting what a forecaster says and fetching it automatically are two different questions; several of these allow the first and refuse the second.',
     cat: { modele: 'Probabilistic models', cotes_experts: 'Expert ratings', agregateur: 'Aggregators' },
-    access: {
-      robots_bloque: 'Blocks automated reuse in its robots.txt',
-      conditions_restrictives: 'Its terms of use prohibit reuse of its content',
-      licence_commerciale: 'A licensed commercial product — no public terms',
-      flux_public_bloque_au_cdn: 'Publishes a ratings feed, but blocks non-browser clients',
-      extrait_attribue_permis: 'Allows short attributed excerpts — figure coming',
-      sans_conditions_publiees: 'Publishes no terms of use',
-      api_cle: 'Published through an API that requires a key we do not have',
-      non_verifie: 'Access policy not yet checked',
-    } as Record<string, string>,
-    checked: 'checked',
     disclaimer: 'Independent comparison. Vote-Scope is not affiliated with, or endorsed by, any forecaster listed here. Every third-party forecast remains the property of its publisher and is linked to its original page. Methodologies differ: a model states a probability, an expert rating states a category, and an exchange states a price.',
+    probTitle: 'Chance that Democrats control it, side by side',
+    probLede: 'Each bar is one forecaster’s published probability. The dotted line is 50%.',
+    ratingsTitle: 'How solid the races are',
+    ratingsLede: 'Races sorted from solid Democratic to solid Republican. Ours in seven levels; expert ratings as published.',
+    demSide: 'Democratic side', repSide: 'Republican side', tossupShort: 'Toss-up',
+    ours: 'Vote-Scope (ours)',
+    races: 'races',
+    otherTitle: 'Other forecasts worth checking',
+    otherLede: 'They publish a forecast too. Their numbers are not carried here; follow the link.',
     visit: 'Visit',
   },
   fr: {
@@ -143,30 +137,19 @@ const copy = {
       delta_sieges: 'Cotes d’experts — variation de sièges projetée',
     } as Record<string, string>,
     via: (who: string) => `rapporté par ${who}`,
-    byHand: 'saisi à la main',
     ratingLine: (t: string, d: string, r: string) => `${d} penchant D · ${t} toss-up · ${r} penchant R`,
     deltaLine: (lo: string, hi: string) => `Démocrates +${lo} à +${hi} sièges`,
-    acq: {
-      api_sur_cle: 'Publie une API ; une clé se demande',
-      manuel_seulement: 'Interdit la collecte automatisée — chiffre à saisir à la main',
-      page_publique: 'Page publique — chiffre pas encore relevé',
-      non_verifie: 'Politique d’accès pas encore vérifiée',
-    } as Record<string, string>,
-    directory: 'Pas encore relevés',
-    directoryLede: 'Eux aussi publient une prévision, et nous lions vers chacun. Leur chiffre n’est pas encore sur cette page — la raison est écrite à côté du nom, et ce n’est jamais une panne. Rapporter ce que dit un prévisionniste et aller le chercher automatiquement sont deux questions distinctes ; plusieurs autorisent la première et refusent la seconde.',
     cat: { modele: 'Modèles probabilistes', cotes_experts: 'Cotes d’experts', agregateur: 'Agrégateurs' },
-    access: {
-      robots_bloque: 'Bloque la reprise automatisée dans son robots.txt',
-      conditions_restrictives: 'Ses conditions d’utilisation interdisent la reprise de son contenu',
-      licence_commerciale: 'Produit commercial sous licence — aucune condition publiée',
-      flux_public_bloque_au_cdn: 'Publie un flux de cotes, mais bloque les clients non navigateurs',
-      extrait_attribue_permis: 'Autorise les courts extraits attribués — chiffre à venir',
-      sans_conditions_publiees: 'Ne publie aucune condition d’utilisation',
-      api_cle: 'Publié via une API qui exige une clé que nous n’avons pas',
-      non_verifie: 'Politique d’accès pas encore vérifiée',
-    } as Record<string, string>,
-    checked: 'vérifié le',
     disclaimer: 'Comparaison indépendante. Vote-Scope n’est affilié à aucun des prévisionnistes présentés, ni approuvé par eux. Chaque prévision tierce demeure la propriété de son éditeur et renvoie à sa page d’origine. Les méthodologies diffèrent : un modèle énonce une probabilité, une cote d’expert énonce une catégorie, une bourse énonce un prix.',
+    probTitle: 'Chances que les démocrates la contrôlent, côte à côte',
+    probLede: 'Chaque barre est la probabilité publiée par un prévisionniste. La ligne pointillée marque 50 %.',
+    ratingsTitle: 'La solidité des courses',
+    ratingsLede: 'Courses rangées de « sûr démocrate » à « sûr républicain ». La nôtre en sept niveaux ; les cotes d’experts telles qu’ils les publient.',
+    demSide: 'Côté démocrate', repSide: 'Côté républicain', tossupShort: 'Incertain',
+    ours: 'Vote-Scope (nous)',
+    races: 'courses',
+    otherTitle: 'Autres prévisions à consulter',
+    otherLede: 'Elles publient aussi une prévision. Leurs chiffres ne sont pas repris ici : suivez le lien.',
     visit: 'Consulter',
   },
   es: {
@@ -190,30 +173,19 @@ const copy = {
       delta_sieges: 'Calificaciones de expertos — cambio de escaños proyectado',
     } as Record<string, string>,
     via: (who: string) => `reportado por ${who}`,
-    byHand: 'registrado a mano',
     ratingLine: (t: string, d: string, r: string) => `${d} inclinación D · ${t} indecisos · ${r} inclinación R`,
     deltaLine: (lo: string, hi: string) => `Demócratas +${lo} a +${hi} escaños`,
-    acq: {
-      api_sur_cle: 'Publica una API; hay que solicitar una clave',
-      manuel_seulement: 'Prohíbe la recolección automatizada — cifra por registrar a mano',
-      page_publique: 'Página pública — cifra aún no registrada',
-      non_verifie: 'Política de acceso aún no verificada',
-    } as Record<string, string>,
-    directory: 'Aún no registrados',
-    directoryLede: 'Ellos también publican un pronóstico, y enlazamos a cada uno. Su cifra todavía no está en esta página — la razón se indica junto al nombre, y nunca es una avería. Reportar lo que dice un pronosticador y obtenerlo automáticamente son dos preguntas distintas; varios permiten lo primero y rechazan lo segundo.',
     cat: { modele: 'Modelos probabilísticos', cotes_experts: 'Calificaciones de expertos', agregateur: 'Agregadores' },
-    access: {
-      robots_bloque: 'Bloquea la reutilización automatizada en su robots.txt',
-      conditions_restrictives: 'Sus condiciones de uso prohíben la reutilización de su contenido',
-      licence_commerciale: 'Producto comercial con licencia — sin condiciones públicas',
-      flux_public_bloque_au_cdn: 'Publica un flujo de calificaciones, pero bloquea a los clientes que no son navegadores',
-      extrait_attribue_permis: 'Permite citas breves con atribución — cifra por llegar',
-      sans_conditions_publiees: 'No publica condiciones de uso',
-      api_cle: 'Publicado mediante una API que exige una clave que no tenemos',
-      non_verifie: 'Política de acceso aún no verificada',
-    } as Record<string, string>,
-    checked: 'verificado el',
     disclaimer: 'Comparación independiente. Vote-Scope no está afiliado a ninguno de los pronosticadores presentados ni cuenta con su respaldo. Cada pronóstico de terceros sigue siendo propiedad de su editor y enlaza a su página original. Las metodologías difieren: un modelo enuncia una probabilidad, una calificación de experto enuncia una categoría y una bolsa enuncia un precio.',
+    probTitle: 'Probabilidad de control demócrata, lado a lado',
+    probLede: 'Cada barra es la probabilidad publicada por un pronosticador. La línea punteada marca el 50 %.',
+    ratingsTitle: 'La solidez de las contiendas',
+    ratingsLede: 'Contiendas ordenadas de «segura demócrata» a «segura republicana». La nuestra en siete niveles; las calificaciones de expertos tal como se publican.',
+    demSide: 'Lado demócrata', repSide: 'Lado republicano', tossupShort: 'Incierto',
+    ours: 'Vote-Scope (nosotros)',
+    races: 'contiendas',
+    otherTitle: 'Otros pronósticos para consultar',
+    otherLede: 'También publican un pronóstico. Sus cifras no se reproducen aquí: siga el enlace.',
     visit: 'Ver',
   },
 }[locale];
@@ -222,7 +194,6 @@ const copy = {
 // dans le gabarit Astro : le parseur y lit `<string, string>` comme une balise.
 // Le typage se fait donc ici, dans le frontmatter.
 const catLabel = copy.cat as Record<string, string>;
-const acqLabel = copy.acq as Record<string, string>;
 const unitLabel = copy.unitNote as Record<string, string>;
 
 // Une ligne citée se lit différemment selon son unité. Composer la phrase ici
@@ -247,6 +218,45 @@ const prev = ours.previous;
 // « Inchangé » est une information, pas une absence : quand nos chiffres n'ont
 // pas bougé alors que les marchés l'ont fait, c'est la phrase la plus utile de
 // la page.
+// ── Graphique des probabilités : nous, les modèles, les marchés ───────────
+const probRows = [
+  ...(ours.p_dem_control !== null ? [{ name: copy.ours, v: ours.p_dem_control, kind: 'ours', url: null as string | null }] : []),
+  ...jur.quoted.filter((q) => q.unit === 'probabilite' && q.p_dem_control !== null)
+    .map((q) => ({ name: q.name, v: q.p_dem_control as number, kind: 'model', url: q.url })),
+  ...jur.markets.map((m) => ({ name: m.name, v: m.p_dem_control, kind: 'market', url: m.url })),
+].sort((a, b) => b.v - a.v);
+
+// ── Barres d'intensité : nos cotes par course, et celles des experts ──────
+const latestByJur: Record<string, any> = { senate: senateLatest, house: houseLatest, governor: governorLatest };
+const ourCounts: Record<string, number> = {};
+for (const r of (latestByJur[jurisdiction]?.ridings ?? []) as any[]) {
+  const code = r?.projection?.rating?.code;
+  if (code && code in RATING_STYLE) ourCounts[code] = (ourCounts[code] ?? 0) + 1;
+}
+const lang = locale === 'fr' ? 'fr' : locale === 'es' ? 'es' : 'en';
+type Seg = { key: string; n: number; color: string; label: string; hatch?: boolean };
+const sevenSegs = (counts: Record<string, number | null | undefined>): Seg[] =>
+  RATING_ORDER.map((c) => ({ key: c, n: Number(counts[c] ?? 0), color: RATING_STYLE[c].light,
+    label: RATING_STYLE[c][lang], hatch: c === 'tossup' })).filter((x) => x.n > 0);
+const threeSegs = (q: QuotedRow): Seg[] => [
+  { key: 'dem', n: Number(q.dem_side ?? 0), color: RATING_STYLE.likely_dem.light, label: copy.demSide },
+  { key: 'tossup', n: Number(q.tossup ?? 0), color: RATING_STYLE.tossup.light, label: copy.tossupShort, hatch: true },
+  { key: 'rep', n: Number(q.rep_side ?? 0), color: RATING_STYLE.likely_rep.light, label: copy.repSide },
+].filter((x) => x.n > 0);
+const ratingRows = [
+  ...(Object.keys(ourCounts).length ? [{ name: copy.ours, url: null as string | null, as_of: ours.as_of, segs: sevenSegs(ourCounts), ours: true }] : []),
+  ...jur.quoted.filter((q) => q.unit === 'cotes')
+    .map((q) => ({ name: q.name, url: q.url, as_of: q.as_of, segs: q.ratings ? sevenSegs(q.ratings) : threeSegs(q), ours: false })),
+].map((r) => {
+  const total = r.segs.reduce((t, x) => t + x.n, 0);
+  return {
+    ...r, total,
+    aria: r.segs.map((x) => `${x.label} ${x.n}`).join(', '),
+    segs: r.segs.map((x) => ({ ...x, show: total > 0 && x.n / total >= 0.06 })),
+  };
+});
+const legendSegs = RATING_ORDER.map((c) => ({ key: c, color: RATING_STYLE[c].light, label: RATING_STYLE[c][lang], hatch: c === 'tossup' }));
+
 const unchanged = prev && prev.p_dem_control !== null
   ? prev.p_dem_control === ours.p_dem_control
   : prev && prev.seats_dem === ours.seats_dem;
@@ -280,6 +290,50 @@ const unchanged = prev && prev.p_dem_control !== null
       </p>
     </div>
 
+    {probRows.length > 1 && (
+      <div class="fcc-block">
+        <h2>{copy.probTitle}</h2>
+        <p class="fcc-sublede">{copy.probLede}</p>
+        <ul class="fcc-prob">
+          {probRows.map((r) => (
+            <li class={`is-${r.kind}`}>
+              <span class="fcc-prob-name">{r.url ? <a href={r.url} rel="nofollow noopener" target="_blank">{r.name}</a> : r.name}</span>
+              <span class="fcc-prob-track">
+                <span class="fcc-prob-fill" style={`width:${Math.max(0, Math.min(100, r.v))}%`} />
+                <span class="fcc-prob-half" aria-hidden="true" />
+              </span>
+              <span class="fcc-prob-val">{pct(r.v)}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    )}
+
+    {ratingRows.length > 0 && (
+      <div class="fcc-block">
+        <h2>{copy.ratingsTitle}</h2>
+        <p class="fcc-sublede">{copy.ratingsLede}</p>
+        <ul class="fcc-legend" aria-hidden="true">
+          {legendSegs.map((l) => <li><span class={`fcc-sw${l.hatch ? ' is-hatch' : ''}`} style={`background-color:${l.color}`} />{l.label}</li>)}
+        </ul>
+        <ul class="fcc-ratings">
+          {ratingRows.map((r) => (
+            <li class={r.ours ? 'is-ours' : ''}>
+              <span class="fcc-prob-name">{r.url ? <a href={r.url} rel="nofollow noopener" target="_blank">{r.name}</a> : r.name}
+                <small>{`${r.total} ${copy.races} · ${copy.asOf} ${fmtDate(r.as_of)}`}</small></span>
+              <span class="fcc-rbar" role="img" aria-label={r.aria}>
+                {r.segs.map((x) => (
+                  <span class={`fcc-rseg${x.hatch ? ' is-hatch' : ''}`} style={`flex:${x.n};background-color:${x.color}`} title={`${x.label} — ${x.n}`}>
+                    {x.show && <b>{x.n}</b>}
+                  </span>
+                ))}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    )}
+
     {jur.quoted.length > 0 && (
       <div class="fcc-block">
         <h2>{copy.quoted}</h2>
@@ -301,7 +355,6 @@ const unchanged = prev && prev.p_dem_control !== null
                     {q.gap_vs_votescope !== null && `${copy.gap} ${signed(q.gap_vs_votescope)} · `}
                     {`${copy.asOf} ${fmtDate(q.as_of)} · ${copy.readOn} ${fmtDate(q.entered_on)}`}
                     {q.via && ` · ${copy.via(q.via)}`}
-                    {!q.via && q.acquisition === 'manuel_seulement' && ` · ${copy.byHand}`}
                   </span>
                 </li>
               ))}
@@ -332,23 +385,17 @@ const unchanged = prev && prev.p_dem_control !== null
       </div>
     )}
 
-    <div class="fcc-block">
-      <h2>{copy.directory}</h2>
-      <p class="fcc-sublede">{copy.directoryLede}</p>
-      {grouped.map((g) => (
-        <div class="fcc-group">
-          <h3>{catLabel[g.category]}</h3>
-          <ul class="fcc-dir">
-            {g.rows.map((r) => (
-              <li>
-                <a href={r.url} rel="nofollow noopener" target="_blank">{r.name}</a>
-                <span class="fcc-why">{acqLabel[r.acquisition] ?? r.acquisition}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      ))}
-    </div>
+    {grouped.length > 0 && (
+      <div class="fcc-block">
+        <h2>{copy.otherTitle}</h2>
+        <p class="fcc-sublede">{copy.otherLede}</p>
+        <ul class="fcc-others">
+          {grouped.flatMap((g) => g.rows).map((r) => (
+            <li><a href={r.url} rel="nofollow noopener" target="_blank">{r.name} ↗</a></li>
+          ))}
+        </ul>
+      </div>
+    )}
 
     <p class="fcc-disclaimer">{copy.disclaimer}</p>
   </div>
@@ -401,12 +448,28 @@ const unchanged = prev && prev.p_dem_control !== null
     text-transform: uppercase; color: var(--ink-3);
     margin: 0 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--rule);
   }
-  .fcc-dir { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
-  .fcc-dir li {
-    display: grid; grid-template-columns: minmax(10rem, 15rem) 1fr;
-    gap: 4px 18px; align-items: baseline; font-size: 14px;
-  }
-  .fcc-why { font-size: 13px; color: var(--ink-3); }
+
+  .fcc-prob, .fcc-ratings { list-style: none; margin: 0; padding: 0; display: grid; gap: 9px; }
+  .fcc-prob li { display: grid; grid-template-columns: minmax(8rem, 13rem) 1fr 4.2rem; gap: 12px; align-items: center; font-size: 14px; }
+  .fcc-prob-name { display: flex; flex-direction: column; gap: 2px; }
+  .fcc-prob-name small { font-family: var(--mono); font-size: 10px; color: var(--ink-3); font-weight: 400; }
+  .fcc-prob-track { position: relative; height: 16px; background: var(--paper-2, var(--rule)); border-radius: 3px; overflow: hidden; }
+  .fcc-prob-fill { position: absolute; inset-block: 0; left: 0; background: var(--ink-3); border-radius: 3px; }
+  .fcc-prob li.is-ours .fcc-prob-fill { background: var(--ink); }
+  .fcc-prob li.is-market .fcc-prob-fill { background: repeating-linear-gradient(45deg, var(--ink-3) 0 4px, var(--ink-4, #aaa) 4px 8px); }
+  .fcc-prob li.is-ours { font-weight: 600; }
+  .fcc-prob-half { position: absolute; top: -2px; bottom: -2px; left: 50%; border-left: 1px dashed var(--ink-2); }
+  .fcc-prob-val { font-family: var(--mono); font-size: 14px; text-align: right; font-variant-numeric: tabular-nums; }
+  .fcc-legend { list-style: none; margin: 0 0 12px; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 14px; font-family: var(--mono); font-size: 11px; color: var(--ink-2); }
+  .fcc-legend li { display: inline-flex; align-items: center; gap: 6px; }
+  .fcc-sw { width: 12px; height: 12px; border-radius: 2px; display: inline-block; }
+  .fcc-ratings li { display: grid; grid-template-columns: minmax(8rem, 13rem) 1fr; gap: 12px; align-items: center; font-size: 14px; }
+  .fcc-ratings li.is-ours { font-weight: 600; }
+  .fcc-rbar { display: flex; gap: 2px; height: 26px; border-radius: 3px; overflow: hidden; }
+  .fcc-rseg { display: flex; align-items: center; justify-content: center; min-width: 2px; color: #fff; font-family: var(--mono); font-size: 11px; }
+  .fcc-rseg b { font-weight: 500; text-shadow: 0 0 2px rgba(0,0,0,.35); }
+  .is-hatch { background-image: repeating-linear-gradient(45deg, rgba(255,255,255,.35) 0 3px, transparent 3px 7px); }
+  .fcc-others { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px 22px; font-size: 14px; }
 
   .fcc-disclaimer {
     margin: 34px 0 0; font-size: 12px; color: var(--ink-3); max-width: 80ch;
@@ -414,9 +477,11 @@ const unchanged = prev && prev.p_dem_control !== null
   }
 
   @media (max-width: 620px) {
+    .fcc-prob li { grid-template-columns: 1fr 3.8rem; }
+    .fcc-prob-track { grid-column: 1 / -1; grid-row: 2; }
+    .fcc-ratings li { grid-template-columns: 1fr; }
     .fcc h1 { font-size: 24px; }
     .fcc-row { grid-template-columns: 1fr auto; }
     .fcc-meta { grid-column: 1 / -1; }
-    .fcc-dir li { grid-template-columns: 1fr; }
   }
 </style>

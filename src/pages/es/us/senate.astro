@@ -9,6 +9,7 @@ import { jurisdictions } from '../../../data/jurisdictions';
 import senateMeta from '../../../../web_data/us-senate/latest.json';
 import { raceEditorial } from '../../../data/raceEditorial';
 import KalshiBoard from '../../../components/KalshiBoard.astro';
+import ForecastCompareLinks from '../../../components/ForecastCompareLinks.astro';
 
 const j = jurisdictions.usSenate;
 const canonical = 'https://vote-scope.com/es/us/senate/';
@@ -52,12 +53,10 @@ const alternates = {
     },
   ]}
 >
-  <ProjectionEngine jurisdiction={j} locale="es"><Fragment slot="narrative"><RaceNarrative locale="es" {...raceEditorial.usSenate.es} /></Fragment></ProjectionEngine>
+  <ProjectionEngine jurisdiction={j} locale="es"><Fragment slot="markets"><ForecastCompareLinks locale="es" chamber="senate" /><KalshiBoard locale="es" chamber="senate" /></Fragment><Fragment slot="narrative"><RaceNarrative locale="es" {...raceEditorial.usSenate.es} /></Fragment></ProjectionEngine>
   <div class="container" style="max-width:1080px;margin-inline:auto;padding-inline:1.5rem;">
     <PolymarketEmbed slug="will-the-democratic-party-control-the-senate-after-the-2026-midterm-elections" title="Senado 2026 — control del partido" />
   </div>
-
-  <KalshiBoard locale="es" chamber="senate" />
 
   <RidingsCta
     eyebrow="Perfil de escaño"

@@ -4,6 +4,7 @@ import RidingsCta from '../../../components/RidingsCta.astro';
 import NewsletterCta from '../../../components/NewsletterCta.astro';
 import ProjectionEngine from '../../../components/ProjectionEngine.astro';
 import KalshiBoard from '../../../components/KalshiBoard.astro';
+import ForecastCompareLinks from '../../../components/ForecastCompareLinks.astro';
 import RaceNarrative from '../../../components/RaceNarrative.astro';
 import { jurisdictions } from '../../../data/jurisdictions';
 import governorMeta from '../../../../web_data/us-governor/latest.json';
@@ -51,9 +52,7 @@ const alternates = {
     },
   ]}
 >
-  <ProjectionEngine jurisdiction={j} locale="es"><Fragment slot="narrative"><RaceNarrative locale="es" {...raceEditorial.usGovernor.es} /></Fragment></ProjectionEngine>
-
-  <KalshiBoard locale="es" chamber="governor" />
+  <ProjectionEngine jurisdiction={j} locale="es"><Fragment slot="markets"><ForecastCompareLinks locale="es" chamber="governor" /><KalshiBoard locale="es" chamber="governor" /></Fragment><Fragment slot="narrative"><RaceNarrative locale="es" {...raceEditorial.usGovernor.es} /></Fragment></ProjectionEngine>
 
   <RidingsCta
     eyebrow="Perfil de contienda"

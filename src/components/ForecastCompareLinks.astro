@@ -1,0 +1,33 @@
+---
+/**
+ * Liens visibles vers le comparateur « Vote-Scope contre les autres » et la page
+ * des marchés, placés dans la page projection juste sous la projection des
+ * sièges. Ces pages existaient depuis le 19 septembre sans un seul lien entrant.
+ */
+interface Props { locale: 'en' | 'fr' | 'es'; chamber: 'house' | 'senate' | 'governor' }
+const { locale, chamber } = Astro.props as Props;
+
+const compareHref = {
+  fr: { house: '/fr/us/chambre/comparer-les-previsions/', senate: '/fr/us/senat/comparer-les-previsions/', governor: '/fr/us/gouverneurs/comparer-les-previsions/' },
+  en: { house: '/en/us/house/compare-forecasts/', senate: '/en/us/senate/compare-forecasts/', governor: '/en/us/governors/compare-forecasts/' },
+  es: { house: '/es/us/house/comparar-pronosticos/', senate: '/es/us/senate/comparar-pronosticos/', governor: '/es/us/gobernadores/comparar-pronosticos/' },
+}[locale][chamber];
+const marketsHref = { fr: '/fr/us/marches-previsionnels/', en: '/en/us/prediction-markets/', es: '/es/us/mercados-de-prediccion/' }[locale];
+const C = {
+  fr: { compare: 'Comparer avec The Economist, DDHQ, Silver Bulletin, Cook…', compareSub: 'Toutes les prévisions côte à côte', markets: 'Kalshi et Polymarket contre notre modèle', marketsSub: 'Là où les parieurs divergent' },
+  en: { compare: 'Compare with The Economist, DDHQ, Silver Bulletin, Cook…', compareSub: 'Every forecast side by side', markets: 'Kalshi and Polymarket vs our model', marketsSub: 'Where bettors disagree' },
+  es: { compare: 'Comparar con The Economist, DDHQ, Silver Bulletin, Cook…', compareSub: 'Todos los pronósticos lado a lado', markets: 'Kalshi y Polymarket frente a nuestro modelo', marketsSub: 'Donde los apostadores discrepan' },
+}[locale];
+---
+<nav class="fcl container" aria-label={C.compareSub}>
+  <a href={compareHref}><span>{C.compareSub}</span><b>{C.compare} →</b></a>
+  <a href={marketsHref}><span>{C.marketsSub}</span><b>{C.markets} →</b></a>
+</nav>
+
+<style>
+  .fcl { max-width: 1080px; margin: 32px auto 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
+  .fcl a { display: flex; flex-direction: column; gap: 4px; padding: 14px 16px; border: 1px solid var(--rule); border-left: 4px solid var(--ink); border-radius: 6px; background: var(--card); color: inherit; text-decoration: none; }
+  .fcl a:hover { border-color: var(--ink); }
+  .fcl span { font-family: var(--mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
+  .fcl b { font-family: var(--serif); font-size: 18px; font-weight: 450; color: var(--ink); }
+</style>

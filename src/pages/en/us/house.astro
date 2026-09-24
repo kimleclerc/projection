@@ -9,6 +9,7 @@ import { jurisdictions } from '../../../data/jurisdictions';
 import houseMeta from '../../../../web_data/us-house/latest.json';
 import { raceEditorial } from '../../../data/raceEditorial';
 import KalshiBoard from '../../../components/KalshiBoard.astro';
+import ForecastCompareLinks from '../../../components/ForecastCompareLinks.astro';
 
 const j = jurisdictions.usHouse;
 const canonical = 'https://vote-scope.com/en/us/house/';
@@ -51,12 +52,10 @@ const alternates = {
     },
   ]}
 >
-  <ProjectionEngine jurisdiction={j} locale="en"><Fragment slot="narrative"><RaceNarrative locale="en" {...raceEditorial.usHouse.en} /></Fragment></ProjectionEngine>
+  <ProjectionEngine jurisdiction={j} locale="en"><Fragment slot="markets"><ForecastCompareLinks locale="en" chamber="house" /><KalshiBoard locale="en" chamber="house" /></Fragment><Fragment slot="narrative"><RaceNarrative locale="en" {...raceEditorial.usHouse.en} /></Fragment></ProjectionEngine>
   <div class="container" style="max-width:1080px;margin-inline:auto;padding-inline:1.5rem;">
     <PolymarketEmbed slug="will-the-democratic-party-control-the-house-after-the-2026-midterm-elections" title="House 2026 — party control" />
   </div>
-
-  <KalshiBoard locale="en" chamber="house" />
 
   <RidingsCta
     eyebrow="District profile"
