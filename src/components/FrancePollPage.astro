@@ -27,10 +27,12 @@ export interface FrPoll {
   newer_slug?: string | null; older_slug?: string | null;
 }
 
+import dataSheets from '../../web_data/france-presidential/data_sheets.json';
+
 interface Props { poll: FrPoll; locale: 'en' | 'fr' | 'es'; base: string; hubHref: string; deskHref: string; }
 const { poll, locale, base, hubHref, deskHref } = Astro.props as Props;
 
-const L = locale === 'fr' ? 'fr-CA' : locale === 'es' ? 'es-ES' : 'en-CA';
+const L = locale === 'fr' ? 'fr-FR' : locale === 'es' ? 'es-ES' : 'en-CA';
 const d = (iso?: string | null) => iso
   ? new Date(`${iso}T12:00:00Z`).toLocaleDateString(L, { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })
   : null;
@@ -44,7 +46,7 @@ const copy = {
     scenarios: (n: number) => `This poll tested ${n} candidate line-ups`,
     scenariosLede: 'French pollsters test several hypothetical fields in the same survey. Each one is shown below — the pollster’s own release rarely puts them side by side.',
     runoffs: 'Run-off match-ups tested',
-    lineup: 'Line-up', candidates: 'candidates',
+    lineup: 'Line-up', candidates: 'candidates', with: 'with', without: 'without',
     backHub: 'All 2027 presidential polls', backDesk: 'Our weighted average and projection',
     newer: 'More recent poll', older: 'Earlier poll',
     modelNote: 'A single poll is one measurement with its own margin of error. Our model weights every published poll, corrects for house effects and projects the range of plausible outcomes.',
@@ -57,7 +59,7 @@ const copy = {
     scenarios: (n: number) => `Ce sondage a testé ${n} configurations de candidatures`,
     scenariosLede: 'Les instituts français testent plusieurs hypothèses de candidatures dans la même enquête. Ils sont tous ci-dessous — la notice du sondeur les met rarement côte à côte.',
     runoffs: 'Duels de second tour testés',
-    lineup: 'Hypothèse', candidates: 'candidats',
+    lineup: 'Hypothèse', candidates: 'candidats', with: 'avec', without: 'sans',
     backHub: 'Tous les sondages de la présidentielle 2027', backDesk: 'Notre moyenne pondérée et notre projection',
     newer: 'Sondage plus récent', older: 'Sondage précédent',
     modelNote: 'Un sondage isolé est une mesure, avec sa marge d’erreur. Notre modèle pondère chaque sondage publié, corrige les biais d’institut et projette l’éventail des issues plausibles.',
@@ -70,7 +72,7 @@ const copy = {
     scenarios: (n: number) => `Este sondeo probó ${n} configuraciones de candidaturas`,
     scenariosLede: 'Los institutos franceses prueban varias combinaciones hipotéticas en la misma encuesta. Todas aparecen abajo — la nota del sondeador rara vez las pone juntas.',
     runoffs: 'Duelos de segunda vuelta probados',
-    lineup: 'Combinación', candidates: 'candidatos',
+    lineup: 'Combinación', candidates: 'candidatos', with: 'con', without: 'sin',
     backHub: 'Todas las encuestas presidenciales de 2027', backDesk: 'Nuestro promedio ponderado y proyección',
     newer: 'Sondeo más reciente', older: 'Sondeo anterior',
     modelNote: 'Un sondeo aislado es una medición, con su margen de error. Nuestro modelo pondera cada sondeo publicado, corrige los sesgos de casa y proyecta el abanico de resultados plausibles.',
@@ -78,6 +80,28 @@ const copy = {
 }[locale];
 
 const maxShare = Math.max(...poll.lead_entries.map((e) => e.share), 1);
+
+// « 16,5 % » en français, « 16.5% » en anglais : le gabarit écrivait
+// `${share}%` partout, décimale anglaise comprise.
+const nf = new Intl.NumberFormat(L, { maximumFractionDigits: 1 });
+const pct = (v: number) => `${nf.format(v)}${locale === 'en' ? '%' : '\u00a0%'}`;
+
+// Une hypothèse se nomme par ce qui la DISTINGUE des autres hypothèses du
+// même sondage (« avec Glucksmann »), comme dans la presse — pas par un
+// numéro et un nombre de candidats.
+const shortById = new Map(((dataSheets as any).candidates ?? []).map((c: any) => [c.candidate_id, c.short_label]));
+const shortName = (e: PollEntry) => shortById.get(e.id) ?? e.name;
+const scenarioSets = poll.scenarios.map((sc) => new Set(sc.entries.map((e) => e.id)));
+const everywhere = new Set(
+  [...(scenarioSets[0] ?? [])].filter((id) => scenarioSets.every((set) => set.has(id))),
+);
+const allIds = new Map(poll.scenarios.flatMap((sc) => sc.entries.map((e) => [e.id, e] as const)));
+const lineupLabel = (sc: PollScenario) => {
+  const present = sc.entries.filter((e) => !everywhere.has(e.id)).map(shortName);
+  if (present.length) return `${copy.with} ${present.join(', ')}`;
+  const absent = [...allIds.values()].filter((e) => !sc.entries.some((x) => x.id === e.id)).map(shortName);
+  return absent.length ? `${copy.without} ${absent.join(', ')}` : `${sc.n_candidates} ${copy.candidates}`;
+};
 ---
 
 <article class="fpp" data-content-area>
@@ -108,7 +132,7 @@ const maxShare = Math.max(...poll.lead_entries.map((e) => e.share), 1);
           <span class="fpp-track" aria-hidden="true">
             <span class="fpp-fill" style={`width:${(e.share / maxShare) * 100}%`} />
           </span>
-          <span class="fpp-share">{`${e.share}%`}</span>
+          <span class="fpp-share">{pct(e.share)}</span>
         </li>
       ))}
     </ul>
@@ -119,7 +143,7 @@ const maxShare = Math.max(...poll.lead_entries.map((e) => e.share), 1);
       <h2>{copy.runoffs}</h2>
       <ul class="fpp-duels">
         {poll.runoffs.map((r) => (
-          <li>{`${r.left} ${r.left_share}% — ${r.right_share}% ${r.right}`}</li>
+          <li>{`${r.left} ${pct(r.left_share)} — ${pct(r.right_share)} ${r.right}`}</li>
         ))}
       </ul>
     </section>
@@ -132,9 +156,9 @@ const maxShare = Math.max(...poll.lead_entries.map((e) => e.share), 1);
       <div class="fpp-scenarios">
         {poll.scenarios.map((sc, i) => (
           <div class="fpp-scenario">
-            <h3>{`${copy.lineup} ${i + 1} · ${sc.n_candidates} ${copy.candidates}`}</h3>
+            <h3>{`${copy.lineup} ${i + 1} · ${lineupLabel(sc)}`}</h3>
             <ul>
-              {sc.entries.map((e) => <li><span>{e.name}</span><b>{`${e.share}%`}</b></li>)}
+              {sc.entries.map((e) => <li><span>{e.name}</span><b>{pct(e.share)}</b></li>)}
             </ul>
           </div>
         ))}
