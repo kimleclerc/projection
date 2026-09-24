@@ -113,6 +113,15 @@ const effectCopy = topExit ? {
   es: { eyebrow: 'Efecto candidatura', title: `Sin ${topExit.short}, el ${topShare} % de sus votantes va a ${topExit.destinations[0].short}`, body: 'Medido dentro de las encuestas: dos combinaciones de una misma encuesta, un solo nombre distinto. De quién toma sus votos cada candidatura.', cta: 'Ver el efecto candidatura' },
 }[locale] : null;
 
+// Primaire sociale-démocrate — carte d'appel jusqu'au résultat du 17 octobre.
+const primaryHref = { fr: '/fr/france/primaire-socialiste/', en: '/en/france/socialist-primary/', es: '/es/france/primarias-socialistas/' }[locale];
+const primaryOpen = String((latest as any).meta?.run_date ?? '') <= '2026-10-24';
+const primaryCopy = {
+  fr: { eyebrow: 'Primaire socialiste · 9-17 octobre', title: 'Glucksmann, Faure, Royal, Guedj, Maurel : ce que le vainqueur change pour 2027', body: 'Le poids de chacun dans les sondages présidentiels, mesuré dans les mêmes enquêtes. Qui vote, comment, et quand.', cta: 'Voir la primaire' },
+  en: { eyebrow: 'Socialist primary · October 9-17', title: 'Glucksmann, Faure, Royal, Guedj, Maurel: what the winner changes for 2027', body: 'What each of them weighs in presidential polls, measured within the same surveys. Who votes, how, and when.', cta: 'See the primary' },
+  es: { eyebrow: 'Primarias socialistas · 9-17 de octubre', title: 'Glucksmann, Faure, Royal, Guedj, Maurel: lo que el ganador cambia para 2027', body: 'Lo que pesa cada uno en las encuestas presidenciales, medido en las mismas encuestas. Quién vota, cómo y cuándo.', cta: 'Ver las primarias' },
+}[locale];
+
 // Barrage Index — carte promo live vers l'instrument (web_data/fr-barrage).
 const bfi = (barrageLatest as any).bfi ?? {};
 const barrageHref = `/${locale}/france/indexes/barrage/`;
@@ -620,6 +629,14 @@ const C = COPY[locale];
           client:load
         />
       </div>
+      {primaryOpen && (
+        <a class="note-card" href={primaryHref} style="display:block;text-decoration:none;color:inherit;border-left:4px solid var(--bloc-left_social_dem, #e5567f);">
+          <p class="eyebrow">{primaryCopy.eyebrow}</p>
+          <h3 style="margin:0.25rem 0;">{primaryCopy.title}</h3>
+          <p>{primaryCopy.body}</p>
+          <footer style="margin-top:0.75rem;"><span class="cta-link">{primaryCopy.cta} →</span></footer>
+        </a>
+      )}
       {effectCopy && (
         <a class="note-card" href={effectHref} style="display:block;text-decoration:none;color:inherit;border-left:4px solid var(--ink);">
           <p class="eyebrow">{effectCopy.eyebrow}</p>

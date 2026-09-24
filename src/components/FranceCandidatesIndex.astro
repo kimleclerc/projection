@@ -48,9 +48,11 @@ const COPY = {
 } as const;
 const C = COPY[locale];
 
+const primaryHref = { fr: '/fr/france/primaire-socialiste/', en: '/en/france/socialist-primary/', es: '/es/france/primarias-socialistas/' }[locale];
+const primaryCta = { fr: 'Ce que le vainqueur change pour la présidentielle', en: 'What the winner changes for the presidential race', es: 'Lo que el ganador cambia para la presidencial' }[locale];
 const groups = [
   { label: C.declared, items: declared },
-  { label: C.primary, items: primary },
+  { label: C.primary, items: primary, href: primaryHref },
   { label: C.probable, items: probable },
 ];
 ---
@@ -66,6 +68,7 @@ const groups = [
   {groups.map((g) => g.items.length > 0 && (
     <section class="frci-section container">
       <h2 class="frci-group-title">{g.label}</h2>
+      {g.href && <p><a href={g.href}>{primaryCta} →</a></p>}
       <ul class="frci-grid">
         {g.items.map((c) => (
           <li>

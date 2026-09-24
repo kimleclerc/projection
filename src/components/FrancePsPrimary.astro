@@ -1,0 +1,395 @@
+---
+/**
+ * Primaire sociale-démocrate 2026 : ce que le vainqueur change pour la présidentielle.
+ *
+ * Les chiffres sont extraits des sondages présidentiels : poids de chaque
+ * candidat quand les instituts le testent, et comparaisons DANS UNE MÊME ENQUÊTE
+ * face à Glucksmann (même échantillon, un seul nom qui change). Faits
+ * éditoriaux et résultats : src/data/fr-ps-primary.ts.
+ */
+import JurisdictionNav from './JurisdictionNav.astro';
+import ElectionCountdown from '../islands/ElectionCountdown.tsx';
+import polls from '../../web_data/france-presidential/polls.json';
+import latest from '../../web_data/france-presidential/latest.json';
+import dataSheets from '../../web_data/france-presidential/data_sheets.json';
+import effects from '../../web_data/france-presidential/candidacy_effects.json';
+import { PS_PRIMARY } from '../data/fr-ps-primary';
+import { pickHeroScenario } from '../lib/fr-explorer';
+import { toScenarioCard, blocHex, franceCandBase, type Locale } from '../lib/fr-pres';
+import { slugify } from '../lib/fr-candidates';
+
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+
+const L = locale === 'fr' ? 'fr-FR' : locale === 'es' ? 'es-ES' : 'en-CA';
+const nf = new Intl.NumberFormat(L, { maximumFractionDigits: 1, minimumFractionDigits: 1 });
+const pct = (v: number) => `${nf.format(v)}${locale === 'en' ? '%' : ' %'}`;
+const signed = (v: number) => `${v > 0 ? '+' : '−'}${nf.format(Math.abs(v))}`;
+const day = (iso: string, withYear = false) => {
+  const out = new Date(`${iso}T12:00:00Z`).toLocaleDateString(L,
+    { day: 'numeric', month: 'long', ...(withYear ? { year: 'numeric' } : {}), timeZone: 'UTC' });
+  // « 1er octobre », pas « 1 octobre ».
+  return locale === 'fr' ? out.replace(/^1 /, '1er ') : out;
+};
+
+const cands = new Map((((dataSheets as any).candidates ?? []) as any[]).map((c) => [c.candidate_id, c]));
+const nameOf = (id: string) => cands.get(id)?.candidate_name ?? id;
+const shortOf = (id: string) => cands.get(id)?.short_label ?? id;
+const blocOf = (id: string) => cands.get(id)?.bloc ?? 'other';
+const candBase = franceCandBase(locale);
+
+// ── Poids dans les sondages présidentiels (90 jours) ─────────────────────
+const runDate: string = (latest as any).meta.run_date;
+const daysBefore = (iso: string) => (Date.parse(`${runDate}T12:00:00Z`) - Date.parse(`${iso}T12:00:00Z`)) / 86_400_000;
+const rows = (((polls as any).first_round ?? []) as any[]).filter((r) => r.field_end && (r.entries ?? []).length);
+const recent = rows.filter((r) => daysBefore(r.field_end) <= 90);
+const weight = (id: string) => {
+  const shares = recent.flatMap((r) => (r.entries as any[]).filter((e) => e.id === id).map((e) => Number(e.share)));
+  const surveys = new Set(recent.filter((r) => (r.entries as any[]).some((e) => e.id === id)).map((r) => `${r.firm}|${r.field_end}`));
+  return shares.length ? { mean: shares.reduce((a, b) => a + b, 0) / shares.length, n: shares.length, surveys: surveys.size } : null;
+};
+
+// ── Comparaisons dans une même enquête, face à Glucksmann (365 jours) ────
+const REF = 'left_glucksmann';
+const year = rows.filter((r) => daysBefore(r.field_end) <= 365);
+const bySurvey = new Map<string, any[]>();
+for (const r of year) {
+  const k = `${r.firm}|${r.field_end}`;
+  bySurvey.set(k, [...(bySurvey.get(k) ?? []), r]);
+}
+const headToHead = (id: string) => {
+  const pairs: Array<{ mine: number; ref: number }> = [];
+  for (const group of bySurvey.values()) {
+    for (const a of group) for (const b of group) {
+      const sa = new Set((a.entries as any[]).map((e) => e.id));
+      const sb = new Set((b.entries as any[]).map((e) => e.id));
+      if (!sa.has(id) || sa.has(REF) || !sb.has(REF) || sb.has(id)) continue;
+      const onlyA = [...sa].filter((x) => !sb.has(x));
+      const onlyB = [...sb].filter((x) => !sa.has(x));
+      if (onlyA.length === 1 && onlyB.length === 1) {
+        pairs.push({
+          mine: Number((a.entries as any[]).find((e) => e.id === id).share),
+          ref: Number((b.entries as any[]).find((e) => e.id === REF).share),
+        });
+      }
+    }
+  }
+  if (!pairs.length) return null;
+  const avg = (xs: number[]) => xs.reduce((s, x) => s + x, 0) / xs.length;
+  return { n: pairs.length, mine: avg(pairs.map((p) => p.mine)), ref: avg(pairs.map((p) => p.ref)) };
+};
+const swapWith = (id: string) => (((effects as any).swaps ?? []) as any[]).find(
+  (s) => (s.base.id === REF && s.alt.id === id) || (s.alt.id === REF && s.base.id === id));
+
+const primaryRows = PS_PRIMARY.candidates.map((c) => ({
+  ...c,
+  name: nameOf(c.id),
+  short: shortOf(c.id),
+  slug: slugify(nameOf(c.id)),
+  weight: weight(c.id),
+  h2h: c.id === REF ? null : headToHead(c.id),
+  swap: c.id === REF ? null : swapWith(c.id),
+}));
+const favorite = [...primaryRows].filter((r) => r.weight).sort((a, b) => b.weight!.mean - a.weight!.mean)[0];
+const hollande = weight('left_hollande');
+
+// ── Qualification : l'écart à la deuxième place dans notre moyenne ───────
+const { heroScenario } = pickHeroScenario((latest as any).scenarios, (dataSheets as any).candidates ?? [], (latest as any).default_scenario_id);
+const hero = toScenarioCard(heroScenario, locale);
+const refRank = hero.qualification.findIndex((q) => q.id === REF);
+const refQ = refRank >= 0 ? hero.qualification[refRank] : null;
+const second = hero.qualification[1];
+const gap = refQ && second && refQ.id !== second.id ? second.mean - refQ.mean : null;
+
+const res = PS_PRIMARY.results;
+const hasResults = Boolean(res.firstRound || res.secondRound);
+
+const C = {
+  fr: {
+    kicker: 'Présidentielle 2027 · Primaire sociale-démocrate',
+    h1: 'Primaire socialiste : ce que le vainqueur change pour 2027',
+    lede: `Cinq candidats, un scrutin fermé organisé par le ${PS_PRIMARY.parties.fr}. Premier tour les 9 et 10 octobre, second tour les 16 et 17, résultat le 17 au soir. Ce que les sondages présidentiels disent déjà de chacun.`,
+    countdown: 'Premier tour de la primaire le 9 octobre.',
+    favLabel: 'Favori des sondages présidentiels',
+    favBody: (n: string, v: string, k: number) => `${n} pèse ${v} quand les instituts le testent (${k} hypothèses en 90 jours).`,
+    swapLabel: (n: string) => `Si ${n} gagne la primaire`,
+    swapBody: (n: string, v: string, ref: string, rv: string) => `Dans les mêmes enquêtes, ${n} fait ${v} là où ${ref} fait ${rv}.`,
+    qualLabel: 'La marche vers le second tour',
+    qualBody: (n: string, g: string, s: string, sv: string) => `${n} est à ${g} de la deuxième place (${s}, ${sv}) dans notre moyenne.`,
+    resultsTitle: 'Résultats',
+    r1: 'Premier tour', r2: 'Second tour',
+    candidatesTitle: 'Les cinq candidats',
+    inPolls: (v: string, n: number) => `${v} dans les sondages présidentiels · ${n} hypothèse${n > 1 ? 's' : ''} en 90 jours`,
+    neverTested: 'Jamais testé dans un sondage présidentiel',
+    changeTitle: 'Ce que le résultat change pour la présidentielle',
+    changeLede: 'Nous comparons deux hypothèses d’une même enquête, auprès des mêmes personnes, où seul le candidat social-démocrate change. C’est la mesure la plus directe de ce que chaque vainqueur pèserait.',
+    h2hHead: (n: string, ref: string) => `${n} à la place de ${ref}`,
+    h2hBody: (n: string, v: string, ref: string, rv: string, k: number) => `${n} fait ${v} là où ${ref} fait ${rv} (${k} comparaison${k > 1 ? 's' : ''} dans une même enquête).`,
+    movers: 'Autour, les scores bougent ainsi :',
+    thin: 'Une seule comparaison : un ordre de grandeur, pas une mesure.',
+    noH2h: (n: string) => `${n} n’a jamais été testé face à Glucksmann dans une même enquête : aucune mesure possible pour l’instant.`,
+    hollandeTitle: 'Et François Hollande ?',
+    hollandeBody: (v: string, n: number) => `Il n’est pas candidat à la primaire, mais les instituts le testent encore : ${v} en moyenne sur ${n} hypothèses en 90 jours.`,
+    voteTitle: 'Qui vote, et comment',
+    debatesTitle: 'Les débats',
+    outTitle: 'Hors course',
+    effectLink: 'L’effet de chaque candidature, en détail',
+    back: 'Notre projection de la présidentielle',
+    candidatesLink: 'Tous les candidats',
+  },
+  en: {
+    kicker: '2027 French presidential · Social-democratic primary',
+    h1: 'Socialist primary: what the winner changes for 2027',
+    lede: `Five candidates, a closed vote run by the ${PS_PRIMARY.parties.en}. First round October 9-10, runoff October 16-17, result on the evening of the 17th. What presidential polls already say about each of them.`,
+    countdown: 'First round of the primary on October 9.',
+    favLabel: 'Favorite in presidential polls',
+    favBody: (n: string, v: string, k: number) => `${n} polls at ${v} when tested (${k} lineups in 90 days).`,
+    swapLabel: (n: string) => `If ${n} wins the primary`,
+    swapBody: (n: string, v: string, ref: string, rv: string) => `In the same surveys, ${n} scores ${v} where ${ref} scores ${rv}.`,
+    qualLabel: 'The climb to the runoff',
+    qualBody: (n: string, g: string, s: string, sv: string) => `${n} is ${g} behind second place (${s}, ${sv}) in our average.`,
+    resultsTitle: 'Results',
+    r1: 'First round', r2: 'Runoff',
+    candidatesTitle: 'The five candidates',
+    inPolls: (v: string, n: number) => `${v} in presidential polls · ${n} lineup${n > 1 ? 's' : ''} in 90 days`,
+    neverTested: 'Never tested in a presidential poll',
+    changeTitle: 'What the result changes for the presidential race',
+    changeLede: 'We compare two lineups from the same survey, on the same people, where only the social-democratic candidate changes. It is the most direct measure of what each winner would weigh.',
+    h2hHead: (n: string, ref: string) => `${n} instead of ${ref}`,
+    h2hBody: (n: string, v: string, ref: string, rv: string, k: number) => `${n} scores ${v} where ${ref} scores ${rv} (${k} comparison${k > 1 ? 's' : ''} within the same survey).`,
+    movers: 'Around them, scores move like this:',
+    thin: 'A single comparison: an order of magnitude, not a measurement.',
+    noH2h: (n: string) => `${n} has never been tested against Glucksmann in the same survey: no measurement possible yet.`,
+    hollandeTitle: 'What about François Hollande?',
+    hollandeBody: (v: string, n: number) => `He is not running in the primary, but pollsters still test him: ${v} on average over ${n} lineups in 90 days.`,
+    voteTitle: 'Who votes, and how',
+    debatesTitle: 'Debates',
+    outTitle: 'Out of the race',
+    effectLink: 'The effect of each candidacy, in detail',
+    back: 'Our presidential forecast',
+    candidatesLink: 'All candidates',
+  },
+  es: {
+    kicker: 'Presidencial francesa 2027 · Primarias socialdemócratas',
+    h1: 'Primarias socialistas: lo que el ganador cambia para 2027',
+    lede: `Cinco candidatos, una votación cerrada organizada por el ${PS_PRIMARY.parties.es}. Primera vuelta el 9 y 10 de octubre, segunda el 16 y 17, resultado el 17 por la noche. Lo que las encuestas presidenciales ya dicen de cada uno.`,
+    countdown: 'Primera vuelta de las primarias el 9 de octubre.',
+    favLabel: 'Favorito en las encuestas presidenciales',
+    favBody: (n: string, v: string, k: number) => `${n} obtiene ${v} cuando se le incluye (${k} combinaciones en 90 días).`,
+    swapLabel: (n: string) => `Si ${n} gana las primarias`,
+    swapBody: (n: string, v: string, ref: string, rv: string) => `En las mismas encuestas, ${n} obtiene ${v} donde ${ref} obtiene ${rv}.`,
+    qualLabel: 'El camino a la segunda vuelta',
+    qualBody: (n: string, g: string, s: string, sv: string) => `${n} está a ${g} del segundo puesto (${s}, ${sv}) en nuestro promedio.`,
+    resultsTitle: 'Resultados',
+    r1: 'Primera vuelta', r2: 'Segunda vuelta',
+    candidatesTitle: 'Los cinco candidatos',
+    inPolls: (v: string, n: number) => `${v} en las encuestas presidenciales · ${n} combinaci${n > 1 ? 'ones' : 'ón'} en 90 días`,
+    neverTested: 'Nunca incluido en una encuesta presidencial',
+    changeTitle: 'Lo que el resultado cambia para la presidencial',
+    changeLede: 'Comparamos dos combinaciones de una misma encuesta, con las mismas personas, donde solo cambia el candidato socialdemócrata. Es la medida más directa de lo que pesaría cada ganador.',
+    h2hHead: (n: string, ref: string) => `${n} en lugar de ${ref}`,
+    h2hBody: (n: string, v: string, ref: string, rv: string, k: number) => `${n} obtiene ${v} donde ${ref} obtiene ${rv} (${k} comparación${k > 1 ? 'es' : ''} en una misma encuesta).`,
+    movers: 'Alrededor, los resultados se mueven así:',
+    thin: 'Una sola comparación: un orden de magnitud, no una medida.',
+    noH2h: (n: string) => `${n} nunca se ha medido frente a Glucksmann en una misma encuesta: todavía no hay medida posible.`,
+    hollandeTitle: '¿Y François Hollande?',
+    hollandeBody: (v: string, n: number) => `No es candidato en las primarias, pero los institutos aún lo incluyen: ${v} de media en ${n} combinaciones en 90 días.`,
+    voteTitle: 'Quién vota y cómo',
+    debatesTitle: 'Los debates',
+    outTitle: 'Fuera de la carrera',
+    effectLink: 'El efecto de cada candidatura, en detalle',
+    back: 'Nuestro pronóstico presidencial',
+    candidatesLink: 'Todos los candidatos',
+  },
+}[locale];
+
+const bestAlt = primaryRows.find((r) => r.id !== REF && r.h2h && r.h2h.n >= 3);
+const effectHref = { fr: '/fr/france/effet-candidature/', en: '/en/france/candidacy-effect/', es: '/es/france/efecto-candidatura/' }[locale];
+const ptsAbs = (v: number) => `${nf.format(Math.abs(v))} pt${Math.abs(v) >= 2 ? 's' : ''}`;
+const maxMove = Math.max(1, ...primaryRows.flatMap((r) => (r.swap?.movers ?? []).map((m: any) => Math.abs(m.delta.mean))));
+---
+
+<JurisdictionNav webKey="france" lang={locale} active="projection" />
+
+<article class="fps" data-content-area>
+  <header class="fps-head container">
+    <p class="fps-kicker">{C.kicker}</p>
+    <h1>{C.h1}</h1>
+    <p class="fps-lede">{C.lede}</p>
+    <div class="fps-cards">
+      {favorite?.weight && (
+        <div class="fps-card">
+          <span class="fps-label">{C.favLabel}</span>
+          <p class="fps-big">{favorite.short} <b>{pct(favorite.weight.mean)}</b></p>
+          <p>{C.favBody(favorite.short, pct(favorite.weight.mean), favorite.weight.n)}</p>
+        </div>
+      )}
+      {bestAlt?.h2h && (
+        <div class="fps-card">
+          <span class="fps-label">{C.swapLabel(bestAlt.short)}</span>
+          <p class="fps-big">{bestAlt.short} <b>{pct(bestAlt.h2h.mine)}</b></p>
+          <p>{C.swapBody(bestAlt.short, pct(bestAlt.h2h.mine), shortOf(REF), pct(bestAlt.h2h.ref))}</p>
+        </div>
+      )}
+      {refQ && second && gap !== null && gap > 0 && (
+        <div class="fps-card">
+          <span class="fps-label">{C.qualLabel}</span>
+          <p class="fps-big">{shortOf(REF)} <b>−{ptsAbs(gap)}</b></p>
+          <p>{C.qualBody(shortOf(REF), ptsAbs(gap), second.name, pct(second.mean))}</p>
+        </div>
+      )}
+    </div>
+    <div class="fps-countdown">
+      <ElectionCountdown targetDate={PS_PRIMARY.firstRound.start} locale={locale} title={C.countdown} client:load />
+    </div>
+  </header>
+
+  {hasResults && (
+    <section class="fps-section container" aria-labelledby="fps-results">
+      <h2 id="fps-results">{C.resultsTitle}</h2>
+      {[['r2', res.secondRound], ['r1', res.firstRound]].filter(([, r]) => r).map(([k, r]) => (
+        <div class="fps-results">
+          <h3>{k === 'r1' ? C.r1 : C.r2}</h3>
+          <ul class="fps-bars">
+            {(r as any[]).map((x) => (
+              <li>
+                <span class="fps-name">{shortOf(x.id)}</span>
+                <span class="fps-track"><span class="fps-fill" style={`width:${x.share}%;background:${blocHex(blocOf(x.id))}`} /></span>
+                <span class="fps-val">{pct(x.share)}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </section>
+  )}
+
+  <section class="fps-section container" aria-labelledby="fps-cands">
+    <h2 id="fps-cands">{C.candidatesTitle}</h2>
+    <ul class="fps-cand-list">
+      {primaryRows.map((r) => (
+        <li>
+          <a href={`${candBase}/${r.slug}/`}>
+            <span class="fps-swatch" style={`background:${blocHex(blocOf(r.id))}`} />
+            <span class="fps-cand-name">{r.name}</span>
+            <span class="fps-cand-role">{r.role[locale]}</span>
+            <span class="fps-cand-polls">{r.weight ? C.inPolls(pct(r.weight.mean), r.weight.n) : C.neverTested}</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  <section class="fps-section container" aria-labelledby="fps-change">
+    <h2 id="fps-change">{C.changeTitle}</h2>
+    <p class="fps-help">{C.changeLede}</p>
+    <div class="fps-grid">
+      {primaryRows.filter((r) => r.id !== REF).map((r) => (
+        <div class="fps-card">
+          <h3>{C.h2hHead(r.short, shortOf(REF))}</h3>
+          {r.h2h ? (
+            <>
+              <p>{C.h2hBody(r.short, pct(r.h2h.mine), shortOf(REF), pct(r.h2h.ref), r.h2h.n)}</p>
+              {r.swap && r.swap.movers.length > 0 && (
+                <>
+                  <p class="fps-small">{C.movers}</p>
+                  <ul class="fps-diverge">
+                    {r.swap.movers.map((m: any) => {
+                      // Le moteur oriente « alternative à la place de la référence » ;
+                      // si Glucksmann est l'alternative, on inverse le signe.
+                      const v = r.swap.base.id === REF ? m.delta.mean : -m.delta.mean;
+                      return (
+                        <li>
+                          <span class="fps-name">{m.short}</span>
+                          <span class="fps-axis"><span class={`fps-half ${v < 0 ? 'is-neg' : 'is-pos'}`}><span class="fps-fill" style={`width:${(Math.abs(v) / maxMove) * 100}%;background:${blocHex(m.bloc)}`} /></span></span>
+                          <span class="fps-val">{signed(v)}</span>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </>
+              )}
+              {r.h2h.n < 3 && <p class="fps-small">{C.thin}</p>}
+            </>
+          ) : <p>{C.noH2h(r.short)}</p>}
+        </div>
+      ))}
+    </div>
+    <a class="fps-link" href={effectHref}>{C.effectLink} →</a>
+  </section>
+
+  {hollande && (
+    <section class="fps-section container" aria-labelledby="fps-hollande">
+      <h2 id="fps-hollande">{C.hollandeTitle}</h2>
+      <p class="fps-text">{C.hollandeBody(pct(hollande.mean), hollande.n)}</p>
+    </section>
+  )}
+
+  <section class="fps-section container fps-practical" aria-labelledby="fps-vote">
+    <div>
+      <h2 id="fps-vote">{C.voteTitle}</h2>
+      <ul class="fps-text">{PS_PRIMARY.howToVote[locale].map((t) => <li>{t}</li>)}</ul>
+    </div>
+    <div>
+      <h2>{C.debatesTitle}</h2>
+      <ul class="fps-text">
+        {PS_PRIMARY.debates.map((d) => <li><b>{d.date ? day(d.date) : d.note?.[locale]}</b> — {d.where}</li>)}
+      </ul>
+      <h2>{C.outTitle}</h2>
+      <p class="fps-text">{PS_PRIMARY.outOfRace[locale]}</p>
+    </div>
+  </section>
+
+  <section class="fps-section container">
+    <p class="fps-links">
+      <a href={`/${locale}/france/`}>{C.back} →</a>
+      <a href={candBase}>{C.candidatesLink} →</a>
+    </p>
+  </section>
+</article>
+
+<style>
+  .fps { padding-block: 48px 96px; }
+  .fps-head { max-width: 1080px; }
+  .fps-kicker { margin: 0 0 14px; font-family: var(--mono); font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-3); }
+  .fps-head h1 { margin: 0 0 16px; font-family: var(--serif); font-size: clamp(34px, 5.5vw, 62px); font-weight: 420; line-height: 1.03; letter-spacing: -0.02em; max-width: 900px; }
+  .fps-lede { max-width: 700px; margin: 0 0 22px; color: var(--ink-2); font-size: 17px; line-height: 1.6; }
+  .fps-cards, .fps-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+  .fps-card { border: 1px solid var(--rule); border-radius: 6px; background: var(--card); padding: 16px 18px; color: var(--ink-2); font-size: 15px; line-height: 1.55; }
+  .fps-card p { margin: 0 0 8px; }
+  .fps-card h3 { margin: 0 0 8px; font-family: var(--serif); font-size: 20px; font-weight: 450; color: var(--ink); }
+  .fps-label { display: block; margin-bottom: 8px; font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-3); }
+  .fps-big { font-family: var(--serif); font-size: 24px; color: var(--ink); }
+  .fps-big b { font-family: var(--mono); font-size: 20px; }
+  .fps-countdown { margin-top: 20px; }
+  .fps-section { max-width: 1080px; margin-top: 48px; }
+  .fps-section h2 { margin: 0 0 14px; font-family: var(--serif); font-size: clamp(24px, 3vw, 34px); font-weight: 430; }
+  .fps-help { max-width: 700px; margin: 0 0 18px; font-family: var(--mono); font-size: 12px; line-height: 1.6; color: var(--ink-3); }
+  .fps-small { font-family: var(--mono); font-size: 11px; color: var(--ink-3); }
+  .fps-text { max-width: 720px; color: var(--ink-2); line-height: 1.7; padding-left: 18px; }
+  p.fps-text { padding-left: 0; }
+  .fps-cand-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 10px; }
+  .fps-cand-list a { display: grid; grid-template-columns: 12px 1fr; gap: 2px 10px; align-items: center; border: 1px solid var(--rule); border-radius: 6px; background: var(--card); padding: 12px 14px; color: inherit; text-decoration: none; }
+  .fps-cand-list a:hover { border-color: var(--ink); }
+  .fps-swatch { width: 12px; height: 12px; border-radius: 3px; grid-row: 1; }
+  .fps-cand-name { font-family: var(--serif); font-size: 18px; color: var(--ink); }
+  .fps-cand-role, .fps-cand-polls { grid-column: 2; font-family: var(--mono); font-size: 11px; color: var(--ink-3); }
+  .fps-cand-polls { color: var(--ink-2); }
+  .fps-bars, .fps-diverge { list-style: none; margin: 0; padding: 0; display: grid; gap: 7px; }
+  .fps-bars li { display: grid; grid-template-columns: 96px 1fr 56px; gap: 10px; align-items: center; }
+  .fps-diverge li { display: grid; grid-template-columns: 84px 1fr 44px; gap: 10px; align-items: center; }
+  .fps-name { font-family: var(--mono); font-size: 12px; color: var(--ink); }
+  .fps-track { position: relative; height: 14px; background: var(--paper-2); border-radius: 3px; overflow: hidden; }
+  .fps-fill { position: absolute; inset-block: 0; left: 0; border-radius: 3px; min-width: 2px; background: var(--ink-3); }
+  .fps-axis { position: relative; height: 14px; display: grid; grid-template-columns: 1fr 1fr; }
+  .fps-axis::before { content: ''; position: absolute; left: 50%; top: -3px; bottom: -3px; width: 1px; background: var(--ink-4); }
+  .fps-half { position: relative; grid-column: 2; height: 14px; }
+  .fps-half.is-neg { grid-column: 1; }
+  .fps-half.is-neg .fps-fill { left: auto; right: 0; }
+  .fps-val { font-family: var(--mono); font-size: 12px; color: var(--ink); text-align: right; }
+  .fps-results h3 { font-family: var(--serif); font-size: 20px; font-weight: 450; margin: 0 0 10px; }
+  .fps-practical { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px 40px; }
+  .fps-link, .fps-links a { font-family: var(--mono); font-size: 12px; color: var(--ink-2); }
+  .fps-link { display: inline-block; margin-top: 16px; }
+  .fps-links { display: flex; flex-wrap: wrap; gap: 18px; }
+</style>

@@ -1,0 +1,40 @@
+---
+import EditorialLayout from '../../../layouts/EditorialLayout.astro';
+import FrancePsPrimary from '../../../components/FrancePsPrimary.astro';
+import polls from '../../../../web_data/france-presidential/polls.json';
+import latest from '../../../../web_data/france-presidential/latest.json';
+
+// Description : le poids de Glucksmann dans les sondages des 90 derniers jours.
+const run = Date.parse(`${(latest as any).meta.run_date}T12:00:00Z`);
+const shares = (((polls as any).first_round ?? []) as any[])
+  .filter((r) => r.field_end && (run - Date.parse(`${r.field_end}T12:00:00Z`)) / 86_400_000 <= 90)
+  .flatMap((r) => (r.entries ?? []).filter((e: any) => e.id === 'left_glucksmann').map((e: any) => Number(e.share)));
+const mean = shares.length ? shares.reduce((a, b) => a + b, 0) / shares.length : null;
+const fav = mean === null ? null : { short: 'Glucksmann', v: `${mean.toFixed(1).replace('.', ',')} %` };
+const lead = fav ? `${fav.short} pèse ${fav.v} dans les sondages présidentiels. ` : '';
+const canonical = 'https://vote-scope.com/fr/france/primaire-socialiste/';
+---
+
+<EditorialLayout
+  title="Primaire socialiste 2026 : candidats, dates, sondages et enjeux pour 2027 — Vote-Scope"
+  description={`Primaire socialiste des 9-10 et 16-17 octobre : Glucksmann, Faure, Royal, Guedj, Maurel. ${lead}Qui vote, comment, et ce que le vainqueur change pour la présidentielle 2027.`}
+  canonical={canonical}
+  lang="fr"
+  currentPage="france"
+  ogImage="https://vote-scope.com/og/france-desk/fr.png"
+  alternates={{ en: 'https://vote-scope.com/en/france/socialist-primary/', fr: 'https://vote-scope.com/fr/france/primaire-socialiste/', es: 'https://vote-scope.com/es/france/primarias-socialistas/' }}
+  jsonLd={[{
+    '@context': 'https://schema.org',
+    '@type': 'Event',
+    name: 'Primaire socialiste 2026 ',
+    startDate: '2026-10-09',
+    endDate: '2026-10-17',
+    eventAttendanceMode: 'https://schema.org/OnlineEventAttendanceMode',
+    eventStatus: 'https://schema.org/EventScheduled',
+    location: { '@type': 'VirtualLocation', url: 'https://parti-socialiste.fr/actualites/participe-a-la-primaire-socialiste/' },
+    organizer: { '@type': 'Organization', name: 'Parti socialiste', url: 'https://parti-socialiste.fr' },
+    url: canonical,
+  }]}
+>
+  <FrancePsPrimary locale="fr" />
+</EditorialLayout>
