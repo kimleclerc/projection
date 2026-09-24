@@ -245,7 +245,7 @@ const threeSegs = (q: QuotedRow): Seg[] => [
 ].filter((x) => x.n > 0);
 const ratingRows = [
   ...(Object.keys(ourCounts).length ? [{ name: copy.ours, url: null as string | null, as_of: ours.as_of, segs: sevenSegs(ourCounts), ours: true }] : []),
-  ...jur.quoted.filter((q) => q.unit === 'cotes')
+  ...jur.quoted.filter((q) => q.unit === 'cotes' || q.ratings)
     .map((q) => ({ name: q.name, url: q.url, as_of: q.as_of, segs: q.ratings ? sevenSegs(q.ratings) : threeSegs(q), ours: false })),
 ].map((r) => {
   const total = r.segs.reduce((t, x) => t + x.n, 0);
