@@ -10,6 +10,7 @@ const { locale } = Astro.props;
 
 const all = getAllCandidates();
 const declared = all.filter((c) => c.status === 'declared');
+const primary = all.filter((c) => c.status === 'primary');
 const probable = all.filter((c) => c.status === 'probable');
 const candBase = franceCandBase(locale);
 
@@ -17,8 +18,9 @@ const COPY = {
   fr: {
         kicker: 'Présidentielle 2027 · Candidats',
         title: 'Le champ des candidats.',
-        dek: `Une page par candidat : bio, intentions de vote au premier tour et duels de second tour. ${declared.length} candidatures déclarées, ${probable.length} probables.`,
+        dek: `Une page par candidat : bio, intentions de vote au premier tour et duels de second tour. ${declared.length} candidatures déclarées, ${primary.length} à la primaire sociale-démocrate (9-17 octobre), ${probable.length} probables.`,
         declared: 'Candidatures déclarées',
+        primary: 'Primaire sociale-démocrate (PS, Place publique) — 9-17 octobre',
         probable: 'Candidatures probables',
         best: 'meilleure hypothèse',
         back: '← Présidentielle 2027',
@@ -26,8 +28,9 @@ const COPY = {
   en: {
         kicker: '2027 Presidential · Candidates',
         title: 'The field of candidates.',
-        dek: `One page per candidate: bio, first-round voting intention and runoff matchups. ${declared.length} declared candidacies, ${probable.length} probable.`,
+        dek: `One page per candidate: bio, first-round voting intention and runoff matchups. ${declared.length} declared candidacies, ${primary.length} in the social-democratic primary (October 9-17), ${probable.length} probable.`,
         declared: 'Declared candidacies',
+        primary: 'Social-democratic primary (PS, Place publique) — October 9-17',
         probable: 'Probable candidacies',
         best: 'best lineup',
         back: '← France Desk',
@@ -35,8 +38,9 @@ const COPY = {
   es: {
         kicker: 'Presidencial 2027 · Candidatos',
         title: 'El campo de candidatos.',
-        dek: `Una página por candidato: biografía, intención de voto en primera vuelta y duelos de segunda vuelta. ${declared.length} candidaturas declaradas, ${probable.length} probables.`,
+        dek: `Una página por candidato: biografía, intención de voto en primera vuelta y duelos de segunda vuelta. ${declared.length} candidaturas declaradas, ${primary.length} en las primarias socialdemócratas (9-17 de octubre), ${probable.length} probables.`,
         declared: 'Candidaturas declaradas',
+        primary: 'Primarias socialdemócratas (PS, Place publique) — 9-17 de octubre',
         probable: 'Candidaturas probables',
         best: 'mejor combinación',
         back: '← Mesa Francia',
@@ -46,6 +50,7 @@ const C = COPY[locale];
 
 const groups = [
   { label: C.declared, items: declared },
+  { label: C.primary, items: primary },
   { label: C.probable, items: probable },
 ];
 ---

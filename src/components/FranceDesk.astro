@@ -146,9 +146,9 @@ const explorerScenarios = buildExplorerCards(scenarios, heroId, locale);
 const heroProvenance = scenarioProvenance(heroCard, locale);
 
 const registry = candidates
-  .filter((c) => ['declared', 'probable'].includes(c.status))
+  .filter((c) => ['declared', 'primary', 'probable'].includes(c.status))
   .sort((a, b) => {
-    const order: Record<string, number> = { declared: 0, probable: 1 };
+    const order: Record<string, number> = { declared: 0, primary: 1, probable: 2 };
     const s = (order[a.status] ?? 9) - (order[b.status] ?? 9);
     if (s !== 0) return s;
     return (b.default_first_round_mean ?? 0) - (a.default_first_round_mean ?? 0);

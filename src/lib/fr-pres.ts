@@ -104,6 +104,9 @@ const PARTY_ABBR: Record<string, string> = {
   horizons: 'Horizons', lr: 'LR', nous_france: 'Nous France', humanist_france: 'La France humaniste',
   lfi: 'LFI', ps: 'PS', ps_place_publique: 'Place publique', la_convention: 'La Convention',
   pcf: 'PCF', picardie_debout: 'Picardie debout', lo: 'LO', npa: 'NPA', dlf: 'DLF', upr: 'UPR',
+  grs: 'GRS', nouvelle_energie: 'Nouvelle Énergie', les_patriotes: 'Les Patriotes',
+  generation_ecologie: 'Génération écologie', revolution_permanente: 'Révolution permanente',
+  france_libre: 'France Libre', elvita: 'Elvita', trajectoire: 'Trajectoire',
 };
 
 export function blocLabel(bloc: string, locale: Locale, partyFamily?: string): string {
@@ -115,6 +118,7 @@ export function blocLabel(bloc: string, locale: Locale, partyFamily?: string): s
 export const STATUS_LABELS: Record<string, { fr: string; en: string; es: string }> = {
   declared: { fr: 'Candidature déclarée', en: 'Declared', es: 'Candidatura declarada' },
   probable: { fr: 'Probable', en: 'Probable', es: 'Probable' },
+  primary: { fr: 'Primaire PS', en: 'PS primary', es: 'Primarias PS' },
   testing: { fr: 'Testé·e', en: 'Tested', es: 'En encuestas' },
   withdrawn: { fr: 'Retiré·e', en: 'Withdrawn', es: 'Retirado·a' },
 };
