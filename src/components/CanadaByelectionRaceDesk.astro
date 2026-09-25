@@ -211,7 +211,7 @@ const jsonLd = [
       { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: `https://vote-scope.com/${lang}/` },
       { '@type': 'ListItem', position: 2, name: sectionLabel, item: `https://vote-scope.com${sectionPath}` },
       { '@type': 'ListItem', position: 3, name: hubLabel, item: `https://vote-scope.com${hubPath}` },
-      { '@type': 'ListItem', position: 4, name: data.district?.name ?? config.slug, item: canonical },
+      { '@type': 'ListItem', position: 4, name: config.ridingName?.[lang] ?? data.district?.name ?? config.slug, item: canonical },
     ],
   },
 ];
@@ -234,7 +234,7 @@ const fromTitle = (config.title[lang] ?? '')
   .split(/\s+(?:By-Election|Partielle|Parcial|by-election)/i)[0]
   .split(' — ')[0]
   .trim();
-const ridingName = data.district?.name ?? (fromTitle || prettySlug(config.slug));
+const ridingName = config.ridingName?.[lang] ?? data.district?.name ?? (fromTitle || prettySlug(config.slug));
 ---
 
 <Base
@@ -430,7 +430,7 @@ const ridingName = data.district?.name ?? (fromTitle || prettySlug(config.slug))
           <li><a href={s.url} rel="noopener">{s.label}</a></li>
         ))}
         {localPoll?.source_url && (
-          <li><a href={localPoll.source_url} rel="noopener">{titleCase(localPoll.firm)} — {data.district?.name ?? config.slug} ({localPoll.field_end ?? localPoll.release_date})</a></li>
+          <li><a href={localPoll.source_url} rel="noopener">{titleCase(localPoll.firm)} — {ridingName} ({localPoll.field_end ?? localPoll.release_date})</a></li>
         )}
         <li><a href="https://www.elections.ca/" rel="noopener">Elections Canada</a></li>
       </ol>

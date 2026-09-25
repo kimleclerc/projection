@@ -22,6 +22,9 @@ export interface ByelectionRaceConfig {
   electionDate: string | null;
   vacancyDate: string | null;
   province: string;
+  /** Nom officiel par langue quand l'anglais diffère du français (Elections
+   *  Canada publie les deux) ; à défaut, le nom français du moteur. */
+  ridingName?: L<string>;
   /** Événement de résultats live, absent hors soirée électorale prise en charge. */
   liveEventId?: string;
   // The engine keys races by the jurisdiction's OWN district number (Ontario
@@ -78,9 +81,9 @@ export const canadaByelectionRaces = {
       es: 'Alexandre Boulerice mantenía 40,5 % mientras su partido lograba 4,5 % en Quebec. Vote-Scope separa al hombre de la circunscripción — y encuentra un suelo progresista que no se va con él.',
     },
     kicker: {
-      en: 'Federal by-election · Quebec · expected',
-      fr: 'Partielle fédérale · Québec · anticipée',
-      es: 'Parcial federal · Quebec · prevista',
+      en: 'Federal by-election · Quebec · seat vacant',
+      fr: 'Partielle fédérale · Québec · siège vacant',
+      es: 'Parcial federal · Quebec · escaño vacante',
     },
     headline: {
       en: 'One man, one seat.',
@@ -215,9 +218,9 @@ export const canadaByelectionRaces = {
       es: 'Steven Guilbeault anunció que renunciará en el verano de 2026 para luchar contra el cambio climático fuera del Parlamento. El escaño estaba por debajo de la media liberal antes de él.',
     },
     kicker: {
-      en: 'Federal by-election · Quebec · expected',
-      fr: 'Partielle fédérale · Québec · anticipée',
-      es: 'Parcial federal · Quebec · prevista',
+      en: 'Federal by-election · Quebec · seat vacant',
+      fr: 'Partielle fédérale · Québec · siège vacant',
+      es: 'Parcial federal · Quebec · escaño vacante',
     },
     headline: {
       en: 'Leaving to campaign elsewhere.',
@@ -281,9 +284,9 @@ export const canadaByelectionRaces = {
       es: 'Cathay Wagantall renuncia con efecto el 31 de agosto de 2026, dejando el escaño más seguro de los ocho: los conservadores lograron 77 % aquí en 2025.',
     },
     kicker: {
-      en: 'Federal by-election · Saskatchewan · expected',
-      fr: 'Partielle fédérale · Saskatchewan · anticipée',
-      es: 'Parcial federal · Saskatchewan · prevista',
+      en: 'Federal by-election · Saskatchewan · seat vacant',
+      fr: 'Partielle fédérale · Saskatchewan · siège vacant',
+      es: 'Parcial federal · Saskatchewan · escaño vacante',
     },
     headline: {
       en: 'The safest of the eight.',
@@ -328,24 +331,29 @@ export const canadaByelectionRaces = {
     ridingId: '35015',
     dataPath: 'canada-byelection-brantford-brant-sud-six-nations',
     currentPage: 'canada',
-    status: 'expected',
+    status: 'vacant_pending_writ',
     electionDate: null,
-    vacancyDate: null,
+    vacancyDate: '2026-09-18',
     province: 'ON',
+    ridingName: {
+      en: 'Brantford—Brant South—Six Nations',
+      fr: 'Brantford—Brant-Sud—Six Nations',
+      es: 'Brantford—Brant South—Six Nations',
+    },
     title: {
       en: 'Brantford—Brant South—Six Nations By-Election Forecast — Vote-Scope',
       fr: 'Partielle de Brantford—Brant-Sud—Six Nations : projection — Vote-Scope',
       es: 'Parcial de Brantford—Brant South—Six Nations: proyección — Vote-Scope',
     },
     description: {
-      en: 'Larry Brock resigns September 18, 2026 to return to the Crown attorney’s office. The Conservatives won here by 11 points in 2025 — and this is the first of the eight pending by-elections the model does not call for the incumbent party.',
-      fr: 'Larry Brock démissionne le 18 septembre 2026 pour retourner au bureau du procureur de la Couronne. Les conservateurs ont gagné ici par 11 points en 2025 — et c’est la première des huit partielles en attente que le modèle ne donne pas au parti sortant.',
-      es: 'Larry Brock renuncia el 18 de septiembre de 2026 para volver a la fiscalía de la Corona. Los conservadores ganaron aquí por 11 puntos en 2025 — y es la primera de las ocho parciales pendientes que el modelo no adjudica al partido saliente.',
+      en: 'Larry Brock resigned on September 18, 2026 to return to the Crown attorney’s office. The Conservatives won here by 11 points in 2025 — and this is the first of the eight pending by-elections the model does not call for the incumbent party.',
+      fr: 'Larry Brock a démissionné le 18 septembre 2026 pour retourner au bureau du procureur de la Couronne. Les conservateurs ont gagné ici par 11 points en 2025 — et c’est la première des huit partielles en attente que le modèle ne donne pas au parti sortant.',
+      es: 'Larry Brock renunció el 18 de septiembre de 2026 para volver a la fiscalía de la Corona. Los conservadores ganaron aquí por 11 puntos en 2025 — y es la primera de las ocho parciales pendientes que el modelo no adjudica al partido saliente.',
     },
     kicker: {
-      en: 'Federal by-election · Ontario · expected',
-      fr: 'Partielle fédérale · Ontario · anticipée',
-      es: 'Parcial federal · Ontario · prevista',
+      en: 'Federal by-election · Ontario · seat vacant',
+      fr: 'Partielle fédérale · Ontario · siège vacant',
+      es: 'Parcial federal · Ontario · escaño vacante',
     },
     headline: {
       en: 'The first one that is actually in play.',
@@ -359,17 +367,17 @@ export const canadaByelectionRaces = {
     },
     why: {
       en: [
-        'Larry Brock announced on August 6, 2026 that he will resign effective September 18, to return to the Crown attorney’s office in Brantford.',
+        'Larry Brock announced on August 6, 2026 that he would resign; his seat has been vacant since September 18. He is returning to the Crown attorney’s office in Brantford.',
         'He is the seventh MP to leave the Conservative caucus since the 2025 election — four of them crossed to the Liberals.',
         'Conservative share versus the Ontario-wide Conservative vote: +5.8 points in 2015 and +7.2 in 2019, both before Brock was elected. The premium predates him, so little of it is personal.',
       ],
       fr: [
-        'Larry Brock a annoncé le 6 août 2026 sa démission, effective le 18 septembre, pour retourner au bureau du procureur de la Couronne à Brantford.',
+        'Larry Brock a annoncé sa démission le 6 août 2026 ; son siège est vacant depuis le 18 septembre. Il retourne au bureau du procureur de la Couronne à Brantford.',
         'Il est le septième député à quitter le caucus conservateur depuis la générale de 2025 — quatre d’entre eux ont traversé chez les libéraux.',
         'Part conservatrice par rapport au vote conservateur ontarien : +5,8 points en 2015 et +7,2 en 2019, avant son élection dans les deux cas. La prime le précède : peu de chose y est personnel.',
       ],
       es: [
-        'Larry Brock anunció el 6 de agosto de 2026 su renuncia, efectiva el 18 de septiembre, para volver a la fiscalía de la Corona en Brantford.',
+        'Larry Brock anunció su renuncia el 6 de agosto de 2026; su escaño está vacante desde el 18 de septiembre. Vuelve a la fiscalía de la Corona en Brantford.',
         'Es el séptimo diputado en dejar el caucus conservador desde las generales de 2025 — cuatro de ellos se pasaron a los liberales.',
         'Cuota conservadora frente al voto conservador de Ontario: +5,8 puntos en 2015 y +7,2 en 2019, en ambos casos antes de su elección. La prima es anterior a él: poco de ella es personal.',
       ],
@@ -394,6 +402,11 @@ export const canadaByelectionRaces = {
     electionDate: null,
     vacancyDate: '2026-08-15',
     province: 'ON',
+    ridingName: {
+      en: 'Scarborough North',
+      fr: 'Scarborough-Nord',
+      es: 'Scarborough North',
+    },
     title: {
       en: 'Scarborough North By-Election Forecast — Vote-Scope',
       fr: 'Partielle de Scarborough-Nord : projection — Vote-Scope',
@@ -405,9 +418,9 @@ export const canadaByelectionRaces = {
       es: 'Shaun Chen renuncia como diputado liberal el 15 de agosto de 2026. Vote-Scope proyecta la próxima parcial de Scarborough Norte, que los liberales ganaron con el 62,4 % en 2025.',
     },
     kicker: {
-      en: 'Federal by-election · Ontario · expected',
-      fr: 'Partielle fédérale · Ontario · anticipée',
-      es: 'Parcial federal · Ontario · prevista',
+      en: 'Federal by-election · Ontario · seat vacant',
+      fr: 'Partielle fédérale · Ontario · siège vacant',
+      es: 'Parcial federal · Ontario · escaño vacante',
     },
     headline: {
       en: 'The safest Liberal vacancy yet.',

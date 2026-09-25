@@ -183,7 +183,7 @@ const canonical = `https://vote-scope.com/${lang}/canada/byelections/`;
             return (
               <a href={race.paths[lang]} class={`byhub-card${group.live ? ' byhub-card--live' : ''}`} style={`--accent:${PARTY_COLOR[fav] ?? 'var(--rule)'}`}>
                 <span class="byhub-card-kicker">{race.province}</span>
-                <h2>{d?.riding_name_fr ?? race.slug}</h2>
+                <h2>{race.ridingName?.[lang] ?? d?.riding_name_fr ?? race.slug}</h2>
                 <p class="byhub-card-dek">{race.headline[lang]}</p>
                 {fav && (
                   <p class="byhub-card-fav">
