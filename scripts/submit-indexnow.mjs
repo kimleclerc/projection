@@ -49,6 +49,10 @@ const CURATED = [
   '/en/canada/', '/fr/canada/', '/es/canada/',
   '/en/canada/federal', '/fr/canada/federal', '/es/canada/federal',
   '/en/canada/quebec', '/fr/canada/quebec', '/es/canada/quebec',
+  // Soirée du 5 octobre 2026 : la page de résultats doit être connue des
+  // moteurs AVANT le scrutin — une URL créée le soir même ne se classe pas
+  // le soir même.
+  '/fr/canada/quebec/resultats/', '/en/canada/quebec/results/', '/es/canada/quebec/resultados/',
   '/en/canada/ontario', '/fr/canada/ontario', '/es/canada/ontario',
   // Colombie-Britannique — desk ouvert le 2026-09-18, dans un contexte de
   // scrutin anticipé possible : la projection et le hub de sondages bougent à
