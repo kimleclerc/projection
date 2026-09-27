@@ -47,7 +47,7 @@ const LABEL_RIDINGS = { en: 'Ridings', fr: 'Circonscriptions', es: 'Distritos' }
 /** Generic labels for sections whose wording doesn't vary by jurisdiction. */
 export const SECTION_LABEL: Record<'projection' | 'polls', Record<NavLang, string>> = {
   projection: { en: 'Forecast', fr: 'Prévision', es: 'Pronóstico' },
-  polls: { en: 'Polls', fr: 'Sondages', es: 'Sondeos' },
+  polls: { en: 'Polls', fr: 'Sondages', es: 'Encuestas' },
 };
 
 const GROUP_US = { en: 'United States', fr: 'États-Unis', es: 'EE. UU.' };
@@ -139,6 +139,21 @@ export const JURISDICTION_NAV: JurisdictionNavEntry[] = [
     },
   },
   {
+    webKey: 'british-columbia', langs: ['en', 'fr', 'es'], group: GROUP_CA,
+    label: { en: 'British Columbia', fr: 'Colombie-Britannique', es: 'Columbia Británica' },
+    base: {
+      en: '/en/canada/british-columbia',
+      fr: '/fr/canada/colombie-britannique',
+      es: '/es/canada/columbia-britanica',
+    },
+    sections: {
+      projection: { seg: SEG_NONE },
+      polls: { seg: SEG_POLLS },
+      districts: { seg: SEG_RIDINGS, label: LABEL_RIDINGS },
+      uncertainty: { seg: SEG_UNCERTAINTY, label: LABEL_UNCERTAINTY },
+    },
+  },
+  {
     webKey: 'uk', langs: ['en', 'fr', 'es'], group: GROUP_UK,
     label: { en: 'United Kingdom', fr: 'Royaume-Uni', es: 'Reino Unido' },
     base: { en: '/en/uk', fr: '/fr/uk', es: '/es/uk' },
@@ -194,6 +209,7 @@ const RIDING_JURISDICTION_TO_KEY: Record<string, string> = {
   'federal-ca': 'federal',
   quebec: 'quebec',
   ontario: 'ontario',
+  'british-columbia': 'british-columbia',
   'us-house': 'us-house',
   'us-senate': 'us-senate',
   'us-governor': 'us-governor',

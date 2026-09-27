@@ -8,6 +8,11 @@ const jurisdictions = [
   ['federal', 'FEDNUM'],
   ['ontario', 'FEDNUM'],
   ['quebec', 'CO_CEP'],
+  // Colombie-Britannique : la carte porte l'identifiant sous `riding_id`, et
+  // c'est ce que déclare `src/data/jurisdictions.ts`. Sans cette ligne, le
+  // desk se publiait sans que projection, table et géométrie soient jamais
+  // confrontées — les sept autres l'étaient depuis toujours.
+  ['british-columbia', 'riding_id'],
   ['uk', 'FEDNUM'],
   ['us-house', 'FEDNUM'],
   ['us-senate', 'riding_id'],

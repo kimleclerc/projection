@@ -34,6 +34,12 @@ const fmtProb = (p: number) => {
 
 const races = Object.values(ontarioByelectionRaces);
 
+// Le scrutin du 3 septembre est passé : un sous-titre au futur (« nominations
+// close August 20 ») sur une date écoulée décrédibilise toute la page. La copie
+// bascule sur la date réelle plutôt que d'attendre une correction à la main.
+const onPollingDay = (races as any[]).map((r: any) => r.electionDate ?? r.election_date).filter(Boolean).sort()[0] ?? null;
+const onHeld = onPollingDay ? onPollingDay < new Date().toISOString().slice(0, 10) : false;
+
 const t = {
   en: {
     title: 'Ontario By-Elections — September 3, 2026 — Vote-Scope',
@@ -41,7 +47,9 @@ const t = {
       'Three Ontario by-elections called for September 3, 2026: Hamilton East—Stoney Creek, Scarborough Southwest and York—Simcoe. Vote-Scope measures what each departing MPP was personally worth.',
     kicker: 'Ontario Desk · By-elections',
     h1: 'Three seats, three departures.',
-    dek: 'The writs were issued on August 5 for votes on September 3, and nominations close August 20. Two of the three seats are Progressive Conservative, and both are being defended without the member who won them — one of them amid the hotel controversy that cost him his cabinet post.',
+    dek: onHeld
+      ? 'The three seats voted on September 3, 2026. Two were Progressive Conservative and one New Democratic, and all three were defended without the member who won them — one of them amid the hotel controversy that cost him his cabinet post. Official results are pending validation by Elections Ontario.'
+      : 'The writs were issued on August 5 for votes on September 3, and nominations close August 20. Two of the three seats are Progressive Conservative, and both are being defended without the member who won them — one of them amid the hotel controversy that cost him his cabinet post.',
     label: 'Called — September 3, 2026',
     favorite: 'Favourite',
     view: 'View forecast →',
@@ -58,7 +66,9 @@ const t = {
       'Trois partielles ontariennes déclenchées pour le 3 septembre 2026 : Hamilton-Est—Stoney Creek, Scarborough-Sud-Ouest et York—Simcoe. Vote-Scope mesure ce que valait personnellement chaque députée ou député sortant.',
     kicker: 'Bureau Ontario · Partielles',
     h1: 'Trois sièges, trois départs.',
-    dek: 'Les brefs ont été émis le 5 août pour des scrutins le 3 septembre, et les mises en candidature closent le 20 août. Deux des trois sièges sont progressistes-conservateurs, et tous deux se défendent sans la personne qui les a gagnés — dont l’un dans la controverse des hôtels qui lui a coûté son poste au cabinet.',
+    dek: onHeld
+      ? 'Les trois sièges ont voté le 3 septembre 2026. Deux étaient progressistes-conservateurs et un néo-démocrate, et les trois se défendaient sans la personne qui les avait gagnés — dont l’un dans la controverse des hôtels qui lui a coûté son poste au cabinet. Les résultats officiels restent à valider par Élections Ontario.'
+      : 'Les brefs ont été émis le 5 août pour des scrutins le 3 septembre, et les mises en candidature closent le 20 août. Deux des trois sièges sont progressistes-conservateurs, et tous deux se défendent sans la personne qui les a gagnés — dont l’un dans la controverse des hôtels qui lui a coûté son poste au cabinet.',
     label: 'Déclenchées — 3 septembre 2026',
     favorite: 'Favori',
     view: 'Voir la projection →',
@@ -75,7 +85,9 @@ const t = {
       'Tres parciales de Ontario convocadas para el 3 de septiembre de 2026: Hamilton East—Stoney Creek, Scarborough Southwest y York—Simcoe. Vote-Scope mide cuánto valía personalmente cada diputado saliente.',
     kicker: 'Oficina Ontario · Parciales',
     h1: 'Tres escaños, tres salidas.',
-    dek: 'Los decretos se emitieron el 5 de agosto para votar el 3 de septiembre, y las candidaturas cierran el 20 de agosto. Dos de los tres escaños son progresistas conservadores, y ambos se defienden sin quien los ganó — uno de ellos en medio de la controversia de los hoteles que le costó su puesto en el gabinete.',
+    dek: onHeld
+      ? 'Los tres escaños votaron el 3 de septiembre de 2026. Dos eran progresistas conservadores y uno neodemócrata, y los tres se defendieron sin quien los ganó — uno de ellos en medio de la controversia de los hoteles que le costó su puesto en el gabinete. Los resultados oficiales quedan pendientes de validación por Elections Ontario.'
+      : 'Los decretos se emitieron el 5 de agosto para votar el 3 de septiembre, y las candidaturas cierran el 20 de agosto. Dos de los tres escaños son progresistas conservadores, y ambos se defienden sin quien los ganó — uno de ellos en medio de la controversia de los hoteles que le costó su puesto en el gabinete.',
     label: 'Convocadas — 3 de septiembre de 2026',
     favorite: 'Favorito',
     view: 'Ver proyección →',

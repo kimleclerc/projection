@@ -49,6 +49,13 @@ export interface Jurisdiction {
   currentPage: string;
   /** Optional election day for live countdown islands, ISO date. */
   electionDate?: string;
+  /** Countdown copy shown with `electionDate`; required when it is set. */
+  countdown?: { title: JurisdictionLocalized; kicker: JurisdictionLocalized };
+  /** Partis affichés en carte même à zéro siège projeté (les sondeurs les
+   *  suivent à part). Liste explicite : on retire un parti d'une ligne quand
+   *  les sondages le laissent tomber. La barre de sièges, elle, n'affiche
+   *  jamais un segment vide. */
+  showAtZeroSeats?: string[];
 }
 
 export const jurisdictions: Record<string, Jurisdiction> = {
@@ -74,17 +81,17 @@ export const jurisdictions: Record<string, Jurisdiction> = {
     mapSubtitle: {
       fr: "Projection par circonscription basée sur les résultats 2025, les sondages nationaux et les ajustements régionaux.",
       en: 'Riding projection based on 2025 results, national polling and regional adjustments.',
-      es: 'Proyección por distrito basada en los resultados de 2025, los sondeos nacionales y los ajustes regionales.',
+      es: 'Proyección por distrito basada en los resultados de 2025, las encuestas nacionales y los ajustes regionales.',
     },
     pageTitle: {
-      fr: 'Qui va gagner les élections fédérales au Canada ? — Vote-Scope',
-      en: 'Who Will Win the Canadian Federal Election? — Vote-Scope',
-      es: '¿Quién ganará las elecciones federales de Canadá? — Vote-Scope',
+      fr: 'Sondages Carney–Poilievre : Carney est-il aussi fort qu’on le dit ? — Vote-Scope',
+      en: 'Carney Polls: How Strong Is Mark Carney? Canada Federal Forecast — Vote-Scope',
+      es: 'Encuestas de Carney: ¿cuánta fuerza tiene Mark Carney? Pronóstico federal — Vote-Scope',
     },
     metaDescription: {
-      fr: 'Qui va gagner les élections fédérales au Canada? Agrégation de plus de 240 sondages, 50 000 simulations, projection des 343 sièges circonscription par circonscription. Mise à jour quotidienne.',
-      en: 'Who wins the next Canadian federal election? 240+ polls aggregated, 50,000 simulations, all 343 ridings projected seat by seat. Updated daily with every new poll.',
-      es: '¿Quién gana las elecciones federales de Canadá? Más de 240 encuestas agregadas, 50.000 simulaciones, los 343 escaños proyectados distrito por distrito. Actualizado a diario.',
+      fr: 'Mark Carney face à Pierre Poilievre : à quel point les libéraux dominent-ils? Agrégation de plus de 240 sondages, 50 000 simulations, projection des 343 sièges circonscription par circonscription. Mise à jour quotidienne.',
+      en: 'How strong is Mark Carney against Pierre Poilievre? 240+ polls aggregated, 50,000 simulations, all 343 ridings projected seat by seat. Updated daily with every new poll.',
+      es: '¿Qué ventaja tiene Mark Carney frente a Pierre Poilievre? Más de 240 encuestas agregadas, 50.000 simulaciones, los 343 escaños proyectados distrito por distrito. Actualizado a diario.',
     },
     baselineYear: 2025,
     seatsTotal: 343,
@@ -118,7 +125,7 @@ export const jurisdictions: Record<string, Jurisdiction> = {
     mapSubtitle: {
       fr: 'Projection par circonscription basée sur les résultats 2022, les sondages provinciaux et les ajustements régionaux.',
       en: 'Riding projection based on 2022 results, provincial polling and regional adjustments.',
-      es: 'Proyección por distrito basada en los resultados de 2022, los sondeos provinciales y los ajustes regionales.',
+      es: 'Proyección por distrito basada en los resultados de 2022, las encuestas provinciales y los ajustes regionales.',
     },
     pageTitle: {
       fr: 'Qui va gagner les prochaines élections en Ontario ? — Vote-Scope',
@@ -139,6 +146,57 @@ export const jurisdictions: Record<string, Jurisdiction> = {
     parties: ['on_pc', 'on_lib', 'on_ndp', 'on_grn', 'on_oth'],
     slug: { en: 'ontario', fr: 'ontario' },
     currentPage: 'canada',
+  },
+
+  britishColumbia: {
+    id: 'british-columbia',
+    dataPath: 'british-columbia',
+    geoPath: 'british-columbia',
+    heroTitle: {
+      fr: 'Prévision <em>britanno-colombienne</em>',
+      en: 'British Columbia <em>Forecast</em>',
+      es: 'Pronóstico <em>de Columbia Británica</em>',
+    },
+    institution: {
+      fr: 'Composition actuelle de l\'Assemblée législative',
+      en: 'Current Legislative Assembly Composition',
+      es: 'Composición actual de la Asamblea Legislativa',
+    },
+    source: {
+      fr: 'Sources : Elections BC, firmes de sondage publiques',
+      en: 'Sources: Elections BC, public polling firms',
+      es: 'Fuentes: Elections BC, sondeadoras públicas',
+    },
+    mapSubtitle: {
+      fr: 'Projection par circonscription fondée sur les résultats de 2024, les sondages provinciaux et les ajustements régionaux. Le scrutin de 2024 s\'est tenu sur la carte actuelle à 93 sièges.',
+      en: 'Riding projection based on the 2024 results, provincial polling and regional adjustments. The 2024 election was fought on the current 93-seat map.',
+      es: 'Proyección por distrito basada en los resultados de 2024, las encuestas provinciales y los ajustes regionales. La elección de 2024 se celebró con el mapa actual de 93 escaños.',
+    },
+    pageTitle: {
+      fr: 'Élections Colombie-Britannique 2026 : sondages et projection du 24 octobre — Vote-Scope',
+      en: 'BC Election 2026: Polls & Forecast for October 24 — Vote-Scope',
+      es: 'Elecciones provinciales de Columbia Británica 2026: encuestas y pronóstico — Vote-Scope',
+    },
+    metaDescription: {
+      fr: 'Élections anticipées en Colombie-Britannique le 24 octobre 2026 : sondages agrégés et projection des 93 circonscriptions. Le NPD de David Eby face aux conservateurs, rejoints par sept députés de CentreBC, à CentreBC d’Elenore Sturko et à OneBC, après un mois de défections sans précédent. Mise à jour à chaque sondage.',
+      en: 'BC election 2026 on October 24: polls and seat forecast for all 93 ridings. David Eby’s NDP against the BC Conservatives, rejoined by seven CentreBC MLAs, Elenore Sturko’s CentreBC and OneBC after a month of unprecedented defections. Updated with every new poll.',
+      es: 'Elecciones provinciales anticipadas en Columbia Británica el 24 de octubre de 2026: encuestas y pronóstico de los 93 distritos. El NDP de David Eby frente a los conservadores, a los que se han sumado siete diputados de CentreBC, el CentreBC de Elenore Sturko y OneBC, tras un mes de deserciones sin precedentes. Actualizado con cada encuesta.',
+    },
+    baselineYear: 2024,
+    seatsTotal: 93,
+    byelections: false,
+    mapCenter: [54, -125],
+    mapZoom: 5,
+    idProp: 'riding_id',
+    parties: ['bc_ndp', 'bc_con', 'bc_grn', 'bc_onebc', 'bc_centre', 'bc_oth'],
+    showAtZeroSeats: ['bc_centre', 'bc_onebc'],
+    slug: { en: 'british-columbia', fr: 'colombie-britannique' },
+    currentPage: 'canada',
+    electionDate: '2026-10-24',
+    countdown: {
+      title: { fr: 'La Colombie-Britannique vote le 24 octobre.', en: 'British Columbia votes on October 24.', es: 'Columbia Británica vota el 24 de octubre.' },
+      kicker: { fr: 'Compte à rebours C.-B. 2026', en: 'B.C. 2026 countdown', es: 'Cuenta atrás C. B. 2026' },
+    },
   },
 
   quebec: {
@@ -163,12 +221,12 @@ export const jurisdictions: Record<string, Jurisdiction> = {
     mapSubtitle: {
       fr: 'Projection par circonscription basée sur les résultats 2022, les sondages provinciaux et les tendances régionales.',
       en: 'Riding projection based on 2022 results, provincial polling and regional trends.',
-      es: 'Proyección por distrito basada en los resultados de 2022, los sondeos provinciales y las tendencias regionales.',
+      es: 'Proyección por distrito basada en los resultados de 2022, las encuestas provinciales y las tendencias regionales.',
     },
     pageTitle: {
-      fr: 'Qui va gagner les élections du Québec 2026 ? — Vote-Scope',
+      fr: 'Sondages élections Québec 2026 — qui va gagner? — Vote-Scope',
       en: 'Who Will Win the 2026 Quebec Election? — Vote-Scope',
-      es: '¿Quién ganará las elecciones de Quebec 2026? — Vote-Scope',
+      es: 'Encuestas elecciones Quebec 2026 — ¿quién ganará? — Vote-Scope',
     },
     metaDescription: {
       fr: 'Qui va gagner les élections du Québec le 5 octobre 2026? Sondages Léger, Pallas et plus agrégés, projection des 127 circonscriptions de l\'Assemblée nationale, probabilités de majorité. Mise à jour continue.',
@@ -185,6 +243,10 @@ export const jurisdictions: Record<string, Jurisdiction> = {
     slug: { en: 'quebec', fr: 'quebec' },
     currentPage: 'canada',
     electionDate: '2026-10-05',
+    countdown: {
+      title: { fr: 'Le Québec vote le 5 octobre.', en: 'Quebec votes on October 5.', es: 'Quebec vota el 5 de octubre.' },
+      kicker: { fr: 'Compte à rebours Québec 2026', en: 'Quebec 2026 countdown', es: 'Cuenta atrás Quebec 2026' },
+    },
   },
 
   usHouse: {
@@ -212,14 +274,14 @@ export const jurisdictions: Record<string, Jurisdiction> = {
       es: 'Proyección por distrito basada en resultados 2024, entorno nacional y clasificaciones de carrera.',
     },
     pageTitle: {
-      fr: 'Qui contrôlera la Chambre des représentants en 2026 ? — Vote-Scope',
-      en: 'Who Will Control the House After the 2026 Midterms? — Vote-Scope',
-      es: '¿Quién controlará la Cámara tras las intermedias de 2026? — Vote-Scope',
+      fr: 'Midterms 2026 : Trump gardera-t-il la Chambre? Sondages et projection — Vote-Scope',
+      en: '2026 Midterm Elections Forecast: Can Trump Keep the House? — Vote-Scope',
+      es: 'Elecciones intermedias 2026 en EE. UU.: ¿conservará Trump la Cámara? — Vote-Scope',
     },
     metaDescription: {
-      fr: 'Qui contrôlera la Chambre après les mi-mandats 2026? Projection des 435 districts, sondages génériques agrégés, districts qui basculent et probabilités de contrôle. Mise à jour continue.',
-      en: 'Who controls the House after the 2026 midterms? All 435 districts projected, generic-ballot polls aggregated, flip districts and chamber-control odds. Updated continuously.',
-      es: '¿Quién controla la Cámara tras las intermedias de 2026? 435 distritos proyectados, encuestas agregadas, distritos que cambian y probabilidades de control. Actualizado continuamente.',
+      fr: 'Qui contrôlera la Chambre après les mi-mandats 2026? Projection des 435 districts, sondages génériques agrégés, districts qui basculent, probabilités de contrôle et cotes Polymarket en direct. Mise à jour continue.',
+      en: 'Who controls the House after the 2026 midterms? All 435 districts projected, generic-ballot polls aggregated, flip districts, chamber-control odds and live Polymarket prices. Updated continuously.',
+      es: '¿Quién controla la Cámara tras las intermedias de 2026? 435 distritos proyectados, encuestas agregadas, distritos que cambian, probabilidades de control y precios de Polymarket en vivo. Actualizado continuamente.',
     },
     baselineYear: 2024,
     seatsTotal: 435,
@@ -257,14 +319,14 @@ export const jurisdictions: Record<string, Jurisdiction> = {
       es: 'Proyección de escaños en disputa en 2026 (Clase II). Los estados sin carrera este ciclo permanecen en gris.',
     },
     pageTitle: {
-      fr: 'Qui contrôlera le Sénat américain en 2026 ? — Vote-Scope',
-      en: 'Who Will Control the Senate After the 2026 Midterms? — Vote-Scope',
-      es: '¿Quién controlará el Senado tras las intermedias de 2026? — Vote-Scope',
+      fr: 'Midterms 2026 : Trump gardera-t-il le Sénat? Sondages et projection — Vote-Scope',
+      en: '2026 Senate Forecast: Can Trump Keep the Senate in the Midterms? — Vote-Scope',
+      es: 'Elecciones intermedias 2026 en EE. UU.: ¿conservará Trump el Senado? — Vote-Scope',
     },
     metaDescription: {
-      fr: 'Qui contrôlera le Sénat après les mi-mandats 2026? Projection des sièges en jeu État par État, sondages agrégés, États pivots et probabilités de contrôle. Mise à jour continue.',
-      en: 'Who controls the Senate after the 2026 midterms? Every seat up projected state by state, polls aggregated, tipping-point states and chamber-control odds. Updated continuously.',
-      es: '¿Quién controla el Senado tras las intermedias de 2026? Escaños en disputa proyectados estado por estado, encuestas agregadas y probabilidades de control. Actualizado continuamente.',
+      fr: 'Qui contrôlera le Sénat après les mi-mandats 2026? Projection des sièges en jeu État par État, sondages agrégés, États pivots, probabilités de contrôle et cotes Polymarket en direct. Mise à jour continue.',
+      en: 'Who controls the Senate after the 2026 midterms? Every seat up projected state by state, polls aggregated, tipping-point states, chamber-control odds and live Polymarket prices. Updated continuously.',
+      es: '¿Quién controla el Senado tras las intermedias de 2026? Escaños en disputa proyectados estado por estado, encuestas agregadas, probabilidades de control y precios de Polymarket en vivo. Actualizado continuamente.',
     },
     baselineYear: 2024,
     seatsTotal: 100,
@@ -294,7 +356,7 @@ export const jurisdictions: Record<string, Jurisdiction> = {
     source: {
       fr: 'Sources : sondages publics agr\u00e9g\u00e9s par le NYT, PVI de Cook, r\u00e9sultats 2018-2024',
       en: 'Sources: public polling via the NYT tracker, Cook PVI, 2018-2024 results',
-      es: 'Fuentes: sondeos p\u00fablicos v\u00eda el NYT, PVI de Cook, resultados 2018-2024',
+      es: 'Fuentes: encuestas p\u00fablicos v\u00eda el NYT, PVI de Cook, resultados 2018-2024',
     },
     mapSubtitle: {
       fr: 'Projection des 36 courses de 2026. Les 14 \u00c9tats qui ne votent pas cette ann\u00e9e gardent leur gouverneur et restent en gris.',
@@ -309,7 +371,7 @@ export const jurisdictions: Record<string, Jurisdiction> = {
     metaDescription: {
       fr: 'Projection des 36 \u00e9lections de gouverneur de 2026, \u00c9tat par \u00c9tat : sondages agr\u00e9g\u00e9s, si\u00e8ges ouverts, courses serr\u00e9es et r\u00e9partition des 50 postes. Mise \u00e0 jour continue.',
       en: 'All 36 governor races on the 2026 ballot, projected state by state: aggregated polls, open seats, toss-ups and the split of all 50 governorships. Updated continuously.',
-      es: 'Las 36 elecciones de gobernador de 2026, proyectadas estado por estado: sondeos agregados, puestos abiertos y el reparto de las 50 gobernaciones. Actualizado continuamente.',
+      es: 'Las 36 elecciones de gobernador de 2026, proyectadas estado por estado: encuestas agregadas, puestos abiertos y el reparto de las 50 gobernaciones. Actualizado continuamente.',
     },
     baselineYear: 2022,
     seatsTotal: 50,
@@ -344,7 +406,7 @@ export const jurisdictions: Record<string, Jurisdiction> = {
     mapSubtitle: {
       fr: 'Projection par circonscription basée sur les résultats 2024, les sondages nationaux et les tendances régionales.',
       en: 'Constituency projection based on 2024 results, national polling and regional trends.',
-      es: 'Proyección por circunscripción basada en los resultados de 2024, los sondeos nacionales y las tendencias regionales.',
+      es: 'Proyección por circunscripción basada en los resultados de 2024, las encuestas nacionales y las tendencias regionales.',
     },
     pageTitle: {
       fr: 'Qui va gagner la prochaine élection au Royaume-Uni ? — Vote-Scope',

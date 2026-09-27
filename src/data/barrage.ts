@@ -196,11 +196,11 @@ function buildTicker(data: Partial<BarrageData>, locale: BarrageLocale = 'en'): 
     },
     es: {
       index: (s: string) => `Barrage Index en ${s}/100`,
-      runoff: (rl: string) => `Sondeos de 2ª vuelta: ${rl}`,
+      runoff: (rl: string) => `Encuestas de 2ª vuelta: ${rl}`,
       model: (rl: string) => `${rl} (VoteScope, 20k sims)`,
       duel: (a: string, b: string) => `${a} vs ${b} — segunda vuelta más probable`,
       bloc: (v: string) => `Bloque de extrema derecha en 1ª vuelta ${v}%`,
-      latest: 'reciente', polls: 'sondeos', model_time: 'modelo', scenario: 'escenario',
+      latest: 'reciente', polls: 'encuestas', model_time: 'modelo', scenario: 'escenario',
     },
   }[locale];
 

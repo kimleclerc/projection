@@ -1,0 +1,68 @@
+---
+import EditorialLayout from '../../../layouts/EditorialLayout.astro';
+import RidingsCta from '../../../components/RidingsCta.astro';
+import NewsletterCta from '../../../components/NewsletterCta.astro';
+import ProjectionEngine from '../../../components/ProjectionEngine.astro';
+import RaceNarrative from '../../../components/RaceNarrative.astro';
+import { raceEditorial } from '../../../data/raceEditorial';
+import MethodologyNote from '../../../components/MethodologyNote.astro';
+import { jurisdictions } from '../../../data/jurisdictions';
+import bcMeta from '../../../../web_data/british-columbia/latest.json';
+
+const j = jurisdictions.britishColumbia;
+const canonical = 'https://vote-scope.com/es/canada/columbia-britanica/';
+const alternates = { en: 'https://vote-scope.com/en/canada/british-columbia/', fr: 'https://vote-scope.com/fr/canada/colombie-britannique/', es: 'https://vote-scope.com/es/canada/columbia-britanica/' };
+---
+
+<EditorialLayout
+  title={j.pageTitle.es}
+  description={j.metaDescription.es}
+  canonical={canonical}
+  lang="es"
+  currentPage={j.currentPage}
+  alternates={alternates}
+  jsonLd={[
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Dataset',
+      name: 'Proyección de Columbia Británica',
+      description: j.metaDescription.es,
+      url: canonical,
+      dateModified: bcMeta.meta.run_date,
+      creator: { '@type': 'Person', name: 'Kim Leclerc', url: 'https://kimleclerc.ca' },
+      publisher: { '@type': 'Organization', name: 'Vote-Scope', url: 'https://vote-scope.com' },
+      license: 'https://vote-scope.com/es/conditions/',
+      isAccessibleForFree: true,
+      distribution: { '@type': 'DataDownload', contentUrl: 'https://vote-scope.com/web_data/british-columbia/latest.json', encodingFormat: 'application/json' },
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: 'https://vote-scope.com/es/' },
+        { '@type': 'ListItem', position: 2, name: 'Canadá', item: 'https://vote-scope.com/es/canada/' },
+        { '@type': 'ListItem', position: 3, name: 'Columbia Británica', item: canonical },
+      ],
+    },
+  ]}
+>
+  <ProjectionEngine jurisdiction={j} locale="es"><Fragment slot="narrative"><RaceNarrative locale="es" {...raceEditorial.britishColumbia.es} /></Fragment></ProjectionEngine>
+  <MethodologyNote
+    title="Lo que el modelo supone, y lo que no afirma"
+    body="Dos de los partidos de esta proyección no existían en la elección de 2024, y veinte de los cuarenta y cuatro electos conservadores han abandonado ese grupo parlamentario al menos una vez desde entonces; algunos volvieron días después. Las hipótesis que cubren esos dos vacíos son exploratorias, y se enuncian aquí en lugar de disolverse en una cifra."
+    bullets={[
+      "OneBC no tiene base de 2024. Su apoyo provincial se reparte entre los distritos según una afinidad medida — la cuota conservadora de 2024 — de la cual un tercio queda deliberadamente uniforme, porque nadie sabe dónde es fuerte.",
+      "CentreBC pierde a siete de sus ocho diputados, que volvieron a los conservadores el 22 de septiembre; Elenore Sturko se queda y asume el liderazgo, con candidaturas centristas. El modelo conserva la cuota que las encuestas dan a CentreBC, repartida según el voto liberal de 2020, y atribuye a Sturko el voto personal de una diputada saliente en Surrey-Cloverdale. Esas encuestas son anteriores a las siete salidas: las próximas dirán cuánto vale CentreBC sin ellos.",
+      "La prima de voto personal de un diputado sin etiqueta mayor vale 11,7 puntos, medidos sobre cinco casos de 2024 — cinco que ELIGIERON presentarse, mientras quince se retiraron. Es un orden de magnitud, no una calibración establecida.",
+      "Las probabilidades mostradas son condicionales a estas hipótesis. Se moverán cuando se presenten las candidaturas y las encuestadoras nombren a estos partidos en sus cuestionarios.",
+    ]}
+  />
+  <RidingsCta
+    eyebrow="Perfil por distrito"
+    title="Entrar en un distrito concreto"
+    blurb="Proyección, diputado o diputada en funciones y etiqueta con la que fue elegido, candidaturas de 2024, trayectoria de las proyecciones y distritos vecinos — para cada uno de los 93 escaños."
+    href="/es/canada/columbia-britanica/distritos/"
+    cta="Ver los 93 distritos →"
+  />
+  <NewsletterCta lang="es" placement="british-columbia" />
+</EditorialLayout>

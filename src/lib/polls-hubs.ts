@@ -16,6 +16,12 @@ export interface HubCopy {
   lede2: string;
   ogEyebrow: string;
   ogTitle: string;
+  /** Titre de PAGE quand le mot cherché diffère du nôtre.
+   *  « intentions de vote » ne fait AUCUNE impression de recherche,
+   *  dans aucun pays ; « sondage » en fait 39 600 pour la France et
+   *  1 100 pour le Québec (Bing, 2026-09-19). `ogTitle` reste intact :
+   *  il alimente les cartes sociales, pas la recherche. */
+  seoTitle?: string;
   ogSub: string;
 }
 
@@ -26,7 +32,7 @@ export interface PollsHubConfig {
   base: Record<HubLang, string>;  // path prefix per language
   seg: Record<HubLang, string>;   // localized "polls" segment
   copy: Record<HubLang, HubCopy>;
-  hasCards?: boolean;             // emit per-poll share PNGs for this hub (us-house, federal, uk, quebec)
+  hasCards?: boolean;             // emit per-poll share PNGs for this hub (us-house, federal, uk, quebec, british-columbia)
 }
 
 const SEG: Record<HubLang, string> = { en: 'polls', fr: 'sondages', es: 'sondeos' };
@@ -45,9 +51,9 @@ export const POLLS_HUBS: Record<string, PollsHubConfig> = {
         lede1: 'Quel parti contrôlera la Chambre après les élections de mi-mandat de 2026 ? Le <em>vote générique</em> —demander aux électeurs s’ils appuieraient le candidat démocrate ou républicain dans leur circonscription— reste le meilleur baromètre national de la course.',
         lede2: 'Vote-Scope réunit chaque sondage national publié et le traduit, par son modèle, en projection de sièges. Ci-dessous : la tendance face à l’estimation du modèle, puis le tableau complet, sondage par sondage.',
         ogEyebrow: 'SONDAGES · CHAMBRE US', ogTitle: 'Vote générique — Chambre US', ogSub: 'Moyenne Vote-Scope · cycle 2026' },
-      es: { eyebrow: 'Sondeos · Cámara de Representantes de EE. UU. · ciclo 2026', h1: 'El voto genérico para la Cámara.',
+      es: { eyebrow: 'Encuestas · Cámara de Representantes de EE. UU. · ciclo 2026', h1: 'El voto genérico para la Cámara.',
         lede1: '¿Qué partido controlará la Cámara tras las legislativas de 2026? El <em>voto genérico</em> —preguntar a los votantes si apoyarían al candidato demócrata o republicano en su distrito— es el mejor termómetro nacional de la contienda.',
-        lede2: 'Vote-Scope reúne todos los sondeos nacionales publicados y, con su modelo, los convierte en una proyección de escaños. Abajo: la tendencia frente a la estimación del modelo, y la tabla completa sondeo por sondeo.',
+        lede2: 'Vote-Scope reúne todas las encuestas nacionales publicadas y, con su modelo, las convierte en una proyección de escaños. Abajo: la tendencia frente a la estimación del modelo, y la tabla completa encuesta por encuesta.',
         ogEyebrow: 'SONDEOS · CÁMARA US', ogTitle: 'Voto genérico — Cámara US', ogSub: 'Promedio Vote-Scope · ciclo 2026' },
     },
   },
@@ -63,10 +69,10 @@ export const POLLS_HUBS: Record<string, PollsHubConfig> = {
         lede1: 'La carte de 2026 décidera si le Sénat bascule. Voici les sondages publiés pour les sièges en jeu, course par course.',
         lede2: 'Vote-Scope les agrège et projette la chambre. Ci-dessous : la tendance face à l’estimation du modèle, puis le tableau complet.',
         ogEyebrow: 'SONDAGES · SÉNAT US', ogTitle: 'Sondages pour le Sénat US', ogSub: 'Vote-Scope · cycle 2026' },
-      es: { eyebrow: 'Sondeos · Senado de EE. UU. · ciclo 2026', h1: 'Sondeos para el Senado.',
-        lede1: 'El mapa de 2026 decidirá si el Senado cambia de manos. Estos son los sondeos publicados de los escaños en juego, contienda por contienda.',
-        lede2: 'Vote-Scope los agrega y proyecta la cámara. Abajo: la tendencia frente a la estimación del modelo, y la tabla completa.',
-        ogEyebrow: 'SONDEOS · SENADO US', ogTitle: 'Sondeos para el Senado US', ogSub: 'Vote-Scope · ciclo 2026' },
+      es: { eyebrow: 'Encuestas · Senado de EE. UU. · ciclo 2026', h1: 'Encuestas para el Senado.',
+        lede1: 'El mapa de 2026 decidirá si el Senado cambia de manos. Estas son las encuestas publicadas de los escaños en juego, contienda por contienda.',
+        lede2: 'Vote-Scope las agrega y proyecta la cámara. Abajo: la tendencia frente a la estimación del modelo, y la tabla completa, sondeo por sondeo.',
+        ogEyebrow: 'SONDEOS · SENADO US', ogTitle: 'Encuestas para el Senado US', ogSub: 'Vote-Scope · ciclo 2026' },
     },
   },
   'us-governor': {
@@ -81,10 +87,10 @@ export const POLLS_HUBS: Record<string, PollsHubConfig> = {
         lede1: 'Trente-six États élisent un gouverneur en novembre, et la moitié de ces postes sont ouverts : le sortant est limité par les mandats ou se retire. Voici les sondages publiés, course par course.',
         lede2: 'Vote-Scope les agrège et projette les cinquante postes. Ci-dessous : la tendance face à l’estimation du modèle, puis le tableau complet.',
         ogEyebrow: 'SONDAGES · GOUVERNEURS US', ogTitle: 'Sondages pour les gouverneurs US', ogSub: 'Vote-Scope · cycle 2026' },
-      es: { eyebrow: 'Sondeos · Gobernadores de EE. UU. · ciclo 2026', h1: 'Sondeos para gobernador.',
-        lede1: 'Treinta y seis estados eligen gobernador en noviembre, y la mitad de esos puestos quedan abiertos: el titular no puede repetir o se retira. Estos son los sondeos publicados, contienda por contienda.',
-        lede2: 'Vote-Scope los agrega y proyecta las cincuenta gobernaciones. Abajo: la tendencia frente a la estimación del modelo, y la tabla completa.',
-        ogEyebrow: 'SONDEOS · GOBERNADORES US', ogTitle: 'Sondeos para gobernador US', ogSub: 'Vote-Scope · ciclo 2026' },
+      es: { eyebrow: 'Encuestas · Gobernadores de EE. UU. · ciclo 2026', h1: 'Encuestas para gobernador.',
+        lede1: 'Treinta y seis estados eligen gobernador en noviembre, y la mitad de esos puestos quedan abiertos: el titular no puede repetir o se retira. Estas son las encuestas publicadas, contienda por contienda.',
+        lede2: 'Vote-Scope las agrega y proyecta las cincuenta gobernaciones. Abajo: la tendencia frente a la estimación del modelo, y la tabla completa, sondeo por sondeo.',
+        ogEyebrow: 'SONDEOS · GOBERNADORES US', ogTitle: 'Encuestas para gobernador US', ogSub: 'Vote-Scope · ciclo 2026' },
     },
   },
   federal: {
@@ -98,10 +104,10 @@ export const POLLS_HUBS: Record<string, PollsHubConfig> = {
       fr: { eyebrow: 'Sondages · Canada · Chambre des communes', h1: 'Intentions de vote fédérales.',
         lede1: 'Qui formera le prochain gouvernement ? Chaque sondage national publié sur les intentions de vote fédérales, maison par maison.',
         lede2: 'Vote-Scope les agrège et projette les sièges aux Communes. Ci-dessous : la tendance face à l’estimation du modèle, puis le tableau complet.',
-        ogEyebrow: 'SONDAGES · CANADA FÉDÉRAL', ogTitle: 'Intentions de vote fédérales', ogSub: 'Vote-Scope · Chambre des communes' },
-      es: { eyebrow: 'Sondeos · Canadá · Cámara de los Comunes', h1: 'Intención de voto federal.',
-        lede1: '¿Quién formará el próximo gobierno? Cada sondeo nacional publicado sobre la intención de voto federal, encuestadora por encuestadora.',
-        lede2: 'Vote-Scope los agrega y proyecta los escaños en los Comunes. Abajo: la tendencia frente a la estimación del modelo, y la tabla completa.',
+        ogEyebrow: 'SONDAGES · CANADA FÉDÉRAL', ogTitle: 'Intentions de vote fédérales', seoTitle: 'Sondages fédéraux au Canada', ogSub: 'Vote-Scope · Chambre des communes' },
+      es: { eyebrow: 'Encuestas · Canadá · Cámara de los Comunes', h1: 'Intención de voto federal.',
+        lede1: '¿Quién formará el próximo gobierno? Cada encuesta nacional publicada sobre la intención de voto federal, encuestadora por encuestadora.',
+        lede2: 'Vote-Scope las agrega y proyecta los escaños en los Comunes. Abajo: la tendencia frente a la estimación del modelo, y la tabla completa, sondeo por sondeo.',
         ogEyebrow: 'SONDEOS · CANADÁ FEDERAL', ogTitle: 'Intención de voto federal', ogSub: 'Vote-Scope · Cámara de los Comunes' },
     },
   },
@@ -112,15 +118,15 @@ export const POLLS_HUBS: Record<string, PollsHubConfig> = {
       en: { eyebrow: 'Polls · Quebec · National Assembly', h1: 'Quebec voting intention.',
         lede1: 'CAQ, PLQ, PQ, QS: every published provincial poll on Quebec voting intention, pollster by pollster.',
         lede2: 'Vote-Scope aggregates them and projects the National Assembly. Below: the trend against the model estimate, then the full table.',
-        ogEyebrow: 'POLLS · QUEBEC', ogTitle: 'Quebec voting intention', ogSub: 'Vote-Scope · National Assembly' },
+        ogEyebrow: 'POLLS · QUEBEC', ogTitle: 'Quebec voting intention', seoTitle: 'Quebec Election Polls', ogSub: 'Vote-Scope · National Assembly' },
       fr: { eyebrow: 'Sondages · Québec · Assemblée nationale', h1: 'Intentions de vote au Québec.',
         lede1: 'CAQ, PLQ, PQ, QS : chaque sondage provincial publié sur les intentions de vote au Québec, maison par maison.',
         lede2: 'Vote-Scope les agrège et projette l’Assemblée nationale. Ci-dessous : la tendance face à l’estimation du modèle, puis le tableau complet.',
-        ogEyebrow: 'SONDAGES · QUÉBEC', ogTitle: 'Intentions de vote au Québec', ogSub: 'Vote-Scope · Assemblée nationale' },
-      es: { eyebrow: 'Sondeos · Quebec · Asamblea Nacional', h1: 'Intención de voto en Quebec.',
-        lede1: 'CAQ, PLQ, PQ, QS: cada sondeo provincial publicado sobre la intención de voto en Quebec, encuestadora por encuestadora.',
-        lede2: 'Vote-Scope los agrega y proyecta la Asamblea Nacional. Abajo: la tendencia frente a la estimación del modelo, y la tabla completa.',
-        ogEyebrow: 'SONDEOS · QUEBEC', ogTitle: 'Intención de voto en Quebec', ogSub: 'Vote-Scope · Asamblea Nacional' },
+        ogEyebrow: 'SONDAGES · QUÉBEC', ogTitle: 'Intentions de vote au Québec', seoTitle: 'Sondages élections Québec', ogSub: 'Vote-Scope · Assemblée nationale' },
+      es: { eyebrow: 'Encuestas · Quebec · Asamblea Nacional', h1: 'Intención de voto en Quebec.',
+        lede1: 'CAQ, PLQ, PQ, QS: cada encuesta provincial publicada sobre la intención de voto en Quebec, encuestadora por encuestadora.',
+        lede2: 'Vote-Scope las agrega y proyecta la Asamblea Nacional. Abajo: la tendencia frente a la estimación del modelo, y la tabla completa, sondeo por sondeo.',
+        ogEyebrow: 'SONDEOS · QUEBEC', ogTitle: 'Intención de voto en Quebec', seoTitle: 'Encuestas elecciones Quebec', ogSub: 'Vote-Scope · Asamblea Nacional' },
     },
   },
   ontario: {
@@ -134,11 +140,33 @@ export const POLLS_HUBS: Record<string, PollsHubConfig> = {
       fr: { eyebrow: 'Sondages · Ontario · Assemblée législative', h1: 'Intentions de vote en Ontario.',
         lede1: 'PC, PLO, NPD, Verts : chaque sondage provincial publié sur les intentions de vote en Ontario, maison par maison.',
         lede2: 'Vote-Scope les agrège et projette l’Assemblée législative. Ci-dessous : la tendance face à l’estimation du modèle, puis le tableau complet.',
-        ogEyebrow: 'SONDAGES · ONTARIO', ogTitle: 'Intentions de vote en Ontario', ogSub: 'Vote-Scope · Assemblée législative' },
-      es: { eyebrow: 'Sondeos · Ontario · Asamblea Legislativa', h1: 'Intención de voto en Ontario.',
-        lede1: 'PC, OLP, NDP, Verdes: cada sondeo provincial publicado sobre la intención de voto en Ontario, encuestadora por encuestadora.',
-        lede2: 'Vote-Scope los agrega y proyecta Queen’s Park. Abajo: la tendencia frente a la estimación del modelo, y la tabla completa.',
+        ogEyebrow: 'SONDAGES · ONTARIO', ogTitle: 'Intentions de vote en Ontario', seoTitle: 'Sondages élections Ontario', ogSub: 'Vote-Scope · Assemblée législative' },
+      es: { eyebrow: 'Encuestas · Ontario · Asamblea Legislativa', h1: 'Intención de voto en Ontario.',
+        lede1: 'PC, OLP, NDP, Verdes: cada encuesta provincial publicada sobre la intención de voto en Ontario, encuestadora por encuestadora.',
+        lede2: 'Vote-Scope las agrega y proyecta Queen’s Park. Abajo: la tendencia frente a la estimación del modelo, y la tabla completa, sondeo por sondeo.',
         ogEyebrow: 'SONDEOS · ONTARIO', ogTitle: 'Intención de voto en Ontario', ogSub: 'Vote-Scope · Asamblea Legislativa' },
+    },
+  },
+  'british-columbia': {
+    webKey: 'british-columbia', currentPage: 'canada', langs: ['en', 'fr', 'es'], seg: SEG, hasCards: true,
+    base: {
+      en: '/en/canada/british-columbia',
+      fr: '/fr/canada/colombie-britannique',
+      es: '/es/canada/columbia-britanica',
+    },
+    copy: {
+      en: { eyebrow: 'Polls · British Columbia · Legislative Assembly', h1: 'British Columbia voting intention.',
+        lede1: 'NDP, Conservatives, Greens, OneBC, CentreBC: every published provincial poll on BC voting intention, pollster by pollster.',
+        lede2: 'Vote-Scope aggregates them and projects the Legislative Assembly. Below: the trend against the model estimate, then the full table.',
+        ogEyebrow: 'POLLS · BRITISH COLUMBIA', ogTitle: 'British Columbia voting intention', seoTitle: 'BC Election Polls 2026', ogSub: 'Vote-Scope · Legislative Assembly' },
+      fr: { eyebrow: 'Sondages · Colombie-Britannique · Assemblée législative', h1: 'Intentions de vote en Colombie-Britannique.',
+        lede1: 'NPD, conservateurs, verts, OneBC, CentreBC : chaque sondage provincial publié sur les intentions de vote britanno-colombiennes, maison par maison.',
+        lede2: 'Vote-Scope les agrège et projette l’Assemblée législative. Ci-dessous : la tendance face à l’estimation du modèle, puis le tableau complet.',
+        ogEyebrow: 'SONDAGES · COLOMBIE-BRITANNIQUE', ogTitle: 'Intentions de vote en Colombie-Britannique', seoTitle: 'Sondages élections Colombie-Britannique 2026', ogSub: 'Vote-Scope · Assemblée législative' },
+      es: { eyebrow: 'Encuestas · Columbia Británica · Asamblea Legislativa', h1: 'Intención de voto en Columbia Británica.',
+        lede1: 'NDP, conservadores, verdes, OneBC, CentreBC: cada encuesta provincial publicada sobre la intención de voto en Columbia Británica, encuestadora por encuestadora.',
+        lede2: 'Vote-Scope las agrega y proyecta la Asamblea Legislativa. Abajo: la tendencia frente a la estimación del modelo, y la tabla completa, sondeo por sondeo.',
+        ogEyebrow: 'SONDEOS · COLUMBIA BRITÁNICA', ogTitle: 'Intención de voto en Columbia Británica', seoTitle: 'Encuestas elecciones Columbia Británica 2026', ogSub: 'Vote-Scope · Asamblea Legislativa' },
     },
   },
   uk: {
@@ -153,9 +181,9 @@ export const POLLS_HUBS: Record<string, PollsHubConfig> = {
         lede1: 'Travaillistes, Conservateurs, Reform, Lib Dems et les autres : chaque sondage national publié pour les prochaines législatives britanniques, maison par maison.',
         lede2: 'Vote-Scope les agrège et projette les sièges à Westminster. Ci-dessous : la tendance face à l’estimation du modèle, puis le tableau complet.',
         ogEyebrow: 'SONDAGES · ROYAUME-UNI', ogTitle: 'Intentions de vote au Royaume-Uni', ogSub: 'Vote-Scope · Westminster' },
-      es: { eyebrow: 'Sondeos · Reino Unido · Westminster', h1: 'Intención de voto en el Reino Unido.',
-        lede1: 'Laboristas, Conservadores, Reform, Liberaldemócratas y el resto: cada sondeo nacional publicado para las próximas legislativas británicas, encuestadora por encuestadora.',
-        lede2: 'Vote-Scope los agrega y proyecta los escaños en Westminster. Abajo: la tendencia frente a la estimación del modelo, y la tabla completa.',
+      es: { eyebrow: 'Encuestas · Reino Unido · Westminster', h1: 'Intención de voto en el Reino Unido.',
+        lede1: 'Laboristas, Conservadores, Reform, Liberaldemócratas y el resto: cada encuesta nacional publicada para las próximas legislativas británicas, encuestadora por encuestadora.',
+        lede2: 'Vote-Scope las agrega y proyecta los escaños en Westminster. Abajo: la tendencia frente a la estimación del modelo, y la tabla completa, sondeo por sondeo.',
         ogEyebrow: 'SONDEOS · REINO UNIDO', ogTitle: 'Intención de voto en el Reino Unido', ogSub: 'Vote-Scope · Westminster' },
     },
   },

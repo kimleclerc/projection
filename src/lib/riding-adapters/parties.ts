@@ -57,6 +57,32 @@ export const ON_PARTIES: Record<string, PartyMeta> = {
   on_oth: { label_en: 'OTH', label_fr: 'AUT', color: '#999999', mention_fr: "d'un autre parti",   mention_en: 'another party',        mention_es: 'otro partido' },
 };
 
+/**
+ * Colombie-Britannique. Deux singularités que la palette doit porter :
+ *
+ * `bc_ind` n'est PAS un résidu. Treize des 93 sièges sont occupés par des
+ * indépendants — le caucus conservateur est passé de 44 élus à 28 — et sept
+ * d'entre eux siègent ensemble dans un parti sans nom déposé. Les afficher en
+ * gris « autre » effacerait le fait central de cette législature.
+ *
+ * `bc_lib` porte le Parti libéral de la C.-B. puis BC United : même formation
+ * enregistrée, renommée en 2023, dissoute depuis. Elle n'a plus de bulletin
+ * mais reste indispensable pour lire le résultat de 2020.
+ *
+ * ⚠ Les teintes de OneBC et CentreBC sont des marques-places lisibles : la
+ * charte de ces deux formations n'a pas été constatée.
+ */
+export const BC_PARTIES: Record<string, PartyMeta> = {
+  bc_ndp:    { label_en: 'NDP',     label_fr: 'NPD',      color: '#F58220', mention_fr: 'du NPD',             mention_en: 'the NDP',                mention_es: 'el NPD' },
+  bc_con:    { label_en: 'Con',     label_fr: 'Cons.',    color: '#0C4DA2', mention_fr: 'des Conservateurs',  mention_en: 'the Conservatives',      mention_es: 'los Conservadores' },
+  bc_grn:    { label_en: 'GP',      label_fr: 'PV',       color: '#3D9B35', mention_fr: 'du Parti vert',      mention_en: 'the Green Party',        mention_es: 'el Partido Verde' },
+  bc_onebc:  { label_en: 'OneBC',   label_fr: 'OneBC',    color: '#B8860B', mention_fr: "d'OneBC",            mention_en: 'OneBC',                  mention_es: 'OneBC' },
+  bc_centre: { label_en: 'CentreBC', label_fr: 'CentreBC', color: '#7A5EA8', mention_fr: 'de CentreBC',       mention_en: 'CentreBC',               mention_es: 'CentreBC' },
+  bc_lib:    { label_en: 'BCU',     label_fr: 'BCU',      color: '#19BFD2', full_fr: 'BC United (ex-Parti libéral de la C.-B.)', full_en: 'BC United (formerly BC Liberal Party)', mention_fr: 'de BC United', mention_en: 'BC United', mention_es: 'BC United' },
+  bc_ind:    { label_en: 'IND',     label_fr: 'IND',      color: '#6B7280', mention_fr: 'indépendant·e',      mention_en: 'an independent',         mention_es: 'una candidatura independiente' },
+  bc_oth:    { label_en: 'OTH',     label_fr: 'AUT',      color: '#999999', mention_fr: "d'un autre parti",   mention_en: 'another party',          mention_es: 'otro partido' },
+};
+
 export const QC_PARTIES: Record<string, PartyMeta> = {
   caq:    { label_en: 'CAQ',          label_fr: 'CAQ',  color: '#03A9F4', logo: 'qc-caq.png', icon: 'qc-caq-icon.png', full_fr: 'Équipe Christine Fréchette – Coalition avenir Québec', full_en: 'Équipe Christine Fréchette – Coalition Avenir Québec', mention_fr: 'de la CAQ',           mention_en: 'the CAQ',                  mention_es: 'la CAQ' },
   plq:    { label_en: 'QLP',          label_fr: 'PLQ',  color: '#D71920', logo: 'qc-plq.svg', icon: 'qc-plq-icon.png', full_fr: 'Parti libéral du Québec', full_en: 'Quebec Liberal Party',          mention_fr: 'du PLQ',              mention_en: 'the Quebec Liberals',      mention_es: 'el PLQ' },
@@ -131,6 +157,7 @@ const PALETTES: Record<string, Record<string, PartyMeta>> = {
   'federal-ca': CA_FEDERAL_PARTIES,
   'quebec': QC_PARTIES,
   'ontario': ON_PARTIES,
+  'british-columbia': BC_PARTIES,
   'uk': UK_PARTIES,
   'us-house': US_HOUSE_PARTIES,
   'us-senate': US_HOUSE_PARTIES,  // same Dem/Rep palette

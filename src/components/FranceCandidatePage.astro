@@ -29,22 +29,22 @@ const candBase = franceCandBase(locale);
 
 const COPY = {
   fr: {
-        back: '← Desk France',
+        back: '← Présidentielle 2027',
         party: 'Famille politique',
         status: 'Statut',
         pollingTitle: 'Intentions de vote au premier tour',
-        pollingHelp: `Fourchette observée sur ${c.activeScenarios} castings testés. Le repère marque le meilleur casting.`,
+        pollingHelp: `Fourchette observée sur ${c.activeScenarios} hypothèses de candidatures testées par les sondeurs. Le repère marque la meilleure.`,
         floor: 'Plancher',
         ceiling: 'Plafond',
-        best: 'Meilleur casting',
+        best: 'Meilleure hypothèse',
         top2: 'Probabilité de qualification',
         duelsTitle: 'Duels de second tour',
-        duelsHelp: 'Issue projetée face à chaque adversaire, dans le casting vedette le plus favorable.',
+        duelsHelp: 'Issue projetée face à chaque adversaire, dans l’hypothèse la plus favorable parmi celles que nous suivons.',
         wins: 'en tête',
         loses: 'battu·e',
         vs: 'face à',
         relatedTitle: 'Autres candidats',
-        exploreCta: 'Voir tous les castings',
+        exploreCta: 'Comparer toutes les hypothèses',
         allCandidates: 'Tous les candidats',
         noDuel: 'Aucun duel de second tour projeté pour l’instant.',
       },
@@ -100,7 +100,7 @@ const C = COPY[locale];
       <h1 class="frc-name">{c.name}</h1>
     </div>
     <div class="frc-badges">
-      <span class="frc-badge">{blocLabel(c.bloc, locale)}</span>
+      <span class="frc-badge">{blocLabel(c.bloc, locale, c.partyFamily)}</span>
       <span class={`frc-badge frc-status is-${c.status}`}>{statusLabel(c.status, locale)}</span>
     </div>
   </header>
@@ -181,7 +181,7 @@ const C = COPY[locale];
           <a class="frc-related-item" href={`${candBase}/${x.slug}/`}>
             <span class="frc-swatch" style={`background:${blocVar(x.bloc)}`} />
             <span class="frc-related-name">{x.name}</span>
-            <span class="frc-related-bloc">{blocLabel(x.bloc, locale)}</span>
+            <span class="frc-related-bloc">{blocLabel(x.bloc, locale, x.partyFamily)}</span>
           </a>
         </li>
       ))}

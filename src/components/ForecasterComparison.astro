@@ -1,0 +1,487 @@
+---
+/**
+ * « Vote-Scope contre les autres » — une page par juridiction.
+ *
+ * Pourquoi : quelqu'un qui suit les midterms fait une ronde de trois ou quatre
+ * prévisions. Personne ne lui donne la ronde en une page. Une page qui envoie
+ * vers les concurrents est, paradoxe assumé, une page qu'on rouvre chaque jour.
+ *
+ * ⚠ Pourquoi la plupart des lignes n'ont pas de chiffre. Cinq des douze grands
+ * noms interdisent nommément l'ingestion automatisée dans leur robots.txt —
+ * The Economist, Silver Bulletin, Cook, Race to the WH, VoteHub. Cook qualifie
+ * même ses cotes de « proprietary ratings dataset ». Ce n'est pas une panne et
+ * ce n'est pas un obstacle technique : c'est la position de l'éditeur, et la
+ * page la dit en toutes lettres plutôt que de laisser une case vide mentir.
+ *
+ * Les catégories ne se mélangent jamais : un modèle probabiliste, des cotes
+ * d'experts, un agrégateur et un marché ne produisent pas la même chose. Aucun
+ * logo tiers, aucune revendication de supériorité, un lien vers chaque source.
+ */
+import data from '../../web_data/us-forecasters/latest.json';
+import senateLatest from '../../web_data/us-senate/latest.json';
+import houseLatest from '../../web_data/us-house/latest.json';
+import governorLatest from '../../web_data/us-governor/latest.json';
+import { RATING_ORDER, RATING_STYLE } from '../lib/race-ratings';
+
+interface Props {
+  locale: 'en' | 'fr' | 'es';
+  jurisdiction: 'house' | 'senate' | 'governor';
+}
+const { locale, jurisdiction } = Astro.props as Props;
+
+type Snapshot = {
+  seats_dem: number | null; seats_rep: number | null;
+  p_dem_control: number | null; as_of: string | null;
+  previous?: Snapshot | null;
+};
+type MarketRow = {
+  id: string; name: string; p_dem_control: number; gap_vs_votescope: number | null;
+  as_of: string | null; url: string;
+  previous: { as_of: string; p_dem_control: number } | null;
+};
+type DirectoryRow = {
+  id: string; name: string; category: string; url: string;
+  acquisition: string; publication: string; checked: string;
+};
+
+type QuotedRow = {
+  id: string; name: string; category: string; unit: string;
+  p_dem_control: number | null; seats_dem: number | null; seats_rep: number | null;
+  tossup: number | null; dem_side: number | null; rep_side: number | null;
+  delta_low: number | null; delta_high: number | null;
+  gap_vs_votescope: number | null;
+  ratings?: Record<string, number | null> | null;
+  as_of: string; entered_on: string; entered_from: string; via: string | null;
+  acquisition: string; url: string;
+};
+
+const jur = (data as any).jurisdictions[jurisdiction] as {
+  votescope: Snapshot; markets: MarketRow[]; quoted: QuotedRow[]; directory: DirectoryRow[];
+};
+
+const L = locale === 'fr' ? 'fr-CA' : locale === 'es' ? 'es-ES' : 'en-CA';
+const fmtDate = (iso?: string | null) =>
+  iso ? new Date(`${iso}T12:00:00Z`).toLocaleDateString(L, {
+    day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC',
+  }) : '';
+// En français comme en espagnol, 98.2 s'écrit 98,2. Un chiffre non localisé
+// sur une page qui existe pour comparer des chiffres est la faute la plus
+// visible qu'elle puisse faire.
+const num = (n: number | null | undefined, digits = 1) =>
+  n === null || n === undefined
+    ? '—'
+    : n.toLocaleString(L, { minimumFractionDigits: digits, maximumFractionDigits: digits });
+// Un compte de sièges entier s'écrit 231, pas 231,0 — mais une moyenne de
+// simulation s'écrit bien 241,3. Le nombre décide, pas l'appelant.
+const seats = (n: number | null | undefined) =>
+  n === null || n === undefined ? '—' : num(n, Number.isInteger(n) ? 0 : 1);
+const pct = (n: number | null | undefined) => (n === null || n === undefined ? '—' : `${num(n)} %`.replace(' %', locale === 'en' ? '%' : ' %'));
+const signed = (n: number | null | undefined) =>
+  n === null || n === undefined ? '—' : `${n > 0 ? '+' : ''}${num(n)}`;
+
+const copy = {
+  en: {
+    eyebrow: 'Forecast comparison',
+    chamber: { house: 'the House', senate: 'the Senate', governor: 'the governorships' }[jurisdiction],
+    heading: {
+      house: 'Who else forecasts the 2026 House, and where do they stand?',
+      senate: 'Who else forecasts the 2026 Senate, and where do they stand?',
+      governor: 'Who else forecasts the 2026 governor races, and where do they stand?',
+    }[jurisdiction],
+    lede: 'Every forecaster still publishing on the 2026 midterms, in one place, with our own number beside the ones we are allowed to carry. This is a comparison, not a ranking.',
+    ourForecast: 'Our forecast', seats: 'Projected seats', control: 'Democratic control',
+    asOf: 'as of', unchangedSince: 'unchanged since', moved: 'was', on: 'on',
+    markets: 'Prediction markets', gap: 'Gap vs Vote-Scope',
+    quoted: 'What the other forecasters currently say',
+    quotedLede: 'Each one’s own published headline figure, attributed and linked. We report what they publish; none of it enters our model, and we reproduce none of their underlying data.',
+    readOn: 'read on',
+    unitNote: {
+      probabilite: 'Probabilistic models',
+      cotes: 'Expert ratings — categories, not probabilities',
+      delta_sieges: 'Expert ratings — projected seat change',
+    } as Record<string, string>,
+    via: (who: string) => `as reported by ${who}`,
+    ratingLine: (t: string, d: string, r: string) => `${d} lean D · ${t} toss-up · ${r} lean R`,
+    deltaLine: (lo: string, hi: string) => `Democrats +${lo} to +${hi} seats`,
+    cat: { modele: 'Probabilistic models', cotes_experts: 'Expert ratings', agregateur: 'Aggregators' },
+    disclaimer: 'Independent comparison. Vote-Scope is not affiliated with, or endorsed by, any forecaster listed here. Every third-party forecast remains the property of its publisher and is linked to its original page. Methodologies differ: a model states a probability, an expert rating states a category, and an exchange states a price.',
+    probTitle: 'Chance that Democrats control it, side by side',
+    probLede: 'Each bar is one forecaster’s published probability. The dotted line is 50%.',
+    ratingsTitle: 'How solid the races are',
+    ratingsLede: 'Races sorted from solid Democratic to solid Republican. Ours in seven levels; expert ratings as published.',
+    demSide: 'Democratic side', repSide: 'Republican side', tossupShort: 'Toss-up',
+    ours: 'Vote-Scope (ours)',
+    races: 'races',
+    otherTitle: 'Other forecasts worth checking',
+    otherLede: 'They publish a forecast too. Their numbers are not carried here; follow the link.',
+    visit: 'Visit',
+  },
+  fr: {
+    eyebrow: 'Comparaison des prévisions',
+    chamber: { house: 'la Chambre', senate: 'le Sénat', governor: 'les postes de gouverneur' }[jurisdiction],
+    heading: {
+      house: 'Qui d’autre prévoit la Chambre 2026, et où en sont-ils ?',
+      senate: 'Qui d’autre prévoit le Sénat 2026, et où en sont-ils ?',
+      governor: 'Qui d’autre prévoit les courses de gouverneur 2026, et où en sont-ils ?',
+    }[jurisdiction],
+    lede: 'Tous les prévisionnistes encore actifs sur les midterms 2026, en une page, avec notre propre chiffre à côté de ceux que nous avons le droit de porter. C’est une comparaison, pas un classement.',
+    ourForecast: 'Notre prévision', seats: 'Sièges projetés', control: 'Contrôle démocrate',
+    asOf: 'au', unchangedSince: 'inchangé depuis le', moved: 'était à', on: 'le',
+    markets: 'Marchés de prévision', gap: 'Écart avec Vote-Scope',
+    quoted: 'Ce que disent les autres prévisionnistes',
+    quotedLede: 'Le chiffre de tête que chacun publie, attribué et lié. Nous rapportons ce qu’ils publient ; rien de cela n’entre dans notre modèle, et nous ne reproduisons aucune de leurs données sous-jacentes.',
+    readOn: 'relevé le',
+    unitNote: {
+      probabilite: 'Modèles probabilistes',
+      cotes: 'Cotes d’experts — des catégories, pas des probabilités',
+      delta_sieges: 'Cotes d’experts — variation de sièges projetée',
+    } as Record<string, string>,
+    via: (who: string) => `rapporté par ${who}`,
+    ratingLine: (t: string, d: string, r: string) => `${d} penchant D · ${t} toss-up · ${r} penchant R`,
+    deltaLine: (lo: string, hi: string) => `Démocrates +${lo} à +${hi} sièges`,
+    cat: { modele: 'Modèles probabilistes', cotes_experts: 'Cotes d’experts', agregateur: 'Agrégateurs' },
+    disclaimer: 'Comparaison indépendante. Vote-Scope n’est affilié à aucun des prévisionnistes présentés, ni approuvé par eux. Chaque prévision tierce demeure la propriété de son éditeur et renvoie à sa page d’origine. Les méthodologies diffèrent : un modèle énonce une probabilité, une cote d’expert énonce une catégorie, une bourse énonce un prix.',
+    probTitle: 'Chances que les démocrates la contrôlent, côte à côte',
+    probLede: 'Chaque barre est la probabilité publiée par un prévisionniste. La ligne pointillée marque 50 %.',
+    ratingsTitle: 'La solidité des courses',
+    ratingsLede: 'Courses rangées de « sûr démocrate » à « sûr républicain ». La nôtre en sept niveaux ; les cotes d’experts telles qu’ils les publient.',
+    demSide: 'Côté démocrate', repSide: 'Côté républicain', tossupShort: 'Incertain',
+    ours: 'Vote-Scope (nous)',
+    races: 'courses',
+    otherTitle: 'Autres prévisions à consulter',
+    otherLede: 'Elles publient aussi une prévision. Leurs chiffres ne sont pas repris ici : suivez le lien.',
+    visit: 'Consulter',
+  },
+  es: {
+    eyebrow: 'Comparación de pronósticos',
+    chamber: { house: 'la Cámara', senate: 'el Senado', governor: 'las gobernaciones' }[jurisdiction],
+    heading: {
+      house: '¿Quién más pronostica la Cámara de 2026, y dónde están?',
+      senate: '¿Quién más pronostica el Senado de 2026, y dónde están?',
+      governor: '¿Quién más pronostica las gobernaciones de 2026, y dónde están?',
+    }[jurisdiction],
+    lede: 'Todos los pronosticadores que siguen publicando sobre las elecciones de medio mandato de 2026, en una sola página, con nuestra cifra junto a las que tenemos derecho a mostrar. Es una comparación, no una clasificación.',
+    ourForecast: 'Nuestro pronóstico', seats: 'Escaños proyectados', control: 'Control demócrata',
+    asOf: 'al', unchangedSince: 'sin cambios desde el', moved: 'estaba en', on: 'el',
+    markets: 'Mercados de predicción', gap: 'Diferencia con Vote-Scope',
+    quoted: 'Lo que dicen los demás pronosticadores',
+    quotedLede: 'La cifra principal que cada uno publica, atribuida y enlazada. Reportamos lo que publican; nada de ello entra en nuestro modelo, y no reproducimos ninguno de sus datos subyacentes.',
+    readOn: 'tomado el',
+    unitNote: {
+      probabilite: 'Modelos probabilísticos',
+      cotes: 'Calificaciones de expertos — categorías, no probabilidades',
+      delta_sieges: 'Calificaciones de expertos — cambio de escaños proyectado',
+    } as Record<string, string>,
+    via: (who: string) => `reportado por ${who}`,
+    ratingLine: (t: string, d: string, r: string) => `${d} inclinación D · ${t} indecisos · ${r} inclinación R`,
+    deltaLine: (lo: string, hi: string) => `Demócratas +${lo} a +${hi} escaños`,
+    cat: { modele: 'Modelos probabilísticos', cotes_experts: 'Calificaciones de expertos', agregateur: 'Agregadores' },
+    disclaimer: 'Comparación independiente. Vote-Scope no está afiliado a ninguno de los pronosticadores presentados ni cuenta con su respaldo. Cada pronóstico de terceros sigue siendo propiedad de su editor y enlaza a su página original. Las metodologías difieren: un modelo enuncia una probabilidad, una calificación de experto enuncia una categoría y una bolsa enuncia un precio.',
+    probTitle: 'Probabilidad de control demócrata, lado a lado',
+    probLede: 'Cada barra es la probabilidad publicada por un pronosticador. La línea punteada marca el 50 %.',
+    ratingsTitle: 'La solidez de las contiendas',
+    ratingsLede: 'Contiendas ordenadas de «segura demócrata» a «segura republicana». La nuestra en siete niveles; las calificaciones de expertos tal como se publican.',
+    demSide: 'Lado demócrata', repSide: 'Lado republicano', tossupShort: 'Incierto',
+    ours: 'Vote-Scope (nosotros)',
+    races: 'contiendas',
+    otherTitle: 'Otros pronósticos para consultar',
+    otherLede: 'También publican un pronóstico. Sus cifras no se reproducen aquí: siga el enlace.',
+    visit: 'Ver',
+  },
+}[locale];
+
+// ⚠ Le générique TypeScript en ligne (`as Record<string, string>`) ne passe PAS
+// dans le gabarit Astro : le parseur y lit `<string, string>` comme une balise.
+// Le typage se fait donc ici, dans le frontmatter.
+const catLabel = copy.cat as Record<string, string>;
+const unitLabel = copy.unitNote as Record<string, string>;
+
+// Une ligne citée se lit différemment selon son unité. Composer la phrase ici
+// plutôt que dans le gabarit garde les trois langues alignées et testables.
+const quotedValue = (q: QuotedRow) =>
+  q.unit === 'probabilite' ? pct(q.p_dem_control)
+  : q.unit === 'delta_sieges' ? copy.deltaLine(num(q.delta_low, 0), num(q.delta_high, 0))
+  : copy.ratingLine(num(q.tossup, 0), num(q.dem_side, 0), num(q.rep_side, 0));
+
+// Les groupes d'unité, dans l'ordre où le fichier les a rangés.
+const quotedGroups = ['probabilite', 'cotes', 'delta_sieges']
+  .map((u) => ({ unit: u, rows: jur.quoted.filter((q) => q.unit === u) }))
+  .filter((g) => g.rows.length > 0);
+
+const CATEGORY_ORDER = ['modele', 'cotes_experts', 'agregateur'] as const;
+const grouped = CATEGORY_ORDER
+  .map((c) => ({ category: c, rows: jur.directory.filter((r) => r.category === c) }))
+  .filter((g) => g.rows.length > 0);
+
+const ours = jur.votescope;
+const prev = ours.previous;
+// « Inchangé » est une information, pas une absence : quand nos chiffres n'ont
+// pas bougé alors que les marchés l'ont fait, c'est la phrase la plus utile de
+// la page.
+// ── Graphique des probabilités : nous, les modèles, les marchés ───────────
+const probRows = [
+  ...(ours.p_dem_control !== null ? [{ name: copy.ours, v: ours.p_dem_control, kind: 'ours', url: null as string | null }] : []),
+  ...jur.quoted.filter((q) => q.unit === 'probabilite' && q.p_dem_control !== null)
+    .map((q) => ({ name: q.name, v: q.p_dem_control as number, kind: 'model', url: q.url })),
+  ...jur.markets.map((m) => ({ name: m.name, v: m.p_dem_control, kind: 'market', url: m.url })),
+].sort((a, b) => b.v - a.v);
+
+// ── Barres d'intensité : nos cotes par course, et celles des experts ──────
+const latestByJur: Record<string, any> = { senate: senateLatest, house: houseLatest, governor: governorLatest };
+const ourCounts: Record<string, number> = {};
+for (const r of (latestByJur[jurisdiction]?.ridings ?? []) as any[]) {
+  const code = r?.projection?.rating?.code;
+  if (code && code in RATING_STYLE) ourCounts[code] = (ourCounts[code] ?? 0) + 1;
+}
+const lang = locale === 'fr' ? 'fr' : locale === 'es' ? 'es' : 'en';
+type Seg = { key: string; n: number; color: string; label: string; hatch?: boolean };
+const sevenSegs = (counts: Record<string, number | null | undefined>): Seg[] =>
+  RATING_ORDER.map((c) => ({ key: c, n: Number(counts[c] ?? 0), color: RATING_STYLE[c].light,
+    label: RATING_STYLE[c][lang], hatch: c === 'tossup' })).filter((x) => x.n > 0);
+const threeSegs = (q: QuotedRow): Seg[] => [
+  { key: 'dem', n: Number(q.dem_side ?? 0), color: RATING_STYLE.likely_dem.light, label: copy.demSide },
+  { key: 'tossup', n: Number(q.tossup ?? 0), color: RATING_STYLE.tossup.light, label: copy.tossupShort, hatch: true },
+  { key: 'rep', n: Number(q.rep_side ?? 0), color: RATING_STYLE.likely_rep.light, label: copy.repSide },
+].filter((x) => x.n > 0);
+const ratingRows = [
+  ...(Object.keys(ourCounts).length ? [{ name: copy.ours, url: null as string | null, as_of: ours.as_of, segs: sevenSegs(ourCounts), ours: true }] : []),
+  ...jur.quoted.filter((q) => q.unit === 'cotes' || q.ratings)
+    .map((q) => ({ name: q.name, url: q.url, as_of: q.as_of, segs: q.ratings ? sevenSegs(q.ratings) : threeSegs(q), ours: false })),
+].map((r) => {
+  const total = r.segs.reduce((t, x) => t + x.n, 0);
+  return {
+    ...r, total,
+    aria: r.segs.map((x) => `${x.label} ${x.n}`).join(', '),
+    segs: r.segs.map((x) => ({ ...x, show: total > 0 && x.n / total >= 0.06 })),
+  };
+});
+const legendSegs = RATING_ORDER.map((c) => ({ key: c, color: RATING_STYLE[c].light, label: RATING_STYLE[c][lang], hatch: c === 'tossup' }));
+
+const unchanged = prev && prev.p_dem_control !== null
+  ? prev.p_dem_control === ours.p_dem_control
+  : prev && prev.seats_dem === ours.seats_dem;
+---
+
+<section class="fcc" aria-labelledby="fcc-heading">
+  <div class="container fcc-inner">
+    <p class="fcc-eyebrow">{copy.eyebrow}</p>
+    <h1 id="fcc-heading">{copy.heading}</h1>
+    <p class="fcc-lede">{copy.lede}</p>
+
+    <div class="fcc-ours">
+      <h2>{copy.ourForecast}</h2>
+      <dl class="fcc-stats">
+        <div>
+          <dt>{copy.control}</dt>
+          <dd class="fcc-big">{pct(ours.p_dem_control)}</dd>
+        </div>
+        {ours.seats_dem !== null && (
+          <div>
+            <dt>{copy.seats}</dt>
+            <dd class="fcc-big">{`${seats(ours.seats_dem)} D · ${seats(ours.seats_rep)} R`}</dd>
+          </div>
+        )}
+      </dl>
+      <p class="fcc-asof">
+        {`${copy.asOf} ${fmtDate(ours.as_of)}`}
+        {prev && (unchanged
+          ? ` · ${copy.unchangedSince} ${fmtDate(prev.as_of)}`
+          : ` · ${copy.moved} ${prev.p_dem_control !== null ? pct(prev.p_dem_control) : `${num(prev.seats_dem)} D`} ${copy.on} ${fmtDate(prev.as_of)}`)}
+      </p>
+    </div>
+
+    {probRows.length > 1 && (
+      <div class="fcc-block">
+        <h2>{copy.probTitle}</h2>
+        <p class="fcc-sublede">{copy.probLede}</p>
+        <ul class="fcc-prob">
+          {probRows.map((r) => (
+            <li class={`is-${r.kind}`}>
+              <span class="fcc-prob-name">{r.url ? <a href={r.url} rel="nofollow noopener" target="_blank">{r.name}</a> : r.name}</span>
+              <span class="fcc-prob-track">
+                <span class="fcc-prob-fill" style={`width:${Math.max(0, Math.min(100, r.v))}%`} />
+                <span class="fcc-prob-half" aria-hidden="true" />
+              </span>
+              <span class="fcc-prob-val">{pct(r.v)}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    )}
+
+    {ratingRows.length > 0 && (
+      <div class="fcc-block">
+        <h2>{copy.ratingsTitle}</h2>
+        <p class="fcc-sublede">{copy.ratingsLede}</p>
+        <ul class="fcc-legend" aria-hidden="true">
+          {legendSegs.map((l) => <li><span class={`fcc-sw${l.hatch ? ' is-hatch' : ''}`} style={`background-color:${l.color}`} />{l.label}</li>)}
+        </ul>
+        <ul class="fcc-ratings">
+          {ratingRows.map((r) => (
+            <li class={r.ours ? 'is-ours' : ''}>
+              <span class="fcc-prob-name">{r.url ? <a href={r.url} rel="nofollow noopener" target="_blank">{r.name}</a> : r.name}
+                <small>{`${r.total} ${copy.races} · ${copy.asOf} ${fmtDate(r.as_of)}`}</small></span>
+              <span class="fcc-rbar" role="img" aria-label={r.aria}>
+                {r.segs.map((x) => (
+                  <span class={`fcc-rseg${x.hatch ? ' is-hatch' : ''}`} style={`flex:${x.n};background-color:${x.color}`} title={`${x.label} — ${x.n}`}>
+                    {x.show && <b>{x.n}</b>}
+                  </span>
+                ))}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    )}
+
+    {jur.quoted.length > 0 && (
+      <div class="fcc-block">
+        <h2>{copy.quoted}</h2>
+        <p class="fcc-sublede">{copy.quotedLede}</p>
+        {quotedGroups.map((g) => (
+          <div class="fcc-group">
+            <h3>{unitLabel[g.unit]}</h3>
+            <ul class="fcc-rows">
+              {g.rows.map((q) => (
+                <li class="fcc-row">
+                  <span class="fcc-name">
+                    <a href={q.url} rel="nofollow noopener" target="_blank">{q.name}</a>
+                  </span>
+                  <span class:list={['fcc-val', q.unit !== 'probabilite' && 'fcc-val--text']}>
+                    {quotedValue(q)}
+                  </span>
+                  <span class="fcc-meta">
+                    {q.seats_dem !== null && `${seats(q.seats_dem)} D · ${seats(q.seats_rep)} R · `}
+                    {q.gap_vs_votescope !== null && `${copy.gap} ${signed(q.gap_vs_votescope)} · `}
+                    {`${copy.asOf} ${fmtDate(q.as_of)} · ${copy.readOn} ${fmtDate(q.entered_on)}`}
+                    {q.via && ` · ${copy.via(q.via)}`}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    )}
+
+    {jur.markets.length > 0 && (
+      <div class="fcc-block">
+        <h2>{copy.markets}</h2>
+        <ul class="fcc-rows">
+          {jur.markets.map((m) => (
+            <li class="fcc-row">
+              <span class="fcc-name">
+                <a href={m.url} rel="nofollow noopener" target="_blank">{m.name}</a>
+              </span>
+              <span class="fcc-val">{pct(m.p_dem_control)}</span>
+              <span class="fcc-meta">
+                {`${copy.gap} ${signed(m.gap_vs_votescope)}`}
+                {m.as_of && ` · ${copy.asOf} ${fmtDate(m.as_of)}`}
+                {m.previous && ` · ${copy.moved} ${pct(m.previous.p_dem_control)} ${copy.on} ${fmtDate(m.previous.as_of)}`}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    )}
+
+    {grouped.length > 0 && (
+      <div class="fcc-block">
+        <h2>{copy.otherTitle}</h2>
+        <p class="fcc-sublede">{copy.otherLede}</p>
+        <ul class="fcc-others">
+          {grouped.flatMap((g) => g.rows).map((r) => (
+            <li><a href={r.url} rel="nofollow noopener" target="_blank">{r.name} ↗</a></li>
+          ))}
+        </ul>
+      </div>
+    )}
+
+    <p class="fcc-disclaimer">{copy.disclaimer}</p>
+  </div>
+</section>
+
+<style>
+  .fcc { padding: 40px 0 56px; }
+  .fcc-inner { max-width: 940px; margin-inline: auto; padding-inline: 1.5rem; }
+
+  .fcc-eyebrow {
+    font-family: var(--mono); font-size: 11px; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--ink-3); margin: 0 0 6px;
+  }
+  .fcc h1 { font-size: 30px; margin: 0 0 10px; line-height: 1.2; }
+  .fcc-lede { margin: 0 0 32px; color: var(--ink-2); max-width: 66ch; }
+
+  .fcc-ours { border: 1px solid var(--rule); border-radius: 8px; padding: 20px 22px; }
+  .fcc-ours h2, .fcc-block h2 { font-size: 18px; margin: 0 0 14px; }
+
+  .fcc-stats { display: flex; flex-wrap: wrap; gap: 12px 44px; margin: 0 0 10px; }
+  .fcc-stats div { display: flex; flex-direction: column; gap: 4px; }
+  .fcc-stats dt {
+    font-family: var(--mono); font-size: 10px; letter-spacing: .06em;
+    text-transform: uppercase; color: var(--ink-3);
+  }
+  .fcc-stats dd { margin: 0; }
+  .fcc-big { font-size: 26px; font-variant-numeric: tabular-nums; }
+
+  .fcc-asof { margin: 0; font-size: 13px; color: var(--ink-2); }
+
+  .fcc-block { padding-top: 34px; }
+  .fcc-sublede { margin: 0 0 18px; color: var(--ink-2); max-width: 68ch; font-size: 14px; }
+
+  .fcc-rows { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+  .fcc-row {
+    display: grid; grid-template-columns: minmax(7rem, 11rem) auto 1fr;
+    gap: 6px 18px; align-items: baseline;
+    padding: 12px 0; border-bottom: 1px solid var(--rule);
+  }
+  .fcc-name { font-weight: 600; }
+  .fcc-val { font-family: var(--mono); font-size: 17px; font-variant-numeric: tabular-nums; }
+  /* Une fourchette de sièges ou un compte de cotes n'est pas un nombre qu'on
+     aligne : il se lit comme une phrase et doit respirer. */
+  .fcc-val--text { font-size: 13px; letter-spacing: .01em; }
+  .fcc-meta { font-size: 13px; color: var(--ink-2); }
+
+  .fcc-group { margin-bottom: 22px; }
+  .fcc-group h3 {
+    font-family: var(--mono); font-size: 11px; letter-spacing: .06em;
+    text-transform: uppercase; color: var(--ink-3);
+    margin: 0 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--rule);
+  }
+
+  .fcc-prob, .fcc-ratings { list-style: none; margin: 0; padding: 0; display: grid; gap: 9px; }
+  .fcc-prob li { display: grid; grid-template-columns: minmax(8rem, 13rem) 1fr 4.2rem; gap: 12px; align-items: center; font-size: 14px; }
+  .fcc-prob-name { display: flex; flex-direction: column; gap: 2px; }
+  .fcc-prob-name small { font-family: var(--mono); font-size: 10px; color: var(--ink-3); font-weight: 400; }
+  .fcc-prob-track { position: relative; height: 16px; background: var(--paper-2, var(--rule)); border-radius: 3px; overflow: hidden; }
+  .fcc-prob-fill { position: absolute; inset-block: 0; left: 0; background: var(--ink-3); border-radius: 3px; }
+  .fcc-prob li.is-ours .fcc-prob-fill { background: var(--ink); }
+  .fcc-prob li.is-market .fcc-prob-fill { background: repeating-linear-gradient(45deg, var(--ink-3) 0 4px, var(--ink-4, #aaa) 4px 8px); }
+  .fcc-prob li.is-ours { font-weight: 600; }
+  .fcc-prob-half { position: absolute; top: -2px; bottom: -2px; left: 50%; border-left: 1px dashed var(--ink-2); }
+  .fcc-prob-val { font-family: var(--mono); font-size: 14px; text-align: right; font-variant-numeric: tabular-nums; }
+  .fcc-legend { list-style: none; margin: 0 0 12px; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 14px; font-family: var(--mono); font-size: 11px; color: var(--ink-2); }
+  .fcc-legend li { display: inline-flex; align-items: center; gap: 6px; }
+  .fcc-sw { width: 12px; height: 12px; border-radius: 2px; display: inline-block; }
+  .fcc-ratings li { display: grid; grid-template-columns: minmax(8rem, 13rem) 1fr; gap: 12px; align-items: center; font-size: 14px; }
+  .fcc-ratings li.is-ours { font-weight: 600; }
+  .fcc-rbar { display: flex; gap: 2px; height: 26px; border-radius: 3px; overflow: hidden; }
+  .fcc-rseg { display: flex; align-items: center; justify-content: center; min-width: 2px; color: #fff; font-family: var(--mono); font-size: 11px; }
+  .fcc-rseg b { font-weight: 500; text-shadow: 0 0 2px rgba(0,0,0,.35); }
+  .is-hatch { background-image: repeating-linear-gradient(45deg, rgba(255,255,255,.35) 0 3px, transparent 3px 7px); }
+  .fcc-others { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px 22px; font-size: 14px; }
+
+  .fcc-disclaimer {
+    margin: 34px 0 0; font-size: 12px; color: var(--ink-3); max-width: 80ch;
+    padding-top: 16px; border-top: 1px solid var(--rule);
+  }
+
+  @media (max-width: 620px) {
+    .fcc-prob li { grid-template-columns: 1fr 3.8rem; }
+    .fcc-prob-track { grid-column: 1 / -1; grid-row: 2; }
+    .fcc-ratings li { grid-template-columns: 1fr; }
+    .fcc h1 { font-size: 24px; }
+    .fcc-row { grid-template-columns: 1fr auto; }
+    .fcc-meta { grid-column: 1 / -1; }
+  }
+</style>

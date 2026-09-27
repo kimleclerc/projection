@@ -4,6 +4,9 @@ import FrancePollsPage from '../../../../components/FrancePollsPage.astro';
 import polls from '../../../../../web_data/france-presidential/polls.json';
 
 const meta = (polls as any).meta;
+const lastPoll = meta.last_release_date
+  ? new Date(meta.last_release_date + 'T12:00:00Z').toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })
+  : null;
 const canonical = 'https://vote-scope.com/es/france/sondeos/';
 const alternates = {
   en: 'https://vote-scope.com/en/france/polls/',
@@ -13,8 +16,10 @@ const alternates = {
 ---
 
 <EditorialLayout
-  title="Sondeos presidenciales de Francia 2027 — compilación Vote-Scope"
-  description={`Cada sondeo publicado sobre la presidencial francesa de 2027, encuestadora por encuestadora: ${meta.n_first_round_polls} sondeos de primera vuelta y ${meta.n_runoff_polls} duelos de segunda vuelta, agregados por Vote-Scope.`}
+  title={lastPoll
+    ? `Sondeos presidenciales Francia 2027 — la clasificación al ${lastPoll}`
+    : 'Sondeos presidenciales Francia 2027 — la clasificación al día'}
+  description={`¿Quién lidera la presidencial francesa de 2027? ${meta.n_first_round_polls} sondeos de primera vuelta y ${meta.n_runoff_polls} duelos de segunda vuelta${meta.n_firms ? ` de ${meta.n_firms} encuestadoras` : ''}${lastPoll ? `, al ${lastPoll}` : ''}. Promedio ponderado y sondeo por sondeo.`}
   canonical={canonical}
   lang="es"
   currentPage="france"

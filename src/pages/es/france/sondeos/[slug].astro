@@ -1,0 +1,31 @@
+---
+import EditorialLayout from '../../../../layouts/EditorialLayout.astro';
+import FrancePollPage from '../../../../components/FrancePollPage.astro';
+import type { FrPoll } from '../../../../components/FrancePollPage.astro';
+import byPoll from '../../../../../web_data/france-presidential/polls_by_poll.json';
+
+export function getStaticPaths() {
+  return (byPoll.polls as FrPoll[]).map((poll) => ({ params: { slug: poll.slug }, props: { poll } }));
+}
+
+const { poll } = Astro.props as { poll: FrPoll };
+const locale = 'es' as 'en' | 'fr' | 'es';
+const dateLabel = new Date(`${poll.release_date}T12:00:00Z`).toLocaleDateString(
+  locale === 'fr' ? 'fr-CA' : locale === 'es' ? 'es-ES' : 'en-CA',
+  { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' },
+);
+const lead = poll.lead_entries.slice(0, 3).map((e) => `${e.name} ${e.share} %`).join(', ');
+const canonical = `https://vote-scope.com/es/france/sondeos/${poll.slug}/`;
+---
+
+<EditorialLayout
+  title={`Sondeo ${poll.firm_name} del ${dateLabel} — presidencial de Francia 2027 — Vote-Scope`}
+  description={`Sondeo de ${poll.firm_name} publicado el ${dateLabel} para la presidencial francesa de 2027: ${lead} — y las ${poll.n_scenarios} configuraciones de candidaturas que probó la misma encuesta.`}
+  canonical={canonical}
+  lang="es"
+  currentPage="france"
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={{ en: `https://vote-scope.com/en/france/polls/${poll.slug}/`, fr: `https://vote-scope.com/fr/france/sondages/${poll.slug}/`, es: `https://vote-scope.com/es/france/sondeos/${poll.slug}/` }}
+>
+  <FrancePollPage poll={poll} locale="es" base="/es/france/sondeos" hubHref="/es/france/sondeos/" deskHref="/es/france/" />
+</EditorialLayout>

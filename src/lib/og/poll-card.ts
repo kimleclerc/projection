@@ -69,15 +69,22 @@ export async function renderPollCard(input: PollCardInput): Promise<Buffer> {
   const W = input.width ?? 1200;
   const H = input.height ?? 630;
   const maxVal = Math.max(1, ...input.entries.map((e) => e.value));
+  // Au-delà de quatre lignes (C.-B. : CentreBC et OneBC à zéro siège), les
+  // lignes pleine taille poussaient le pied de page hors du cadre.
+  const dense = input.entries.length > 4;
+  const rowGap = dense ? 6 : 14;
+  const barH = dense ? 26 : 34;
+  const valueSize = dense ? 34 : 44;
+  const labelSize = dense ? 20 : 22;
 
   const barRows = input.entries.map((e) =>
-    el('div', { display: 'flex', alignItems: 'center', gap: 20, marginBottom: 14 }, [
+    el('div', { display: 'flex', alignItems: 'center', gap: 20, marginBottom: rowGap }, [
       el('div', {
-        display: 'flex', width: 220, fontFamily: 'JetBrains Mono', fontSize: 22,
+        display: 'flex', width: 220, fontFamily: 'JetBrains Mono', fontSize: labelSize,
         letterSpacing: '0.06em', textTransform: 'uppercase', color: e.color,
       }, e.label),
       el('div', {
-        display: 'flex', flex: 1, height: 34,
+        display: 'flex', flex: 1, height: barH,
         backgroundColor: '#e9e3d6', borderRadius: 6, overflow: 'hidden',
       }, [
         el('div', {
@@ -87,7 +94,7 @@ export async function renderPollCard(input: PollCardInput): Promise<Buffer> {
       ]),
       el('div', {
         display: 'flex', width: e.valueText ? 150 : 96, justifyContent: 'flex-end',
-        fontFamily: 'Newsreader', fontWeight: 600, fontSize: 44, color: INK,
+        fontFamily: 'Newsreader', fontWeight: 600, fontSize: valueSize, color: INK,
       }, e.valueText ?? e.value.toFixed(0)),
     ]),
   );

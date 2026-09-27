@@ -1,4 +1,5 @@
 ---
+import { RATING_ORDER, RATING_STYLE } from '../lib/race-ratings';
 import type { Jurisdiction, Locale, ProjectionData } from '../data/jurisdictions';
 import { modelBadge } from '../data/modelVersion';
 import { readFileSync } from 'node:fs';
@@ -86,16 +87,27 @@ const compositionOrder = [...partyOrder, ...compositionExtras]
   .filter((v, i, arr) => arr.indexOf(v) === i && v !== 'vacant')
   .sort((a, b) => (currentCompositionByKey[b] ?? 0) - (currentCompositionByKey[a] ?? 0))
   .concat('vacant');
+// Étiquettes de la barre de COMPOSITION. Elles sont plus longues que celles
+// des fiches de circonscription (« Indépendants » et non « IND »), d'où une
+// table à part plutôt qu'un branchement sur la palette des adaptateurs.
+//
+// ⚠ La règle est suffixée, pas énumérée. Une liste nommant `ind`, `qc_ind`,
+// `on_ind` et `us_ind` a laissé `bc_ind` s'afficher en code brut dans la
+// barre le jour où la Colombie-Britannique est arrivée — et c'était le
+// troisième groupe de la Chambre. Toute juridiction suivante est couverte.
 const fallbackPartyLabel = (key: string, targetLocale: Locale) => {
   const labels: Record<string, { en: string; fr: string }> = {
     vacant: { en: 'Vacant', fr: 'Vacants' },
-    ind: { en: 'Independent', fr: 'Indépendants' },
-    qc_ind: { en: 'Independent', fr: 'Indépendants' },
-    on_ind: { en: 'Independent', fr: 'Indépendants' },
-    us_ind: { en: 'Independent', fr: 'Indépendants' },
-    fed_oth: { en: 'Other', fr: 'Autres' },
   };
-  return labels[key]?.[targetLocale] ?? key;
+  const explicit = labels[key]?.[targetLocale];
+  if (explicit) return explicit;
+  if (key === 'ind' || key.endsWith('_ind')) {
+    return targetLocale === 'fr' ? 'Indépendants' : 'Independents';
+  }
+  if (key === 'oth' || key.endsWith('_oth')) {
+    return targetLocale === 'fr' ? 'Autres' : 'Other';
+  }
+  return key;
 };
 const compositionSegments = compositionOrder
   .map((key) => {
@@ -113,6 +125,40 @@ const compositionSegments = compositionOrder
   })
   .filter((s): s is NonNullable<typeof s> => s !== null);
 
+// Palette et ordre des cotes : src/lib/race-ratings.ts (partagés avec le comparateur).
+
+const ratingCounts: Record<string, number> = {};
+for (const r of ((data as any).ridings ?? [])) {
+  const code = r?.projection?.rating?.code;
+  if (code && code in RATING_STYLE) ratingCounts[code] = (ratingCounts[code] ?? 0) + 1;
+}
+const ratedTotal = Object.values(ratingCounts).reduce((a, b) => a + b, 0);
+// Seules les chambres dont CHAQUE siège porte une cote sont représentables :
+// une barre partielle mentirait sur la taille des blocs.
+const showRatingBar = ratedTotal > 0 && ratedTotal === ((data as any).ridings ?? []).length;
+const ratingSegments = showRatingBar
+  ? RATING_ORDER.filter((c) => (ratingCounts[c] ?? 0) > 0).map((c) => ({
+      code: c,
+      seats: ratingCounts[c],
+      pct: (ratingCounts[c] / ratedTotal) * 100,
+      label: RATING_STYLE[c][locale === 'fr' ? 'fr' : locale === 'es' ? 'es' : 'en'],
+      isTossup: c === 'tossup',
+    }))
+  : [];
+const tossupCount = ratingCounts['tossup'] ?? 0;
+const _rl = (fr: string, es: string, en: string) => (locale === 'fr' ? fr : locale === 'es' ? es : en);
+const ratingBarCopy = {
+  title: _rl('Solidité des sièges', 'Solidez de los escaños', 'How solid the seats are'),
+  lede: locale === 'fr'
+    ? `Chaque course classée de « sûr » à « incertain ». ${tossupCount} sur ${ratedTotal} sont trop serrées pour être attribuées.`
+    : locale === 'es'
+      ? `Cada contienda clasificada de « segura » a « incierta ». ${tossupCount} de ${ratedTotal} están demasiado reñidas para asignarse.`
+      : `Every race graded from solid to toss-up. ${tossupCount} of ${ratedTotal} are too close to call.`,
+  tableCaption: _rl('Sièges par cote', 'Escaños por calificación', 'Seats by rating'),
+  ratingCol: _rl('Cote', 'Calificación', 'Rating'),
+  seatsCol: _rl('Sièges', 'Escaños', 'Seats'),
+};
+
 // Build seat-projection bar segments
 const projectedSeatsFor = (p: any) =>
   p.seats_projected ?? p.seats_median ?? Math.round(p.seats_mean ?? 0);
@@ -120,10 +166,23 @@ const projectionTotal = orderedParties.reduce(
   (sum, p) => sum + projectedSeatsFor(p),
   0,
 );
-const projectionSegments = orderedParties
-  .map((p) => ({ party: p, seats: projectedSeatsFor(p) }))
-  .filter(({ seats }) => seats > 0)
-  .map(({ party: p, seats }) => ({
+// Ordre de la barre : un indépendant se lit AU MILIEU, entre les deux grands,
+// parce que c'est sa place politique. Trié par taille il se retrouverait à
+// droite, collé au parti qu'il vient justement de battre.
+const isResidualParty = (key: string) => /_oth$|^oth$|ind$/.test(key);
+const projectionOrder = (() => {
+  const majors = orderedParties.filter((p) => !isResidualParty(p.party));
+  const residual = orderedParties.filter((p) => isResidualParty(p.party));
+  if (residual.length === 0 || majors.length < 2) return orderedParties;
+  return [majors[0], ...residual, ...majors.slice(1)];
+})();
+
+// La barre ne montre que les partis qui ont des sièges (un segment de largeur
+// nulle n'existe pas). Les cartes, elles, montrent aussi les partis que la
+// juridiction liste dans `showAtZeroSeats` (CentreBC, OneBC) : les sondeurs
+// les suivent à part, les cacher laisserait croire que le modèle les ignore.
+const showAtZero = new Set(jurisdiction.showAtZeroSeats ?? []);
+const toSegment = ({ party: p, seats }: { party: any; seats: number }) => ({
     key: p.party,
     label_en: p.label_en,
     label_fr: p.label_fr,
@@ -136,7 +195,19 @@ const projectionSegments = orderedParties
     vote_mean: p.vote_mean,
     trend_direction: p.trend_direction ?? 'flat',
     trend_7d: p.trend_7d,
-  }));
+  });
+const projectionSegments = projectionOrder
+  .map((p) => ({ party: p, seats: projectedSeatsFor(p) }))
+  .filter(({ seats }) => seats > 0)
+  .map(toSegment);
+const projectionCards = [
+  ...projectionSegments,
+  ...orderedParties
+    .map((p) => ({ party: p, seats: projectedSeatsFor(p) }))
+    .filter(({ party: p, seats }) => seats === 0 && showAtZero.has(p.party))
+    .sort((a, b) => (b.party.vote_mean ?? 0) - (a.party.vote_mean ?? 0))
+    .map(toSegment),
+];
 
 const majorityMarkerPct = (majorityThreshold / totalSeats) * 100;
 
@@ -646,20 +717,16 @@ const pageNavItems = [
     </section>
   )}
 
-  {jurisdiction.electionDate && (
+  {jurisdiction.electionDate && jurisdiction.countdown && (
     <section
       class="pe-section container"
-      aria-label={locale === 'fr' ? 'Compte à rebours électoral' : 'Election countdown'}
+      aria-label={locale === 'fr' ? 'Compte à rebours électoral' : locale === 'es' ? 'Cuenta atrás electoral' : 'Election countdown'}
     >
       <ElectionCountdown
         targetDate={jurisdiction.electionDate}
         locale={locale}
-        title={
-          locale === 'fr'
-            ? 'Le Québec vote le 5 octobre.'
-            : 'Quebec votes on October 5.'
-        }
-        kicker={locale === 'fr' ? 'Compte à rebours Québec 2026' : 'Quebec 2026 countdown'}
+        title={jurisdiction.countdown.title[locale] ?? jurisdiction.countdown.title.en}
+        kicker={jurisdiction.countdown.kicker[locale] ?? jurisdiction.countdown.kicker.en}
         client:load
       />
     </section>
@@ -695,6 +762,45 @@ const pageNavItems = [
         </li>
       ))}
     </ul>
+
+    {showRatingBar && (
+      <div class="pe-rating">
+        <h3 class="pe-rating-title">{ratingBarCopy.title}</h3>
+        <p class="pe-rating-lede">{ratingBarCopy.lede}</p>
+        <div class="pe-rating-bar" role="img" aria-label={ratingBarCopy.lede}>
+          {ratingSegments.map((seg) => (
+            <div
+              class:list={['pe-rating-seg', seg.isTossup && 'is-tossup']}
+              style={`width:${seg.pct}%; --seg:${RATING_STYLE[seg.code].light}; --seg-dark:${RATING_STYLE[seg.code].dark};`}
+              title={`${seg.label} — ${seg.seats}`}
+            >
+              <span class="pe-rating-seg-value">{seg.seats}</span>
+            </div>
+          ))}
+        </div>
+        <ul class="pe-rating-legend">
+          {ratingSegments.map((seg) => (
+            <li>
+              <span
+                class:list={['pe-rating-swatch', seg.isTossup && 'is-tossup']}
+                style={`--seg:${RATING_STYLE[seg.code].light}; --seg-dark:${RATING_STYLE[seg.code].dark};`}
+              />
+              <span class="pe-rating-legend-name">{seg.label}</span>
+              <span class="pe-rating-legend-value">{seg.seats}</span>
+            </li>
+          ))}
+        </ul>
+        <table class="pe-rating-table">
+          <caption>{ratingBarCopy.tableCaption}</caption>
+          <thead><tr><th scope="col">{ratingBarCopy.ratingCol}</th><th scope="col">{ratingBarCopy.seatsCol}</th></tr></thead>
+          <tbody>
+            {ratingSegments.map((seg) => (
+              <tr><th scope="row">{seg.label}</th><td>{seg.seats}</td></tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    )}
   </section>
 
   <!-- SEAT PROJECTION -->
@@ -716,7 +822,7 @@ const pageNavItems = [
       <span class="pe-bar-majority-label">{t.majorityNeeded}</span>
     </div>
     <div class="pe-projection-grid">
-      {projectionSegments.map((s) => (
+      {projectionCards.map((s) => (
         <div class="pe-projection-card">
           <header>
             {s.logo
@@ -755,6 +861,10 @@ const pageNavItems = [
       ))}
     </div>
   </section>
+
+  <!-- MARCHÉS ET AUTRES PRÉVISIONS — juste sous la projection des sièges
+       (les pages US y placent Kalshi et les liens vers le comparateur) -->
+  <slot name="markets" />
 
   <!-- ANALYSIS — charts -->
   <section id="analysis" class="pe-section container" aria-labelledby="pe-analysis-title">
@@ -1108,6 +1218,114 @@ const pageNavItems = [
 
   .pe-bar-segment-label {
     text-shadow: 0 1px 1px rgba(0, 0, 0, 0.25);
+  }
+
+  /* --- Barre de solidité (cotes) ------------------------------------------
+     L'écart de 2 px, l'effectif écrit dans le segment et la hachure du toss-up
+     sont l'encodage secondaire exigé par la faible séparation « Lean R ↔
+     Toss-up » en protanopie. Les trois vont ensemble. */
+  .pe-rating {
+    margin-top: 28px;
+    padding-top: 20px;
+    border-top: 1px solid var(--rule);
+  }
+
+  .pe-rating-title {
+    font-size: 15px;
+    margin: 0 0 4px;
+  }
+
+  .pe-rating-lede {
+    margin: 0 0 12px;
+    color: var(--ink-2);
+    font-size: 13px;
+    max-width: 60ch;
+  }
+
+  .pe-rating-bar {
+    display: flex;
+    gap: 2px;
+    height: 34px;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .pe-rating-seg {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2px;
+    background: var(--seg);
+    color: #fff;
+    font-family: var(--mono);
+    font-size: 12px;
+    transition: filter 0.15s ease;
+  }
+
+  .pe-rating-seg:first-child { border-radius: 4px 0 0 4px; }
+  .pe-rating-seg:last-child  { border-radius: 0 4px 4px 0; }
+  .pe-rating-seg:hover { filter: brightness(1.08); }
+
+  .pe-rating-seg.is-tossup,
+  .pe-rating-swatch.is-tossup {
+    background-image: repeating-linear-gradient(
+      45deg,
+      rgba(255, 255, 255, 0.34) 0 4px,
+      rgba(255, 255, 255, 0) 4px 8px
+    );
+  }
+
+  .pe-rating-seg-value {
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.35);
+  }
+
+  .pe-rating-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+    list-style: none;
+    margin: 12px 0 0;
+    padding: 0;
+    font-size: 12px;
+  }
+
+  .pe-rating-legend li {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .pe-rating-swatch {
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+    background: var(--seg);
+    flex: none;
+  }
+
+  .pe-rating-legend-name { color: var(--ink-2); }
+  .pe-rating-legend-value { font-family: var(--mono); color: var(--ink); }
+
+  /* Le tableau double la barre pour les lecteurs d'écran et l'impression. */
+  .pe-rating-table {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  [data-theme="dark"] .pe-rating-seg,
+  [data-theme="dark"] .pe-rating-swatch {
+    background-color: var(--seg-dark);
+  }
+
+  @media (forced-colors: active) {
+    .pe-rating-seg { forced-color-adjust: none; border: 1px solid CanvasText; }
   }
 
   .pe-bar-majority {

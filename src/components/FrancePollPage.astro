@@ -1,0 +1,354 @@
+---
+/**
+ * Une page pour UN sondage de la présidentielle française.
+ *
+ * « sondage présidentielle 2027 » vaut 39 600 impressions de recherche sur trois
+ * mois : la plus grosse demande française du site. Les gens cherchent un
+ * sondage précis, dans le format que la presse leur a appris — « le sondage Ifop
+ * du 28 mai ». Nous n'avions qu'une compilation et des pages de scénario.
+ *
+ * ⚠ Une page par SONDAGE, jamais par scénario. Le modèle France est par
+ * castings : un même sondage teste plusieurs configurations de candidatures.
+ * Le 2026-09-19, 280 lignes de premier tour pour 59 sondages réels — un seul
+ * Harris en porte quatorze. Une page par configuration publierait quatorze
+ * quasi-doublons pour une enquête.
+ *
+ * La page ramène vers le moteur : la moyenne pondérée et la projection sont ce
+ * que le communiqué du sondeur ne donne pas.
+ */
+export interface PollEntry { id: string; name: string; share: number }
+export interface PollScenario { scenario_id: string; n_candidates: number; entries: PollEntry[] }
+export interface FrPoll {
+  slug: string; firm: string; firm_name: string; release_date: string;
+  field_start?: string | null; field_end?: string | null; sample_size?: number | null;
+  source_url?: string | null; n_scenarios: number;
+  lead_entries: PollEntry[]; scenarios: PollScenario[];
+  runoffs: Array<{ left: string; right: string; left_share: number; right_share: number }>;
+  /** Lecture automatique (export_fr_pres_poll_pages.py) — toujours sur des hypothèses identiques. */
+  reading?: {
+    vs_model?: { scenario_label: string; items: Array<{ id: string; name: string; poll: number; model: number; delta: number }> };
+    vs_previous?: { slug: string; release_date: string; stable: boolean;
+      items: Array<{ id: string; name: string; now: number; before: number; delta: number }> };
+    house?: Array<{ id: string; name: string; delta: number; n: number }>;
+  };
+  newer_slug?: string | null; older_slug?: string | null;
+}
+
+import dataSheets from '../../web_data/france-presidential/data_sheets.json';
+import JurisdictionNav from './JurisdictionNav.astro';
+
+interface Props { poll: FrPoll; locale: 'en' | 'fr' | 'es'; base: string; hubHref: string; deskHref: string; }
+const { poll, locale, base, hubHref, deskHref } = Astro.props as Props;
+
+const L = locale === 'fr' ? 'fr-FR' : locale === 'es' ? 'es-ES' : 'en-CA';
+const d = (iso?: string | null) => iso
+  ? new Date(`${iso}T12:00:00Z`).toLocaleDateString(L, { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })
+  : null;
+
+const copy = {
+  en: {
+    eyebrow: 'France · 2027 presidential poll',
+    fieldwork: 'Fieldwork', sample: 'Sample', published: 'Published', source: 'Pollster release',
+    respondents: (n: number) => `${n.toLocaleString(L)} respondents`,
+    firstRound: 'First round, voting intention',
+    scenarios: (n: number) => `This poll tested ${n} candidate line-ups`,
+    scenariosLede: 'French pollsters test several hypothetical fields in the same survey. Each one is shown below — the pollster’s own release rarely puts them side by side.',
+    runoffs: 'Run-off match-ups tested',
+    lineup: 'Line-up', candidates: 'candidates', with: 'with', without: 'without',
+    backHub: 'All 2027 presidential polls', backDesk: 'Our weighted average and projection',
+    newer: 'More recent poll', older: 'Earlier poll',
+    modelNote: 'A single poll is one measurement with its own margin of error. Our model weights every published poll, corrects for house effects and projects the range of plausible outcomes.',
+  },
+  fr: {
+    eyebrow: 'France · sondage présidentielle 2027',
+    fieldwork: 'Terrain', sample: 'Échantillon', published: 'Publication', source: 'Notice du sondeur',
+    respondents: (n: number) => `${n.toLocaleString(L)} personnes interrogées`,
+    firstRound: 'Premier tour, intentions de vote',
+    scenarios: (n: number) => `Ce sondage a testé ${n} configurations de candidatures`,
+    scenariosLede: 'Les instituts français testent plusieurs hypothèses de candidatures dans la même enquête. Ils sont tous ci-dessous — la notice du sondeur les met rarement côte à côte.',
+    runoffs: 'Duels de second tour testés',
+    lineup: 'Hypothèse', candidates: 'candidats', with: 'avec', without: 'sans',
+    backHub: 'Tous les sondages de la présidentielle 2027', backDesk: 'Notre moyenne pondérée et notre projection',
+    newer: 'Sondage plus récent', older: 'Sondage précédent',
+    modelNote: 'Un sondage isolé est une mesure, avec sa marge d’erreur. Notre modèle pondère chaque sondage publié, corrige les biais d’institut et projette l’éventail des issues plausibles.',
+  },
+  es: {
+    eyebrow: 'Francia · sondeo presidencial 2027',
+    fieldwork: 'Trabajo de campo', sample: 'Muestra', published: 'Publicación', source: 'Nota del sondeador',
+    respondents: (n: number) => `${n.toLocaleString(L)} personas encuestadas`,
+    firstRound: 'Primera vuelta, intención de voto',
+    scenarios: (n: number) => `Este sondeo probó ${n} configuraciones de candidaturas`,
+    scenariosLede: 'Los institutos franceses prueban varias combinaciones hipotéticas en la misma encuesta. Todas aparecen abajo — la nota del sondeador rara vez las pone juntas.',
+    runoffs: 'Duelos de segunda vuelta probados',
+    lineup: 'Combinación', candidates: 'candidatos', with: 'con', without: 'sin',
+    backHub: 'Todas las encuestas presidenciales de 2027', backDesk: 'Nuestro promedio ponderado y proyección',
+    newer: 'Sondeo más reciente', older: 'Sondeo anterior',
+    modelNote: 'Un sondeo aislado es una medición, con su margen de error. Nuestro modelo pondera cada sondeo publicado, corrige los sesgos de casa y proyecta el abanico de resultados plausibles.',
+  },
+}[locale];
+
+const maxShare = Math.max(...poll.lead_entries.map((e) => e.share), 1);
+
+// « 16,5 % » en français, « 16.5% » en anglais : le gabarit écrivait
+// `${share}%` partout, décimale anglaise comprise.
+const nf = new Intl.NumberFormat(L, { maximumFractionDigits: 1 });
+const pct = (v: number) => `${nf.format(v)}${locale === 'en' ? '%' : '\u00a0%'}`;
+
+// ── Notre lecture ────────────────────────────────────────────────────────
+// Ce que le communiqué ne dit pas : écart à notre moyenne (sondages récents),
+// mouvement depuis la vague précédente du même institut, effet maison. Les
+// trois portent sur des hypothèses IDENTIQUES.
+const reading = poll.reading ?? {};
+const pts = (v: number) => {
+  const abs = nf.format(Math.abs(v));
+  const sign = v > 0 ? '+' : '−';
+  if (locale === 'en') return `${sign}${abs} pt${Math.abs(v) >= 2 ? 's' : ''}`;
+  if (locale === 'es') return `${sign}${abs} pt${Math.abs(v) >= 2 ? 's' : ''}`;
+  return `${sign}${abs} pt${Math.abs(v) >= 2 ? 's' : ''}`;
+};
+// Sans signe quand le sens est dit en toutes lettres (« 3,7 pts plus bas »).
+const ptsAbs = (v: number) => `${nf.format(Math.abs(v))} pt${Math.abs(v) >= 2 ? 's' : ''}`;
+const readShort = (id: string, fallback: string) => shortById.get(id) ?? fallback;
+const R = {
+  fr: {
+    title: 'Notre lecture de ce sondage',
+    vsModel: (label: string) => `Par rapport à notre moyenne sur la même hypothèse (« ${label} ») :`,
+    modelAligned: (label: string) => `Sur l’hypothèse « ${label} », ce sondage est aligné sur notre moyenne : aucun écart d’un point ou plus.`,
+    vsPrev: (d: string) => `Depuis la vague précédente de l’institut (${d}), sur la même hypothèse :`,
+    prevStable: (d: string) => `Rien ne bouge d’un point ou plus depuis la vague précédente de l’institut (${d}), sur la même hypothèse.`,
+    house: (firm: string) => `Effet maison : sur les mêmes hypothèses, ${firm} place habituellement`,
+    houseItem: (name: string, v: number) => `${name} ${ptsAbs(v)} ${v > 0 ? 'plus haut' : 'plus bas'}`,
+    houseTail: (n: number) => `que les autres instituts (${n} comparaisons à moins de 60 jours). Ce n’est pas une erreur : chaque institut a sa méthode, notre moyenne en tient compte.`,
+    vs: 'contre', prevLink: 'Voir la vague précédente',
+    effectLink: 'À qui chaque candidature prend ses voix : l’effet candidature',
+  },
+  en: {
+    title: 'Our reading of this poll',
+    vsModel: (label: string) => `Compared with our average for the same lineup (“${label}”):`,
+    modelAligned: (label: string) => `On the “${label}” lineup, this poll is in line with our average: no gap of a point or more.`,
+    vsPrev: (d: string) => `Since the pollster’s previous wave (${d}), same lineup:`,
+    prevStable: (d: string) => `Nothing moved by a point or more since the pollster’s previous wave (${d}), same lineup.`,
+    house: (firm: string) => `House effect: on the same lineups, ${firm} usually puts`,
+    houseItem: (name: string, v: number) => `${name} ${ptsAbs(v)} ${v > 0 ? 'higher' : 'lower'}`,
+    houseTail: (n: number) => `than other pollsters (${n} comparisons within 60 days). Not an error: each pollster has its method, and our average accounts for it.`,
+    vs: 'vs', prevLink: 'See the previous wave',
+    effectLink: 'Where each candidacy takes its votes from: the candidacy effect',
+  },
+  es: {
+    title: 'Nuestra lectura de esta encuesta',
+    vsModel: (label: string) => `Frente a nuestro promedio para la misma combinación («${label}»):`,
+    modelAligned: (label: string) => `En la combinación «${label}», esta encuesta coincide con nuestro promedio: ninguna diferencia de un punto o más.`,
+    vsPrev: (d: string) => `Desde la oleada anterior del instituto (${d}), misma combinación:`,
+    prevStable: (d: string) => `Nada se mueve un punto o más desde la oleada anterior del instituto (${d}), misma combinación.`,
+    house: (firm: string) => `Efecto de la casa: en las mismas combinaciones, ${firm} suele situar a`,
+    houseItem: (name: string, v: number) => `${name} ${ptsAbs(v)} ${v > 0 ? 'más arriba' : 'más abajo'}`,
+    houseTail: (n: number) => `que los demás institutos (${n} comparaciones a menos de 60 días). No es un error: cada instituto tiene su método y nuestro promedio lo tiene en cuenta.`,
+    vs: 'frente a', prevLink: 'Ver la oleada anterior',
+    effectLink: 'De quién toma sus votos cada candidatura: el efecto candidatura',
+  },
+}[locale];
+const effectHref = { fr: '/fr/france/effet-candidature/', en: '/en/france/candidacy-effect/', es: '/es/france/efecto-candidatura/' }[locale];
+const hasReading = Boolean(reading.vs_model || reading.vs_previous || reading.house?.length);
+
+// Une hypothèse se nomme par ce qui la DISTINGUE des autres hypothèses du
+// même sondage (« avec Glucksmann »), comme dans la presse — pas par un
+// numéro et un nombre de candidats.
+const shortById = new Map(((dataSheets as any).candidates ?? []).map((c: any) => [c.candidate_id, c.short_label]));
+const shortName = (e: PollEntry) => shortById.get(e.id) ?? e.name;
+const scenarioSets = poll.scenarios.map((sc) => new Set(sc.entries.map((e) => e.id)));
+const everywhere = new Set(
+  [...(scenarioSets[0] ?? [])].filter((id) => scenarioSets.every((set) => set.has(id))),
+);
+const allIds = new Map(poll.scenarios.flatMap((sc) => sc.entries.map((e) => [e.id, e] as const)));
+const lineupLabel = (sc: PollScenario) => {
+  const present = sc.entries.filter((e) => !everywhere.has(e.id)).map(shortName);
+  if (present.length) return `${copy.with} ${present.join(', ')}`;
+  const absent = [...allIds.values()].filter((e) => !sc.entries.some((x) => x.id === e.id)).map(shortName);
+  return absent.length ? `${copy.without} ${absent.join(', ')}` : `${sc.n_candidates} ${copy.candidates}`;
+};
+---
+
+<JurisdictionNav webKey="france" lang={locale} active="polls" />
+
+<article class="fpp" data-content-area>
+  <header class="fpp-head container">
+    <p class="fpp-eyebrow">{copy.eyebrow}</p>
+    <h1>{`${poll.firm_name} — ${d(poll.release_date)}`}</h1>
+    <dl class="fpp-meta">
+      {poll.field_start && poll.field_end && (
+        <div><dt>{copy.fieldwork}</dt><dd>{`${d(poll.field_start)} → ${d(poll.field_end)}`}</dd></div>
+      )}
+      {poll.sample_size && (
+        <div><dt>{copy.sample}</dt><dd>{copy.respondents(poll.sample_size)}</dd></div>
+      )}
+      <div><dt>{copy.published}</dt><dd>{d(poll.release_date)}</dd></div>
+      {poll.source_url && (
+        <div><dt>{copy.source}</dt>
+          <dd><a href={poll.source_url} rel="nofollow noopener" target="_blank">{copy.source} →</a></dd></div>
+      )}
+    </dl>
+  </header>
+
+  <section class="fpp-section container">
+    <h2>{copy.firstRound}</h2>
+    <ul class="fpp-bars">
+      {poll.lead_entries.map((e) => (
+        <li>
+          <span class="fpp-name">{e.name}</span>
+          <span class="fpp-track" aria-hidden="true">
+            <span class="fpp-fill" style={`width:${(e.share / maxShare) * 100}%`} />
+          </span>
+          <span class="fpp-share">{pct(e.share)}</span>
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  {hasReading && (
+    <section class="fpp-section container" aria-labelledby="fpp-reading-title">
+     <div class="fpp-reading">
+      <h2 id="fpp-reading-title">{R.title}</h2>
+      {reading.vs_model && (reading.vs_model.items.length > 0 ? (
+        <div class="fpp-read-block">
+          <p>{R.vsModel(reading.vs_model.scenario_label)}</p>
+          <ul>
+            {reading.vs_model.items.map((i) => (
+              <li><b>{readShort(i.id, i.name)}</b> {pct(i.poll)} {R.vs} {pct(i.model)} <span class={i.delta > 0 ? 'is-up' : 'is-down'}>({pts(i.delta)})</span></li>
+            ))}
+          </ul>
+        </div>
+      ) : (
+        <div class="fpp-read-block"><p>{R.modelAligned(reading.vs_model.scenario_label)}</p></div>
+      ))}
+      {reading.vs_previous && (
+        <div class="fpp-read-block">
+          {reading.vs_previous.stable
+            ? <p>{R.prevStable(d(reading.vs_previous.release_date) ?? '')}</p>
+            : <>
+                <p>{R.vsPrev(d(reading.vs_previous.release_date) ?? '')}</p>
+                <ul>
+                  {reading.vs_previous.items.map((i) => (
+                    <li><b>{readShort(i.id, i.name)}</b> {pct(i.before)} → {pct(i.now)} <span class={i.delta > 0 ? 'is-up' : 'is-down'}>({pts(i.delta)})</span></li>
+                  ))}
+                </ul>
+              </>}
+          <a class="fpp-read-link" href={`${base}/${reading.vs_previous.slug}/`}>{R.prevLink} →</a>
+        </div>
+      )}
+      {reading.house && reading.house.length > 0 && (
+        <div class="fpp-read-block">
+          <p>
+            {R.house(poll.firm_name)}{' '}
+            {reading.house.map((h, i) => (
+              <>{i > 0 ? (i === reading.house!.length - 1 ? (locale === 'en' ? ' and ' : locale === 'es' ? ' y ' : ' et ') : ', ') : ''}<b>{R.houseItem(readShort(h.id, h.name), h.delta)}</b></>
+            ))}{' '}
+            {R.houseTail(Math.max(...reading.house.map((h) => h.n)))}
+          </p>
+        </div>
+      )}
+      <a class="fpp-read-link" href={effectHref}>{R.effectLink} →</a>
+     </div>
+    </section>
+  )}
+
+  {poll.runoffs.length > 0 && (
+    <section class="fpp-section container">
+      <h2>{copy.runoffs}</h2>
+      <ul class="fpp-duels">
+        {poll.runoffs.map((r) => (
+          <li>{`${r.left} ${pct(r.left_share)} — ${pct(r.right_share)} ${r.right}`}</li>
+        ))}
+      </ul>
+    </section>
+  )}
+
+  {poll.n_scenarios > 1 && (
+    <section class="fpp-section container">
+      <h2>{copy.scenarios(poll.n_scenarios)}</h2>
+      <p class="fpp-lede">{copy.scenariosLede}</p>
+      <div class="fpp-scenarios">
+        {poll.scenarios.map((sc, i) => (
+          <div class="fpp-scenario">
+            <h3>{`${copy.lineup} ${i + 1} · ${lineupLabel(sc)}`}</h3>
+            <ul>
+              {sc.entries.map((e) => <li><span>{e.name}</span><b>{pct(e.share)}</b></li>)}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </section>
+  )}
+
+  <section class="fpp-section container">
+    <p class="fpp-model">{copy.modelNote}</p>
+    <p class="fpp-links">
+      <a href={deskHref}>{copy.backDesk} →</a>
+      <a href={hubHref}>{copy.backHub} →</a>
+    </p>
+    <p class="fpp-nav">
+      {poll.newer_slug && <a href={`${base}/${poll.newer_slug}/`}>{`← ${copy.newer}`}</a>}
+      {poll.older_slug && <a href={`${base}/${poll.older_slug}/`}>{`${copy.older} →`}</a>}
+    </p>
+  </section>
+</article>
+
+<style>
+  .fpp { padding-bottom: 56px; }
+  /* padding-block seulement : `padding: 40px 0 8px` annulait la marge
+     latérale de .container — la page collait au bord de l'écran. */
+  .fpp-head { padding-block: 40px 8px; max-width: 1080px; }
+  .fpp-reading { border-left: 3px solid var(--ink); padding-left: 18px; max-width: 760px; }
+  .fpp-read-block { margin: 0 0 14px; color: var(--ink-2); line-height: 1.6; }
+  .fpp-read-block p { margin: 0 0 6px; }
+  .fpp-read-block ul { margin: 0 0 6px; padding-left: 18px; }
+  .fpp-read-block b { color: var(--ink); }
+  .fpp-read-block .is-up { color: var(--ink); font-family: var(--mono); font-size: 13px; }
+  .fpp-read-block .is-down { color: var(--ink-3); font-family: var(--mono); font-size: 13px; }
+  .fpp-read-link { display: inline-block; margin-top: 4px; font-family: var(--mono); font-size: 12px; color: var(--ink-2); }
+  .fpp-eyebrow {
+    font-family: var(--mono); font-size: 11px; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--ink-3); margin: 0 0 6px;
+  }
+  .fpp h1 { font-family: var(--serif); font-size: clamp(30px, 4.5vw, 46px); font-weight: 430; letter-spacing: -0.01em; line-height: 1.05; margin: 0 0 18px; }
+
+  .fpp-meta { display: flex; flex-wrap: wrap; gap: 8px 28px; margin: 0 0 8px; }
+  .fpp-meta div { display: flex; flex-direction: column; gap: 2px; }
+  .fpp-meta dt {
+    font-family: var(--mono); font-size: 10px; letter-spacing: .06em;
+    text-transform: uppercase; color: var(--ink-3);
+  }
+  .fpp-meta dd { margin: 0; font-size: 14px; }
+
+  .fpp-section { padding-top: 32px; max-width: 1080px; }
+  .fpp-section h2 { font-family: var(--serif); font-size: clamp(22px, 2.6vw, 28px); font-weight: 430; margin: 0 0 12px; }
+  .fpp-lede { margin: 0 0 16px; color: var(--ink-2); max-width: 66ch; font-size: 14px; }
+
+  .fpp-bars { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+  .fpp-bars li {
+    display: grid; grid-template-columns: minmax(9rem, 15rem) 1fr auto;
+    gap: 12px; align-items: center; font-size: 14px;
+  }
+  .fpp-track { height: 12px; border-radius: 6px; background: var(--rule); overflow: hidden; }
+  .fpp-fill { display: block; height: 100%; background: var(--ink-3); }
+  .fpp-share { font-family: var(--mono); font-size: 13px; min-width: 3.2rem; text-align: right; }
+
+  .fpp-duels { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; font-size: 14px; }
+
+  .fpp-scenarios {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px;
+  }
+  .fpp-scenario { border: 1px solid var(--rule); border-radius: 6px; padding: 14px 16px; }
+  .fpp-scenario h3 { font-family: var(--serif); font-size: 15px; font-weight: 450; margin: 0 0 8px; color: var(--ink); }
+  .fpp-scenario ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; font-size: 13px; }
+  .fpp-scenario li { display: flex; justify-content: space-between; gap: 10px; }
+  .fpp-scenario b { font-family: var(--mono); font-weight: 500; }
+
+  .fpp-model { color: var(--ink-2); font-size: 14px; max-width: 70ch; margin: 0 0 14px; }
+  .fpp-links { display: flex; flex-wrap: wrap; gap: 8px 22px; margin: 0 0 10px; font-size: 14px; }
+  .fpp-nav { display: flex; justify-content: space-between; gap: 16px; font-size: 13px; margin: 0; }
+
+  @media (max-width: 640px) {
+    .fpp-bars li { grid-template-columns: 1fr auto; }
+    .fpp-track { grid-column: 1 / -1; }
+  }
+</style>

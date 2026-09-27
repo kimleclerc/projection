@@ -1,0 +1,32 @@
+---
+import EditorialLayout from '../../../../../layouts/EditorialLayout.astro';
+import ForecasterComparison from '../../../../../components/ForecasterComparison.astro';
+import NewsletterCta from '../../../../../components/NewsletterCta.astro';
+
+const canonical = "https://vote-scope.com/es/us/house/comparar-pronosticos/";
+const pageName = "Comparar pronósticos de la Cámara 2026";
+---
+
+<EditorialLayout
+  title={"Comparar pronósticos de la Cámara 2026 — Vote-Scope"}
+  description={"Todos los pronósticos de la Cámara de 2026 en una página: el modelo de Vote-Scope, los precios de Kalshi y Polymarket, más Cook, Sabato, Inside Elections, The Economist, Silver Bulletin, DDHQ y otros, cada uno con su enlace."}
+  canonical={canonical}
+  lang="es"
+  currentPage="us"
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={{ en: "https://vote-scope.com/en/us/house/compare-forecasts/", fr: "https://vote-scope.com/fr/us/chambre/comparer-les-previsions/", es: "https://vote-scope.com/es/us/house/comparar-pronosticos/" }}
+  jsonLd={[
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: 'https://vote-scope.com/es/' },
+        { '@type': 'ListItem', position: 2, name: "EE. UU.", item: 'https://vote-scope.com/es/us/' },
+        { '@type': 'ListItem', position: 3, name: pageName, item: canonical },
+      ],
+    },
+  ]}
+>
+  <ForecasterComparison locale="es" jurisdiction="house" />
+  <NewsletterCta lang="es" placement="compare-house" />
+</EditorialLayout>

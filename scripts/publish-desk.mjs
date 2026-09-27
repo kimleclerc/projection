@@ -36,6 +36,11 @@ const DESKS = {
   federal:     { label: 'Federal',   json: 'web_data/federal/latest.json',            kind: 'projection' },
   ontario:     { label: 'Ontario',   json: 'web_data/ontario/latest.json',            kind: 'projection' },
   quebec:      { label: 'Quebec',    json: 'web_data/quebec/latest.json',             kind: 'projection' },
+  // Colombie-Britannique : desk à sièges ordinaire (93). Le seul point
+  // inhabituel est la composition courante, qui porte des groupes absents de
+  // la projection — indépendants et CentreBC — parce que seize élus
+  // conservateurs de 2024 ont quitté leur caucus.
+  'british-columbia': { label: 'British Columbia', json: 'web_data/british-columbia/latest.json', kind: 'projection' },
   'us-house':  { label: 'US House',  json: 'web_data/us-house/latest.json',           kind: 'projection' },
   // Sénat US : desk en SIÈGES SEULS. Seuls 35 des 100 sièges sont en jeu, donc
   // le moteur ne produit pas de part de vote nationale — `vote_mean` est absent

@@ -1,12 +1,13 @@
-/** Dynamic social/download cards for the seven ProjectionEngine forecasts. */
+/** Dynamic social/download cards for the eight ProjectionEngine forecasts. */
 import type { APIRoute, GetStaticPaths } from 'astro';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { renderPollCard, type CardEntry } from '../../../../lib/og/poll-card';
+import { jurisdictions } from '../../../../data/jurisdictions';
 
 type Lang = 'en' | 'fr' | 'es';
 const LANGS: Lang[] = ['en', 'fr', 'es'];
-const KEYS = ['federal', 'ontario', 'quebec', 'us-house', 'us-senate', 'us-governor', 'uk'] as const;
+const KEYS = ['federal', 'ontario', 'quebec', 'us-house', 'us-senate', 'us-governor', 'uk', 'british-columbia'] as const;
 type Key = (typeof KEYS)[number];
 
 export const getStaticPaths: GetStaticPaths = () =>
@@ -20,6 +21,7 @@ const TITLES: Record<Key, Record<Lang, string>> = {
   'us-senate': { en: 'U.S. Senate forecast', fr: 'Projection · Sénat des États-Unis', es: 'Pronóstico · Senado de EE. UU.' },
   'us-governor': { en: 'U.S. governor forecast', fr: 'Projection \u00b7 Gouverneurs am\u00e9ricains', es: 'Pron\u00f3stico \u00b7 Gobernadores de EE. UU.' },
   uk: { en: 'U.K. election forecast', fr: 'Royaume-Uni · Projection', es: 'Reino Unido · Pronóstico' },
+  'british-columbia': { en: 'British Columbia forecast', fr: 'Colombie-Britannique · Projection', es: 'Columbia Británica · Pronóstico' },
 };
 
 const PARTY_SHORT: Record<string, Partial<Record<Lang, string>>> = {
@@ -40,6 +42,11 @@ const PARTY_SHORT: Record<string, Partial<Record<Lang, string>>> = {
   uk_lab: { en: 'Labour', fr: 'Travaillistes', es: 'Laboristas' },
   uk_con: { en: 'Conservatives', fr: 'Conservateurs', es: 'Conservadores' },
   uk_ld: { en: 'Lib Dem', fr: 'Lib. dém.', es: 'Lib. dem.' },
+  bc_ndp: { en: 'BC NDP', fr: 'NPD', es: 'NPD' },
+  bc_con: { en: 'Conservatives', fr: 'Conservateurs', es: 'Conservadores' },
+  bc_grn: { en: 'Greens', fr: 'Verts', es: 'Verdes' },
+  bc_centre: { en: 'CentreBC', fr: 'CentreBC', es: 'CentreBC' },
+  bc_onebc: { en: 'OneBC', fr: 'OneBC', es: 'OneBC' },
 };
 
 const LABELS = {
@@ -59,9 +66,13 @@ export const GET: APIRoute = async ({ params }) => {
   const lang = (params.lang as Lang) ?? 'en';
   const t = LABELS[lang];
   const data = JSON.parse(readFileSync(resolve(process.cwd(), 'web_data', key, 'latest.json'), 'utf8'));
+  // Même liste que les cartes de la page : un parti suivi par les sondeurs
+  // reste sur l'image à zéro siège.
+  const showAtZero = new Set(
+    Object.values(jurisdictions).find((j) => j.dataPath === key)?.showAtZeroSeats ?? []);
   const parties = [...data.parties]
     .sort((a: any, b: any) => projectedSeats(b) - projectedSeats(a))
-    .filter((party: any) => projectedSeats(party) > 0);
+    .filter((party: any) => projectedSeats(party) > 0 || showAtZero.has(party.party));
   const lead = parties[0];
   const majorityProbability = Number(lead.p_majority ?? 0);
   const firstProbability = Number(lead.p_largest ?? 0);
@@ -69,7 +80,7 @@ export const GET: APIRoute = async ({ params }) => {
   const probabilityLabel = majorityProbability >= 0.01 ? t.majority : t.largest;
   const formatter = new Intl.NumberFormat(lang === 'fr' ? 'fr-CA' : lang === 'es' ? 'es-ES' : 'en-CA');
 
-  const entries: CardEntry[] = parties.slice(0, 4).map((party: any) => ({
+  const entries: CardEntry[] = parties.slice(0, Math.max(4, 3 + showAtZero.size)).map((party: any) => ({
     label: partyLabel(party, lang),
     color: party.color,
     value: projectedSeats(party),

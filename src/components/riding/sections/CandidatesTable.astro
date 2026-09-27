@@ -80,7 +80,7 @@ const numberFmt = new Intl.NumberFormat(LOCALE);
                 </span>
               </td>
               <td class="num">{c.votes !== undefined ? numberFmt.format(c.votes) : '—'}</td>
-              <td class="num">{c.vote_pct !== undefined ? c.vote_pct.toFixed(1) : '—'}</td>
+              <td class="num">{c.vote_pct != null ? c.vote_pct.toFixed(1) : '—'}</td>
               <td class="role">{c.occupation ?? '—'}</td>
             </tr>
           );

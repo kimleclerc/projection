@@ -79,15 +79,47 @@ export function blocHex(bloc: string): string {
   return BLOC_HEX[bloc] ?? BLOC_HEX.other;
 }
 
-export function blocLabel(bloc: string, locale: Locale): string {
+// Famille politique SANS parti : le parti vient de la candidature, pas du bloc.
+// BLOC_LABELS collait « (RN) » à tout le bloc d'extrême droite — Zemmour
+// devenait RN, Glucksmann (Place publique) PS, Villepin et Lecornu Horizons.
+const BLOC_GENERIC: Record<Bloc, { fr: string; en: string; es: string }> = {
+  far_left: { fr: 'Extrême gauche', en: 'Far left', es: 'Extrema izquierda' },
+  left: { fr: 'Gauche', en: 'Left', es: 'Izquierda' },
+  left_radical: { fr: 'Gauche radicale', en: 'Radical left', es: 'Izquierda radical' },
+  left_populist: { fr: 'Gauche populaire', en: 'Populist left', es: 'Izquierda popular' },
+  left_social_dem: { fr: 'Sociaux-démocrates', en: 'Social democrats', es: 'Socialdemócratas' },
+  greens: { fr: 'Écologistes', en: 'Greens', es: 'Ecologistas' },
+  centre: { fr: 'Centre', en: 'Centre', es: 'Centro' },
+  centre_right: { fr: 'Centre droit', en: 'Centre-right', es: 'Centroderecha' },
+  right: { fr: 'Droite', en: 'Right', es: 'Derecha' },
+  sovereignist: { fr: 'Souverainistes', en: 'Sovereignist', es: 'Soberanistas' },
+  far_right: { fr: 'Extrême droite', en: 'Far right', es: 'Extrema derecha' },
+  other: { fr: 'Autres', en: 'Other', es: 'Otros' },
+};
+
+/** Sigle du parti par `party_family` du registre. Absent = pas de sigle
+ * (indépendants, et les écologistes, dont le nom de parti répète le bloc). */
+const PARTY_ABBR: Record<string, string> = {
+  rn: 'RN', reconquete: 'Reconquête', renaissance: 'Renaissance', modem: 'MoDem',
+  horizons: 'Horizons', lr: 'LR', nous_france: 'Nous France', humanist_france: 'La France humaniste',
+  lfi: 'LFI', ps: 'PS', ps_place_publique: 'Place publique', la_convention: 'La Convention',
+  pcf: 'PCF', picardie_debout: 'Picardie debout', lo: 'LO', npa: 'NPA', dlf: 'DLF', upr: 'UPR',
+  grs: 'GRS', nouvelle_energie: 'Nouvelle Énergie', les_patriotes: 'Les Patriotes',
+  generation_ecologie: 'Génération écologie', revolution_permanente: 'Révolution permanente',
+  france_libre: 'France Libre', elvita: 'Elvita', trajectoire: 'Trajectoire',
+};
+
+export function blocLabel(bloc: string, locale: Locale, partyFamily?: string): string {
   const b = (BLOC_ORDER as string[]).includes(bloc) ? (bloc as Bloc) : 'other';
-  return BLOC_LABELS[b][locale];
+  const abbr = partyFamily ? PARTY_ABBR[partyFamily] : undefined;
+  return abbr ? `${BLOC_GENERIC[b][locale]} (${abbr})` : BLOC_GENERIC[b][locale];
 }
 
 export const STATUS_LABELS: Record<string, { fr: string; en: string; es: string }> = {
   declared: { fr: 'Candidature déclarée', en: 'Declared', es: 'Candidatura declarada' },
   probable: { fr: 'Probable', en: 'Probable', es: 'Probable' },
-  testing: { fr: 'Testé·e', en: 'Tested', es: 'En sondeos' },
+  primary: { fr: 'Primaire PS', en: 'PS primary', es: 'Primarias PS' },
+  testing: { fr: 'Testé·e', en: 'Tested', es: 'En encuestas' },
   withdrawn: { fr: 'Retiré·e', en: 'Withdrawn', es: 'Retirado·a' },
 };
 
@@ -265,7 +297,7 @@ export function scenarioProvenance(
       text: locale === 'fr'
         ? "Aucun sondage sur cette configuration — estimée à partir des configurations voisines."
         : locale === 'es'
-          ? 'Ningún sondeo sobre esta configuración — estimada a partir de configuraciones vecinas.'
+          ? 'Ningún encuesta sobre esta configuración — estimada a partir de configuraciones vecinas.'
           : 'No poll on this configuration — estimated from neighbouring configurations.',
     };
   }
@@ -277,7 +309,7 @@ export function scenarioProvenance(
   const text = locale === 'fr'
     ? `${n} sondage${n > 1 ? 's' : ''} sur cette configuration${age ? ` · le dernier ${age}` : ''}`
     : locale === 'es'
-      ? `${n} sondeo${n > 1 ? 's' : ''} sobre esta configuración${age ? ` · el último ${age}` : ''}`
+      ? `${n} encuesta${n > 1 ? 's' : ''} sobre esta configuración${age ? ` · el último ${age}` : ''}`
       : `${n} poll${n > 1 ? 's' : ''} on this configuration${age ? ` · latest ${age}` : ''}`;
 
   return { borrowed: false, stale, text };
@@ -287,7 +319,7 @@ export const fmtPct1 = (v: number, locale: Locale) =>
   `${v.toFixed(1).replace('.', locale === 'en' ? '.' : ',')}%`;
 
 // ── Chemins d'URL par langue (slugs traduits comme le reste du site :
-// « distritos », « sondeos » côté es) ────────────────────────────────────────
+// « distritos », « encuestas » côté es) ────────────────────────────────────────
 export const franceBase = (locale: Locale): string => `/${locale}/france`;
 
 export const franceCandBase = (locale: Locale): string =>

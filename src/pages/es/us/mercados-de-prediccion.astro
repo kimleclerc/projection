@@ -1,0 +1,20 @@
+---
+import EditorialLayout from '../../../layouts/EditorialLayout.astro';
+import ModelVsMarkets from '../../../components/ModelVsMarkets.astro';
+import NewsletterCta from '../../../components/NewsletterCta.astro';
+
+const canonical = 'https://vote-scope.com/es/us/mercados-de-prediccion/';
+---
+
+<EditorialLayout
+  title="Cuotas de las intermedias 2026: Kalshi, Polymarket y nuestra previsión — Vote-Scope"
+  description="Las cuotas de las intermedias de 2026 comparadas: precios de Kalshi, precios de Polymarket y la previsión del modelo Vote-Scope para el control de la Cámara y el Senado, lado a lado y actualizadas a diario."
+  canonical={canonical}
+  lang="es"
+  currentPage="us"
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={{ en: 'https://vote-scope.com/en/us/prediction-markets/', fr: 'https://vote-scope.com/fr/us/marches-previsionnels/', es: 'https://vote-scope.com/es/us/mercados-de-prediccion/' }}
+>
+  <ModelVsMarkets locale="es" />
+  <NewsletterCta lang="es" placement="prediction-markets" />
+</EditorialLayout>

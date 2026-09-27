@@ -4,6 +4,9 @@ import FrancePollsPage from '../../../../components/FrancePollsPage.astro';
 import polls from '../../../../../web_data/france-presidential/polls.json';
 
 const meta = (polls as any).meta;
+const lastPoll = meta.last_release_date
+  ? new Date(meta.last_release_date + 'T12:00:00Z').toLocaleDateString('en-CA', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })
+  : null;
 const canonical = 'https://vote-scope.com/en/france/polls/';
 const alternates = {
   en: canonical,
@@ -13,8 +16,10 @@ const alternates = {
 ---
 
 <EditorialLayout
-  title="France 2027 presidential polls — Vote-Scope compilation"
-  description={`Every published poll on the 2027 French presidential race, pollster by pollster: ${meta.n_first_round_polls} first-round polls and ${meta.n_runoff_polls} runoff head-to-heads, aggregated by Vote-Scope.`}
+  title={lastPoll
+    ? `France 2027 Presidential Polls — Standing as of ${lastPoll}`
+    : 'France 2027 Presidential Polls — Latest Standing'}
+  description={`Who leads the 2027 French presidential race? ${meta.n_first_round_polls} first-round polls and ${meta.n_runoff_polls} runoff match-ups${meta.n_firms ? ` from ${meta.n_firms} pollsters` : ''}${lastPoll ? `, current to ${lastPoll}` : ''}. Weighted average plus every poll.`}
   canonical={canonical}
   lang="en"
   currentPage="france"

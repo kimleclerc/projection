@@ -65,7 +65,7 @@ export default function VoteTrendChart({
             locale === 'fr'
               ? 'Aucun sondage exploitable pour cette juridiction.'
               : locale === 'es'
-                ? 'No hay historial de sondeos utilizable para esta jurisdicción.'
+                ? 'No hay historial de encuestas utilizable para esta jurisdicción.'
                 : 'No usable polling history is available for this jurisdiction.',
           );
           setLoaded(true);

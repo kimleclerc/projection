@@ -41,7 +41,10 @@ const baselineMentionEs = baselineMeta ? mention(baselineMeta, 'es', baselineMet
 const topMentionEs = topMeta ? mention(topMeta, 'es', topMeta.label_en) : '';
 const secondMentionEs = secondMeta ? mention(secondMeta, 'es', secondMeta.label_en) : '';
 
-const urban = data.urban_rural ?? 'mixed';
+// `?? 'mixed'` ne rattrape pas la chaîne « nan » : une case vide de pandas
+// traverse le JSON sous ce nom et se retrouvait dans la prose.
+const urbanRaw = data.urban_rural;
+const urban = urbanRaw && urbanRaw.toLowerCase() !== 'nan' ? urbanRaw : 'mixed';
 const provinceCode = data.province ?? '';
 
 const URBAN_LABEL_FR: Record<string, string> = { urban: 'urbaine', rural: 'rurale', mixed: 'mixte', suburban: 'de banlieue' };

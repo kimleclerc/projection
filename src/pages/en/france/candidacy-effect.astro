@@ -1,0 +1,35 @@
+---
+import EditorialLayout from '../../../layouts/EditorialLayout.astro';
+import FranceCandidacyEffect from '../../../components/FranceCandidacyEffect.astro';
+import effects from '../../../../web_data/france-presidential/candidacy_effects.json';
+
+const m = (effects as any).meta;
+// La plus grosse sortie mesurée donne la phrase de la description.
+const top = ((effects as any).exits ?? [])
+  .filter((e: any) => e.destinations?.length)
+  .sort((a: any, b: any) => b.own.mean - a.own.mean)[0];
+const lead = top ? `Without ${top.short}, ${Math.round(top.destinations[0].share_of_votes * 100)}% of those voters go to ${top.destinations[0].short}. ` : '';
+const canonical = 'https://vote-scope.com/en/france/candidacy-effect/';
+---
+
+<EditorialLayout
+  title="France 2027: Where Each Candidacy Takes Its Votes From — Vote-Scope"
+  description={`Where each candidacy takes its votes from, measured inside the polls themselves. ${lead}Based on ${m.n_polls} polls from the past twelve months.`}
+  canonical={canonical}
+  lang="en"
+  currentPage="france"
+  ogImage="https://vote-scope.com/og/france-desk/en.png"
+  alternates={{ en: 'https://vote-scope.com/en/france/candidacy-effect/', fr: 'https://vote-scope.com/fr/france/effet-candidature/', es: 'https://vote-scope.com/es/france/efecto-candidatura/' }}
+  jsonLd={[{
+    '@context': 'https://schema.org',
+    '@type': 'Dataset',
+    name: 'France 2027: Where Each Candidacy Takes Its Votes From',
+    url: canonical,
+    dateModified: m.run_date,
+    creator: { '@type': 'Person', name: 'Kim Leclerc', url: 'https://kimleclerc.ca' },
+    publisher: { '@type': 'Organization', name: 'Vote-Scope', url: 'https://vote-scope.com' },
+    isAccessibleForFree: true,
+  }]}
+>
+  <FranceCandidacyEffect locale="en" />
+</EditorialLayout>

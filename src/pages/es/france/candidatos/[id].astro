@@ -15,7 +15,7 @@ export function getStaticPaths() {
 const { candidate } = Astro.props;
 const meta = (latest as any).meta;
 const canonical = `https://vote-scope.com/es/france/candidatos/${candidate.slug}/`;
-const desc = `${candidate.name} — elección presidencial francesa de 2027: ${statusLabel(candidate.status, 'es').toLowerCase()}, ${blocLabel(candidate.bloc, 'es')}. Intención de voto en primera vuelta y duelos de segunda vuelta en ${candidate.activeScenarios} combinaciones. Ejecución del ${meta.run_date}.`;
+const desc = `${candidate.name} — elección presidencial francesa de 2027: ${statusLabel(candidate.status, 'es').toLowerCase()}, ${blocLabel(candidate.bloc, 'es', candidate.partyFamily)}. Intención de voto en primera vuelta y duelos de segunda vuelta en ${candidate.activeScenarios} combinaciones. Ejecución del ${meta.run_date}.`;
 ---
 
 <EditorialLayout
@@ -36,7 +36,7 @@ const desc = `${candidate.name} — elección presidencial francesa de 2027: ${s
       '@type': 'Person',
       name: candidate.name,
       url: canonical,
-      description: `Candidato·a en la elección presidencial francesa de 2027 (${blocLabel(candidate.bloc, 'es')}).`,
+      description: `Candidato·a en la elección presidencial francesa de 2027 (${blocLabel(candidate.bloc, 'es', candidate.partyFamily)}).`,
     },
   ]}
 >

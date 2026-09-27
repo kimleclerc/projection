@@ -1,0 +1,20 @@
+---
+import EditorialLayout from '../../../layouts/EditorialLayout.astro';
+import ModelVsMarkets from '../../../components/ModelVsMarkets.astro';
+import NewsletterCta from '../../../components/NewsletterCta.astro';
+
+const canonical = 'https://vote-scope.com/en/us/prediction-markets/';
+---
+
+<EditorialLayout
+  title="2026 Election Odds: Kalshi vs Polymarket vs Our Forecast — Vote-Scope"
+  description="2026 midterm election odds compared: Kalshi prices, Polymarket prices and the Vote-Scope model forecast for House and Senate control, side by side and updated daily."
+  canonical={canonical}
+  lang="en"
+  currentPage="us"
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={{ en: 'https://vote-scope.com/en/us/prediction-markets/', fr: 'https://vote-scope.com/fr/us/marches-previsionnels/', es: 'https://vote-scope.com/es/us/mercados-de-prediccion/' }}
+>
+  <ModelVsMarkets locale="en" />
+  <NewsletterCta lang="en" placement="prediction-markets" />
+</EditorialLayout>
