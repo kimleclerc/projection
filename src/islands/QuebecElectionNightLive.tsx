@@ -47,6 +47,12 @@ const FALLBACK_MAX_USES = 3;
 // Répétitions : le collecteur republie `demo` sur un rejeu de fixture même quand
 // la configuration dit `simulation`. Ni l'un ni l'autre n'est le vrai scrutin.
 const REHEARSAL_MODES = new Set(['simulation', 'demo']);
+// Avant l'ouverture, aucune lecture : ni Pages, ni Worker, ni le DGEQ. La page
+// est en ligne des jours d'avance; chaque onglet ouvert ne doit rien solliciter.
+// Trente minutes de marge avant la fermeture des bureaux (20 h HAE). Un
+// identifiant d'événement surchargé (répétition) ou `?direct=1` lève la barrière.
+const DEFAULT_EVENT_ID = 'qc-2026-10-05';
+const OPENS_AT = Date.parse('2026-10-05T19:30:00-04:00');
 
 const copy = {
   fr: { live: 'En direct', waiting: 'En attente des premiers résultats officiels', connecting: 'Connexion au dépouillement officiel…',
@@ -57,6 +63,7 @@ const copy = {
         complete: 'Dépouillement terminé', source: 'Source officielle : Élections Québec. Les appels sont ceux de Vote-Scope.',
         direct: 'Source directe du directeur général des élections — nos appels et nos projections ne sont pas disponibles.',
         search: 'Chercher une circonscription', anomalies: 'candidats ou partis inconnus du registre',
+        before: 'Les premiers résultats arrivent le lundi 5 octobre à 20 h, à la fermeture des bureaux. Gardez cette page dans vos favoris : elle se mettra à jour d’elle-même.',
         anomaliesBlocked: 'aucun appel automatique possible', anomaliesOverridden: 'des appels automatiques ont été publiés malgré l’anomalie' },
   en: { live: 'Live', waiting: 'Waiting for the first official results', connecting: 'Connecting to the official count…',
         unavailable: 'Live results temporarily unavailable', lastKnown: 'Last known update', updated: 'Data as of',
@@ -66,6 +73,7 @@ const copy = {
         complete: 'Count complete', source: 'Official source: Élections Québec. Calls are Vote-Scope’s.',
         direct: 'Reading the chief electoral officer directly — our calls and projections are unavailable.',
         search: 'Find a riding', anomalies: 'candidates or parties unknown to the registry',
+        before: 'The first results arrive on Monday, October 5 at 8 p.m., when polls close. Bookmark this page: it will update on its own.',
         anomaliesBlocked: 'no automatic call possible', anomaliesOverridden: 'automatic calls were published over the anomaly' },
   es: { live: 'En directo', waiting: 'A la espera de los primeros resultados oficiales', connecting: 'Conectando con el recuento oficial…',
         unavailable: 'Resultados en directo temporalmente no disponibles', lastKnown: 'Última actualización conocida', updated: 'Datos del',
@@ -75,6 +83,7 @@ const copy = {
         complete: 'Recuento completo', source: 'Fuente oficial: Élections Québec. Las asignaciones son de Vote-Scope.',
         direct: 'Lectura directa del director general de elecciones — nuestras asignaciones y proyecciones no están disponibles.',
         search: 'Buscar un distrito', anomalies: 'candidatos o partidos desconocidos para el registro',
+        before: 'Los primeros resultados llegan el lunes 5 de octubre a las 20:00, al cierre de las urnas. Guarda esta página en tus favoritos: se actualizará sola.',
         anomaliesBlocked: 'sin asignación automática', anomaliesOverridden: 'se publicaron asignaciones automáticas pese a la anomalía' },
 };
 
@@ -116,6 +125,8 @@ export default function QuebecElectionNightLive({ eventId, lang, apiBase, fallba
   const fallbackUses = useRef(0);
   const [direct, setDirect] = useState(false);
   const lastPayload = useRef<LivePayload | null>(null);
+  const [beforeOpen, setBeforeOpen] = useState(() => eventId === DEFAULT_EVENT_ID && Date.now() < OPENS_AT
+    && !(typeof location !== 'undefined' && new URLSearchParams(location.search).has('direct')));
 
   const complete = useMemo(() => {
     if (!data?.results?.length) return false;
@@ -219,10 +230,17 @@ export default function QuebecElectionNightLive({ eventId, lang, apiBase, fallba
     };
 
     const onVisible = () => {
+      if (beforeOpen && Date.now() < OPENS_AT) return;          // la barrière tient aussi au retour sur l'onglet
       if (!document.hidden && Date.now() - lastFetchAt.current > 60_000) { schedule(500 + Math.random() * 1500); }
     };
     document.addEventListener('visibilitychange', onVisible);
-    schedule(500 + Math.random() * 4000);                        // première lecture : délai aléatoire court
+    // Avant l'ouverture : un seul minuteur jusqu'à 19 h 30, puis le régime normal.
+    const wait = beforeOpen ? Math.max(0, OPENS_AT - Date.now()) : 0;
+    if (wait > 0) {
+      timer.current = window.setTimeout(() => { setBeforeOpen(false); schedule(500 + Math.random() * 4000); }, wait);
+    } else {
+      schedule(500 + Math.random() * 4000);                      // première lecture : délai aléatoire court
+    }
     const clock = window.setInterval(() => setNow(Date.now()), 30_000);
     return () => { stopped.current = true; if (timer.current) window.clearTimeout(timer.current); window.clearInterval(clock); document.removeEventListener('visibilitychange', onVisible); };
   }, [eventId, apiBase]);
@@ -274,7 +292,7 @@ export default function QuebecElectionNightLive({ eventId, lang, apiBase, fallba
 
   if (!data) {
     return <section class={`qcl${failed ? ' qcl-is-failed' : ''}`} aria-live="polite"><div class="qcl-head"><span class="qcl-label"><i></i>{t.live}</span></div>
-      <p class="qcl-state">{failed ? t.unavailable : t.connecting}</p></section>;
+      <p class="qcl-state">{beforeOpen ? t.before : failed ? t.unavailable : t.connecting}</p></section>;
   }
 
   return (
