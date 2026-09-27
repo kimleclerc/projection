@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import '../styles/quebec-election-night-live.css';
 import { readDgeqDirect } from './dgeqDirect';
+import { publishLive } from './qcLiveBus';
 
 /**
  * La couche directe de la soirée québécoise : sièges en tête et appelés, et
@@ -57,7 +58,7 @@ const OPENS_AT = Date.parse('2026-10-05T19:30:00-04:00');
 const copy = {
   fr: { live: 'En direct', waiting: 'En attente des premiers résultats officiels', connecting: 'Connexion au dépouillement officiel…',
         unavailable: 'Résultats en direct temporairement indisponibles', lastKnown: 'Dernière mise à jour connue', updated: 'Données du',
-        seats: 'Sièges', called: 'appelés', leading: 'en tête', majority: `Majorité : ${MAJORITY}`, ridings: 'Circonscriptions',
+        seats: 'Sièges', popular: 'Vote populaire', called: 'élus', leading: 'en tête', majority: `Majorité : ${MAJORITY}`, ridings: 'Circonscriptions',
         riding: 'Circonscription', leader: 'Meneur', votes: 'Voix', polls: 'Bureaux', status: 'Statut', calledBadge: 'Appelé',
         leadingBadge: 'En tête', noVotes: '—', stale: 'Dépouillement en pause — aucune donnée officielle depuis', minutes: 'min',
         complete: 'Dépouillement terminé', source: 'Source officielle : Élections Québec. Les appels sont ceux de Vote-Scope.',
@@ -67,7 +68,7 @@ const copy = {
         anomaliesBlocked: 'aucun appel automatique possible', anomaliesOverridden: 'des appels automatiques ont été publiés malgré l’anomalie' },
   en: { live: 'Live', waiting: 'Waiting for the first official results', connecting: 'Connecting to the official count…',
         unavailable: 'Live results temporarily unavailable', lastKnown: 'Last known update', updated: 'Data as of',
-        seats: 'Seats', called: 'called', leading: 'leading', majority: `Majority: ${MAJORITY}`, ridings: 'Ridings',
+        seats: 'Seats', popular: 'Popular vote', called: 'elected', leading: 'leading', majority: `Majority: ${MAJORITY}`, ridings: 'Ridings',
         riding: 'Riding', leader: 'Leader', votes: 'Votes', polls: 'Polls', status: 'Status', calledBadge: 'Called',
         leadingBadge: 'Leading', noVotes: '—', stale: 'Count paused — no new official data for', minutes: 'min',
         complete: 'Count complete', source: 'Official source: Élections Québec. Calls are Vote-Scope’s.',
@@ -77,7 +78,7 @@ const copy = {
         anomaliesBlocked: 'no automatic call possible', anomaliesOverridden: 'automatic calls were published over the anomaly' },
   es: { live: 'En directo', waiting: 'A la espera de los primeros resultados oficiales', connecting: 'Conectando con el recuento oficial…',
         unavailable: 'Resultados en directo temporalmente no disponibles', lastKnown: 'Última actualización conocida', updated: 'Datos del',
-        seats: 'Escaños', called: 'asignados', leading: 'en cabeza', majority: `Mayoría: ${MAJORITY}`, ridings: 'Distritos',
+        seats: 'Escaños', popular: 'Voto popular', called: 'electos', leading: 'en cabeza', majority: `Mayoría: ${MAJORITY}`, ridings: 'Distritos',
         riding: 'Distrito', leader: 'Líder', votes: 'Votos', polls: 'Mesas', status: 'Estado', calledBadge: 'Asignado',
         leadingBadge: 'En cabeza', noVotes: '—', stale: 'Recuento en pausa — sin datos oficiales desde hace', minutes: 'min',
         complete: 'Recuento completo', source: 'Fuente oficial: Élections Québec. Las asignaciones son de Vote-Scope.',
@@ -108,14 +109,15 @@ function num(v: number, locale: Locale, digits = 1): string {
   return v.toLocaleString(locale === 'en' ? 'en-CA' : locale === 'es' ? 'es-ES' : 'fr-CA', { minimumFractionDigits: digits, maximumFractionDigits: digits });
 }
 
-export default function QuebecElectionNightLive({ eventId, lang, apiBase, fallbackApiBase }:
-  { eventId: string; lang: Locale; apiBase: string; fallbackApiBase?: string }) {
+export default function QuebecElectionNightLive({ eventId, lang, apiBase, fallbackApiBase, headless = false }:
+  { eventId: string; lang: Locale; apiBase: string; fallbackApiBase?: string;
+    /** Lit et diffuse le direct sans rien afficher (pages de circonscription). */
+    headless?: boolean }) {
   const t = copy[lang];
   const [data, setData] = useState<LivePayload | null>(null);
   const [fromStorage, setFromStorage] = useState(false);
   const [failed, setFailed] = useState(false);
   const [now, setNow] = useState(() => Date.now());
-  const [filter, setFilter] = useState('');
   const inFlight = useRef(false);
   const failures = useRef(0);
   const lastFetchAt = useRef(0);
@@ -246,6 +248,8 @@ export default function QuebecElectionNightLive({ eventId, lang, apiBase, fallba
   }, [eventId, apiBase]);
 
   useEffect(() => { if (complete) stopped.current = true; }, [complete]);
+  // Diffusion aux autres blocs de la page (carte, annonces, liste) : aucune lecture de plus.
+  useEffect(() => { publishLive({ data, beforeOpen, failed }); }, [data, beforeOpen, failed]);
 
   const meta = useMemo(() => {
     const byParty = new Map<string, { color: string; label: string }>();
@@ -278,6 +282,16 @@ export default function QuebecElectionNightLive({ eventId, lang, apiBase, fallba
       .sort((a, b) => b.total - a.total || b.called - a.called);
   }, [rows, meta]);
 
+  // Vote populaire : somme des voix par parti sur les circonscriptions qui rapportent.
+  const popular = useMemo(() => {
+    const acc = new Map<string, number>(); let total = 0;
+    for (const r of data?.results ?? []) for (const c of r.candidates ?? []) {
+      const v = c.votes ?? 0; if (!v) continue; total += v; acc.set(c.party_code, (acc.get(c.party_code) ?? 0) + v);
+    }
+    return total ? [...acc.entries()].map(([code, v]) => ({ code, pct: (100 * v) / total, ...(meta.get(code) ?? { color: '#78909c', label: code.toUpperCase() }) }))
+      .sort((a, b) => b.pct - a.pct).slice(0, 6) : [];
+  }, [data, meta]);
+
   const sourceStamp = data?.source?.source_updated_at ?? null;
   const ageMin = sourceStamp ? Math.floor((now - new Date(sourceStamp).getTime()) / 60_000) : null;
   const stale = !complete && !!data && !fromStorage && data.source?.healthy !== false && ageMin !== null && ageMin * 60_000 > STALE_AFTER_MS;
@@ -288,7 +302,8 @@ export default function QuebecElectionNightLive({ eventId, lang, apiBase, fallba
   const anomalyOverridden = (data?.calls ?? []).some((c) => c.source_anomalies_overridden);
   const anomalyClause = anomalyOverridden ? t.anomaliesOverridden
     : REHEARSAL_MODES.has(data?.event?.mode ?? '') ? null : t.anomaliesBlocked;
-  const visible = filter ? rows.filter((r) => r.name.toLowerCase().includes(filter.toLowerCase())) : rows;
+
+  if (headless) return null;
 
   if (!data) {
     return <section class={`qcl${failed ? ' qcl-is-failed' : ''}`} aria-live="polite"><div class="qcl-head"><span class="qcl-label"><i></i>{t.live}</span></div>
@@ -321,25 +336,12 @@ export default function QuebecElectionNightLive({ eventId, lang, apiBase, fallba
         </div>
       )}
 
-      <div class="qcl-ridings">
-        <div class="qcl-ridings-head"><h3>{t.ridings}</h3>
-          <input type="search" placeholder={t.search} value={filter} onInput={(e) => setFilter((e.target as HTMLInputElement).value)} aria-label={t.search} /></div>
-        <table>
-          <thead><tr><th>{t.riding}</th><th>{t.leader}</th><th class="num">{t.votes}</th><th class="num">{t.polls}</th><th>{t.status}</th></tr></thead>
-          <tbody>
-            {visible.map((r) => {
-              const p = r.party ? meta.get(r.party) : null;
-              return <tr key={r.id} class={r.call ? 'is-called' : ''}>
-                <td>{r.name}</td>
-                <td>{r.leader ? <><i class="qcl-dot" style={`background:${p?.color ?? '#78909c'}`}></i>{r.leader.candidate_name} <small>{p?.label ?? r.leader.party_code}</small></> : <span class="qcl-muted">{t.noVotes}</span>}</td>
-                <td class="num">{r.leader ? `${num(r.leader.vote_pct ?? 0, lang)} %` : ''}{r.margin !== null && r.margin !== undefined ? <small> +{num(r.margin, lang)}</small> : null}</td>
-                <td class="num">{r.polls?.reported != null && r.polls?.total ? `${r.polls.reported}/${r.polls.total}` : ''}</td>
-                <td>{r.call ? <span class="qcl-badge qcl-badge-called">{t.calledBadge}</span> : r.leader ? <span class="qcl-badge">{t.leadingBadge}</span> : null}</td>
-              </tr>;
-            })}
-          </tbody>
-        </table>
-      </div>
+      {popular.length > 0 && (
+        <div class="qcl-popular">
+          <h3>{t.popular}</h3>
+          <ul>{popular.map((p) => <li key={p.code}><span><i style={`background:${p.color}`}></i>{p.label}</span><strong>{num(p.pct, lang)} %</strong><b style={`width:${Math.min(100, p.pct * 2)}%;background:${p.color}`}></b></li>)}</ul>
+        </div>
+      )}
       <p class="qcl-source">{t.source}</p>
     </section>
   );

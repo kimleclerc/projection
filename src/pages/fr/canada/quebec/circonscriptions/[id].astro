@@ -1,6 +1,7 @@
 ---
 import EditorialLayout from '../../../../../layouts/EditorialLayout.astro';
 import RidingPage from '../../../../../components/riding/RidingPage.astro';
+import QuebecRidingLive from '../../../../../components/QuebecRidingLive.astro';
 import { getAllQuebecRidings } from '../../../../../lib/riding-adapters/quebec';
 
 export function getStaticPaths() {
@@ -14,8 +15,8 @@ const { data } = Astro.props;
 const canonical = `https://vote-scope.com/fr/canada/quebec/circonscriptions/${data.slug}/`;
 const alternateEn = `https://vote-scope.com/en/canada/quebec/ridings/${data.slug}/`;
 const alternateEs = `https://vote-scope.com/es/canada/quebec/distritos/${data.slug}/`;
-const title = `${data.name.fr} — Projection provinciale (Québec) — Vote-Scope`;
-const description = `Projection Vote-Scope pour ${data.name.fr} (Québec) : parts de voix, probabilité de victoire, député·e en fonction et candidats 2022.`;
+const title = `${data.name.fr} : élection 2026, résultats et projection | Vote-Scope`;
+const description = `Élection du 5 octobre 2026 dans ${data.name.fr} : résultats en direct dès 20 h, projection Vote-Scope, chances de victoire, candidats et député·e sortant·e.`;
 ---
 
 <EditorialLayout
@@ -47,5 +48,7 @@ const description = `Projection Vote-Scope pour ${data.name.fr} (Québec) : part
     },
   ]}
 >
-  <RidingPage data={data} lang="fr" />
+  <RidingPage data={data} lang="fr">
+    <QuebecRidingLive slot="local-feature" locale="fr" ridingId={data.id} name={data.name.fr} />
+  </RidingPage>
 </EditorialLayout>

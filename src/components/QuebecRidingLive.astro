@@ -1,0 +1,27 @@
+---
+/**
+ * Bloc « résultats en direct » en tête des pages de circonscription du Québec.
+ * L'îlot principal tourne en mode invisible (lecture, barrière de 19 h 30,
+ * replis) et diffuse ; QcLiveRiding n'affiche que cette circonscription.
+ * Mêmes réglages que la page de soirée (QuebecElectionNight.astro).
+ */
+import QuebecElectionNightLive from '../islands/QuebecElectionNightLive.tsx';
+import QcLiveRiding from '../islands/QcLiveRiding.tsx';
+import { partyMeta } from '../lib/riding-adapters/parties';
+
+interface Props { locale: 'fr' | 'en' | 'es'; ridingId: string; name: string }
+const { locale, ridingId, name } = Astro.props;
+
+const LIVE_EVENT_ID = import.meta.env.PUBLIC_LIVE_EVENT_ID ?? 'qc-2026-10-05';
+const liveApiBase = import.meta.env.PUBLIC_LIVE_API_BASE ?? 'https://votescope-live.pages.dev';
+const liveFallbackApiBase = import.meta.env.PUBLIC_LIVE_FALLBACK_API_BASE ?? 'https://vote-scope.com';
+const parties = ['pq', 'caq', 'plq', 'pcq', 'qs', 'qc_oth'].map((code) => {
+  const m = partyMeta('quebec', code);
+  return { code, color: m.color, label: locale === 'fr' ? m.label_fr : m.label_en };
+});
+const resultsHref = { fr: '/fr/canada/quebec/resultats/', en: '/en/canada/quebec/results/', es: '/es/canada/quebec/resultados/' }[locale];
+---
+<div>
+  <QuebecElectionNightLive client:load headless eventId={LIVE_EVENT_ID} lang={locale} apiBase={liveApiBase} fallbackApiBase={liveFallbackApiBase} />
+  <QcLiveRiding client:load lang={locale} ridingId={ridingId} name={name} parties={parties} resultsHref={resultsHref} />
+</div>

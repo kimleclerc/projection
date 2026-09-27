@@ -19,6 +19,10 @@ import quebecMeta from '../../web_data/quebec/latest.json';
 import resolvedCalls from '../../web_data/resolved-calls.json';
 import type { Locale } from '../data/editorial';
 import QuebecElectionNightLive from '../islands/QuebecElectionNightLive.tsx';
+import QcLiveTileMap from '../islands/QcLiveTileMap.tsx';
+import QcLiveFeed from '../islands/QcLiveFeed.tsx';
+import QcLiveList from '../islands/QcLiveList.tsx';
+import ridingsSource from '../../web_data/quebec/ridings.json';
 
 // LECTURE PUBLIQUE = RAIL STATIQUE. Chaque lecture du Worker est une invocation
 // facturée, même servie par `caches.default` : le cache protège le Durable
@@ -76,6 +80,22 @@ const num = (v: number, d = 1) =>
   locale === 'en' ? v.toFixed(d) : v.toFixed(d).replace('.', ',');
 
 const ridingsBase = { fr: 'circonscriptions', en: 'ridings', es: 'distritos' }[locale];
+
+// Blocs du direct (carte, annonces, liste) : partis et circonscriptions joints
+// au build. Le gagnant de 2022 sert aux « gains »; le live.json ne le porte pas.
+const LIVE_PARTIES = ['pq', 'caq', 'plq', 'pcq', 'qs', 'qc_oth'].map((code) => {
+  const m = partyMeta('quebec', code);
+  return { code, color: m.color, label: locale === 'fr' ? m.label_fr : m.label_en };
+});
+const slugById = new Map(getAllQuebecRidings().map((d) => [d.id, d.slug]));
+const liveRidings = (ridingsSource as any).ridings.map((r: any) => ({
+  id: r.riding_id,
+  name: locale === 'en' ? (r.name_en || r.name_fr) : (r.name_fr || r.name_en),
+  href: `/${locale}/canada/quebec/${ridingsBase}/${slugById.get(r.riding_id) ?? r.riding_id}/`,
+  region: r.region ?? 'rest',
+  winner2022: r.baseline_result?.winner ?? null,
+  projected: r.projection?.winner ?? null,
+}));
 const pollsBase = { fr: 'sondages', en: 'polls', es: 'sondeos' }[locale];
 
 // ── Textes ─────────────────────────────────────────────────────────
@@ -208,6 +228,7 @@ const runDateText = new Intl.DateTimeFormat(
 ).format(new Date(`${runDate}T12:00:00Z`));
 ---
 
+<article class="qen" data-content-area>
 <section class="qen-hero">
   <div class="container">
     <p class="eyebrow">{COPY.eyebrow}</p>
@@ -219,6 +240,24 @@ const runDateText = new Intl.DateTimeFormat(
 <section class="qen-live">
   <div class="container">
     <QuebecElectionNightLive client:load eventId={LIVE_EVENT_ID} lang={locale} apiBase={liveApiBase} fallbackApiBase={liveFallbackApiBase} />
+  </div>
+</section>
+
+<section class="qen-map">
+  <div class="container">
+    <QcLiveTileMap client:load lang={locale} parties={LIVE_PARTIES} ridings={liveRidings} />
+  </div>
+</section>
+
+<section class="qen-feed">
+  <div class="container">
+    <QcLiveFeed client:load lang={locale} parties={LIVE_PARTIES} ridings={liveRidings} />
+  </div>
+</section>
+
+<section class="qen-list">
+  <div class="container">
+    <QcLiveList client:load lang={locale} parties={LIVE_PARTIES} ridings={liveRidings} />
   </div>
 </section>
 
@@ -321,6 +360,7 @@ const runDateText = new Intl.DateTimeFormat(
     <p class="qen-licence">{COPY.licenceNote}</p>
   </div>
 </section>
+</article>
 
 <style>
   .qen-hero { padding: 80px 0 40px; border-bottom: 1px solid var(--rule); background: var(--paper); }
