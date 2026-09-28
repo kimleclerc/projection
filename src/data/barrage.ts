@@ -181,7 +181,7 @@ function buildTicker(data: Partial<BarrageData>, locale: BarrageLocale = 'en'): 
     en: {
       index: (s: string) => `Barrage Index at ${s}/100`,
       runoff: (rl: string) => `Second-round polls: ${rl}`,
-      model: (rl: string) => `${rl} (VoteScope, 20k sims)`,
+      model: (rl: string) => `${rl} (VoteScope, 50k sims)`,
       duel: (a: string, b: string) => `${a} vs ${b} — most likely runoff`,
       bloc: (v: string) => `Far-right first-round bloc ${v}%`,
       latest: 'latest', polls: 'polls', model_time: 'model', scenario: 'scenario',
@@ -189,7 +189,7 @@ function buildTicker(data: Partial<BarrageData>, locale: BarrageLocale = 'en'): 
     fr: {
       index: (s: string) => `Barrage Index à ${s}/100`,
       runoff: (rl: string) => `Sondages 2e tour : ${rl}`,
-      model: (rl: string) => `${rl} (VoteScope, 20 000 sims)`,
+      model: (rl: string) => `${rl} (VoteScope, 50 000 sims)`,
       duel: (a: string, b: string) => `${a} vs ${b} — duel le plus probable`,
       bloc: (v: string) => `Bloc extrême droite au 1er tour ${v}%`,
       latest: 'récent', polls: 'sondages', model_time: 'modèle', scenario: 'scénario',
@@ -197,7 +197,7 @@ function buildTicker(data: Partial<BarrageData>, locale: BarrageLocale = 'en'): 
     es: {
       index: (s: string) => `Barrage Index en ${s}/100`,
       runoff: (rl: string) => `Encuestas de 2ª vuelta: ${rl}`,
-      model: (rl: string) => `${rl} (VoteScope, 20k sims)`,
+      model: (rl: string) => `${rl} (VoteScope, 50k sims)`,
       duel: (a: string, b: string) => `${a} vs ${b} — segunda vuelta más probable`,
       bloc: (v: string) => `Bloque de extrema derecha en 1ª vuelta ${v}%`,
       latest: 'reciente', polls: 'encuestas', model_time: 'modelo', scenario: 'escenario',
