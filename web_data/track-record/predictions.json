@@ -392,7 +392,7 @@
     }
   ],
   "backtests": {
-    "intro_note": "Backtests = modèle rejoué avec uniquement les sondages disponibles à l'époque, cycle cible exclu des données d'ancrage (pas de fuite). Compilé 2026-06-11. Sources: docs/backtests/ (repo models).",
+    "intro_note": "Backtests = modèle rejoué avec le moteur courant et uniquement les sondages disponibles la veille du vote, cycle cible exclu des données d'ancrage (pas de fuite). Recompilé le 2026-09-28 (moteur du jour, 50 000 simulations). Sources : docs/backtests/ (repo models).",
     "items": [
       {
         "id": "fed_2021",
@@ -402,16 +402,16 @@
         "election_es": "Federal de Canadá 2021",
         "horizon_days": 1,
         "seats_total": 338,
-        "mae_seats": 1.7,
+        "mae_seats": 1.8,
         "leader_correct": true,
         "majority_status_correct": true,
-        "note_en": "Near-perfect: every party within the 80% interval.",
-        "note_fr": "Quasi parfait : tous les partis dans l'intervalle 80 %.",
-        "note_es": "Casi perfecto: todos los partidos dentro del intervalo del 80 %.",
+        "note_en": "Near-perfect: all four major parties within the 80% interval.",
+        "note_fr": "Quasi parfait : les quatre grands partis dans l'intervalle 80 %.",
+        "note_es": "Casi perfecto: los cuatro grandes partidos dentro del intervalo del 80 %.",
         "parties": [
           {
             "party": "LIB",
-            "proj": 163.0,
+            "proj": 164.0,
             "actual": 160
           },
           {
@@ -444,12 +444,12 @@
         "election_es": "Federal de Canadá 2025",
         "horizon_days": 1,
         "seats_total": 343,
-        "mae_seats": 8.6,
+        "mae_seats": 7.0,
         "leader_correct": true,
-        "majority_status_correct": true,
-        "note_en": "Leader called; BQ/NDP/Greens excellent. Residual = the LIB/CON seat-efficiency gap 2025 polls didn't contain, on top of the 338→343 redistribution.",
-        "note_fr": "Meneur correct; BQ/NPD/Verts excellents. Le résidu = l'efficacité du vote CON que les sondages 2025 ne contenaient pas, en plus du redécoupage 338→343.",
-        "note_es": "Líder acertado; BQ/NPD/Verdes excelentes. El residuo = la eficiencia del voto CON que las encuestas de 2025 no contenían, además de la redistribución 338→343.",
+        "majority_status_correct": false,
+        "note_en": "Replay of the April 2025 general election. Leader called, but the engine gave a Liberal majority (74%) the election didn't deliver: 169 seats, three short. Residual = the CON vote efficiency (144 actual vs 123 projected) that 2025 polls didn't contain, on top of the 338→343 redistribution.",
+        "note_fr": "Rejeu de la générale d'avril 2025. Meneur correct, mais le moteur donnait une majorité libérale (74 %) que l'élection n'a pas donnée : 169 sièges, trois sous la barre. Le résidu = l'efficacité du vote CON (144 réels contre 123 projetés) que les sondages 2025 ne contenaient pas, en plus du redécoupage 338→343.",
+        "note_es": "Simulación de la general de abril de 2025. Líder acertado, pero el motor daba una mayoría liberal (74 %) que la elección no dio: 169 escaños, tres por debajo. El residuo = la eficiencia del voto CON (144 reales frente a 123 proyectados) que las encuestas de 2025 no contenían, además de la redistribución 338→343.",
         "parties": [
           {
             "party": "LIB",
@@ -468,7 +468,7 @@
           },
           {
             "party": "NDP",
-            "proj": 11.0,
+            "proj": 10.0,
             "actual": 7
           },
           {
@@ -486,7 +486,7 @@
         "election_es": "Federal de Canadá 2019",
         "horizon_days": 1,
         "seats_total": 338,
-        "mae_seats": 9.8,
+        "mae_seats": 9.7,
         "leader_correct": true,
         "majority_status_correct": true,
         "note_en": "Leader, runner-up and minority status all called. Residual = the late BQ wave in Quebec that 2019 national polls didn't break out regionally — the weakness that motivated the model's regional BSTS anchors.",
@@ -510,7 +510,7 @@
           },
           {
             "party": "NDP",
-            "proj": 47.0,
+            "proj": 46.0,
             "actual": 24
           },
           {
@@ -528,38 +528,38 @@
         "election_es": "Generales británicas 2024",
         "horizon_days": 1,
         "seats_total": 650,
-        "mae_seats": 17.2,
-        "pct_ridings_correct": 78.9,
-        "vote_mae_pts": 1.6,
+        "mae_seats": 16.8,
+        "pct_ridings_correct": 79.4,
+        "vote_mae_pts": 1.5,
         "leader_correct": true,
         "majority_status_correct": true,
-        "note_en": "Labour majority called at P=0.95 despite the industry overestimating Labour by +5.8 pts. Residual (Con +89 / LD −39) = 2024 anti-Tory tactical voting only published MRPs captured — why the model now uses MRP anchors.",
-        "note_fr": "Majorité travailliste appelée à P=0,95 malgré une industrie sondagière surestimant Lab de +5,8 pts. Le résidu (Con +89 / LD −39) = le vote tactique anti-Tory que seuls les MRP captaient — d'où les ancres MRP du modèle.",
-        "note_es": "Mayoría laborista acertada con P=0,95 pese a una industria que sobrestimó a Lab en +5,8 pts. El residuo (Con +89 / LD −39) = el voto táctico anti-Tory que solo los MRP captaban.",
+        "note_en": "Labour majority called at P = 0.99 despite the industry overestimating Labour by +5.8 pts. Residual (Con +83 / LD −38) = 2024 anti-Tory tactical voting only published MRPs captured — why the model now uses MRP anchors.",
+        "note_fr": "Majorité travailliste appelée à P = 0,99 malgré une industrie sondagière surestimant Lab de +5,8 pts. Le résidu (Con +83 / LD −38) = le vote tactique anti-Tory que seuls les MRP captaient — d'où les ancres MRP du modèle.",
+        "note_es": "Mayoría laborista acertada con P = 0,99 pese a una industria que sobrestimó a Lab en +5,8 pts. El residuo (Con +83 / LD −38) = el voto táctico anti-Tory que solo los MRP captaban.",
         "parties": [
           {
             "party": "LAB",
-            "proj": 357.6,
-            "actual": 409
+            "proj": 360.0,
+            "actual": 411
           },
           {
             "party": "CON",
-            "proj": 210.0,
+            "proj": 204.0,
             "actual": 121
           },
           {
             "party": "LD",
-            "proj": 33.5,
+            "proj": 34.5,
             "actual": 72
           },
           {
             "party": "SNP",
-            "proj": 24.2,
+            "proj": 26.8,
             "actual": 9
           },
           {
             "party": "REF",
-            "proj": 0.0,
+            "proj": 0.2,
             "actual": 5
           }
         ]
@@ -615,22 +615,22 @@
         "election_es": "Quebec 2022",
         "horizon_days": 1,
         "seats_total": 125,
-        "mae_seats": 2.0,
-        "vote_mae_pts": 1.5,
+        "mae_seats": 1.8,
+        "vote_mae_pts": 1.6,
         "leader_correct": true,
         "majority_status_correct": true,
-        "note_en": "CAQ majority called, PLQ exact. June 2026: this backtest series exposed and fixed a seat-translation bug, then drove a full recalibration of the Quebec engine (language-axis swing, partially proportional collapse, wave-seat reversion).",
-        "note_fr": "Majorité CAQ correcte, PLQ exact. Juin 2026 : cette série de backtests a révélé puis corrigé un bug de translation en sièges, et guidé une recalibration complète du moteur québécois (swing linguistique, effondrement partiellement proportionnel, réversion des sièges de vague).",
-        "note_es": "Mayoría CAQ acertada, PLQ exacto. Junio de 2026: esta serie de backtests reveló y corrigió un error de traducción a escaños, y guió una recalibración completa del motor de Quebec.",
+        "note_en": "CAQ majority called, CAQ exact. In June 2026 this backtest series exposed and fixed a seat-translation bug, then drove a full recalibration of the Quebec engine (language-axis swing, partially proportional collapse, wave-seat reversion).",
+        "note_fr": "Majorité CAQ correcte, CAQ exacte. En juin 2026, cette série de backtests a révélé puis corrigé un bug de translation en sièges, et guidé une recalibration complète du moteur québécois (swing linguistique, effondrement partiellement proportionnel, réversion des sièges de vague).",
+        "note_es": "Mayoría CAQ acertada, CAQ exacta. En junio de 2026 esta serie de backtests reveló y corrigió un error de traducción a escaños, y guió una recalibración completa del motor de Quebec.",
         "parties": [
           {
             "party": "CAQ",
-            "proj": 87.0,
+            "proj": 90.0,
             "actual": 90
           },
           {
             "party": "PLQ",
-            "proj": 21.0,
+            "proj": 19.0,
             "actual": 21
           },
           {
@@ -658,27 +658,27 @@
         "election_es": "Quebec 2018",
         "horizon_days": 1,
         "seats_total": 125,
-        "mae_seats": 11.2,
+        "mae_seats": 6.5,
         "vote_mae_pts": 3.4,
-        "leader_correct": false,
-        "majority_status_correct": false,
-        "note_en": "Our biggest miss — and an honest one. Final 2018 polls underestimated the CAQ by ~5 pts; advance-ballot evidence shows the gap was already locked in a week before the vote. Same industry-wide failure mode as the UK 2024 error.",
-        "note_fr": "Notre pire erreur — et une erreur honnête. Les sondages finaux de 2018 sous-estimaient la CAQ d'environ 5 pts; les urnes du vote par anticipation montrent que l'écart était déjà figé une semaine avant le scrutin. Même mode d'échec d'industrie que le UK 2024.",
-        "note_es": "Nuestro mayor fallo — y uno honesto. Las encuestas finales de 2018 subestimaron a la CAQ en ~5 pts; las urnas del voto anticipado muestran que la brecha ya estaba fijada una semana antes. Mismo modo de fallo de industria que el Reino Unido 2024.",
+        "leader_correct": true,
+        "majority_status_correct": true,
+        "note_en": "Long our biggest miss. With the current engine, the replay finds the right winner and a CAQ majority, but only just (53% probability), and still underestimates the CAQ (64 vs 74): final polls underestimated it by about 5 points. Caveat: this election was used to diagnose the Quebec engine; the replay still uses no later data, but it is not a blind test like the others.",
+        "note_fr": "Longtemps notre pire erreur. Avec le moteur actuel, le rejeu trouve la bonne gagnante et une majorité CAQ, mais de justesse (probabilité de 53 %), et sous-estime encore la CAQ (64 contre 74) : les sondages finaux la sous-estimaient d'environ 5 points. Mise en garde : cette élection a servi à diagnostiquer le moteur québécois ; le rejeu reste sans aucune donnée postérieure, mais ce n'est pas un test à l'aveugle comme les autres.",
+        "note_es": "Durante mucho tiempo, nuestro mayor fallo. Con el motor actual, la simulación encuentra al ganador correcto y una mayoría CAQ, pero por poco (probabilidad del 53 %), y aún subestima a la CAQ (64 frente a 74): las encuestas finales la subestimaban en unos 5 puntos. Advertencia: esta elección sirvió para diagnosticar el motor de Quebec; la simulación sigue sin datos posteriores, pero no es una prueba a ciegas como las demás.",
         "parties": [
           {
             "party": "CAQ",
-            "proj": 55.0,
+            "proj": 64.0,
             "actual": 74
           },
           {
             "party": "PLQ",
-            "proj": 49.0,
+            "proj": 44.0,
             "actual": 31
           },
           {
             "party": "PQ",
-            "proj": 15.0,
+            "proj": 10.0,
             "actual": 10
           },
           {
