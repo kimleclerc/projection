@@ -15,15 +15,15 @@ export const SLUGS: Record<Locale, Record<LabsKey, string>> = {
 };
 
 export const MAIN_PAGES: Record<Locale, Record<LabsKey, string>> = {
-  fr: { qc_2026: '/fr/canada/quebec', bc_44: '/fr/canada/colombie-britannique', us_senate: '/fr/us/senat', us_house: '/fr/us/chambre', us_governor: '/fr/us/gouverneurs' },
-  en: { qc_2026: '/en/canada/quebec', bc_44: '/en/canada/british-columbia', us_senate: '/en/us/senate', us_house: '/en/us/house', us_governor: '/en/us/governors' },
-  es: { qc_2026: '/es/canada/quebec', bc_44: '/es/canada/columbia-britanica', us_senate: '/es/us/senate', us_house: '/es/us/house', us_governor: '/es/us/gobernadores' },
+  fr: { qc_2026: '/fr/canada/quebec/', bc_44: '/fr/canada/colombie-britannique/', us_senate: '/fr/us/senat/', us_house: '/fr/us/chambre/', us_governor: '/fr/us/gouverneurs/' },
+  en: { qc_2026: '/en/canada/quebec/', bc_44: '/en/canada/british-columbia/', us_senate: '/en/us/senate/', us_house: '/en/us/house/', us_governor: '/en/us/governors/' },
+  es: { qc_2026: '/es/canada/quebec/', bc_44: '/es/canada/columbia-britanica/', us_senate: '/es/us/senate/', us_house: '/es/us/house/', us_governor: '/es/us/gobernadores/' },
 };
 
-export const LABS_ROOT: Record<Locale, string> = { fr: '/fr/labs', en: '/en/labs', es: '/es/labs' };
+export const LABS_ROOT: Record<Locale, string> = { fr: '/fr/labs/', en: '/en/labs/', es: '/es/labs/' };
 
 export function labsUrl(locale: Locale, key?: LabsKey): string {
-  return key ? `${LABS_ROOT[locale]}/${SLUGS[locale][key]}` : LABS_ROOT[locale];
+  return key ? `${LABS_ROOT[locale]}${SLUGS[locale][key]}/` : LABS_ROOT[locale];
 }
 
 export function keyFromSlug(locale: Locale, slug: string): LabsKey | undefined {
