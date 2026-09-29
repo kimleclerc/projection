@@ -1,0 +1,29 @@
+---
+import Base from '../../../layouts/Base.astro';
+import LabsHub from '../../../components/LabsHub.astro';
+
+const LOCALE = 'en' as const;
+const url = 'https://vote-scope.com/en/labs/';
+---
+
+<Base
+  title="VoteScope Labs — the experimental forecasting engine"
+  description="A second forecasting engine built from scratch: same polls, different machinery (curved geometry, quantum-style measurements, seats counted without random draws). Compared with our reference forecasts."
+  canonical={url}
+  lang={LOCALE}
+  currentPage="match"
+  alternates={{
+    en: 'https://vote-scope.com/en/labs/',
+    fr: 'https://vote-scope.com/fr/labs/',
+    es: 'https://vote-scope.com/es/labs/',
+  }}
+  jsonLd={[
+    { '@context': 'https://schema.org', '@type': 'WebPage', name: 'VoteScope Labs', url, inLanguage: LOCALE },
+    { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: 'https://vote-scope.com/en/' },
+      { '@type': 'ListItem', position: 2, name: 'Labs', item: url },
+    ]},
+  ]}
+>
+  <LabsHub locale={LOCALE} />
+</Base>
