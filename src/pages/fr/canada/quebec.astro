@@ -3,10 +3,8 @@ import EditorialLayout from '../../../layouts/EditorialLayout.astro';
 import RidingsCta from '../../../components/RidingsCta.astro';
 import NewsletterCta from '../../../components/NewsletterCta.astro';
 import ProjectionEngine from '../../../components/ProjectionEngine.astro';
-import RaceNarrative from '../../../components/RaceNarrative.astro';
 import { jurisdictions } from '../../../data/jurisdictions';
 import quebecMeta from '../../../../web_data/quebec/latest.json';
-import { raceEditorial } from '../../../data/raceEditorial';
 import advanceVote from '../../../../web_data/quebec/advance_vote.json';
 const nfFr = (x: number) => x.toLocaleString('fr-CA', { maximumFractionDigits: 1 });
 
@@ -59,7 +57,7 @@ const alternates = {
     href="/fr/canada/quebec/resultats/"
     cta="Ouvrir la page des résultats →"
   />
-  <ProjectionEngine jurisdiction={j} locale="fr"><Fragment slot="narrative"><RaceNarrative locale="fr" {...raceEditorial.quebec.fr} /></Fragment></ProjectionEngine>
+  <ProjectionEngine jurisdiction={j} locale="fr" />
   <RidingsCta
     eyebrow="Vote par anticipation"
     title={`Environ ${advanceVote.meta.provincial.advance_share_est_pct} % des votes déjà dans l'urne`}
