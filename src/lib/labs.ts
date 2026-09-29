@@ -32,17 +32,19 @@ export function keyFromSlug(locale: Locale, slug: string): LabsKey | undefined {
 
 const dir = resolve(process.cwd(), 'web_data', 'labs');
 
+// Disposition publiée par la nuit (labs/run_labs.py --publish-dir) :
+// labs/latest.json (date du run, index, backtests) + labs/desks/<clé>.json.
 export function hasLabs(key: LabsKey): boolean {
-  return existsSync(resolve(dir, `${key}.json`));
+  return existsSync(resolve(dir, 'desks', `${key}.json`));
 }
 
 export function loadLabs(key: LabsKey): any {
-  return JSON.parse(readFileSync(resolve(dir, `${key}.json`), 'utf-8'));
+  return JSON.parse(readFileSync(resolve(dir, 'desks', `${key}.json`), 'utf-8'));
 }
 
 export function loadBacktests(): any | null {
-  const f = resolve(dir, 'backtests.json');
-  return existsSync(f) ? JSON.parse(readFileSync(f, 'utf-8')) : null;
+  const f = resolve(dir, 'latest.json');
+  return existsSync(f) ? JSON.parse(readFileSync(f, 'utf-8')).backtests ?? null : null;
 }
 
 const US_LABELS: Record<string, Record<Locale, string>> = {
