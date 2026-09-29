@@ -1,11 +1,12 @@
 ---
 // « La physique d'une élection » — page d'explication de VoteScope Labs.
-import { type Locale, labsUrl } from '../lib/labs';
+import { type Locale, labsUrl, T } from '../lib/labs';
 import { EXPLAINER, EXPLAINER_REFERENCES } from '../lib/labs-explainer';
 
 interface Props { locale: Locale }
 const { locale } = Astro.props;
 const x = EXPLAINER[locale];
+const t = T[locale];
 
 const L = {
   fr: { shares: 'parts de vote', amps: 'amplitudes (racines carrées)', partyA: 'parti A', partyB: 'parti B',
@@ -41,7 +42,18 @@ const dmax = Math.max(...dist);
     <p class="lx-kicker">{x.kicker}</p>
     <h1>{x.h1}</h1>
     <p class="lx-dek">{x.dek}</p>
+    <div class="lx-brand">
+      <span class="lx-orbit" aria-hidden="true"><span></span></span>
+      <span class="lx-engine">{t.engine}</span>
+      <span class="lx-live">{t.live}</span>
+      {t.tags.map((g) => <span class="lx-tag">{g}</span>)}
+    </div>
   </header>
+
+  <aside class="lx-why">
+    <h2>{t.whyTitle}</h2>
+    <p>{t.whyBody}</p>
+  </aside>
 
   {x.sections.map((s) => (
     <section class="lx-section" id={s.id} aria-labelledby={`h-${s.id}`}>
@@ -151,6 +163,18 @@ const dmax = Math.max(...dist);
   .lx-hero h1 { margin: 0 0 18px; font-family: var(--serif); font-size: clamp(42px, 7vw, 76px); font-weight: 420; letter-spacing: -.02em; line-height: 1; }
   .lx-dek { margin: 0; font-size: 19px; line-height: 1.6; color: var(--ink-2); }
   .lx-section { margin-top: 56px; }
+  .lx-brand { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 22px; }
+  .lx-orbit { position: relative; width: 26px; height: 26px; border-radius: 50%; border: 1.5px solid var(--ink); }
+  .lx-orbit span { position: absolute; top: -4px; left: 9px; width: 7px; height: 7px; border-radius: 50%; background: var(--duck-deep); transform-origin: 3.5px 16px; animation: lx-orbit 6s linear infinite; }
+  @keyframes lx-orbit { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { .lx-orbit span { animation: none; } }
+  .lx-engine { font-family: var(--serif); font-size: 24px; font-weight: 500; margin-right: 4px; }
+  .lx-live, .lx-tag { padding: 3px 10px; border-radius: 999px; font-family: var(--mono); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; }
+  .lx-live { color: var(--red); background: var(--red-tint); }
+  .lx-tag { border: 1px solid var(--rule); color: var(--ink-2); }
+  .lx-why { margin-top: 40px; padding: 22px 24px; border-radius: 8px; border: 1px solid var(--rule); background: color-mix(in oklab, var(--blue) 7%, var(--card)); }
+  .lx-why h2 { margin: 0 0 8px; font-family: var(--serif); font-size: 26px; font-weight: 450; }
+  .lx-why p { margin: 0; font-size: 17px; line-height: 1.65; color: var(--ink-2); }
   .lx-section h2 { margin: 0 0 16px; font-family: var(--serif); font-size: clamp(28px, 4vw, 38px); font-weight: 450; line-height: 1.1; }
   .lx-section > p { font-size: 17px; line-height: 1.7; color: var(--ink-2); margin: 0 0 16px; }
   .lx-fig { margin: 28px 0; padding: 16px; border: 1px solid var(--rule); border-radius: 6px; background: var(--card); }

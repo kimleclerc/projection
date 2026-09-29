@@ -2,6 +2,7 @@
 // et textes des pages, en trois langues.
 import { readFileSync, existsSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { partyMeta, partyMark } from './riding-adapters/parties';
 
 export type Locale = 'fr' | 'en' | 'es';
 export type LabsKey = 'qc_2026' | 'bc_44' | 'us_senate' | 'us_house' | 'us_governor';
@@ -47,22 +48,81 @@ export function loadBacktests(): any | null {
   return existsSync(f) ? JSON.parse(readFileSync(f, 'utf-8')).backtests ?? null : null;
 }
 
-const US_LABELS: Record<string, Record<Locale, string>> = {
-  us_dem: { fr: 'Démocrates', en: 'Democrats', es: 'Demócratas' },
-  us_rep: { fr: 'Républicains', en: 'Republicans', es: 'Republicanos' },
-  us_oth: { fr: 'Autres', en: 'Others', es: 'Otros' },
-};
-const US_COLORS: Record<string, string> = { us_dem: '#1f77d0', us_rep: '#c62828', us_oth: '#888888' };
-
+// Libellés, couleurs et logos : la palette COMMUNE du site (celle des pages de
+// projection), pour que les pages Labs parlent le même langage visuel.
 export function partyLabel(data: any, party: string, locale: Locale): string {
-  if (US_LABELS[party]) return US_LABELS[party][locale];
+  const m = partyMeta(data.desk, party);
+  const txt = locale === 'fr' ? m.label_fr : m.label_en;
+  if (txt && txt.toUpperCase() !== party.toUpperCase()) return txt;
   const l = data.labels?.[party];
-  const txt = locale === 'fr' ? l?.fr : l?.en;
-  return txt || party.replace(/^(bc|qc|us)_/, '').toUpperCase();
+  return (locale === 'fr' ? l?.fr : l?.en) || party.replace(/^(bc|qc|us)_/, '').toUpperCase();
 }
 
 export function partyColor(data: any, party: string): string {
-  return US_COLORS[party] || data.labels?.[party]?.color || '#888888';
+  const m = partyMeta(data.desk, party);
+  return m.color && m.color !== '#999' ? m.color : (data.labels?.[party]?.color || '#888888');
+}
+
+export function partyIcon(data: any, party: string): string | undefined {
+  return partyMark(partyMeta(data.desk, party));
+}
+
+export type SeatSeg = { party: string; seats: number; color: string; label: string; icon?: string };
+export type Comparison = {
+  total: number;
+  threshold: number | null;
+  orbit: SeatSeg[];
+  reference: SeatSeg[];
+  leaderOrbit: string;
+  leaderRef: string;
+  verdict: 'same' | 'status' | 'different';
+  pOrbit: number | null;       // P(majorité / contrôle) du meneur Orbite
+  pRef: number | null;         // même chose côté référence
+};
+
+/** Orbite contre la projection de référence, en sièges gagnés. */
+export function compare(key: LabsKey, d: any, locale: Locale): Comparison {
+  const isUS = key.startsWith('us_');
+  const seg = (party: string, seats: number): SeatSeg => ({
+    party, seats, color: partyColor(d, party), label: partyLabel(d, party, locale), icon: partyIcon(d, party),
+  });
+  let orbit: SeatSeg[] = [];
+  let ref: Record<string, number> = {};
+  let total = 0;
+  let threshold: number | null = null;
+  const pOrbitBy: Record<string, number | null> = {};
+  const pRefBy: Record<string, number | null> = {};
+  if (!isUS) {
+    orbit = d.parties.map((x: any) => seg(x.party, x.seats_favored));
+    for (const x of d.prod?.parties ?? []) { ref[x.party] = x.seats ?? 0; pRefBy[x.party] = x.p_majority ?? null; }
+    for (const x of d.parties) pOrbitBy[x.party] = x.seats.p_majority;
+    total = d.total_seats;
+    threshold = d.majority;
+  } else if (key === 'us_governor') {
+    orbit = d.parties.map((x: any) => seg(x.party, x.seats_favored));
+    const races = d.prod?.races ?? {};
+    for (const r of Object.values(races) as any[]) ref[r.winner] = (ref[r.winner] ?? 0) + 1;
+    total = d.races.length;
+  } else {
+    orbit = d.parties.map((x: any) => seg(x.party, x.seats_favored));
+    for (const x of d.prod?.parties ?? []) { ref[x.party] = x.seats ?? 0; pRefBy[x.party] = x.p_majority ?? null; }
+    for (const x of d.parties) pOrbitBy[x.party] = x.p_control;
+    total = key === 'us_senate' ? 100 : 435;
+    threshold = key === 'us_senate' ? 51 : 218;
+  }
+  orbit = orbit.filter((x) => x.seats > 0 || (ref[x.party] ?? 0) > 0).sort((a, b) => b.seats - a.seats);
+  const reference = orbit.map((x) => ({ ...x, seats: ref[x.party] ?? 0 }));
+  const lead = (xs: SeatSeg[]) => [...xs].sort((a, b) => b.seats - a.seats)[0]?.party ?? '';
+  const leaderOrbit = lead(orbit);
+  const leaderRef = lead(reference);
+  let verdict: Comparison['verdict'] = leaderOrbit === leaderRef ? 'same' : 'different';
+  if (verdict === 'same' && threshold !== null) {
+    const o = orbit.find((x) => x.party === leaderOrbit)!.seats >= threshold;
+    const r = reference.find((x) => x.party === leaderRef)!.seats >= threshold;
+    if (o !== r) verdict = 'status';
+  }
+  return { total, threshold, orbit, reference, leaderOrbit, leaderRef, verdict,
+           pOrbit: pOrbitBy[leaderOrbit] ?? null, pRef: pRefBy[leaderOrbit] ?? null };
 }
 
 const NUM_LOCALE: Record<Locale, string> = { fr: 'fr-CA', en: 'en-US', es: 'es-ES' };
@@ -95,195 +155,216 @@ export const NAMES: Record<LabsKey, Record<Locale, string>> = {
 export const T = {
   fr: {
     brand: 'VoteScope Labs',
-    kicker: 'Moteur expérimental',
+    engine: 'Orbite',
+    tags: ['Quantique', 'Relativiste', 'Qubits'],
+    live: 'Expérience en cours',
     updated: 'Mis à jour le',
-    hubTitle: 'Les mêmes sondages. Une autre physique.',
-    hubDek: 'VoteScope Labs fait tourner un second moteur de projection, construit de zéro, à côté de nos projections de référence. Il lit exactement les mêmes sondages et les mêmes résultats passés, mais il les traite avec des outils venus de la géométrie et de la physique quantique. Quand les deux moteurs s’accordent, le signal est solide. Quand ils divergent, c’est là qu’il faut regarder.',
-    deskDek: 'Mêmes sondages, mêmes résultats passés, mécanique entièrement différente. Voici ce que voit le moteur Labs, à côté de notre projection de référence.',
-    reference: 'Projection de référence',
-    labs: 'Labs',
-    favorite: 'Favori du moteur Labs',
-    chanceFirst: 'chances de terminer premier',
-    seatsLeader: 'Sièges gagnés par le favori',
-    range80: '8 chances sur 10 entre',
-    and: 'et',
-    majority: 'Majorité',
-    control: 'Contrôle de la chambre',
+    hubTitle: 'Et si on prévoyait une élection avec la physique d’Einstein?',
+    hubDek: 'Orbite, c’est notre moteur expérimental. Il lit exactement les mêmes sondages que notre projection de référence, mais avec une tout autre mécanique : l’opinion y voyage sur une sphère courbe, comme une planète sur son orbite, et les sièges se comptent avec des qubits plutôt qu’avec des dés. Chaque nuit, les deux moteurs tournent côte à côte. Quand ils s’entendent, le signal est fort. Quand ils se contredisent, c’est là que ça devient intéressant.',
+    whyTitle: 'Pourquoi « Orbite »?',
+    whyBody: 'Selon Einstein, la Terre ne tourne pas autour du Soleil parce qu’une force la tire : elle suit le chemin le plus droit possible dans un espace que le Soleil a courbé. Notre moteur fait pareil avec l’opinion publique : il la suit le long de sa trajectoire la plus naturelle, sur une surface courbe.',
+    deskDek: 'Mêmes sondages, autre physique. Voici ce que voit Orbite, à côté de notre projection de référence.',
+    compareTitle: 'Orbite contre la référence : d’accord ou pas?',
+    compareHub: 'Partout où Orbite tourne',
+    compareHubNote: 'Sièges gagnés : le nombre de circonscriptions où chaque parti est favori. La barre du haut, c’est Orbite; celle du bas, notre projection de référence.',
+    orbit: 'Orbite',
+    reference: 'Référence',
+    verdict: { same: 'D’accord', status: 'Même gagnant, verdict différent sur la majorité', different: 'Désaccord : gagnant différent' },
+    majorityLine: (n: number) => `Majorité : ${n}`,
+    controlLine: (n: number) => `Contrôle : ${n}`,
+    favorite: 'Le favori d’Orbite',
+    chanceFirst: 'de chances de finir premier',
+    seatsWon: 'Sièges gagnés',
+    majority: 'Chances de majorité',
+    control: 'Chances de contrôle',
     agreement: 'Même favori que la référence',
     agreementNote: 'des circonscriptions',
-    table: 'Parti par parti',
-    party: 'Parti',
+    partiesTitle: 'Parti par parti',
+    voteTitle: 'Le vote, avec sa marge d’incertitude',
+    voteNote: 'La barre pleine, c’est le vote projeté par Orbite; le trait fin, 8 chances sur 10; le repère noir, notre projection de référence.',
     vote: 'Vote',
-    seats: 'Sièges',
-    favoredIn: 'Favori dans (circonscriptions)',
-    divergeTitle: 'Là où les deux moteurs ne sont pas d’accord',
+    range80: '8 chances sur 10 entre',
+    and: 'et',
+    vsRef: 'réf.',
+    divergeTitle: 'Là où les deux moteurs ne s’entendent pas',
     divergeNone: 'Les deux moteurs désignent le même favori partout.',
-    divergeFav: 'Favori Labs',
-    divergeRef: 'Favori référence',
-    racesTitle: 'Les courses les plus serrées selon le Labs',
+    racesTitle: 'Les courses les plus serrées selon Orbite',
     race: 'Course',
     polls: 'Sondages',
-    labsChance: 'Chances D (Labs)',
-    refChance: 'Chances D (référence)',
-    instruments: 'Les instruments du Labs',
+    chanceD: 'Chances démocrates',
+    generic: 'Vote générique selon Orbite',
+    wins: 'Victoires',
+    days: 'Jours avant le vote',
+    instruments: 'Les instruments d’Orbite',
     moved: 'Électeurs qui ont changé de camp depuis la dernière élection',
-    movedNote: 'minimum, en points de l’électorat',
+    movedNote: 'au minimum, en points de l’électorat',
     spread: 'Écart moyen entre sondeurs',
     spreadNote: 'points, autour de l’état le plus probable',
     cone: 'Cône des possibles d’ici le vote',
-    coneNote: 'points de mouvement maximal pour un parti',
-    days: 'Jours avant le vote',
-    generic: 'Vote générique (Labs)',
-    backtests: 'Rejoué sur les élections passées',
-    backtestsNote: 'Chaque élection est rejouée avec les seuls sondages connus la veille du vote. Écart moyen, par parti, entre les sièges gagnés projetés et les sièges réels — la même mesure que notre historique de précision.',
+    coneNote: 'points de mouvement maximal pour un parti à',
+    backtests: 'Le test du passé',
+    backtestsNote: 'On a rejoué les élections passées avec les seuls sondages connus la veille du vote. Voici l’écart moyen, par parti, entre les sièges gagnés projetés et les vrais résultats — la même mesure que notre historique de précision. Plus c’est bas, mieux c’est.',
     election: 'Élection',
-    errLabs: 'Écart Labs',
+    errOrbit: 'Écart Orbite',
     errRef: 'Écart référence',
-    ridingsRight: 'Circonscriptions justes (Labs)',
+    ridingsRight: 'Circonscriptions justes (Orbite)',
     notAvailable: 'non rejouée',
-    howTitle: 'Comment fonctionne le moteur Labs',
+    howTitle: 'Comment Orbite fonctionne, en trois idées',
     how: [
-      ['L’opinion vit sur une sphère', 'Une répartition des voix est un point sur une surface courbe, où un mouvement de 2 points ne pèse pas la même chose pour un parti à 5 % et pour un parti à 40 %. Les tendances suivent le chemin le plus court sur cette courbe, et le mouvement national est déplacé jusqu’à chaque circonscription en respectant la courbure. Un nouveau parti peut ainsi apparaître là où il n’existait pas.'],
-      ['Les sondages sont des mesures', 'Chaque sondage est traité comme une mesure d’un état de l’électorat, à la manière d’une mesure en physique quantique. Le moteur suit cet état jour après jour, corrige les biais propres à chaque sondeur et ne laisse pas un sondeur très prolifique dicter la moyenne.'],
-      ['Les sièges se comptent, ils ne se tirent pas', 'Chaque circonscription est un registre dont les amplitudes donnent les chances de chaque parti. Le nombre de sièges est lu exactement sur un compteur, au lieu de dizaines de milliers de tirages au hasard. Seuls les grands chocs communs, nationaux et régionaux, sont parcourus sur une grille régulière.'],
+      ['L’opinion voyage sur une sphère', 'Un 2 % de plus ne veut pas dire la même chose pour un parti à 5 % et pour un parti à 40 %. En posant l’opinion sur une sphère courbe, Orbite le sait d’instinct, et il transporte le mouvement national jusqu’à chaque circonscription comme on transporte une flèche sur un globe.'],
+      ['Les sondages sont des mesures', 'Comme en physique quantique, chaque sondage est une mesure d’un état caché : l’électorat. Orbite suit cet état jour après jour, efface le biais propre à chaque sondeur et ne laisse personne dicter la moyenne à lui seul.'],
+      ['Des qubits au lieu des dés', 'Chaque circonscription devient un petit registre quantique. Au lieu de lancer les dés 50 000 fois, Orbite compte les sièges exactement, en quelques secondes. Un vrai circuit quantique donne le même résultat, au milliardième près.'],
     ],
-    caveat: 'Le Labs est un banc d’essai. Notre projection de référence reste celle de la page principale.',
+    experimentTitle: 'Science en cours',
+    experiment: 'Orbite est une expérience, et on la mène au grand jour. Il n’a pas encore autant fait ses preuves que notre projection de référence : c’est pour ça qu’on publie les deux, et qu’on vous montre le test du passé. Jugez sur pièces.',
     goMain: 'Voir la projection de référence',
-    goHub: 'Tous les moteurs Labs',
-    openDesk: 'Ouvrir',
-    usNotValidated: 'Aucune élection américaine passée n’est encore rejouée dans le Labs : ces chiffres n’ont pas d’historique de précision.',
-    readMore: 'Pour aller plus loin',
-    refs: 'Références',
-    wins: 'Victoires',
-    hubDesks: 'Les projections Labs',
+    goHub: 'Tous les résultats d’Orbite',
+    openDesk: 'Voir la projection',
+    usNotValidated: 'Aucune élection américaine passée n’a encore été rejouée dans Orbite : ces chiffres n’ont pas d’historique de précision.',
+    readMore: 'Pour les curieux',
+    hubDesks: 'Les projections d’Orbite',
   },
   en: {
     brand: 'VoteScope Labs',
-    kicker: 'Experimental engine',
+    engine: 'Orbit',
+    tags: ['Quantum', 'Relativistic', 'Qubits'],
+    live: 'Live experiment',
     updated: 'Updated',
-    hubTitle: 'Same polls. Different physics.',
-    hubDek: 'VoteScope Labs runs a second forecasting engine, built from scratch, next to our reference forecasts. It reads exactly the same polls and past results, but processes them with tools borrowed from geometry and quantum physics. When the two engines agree, the signal is solid. When they diverge, that is where to look.',
-    deskDek: 'Same polls, same past results, a completely different machine. Here is what the Labs engine sees, next to our reference forecast.',
-    reference: 'Reference forecast',
-    labs: 'Labs',
-    favorite: 'Labs engine favourite',
+    hubTitle: 'What if you forecast an election with Einstein’s physics?',
+    hubDek: 'Orbit is our experimental engine. It reads exactly the same polls as our reference forecast, but with completely different machinery: opinion travels on a curved sphere, like a planet on its orbit, and seats are counted with qubits instead of dice. Every night, both engines run side by side. When they agree, the signal is strong. When they clash, that is where it gets interesting.',
+    whyTitle: 'Why “Orbit”?',
+    whyBody: 'According to Einstein, Earth does not circle the Sun because a force pulls it: it follows the straightest possible path through a space the Sun has curved. Our engine does the same with public opinion: it follows its most natural path across a curved surface.',
+    deskDek: 'Same polls, different physics. Here is what Orbit sees, next to our reference forecast.',
+    compareTitle: 'Orbit vs. the reference: do they agree?',
+    compareHub: 'Everywhere Orbit is running',
+    compareHubNote: 'Seats won: the number of ridings where each party is the favourite. The top bar is Orbit; the bottom bar is our reference forecast.',
+    orbit: 'Orbit',
+    reference: 'Reference',
+    verdict: { same: 'They agree', status: 'Same winner, different call on the majority', different: 'They disagree: different winner' },
+    majorityLine: (n: number) => `Majority: ${n}`,
+    controlLine: (n: number) => `Control: ${n}`,
+    favorite: 'Orbit’s favourite',
     chanceFirst: 'chance of finishing first',
-    seatsLeader: 'Seats won by the favourite',
-    range80: '8 in 10 chance between',
-    and: 'and',
-    majority: 'Majority',
-    control: 'Chamber control',
+    seatsWon: 'Seats won',
+    majority: 'Chance of a majority',
+    control: 'Chance of control',
     agreement: 'Same favourite as the reference',
     agreementNote: 'of ridings',
-    table: 'Party by party',
-    party: 'Party',
+    partiesTitle: 'Party by party',
+    voteTitle: 'The vote, with its margin of uncertainty',
+    voteNote: 'The solid bar is Orbit’s projected vote; the thin line, an 8-in-10 range; the black tick, our reference forecast.',
     vote: 'Vote',
-    seats: 'Seats',
-    favoredIn: 'Favourite in (ridings)',
+    range80: '8 in 10 chance between',
+    and: 'and',
+    vsRef: 'ref.',
     divergeTitle: 'Where the two engines disagree',
     divergeNone: 'Both engines name the same favourite everywhere.',
-    divergeFav: 'Labs favourite',
-    divergeRef: 'Reference favourite',
-    racesTitle: 'The closest races according to Labs',
+    racesTitle: 'The closest races according to Orbit',
     race: 'Race',
     polls: 'Polls',
-    labsChance: 'Dem chance (Labs)',
-    refChance: 'Dem chance (reference)',
-    instruments: 'Labs instruments',
+    chanceD: 'Democratic chances',
+    generic: 'Generic ballot according to Orbit',
+    wins: 'Wins',
+    days: 'Days to election',
+    instruments: 'Orbit’s instruments',
     moved: 'Voters who switched sides since the last election',
-    movedNote: 'minimum, in points of the electorate',
+    movedNote: 'at least, in points of the electorate',
     spread: 'Average gap between pollsters',
     spreadNote: 'points, around the most likely state',
     cone: 'Cone of possibilities until election day',
-    coneNote: 'points of maximum movement for one party',
-    days: 'Days to election',
-    generic: 'Generic ballot (Labs)',
-    backtests: 'Replayed on past elections',
-    backtestsNote: 'Each election is replayed with only the polls known the day before the vote. Average gap, per party, between projected seats won and actual seats — the same measure as our track record.',
+    coneNote: 'points of maximum movement for a party at',
+    backtests: 'The test of the past',
+    backtestsNote: 'We replayed past elections using only the polls known the day before the vote. Here is the average gap, per party, between projected seats won and the real results — the same measure as our track record. Lower is better.',
     election: 'Election',
-    errLabs: 'Labs gap',
+    errOrbit: 'Orbit gap',
     errRef: 'Reference gap',
-    ridingsRight: 'Ridings called right (Labs)',
+    ridingsRight: 'Ridings called right (Orbit)',
     notAvailable: 'not replayed',
-    howTitle: 'How the Labs engine works',
+    howTitle: 'How Orbit works, in three ideas',
     how: [
-      ['Opinion lives on a sphere', 'A vote split is a point on a curved surface, where a 2-point move does not weigh the same for a party at 5% and a party at 40%. Trends follow the shortest path on that curve, and the national swing is carried to each riding while respecting the curvature. A new party can therefore appear where it did not exist.'],
-      ['Polls are measurements', 'Each poll is treated as a measurement of the state of the electorate, the way a measurement works in quantum physics. The engine tracks that state day after day, corrects each pollster’s own lean and does not let one very prolific pollster dictate the average.'],
-      ['Seats are counted, not drawn', 'Each riding is a register whose amplitudes give every party’s chances. The seat count is read exactly from a counter instead of tens of thousands of random draws. Only the large common shocks, national and regional, are walked through on a regular grid.'],
+      ['Opinion travels on a sphere', 'A 2-point gain does not mean the same thing for a party at 5% and a party at 40%. By placing opinion on a curved sphere, Orbit knows this by instinct, and it carries the national swing to each riding the way you carry an arrow across a globe.'],
+      ['Polls are measurements', 'As in quantum physics, each poll is a measurement of a hidden state: the electorate. Orbit tracks that state day after day, erases each pollster’s own lean and lets no one dictate the average alone.'],
+      ['Qubits instead of dice', 'Each riding becomes a small quantum register. Instead of rolling dice 50,000 times, Orbit counts the seats exactly, in seconds. A real quantum circuit gives the same answer, to the billionth.'],
     ],
-    caveat: 'Labs is a test bench. Our reference forecast remains the one on the main page.',
+    experimentTitle: 'Science in progress',
+    experiment: 'Orbit is an experiment, and we run it in the open. It has not yet proven itself as much as our reference forecast: that is why we publish both, and show you the test of the past. Judge for yourself.',
     goMain: 'See the reference forecast',
-    goHub: 'All Labs engines',
-    openDesk: 'Open',
-    usNotValidated: 'No past U.S. election has been replayed in Labs yet: these numbers have no accuracy record.',
-    readMore: 'Further reading',
-    refs: 'References',
-    wins: 'Wins',
-    hubDesks: 'Labs forecasts',
+    goHub: 'All of Orbit’s results',
+    openDesk: 'See the forecast',
+    usNotValidated: 'No past U.S. election has been replayed in Orbit yet: these numbers have no accuracy record.',
+    readMore: 'For the curious',
+    hubDesks: 'Orbit’s forecasts',
   },
   es: {
     brand: 'VoteScope Labs',
-    kicker: 'Motor experimental',
+    engine: 'Órbita',
+    tags: ['Cuántico', 'Relativista', 'Qubits'],
+    live: 'Experimento en curso',
     updated: 'Actualizado el',
-    hubTitle: 'Las mismas encuestas. Otra física.',
-    hubDek: 'VoteScope Labs hace funcionar un segundo motor de proyección, construido desde cero, junto a nuestras proyecciones de referencia. Lee exactamente las mismas encuestas y los mismos resultados pasados, pero los procesa con herramientas de la geometría y de la física cuántica. Cuando los dos motores coinciden, la señal es sólida. Cuando divergen, ahí hay que mirar.',
-    deskDek: 'Mismas encuestas, mismos resultados pasados, una mecánica completamente distinta. Esto es lo que ve el motor Labs, junto a nuestra proyección de referencia.',
-    reference: 'Proyección de referencia',
-    labs: 'Labs',
-    favorite: 'Favorito del motor Labs',
-    chanceFirst: 'probabilidad de terminar primero',
-    seatsLeader: 'Escaños ganados por el favorito',
-    range80: '8 de cada 10 entre',
-    and: 'y',
-    majority: 'Mayoría',
-    control: 'Control de la cámara',
+    hubTitle: '¿Y si pronosticáramos una elección con la física de Einstein?',
+    hubDek: 'Órbita es nuestro motor experimental. Lee exactamente las mismas encuestas que nuestra proyección de referencia, pero con una mecánica completamente distinta: la opinión viaja sobre una esfera curva, como un planeta en su órbita, y los escaños se cuentan con qubits en lugar de dados. Cada noche, los dos motores funcionan lado a lado. Cuando coinciden, la señal es fuerte. Cuando se contradicen, ahí se pone interesante.',
+    whyTitle: '¿Por qué «Órbita»?',
+    whyBody: 'Según Einstein, la Tierra no gira alrededor del Sol porque una fuerza la atraiga: sigue el camino más recto posible en un espacio que el Sol ha curvado. Nuestro motor hace lo mismo con la opinión pública: la sigue por su trayectoria más natural sobre una superficie curva.',
+    deskDek: 'Mismas encuestas, otra física. Esto es lo que ve Órbita, junto a nuestra proyección de referencia.',
+    compareTitle: 'Órbita frente a la referencia: ¿coinciden?',
+    compareHub: 'Dondequiera que funcione Órbita',
+    compareHubNote: 'Escaños ganados: el número de circunscripciones donde cada partido es favorito. La barra de arriba es Órbita; la de abajo, nuestra proyección de referencia.',
+    orbit: 'Órbita',
+    reference: 'Referencia',
+    verdict: { same: 'Coinciden', status: 'Mismo ganador, distinto veredicto sobre la mayoría', different: 'No coinciden: ganador distinto' },
+    majorityLine: (n: number) => `Mayoría: ${n}`,
+    controlLine: (n: number) => `Control: ${n}`,
+    favorite: 'El favorito de Órbita',
+    chanceFirst: 'de probabilidad de terminar primero',
+    seatsWon: 'Escaños ganados',
+    majority: 'Probabilidad de mayoría',
+    control: 'Probabilidad de control',
     agreement: 'Mismo favorito que la referencia',
     agreementNote: 'de las circunscripciones',
-    table: 'Partido por partido',
-    party: 'Partido',
+    partiesTitle: 'Partido por partido',
+    voteTitle: 'El voto, con su margen de incertidumbre',
+    voteNote: 'La barra llena es el voto proyectado por Órbita; la línea fina, 8 de cada 10; la marca negra, nuestra proyección de referencia.',
     vote: 'Voto',
-    seats: 'Escaños',
-    favoredIn: 'Favorito en (circunscripciones)',
+    range80: '8 de cada 10 entre',
+    and: 'y',
+    vsRef: 'ref.',
     divergeTitle: 'Donde los dos motores no coinciden',
     divergeNone: 'Los dos motores señalan el mismo favorito en todas partes.',
-    divergeFav: 'Favorito Labs',
-    divergeRef: 'Favorito referencia',
-    racesTitle: 'Las contiendas más reñidas según Labs',
+    racesTitle: 'Las contiendas más reñidas según Órbita',
     race: 'Contienda',
     polls: 'Encuestas',
-    labsChance: 'Prob. D (Labs)',
-    refChance: 'Prob. D (referencia)',
-    instruments: 'Los instrumentos de Labs',
+    chanceD: 'Probabilidad demócrata',
+    generic: 'Voto genérico según Órbita',
+    wins: 'Victorias',
+    days: 'Días para la votación',
+    instruments: 'Los instrumentos de Órbita',
     moved: 'Votantes que cambiaron de bando desde la última elección',
-    movedNote: 'mínimo, en puntos del electorado',
+    movedNote: 'como mínimo, en puntos del electorado',
     spread: 'Diferencia media entre encuestadoras',
     spreadNote: 'puntos, alrededor del estado más probable',
-    cone: 'Cono de lo posible hasta el día de la votación',
-    coneNote: 'puntos de movimiento máximo para un partido',
-    days: 'Días para la votación',
-    generic: 'Voto genérico (Labs)',
-    backtests: 'Repetido sobre elecciones pasadas',
-    backtestsNote: 'Cada elección se repite solo con las encuestas conocidas la víspera. Diferencia media, por partido, entre escaños ganados proyectados y reales — la misma medida que nuestro historial de precisión.',
+    cone: 'Cono de lo posible hasta la votación',
+    coneNote: 'puntos de movimiento máximo para un partido al',
+    backtests: 'La prueba del pasado',
+    backtestsNote: 'Repetimos elecciones pasadas usando solo las encuestas conocidas la víspera. Esta es la diferencia media, por partido, entre los escaños ganados proyectados y los resultados reales — la misma medida que nuestro historial de precisión. Cuanto más bajo, mejor.',
     election: 'Elección',
-    errLabs: 'Diferencia Labs',
+    errOrbit: 'Diferencia Órbita',
     errRef: 'Diferencia referencia',
-    ridingsRight: 'Circunscripciones acertadas (Labs)',
+    ridingsRight: 'Circunscripciones acertadas (Órbita)',
     notAvailable: 'no repetida',
-    howTitle: 'Cómo funciona el motor Labs',
+    howTitle: 'Cómo funciona Órbita, en tres ideas',
     how: [
-      ['La opinión vive sobre una esfera', 'Un reparto de votos es un punto sobre una superficie curva, donde un movimiento de 2 puntos no pesa lo mismo para un partido al 5 % que para uno al 40 %. Las tendencias siguen el camino más corto sobre esa curva, y el movimiento nacional se traslada a cada circunscripción respetando la curvatura. Así, un partido nuevo puede aparecer donde no existía.'],
-      ['Las encuestas son mediciones', 'Cada encuesta se trata como una medición del estado del electorado, como una medición en física cuántica. El motor sigue ese estado día tras día, corrige el sesgo propio de cada encuestadora y no deja que una encuestadora muy prolífica dicte el promedio.'],
-      ['Los escaños se cuentan, no se sortean', 'Cada circunscripción es un registro cuyas amplitudes dan las probabilidades de cada partido. El número de escaños se lee exactamente en un contador, en lugar de decenas de miles de sorteos al azar. Solo los grandes choques comunes, nacionales y regionales, se recorren sobre una malla regular.'],
+      ['La opinión viaja sobre una esfera', 'Ganar 2 puntos no significa lo mismo para un partido al 5 % que para uno al 40 %. Al situar la opinión sobre una esfera curva, Órbita lo sabe por instinto, y traslada el movimiento nacional a cada circunscripción como quien transporta una flecha sobre un globo.'],
+      ['Las encuestas son mediciones', 'Como en física cuántica, cada encuesta es la medición de un estado oculto: el electorado. Órbita sigue ese estado día tras día, borra el sesgo propio de cada encuestadora y no deja que nadie dicte solo el promedio.'],
+      ['Qubits en lugar de dados', 'Cada circunscripción se convierte en un pequeño registro cuántico. En lugar de tirar los dados 50 000 veces, Órbita cuenta los escaños exactamente, en segundos. Un verdadero circuito cuántico da el mismo resultado, hasta la milmillonésima.'],
     ],
-    caveat: 'Labs es un banco de pruebas. Nuestra proyección de referencia sigue siendo la de la página principal.',
+    experimentTitle: 'Ciencia en curso',
+    experiment: 'Órbita es un experimento, y lo llevamos a cabo a la vista de todos. Todavía no ha demostrado tanto como nuestra proyección de referencia: por eso publicamos las dos, y le mostramos la prueba del pasado. Juzgue usted mismo.',
     goMain: 'Ver la proyección de referencia',
-    goHub: 'Todos los motores Labs',
-    openDesk: 'Abrir',
-    usNotValidated: 'Todavía no se ha repetido en Labs ninguna elección estadounidense pasada: estas cifras no tienen historial de precisión.',
-    readMore: 'Para saber más',
-    refs: 'Referencias',
-    wins: 'Victorias',
-    hubDesks: 'Proyecciones Labs',
+    goHub: 'Todos los resultados de Órbita',
+    openDesk: 'Ver la proyección',
+    usNotValidated: 'Todavía no se ha repetido en Órbita ninguna elección estadounidense pasada: estas cifras no tienen historial de precisión.',
+    readMore: 'Para curiosos',
+    hubDesks: 'Las proyecciones de Órbita',
   },
 } as const;
 

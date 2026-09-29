@@ -1,10 +1,12 @@
 ---
-// Accueil VoteScope Labs : les projections du moteur expérimental.
+// Accueil VoteScope Labs — Orbite, le moteur quantique et relativiste, comparé
+// partout à la projection de référence.
 import {
   type Locale, T, NAMES, LABS_KEYS, labsUrl, hasLabs, loadLabs, loadBacktests,
-  partyLabel, pct, fmt, fmtDate, REFERENCES,
+  compare, pct, fmt, fmtDate,
 } from '../lib/labs';
 import { EXPLAINER, EXPLAINER_SLUG } from '../lib/labs-explainer';
+import LabsSeatBars from './LabsSeatBars.astro';
 
 interface Props { locale: Locale }
 const { locale } = Astro.props;
@@ -12,56 +14,68 @@ const t = T[locale];
 
 const desks = LABS_KEYS.filter(hasLabs).map((k) => {
   const d = loadLabs(k);
-  let headline = '';
-  let sub = '';
-  if (k.startsWith('us_')) {
-    const dem = d.parties.find((x: any) => x.party === 'us_dem');
-    const rep = d.parties.find((x: any) => x.party === 'us_rep');
-    if (k === 'us_governor') {
-      headline = `D ${dem.seats_favored} · R ${rep.seats_favored}`;
-      sub = t.wins;
-    } else {
-      const lead = dem.p_control >= rep.p_control ? dem : rep;
-      headline = `${partyLabel(d, lead.party, locale)} ${pct(lead.p_control, locale)}`;
-      sub = t.control;
-    }
-  } else {
-    const [party, p] = Object.entries(d.p_first as Record<string, number>).sort((a, b) => b[1] - a[1])[0];
-    const row = d.parties.find((x: any) => x.party === party);
-    headline = `${partyLabel(d, party, locale)} · ${row.seats_favored}`;
-    sub = `${pct(p, locale)} ${t.chanceFirst}`;
-  }
-  return { k, name: NAMES[k][locale], headline, sub, asOf: d.as_of };
+  const cmp = compare(k, d, locale);
+  return { k, d, cmp, name: NAMES[k][locale] };
 });
+const counts = { same: 0, status: 0, different: 0 } as Record<string, number>;
+for (const x of desks) counts[x.cmp.verdict] += 1;
 
 const bt = loadBacktests();
 const btRows = ['bc_2024', 'qc_2022', 'qc_2018'].map((c) => ({
-  c,
-  name: { bc_2024: NAMES.bc_44[locale].replace('2026', '2024'), qc_2022: NAMES.qc_2026[locale].replace('2026', '2022'), qc_2018: NAMES.qc_2026[locale].replace('2026', '2018') }[c as 'bc_2024'],
-  labs: bt?.labs?.[`${c}@J-1`]?.seat_mae_favored,
+  name: c === 'bc_2024' ? NAMES.bc_44[locale].replace('2026', '2024') : NAMES.qc_2026[locale].replace('2026', c.slice(-4)),
+  orbit: bt?.labs?.[`${c}@J-1`]?.seat_mae_favored,
   right: bt?.labs?.[`${c}@J-1`]?.winner_accuracy,
-  prod: bt?.prod?.[c]?.mae_seats,
-})).filter((r) => r.labs !== undefined);
-const updated = desks.map((x) => x.asOf).sort().at(-1);
+  ref: bt?.prod?.[c]?.mae_seats,
+})).filter((r) => r.orbit !== undefined);
+const updated = desks.map((x) => x.d.as_of).sort().at(-1);
+const explainerUrl = `${labsUrl(locale)}${EXPLAINER_SLUG[locale]}/`;
 ---
 
 <article class="lh container" data-content-area>
   <header class="lh-hero">
-    <p class="lh-kicker">{t.brand} · {t.kicker}{updated && ` · ${t.updated} ${fmtDate(updated, locale)}`}</p>
+    <p class="lh-kicker">{t.brand}{updated && ` · ${t.updated} ${fmtDate(updated, locale)}`}</p>
+    <div class="lh-brand">
+      <span class="lh-orbit" aria-hidden="true"><span></span></span>
+      <span class="lh-engine">{t.engine}</span>
+      <span class="lh-live"><span class="lh-pulse" aria-hidden="true"></span>{t.live}</span>
+      {t.tags.map((g) => <span class="lh-tag">{g}</span>)}
+    </div>
     <h1>{t.hubTitle}</h1>
     <p class="lh-dek">{t.hubDek}</p>
+    <p class="lh-cta"><a href={explainerUrl}>{EXPLAINER[locale].linkLabel} →</a></p>
   </header>
 
-  <section class="lh-grid" aria-label={t.hubDesks}>
-    {desks.map((x) => (
-      <a class="lh-card" href={labsUrl(locale, x.k)}>
-        <span class="lh-label">{x.name}</span>
-        <strong>{x.headline}</strong>
-        <span class="lh-sub">{x.sub}</span>
-        <span class="lh-open">{t.openDesk} →</span>
-      </a>
-    ))}
+  <section class="lh-section" aria-labelledby="lh-compare">
+    <h2 id="lh-compare">{t.compareHub}</h2>
+    <p class="lh-muted">{t.compareHubNote}</p>
+    <p class="lh-score">
+      <span class="is-same">{t.verdict.same} · {counts.same}</span>
+      <span class="is-status">{t.verdict.status} · {counts.status}</span>
+      <span class="is-different">{t.verdict.different} · {counts.different}</span>
+    </p>
+    <div class="lh-desks">
+      {desks.map((x) => (
+        <a class="lh-desk" href={labsUrl(locale, x.k)}>
+          <header>
+            <h3>{x.name}</h3>
+            {x.cmp.pOrbit !== null && (
+              <span class="lh-p">{x.k.startsWith('us_') ? t.control : t.majority}{locale === 'fr' ? ' : ' : ': '}<strong>{pct(x.cmp.pOrbit, locale)}</strong> · {t.vsRef} {pct(x.cmp.pRef, locale)}</span>
+            )}
+          </header>
+          <LabsSeatBars cmp={x.cmp} locale={locale} compact showLegend={false} />
+          <span class="lh-open">{t.openDesk} →</span>
+        </a>
+      ))}
+    </div>
   </section>
+
+  <aside class="lh-why">
+    <span class="lh-orbit lh-orbit--big" aria-hidden="true"><span></span></span>
+    <div>
+      <h2>{t.whyTitle}</h2>
+      <p>{t.whyBody}</p>
+    </div>
+  </aside>
 
   {btRows.length > 0 && (
     <section class="lh-section" aria-labelledby="lh-bt">
@@ -69,13 +83,13 @@ const updated = desks.map((x) => x.asOf).sort().at(-1);
       <p class="lh-muted">{t.backtestsNote}</p>
       <div class="lh-scroll">
         <table class="lh-table">
-          <thead><tr><th>{t.election}</th><th>{t.errLabs}</th><th>{t.errRef}</th><th>{t.ridingsRight}</th></tr></thead>
+          <thead><tr><th>{t.election}</th><th>{t.errOrbit}</th><th>{t.errRef}</th><th>{t.ridingsRight}</th></tr></thead>
           <tbody>
             {btRows.map((r) => (
               <tr>
                 <td>{r.name}</td>
-                <td><strong>{fmt(r.labs, locale, 1)}</strong></td>
-                <td>{r.prod != null ? fmt(r.prod, locale, 1) : t.notAvailable}</td>
+                <td><strong>{fmt(r.orbit, locale, 1)}</strong></td>
+                <td>{r.ref != null ? fmt(r.ref, locale, 1) : t.notAvailable}</td>
                 <td>{pct(r.right, locale)}</td>
               </tr>
             ))}
@@ -88,45 +102,69 @@ const updated = desks.map((x) => x.asOf).sort().at(-1);
   <section class="lh-section" aria-labelledby="lh-how">
     <h2 id="lh-how">{t.howTitle}</h2>
     <div class="lh-how">
-      {t.how.map(([h, p]) => (<div><h3>{h}</h3><p>{p}</p></div>))}
+      {t.how.map(([h, p], i) => (<div><span class="lh-num">{i + 1}</span><h3>{h}</h3><p>{p}</p></div>))}
     </div>
-    <p class="lh-more"><a href={`${labsUrl(locale)}${EXPLAINER_SLUG[locale]}/`}>{EXPLAINER[locale].linkLabel} →</a></p>
+    <p class="lh-cta"><a href={explainerUrl}>{EXPLAINER[locale].linkLabel} →</a></p>
   </section>
 
-  <section class="lh-section" aria-labelledby="lh-refs">
-    <h2 id="lh-refs">{t.readMore}</h2>
-    <ul class="lh-refs">
-      {REFERENCES.map((r) => (<li><a href={r.url} rel="noopener" target="_blank">{r.label}</a></li>))}
-    </ul>
-    <p class="lh-muted">{t.caveat}</p>
-  </section>
+  <aside class="lh-experiment">
+    <p class="lh-label">{t.experimentTitle}</p>
+    <p>{t.experiment}</p>
+  </aside>
 </article>
 
 <style>
   .lh { max-width: 1080px; padding-block: 56px 96px; }
   .lh-hero { padding-bottom: 36px; border-bottom: 1px solid var(--rule); }
-  .lh-kicker { margin: 0 0 14px; font-family: var(--mono); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); }
-  .lh-hero h1 { max-width: 760px; margin: 0 0 18px; font-family: var(--serif); font-size: clamp(44px, 7vw, 80px); font-weight: 420; letter-spacing: -.02em; line-height: .98; }
-  .lh-dek { max-width: 720px; margin: 0; color: var(--ink-2); font-size: 17px; line-height: 1.6; }
-  .lh-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-top: 36px; }
-  .lh-card { display: flex; flex-direction: column; gap: 8px; padding: 20px; border: 1px solid var(--rule); border-radius: 6px; background: var(--card); color: var(--ink); text-decoration: none; transition: border-color .15s; }
-  .lh-card:hover { border-color: var(--ink-3); }
-  .lh-label { font-family: var(--mono); font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
-  .lh-card strong { font-family: var(--serif); font-size: 26px; font-weight: 450; line-height: 1.15; }
-  .lh-sub { color: var(--ink-3); font-size: 13px; }
-  .lh-open { margin-top: auto; padding-top: 8px; font-size: 14px; font-weight: 500; }
+  .lh-kicker, .lh-label { margin: 0 0 14px; font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); }
+  .lh-brand { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 18px; }
+  .lh-orbit { position: relative; display: inline-block; width: 30px; height: 30px; border-radius: 50%; border: 1.5px solid var(--ink); flex: none; }
+  .lh-orbit span { position: absolute; top: -4px; left: 11px; width: 8px; height: 8px; border-radius: 50%; background: var(--duck-deep);
+                   transform-origin: 4px 19px; animation: lh-orbit 6s linear infinite; }
+  .lh-orbit--big { width: 72px; height: 72px; border-width: 2px; }
+  .lh-orbit--big span { top: -7px; left: 29px; width: 12px; height: 12px; transform-origin: 6px 42px; }
+  @keyframes lh-orbit { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { .lh-orbit span, .lh-pulse { animation: none; } }
+  .lh-engine { font-family: var(--serif); font-size: 30px; font-weight: 500; margin-right: 6px; }
+  .lh-live { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px; font-family: var(--mono); font-size: 10.5px;
+             letter-spacing: .08em; text-transform: uppercase; color: var(--red); background: var(--red-tint); }
+  .lh-pulse { width: 7px; height: 7px; border-radius: 50%; background: var(--red); animation: lh-pulse 1.6s ease-in-out infinite; }
+  @keyframes lh-pulse { 50% { opacity: .25; } }
+  .lh-tag { padding: 3px 10px; border-radius: 999px; border: 1px solid var(--rule); font-family: var(--mono); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); }
+  .lh-hero h1 { max-width: 860px; margin: 0 0 18px; font-family: var(--serif); font-size: clamp(38px, 6vw, 70px); font-weight: 420; letter-spacing: -.02em; line-height: 1.02; }
+  .lh-dek { max-width: 760px; margin: 0; color: var(--ink-2); font-size: 18px; line-height: 1.6; }
+  .lh-cta { margin: 18px 0 0; font-weight: 600; }
+  .lh-cta a { color: var(--ink); }
   .lh-section { margin-top: 56px; }
-  .lh-section h2 { font-family: var(--serif); font-size: 28px; font-weight: 450; margin: 0 0 16px; }
+  .lh-section h2, .lh-why h2 { font-family: var(--serif); font-size: clamp(26px, 3.4vw, 34px); font-weight: 450; margin: 0 0 12px; }
+  .lh-muted { color: var(--ink-3); font-size: 14px; line-height: 1.55; max-width: 760px; }
+  .lh-score { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 22px; }
+  .lh-score span { padding: 4px 12px; border-radius: 999px; font-family: var(--mono); font-size: 11px; letter-spacing: .05em; text-transform: uppercase; }
+  .lh-score .is-same { color: #2c8a3f; background: color-mix(in oklab, #2c8a3f 10%, var(--card)); }
+  .lh-score .is-status { color: var(--duck-deep); background: color-mix(in oklab, var(--duck) 16%, var(--card)); }
+  .lh-score .is-different { color: var(--red); background: var(--red-tint); }
+  .lh-desks { display: grid; gap: 14px; }
+  .lh-desk { display: block; padding: 20px 22px; border: 1px solid var(--rule); border-radius: 6px; background: var(--card); color: var(--ink); text-decoration: none; transition: border-color .15s; }
+  .lh-desk:hover { border-color: var(--ink-3); }
+  .lh-desk header { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 16px; margin-bottom: 4px; }
+  .lh-desk h3 { margin: 0; font-family: var(--serif); font-size: 24px; font-weight: 450; }
+  .lh-p { font-family: var(--mono); font-size: 12px; color: var(--ink-3); }
+  .lh-p strong { color: var(--ink); }
+  .lh-open { display: inline-block; margin-top: 26px; font-size: 14px; font-weight: 600; }
+  .lh-why { display: flex; align-items: center; gap: 26px; margin-top: 56px; padding: 26px 28px; border-radius: 8px;
+            background: color-mix(in oklab, var(--blue) 7%, var(--card)); border: 1px solid var(--rule); }
+  .lh-why p { margin: 0; color: var(--ink-2); font-size: 17px; line-height: 1.65; }
   .lh-how { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; }
+  .lh-num { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%;
+            background: var(--ink); color: var(--paper-3); font-family: var(--mono); font-size: 13px; margin-bottom: 10px; }
   .lh-how h3 { font-family: var(--serif); font-size: 20px; font-weight: 450; margin: 0 0 8px; }
   .lh-how p { color: var(--ink-2); line-height: 1.6; margin: 0; }
   .lh-scroll { overflow-x: auto; }
   .lh-table { width: 100%; border-collapse: collapse; font-size: 15px; }
   .lh-table th { text-align: left; font-family: var(--mono); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); border-bottom: 1px solid var(--rule); padding: 8px 10px; white-space: nowrap; }
   .lh-table td { border-bottom: 1px solid var(--rule-2); padding: 10px; white-space: nowrap; }
-  .lh-muted { color: var(--ink-3); font-size: 14px; line-height: 1.55; }
-  .lh-refs { padding-left: 18px; line-height: 1.8; }
-  .lh-refs a { color: var(--ink); }
-  .lh-more { margin-top: 20px; font-weight: 600; }
-  .lh-more a { color: var(--ink); }
+  .lh-experiment { margin-top: 56px; padding: 22px 24px; border-left: 3px solid var(--duck-deep); background: color-mix(in oklab, var(--duck) 10%, var(--card)); border-radius: 0 6px 6px 0; }
+  .lh-experiment p { margin: 0; color: var(--ink-2); line-height: 1.6; }
+  .lh-experiment .lh-label { margin-bottom: 8px; }
+  @media (max-width: 560px) { .lh-why { flex-direction: column; align-items: flex-start; } }
 </style>

@@ -11,11 +11,11 @@ const LOCALE = 'en' as const;
 const key = keyFromSlug(LOCALE, Astro.params.slug as string) as LabsKey;
 const name = NAMES[key][LOCALE];
 const url = `https://vote-scope.com/en/labs/${SLUGS[LOCALE][key]}/`;
-const desc = `VoteScope Labs experimental forecast: {n}. Same polls as our reference forecast, different machinery, side-by-side comparison.`.replace('{n}', name);
+const desc = `{n} according to Orbit, the quantum and relativistic engine of VoteScope Labs: seats, majority odds and every riding where it contradicts our reference forecast.`.replace('{n}', name);
 ---
 
 <Base
-  title={`${name} — VoteScope Labs`}
+  title={`${name} — Orbit · VoteScope Labs`}
   description={desc}
   canonical={url}
   lang={LOCALE}
@@ -26,7 +26,7 @@ const desc = `VoteScope Labs experimental forecast: {n}. Same polls as our refer
     es: `https://vote-scope.com/es/labs/${SLUGS.es[key]}/`,
   }}
   jsonLd={[
-    { '@context': 'https://schema.org', '@type': 'WebPage', name: `${name} — VoteScope Labs`, url, inLanguage: LOCALE },
+    { '@context': 'https://schema.org', '@type': 'WebPage', name: `${name} — Orbit · VoteScope Labs`, url, inLanguage: LOCALE },
     { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
       { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: 'https://vote-scope.com/en/' },
       { '@type': 'ListItem', position: 2, name: 'Labs', item: 'https://vote-scope.com/en/labs/' },
