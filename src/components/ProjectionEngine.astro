@@ -162,6 +162,11 @@ const ratingBarCopy = {
 // Build seat-projection bar segments
 const projectedSeatsFor = (p: any) =>
   p.seats_projected ?? p.seats_median ?? Math.round(p.seats_mean ?? 0);
+// Deuxième chiffre : la médiane des simulations, quand elle s'écarte du compte
+// des sièges où chaque parti est favori (vague : les sièges « penche adverse »
+// que le parti gagne souvent dans les simulations ne comptent pas dans le
+// premier). Affichée seulement à partir de 3 sièges d'écart.
+const medianOf = (p: any) => (typeof p.seats_median === 'number' ? Math.round(p.seats_median) : undefined);
 const projectionTotal = orderedParties.reduce(
   (sum, p) => sum + projectedSeatsFor(p),
   0,
@@ -708,6 +713,20 @@ const pageNavItems = [
           de la zone de réponse est un clic de départ. */}
       {liveMarketValue && <a class="pe-market-card" href={marketHref} target="_blank" rel="noopener"><strong>{liveMarketValue}</strong><span>{liveMarketLabel} →</span></a>}
     </div>
+    {(() => {
+      const mL = medianOf(lead), mS = medianOf(second);
+      if (mL === undefined || mS === undefined) return null;
+      const gap = Math.max(Math.abs(mL - projectedSeatsFor(lead)), Math.abs(mS - projectedSeatsFor(second)));
+      if (gap < 3) return null;
+      const sims = locale === 'fr' ? nSimsFr : locale === 'es' ? nSimsEs : nSimsEn;
+      const wave = mL > projectedSeatsFor(lead);
+      const txt = locale === 'fr'
+        ? `Médiane des ${sims} simulations : ${leadLabel} ${mL} · ${secondLabel} ${mS}. Les grands chiffres comptent les sièges où chaque parti est favori. La médiane tient aussi compte de ses chances dans les sièges où il ne l'est pas ; c'est le chiffre qu'affichent la plupart des modèles, dont The Economist.${wave ? ' Quand une vague se forme, elle dépasse le premier.' : ''}`
+        : locale === 'es'
+        ? `Mediana de las ${sims} simulaciones: ${leadLabel} ${mL} · ${secondLabel} ${mS}. Las cifras grandes cuentan los escaños donde cada partido es favorito. La mediana también tiene en cuenta sus posibilidades donde no lo es; es la cifra que muestran la mayoría de los modelos, como The Economist.${wave ? ' Cuando se forma una ola, supera a la primera.' : ''}`
+        : `Median of the ${sims} simulations: ${leadLabel} ${mL} · ${secondLabel} ${mS}. The large figures count the seats where each party is favoured. The median also counts its chances where it is not; it is the figure most models show, including The Economist.${wave ? ' When a wave is building, it runs higher than the first.' : ''}`;
+      return <p class="pe-median-note">{txt}</p>;
+    })()}
     <p class="pe-snapshot-note">{locale === 'fr' ? `${meta.n_polls} sondages · ${usesBsts ? 'BSTS (MCMC) · ' : ''}${nSimsFr} simulations · notre lecture exclusive de la course` : locale === 'es' ? `${meta.n_polls} encuestas · ${usesBsts ? 'BSTS (MCMC) · ' : ''}${nSimsEs} simulaciones · nuestra lectura exclusiva de la carrera` : `${meta.n_polls} polls · ${usesBsts ? 'BSTS (MCMC) · ' : ''}${nSimsEn} simulations · our exclusive read of the race`}</p>
     <ForecastShare
       locale={locale}
@@ -1025,6 +1044,7 @@ const pageNavItems = [
   .pe-snapshot-grid .pe-market-card { --signal: #20a47a; }
   .pe-snapshot-grid .pe-market-card:hover { transform: translateY(-2px); border-color: var(--ink-3); }
   .pe-snapshot-note { margin-top: 12px; }
+  .pe-median-note { margin: 14px 0 0; max-width: 72ch; font-size: .92rem; line-height: 1.5; opacity: .85; }
 
   .pe-hero {
     max-width: 1080px;
