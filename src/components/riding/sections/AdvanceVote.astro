@@ -25,6 +25,9 @@ const href = {
 }[lang];
 const name = data.name[lang === 'en' ? 'en' : 'fr'] ?? data.name.fr;
 const above = a.turnoutPct >= a.provincialTurnoutPct;
+const has22 = a.changeVs2022Pct !== undefined && a.turnout2022AdvancePct !== undefined;
+const sg = (n: number) => `${n > 0 ? '+' : n < 0 ? '−' : ''}${Math.abs(n)}${lang === 'en' ? '%' : ' %'}`;
+const vsProv = has22 && a.provincialChangeVs2022Pct !== undefined ? a.changeVs2022Pct! - a.provincialChangeVs2022Pct : 0;
 
 const T = {
   fr: {
@@ -42,6 +45,12 @@ const T = {
       : `${name} a voté par anticipation moins que la moyenne québécoise. L'essentiel de ses bulletins sera déposé le 5 octobre : un mouvement de fin de campagne y aura plus de prise.`,
     note: `Données préliminaires d'Élections Québec, susceptibles d'être révisées. La part estimée divise le taux par la participation de 2022 dans la circonscription${a.turnout2022Pct ? ` (${pct(a.turnout2022Pct)})` : ''}.`,
     link: 'Voir les 127 circonscriptions',
+    vs22: 'Par rapport à 2022',
+    vs22Small: has22 ? `2022 : ${pct(a.turnout2022AdvancePct!)} · Québec : ${sg(a.provincialChangeVs2022Pct ?? 0)}` : '',
+    read22: !has22 ? `La carte de ${name} a trop changé depuis 2022 pour comparer les taux.`
+      : Math.abs(vsProv) < 5 ? `Par rapport à 2022, le vote par anticipation a progressé ici à peu près comme dans l'ensemble du Québec.`
+      : vsProv > 0 ? `Par rapport à 2022, le vote par anticipation a progressé ici plus que dans l'ensemble du Québec (${a.changeRank === 1 ? '1re' : `${a.changeRank}e`} hausse sur ${a.nComparable2022} circonscriptions comparables). Lors des élections passées, une hausse plus forte que prévu annonçait surtout une participation totale plus élevée, pas un gagnant.`
+      : `Par rapport à 2022, le vote par anticipation a progressé ici moins que dans l'ensemble du Québec (${a.changeRank === 1 ? '1re' : `${a.changeRank}e`} hausse sur ${a.nComparable2022} circonscriptions comparables). Lors des élections passées, une hausse plus faible que prévu annonçait surtout une participation totale plus basse, pas un gagnant.`,
   },
   en: {
     eyebrow: 'Advance voting · September 27 and 28',
@@ -58,6 +67,12 @@ const T = {
       : `${name} voted early less than the Quebec average. Most of its ballots will be cast on October 5: a late shift will have more grip here.`,
     note: `Preliminary data from Élections Québec, subject to revision. The estimated share divides the rate by the riding's 2022 turnout${a.turnout2022Pct ? ` (${pct(a.turnout2022Pct)})` : ''}.`,
     link: 'See all 127 ridings',
+    vs22: 'Compared with 2022',
+    vs22Small: has22 ? `2022: ${pct(a.turnout2022AdvancePct!)} · Quebec: ${sg(a.provincialChangeVs2022Pct ?? 0)}` : '',
+    read22: !has22 ? `${name}'s boundaries changed too much since 2022 to compare rates.`
+      : Math.abs(vsProv) < 5 ? `Compared with 2022, advance voting rose here about as much as across Quebec.`
+      : vsProv > 0 ? `Compared with 2022, advance voting rose here more than across Quebec (increase ranked ${a.changeRank} of ${a.nComparable2022} comparable ridings). In past elections, a stronger-than-expected rise mostly signalled higher overall turnout, not a winner.`
+      : `Compared with 2022, advance voting rose here less than across Quebec (increase ranked ${a.changeRank} of ${a.nComparable2022} comparable ridings). In past elections, a weaker-than-expected rise mostly signalled lower overall turnout, not a winner.`,
   },
   es: {
     eyebrow: 'Voto anticipado · 27 y 28 de septiembre',
@@ -74,6 +89,12 @@ const T = {
       : `${name} votó por anticipado menos que el promedio de Quebec. La mayoría de sus papeletas se depositará el 5 de octubre: un cambio de última hora tendrá más peso aquí.`,
     note: `Datos preliminares de Élections Québec, sujetos a revisión. La parte estimada divide la tasa por la participación de 2022 en el distrito${a.turnout2022Pct ? ` (${pct(a.turnout2022Pct)})` : ''}.`,
     link: 'Ver los 127 distritos',
+    vs22: 'Frente a 2022',
+    vs22Small: has22 ? `2022: ${pct(a.turnout2022AdvancePct!)} · Quebec: ${sg(a.provincialChangeVs2022Pct ?? 0)}` : '',
+    read22: !has22 ? `Los límites de ${name} cambiaron demasiado desde 2022 para comparar las tasas.`
+      : Math.abs(vsProv) < 5 ? `Frente a 2022, el voto anticipado subió aquí más o menos como en el conjunto de Quebec.`
+      : vsProv > 0 ? `Frente a 2022, el voto anticipado subió aquí más que en el conjunto de Quebec (puesto ${a.changeRank} de ${a.nComparable2022} distritos comparables). En elecciones pasadas, una subida mayor de lo esperado anunciaba sobre todo una participación total más alta, no un ganador.`
+      : `Frente a 2022, el voto anticipado subió aquí menos que en el conjunto de Quebec (puesto ${a.changeRank} de ${a.nComparable2022} distritos comparables). En elecciones pasadas, una subida menor de lo esperado anunciaba sobre todo una participación total más baja, no un ganador.`,
   },
 }[lang];
 ---
@@ -88,8 +109,12 @@ const T = {
       {a.shareEstPct !== undefined && (
         <div><dt>{T.share}</dt><dd>≈ {a.shareEstPct}{lang === 'en' ? '%' : ' %'}</dd><small>{T.shareProv}</small></div>
       )}
+      {has22 && (
+        <div><dt>{T.vs22}</dt><dd>{sg(a.changeVs2022Pct!)}</dd><small>{T.vs22Small}</small></div>
+      )}
     </dl>
     <p class="av-read">{T.read}</p>
+    <p class="av-read">{T.read22}</p>
     <p class="av-note">{T.note} <a href={href}>{T.link} →</a></p>
   </div>
 </section>

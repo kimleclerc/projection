@@ -297,6 +297,13 @@ export interface RidingAdvanceVote {
   turnout2022Pct?: number;
   provincialTurnoutPct: number;
   provincialShareEstPct: number;
+  /** Taux BVA de 2022 sur les inscrits ; absent si la carte a trop changé. */
+  turnout2022AdvancePct?: number;
+  /** Variation relative du taux depuis 2022, en % (ex. 12 = +12 %). */
+  changeVs2022Pct?: number;
+  changeRank?: number;
+  nComparable2022?: number;
+  provincialChangeVs2022Pct?: number;
   dates: string[];
   preliminary: boolean;
 }

@@ -254,6 +254,11 @@ const advanceById: Record<string, RidingAdvanceVote> = (() => {
       turnout2022Pct: r.turnout_2022_pct ?? undefined,
       provincialTurnoutPct: prov.advance_turnout_pct,
       provincialShareEstPct: prov.advance_share_est_pct,
+      turnout2022AdvancePct: r.advance_turnout_2022_pct ?? undefined,
+      changeVs2022Pct: r.change_vs_2022_pct ?? undefined,
+      changeRank: r.change_rank ?? undefined,
+      nComparable2022: prov.n_comparable_2022,
+      provincialChangeVs2022Pct: prov.change_vs_2022_pct,
       dates: src?.meta?.advance_poll_dates ?? [],
       preliminary: src?.meta?.status === 'preliminary',
     };
