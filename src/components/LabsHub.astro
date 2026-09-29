@@ -4,6 +4,7 @@ import {
   type Locale, T, NAMES, LABS_KEYS, labsUrl, hasLabs, loadLabs, loadBacktests,
   partyLabel, pct, fmt, fmtDate, REFERENCES,
 } from '../lib/labs';
+import { EXPLAINER, EXPLAINER_SLUG } from '../lib/labs-explainer';
 
 interface Props { locale: Locale }
 const { locale } = Astro.props;
@@ -89,6 +90,7 @@ const updated = desks.map((x) => x.asOf).sort().at(-1);
     <div class="lh-how">
       {t.how.map(([h, p]) => (<div><h3>{h}</h3><p>{p}</p></div>))}
     </div>
+    <p class="lh-more"><a href={`${labsUrl(locale)}${EXPLAINER_SLUG[locale]}/`}>{EXPLAINER[locale].linkLabel} →</a></p>
   </section>
 
   <section class="lh-section" aria-labelledby="lh-refs">
@@ -125,4 +127,6 @@ const updated = desks.map((x) => x.asOf).sort().at(-1);
   .lh-muted { color: var(--ink-3); font-size: 14px; line-height: 1.55; }
   .lh-refs { padding-left: 18px; line-height: 1.8; }
   .lh-refs a { color: var(--ink); }
+  .lh-more { margin-top: 20px; font-weight: 600; }
+  .lh-more a { color: var(--ink); }
 </style>

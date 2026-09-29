@@ -1,0 +1,33 @@
+---
+import Base from '../../../layouts/Base.astro';
+import LabsExplainer from '../../../components/LabsExplainer.astro';
+import { EXPLAINER } from '../../../lib/labs-explainer';
+
+const LOCALE = 'en' as const;
+const x = EXPLAINER[LOCALE];
+const url = 'https://vote-scope.com/en/labs/how-it-works/';
+---
+
+<Base
+  title={x.title}
+  description={x.description}
+  canonical={url}
+  lang={LOCALE}
+  currentPage="match"
+  alternates={{
+    en: 'https://vote-scope.com/en/labs/how-it-works/',
+    fr: 'https://vote-scope.com/fr/labs/comment-ca-marche/',
+    es: 'https://vote-scope.com/es/labs/como-funciona/',
+  }}
+  jsonLd={[
+    { '@context': 'https://schema.org', '@type': 'Article', headline: x.h1, description: x.description, url, inLanguage: LOCALE,
+       author: { '@type': 'Organization', name: 'Vote-Scope' }, publisher: { '@type': 'Organization', name: 'Vote-Scope' } },
+    { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: 'https://vote-scope.com/en/' },
+      { '@type': 'ListItem', position: 2, name: 'Labs', item: 'https://vote-scope.com/en/labs/' },
+      { '@type': 'ListItem', position: 3, name: x.h1, item: url },
+    ]},
+  ]}
+>
+  <LabsExplainer locale={LOCALE} />
+</Base>
