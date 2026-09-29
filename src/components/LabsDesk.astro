@@ -4,6 +4,7 @@ import {
   type Locale, type LabsKey, T, NAMES, MAIN_PAGES, labsUrl, loadLabs, loadBacktests,
   partyLabel, partyColor, fmt, pct, fmtDate,
 } from '../lib/labs';
+import { EXPLAINER, EXPLAINER_SLUG } from '../lib/labs-explainer';
 
 interface Props { locale: Locale; labsKey: LabsKey }
 const { locale, labsKey } = Astro.props;
@@ -265,6 +266,7 @@ const btRows = (pastCycles[labsKey] ?? []).map((c) => {
     <div class="lb-how">
       {t.how.map(([h, p]) => (<div><h3>{h}</h3><p>{p}</p></div>))}
     </div>
+    <p class="lb-more"><a href={`${labsUrl(locale)}${EXPLAINER_SLUG[locale]}/`}>{EXPLAINER[locale].linkLabel} →</a></p>
   </section>
 
   <footer class="lb-foot">
@@ -305,4 +307,6 @@ const btRows = (pastCycles[labsKey] ?? []).map((c) => {
   .lb-links { display: flex; gap: 24px; flex-wrap: wrap; }
   .lb-links a { color: var(--ink); font-weight: 500; }
   @media (max-width: 640px) { .lb-big { font-size: 28px; } }
+  .lb-more { margin-top: 20px; font-weight: 600; }
+  .lb-more a { color: var(--ink); }
 </style>

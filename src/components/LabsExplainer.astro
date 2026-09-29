@@ -1,0 +1,187 @@
+---
+// « La physique d'une élection » — page d'explication de VoteScope Labs.
+import { type Locale, labsUrl } from '../lib/labs';
+import { EXPLAINER, EXPLAINER_REFERENCES } from '../lib/labs-explainer';
+
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+const x = EXPLAINER[locale];
+
+const L = {
+  fr: { shares: 'parts de vote', amps: 'amplitudes (racines carrées)', partyA: 'parti A', partyB: 'parti B',
+        start: 'départ', pole: 'pôle', back: 'retour', ridings: 'circonscriptions', seats: 'sièges du camp bleu', exact: 'loi exacte' },
+  en: { shares: 'vote shares', amps: 'amplitudes (square roots)', partyA: 'party A', partyB: 'party B',
+        start: 'start', pole: 'pole', back: 'return', ridings: 'ridings', seats: 'blue seats', exact: 'exact distribution' },
+  es: { shares: 'porcentajes de voto', amps: 'amplitudes (raíces cuadradas)', partyA: 'partido A', partyB: 'partido B',
+        start: 'salida', pole: 'polo', back: 'regreso', ridings: 'circunscripciones', seats: 'escaños del bando azul', exact: 'distribución exacta' },
+}[locale];
+
+// Schéma 1 : droite des parts et quart de cercle des amplitudes
+const O = { x: 44, y: 206 }, R = 164;
+const ticks = [0.02, 0.1, 0.25, 0.5, 0.75, 0.9, 0.98].map((s) => ({
+  s,
+  lx: O.x + R * s, ly: O.y - R * (1 - s),
+  ax: O.x + R * Math.sqrt(s), ay: O.y - R * Math.sqrt(1 - s),
+}));
+const arc = `M ${O.x} ${O.y - R} A ${R} ${R} 0 0 1 ${O.x + R} ${O.y}`;
+
+// Schéma 3 : registre — six circonscriptions, loi exacte des sièges
+const pw = [0.85, 0.7, 0.55, 0.45, 0.3, 0.15];
+let dist = [1];
+for (const p of pw) {
+  const next = new Array(dist.length + 1).fill(0);
+  dist.forEach((v, k) => { next[k] += v * (1 - p); next[k + 1] += v * p; });
+  dist = next;
+}
+const dmax = Math.max(...dist);
+---
+
+<article class="lx container" data-content-area>
+  <header class="lx-hero">
+    <p class="lx-kicker">{x.kicker}</p>
+    <h1>{x.h1}</h1>
+    <p class="lx-dek">{x.dek}</p>
+  </header>
+
+  {x.sections.map((s) => (
+    <section class="lx-section" id={s.id} aria-labelledby={`h-${s.id}`}>
+      <p class="lx-step">{s.kicker}</p>
+      <h2 id={`h-${s.id}`}>{s.title}</h2>
+      {s.body.map((p) => <p>{p}</p>)}
+
+      {s.figure === 'sphere' && (
+        <figure class="lx-fig">
+          <svg viewBox="0 0 320 262" role="img" aria-label={s.caption}>
+            <line x1={O.x} y1={O.y} x2={O.x + R + 30} y2={O.y} class="axis" />
+            <line x1={O.x} y1={O.y} x2={O.x} y2={O.y - R - 22} class="axis" />
+            <text x={O.x + R + 26} y={O.y + 16} class="lbl" text-anchor="end">{L.partyA}</text>
+            <text x={O.x + 6} y={O.y - R - 12} class="lbl">{L.partyB}</text>
+            <line x1={O.x} y1={O.y - R} x2={O.x + R} y2={O.y} class="simplex" />
+            <path d={arc} class="sphere" />
+            {ticks.map((t) => (
+              <>
+                <line x1={t.lx} y1={t.ly} x2={t.ax} y2={t.ay} class="link" />
+                <circle cx={t.lx} cy={t.ly} r="3" class="dot-l" />
+                <circle cx={t.ax} cy={t.ay} r="3.4" class="dot-a" />
+              </>
+            ))}
+            <line x1="44" y1="236" x2="64" y2="236" class="simplex" />
+            <text x="70" y="239" class="lbl lbl-l">{L.shares}</text>
+            <line x1="44" y1="254" x2="64" y2="254" class="sphere" />
+            <text x="70" y="257" class="lbl lbl-a">{L.amps}</text>
+          </svg>
+          <figcaption>{s.caption}</figcaption>
+        </figure>
+      )}
+
+      {s.figure === 'transport' && (
+        <figure class="lx-fig">
+          <svg viewBox="0 0 320 240" role="img" aria-label={s.caption}>
+            <circle cx="160" cy="124" r="100" class="globe" />
+            <ellipse cx="160" cy="150" rx="100" ry="26" class="equator" />
+            <path d="M 160 24 Q 112 80 104 170" class="leg" />
+            <path d="M 160 24 Q 205 80 214 172" class="leg" />
+            <path d="M 104 170 Q 160 182 214 172" class="leg" />
+            <circle cx="160" cy="24" r="3.5" class="dot-a" />
+            <text x="170" y="22" class="lbl">{L.pole}</text>
+            <g class="arrow a1"><line x1="104" y1="170" x2="100" y2="132" /><path d="M 94 138 L 100 128 L 106 137 Z" /></g>
+            <g class="arrow a2"><line x1="160" y1="24" x2="190" y2="30" /><path d="M 184 23 L 195 31 L 183 36 Z" /></g>
+            <g class="arrow a3"><line x1="214" y1="172" x2="250" y2="170" /><path d="M 244 164 L 255 170 L 244 176 Z" /></g>
+            <g class="arrow a4"><line x1="108" y1="171" x2="146" y2="175" /><path d="M 140 169 L 151 176 L 139 181 Z" /></g>
+            <text x="58" y="186" class="lbl">{L.start}</text>
+            <text x="112" y="204" class="lbl lbl-a">{L.back}</text>
+          </svg>
+          <figcaption>{s.caption}</figcaption>
+        </figure>
+      )}
+
+      {s.figure === 'register' && (
+        <figure class="lx-fig">
+          <svg viewBox="0 0 320 240" role="img" aria-label={s.caption}>
+            <text x="16" y="22" class="lbl">{L.ridings}</text>
+            {pw.map((p, i) => (
+              <g transform={`translate(16 ${34 + i * 30})`}>
+                <rect x="0" y="0" width={100 * p} height="18" class="blue" />
+                <rect x={100 * p} y="0" width={100 * (1 - p)} height="18" class="red" />
+                <text x="106" y="13" class="num">{Math.round(100 * p)} %</text>
+              </g>
+            ))}
+            <path d="M 150 120 L 176 120" class="link" marker-end="url(#lx-ah)" />
+            <defs><marker id="lx-ah" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" class="ah" /></marker></defs>
+            <text x="186" y="22" class="lbl">{L.exact}</text>
+            {dist.map((v, k) => (
+              <g>
+                <rect x={188 + k * 17} y={206 - 160 * v / dmax} width="13" height={160 * v / dmax} class="blue" />
+                <text x={194 + k * 17} y="222" class="num" text-anchor="middle">{k}</text>
+              </g>
+            ))}
+            <text x="248" y="236" class="lbl" text-anchor="middle">{L.seats}</text>
+          </svg>
+          <figcaption>{s.caption}</figcaption>
+        </figure>
+      )}
+
+      {s.origin && (
+        <aside class="lx-origin">
+          <p class="lx-origin-label">{s.origin.label}</p>
+          <p>{s.origin.text}</p>
+        </aside>
+      )}
+    </section>
+  ))}
+
+  <section class="lx-section lx-honest" aria-labelledby="h-honest">
+    <h2 id="h-honest">{x.honestyTitle}</h2>
+    {x.honesty.map((p) => <p>{p}</p>)}
+    <p><a class="lx-cta" href={labsUrl(locale)}>{x.cta} →</a></p>
+  </section>
+
+  <section class="lx-section" aria-labelledby="h-refs">
+    <h2 id="h-refs">{x.readMore}</h2>
+    <ul class="lx-refs">
+      {EXPLAINER_REFERENCES.map((r) => (<li><a href={r.url} rel="noopener" target="_blank">{r.label}</a></li>))}
+    </ul>
+  </section>
+</article>
+
+<style>
+  .lx { max-width: 760px; padding-block: 56px 96px; }
+  .lx-hero { padding-bottom: 32px; border-bottom: 1px solid var(--rule); }
+  .lx-kicker, .lx-step, .lx-origin-label { margin: 0 0 12px; font-family: var(--mono); font-size: 11.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); }
+  .lx-hero h1 { margin: 0 0 18px; font-family: var(--serif); font-size: clamp(42px, 7vw, 76px); font-weight: 420; letter-spacing: -.02em; line-height: 1; }
+  .lx-dek { margin: 0; font-size: 19px; line-height: 1.6; color: var(--ink-2); }
+  .lx-section { margin-top: 56px; }
+  .lx-section h2 { margin: 0 0 16px; font-family: var(--serif); font-size: clamp(28px, 4vw, 38px); font-weight: 450; line-height: 1.1; }
+  .lx-section > p { font-size: 17px; line-height: 1.7; color: var(--ink-2); margin: 0 0 16px; }
+  .lx-fig { margin: 28px 0; padding: 16px; border: 1px solid var(--rule); border-radius: 6px; background: var(--card); }
+  .lx-fig svg { display: block; width: 100%; max-width: 480px; height: auto; margin: 0 auto; }
+  .lx-fig figcaption { margin-top: 10px; font-size: 14px; line-height: 1.5; color: var(--ink-3); }
+  .lx-origin { margin: 24px 0 0; padding: 18px 20px; border-left: 3px solid var(--duck-deep); background: color-mix(in oklab, var(--duck) 10%, var(--card)); border-radius: 0 6px 6px 0; }
+  .lx-origin p { margin: 0; font-size: 15.5px; line-height: 1.65; color: var(--ink-2); }
+  .lx-origin .lx-origin-label { margin-bottom: 8px; }
+  .lx-honest { padding-top: 32px; border-top: 1px solid var(--rule); }
+  .lx-cta { font-weight: 600; color: var(--ink); }
+  .lx-refs { padding-left: 18px; line-height: 1.8; font-size: 15px; }
+  .lx-refs a { color: var(--ink); }
+  svg .axis { stroke: var(--ink-3); stroke-width: 1; }
+  svg .simplex { stroke: var(--red); stroke-width: 2; }
+  svg .sphere { fill: none; stroke: var(--blue); stroke-width: 2.4; }
+  svg .link { stroke: var(--ink-4); stroke-width: 1; stroke-dasharray: 3 3; fill: none; }
+  svg .dot-l { fill: var(--red); }
+  svg .dot-a { fill: var(--blue); }
+  svg .lbl { font-family: var(--mono); font-size: 10px; fill: var(--ink-3); }
+  svg .lbl-l { fill: var(--red); }
+  svg .lbl-a { fill: var(--blue); }
+  svg .num { font-family: var(--mono); font-size: 9.5px; fill: var(--ink-3); }
+  svg .globe { fill: color-mix(in oklab, var(--blue) 6%, transparent); stroke: var(--ink-3); stroke-width: 1; }
+  svg .equator { fill: none; stroke: var(--ink-4); stroke-width: 1; stroke-dasharray: 4 3; }
+  svg .leg { fill: none; stroke: var(--duck-deep); stroke-width: 2.4; }
+  svg .arrow line { stroke-width: 2.2; }
+  svg .arrow.a1 line, svg .arrow.a2 line, svg .arrow.a3 line { stroke: var(--ink); }
+  svg .arrow.a1 path, svg .arrow.a2 path, svg .arrow.a3 path { fill: var(--ink); }
+  svg .arrow.a4 line { stroke: var(--blue); }
+  svg .arrow.a4 path { fill: var(--blue); }
+  svg .blue { fill: var(--blue); }
+  svg .red { fill: var(--red-soft); }
+  svg .ah { fill: var(--ink-4); }
+</style>
