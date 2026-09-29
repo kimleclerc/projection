@@ -1,0 +1,107 @@
+---
+/**
+ * Vote par anticipation — s'allume quand l'adaptateur fournit `advanceVote`
+ * (Québec 2026 : taux préliminaire du DGEQ, web_data/quebec/advance_vote.json).
+ * Le taux est en % des électeurs INSCRITS ; la « part » estime la fraction des
+ * votes totaux déjà exprimée (taux ÷ participation 2022 de la circonscription).
+ */
+import type { RidingData } from '../../../lib/riding-adapters/types';
+
+interface Props {
+  data: RidingData;
+  lang: 'en' | 'fr' | 'es';
+}
+
+const { data, lang } = Astro.props;
+const a = data.advanceVote;
+if (!a) return null;
+
+const loc = lang === 'fr' ? 'fr-CA' : lang === 'es' ? 'es' : 'en-CA';
+const pct = (n: number, d = 1) => `${n.toLocaleString(loc, { minimumFractionDigits: d, maximumFractionDigits: d })} %`.replace(' %', lang === 'en' ? '%' : ' %');
+const href = {
+  fr: '/fr/canada/quebec/vote-par-anticipation/',
+  en: '/en/canada/quebec/advance-voting/',
+  es: '/es/canada/quebec/voto-anticipado/',
+}[lang];
+const name = data.name[lang === 'en' ? 'en' : 'fr'] ?? data.name.fr;
+const above = a.turnoutPct >= a.provincialTurnoutPct;
+
+const T = {
+  fr: {
+    eyebrow: 'Vote par anticipation · 27 et 28 septembre',
+    title: a.shareEstPct !== undefined
+      ? `Environ ${a.shareEstPct} % des votes déjà dans l'urne`
+      : `${pct(a.turnoutPct)} des électeurs ont voté par anticipation`,
+    rate: 'Électeurs inscrits qui ont voté',
+    rank: `Rang ${a.rank} sur ${a.total}`,
+    prov: 'Moyenne du Québec',
+    share: 'Part estimée des votes déjà exprimés',
+    shareProv: `Québec : environ ${a.provincialShareEstPct} %`,
+    read: above
+      ? `${name} a voté par anticipation plus que la moyenne québécoise. Une bonne partie de ses bulletins a été déposée avant la dernière semaine de campagne : un mouvement de fin de campagne y aura moins de prise.`
+      : `${name} a voté par anticipation moins que la moyenne québécoise. L'essentiel de ses bulletins sera déposé le 5 octobre : un mouvement de fin de campagne y aura plus de prise.`,
+    note: `Données préliminaires d'Élections Québec, susceptibles d'être révisées. La part estimée divise le taux par la participation de 2022 dans la circonscription${a.turnout2022Pct ? ` (${pct(a.turnout2022Pct)})` : ''}.`,
+    link: 'Voir les 127 circonscriptions',
+  },
+  en: {
+    eyebrow: 'Advance voting · September 27 and 28',
+    title: a.shareEstPct !== undefined
+      ? `About ${a.shareEstPct}% of votes already cast`
+      : `${pct(a.turnoutPct)} of electors voted in advance`,
+    rate: 'Registered electors who voted',
+    rank: `Rank ${a.rank} of ${a.total}`,
+    prov: 'Quebec average',
+    share: 'Estimated share of votes already cast',
+    shareProv: `Quebec: about ${a.provincialShareEstPct}%`,
+    read: above
+      ? `${name} voted early more than the Quebec average. A good part of its ballots went in before the campaign's last week: a late shift will have less grip here.`
+      : `${name} voted early less than the Quebec average. Most of its ballots will be cast on October 5: a late shift will have more grip here.`,
+    note: `Preliminary data from Élections Québec, subject to revision. The estimated share divides the rate by the riding's 2022 turnout${a.turnout2022Pct ? ` (${pct(a.turnout2022Pct)})` : ''}.`,
+    link: 'See all 127 ridings',
+  },
+  es: {
+    eyebrow: 'Voto anticipado · 27 y 28 de septiembre',
+    title: a.shareEstPct !== undefined
+      ? `Cerca del ${a.shareEstPct} % de los votos ya emitidos`
+      : `El ${pct(a.turnoutPct)} de los electores votó por anticipado`,
+    rate: 'Electores inscritos que votaron',
+    rank: `Puesto ${a.rank} de ${a.total}`,
+    prov: 'Promedio de Quebec',
+    share: 'Parte estimada de los votos ya emitidos',
+    shareProv: `Quebec: cerca del ${a.provincialShareEstPct} %`,
+    read: above
+      ? `${name} votó por anticipado más que el promedio de Quebec. Buena parte de sus papeletas se depositó antes de la última semana de campaña: un cambio de última hora tendrá menos peso aquí.`
+      : `${name} votó por anticipado menos que el promedio de Quebec. La mayoría de sus papeletas se depositará el 5 de octubre: un cambio de última hora tendrá más peso aquí.`,
+    note: `Datos preliminares de Élections Québec, sujetos a revisión. La parte estimada divide la tasa por la participación de 2022 en el distrito${a.turnout2022Pct ? ` (${pct(a.turnout2022Pct)})` : ''}.`,
+    link: 'Ver los 127 distritos',
+  },
+}[lang];
+---
+
+<section class="advance-vote" id="advance-vote">
+  <div class="container">
+    <p class="eyebrow">{T.eyebrow}</p>
+    <h2>{T.title}</h2>
+    <dl class="av-grid">
+      <div><dt>{T.rate}</dt><dd>{pct(a.turnoutPct)}</dd><small>{T.rank}</small></div>
+      <div><dt>{T.prov}</dt><dd>{pct(a.provincialTurnoutPct)}</dd></div>
+      {a.shareEstPct !== undefined && (
+        <div><dt>{T.share}</dt><dd>≈ {a.shareEstPct}{lang === 'en' ? '%' : ' %'}</dd><small>{T.shareProv}</small></div>
+      )}
+    </dl>
+    <p class="av-read">{T.read}</p>
+    <p class="av-note">{T.note} <a href={href}>{T.link} →</a></p>
+  </div>
+</section>
+
+<style>
+  .advance-vote { padding: 2rem 0; }
+  .advance-vote h2 { margin: .2rem 0 1rem; }
+  .av-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: .75rem; margin: 0 0 1rem; }
+  .av-grid > div { border: 1px solid var(--border, #ddd); border-radius: 10px; padding: .8rem 1rem; }
+  .av-grid dt { font-size: .85rem; opacity: .75; }
+  .av-grid dd { margin: .2rem 0 0; font-size: 1.6rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .av-grid small { opacity: .7; font-size: .8rem; }
+  .av-read { max-width: 70ch; }
+  .av-note { font-size: .85rem; opacity: .75; max-width: 70ch; }
+</style>

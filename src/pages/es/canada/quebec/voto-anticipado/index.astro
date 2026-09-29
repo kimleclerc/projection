@@ -1,0 +1,34 @@
+---
+import EditorialLayout from '../../../../../layouts/EditorialLayout.astro';
+import QuebecAdvanceVote from '../../../../../components/QuebecAdvanceVote.astro';
+
+const canonical = 'https://vote-scope.com/es/canada/quebec/voto-anticipado/';
+const title = 'Voto anticipado Quebec 2026: participación por distrito | Vote-Scope';
+const description = 'Elecciones de Quebec 2026: participación en el voto anticipado del 27 y 28 de septiembre en los 127 distritos, parte de los votos ya emitidos, mapa y comparación por región.';
+const alternates = { fr: 'https://vote-scope.com/fr/canada/quebec/vote-par-anticipation/', en: 'https://vote-scope.com/en/canada/quebec/advance-voting/', es: 'https://vote-scope.com/es/canada/quebec/voto-anticipado/' };
+---
+
+<EditorialLayout
+  title={title}
+  description={description}
+  canonical={canonical}
+  lang="es"
+  currentPage="canada"
+  ogImage="https://vote-scope.com/og/projections/quebec/es.png"
+  alternates={alternates}
+  jsonLd={[
+    { '@context': 'https://schema.org', '@type': 'WebPage', name: title, description, url: canonical, inLanguage: 'es' },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: 'https://vote-scope.com/es/' },
+        { '@type': 'ListItem', position: 2, name: 'Canadá', item: 'https://vote-scope.com/es/canada/' },
+        { '@type': 'ListItem', position: 3, name: 'Quebec', item: 'https://vote-scope.com/es/canada/quebec/' },
+        { '@type': 'ListItem', position: 4, name: 'Voto anticipado', item: 'https://vote-scope.com/es/canada/quebec/voto-anticipado/' },
+      ],
+    },
+  ]}
+>
+  <QuebecAdvanceVote locale="es" />
+</EditorialLayout>

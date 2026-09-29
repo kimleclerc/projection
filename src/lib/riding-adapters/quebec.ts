@@ -11,6 +11,7 @@
 import type {
   RidingData, RidingMember, RidingCandidate, DeclaredCandidate,
   RidingNeighbor, RidingDemographics,
+  RidingAdvanceVote,
 } from './types';
 import { ridingSlug } from './types';
 import { partyMeta } from './parties';
@@ -24,6 +25,7 @@ import originSource from '../../../web_data/quebec/origin.json';
 import shapesSource from '../../../web_data/quebec/shapes.json';
 import historyIndex from '../../../web_data/quebec/history/index.json';
 import centroidsSource from '../../../web_data/quebec/centroids.json';
+import advanceVoteSource from '../../../web_data/quebec/advance_vote.json';
 
 type RawRiding = {
   riding_id: string;
@@ -190,6 +192,7 @@ function adaptOne(raw: RawRiding): RidingData {
     },
     baseline,
     demographics: buildDemographics(),
+    advanceVote: advanceById[raw.riding_id],
     member: members[raw.riding_id],
     candidates: candidatesByRiding[raw.riding_id],
     declaredCandidates: (declared2026ByRiding[raw.riding_id] ?? []).map((c): DeclaredCandidate => ({
@@ -234,6 +237,29 @@ function buildRedistrictingOrigin(rid: string) {
     overlap_pct: e.overlap_pct,
   }));
 }
+
+// Vote par anticipation (DGEQ, préliminaire) — web_data/quebec/advance_vote.json,
+// écrit par build_qc_advance_vote_web.py côté moteur.
+const advanceById: Record<string, RidingAdvanceVote> = (() => {
+  const src = advanceVoteSource as any;
+  const prov = src?.meta?.provincial ?? {};
+  const rows: any[] = src?.ridings ?? [];
+  const out: Record<string, RidingAdvanceVote> = {};
+  for (const r of rows) {
+    out[r.riding_id] = {
+      turnoutPct: r.advance_turnout_pct,
+      rank: r.rank,
+      total: rows.length,
+      shareEstPct: r.advance_share_est_pct ?? undefined,
+      turnout2022Pct: r.turnout_2022_pct ?? undefined,
+      provincialTurnoutPct: prov.advance_turnout_pct,
+      provincialShareEstPct: prov.advance_share_est_pct,
+      dates: src?.meta?.advance_poll_dates ?? [],
+      preliminary: src?.meta?.status === 'preliminary',
+    };
+  }
+  return out;
+})();
 
 export function getAllQuebecRidings(): RidingData[] {
   return ridings.map(adaptOne);

@@ -19,6 +19,7 @@ import ByelectionForecast from './sections/ByelectionForecast.astro';
 import VoteBars from './sections/VoteBars.astro';
 import HistoryTimeline from './sections/HistoryTimeline.astro';
 import Demographics from './sections/Demographics.astro';
+import AdvanceVote from './sections/AdvanceVote.astro';
 import EditorialBlurb from './sections/EditorialBlurb.astro';
 import DataFreshness from './sections/DataFreshness.astro';
 import CurrentMember from './sections/CurrentMember.astro';
@@ -98,6 +99,7 @@ const pageNavItems = [
 {data.byelection && <ByelectionForecast data={data} lang={lang} />}
 <div id="projection" class="riding-anchor"><ProjectionPanel data={data} lang={lang} /></div>
 <div id="vote-share" class="riding-anchor"><VoteBars data={data} lang={lang} /></div>
+{data.advanceVote && <AdvanceVote data={data} lang={lang} />}
 {closeRacesHere.races.length > 0 && (
 <section class="container riding-close-races">
   <CloseRaces
