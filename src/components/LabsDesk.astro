@@ -141,6 +141,19 @@ const btRows = (pastCycles[labsKey] ?? []).map((c) => {
   <section class="lb-section" aria-labelledby="lb-compare">
     <h2 id="lb-compare">{t.compareTitle}</h2>
     <LabsSeatBars cmp={cmp} locale={locale} />
+    {cmp.blend && (
+      <div class="lb-blend">
+        <h3>{t.blendTitle}</h3>
+        {cmp.leaderBlend && (
+          <p class="lb-blend-top">
+            <strong>{t.blend}</strong>{locale === 'fr' ? ' : ' : ': '}
+            {partyLabel(d, cmp.leaderBlend, locale)} {cmp.blend.find((s) => s.party === cmp.leaderBlend)?.seats}
+            {cmp.pBlend !== null && <> · {isUS ? t.control : t.majority} {pct(cmp.pBlend, locale)}</>}
+          </p>
+        )}
+        <p class="lb-muted">{t.blendBody}</p>
+      </div>
+    )}
   </section>
 
   {!isUS && (
@@ -365,6 +378,10 @@ const btRows = (pastCycles[labsKey] ?? []).map((c) => {
   .lb-section h2 { font-family: var(--serif); font-size: clamp(26px, 3.4vw, 34px); font-weight: 450; margin: 0 0 16px; }
   .lb-section h3 { font-family: var(--serif); font-size: 20px; font-weight: 450; margin: 28px 0 10px; }
   .lb-muted { color: var(--ink-3); font-size: 14px; line-height: 1.55; }
+  .lb-blend { margin-top: 40px; padding: 18px 20px; border: 1px dashed var(--rule); border-radius: 6px; background: var(--card); }
+  .lb-blend h3 { margin-top: 0; }
+  .lb-blend-top { margin: 0 0 8px; font-family: var(--mono); font-size: 13px; color: var(--ink-2); }
+  .lb-blend .lb-muted { margin: 0; max-width: 760px; }
   .lb-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
   .lb-pcard { border: 1px solid var(--rule); border-top: 3px solid var(--pc); background: var(--card); border-radius: 4px; padding: 18px 20px 20px; }
   .lb-pcard header { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }

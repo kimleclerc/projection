@@ -78,6 +78,9 @@ export type Comparison = {
   verdict: 'same' | 'status' | 'different';
   pOrbit: number | null;       // P(majorité / contrôle) du meneur Orbite
   pRef: number | null;         // même chose côté référence
+  blend: SeatSeg[] | null;     // mélange 50/50 des deux moteurs (sièges gagnés)
+  leaderBlend: string | null;
+  pBlend: number | null;       // P(majorité / contrôle) du meneur du mélange
 };
 
 /** Orbite contre la projection de référence, en sièges gagnés. */
@@ -110,8 +113,14 @@ export function compare(key: LabsKey, d: any, locale: Locale): Comparison {
     total = key === 'us_senate' ? 100 : 435;
     threshold = key === 'us_senate' ? 51 : 218;
   }
-  orbit = orbit.filter((x) => x.seats > 0 || (ref[x.party] ?? 0) > 0).sort((a, b) => b.seats - a.seats);
+  const blendRaw: any[] | null = d.prod?.blend?.parties ?? null;
+  const mix: Record<string, number> = {};
+  const pBlendBy: Record<string, number | null> = {};
+  for (const x of blendRaw ?? []) { mix[x.party] = x.seats_favored ?? 0; pBlendBy[x.party] = x.p_majority ?? null; }
+  orbit = orbit.filter((x) => x.seats > 0 || (ref[x.party] ?? 0) > 0 || (mix[x.party] ?? 0) > 0)
+    .sort((a, b) => b.seats - a.seats);
   const reference = orbit.map((x) => ({ ...x, seats: ref[x.party] ?? 0 }));
+  const blend = blendRaw ? orbit.map((x) => ({ ...x, seats: mix[x.party] ?? 0 })) : null;
   const lead = (xs: SeatSeg[]) => [...xs].sort((a, b) => b.seats - a.seats)[0]?.party ?? '';
   const leaderOrbit = lead(orbit);
   const leaderRef = lead(reference);
@@ -121,8 +130,11 @@ export function compare(key: LabsKey, d: any, locale: Locale): Comparison {
     const r = reference.find((x) => x.party === leaderRef)!.seats >= threshold;
     if (o !== r) verdict = 'status';
   }
+  const leaderBlend = blend ? lead(blend) : null;
   return { total, threshold, orbit, reference, leaderOrbit, leaderRef, verdict,
-           pOrbit: pOrbitBy[leaderOrbit] ?? null, pRef: pRefBy[leaderOrbit] ?? null };
+           pOrbit: pOrbitBy[leaderOrbit] ?? null, pRef: pRefBy[leaderOrbit] ?? null,
+           blend, leaderBlend,
+           pBlend: leaderBlend && !(key === 'us_governor') ? (pBlendBy[leaderBlend] ?? null) : null };
 }
 
 const NUM_LOCALE: Record<Locale, string> = { fr: 'fr-CA', en: 'en-US', es: 'es-ES' };
@@ -166,7 +178,10 @@ export const T = {
     deskDek: 'Mêmes sondages, autre physique. Voici ce que voit Orbite, à côté de notre projection de référence.',
     compareTitle: 'Orbite contre la référence : d’accord ou pas?',
     compareHub: 'Partout où Orbite tourne',
-    compareHubNote: 'Sièges gagnés : le nombre de circonscriptions où chaque parti est favori. La barre du haut, c’est Orbite; celle du bas, notre projection de référence.',
+    compareHubNote: 'Sièges gagnés : le nombre de circonscriptions où chaque parti est favori. La barre du haut, c’est Orbite; celle du milieu, notre projection de référence; celle du bas, le mélange 50/50 des deux.',
+    blend: 'Mélange 50/50',
+    blendTitle: 'Et si on écoutait les deux moteurs à la fois?',
+    blendBody: 'Le mélange donne à chaque circonscription la moyenne des chances annoncées par Orbite et par notre projection de référence, puis compte les favoris. Sur nos rejeux du Québec (2018 et 2022, veille du vote), ce mélange a toujours fait mieux que la projection de référence seule : en 2018, l’erreur passe de 6,5 à 4,5 sièges, et les probabilités annoncées deviennent nettement plus fiables. Le partage 50/50 est un choix de principe, pas un réglage ajusté sur ces deux élections. Le 5 octobre sera son premier vrai test à l’aveugle.',
     orbit: 'Orbite',
     reference: 'Référence',
     verdict: { same: 'D’accord', status: 'Même gagnant, verdict différent sur la majorité', different: 'Désaccord : gagnant différent' },
@@ -237,7 +252,10 @@ export const T = {
     deskDek: 'Same polls, different physics. Here is what Orbit sees, next to our reference forecast.',
     compareTitle: 'Orbit vs. the reference: do they agree?',
     compareHub: 'Everywhere Orbit is running',
-    compareHubNote: 'Seats won: the number of ridings where each party is the favourite. The top bar is Orbit; the bottom bar is our reference forecast.',
+    compareHubNote: 'Seats won: the number of ridings where each party is the favourite. The top bar is Orbit; the middle one, our reference forecast; the bottom one, a 50/50 blend of both.',
+    blend: '50/50 blend',
+    blendTitle: 'What if we listened to both engines at once?',
+    blendBody: 'The blend gives each riding the average of the chances announced by Orbit and by our reference forecast, then counts the favourites. In our Quebec replays (2018 and 2022, the day before the vote), the blend always beat the reference forecast alone: in 2018 the error drops from 6.5 to 4.5 seats, and the announced probabilities become far more reliable. The 50/50 split is a choice of principle, not a setting tuned on those two elections. October 5 will be its first real blind test.',
     orbit: 'Orbit',
     reference: 'Reference',
     verdict: { same: 'They agree', status: 'Same winner, different call on the majority', different: 'They disagree: different winner' },
@@ -308,7 +326,10 @@ export const T = {
     deskDek: 'Mismas encuestas, otra física. Esto es lo que ve Órbita, junto a nuestra proyección de referencia.',
     compareTitle: 'Órbita frente a la referencia: ¿coinciden?',
     compareHub: 'Dondequiera que funcione Órbita',
-    compareHubNote: 'Escaños ganados: el número de circunscripciones donde cada partido es favorito. La barra de arriba es Órbita; la de abajo, nuestra proyección de referencia.',
+    compareHubNote: 'Escaños ganados: el número de circunscripciones donde cada partido es favorito. La barra de arriba es Órbita; la del medio, nuestra proyección de referencia; la de abajo, la mezcla 50/50 de ambas.',
+    blend: 'Mezcla 50/50',
+    blendTitle: '¿Y si escucháramos a los dos motores a la vez?',
+    blendBody: 'La mezcla da a cada circunscripción el promedio de las probabilidades anunciadas por Órbita y por nuestra proyección de referencia, y luego cuenta los favoritos. En nuestras simulaciones de Quebec (2018 y 2022, víspera de la votación), la mezcla siempre superó a la proyección de referencia sola: en 2018 el error baja de 6,5 a 4,5 escaños, y las probabilidades anunciadas son mucho más fiables. El reparto 50/50 es una decisión de principio, no un ajuste hecho sobre esas dos elecciones. El 5 de octubre será su primera prueba real a ciegas.',
     orbit: 'Órbita',
     reference: 'Referencia',
     verdict: { same: 'Coinciden', status: 'Mismo ganador, distinto veredicto sobre la mayoría', different: 'No coinciden: ganador distinto' },
