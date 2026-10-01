@@ -8,6 +8,7 @@ import {
 } from '../lib/labs';
 import { EXPLAINER, EXPLAINER_SLUG } from '../lib/labs-explainer';
 import LabsSeatBars from './LabsSeatBars.astro';
+import LabsQuantum from './LabsQuantum.astro';
 
 interface Props { locale: Locale; labsKey: LabsKey }
 const { locale, labsKey } = Astro.props;
@@ -155,6 +156,8 @@ const btRows = (pastCycles[labsKey] ?? []).map((c) => {
       </div>
     )}
   </section>
+
+  <LabsQuantum locale={locale} labsKey={labsKey} desk={d} />
 
   {!isUS && (
     <section class="lb-section" aria-labelledby="lb-parties">

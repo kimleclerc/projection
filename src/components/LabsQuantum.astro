@@ -1,0 +1,168 @@
+---
+// Tirage quantique : l'élection tirée sur une vraie machine IBM, comparée au
+// calcul exact d'Orbite (brut et après correction des erreurs de lecture).
+// Avant le tirage : simple annonce, si une date est prévue pour ce desk.
+import { type Locale, type LabsKey, partyLabel, partyColor, fmt, pct, fmtDate } from '../lib/labs';
+import { loadQuantum, QUANTUM_PLANNED, QT } from '../lib/labs-quantum';
+
+interface Props { locale: Locale; labsKey: LabsKey; desk: any }
+const { locale, labsKey, desk } = Astro.props;
+const q = loadQuantum(labsKey);
+const planned = QUANTUM_PLANNED[labsKey];
+const t = QT[locale];
+const C = locale === 'fr' ? ' : ' : ': ';
+
+let chart: any = null;
+let rows: any[] = [];
+if (q) {
+  const parties = Object.entries(q.parties as Record<string, any>)
+    .sort((a, b) => b[1].exact_mean - a[1].exact_mean);
+  rows = parties.map(([p, x]) => ({ p, ...x, label: partyLabel(desk, p, locale), color: partyColor(desk, p) }));
+  const [lead, x] = parties[0];
+  const n = x.exact_histogram.length;
+  const total = (x.histogram as number[]).reduce((a, b) => a + b, 0) || 1;
+  const raw = (x.histogram as number[]).map((c) => c / total);
+  const ex = x.exact_histogram as number[];
+  const co = x.corrected_histogram as number[];
+  const any = (i: number) => Math.max(raw[i] ?? 0, ex[i] ?? 0, co[i] ?? 0) > 0.0015;
+  let lo = 0, hi = n - 1;
+  while (lo < hi && !any(lo)) lo++;
+  while (hi > lo && !any(hi)) hi--;
+  lo = Math.max(0, lo - 2); hi = Math.min(n - 1, hi + 2);
+  const W = 720, H = 220, pad = { l: 8, r: 8, t: 12, b: 26 };
+  const span = hi - lo + 1;
+  const bw = (W - pad.l - pad.r) / span;
+  const ymax = Math.max(...raw.slice(lo, hi + 1), ...ex.slice(lo, hi + 1), ...co.slice(lo, hi + 1)) * 1.08 || 1;
+  const X = (i: number) => pad.l + (i - lo) * bw;
+  const Y = (v: number) => pad.t + (H - pad.t - pad.b) * (1 - v / ymax);
+  const line = (arr: number[]) => arr.slice(lo, hi + 1).map((v, k) => `${(X(lo + k) + bw / 2).toFixed(1)},${Y(v).toFixed(1)}`).join(' ');
+  const ticks = [];
+  const step = span > 60 ? 10 : 5;
+  for (let s = Math.ceil(lo / step) * step; s <= hi; s += step) ticks.push(s);
+  chart = {
+    W, H, pad, bw, lo, hi, X, Y, ticks,
+    bars: raw.slice(lo, hi + 1).map((v, k) => ({ x: X(lo + k), y: Y(v), h: Y(0) - Y(v) })),
+    exact: line(ex), corrected: line(co),
+    maj: desk.majority, color: partyColor(desk, lead), label: partyLabel(desk, lead, locale),
+  };
+}
+const when = q?.run_at ? new Date(q.run_at) : null;
+const whenTxt = when
+  ? when.toLocaleString(locale === 'fr' ? 'fr-CA' : locale === 'es' ? 'es-ES' : 'en-US',
+      { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit', timeZone: 'America/Toronto', timeZoneName: 'short' })
+  : '';
+---
+
+{(q || planned) && (
+  <section class="lq" aria-labelledby="lq-title">
+    <p class="lq-kicker"><span class="lq-atom" aria-hidden="true">⚛</span>{t.kicker}</p>
+    {!q && planned && (
+      <>
+        <h2 id="lq-title">{t.teaserTitle}</h2>
+        <p class="lq-dek">{t.teaser(fmtDate(planned, locale))}</p>
+      </>
+    )}
+    {q && chart && (
+      <>
+        <h2 id="lq-title">{t.title}</h2>
+        <p class="lq-dek">{t.dek(q.climates)}</p>
+        <dl class="lq-facts">
+          <div><dt>{t.machine}</dt><dd>{q.machine}</dd></div>
+          <div><dt>{t.when}</dt><dd>{whenTxt}</dd></div>
+          <div><dt>{t.drawn}</dt><dd>{fmt(q.elections_drawn, locale, 0)}</dd></div>
+          <div><dt>{t.qubits}</dt><dd>{Math.max(...q.qubits_per_circuit)}</dd></div>
+          {q.ibm_job?.qpu_seconds != null && <div><dt>{t.seconds}</dt><dd>{`${fmt(q.ibm_job.qpu_seconds, locale, 0)} ${t.sec}`}</dd></div>}
+        </dl>
+
+        <h3>{t.chartTitle(chart.label)}</h3>
+        <div class="lq-chart">
+          <svg viewBox={`0 0 ${chart.W} ${chart.H}`} role="img" aria-label={t.chartTitle(chart.label)}>
+            {chart.bars.map((b: any) => (
+              <rect x={b.x + 0.5} y={b.y} width={Math.max(chart.bw - 1, 0.5)} height={b.h} fill={chart.color} opacity=".45" />
+            ))}
+            <polyline points={chart.exact} fill="none" stroke="var(--ink)" stroke-width="2" />
+            <polyline points={chart.corrected} fill="none" stroke={chart.color} stroke-width="2" stroke-dasharray="5 4" />
+            {chart.maj >= chart.lo && chart.maj <= chart.hi && (
+              <>
+                <line x1={chart.X(chart.maj)} x2={chart.X(chart.maj)} y1={chart.pad.t} y2={chart.H - chart.pad.b} stroke="var(--ink-3)" stroke-dasharray="3 3" />
+                <text x={chart.X(chart.maj) + 4} y={chart.pad.t + 10} class="lq-axis">{t.majority(chart.maj)}</text>
+              </>
+            )}
+            {chart.ticks.map((s: number) => (
+              <text x={chart.X(s) + chart.bw / 2} y={chart.H - 8} text-anchor="middle" class="lq-axis">{s}</text>
+            ))}
+          </svg>
+        </div>
+        <ul class="lq-legend">
+          <li><span class="lq-sw" style={`background:${chart.color}; opacity:.45`}></span>{t.legendDrawn}</li>
+          <li><span class="lq-sw lq-sw--dash" style={`border-color:${chart.color}`}></span>{t.legendCorrected}</li>
+          <li><span class="lq-sw lq-sw--line"></span>{t.legendExact}</li>
+        </ul>
+
+        <p class="lq-note">{t.seatsNote}</p>
+        <div class="lq-scroll">
+          <table class="lq-table">
+            <thead><tr><th>{t.colParty}</th><th>{t.colExact}</th><th>{t.colRaw}</th><th>{t.colCorrected}</th></tr></thead>
+            <tbody>
+              {rows.map((r) => (
+                <tr>
+                  <td><span class="lq-dot" style={`background:${r.color}`}></span>{r.label}</td>
+                  <td>{fmt(r.exact_mean, locale, 1)}</td>
+                  <td>{fmt(r.drawn_mean, locale, 1)}</td>
+                  <td><strong>{fmt(r.corrected_mean, locale, 1)}</strong></td>
+                </tr>
+              ))}
+              <tr class="lq-pmaj">
+                <td>{t.pMaj}{C}{rows[0].label}</td>
+                <td>{pct(rows[0].exact_p_majority, locale)}</td>
+                <td>{pct(rows[0].drawn_p_majority, locale)}</td>
+                <td><strong>{pct(rows[0].corrected_p_majority, locale)}</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>{t.whatTitle}</h3>
+        <ul class="lq-what">{t.what.map((w) => <li>{w}</li>)}</ul>
+        {q.ibm_job?.job_ids?.length > 0 && (
+          <p class="lq-jobs">{t.jobs}{C}<code>{q.ibm_job.job_ids.join(' · ')}</code></p>
+        )}
+      </>
+    )}
+  </section>
+)}
+
+<style>
+  .lq { margin-top: 60px; padding: 28px 28px 24px; border-radius: 10px; border: 1px solid var(--rule);
+        background: radial-gradient(120% 140% at 100% 0%, color-mix(in oklab, var(--blue) 10%, var(--card)) 0%, var(--card) 60%); }
+  .lq-kicker { margin: 0 0 10px; display: inline-flex; align-items: center; gap: 8px; font-family: var(--mono); font-size: 11px;
+               letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); }
+  .lq-atom { font-size: 16px; color: var(--duck-deep); }
+  .lq h2 { font-family: var(--serif); font-size: clamp(26px, 3.4vw, 34px); font-weight: 450; margin: 0 0 12px; }
+  .lq h3 { font-family: var(--serif); font-size: 20px; font-weight: 450; margin: 30px 0 10px; }
+  .lq-dek { max-width: 760px; margin: 0; color: var(--ink-2); font-size: 17px; line-height: 1.6; }
+  .lq-facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin: 22px 0 0; }
+  .lq-facts div { padding: 12px 14px; border: 1px solid var(--rule); border-radius: 6px; background: var(--card); }
+  .lq-facts dt { font-family: var(--mono); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
+  .lq-facts dd { margin: 4px 0 0; font-family: var(--mono); font-size: 15px; color: var(--ink); }
+  .lq-chart svg { width: 100%; height: auto; display: block; }
+  .lq-axis { font-family: var(--mono); font-size: 11px; fill: var(--ink-3); }
+  .lq-legend { list-style: none; padding: 0; margin: 8px 0 0; display: flex; flex-wrap: wrap; gap: 8px 20px; }
+  .lq-legend li { display: inline-flex; align-items: center; gap: 8px; font-family: var(--mono); font-size: 12px; color: var(--ink-2); }
+  .lq-sw { width: 14px; height: 10px; border-radius: 2px; display: inline-block; }
+  .lq-sw--dash { height: 0; border-top: 2px dashed; border-radius: 0; }
+  .lq-sw--line { height: 0; border-top: 2px solid var(--ink); border-radius: 0; }
+  .lq-scroll { overflow-x: auto; margin-top: 6px; }
+  .lq-table { width: 100%; border-collapse: collapse; font-size: 15px; }
+  .lq-table th { text-align: left; font-family: var(--mono); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase;
+                 color: var(--ink-3); border-bottom: 1px solid var(--rule); padding: 8px 10px; white-space: nowrap; }
+  .lq-table td { border-bottom: 1px solid var(--rule-2); padding: 9px 10px; white-space: nowrap; }
+  .lq-pmaj td { border-top: 1px solid var(--rule); }
+  .lq-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; vertical-align: middle; }
+  .lq-note { margin: 22px 0 0; font-family: var(--mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); }
+  .lq-what { margin: 0; padding-left: 20px; color: var(--ink-2); line-height: 1.6; max-width: 780px; }
+  .lq-what li + li { margin-top: 8px; }
+  .lq-jobs { margin: 18px 0 0; font-size: 12px; color: var(--ink-3); overflow-wrap: anywhere; }
+  .lq-jobs code { font-family: var(--mono); }
+  @media (max-width: 560px) { .lq { padding: 22px 16px 18px; } }
+</style>
