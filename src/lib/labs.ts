@@ -5,20 +5,20 @@ import { resolve } from 'node:path';
 import { partyMeta, partyMark } from './riding-adapters/parties';
 
 export type Locale = 'fr' | 'en' | 'es';
-export type LabsKey = 'qc_2026' | 'bc_44' | 'fed_46' | 'on_2029' | 'uk_2029' | 'fr_pres_2027' | 'us_senate' | 'us_house' | 'us_governor';
+export type LabsKey = 'qc_2026' | 'bc_44' | 'fed_46' | 'on_2029' | 'uk_2029' | 'fr_pres_2027' | 'fr_leg' | 'us_senate' | 'us_house' | 'us_governor';
 
-export const LABS_KEYS: LabsKey[] = ['qc_2026', 'bc_44', 'fed_46', 'on_2029', 'uk_2029', 'fr_pres_2027', 'us_senate', 'us_house', 'us_governor'];
+export const LABS_KEYS: LabsKey[] = ['qc_2026', 'bc_44', 'fed_46', 'on_2029', 'uk_2029', 'fr_pres_2027', 'fr_leg', 'us_senate', 'us_house', 'us_governor'];
 
 export const SLUGS: Record<Locale, Record<LabsKey, string>> = {
-  fr: { qc_2026: 'quebec', bc_44: 'colombie-britannique', fed_46: 'federal', on_2029: 'ontario', uk_2029: 'royaume-uni', fr_pres_2027: 'presidentielle-france', us_senate: 'senat', us_house: 'chambre', us_governor: 'gouverneurs' },
-  en: { qc_2026: 'quebec', bc_44: 'british-columbia', fed_46: 'federal', on_2029: 'ontario', uk_2029: 'united-kingdom', fr_pres_2027: 'france-presidential', us_senate: 'senate', us_house: 'house', us_governor: 'governors' },
-  es: { qc_2026: 'quebec', bc_44: 'columbia-britanica', fed_46: 'federal', on_2029: 'ontario', uk_2029: 'reino-unido', fr_pres_2027: 'presidencial-francia', us_senate: 'senado', us_house: 'camara', us_governor: 'gobernadores' },
+  fr: { qc_2026: 'quebec', bc_44: 'colombie-britannique', fed_46: 'federal', on_2029: 'ontario', uk_2029: 'royaume-uni', fr_pres_2027: 'presidentielle-france', fr_leg: 'legislatives-france', us_senate: 'senat', us_house: 'chambre', us_governor: 'gouverneurs' },
+  en: { qc_2026: 'quebec', bc_44: 'british-columbia', fed_46: 'federal', on_2029: 'ontario', uk_2029: 'united-kingdom', fr_pres_2027: 'france-presidential', fr_leg: 'france-legislative', us_senate: 'senate', us_house: 'house', us_governor: 'governors' },
+  es: { qc_2026: 'quebec', bc_44: 'columbia-britanica', fed_46: 'federal', on_2029: 'ontario', uk_2029: 'reino-unido', fr_pres_2027: 'presidencial-francia', fr_leg: 'legislativas-francia', us_senate: 'senado', us_house: 'camara', us_governor: 'gobernadores' },
 };
 
 export const MAIN_PAGES: Record<Locale, Record<LabsKey, string>> = {
-  fr: { qc_2026: '/fr/canada/quebec/', bc_44: '/fr/canada/colombie-britannique/', fed_46: '/fr/canada/federal/', on_2029: '/fr/canada/ontario/', uk_2029: '/fr/uk/general-election/', fr_pres_2027: '/fr/france/presidentielle/', us_senate: '/fr/us/senat/', us_house: '/fr/us/chambre/', us_governor: '/fr/us/gouverneurs/' },
-  en: { qc_2026: '/en/canada/quebec/', bc_44: '/en/canada/british-columbia/', fed_46: '/en/canada/federal/', on_2029: '/en/canada/ontario/', uk_2029: '/en/uk/general-election/', fr_pres_2027: '/en/france/presidential/', us_senate: '/en/us/senate/', us_house: '/en/us/house/', us_governor: '/en/us/governors/' },
-  es: { qc_2026: '/es/canada/quebec/', bc_44: '/es/canada/columbia-britanica/', fed_46: '/es/canada/federal/', on_2029: '/es/canada/ontario/', uk_2029: '/es/uk/general-election/', fr_pres_2027: '/es/france/presidencial/', us_senate: '/es/us/senate/', us_house: '/es/us/house/', us_governor: '/es/us/gobernadores/' },
+  fr: { qc_2026: '/fr/canada/quebec/', bc_44: '/fr/canada/colombie-britannique/', fed_46: '/fr/canada/federal/', on_2029: '/fr/canada/ontario/', uk_2029: '/fr/uk/general-election/', fr_pres_2027: '/fr/france/presidentielle/', fr_leg: '/fr/france/legislatives/', us_senate: '/fr/us/senat/', us_house: '/fr/us/chambre/', us_governor: '/fr/us/gouverneurs/' },
+  en: { qc_2026: '/en/canada/quebec/', bc_44: '/en/canada/british-columbia/', fed_46: '/en/canada/federal/', on_2029: '/en/canada/ontario/', uk_2029: '/en/uk/general-election/', fr_pres_2027: '/en/france/presidential/', fr_leg: '/en/france/legislative-election/', us_senate: '/en/us/senate/', us_house: '/en/us/house/', us_governor: '/en/us/governors/' },
+  es: { qc_2026: '/es/canada/quebec/', bc_44: '/es/canada/columbia-britanica/', fed_46: '/es/canada/federal/', on_2029: '/es/canada/ontario/', uk_2029: '/es/uk/general-election/', fr_pres_2027: '/es/france/presidencial/', fr_leg: '/es/france/legislativas/', us_senate: '/es/us/senate/', us_house: '/es/us/house/', us_governor: '/es/us/gobernadores/' },
 };
 
 export const LABS_ROOT: Record<Locale, string> = { fr: '/fr/labs/', en: '/en/labs/', es: '/es/labs/' };
@@ -188,6 +188,7 @@ export const NAMES: Record<LabsKey, Record<Locale, string>> = {
   on_2029: { fr: 'Ontario', en: 'Ontario', es: 'Ontario' },
   uk_2029: { fr: 'Royaume-Uni', en: 'United Kingdom', es: 'Reino Unido' },
   fr_pres_2027: { fr: 'Présidentielle française 2027', en: 'French presidential 2027', es: 'Presidencial francesa 2027' },
+  fr_leg: { fr: 'Législatives françaises', en: 'French legislative election', es: 'Legislativas francesas' },
   us_senate: { fr: 'Sénat américain 2026', en: 'U.S. Senate 2026', es: 'Senado de EE. UU. 2026' },
   us_house: { fr: 'Chambre des représentants 2026', en: 'U.S. House 2026', es: 'Cámara de Representantes 2026' },
   us_governor: { fr: 'Gouverneurs américains 2026', en: 'U.S. Governors 2026', es: 'Gobernadores de EE. UU. 2026' },
