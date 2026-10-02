@@ -298,16 +298,26 @@ const btRows = (pastCycles[labsKey] ?? []).map((c) => {
           <span class="lb-note">{t.spreadNote}</span>
         </div>
       )}
-      <div class="lb-card">
-        <p class="lb-label">{t.cone}</p>
-        <strong class="lb-big">± {fmt(cone, locale, 1)}</strong>
-        <span class="lb-note">{t.coneNote} {isUS ? '50' : '30'}{P}</span>
-      </div>
-      <div class="lb-card">
-        <p class="lb-label">{t.days}</p>
-        <strong class="lb-big">{d.days_to_election}</strong>
-        <span class="lb-note">{fmtDate(d.election_date, locale)}</span>
-      </div>
+      {!d.nowcast && (
+        <div class="lb-card">
+          <p class="lb-label">{t.cone}</p>
+          <strong class="lb-big">± {fmt(cone, locale, 1)}</strong>
+          <span class="lb-note">{t.coneNote} {isUS ? '50' : '30'}{P}</span>
+        </div>
+      )}
+      {d.nowcast ? (
+        <div class="lb-card">
+          <p class="lb-label">{t.nowcastLabel}</p>
+          <strong class="lb-mid">{t.nowcastValue}</strong>
+          <span class="lb-note">{t.nowcastNote}</span>
+        </div>
+      ) : (
+        <div class="lb-card">
+          <p class="lb-label">{t.days}</p>
+          <strong class="lb-big">{d.days_to_election}</strong>
+          <span class="lb-note">{fmtDate(d.election_date, locale)}</span>
+        </div>
+      )}
     </div>
   </section>
 

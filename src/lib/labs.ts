@@ -5,20 +5,20 @@ import { resolve } from 'node:path';
 import { partyMeta, partyMark } from './riding-adapters/parties';
 
 export type Locale = 'fr' | 'en' | 'es';
-export type LabsKey = 'qc_2026' | 'bc_44' | 'us_senate' | 'us_house' | 'us_governor';
+export type LabsKey = 'qc_2026' | 'bc_44' | 'fed_46' | 'on_2029' | 'us_senate' | 'us_house' | 'us_governor';
 
-export const LABS_KEYS: LabsKey[] = ['qc_2026', 'bc_44', 'us_senate', 'us_house', 'us_governor'];
+export const LABS_KEYS: LabsKey[] = ['qc_2026', 'bc_44', 'fed_46', 'on_2029', 'us_senate', 'us_house', 'us_governor'];
 
 export const SLUGS: Record<Locale, Record<LabsKey, string>> = {
-  fr: { qc_2026: 'quebec', bc_44: 'colombie-britannique', us_senate: 'senat', us_house: 'chambre', us_governor: 'gouverneurs' },
-  en: { qc_2026: 'quebec', bc_44: 'british-columbia', us_senate: 'senate', us_house: 'house', us_governor: 'governors' },
-  es: { qc_2026: 'quebec', bc_44: 'columbia-britanica', us_senate: 'senado', us_house: 'camara', us_governor: 'gobernadores' },
+  fr: { qc_2026: 'quebec', bc_44: 'colombie-britannique', fed_46: 'federal', on_2029: 'ontario', us_senate: 'senat', us_house: 'chambre', us_governor: 'gouverneurs' },
+  en: { qc_2026: 'quebec', bc_44: 'british-columbia', fed_46: 'federal', on_2029: 'ontario', us_senate: 'senate', us_house: 'house', us_governor: 'governors' },
+  es: { qc_2026: 'quebec', bc_44: 'columbia-britanica', fed_46: 'federal', on_2029: 'ontario', us_senate: 'senado', us_house: 'camara', us_governor: 'gobernadores' },
 };
 
 export const MAIN_PAGES: Record<Locale, Record<LabsKey, string>> = {
-  fr: { qc_2026: '/fr/canada/quebec/', bc_44: '/fr/canada/colombie-britannique/', us_senate: '/fr/us/senat/', us_house: '/fr/us/chambre/', us_governor: '/fr/us/gouverneurs/' },
-  en: { qc_2026: '/en/canada/quebec/', bc_44: '/en/canada/british-columbia/', us_senate: '/en/us/senate/', us_house: '/en/us/house/', us_governor: '/en/us/governors/' },
-  es: { qc_2026: '/es/canada/quebec/', bc_44: '/es/canada/columbia-britanica/', us_senate: '/es/us/senate/', us_house: '/es/us/house/', us_governor: '/es/us/gobernadores/' },
+  fr: { qc_2026: '/fr/canada/quebec/', bc_44: '/fr/canada/colombie-britannique/', fed_46: '/fr/canada/federal/', on_2029: '/fr/canada/ontario/', us_senate: '/fr/us/senat/', us_house: '/fr/us/chambre/', us_governor: '/fr/us/gouverneurs/' },
+  en: { qc_2026: '/en/canada/quebec/', bc_44: '/en/canada/british-columbia/', fed_46: '/en/canada/federal/', on_2029: '/en/canada/ontario/', us_senate: '/en/us/senate/', us_house: '/en/us/house/', us_governor: '/en/us/governors/' },
+  es: { qc_2026: '/es/canada/quebec/', bc_44: '/es/canada/columbia-britanica/', fed_46: '/es/canada/federal/', on_2029: '/es/canada/ontario/', us_senate: '/es/us/senate/', us_house: '/es/us/house/', us_governor: '/es/us/gobernadores/' },
 };
 
 export const LABS_ROOT: Record<Locale, string> = { fr: '/fr/labs/', en: '/en/labs/', es: '/es/labs/' };
@@ -159,6 +159,8 @@ export function fmtDate(iso: string, locale: Locale): string {
 export const NAMES: Record<LabsKey, Record<Locale, string>> = {
   qc_2026: { fr: 'Québec 2026', en: 'Quebec 2026', es: 'Quebec 2026' },
   bc_44: { fr: 'Colombie-Britannique 2026', en: 'British Columbia 2026', es: 'Columbia Británica 2026' },
+  fed_46: { fr: 'Canada (fédéral)', en: 'Canada (federal)', es: 'Canadá (federal)' },
+  on_2029: { fr: 'Ontario', en: 'Ontario', es: 'Ontario' },
   us_senate: { fr: 'Sénat américain 2026', en: 'U.S. Senate 2026', es: 'Senado de EE. UU. 2026' },
   us_house: { fr: 'Chambre des représentants 2026', en: 'U.S. House 2026', es: 'Cámara de Representantes 2026' },
   us_governor: { fr: 'Gouverneurs américains 2026', en: 'U.S. Governors 2026', es: 'Gobernadores de EE. UU. 2026' },
@@ -210,6 +212,9 @@ export const T = {
     generic: 'Vote générique selon Orbite',
     wins: 'Victoires',
     days: 'Jours avant le vote',
+    nowcastLabel: 'Horizon',
+    nowcastValue: 'Élection aujourd’hui',
+    nowcastNote: 'Aucune date de scrutin fixée : projection si l’élection avait lieu aujourd’hui, comme notre projection de référence.',
     instruments: 'Les instruments d’Orbite',
     moved: 'Électeurs qui ont changé de camp depuis la dernière élection',
     movedNote: 'au minimum, en points de l’électorat',
@@ -284,6 +289,9 @@ export const T = {
     generic: 'Generic ballot according to Orbit',
     wins: 'Wins',
     days: 'Days to election',
+    nowcastLabel: 'Horizon',
+    nowcastValue: 'Election today',
+    nowcastNote: 'No election date set: forecast if the election were held today, like our reference forecast.',
     instruments: 'Orbit’s instruments',
     moved: 'Voters who switched sides since the last election',
     movedNote: 'at least, in points of the electorate',
@@ -358,6 +366,9 @@ export const T = {
     generic: 'Voto genérico según Órbita',
     wins: 'Victorias',
     days: 'Días para la votación',
+    nowcastLabel: 'Horizonte',
+    nowcastValue: 'Elección hoy',
+    nowcastNote: 'Sin fecha electoral fijada: proyección si la elección fuera hoy, como nuestra proyección de referencia.',
     instruments: 'Los instrumentos de Órbita',
     moved: 'Votantes que cambiaron de bando desde la última elección',
     movedNote: 'como mínimo, en puntos del electorado',
