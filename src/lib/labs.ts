@@ -5,20 +5,20 @@ import { resolve } from 'node:path';
 import { partyMeta, partyMark } from './riding-adapters/parties';
 
 export type Locale = 'fr' | 'en' | 'es';
-export type LabsKey = 'qc_2026' | 'bc_44' | 'fed_46' | 'on_2029' | 'us_senate' | 'us_house' | 'us_governor';
+export type LabsKey = 'qc_2026' | 'bc_44' | 'fed_46' | 'on_2029' | 'uk_2029' | 'us_senate' | 'us_house' | 'us_governor';
 
-export const LABS_KEYS: LabsKey[] = ['qc_2026', 'bc_44', 'fed_46', 'on_2029', 'us_senate', 'us_house', 'us_governor'];
+export const LABS_KEYS: LabsKey[] = ['qc_2026', 'bc_44', 'fed_46', 'on_2029', 'uk_2029', 'us_senate', 'us_house', 'us_governor'];
 
 export const SLUGS: Record<Locale, Record<LabsKey, string>> = {
-  fr: { qc_2026: 'quebec', bc_44: 'colombie-britannique', fed_46: 'federal', on_2029: 'ontario', us_senate: 'senat', us_house: 'chambre', us_governor: 'gouverneurs' },
-  en: { qc_2026: 'quebec', bc_44: 'british-columbia', fed_46: 'federal', on_2029: 'ontario', us_senate: 'senate', us_house: 'house', us_governor: 'governors' },
-  es: { qc_2026: 'quebec', bc_44: 'columbia-britanica', fed_46: 'federal', on_2029: 'ontario', us_senate: 'senado', us_house: 'camara', us_governor: 'gobernadores' },
+  fr: { qc_2026: 'quebec', bc_44: 'colombie-britannique', fed_46: 'federal', on_2029: 'ontario', uk_2029: 'royaume-uni', us_senate: 'senat', us_house: 'chambre', us_governor: 'gouverneurs' },
+  en: { qc_2026: 'quebec', bc_44: 'british-columbia', fed_46: 'federal', on_2029: 'ontario', uk_2029: 'united-kingdom', us_senate: 'senate', us_house: 'house', us_governor: 'governors' },
+  es: { qc_2026: 'quebec', bc_44: 'columbia-britanica', fed_46: 'federal', on_2029: 'ontario', uk_2029: 'reino-unido', us_senate: 'senado', us_house: 'camara', us_governor: 'gobernadores' },
 };
 
 export const MAIN_PAGES: Record<Locale, Record<LabsKey, string>> = {
-  fr: { qc_2026: '/fr/canada/quebec/', bc_44: '/fr/canada/colombie-britannique/', fed_46: '/fr/canada/federal/', on_2029: '/fr/canada/ontario/', us_senate: '/fr/us/senat/', us_house: '/fr/us/chambre/', us_governor: '/fr/us/gouverneurs/' },
-  en: { qc_2026: '/en/canada/quebec/', bc_44: '/en/canada/british-columbia/', fed_46: '/en/canada/federal/', on_2029: '/en/canada/ontario/', us_senate: '/en/us/senate/', us_house: '/en/us/house/', us_governor: '/en/us/governors/' },
-  es: { qc_2026: '/es/canada/quebec/', bc_44: '/es/canada/columbia-britanica/', fed_46: '/es/canada/federal/', on_2029: '/es/canada/ontario/', us_senate: '/es/us/senate/', us_house: '/es/us/house/', us_governor: '/es/us/gobernadores/' },
+  fr: { qc_2026: '/fr/canada/quebec/', bc_44: '/fr/canada/colombie-britannique/', fed_46: '/fr/canada/federal/', on_2029: '/fr/canada/ontario/', uk_2029: '/fr/uk/general-election/', us_senate: '/fr/us/senat/', us_house: '/fr/us/chambre/', us_governor: '/fr/us/gouverneurs/' },
+  en: { qc_2026: '/en/canada/quebec/', bc_44: '/en/canada/british-columbia/', fed_46: '/en/canada/federal/', on_2029: '/en/canada/ontario/', uk_2029: '/en/uk/general-election/', us_senate: '/en/us/senate/', us_house: '/en/us/house/', us_governor: '/en/us/governors/' },
+  es: { qc_2026: '/es/canada/quebec/', bc_44: '/es/canada/columbia-britanica/', fed_46: '/es/canada/federal/', on_2029: '/es/canada/ontario/', uk_2029: '/es/uk/general-election/', us_senate: '/es/us/senate/', us_house: '/es/us/house/', us_governor: '/es/us/gobernadores/' },
 };
 
 export const LABS_ROOT: Record<Locale, string> = { fr: '/fr/labs/', en: '/en/labs/', es: '/es/labs/' };
@@ -55,7 +55,7 @@ export function partyLabel(data: any, party: string, locale: Locale): string {
   const txt = locale === 'fr' ? m.label_fr : m.label_en;
   if (txt && txt.toUpperCase() !== party.toUpperCase()) return txt;
   const l = data.labels?.[party];
-  return (locale === 'fr' ? l?.fr : l?.en) || party.replace(/^(bc|qc|us)_/, '').toUpperCase();
+  return (locale === 'fr' ? l?.fr : l?.en) || party.replace(/^(bc|qc|us|uk|on)_/, '').toUpperCase();
 }
 
 export function partyColor(data: any, party: string): string {
@@ -161,6 +161,7 @@ export const NAMES: Record<LabsKey, Record<Locale, string>> = {
   bc_44: { fr: 'Colombie-Britannique 2026', en: 'British Columbia 2026', es: 'Columbia Británica 2026' },
   fed_46: { fr: 'Canada (fédéral)', en: 'Canada (federal)', es: 'Canadá (federal)' },
   on_2029: { fr: 'Ontario', en: 'Ontario', es: 'Ontario' },
+  uk_2029: { fr: 'Royaume-Uni', en: 'United Kingdom', es: 'Reino Unido' },
   us_senate: { fr: 'Sénat américain 2026', en: 'U.S. Senate 2026', es: 'Senado de EE. UU. 2026' },
   us_house: { fr: 'Chambre des représentants 2026', en: 'U.S. House 2026', es: 'Cámara de Representantes 2026' },
   us_governor: { fr: 'Gouverneurs américains 2026', en: 'U.S. Governors 2026', es: 'Gobernadores de EE. UU. 2026' },
