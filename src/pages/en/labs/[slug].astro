@@ -1,7 +1,8 @@
 ---
 import Base from '../../../layouts/Base.astro';
 import LabsDesk from '../../../components/LabsDesk.astro';
-import { LABS_KEYS, SLUGS, NAMES, hasLabs, keyFromSlug, type LabsKey } from '../../../lib/labs';
+import LabsPresidential from '../../../components/LabsPresidential.astro';
+import { loadLabs, LABS_KEYS, SLUGS, NAMES, hasLabs, keyFromSlug, type LabsKey } from '../../../lib/labs';
 
 export function getStaticPaths() {
   return LABS_KEYS.filter(hasLabs).map((k) => ({ params: { slug: SLUGS['en'][k] } }));
@@ -34,5 +35,7 @@ const desc = `{n} according to Orbit, the quantum and relativistic engine of Vot
     ]},
   ]}
 >
-  <LabsDesk locale={LOCALE} labsKey={key} />
+  {key === 'fr_pres_2027'
+    ? <LabsPresidential locale={LOCALE} d={loadLabs(key)} />
+    : <LabsDesk locale={LOCALE} labsKey={key} />}
 </Base>

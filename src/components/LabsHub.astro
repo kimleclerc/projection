@@ -59,7 +59,7 @@ const explainerUrl = `${labsUrl(locale)}${EXPLAINER_SLUG[locale]}/`;
           <header>
             <h3>{x.name}</h3>
             {x.cmp.pOrbit !== null && (
-              <span class="lh-p">{x.k.startsWith('us_') ? t.control : t.majority}{locale === 'fr' ? ' : ' : ': '}<strong>{pct(x.cmp.pOrbit, locale)}</strong> · {t.vsRef} {pct(x.cmp.pRef, locale)}</span>
+              <span class="lh-p">{x.k.startsWith('us_') ? t.control : x.k.startsWith('fr_pres') ? t.win : t.majority}{locale === 'fr' ? ' : ' : ': '}<strong>{pct(x.cmp.pOrbit, locale)}</strong> · {t.vsRef} {pct(x.cmp.pRef, locale)}</span>
             )}
           </header>
           <LabsSeatBars cmp={x.cmp} locale={locale} compact showLegend={false} />

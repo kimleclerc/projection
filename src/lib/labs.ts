@@ -5,20 +5,20 @@ import { resolve } from 'node:path';
 import { partyMeta, partyMark } from './riding-adapters/parties';
 
 export type Locale = 'fr' | 'en' | 'es';
-export type LabsKey = 'qc_2026' | 'bc_44' | 'fed_46' | 'on_2029' | 'uk_2029' | 'us_senate' | 'us_house' | 'us_governor';
+export type LabsKey = 'qc_2026' | 'bc_44' | 'fed_46' | 'on_2029' | 'uk_2029' | 'fr_pres_2027' | 'us_senate' | 'us_house' | 'us_governor';
 
-export const LABS_KEYS: LabsKey[] = ['qc_2026', 'bc_44', 'fed_46', 'on_2029', 'uk_2029', 'us_senate', 'us_house', 'us_governor'];
+export const LABS_KEYS: LabsKey[] = ['qc_2026', 'bc_44', 'fed_46', 'on_2029', 'uk_2029', 'fr_pres_2027', 'us_senate', 'us_house', 'us_governor'];
 
 export const SLUGS: Record<Locale, Record<LabsKey, string>> = {
-  fr: { qc_2026: 'quebec', bc_44: 'colombie-britannique', fed_46: 'federal', on_2029: 'ontario', uk_2029: 'royaume-uni', us_senate: 'senat', us_house: 'chambre', us_governor: 'gouverneurs' },
-  en: { qc_2026: 'quebec', bc_44: 'british-columbia', fed_46: 'federal', on_2029: 'ontario', uk_2029: 'united-kingdom', us_senate: 'senate', us_house: 'house', us_governor: 'governors' },
-  es: { qc_2026: 'quebec', bc_44: 'columbia-britanica', fed_46: 'federal', on_2029: 'ontario', uk_2029: 'reino-unido', us_senate: 'senado', us_house: 'camara', us_governor: 'gobernadores' },
+  fr: { qc_2026: 'quebec', bc_44: 'colombie-britannique', fed_46: 'federal', on_2029: 'ontario', uk_2029: 'royaume-uni', fr_pres_2027: 'presidentielle-france', us_senate: 'senat', us_house: 'chambre', us_governor: 'gouverneurs' },
+  en: { qc_2026: 'quebec', bc_44: 'british-columbia', fed_46: 'federal', on_2029: 'ontario', uk_2029: 'united-kingdom', fr_pres_2027: 'france-presidential', us_senate: 'senate', us_house: 'house', us_governor: 'governors' },
+  es: { qc_2026: 'quebec', bc_44: 'columbia-britanica', fed_46: 'federal', on_2029: 'ontario', uk_2029: 'reino-unido', fr_pres_2027: 'presidencial-francia', us_senate: 'senado', us_house: 'camara', us_governor: 'gobernadores' },
 };
 
 export const MAIN_PAGES: Record<Locale, Record<LabsKey, string>> = {
-  fr: { qc_2026: '/fr/canada/quebec/', bc_44: '/fr/canada/colombie-britannique/', fed_46: '/fr/canada/federal/', on_2029: '/fr/canada/ontario/', uk_2029: '/fr/uk/general-election/', us_senate: '/fr/us/senat/', us_house: '/fr/us/chambre/', us_governor: '/fr/us/gouverneurs/' },
-  en: { qc_2026: '/en/canada/quebec/', bc_44: '/en/canada/british-columbia/', fed_46: '/en/canada/federal/', on_2029: '/en/canada/ontario/', uk_2029: '/en/uk/general-election/', us_senate: '/en/us/senate/', us_house: '/en/us/house/', us_governor: '/en/us/governors/' },
-  es: { qc_2026: '/es/canada/quebec/', bc_44: '/es/canada/columbia-britanica/', fed_46: '/es/canada/federal/', on_2029: '/es/canada/ontario/', uk_2029: '/es/uk/general-election/', us_senate: '/es/us/senate/', us_house: '/es/us/house/', us_governor: '/es/us/gobernadores/' },
+  fr: { qc_2026: '/fr/canada/quebec/', bc_44: '/fr/canada/colombie-britannique/', fed_46: '/fr/canada/federal/', on_2029: '/fr/canada/ontario/', uk_2029: '/fr/uk/general-election/', fr_pres_2027: '/fr/france/presidentielle/', us_senate: '/fr/us/senat/', us_house: '/fr/us/chambre/', us_governor: '/fr/us/gouverneurs/' },
+  en: { qc_2026: '/en/canada/quebec/', bc_44: '/en/canada/british-columbia/', fed_46: '/en/canada/federal/', on_2029: '/en/canada/ontario/', uk_2029: '/en/uk/general-election/', fr_pres_2027: '/en/france/presidential/', us_senate: '/en/us/senate/', us_house: '/en/us/house/', us_governor: '/en/us/governors/' },
+  es: { qc_2026: '/es/canada/quebec/', bc_44: '/es/canada/columbia-britanica/', fed_46: '/es/canada/federal/', on_2029: '/es/canada/ontario/', uk_2029: '/es/uk/general-election/', fr_pres_2027: '/es/france/presidencial/', us_senate: '/es/us/senate/', us_house: '/es/us/house/', us_governor: '/es/us/gobernadores/' },
 };
 
 export const LABS_ROOT: Record<Locale, string> = { fr: '/fr/labs/', en: '/en/labs/', es: '/es/labs/' };
@@ -84,7 +84,32 @@ export type Comparison = {
 };
 
 /** Orbite contre la projection de référence, en sièges gagnés. */
+// Présidentielle : on compare les CHANCES DE VICTOIRE (sur 100) du scénario
+// le plus sondé, à la place des sièges.
+export function frCandidateColor(d: any, id: string): string {
+  const bloc = d.names?.[id]?.bloc;
+  const m = bloc ? partyMeta('france', bloc) : null;
+  return m && m.color && m.color !== '#999' ? m.color : '#888888';
+}
+
+function comparePresidential(d: any): Comparison {
+  const sc = d.scenarios?.[0];
+  const name = (id: string) => d.names?.[id]?.short ?? id;
+  const mk = (id: string, v: number): SeatSeg => ({ party: id, seats: Math.round(100 * v), color: frCandidateColor(d, id), label: name(id) });
+  const orbit = (sc?.candidates ?? []).filter((c: any) => (c.p_win ?? 0) >= 0.005 || (sc?.prod?.[c.id]?.p_win ?? 0) >= 0.005)
+    .sort((a: any, b: any) => (b.p_win ?? 0) - (a.p_win ?? 0)).map((c: any) => mk(c.id, c.p_win ?? 0));
+  const reference = orbit.map((s) => ({ ...s, seats: Math.round(100 * (sc?.prod?.[s.party]?.p_win ?? 0)) }));
+  const lead = (xs: SeatSeg[]) => [...xs].sort((a, b) => b.seats - a.seats)[0]?.party ?? '';
+  const leaderOrbit = lead(orbit), leaderRef = lead(reference);
+  const pO = sc?.candidates?.find((c: any) => c.id === leaderOrbit)?.p_win ?? null;
+  return { total: 100, threshold: null, orbit, reference, leaderOrbit, leaderRef,
+           verdict: leaderOrbit === leaderRef ? 'same' : 'different',
+           pOrbit: pO, pRef: sc?.prod?.[leaderOrbit]?.p_win ?? null,
+           blend: null, leaderBlend: null, pBlend: null };
+}
+
 export function compare(key: LabsKey, d: any, locale: Locale): Comparison {
+  if (d?.kind === 'presidential') return comparePresidential(d);
   const isUS = key.startsWith('us_');
   const seg = (party: string, seats: number): SeatSeg => ({
     party, seats, color: partyColor(d, party), label: partyLabel(d, party, locale), icon: partyIcon(d, party),
@@ -162,6 +187,7 @@ export const NAMES: Record<LabsKey, Record<Locale, string>> = {
   fed_46: { fr: 'Canada (fédéral)', en: 'Canada (federal)', es: 'Canadá (federal)' },
   on_2029: { fr: 'Ontario', en: 'Ontario', es: 'Ontario' },
   uk_2029: { fr: 'Royaume-Uni', en: 'United Kingdom', es: 'Reino Unido' },
+  fr_pres_2027: { fr: 'Présidentielle française 2027', en: 'French presidential 2027', es: 'Presidencial francesa 2027' },
   us_senate: { fr: 'Sénat américain 2026', en: 'U.S. Senate 2026', es: 'Senado de EE. UU. 2026' },
   us_house: { fr: 'Chambre des représentants 2026', en: 'U.S. House 2026', es: 'Cámara de Representantes 2026' },
   us_governor: { fr: 'Gouverneurs américains 2026', en: 'U.S. Governors 2026', es: 'Gobernadores de EE. UU. 2026' },
@@ -194,6 +220,7 @@ export const T = {
     chanceFirst: 'de chances de finir premier',
     seatsWon: 'Sièges gagnés',
     majority: 'Chances de majorité',
+    win: 'Chances de victoire',
     control: 'Chances de contrôle',
     agreement: 'Même favori que la référence',
     agreementNote: 'des circonscriptions',
@@ -271,6 +298,7 @@ export const T = {
     chanceFirst: 'chance of finishing first',
     seatsWon: 'Seats won',
     majority: 'Chance of a majority',
+    win: 'Chance of winning',
     control: 'Chance of control',
     agreement: 'Same favourite as the reference',
     agreementNote: 'of ridings',
@@ -348,6 +376,7 @@ export const T = {
     chanceFirst: 'de probabilidad de terminar primero',
     seatsWon: 'Escaños ganados',
     majority: 'Probabilidad de mayoría',
+    win: 'Probabilidad de victoria',
     control: 'Probabilidad de control',
     agreement: 'Mismo favorito que la referencia',
     agreementNote: 'de las circunscripciones',

@@ -7,7 +7,7 @@ interface Props { lang: Locale }
 const { lang } = Astro.props;
 const t = T[lang];
 const featured: LabsKey[] = ['qc_2026', 'bc_44', 'us_house'];
-const all = (['qc_2026', 'bc_44', 'fed_46', 'on_2029', 'uk_2029', 'us_senate', 'us_house', 'us_governor'] as LabsKey[]).filter(hasLabs);
+const all = (['qc_2026', 'bc_44', 'fed_46', 'on_2029', 'uk_2029', 'fr_pres_2027', 'us_senate', 'us_house', 'us_governor'] as LabsKey[]).filter(hasLabs);
 const cmps = Object.fromEntries(all.map((k) => [k, compare(k, loadLabs(k), lang)]));
 const counts = { same: 0, status: 0, different: 0 } as Record<string, number>;
 for (const k of all) counts[cmps[k].verdict] += 1;
