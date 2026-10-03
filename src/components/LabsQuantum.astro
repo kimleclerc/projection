@@ -46,6 +46,12 @@ if (q) {
     maj: desk.majority, color: partyColor(desk, lead), label: partyLabel(desk, lead, locale),
   };
 }
+// liste complète : favori exact, sa fréquence tirée par la machine, autres issues
+const ridings = ((q?.ridings ?? []) as any[]).map((r) => {
+  const [fav, pe] = Object.entries(r.exact as Record<string, number>).sort((a, b) => b[1] - a[1])[0] ?? ['', 0];
+  const others = Object.entries(r.drawn as Record<string, number>).filter(([p]) => p !== fav).sort((a, b) => b[1] - a[1]);
+  return { ...r, fav, pe, pm: (r.drawn as Record<string, number>)[fav] ?? 0, others };
+}).sort((a, b) => a.name.localeCompare(b.name, 'fr'));
 const when = q?.run_at ? new Date(q.run_at) : null;
 const whenTxt = when
   ? when.toLocaleString(locale === 'fr' ? 'fr-CA' : locale === 'es' ? 'es-ES' : 'en-US',
@@ -122,6 +128,30 @@ const whenTxt = when
           </table>
         </div>
 
+        {ridings.length > 0 && (
+          <>
+            <h3>{t.ridingsTitle(ridings.length)}</h3>
+            <p class="lq-small">{t.ridingsNote}</p>
+            <div class="lq-scroll lq-tall">
+              <table class="lq-table lq-ridings">
+                <thead><tr><th>{t.colRiding}</th><th>{t.colQubits}</th><th>{t.colFav}</th><th>{t.colExactP}</th><th>{t.colMachineP}</th><th>{t.colOthers}</th></tr></thead>
+                <tbody>
+                  {ridings.map((r) => (
+                    <tr>
+                      <td>{r.name}</td>
+                      <td class="lq-dim">{r.qubits === 0 ? t.safe : r.qubits}</td>
+                      <td><span class="lq-dot" style={`background:${partyColor(desk, r.fav)}`}></span>{partyLabel(desk, r.fav, locale)}</td>
+                      <td>{pct(r.pe, locale)}</td>
+                      <td><strong>{pct(r.pm, locale)}</strong></td>
+                      <td class="lq-dim">{r.others.length ? r.others.map(([p, v]: [string, number]) => `${partyLabel(desk, p, locale)} ${pct(v, locale)}`).join(' · ') : '—'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
+        )}
+
         <h3>{t.whatTitle}</h3>
         <ul class="lq-what">{t.what.map((w) => <li>{w}</li>)}</ul>
         {q.ibm_job?.job_ids?.length > 0 && (
@@ -160,6 +190,11 @@ const whenTxt = when
   .lq-pmaj td { border-top: 1px solid var(--rule); }
   .lq-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; vertical-align: middle; }
   .lq-note { margin: 22px 0 0; font-family: var(--mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); }
+  .lq-small { margin: 0 0 8px; max-width: 780px; color: var(--ink-2); font-size: 15px; line-height: 1.55; }
+  .lq-tall { max-height: 560px; overflow-y: auto; border: 1px solid var(--rule); border-radius: 6px; }
+  .lq-ridings thead th { position: sticky; top: 0; background: var(--card); }
+  .lq-ridings td { font-size: 14px; padding: 7px 10px; }
+  .lq-dim { color: var(--ink-3); }
   .lq-what { margin: 0; padding-left: 20px; color: var(--ink-2); line-height: 1.6; max-width: 780px; }
   .lq-what li + li { margin-top: 8px; }
   .lq-jobs { margin: 18px 0 0; font-size: 12px; color: var(--ink-3); overflow-wrap: anywhere; }
