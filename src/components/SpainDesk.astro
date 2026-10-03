@@ -21,6 +21,7 @@ const blocs = data.blocs;
 const provinces = data.provinces as Record<string, any>;
 const united = data.scenarios.united_left;
 const clacton = data.track_record.clacton_2026;
+const football = data.track_record.football_2026;
 
 const PARTY: Record<string, { name: string; color: string }> = {
   pp: { name: 'PP', color: '#1D84CE' },
@@ -152,6 +153,10 @@ const copy = {
     trackTitle: 'Probado en elecciones pasadas antes de publicarlo.',
     trackBody: `Con las encuestas de la víspera, este método habría colocado mal ${meta.backtest.es_2023.seats_misplaced} de 350 escaños en 2023 y ${meta.backtest.es_2019n.seats_misplaced} en noviembre de 2019. El resultado real cayó dentro de nuestros rangos en ${Math.round(meta.backtest.es_2023.inside90 * 100)} de cada 100 casos.`,
     trackClacton: `En la elección parcial de Clacton (Reino Unido, 13 de agosto de 2026) proyectamos a Nigel Farage en el ${dec(clacton.farage_projected_median)} %: obtuvo el ${dec(clacton.farage_actual)} %, y Count Binface quedó segundo, como preveíamos.`,
+    trackMore: [
+      'Fuimos de los primeros modelos en señalar que Texas podía inclinarse por los demócratas.',
+      `Antes del torneo mundial de fútbol de 2026, nuestro modelo situaba a España como favorita al título (1.ª de ${football.n_teams} selecciones). España ganó la final.`,
+    ],
     methodTitle: 'Cómo se calcula',
     methodBody: 'Un promedio de encuestas, trasladado a cada provincia y repartido con la ley electoral real, miles de veces.',
     methodBullets: [
@@ -209,6 +214,10 @@ const copy = {
     trackTitle: 'Testé sur les élections passées avant d\'être publié.',
     trackBody: `Avec les sondages de la veille, cette méthode aurait mal placé ${meta.backtest.es_2023.seats_misplaced} sièges sur 350 en 2023 et ${meta.backtest.es_2019n.seats_misplaced} en novembre 2019. Le vrai résultat est tombé dans nos fourchettes ${Math.round(meta.backtest.es_2023.inside90 * 100)} fois sur 100.`,
     trackClacton: `À la partielle de Clacton (Royaume-Uni, 13 août 2026), nous projetions Nigel Farage à ${dec(clacton.farage_projected_median)} % : il a obtenu ${dec(clacton.farage_actual)} %, et Count Binface a fini deuxième, comme prévu.`,
+    trackMore: [
+      'Nous avons été parmi les premiers modèles à signaler que le Texas pouvait basculer côté démocrate.',
+      `Avant le tournoi mondial de football 2026, notre modèle donnait l\'Espagne favorite pour le titre (1re des ${football.n_teams} équipes). L\'Espagne a gagné la finale.`,
+    ],
     methodTitle: 'Comment c\'est calculé',
     methodBody: 'Une moyenne des sondages, transposée dans chaque province et répartie selon la vraie loi électorale, des milliers de fois.',
     methodBullets: [
@@ -266,6 +275,10 @@ const copy = {
     trackTitle: 'Tested on past elections before going live.',
     trackBody: `Using eve-of-election polls, this method would have misplaced ${meta.backtest.es_2023.seats_misplaced} of 350 seats in 2023 and ${meta.backtest.es_2019n.seats_misplaced} in November 2019. The real result landed inside our ranges ${Math.round(meta.backtest.es_2023.inside90 * 100)} times out of 100.`,
     trackClacton: `In the Clacton by-election (U.K., August 13, 2026) we projected Nigel Farage at ${dec(clacton.farage_projected_median)}%: he won ${dec(clacton.farage_actual)}%, with Count Binface second, as forecast.`,
+    trackMore: [
+      'We were among the first models to flag that Texas could tip toward the Democrats.',
+      `Before the 2026 international football tournament, our model had Spain as title favourite (1st of ${football.n_teams} teams). Spain won the final.`,
+    ],
     methodTitle: 'How it works',
     methodBody: 'A polling average, carried into every province and allocated under the real electoral law, thousands of times.',
     methodBullets: [
@@ -462,6 +475,7 @@ const barTotal = 350;
           <h2>{t.trackTitle}</h2>
           <p>{t.trackBody}</p>
           <p>{t.trackClacton}</p>
+          {t.trackMore.map((x) => <p>{x}</p>)}
         </div>
       </div>
     </section>
