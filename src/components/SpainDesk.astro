@@ -59,6 +59,14 @@ const pct = (p: number) => {
   return String(Math.round(v));
 };
 
+// Dans une phrase : « más de 99 », pas « >99 ».
+const pctW = (p: number) => {
+  const v = pct(p);
+  const more = { es: 'más de', fr: 'plus de', en: 'more than' }[locale];
+  const less = { es: 'menos de', fr: 'moins de', en: 'fewer than' }[locale];
+  return v === '>99' ? `${more} 99` : v === '<1' ? `${less} 1` : v;
+};
+
 const runDate = new Date(`${meta.run_date}T12:00:00`).toLocaleDateString(
   locale === 'en' ? 'en-GB' : locale === 'fr' ? 'fr-FR' : 'es-ES',
   { day: 'numeric', month: 'long', year: 'numeric' },
@@ -149,17 +157,26 @@ const viv2022 = viv.yearly['2022'];
 const viv2026 = viv.yearly['2026'];
 const vivPoints = (x: number) => dec(Math.abs(x));
 
+
+// ── Orbite (bêta) et mélange 50/50 ──────────────────────────────────
+const orbit = data.orbit;
+const blend = data.blend;
+const orbitBt = data.orbit_backtest;
+const MODEL_ROWS = ['pp', 'psoe', 'vox', 'sumar', 'podemos', 'erc', 'bildu', 'junts', 'pnv', 'salf'];
+const orbitAgrees = (orbit.blocs.pp_vox.p_majority >= 0.5) === (blocs.pp_vox.p_majority >= 0.5);
+const labsHref = `/${locale}/labs/${locale === 'es' ? 'como-funciona' : locale === 'fr' ? 'comment-ca-marche' : 'how-it-works'}`;
+
 const copy = {
   es: {
     title: `Elecciones generales España: encuestas, escaños y fecha — PP ${nat.pp.seats_median}, PSOE ${psoe.seats_median}, Vox ${nat.vox.seats_median} — Vote-Scope`,
-    description: `Encuestas electorales de España y proyección de los 350 escaños del Congreso, provincia por provincia. PP y Vox suman mayoría en ${pct(blocs.pp_vox.p_majority)} de cada 100 simulaciones. Fechas posibles de unas elecciones anticipadas.`,
+    description: `Encuestas electorales de España y proyección de los 350 escaños del Congreso, provincia por provincia. PP y Vox suman mayoría en ${pctW(blocs.pp_vox.p_majority)} de cada 100 simulaciones. Fechas posibles de unas elecciones anticipadas.`,
     eyebrow: 'Mesa España · Congreso de los Diputados',
     h1: 'Elecciones generales en España: encuestas y proyección de escaños',
     promise: `Proyectamos los 350 escaños del Congreso provincia por provincia, con la ley D'Hondt y el umbral del 3 %, a partir de ${meta.n_polls_window} encuestas recientes corregidas por el sesgo de cada empresa.`,
     whenLabel: '¿Cuándo son las próximas elecciones?',
     whenAnswer: 'Aún no hay convocatoria. Si el BOE publica la disolución el 6 de octubre, se vota el domingo 29 de noviembre. La fecha límite es el 22 de agosto de 2027.',
     whenLink: 'Todas las fechas posibles',
-    headline: `Con las encuestas de hoy, PP y Vox suman mayoría absoluta en ${pct(blocs.pp_vox.p_majority)} de cada 100 simulaciones.`,
+    headline: `Con las encuestas de hoy, PP y Vox suman mayoría absoluta en ${pctW(blocs.pp_vox.p_majority)} de cada 100 simulaciones.`,
     seats: 'escaños',
     vote: 'del voto',
     range: 'rango probable',
@@ -170,9 +187,9 @@ const copy = {
     adelantoTitle: 'Lo que dicen los números a quien tiene que decidir.',
     adelantoRows: [
       { label: 'PSOE', value: `${psoe.seats_median} escaños`, note: `121 en 2023 · rango ${psoe.seats_p10}–${psoe.seats_p90}` },
-      { label: 'Bloque que invistió a Sánchez en 2023', value: `${blocs.investiture_2023.median} escaños`, note: `179 en 2023 · mayoría en ${pct(blocs.investiture_2023.p_majority)} de cada 100 simulaciones` },
-      { label: 'PP + Vox', value: `${blocs.pp_vox.median} escaños`, note: `rango ${blocs.pp_vox.p10}–${blocs.pp_vox.p90} · mayoría en ${pct(blocs.pp_vox.p_majority)} de cada 100` },
-      { label: 'PP solo', value: `${nat.pp.seats_median} escaños`, note: `mayoría absoluta en ${pct(blocs.pp_alone.p_majority)} de cada 100` },
+      { label: 'Bloque que invistió a Sánchez en 2023', value: `${blocs.investiture_2023.median} escaños`, note: `179 en 2023 · mayoría en ${pctW(blocs.investiture_2023.p_majority)} de cada 100 simulaciones` },
+      { label: 'PP + Vox', value: `${blocs.pp_vox.median} escaños`, note: `rango ${blocs.pp_vox.p10}–${blocs.pp_vox.p90} · mayoría en ${pctW(blocs.pp_vox.p_majority)} de cada 100` },
+      { label: 'PP solo', value: `${nat.pp.seats_median} escaños`, note: `mayoría absoluta en ${pctW(blocs.pp_alone.p_majority)} de cada 100` },
     ],
     adelantoBody: `Las encuestas no dan hoy un motivo aritmético para adelantar: el PSOE perdería unos ${121 - psoe.seats_median} escaños y la mayoría de 2023 quedaría lejos. Quien convoque lo hará por otras razones: el bloqueo en el Congreso, el calendario o la apuesta de que la campaña cambie el voto.`,
     leftKicker: 'La división a la izquierda del PSOE',
@@ -192,6 +209,17 @@ const copy = {
     vivYear: 'Año',
     vivAvg: 'Media',
     vivSource: 'Fuente: CIS, barómetros mensuales (pregunta de respuesta múltiple: hasta tres problemas).',
+    orbKicker: 'Segundo modelo · Orbite (beta)',
+    orbTitle: orbitAgrees
+      ? `Orbite, nuestro modelo experimental, llega a la misma conclusión: PP y Vox suman mayoría en ${pctW(orbit.blocs.pp_vox.p_majority)} de cada 100 simulaciones.`
+      : `Orbite, nuestro modelo experimental, no llega a la misma conclusión: PP y Vox suman mayoría en ${pctW(orbit.blocs.pp_vox.p_majority)} de cada 100 simulaciones.`,
+    orbBody: `Orbite usa las mismas encuestas con otra matemática: trata la opinión como una posición que se mueve sobre una esfera, en lugar de una media. Sigue en fase beta: lo publicamos para comparar, y la mezcla al 50 % de los dos modelos es la tercera lectura. Con las encuestas de la víspera, Orbite habría colocado mal ${orbitBt.es_2023.seats_misplaced} escaños en 2023 y ${orbitBt.es_2019n.seats_misplaced} en noviembre de 2019.`,
+    orbParty: 'Partido',
+    orbMain: 'Modelo principal',
+    orbOrbit: 'Orbite (beta)',
+    orbBlend: 'Mezcla 50/50',
+    orbMajority: 'Mayoría PP + Vox',
+    orbHow: 'Cómo funciona Orbite',
     calendarKicker: 'Fechas posibles',
     calendarTitle: 'Cuándo se votaría, según el día de la disolución',
     calendarBody: 'Las elecciones se celebran 54 días después de que el BOE publique el decreto de disolución.',
@@ -219,7 +247,7 @@ const copy = {
     methodTitle: 'Cómo se calcula',
     methodBody: 'Un promedio de encuestas, trasladado a cada provincia y repartido con la ley electoral real, miles de veces.',
     methodBullets: [
-      'Promedio de las encuestas publicadas, con más peso para las recientes y las muestras grandes. Cada empresa se corrige por su sesgo medido frente a las demás; las reestimaciones de terceros sobre los datos del CIS no cuentan.',
+      'Las encuestas publicadas pasan por un modelo de series temporales bayesiano (BSTS), el mismo que usamos en todas nuestras proyecciones, tras corregir el sesgo medido de cada empresa. Las reestimaciones de terceros sobre los datos del CIS no cuentan.',
       'El voto nacional se traslada a cada provincia a partir de las generales de 2023. Los partidos nuevos parten de su último resultado: SALF de las europeas de 2024, Aliança Catalana y Adelante Andalucía de sus elecciones autonómicas.',
       `Cada simulación añade el error real de las encuestas en España (medido de 2015 a 2023), un efecto por comunidad y otro por provincia, y reparte los escaños con D'Hondt y el umbral del 3 %. ${meta.n_draws.toLocaleString('es-ES')} simulaciones.`,
       `Supone una votación el ${longDate(meta.election_day_assumed)}. El reparto de escaños por provincia está calculado con la población del INE hasta que el BOE publique el oficial.`,
@@ -227,14 +255,14 @@ const copy = {
   },
   fr: {
     title: `Élections générales en Espagne : sondages, sièges et date — PP ${nat.pp.seats_median}, PSOE ${psoe.seats_median}, Vox ${nat.vox.seats_median} — Vote-Scope`,
-    description: `Sondages espagnols et projection des 350 sièges du Congrès, province par province. PP et Vox obtiennent la majorité dans ${pct(blocs.pp_vox.p_majority)} simulations sur 100. Dates possibles d'élections anticipées.`,
+    description: `Sondages espagnols et projection des 350 sièges du Congrès, province par province. PP et Vox obtiennent la majorité dans ${pctW(blocs.pp_vox.p_majority)} simulations sur 100. Dates possibles d'élections anticipées.`,
     eyebrow: 'Desk Espagne · Congrès des députés',
     h1: 'Élections générales en Espagne : sondages et projection des sièges',
     promise: `Nous projetons les 350 sièges du Congrès province par province, avec la règle D'Hondt et le seuil de 3 %, à partir de ${meta.n_polls_window} sondages récents corrigés du biais de chaque institut.`,
     whenLabel: 'Quand ont lieu les prochaines élections ?',
     whenAnswer: 'Pas encore convoquées. Si la dissolution paraît au Journal officiel le 6 octobre, on vote le dimanche 29 novembre. La date limite est le 22 août 2027.',
     whenLink: 'Toutes les dates possibles',
-    headline: `Avec les sondages d'aujourd'hui, PP et Vox ont la majorité absolue dans ${pct(blocs.pp_vox.p_majority)} simulations sur 100.`,
+    headline: `Avec les sondages d'aujourd'hui, PP et Vox ont la majorité absolue dans ${pctW(blocs.pp_vox.p_majority)} simulations sur 100.`,
     seats: 'sièges',
     vote: 'des voix',
     range: 'fourchette probable',
@@ -245,9 +273,9 @@ const copy = {
     adelantoTitle: 'Ce que disent les chiffres à celui qui doit décider.',
     adelantoRows: [
       { label: 'PSOE', value: `${psoe.seats_median} sièges`, note: `121 en 2023 · fourchette ${psoe.seats_p10}–${psoe.seats_p90}` },
-      { label: 'Le bloc qui a investi Sánchez en 2023', value: `${blocs.investiture_2023.median} sièges`, note: `179 en 2023 · majorité dans ${pct(blocs.investiture_2023.p_majority)} simulations sur 100` },
-      { label: 'PP + Vox', value: `${blocs.pp_vox.median} sièges`, note: `fourchette ${blocs.pp_vox.p10}–${blocs.pp_vox.p90} · majorité dans ${pct(blocs.pp_vox.p_majority)} sur 100` },
-      { label: 'PP seul', value: `${nat.pp.seats_median} sièges`, note: `majorité absolue dans ${pct(blocs.pp_alone.p_majority)} sur 100` },
+      { label: 'Le bloc qui a investi Sánchez en 2023', value: `${blocs.investiture_2023.median} sièges`, note: `179 en 2023 · majorité dans ${pctW(blocs.investiture_2023.p_majority)} simulations sur 100` },
+      { label: 'PP + Vox', value: `${blocs.pp_vox.median} sièges`, note: `fourchette ${blocs.pp_vox.p10}–${blocs.pp_vox.p90} · majorité dans ${pctW(blocs.pp_vox.p_majority)} sur 100` },
+      { label: 'PP seul', value: `${nat.pp.seats_median} sièges`, note: `majorité absolue dans ${pctW(blocs.pp_alone.p_majority)} sur 100` },
     ],
     adelantoBody: `Les sondages ne donnent pas aujourd'hui de raison arithmétique de dissoudre : le PSOE perdrait environ ${121 - psoe.seats_median} sièges et la majorité de 2023 serait hors de portée. Une dissolution viendrait d'autres raisons : le blocage au Congrès, le calendrier ou le pari que la campagne fasse bouger le vote.`,
     leftKicker: 'La division à gauche du PSOE',
@@ -267,6 +295,17 @@ const copy = {
     vivYear: 'Année',
     vivAvg: 'Moyenne',
     vivSource: 'Source : CIS, baromètres mensuels (question à réponses multiples : jusqu’à trois problèmes).',
+    orbKicker: 'Deuxième modèle · Orbite (bêta)',
+    orbTitle: orbitAgrees
+      ? `Orbite, notre modèle expérimental, arrive à la même conclusion : PP et Vox ont la majorité dans ${pctW(orbit.blocs.pp_vox.p_majority)} simulations sur 100.`
+      : `Orbite, notre modèle expérimental, n'arrive pas à la même conclusion : PP et Vox ont la majorité dans ${pctW(orbit.blocs.pp_vox.p_majority)} simulations sur 100.`,
+    orbBody: `Orbite utilise les mêmes sondages avec d'autres mathématiques : il traite l'opinion comme une position qui se déplace sur une sphère, plutôt que comme une moyenne. Il est encore en bêta : nous le publions pour comparer, et le mélange à 50 % des deux modèles donne une troisième lecture. Avec les sondages de la veille, Orbite aurait mal placé ${orbitBt.es_2023.seats_misplaced} sièges en 2023 et ${orbitBt.es_2019n.seats_misplaced} en novembre 2019.`,
+    orbParty: 'Parti',
+    orbMain: 'Modèle principal',
+    orbOrbit: 'Orbite (bêta)',
+    orbBlend: 'Mélange 50/50',
+    orbMajority: 'Majorité PP + Vox',
+    orbHow: 'Comment fonctionne Orbite',
     calendarKicker: 'Dates possibles',
     calendarTitle: 'Quand on voterait, selon le jour de la dissolution',
     calendarBody: 'Le vote a lieu 54 jours après la publication du décret de dissolution au Journal officiel (BOE).',
@@ -294,7 +333,7 @@ const copy = {
     methodTitle: 'Comment c\'est calculé',
     methodBody: 'Une moyenne des sondages, transposée dans chaque province et répartie selon la vraie loi électorale, des milliers de fois.',
     methodBullets: [
-      'Moyenne des sondages publiés, avec plus de poids pour les récents et les grands échantillons. Chaque institut est corrigé de son biais mesuré face aux autres ; les réestimations du CIS par des tiers ne comptent pas.',
+      'Les sondages publiés passent par un modèle bayésien de séries temporelles (BSTS), le même que dans toutes nos projections, après correction du biais mesuré de chaque institut. Les réestimations du CIS par des tiers ne comptent pas.',
       'Le vote national est transposé dans chaque province à partir des générales de 2023. Les nouveaux partis partent de leur dernier résultat : SALF des européennes 2024, Aliança Catalana et Adelante Andalucía de leurs élections régionales.',
       `Chaque simulation ajoute l'erreur réelle des sondages en Espagne (mesurée de 2015 à 2023), un effet par communauté et un par province, puis répartit les sièges avec D'Hondt et le seuil de 3 %. ${meta.n_draws.toLocaleString('fr-FR')} simulations.`,
       `Suppose un vote le ${longDate(meta.election_day_assumed)}. La répartition des sièges par province est calculée sur la population de l'INE jusqu'à la publication officielle au BOE.`,
@@ -302,14 +341,14 @@ const copy = {
   },
   en: {
     title: `Spain General Election: Polls, Seat Projection & Date — PP ${nat.pp.seats_median}, PSOE ${psoe.seats_median}, Vox ${nat.vox.seats_median} — Vote-Scope`,
-    description: `Spanish election polls and a projection of all 350 Congress seats, province by province. PP and Vox win a majority in ${pct(blocs.pp_vox.p_majority)} of 100 simulations. Possible dates for a snap election.`,
+    description: `Spanish election polls and a projection of all 350 Congress seats, province by province. PP and Vox win a majority in ${pctW(blocs.pp_vox.p_majority)} of 100 simulations. Possible dates for a snap election.`,
     eyebrow: 'Spain Desk · Congress of Deputies',
     h1: 'Spain general election: polls and seat projection',
     promise: `We project all 350 seats in Congress province by province, with the D'Hondt rule and the 3% threshold, from ${meta.n_polls_window} recent polls corrected for each pollster's lean.`,
     whenLabel: 'When is the next Spanish election?',
     whenAnswer: 'Not called yet. If the dissolution decree is published on October 6, Spain votes on Sunday, November 29. The legal deadline is August 22, 2027.',
     whenLink: 'Every possible date',
-    headline: `On today's polls, PP and Vox win an outright majority in ${pct(blocs.pp_vox.p_majority)} of 100 simulations.`,
+    headline: `On today's polls, PP and Vox win an outright majority in ${pctW(blocs.pp_vox.p_majority)} of 100 simulations.`,
     seats: 'seats',
     vote: 'of the vote',
     range: 'likely range',
@@ -320,9 +359,9 @@ const copy = {
     adelantoTitle: 'What the numbers tell the person who has to decide.',
     adelantoRows: [
       { label: 'PSOE', value: `${psoe.seats_median} seats`, note: `121 in 2023 · range ${psoe.seats_p10}–${psoe.seats_p90}` },
-      { label: 'The bloc that re-elected Sánchez in 2023', value: `${blocs.investiture_2023.median} seats`, note: `179 in 2023 · majority in ${pct(blocs.investiture_2023.p_majority)} of 100 simulations` },
-      { label: 'PP + Vox', value: `${blocs.pp_vox.median} seats`, note: `range ${blocs.pp_vox.p10}–${blocs.pp_vox.p90} · majority in ${pct(blocs.pp_vox.p_majority)} of 100` },
-      { label: 'PP alone', value: `${nat.pp.seats_median} seats`, note: `outright majority in ${pct(blocs.pp_alone.p_majority)} of 100` },
+      { label: 'The bloc that re-elected Sánchez in 2023', value: `${blocs.investiture_2023.median} seats`, note: `179 in 2023 · majority in ${pctW(blocs.investiture_2023.p_majority)} of 100 simulations` },
+      { label: 'PP + Vox', value: `${blocs.pp_vox.median} seats`, note: `range ${blocs.pp_vox.p10}–${blocs.pp_vox.p90} · majority in ${pctW(blocs.pp_vox.p_majority)} of 100` },
+      { label: 'PP alone', value: `${nat.pp.seats_median} seats`, note: `outright majority in ${pctW(blocs.pp_alone.p_majority)} of 100` },
     ],
     adelantoBody: `Today's polls give no arithmetic reason to go early: the PSOE would lose about ${121 - psoe.seats_median} seats and the 2023 majority would be out of reach. A snap election would come from elsewhere: deadlock in Congress, the calendar, or a bet that the campaign moves votes.`,
     leftKicker: 'The split left of the PSOE',
@@ -342,6 +381,17 @@ const copy = {
     vivYear: 'Year',
     vivAvg: 'Average',
     vivSource: 'Source: CIS monthly barometers (multiple-answer question: up to three problems).',
+    orbKicker: 'Second model · Orbit (beta)',
+    orbTitle: orbitAgrees
+      ? `Orbit, our experimental model, reaches the same conclusion: PP and Vox win a majority in ${pctW(orbit.blocs.pp_vox.p_majority)} of 100 simulations.`
+      : `Orbit, our experimental model, reaches a different conclusion: PP and Vox win a majority in ${pctW(orbit.blocs.pp_vox.p_majority)} of 100 simulations.`,
+    orbBody: `Orbit uses the same polls with different mathematics: it treats opinion as a position moving on a sphere rather than as an average. It is still in beta: we publish it for comparison, and a 50/50 mix of both models gives a third reading. On eve-of-election polls, Orbit would have misplaced ${orbitBt.es_2023.seats_misplaced} seats in 2023 and ${orbitBt.es_2019n.seats_misplaced} in November 2019.`,
+    orbParty: 'Party',
+    orbMain: 'Main model',
+    orbOrbit: 'Orbit (beta)',
+    orbBlend: '50/50 mix',
+    orbMajority: 'PP + Vox majority',
+    orbHow: 'How Orbit works',
     calendarKicker: 'Possible dates',
     calendarTitle: 'When Spain would vote, depending on the dissolution date',
     calendarBody: 'Polling day falls 54 days after the dissolution decree is published in the official gazette (BOE).',
@@ -369,14 +419,23 @@ const copy = {
     methodTitle: 'How it works',
     methodBody: 'A polling average, carried into every province and allocated under the real electoral law, thousands of times.',
     methodBullets: [
-      'An average of published polls, weighting recent polls and large samples more. Each pollster is corrected for its measured lean against the others; third-party re-estimates of CIS data are left out.',
+      'Published polls go through a Bayesian time-series model (BSTS), the same one behind all our forecasts, after correcting each pollster for its measured lean. Third-party re-estimates of CIS data are left out.',
       'The national vote is carried into each province from the 2023 general election. New parties start from their latest result: SALF from the 2024 European election, Aliança Catalana and Adelante Andalucía from their regional elections.',
       `Each simulation adds the real error of Spanish polls (measured 2015–2023), a regional effect and a provincial effect, then allocates seats under D'Hondt with the 3% threshold. ${meta.n_draws.toLocaleString('en-GB')} simulations.`,
       `Assumes polling day on ${longDate(meta.election_day_assumed)}. Seats per province are computed from INE population until the official BOE allocation is published.`,
     ],
   },
 }[locale];
-const t = copy;
+// Accord en français : « moins de 1 simulations » → « moins d'une simulation ».
+const frFix = (x: any): any =>
+  typeof x === 'string'
+    ? x.replace(/moins de 1 simulations sur 100/g, "moins d'une simulation sur 100").replace(/moins de 1 sur 100/g, "moins d'une sur 100")
+    : Array.isArray(x)
+      ? x.map(frFix)
+      : x && typeof x === 'object' && typeof x !== 'function'
+        ? Object.fromEntries(Object.entries(x).map(([k, v]) => [k, frFix(v)]))
+        : x;
+const t = locale === 'fr' ? frFix(copy) : copy;
 
 const canonical = `https://vote-scope.com/${locale}/spain/`;
 const alternates = {
@@ -568,6 +627,40 @@ const barTotal = 350;
             <p class="es-viv-trustbody">{t.vivTrustBody}</p>
             <p class="es-source"><a href={trustLast.source_url} rel="noopener">{t.vivTrustFirm}</a></p>
           </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="content-band es-orbit" id="orbite">
+      <div class="container">
+        <div class="note-card es-orbit-card">
+          <p class="eyebrow">{t.orbKicker}</p>
+          <h2>{t.orbTitle}</h2>
+          <p class="es-lede">{t.orbBody}</p>
+          <div class="es-table-wrap">
+            <table class="es-table es-models">
+              <thead>
+                <tr><th>{t.orbParty}</th><th>{t.orbMain}</th><th>{t.orbOrbit}</th><th>{t.orbBlend}</th></tr>
+              </thead>
+              <tbody>
+                {MODEL_ROWS.filter((k) => nat[k]).map((k) => (
+                  <tr>
+                    <td><i class="es-swatch" style={`background:${color(k)}`}></i>{name(k)}</td>
+                    <td class="num"><strong>{nat[k].seats_median}</strong> <span>{nat[k].seats_p10}–{nat[k].seats_p90}</span></td>
+                    <td class="num"><strong>{orbit.national[k].seats_median}</strong> <span>{orbit.national[k].seats_p10}–{orbit.national[k].seats_p90}</span></td>
+                    <td class="num"><strong>{blend.national[k].seats_median}</strong> <span>{blend.national[k].seats_p10}–{blend.national[k].seats_p90}</span></td>
+                  </tr>
+                ))}
+                <tr class="es-models-bloc">
+                  <td>{t.orbMajority}</td>
+                  <td class="num"><strong>{pct(blocs.pp_vox.p_majority)} %</strong></td>
+                  <td class="num"><strong>{pct(orbit.blocs.pp_vox.p_majority)} %</strong></td>
+                  <td class="num"><strong>{pct(blend.blocs.pp_vox.p_majority)} %</strong></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p style="margin-top:1rem;"><a class="cta-link" href={labsHref}>{t.orbHow} →</a></p>
         </div>
       </div>
     </section>
@@ -840,6 +933,12 @@ const barTotal = 350;
   .es-trust td:first-child { white-space: nowrap; }
   .es-swatch { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 7px; }
   .es-viv-trustbody { font-size: 14px; line-height: 1.55; color: var(--ink-2); margin: 12px 0 0; }
+
+  .es-orbit-card { border-left: 4px solid var(--ink-3); }
+  .es-orbit-card h2 { font-family: var(--serif); font-size: clamp(1.25rem, 2.3vw, 1.7rem); line-height: 1.25; margin: 0.3rem 0 0.8rem; }
+  .es-models td.num strong { font-family: var(--serif); font-size: 17px; font-weight: 450; }
+  .es-models td.num span { display: block; font-family: var(--mono); font-size: 10.5px; color: var(--ink-3); }
+  .es-models tr.es-models-bloc td { border-top: 1px solid var(--rule); font-weight: 600; }
   @media (max-width: 900px) {
     .es-tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     .es-two { grid-template-columns: 1fr; }
