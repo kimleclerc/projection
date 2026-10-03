@@ -104,6 +104,51 @@ const provinceRows = Object.entries(provinces)
   .map(([code, p]) => ({ code, ...p }))
   .sort((a: any, b: any) => b.seats - a.seats || a.name.localeCompare(b.name, 'es'));
 
+// ── Traqueur logement ────────────────────────────────────────────────
+const viv = data.vivienda;
+const vSeries = viv.series as { d: string; v: number }[];
+const CH = { w: 760, h: 260, l: 38, r: 64, t: 16, b: 30 };
+const tMin = Date.parse('2015-01-01');
+const tMax = Date.parse('2026-12-31');
+const yMax = 50;
+const vx = (iso: string) => CH.l + ((Date.parse(iso) - tMin) / (tMax - tMin)) * (CH.w - CH.l - CH.r);
+const vy = (v: number) => CH.t + (1 - v / yMax) * (CH.h - CH.t - CH.b);
+const vPath = vSeries.map((p, i) => `${i ? 'L' : 'M'}${vx(p.d).toFixed(1)},${vy(p.v).toFixed(1)}`).join(' ');
+const vArea = `${vPath} L${vx(vSeries[vSeries.length - 1].d).toFixed(1)},${vy(0)} L${vx(vSeries[0].d).toFixed(1)},${vy(0)} Z`;
+const vLast = vSeries[vSeries.length - 1];
+const vYears = [2015, 2017, 2019, 2021, 2023, 2025];
+const vDecree = vx('2026-10-02');
+const TOPIC: Record<string, Record<Locale, string>> = {
+  vivienda: { es: 'Vivienda', fr: 'Logement', en: 'Housing' },
+  economia: { es: 'Economía', fr: 'Économie', en: 'Economy' },
+  inmigracion: { es: 'Inmigración', fr: 'Immigration', en: 'Immigration' },
+  politicos: { es: 'Los políticos', fr: 'Les politiciens', en: 'Politicians' },
+  paro: { es: 'Paro', fr: 'Chômage', en: 'Unemployment' },
+  sanidad: { es: 'Sanidad', fr: 'Santé', en: 'Health care' },
+  corrupcion: { es: 'Corrupción', fr: 'Corruption', en: 'Corruption' },
+};
+const topics = viv.topics as { problem_id: string; pct: number }[];
+const topicMax = Math.max(...topics.map((x) => x.pct));
+const trustPolls = viv.trust as { firm: string; field_end: string; source_url: string; options: Record<string, number> }[];
+const trustFirst = trustPolls[0];
+const trustLast = trustPolls[trustPolls.length - 1];
+const TRUST_ROWS = ['psoe', 'pp', 'vox', 'sumar', 'podemos', 'ninguno'];
+const trustName = (k: string) =>
+  k === 'ninguno' ? (locale === 'es' ? 'Ninguno' : locale === 'fr' ? 'Aucun' : 'None') : name(k);
+const delta = (k: string) => {
+  const a = trustFirst.options[k];
+  const b = trustLast.options[k];
+  return a == null || b == null ? null : b - a;
+};
+const monthYear = (iso: string) =>
+  new Date(`${iso}T12:00:00`).toLocaleDateString(locale === 'en' ? 'en-GB' : locale === 'fr' ? 'fr-FR' : 'es-ES', {
+    month: 'long',
+    year: 'numeric',
+  });
+const viv2022 = viv.yearly['2022'];
+const viv2026 = viv.yearly['2026'];
+const vivPoints = (x: number) => dec(Math.abs(x));
+
 const copy = {
   es: {
     title: `Elecciones generales España: encuestas, escaños y fecha — PP ${nat.pp.seats_median}, PSOE ${psoe.seats_median}, Vox ${nat.vox.seats_median} — Vote-Scope`,
@@ -133,6 +178,20 @@ const copy = {
     leftKicker: 'La división a la izquierda del PSOE',
     leftTitle: `Separados, Sumar y Podemos sacan ${leftDivided} escaños. Juntos, con los mismos votos, sacarían ${united.sumar_podemos_seats_median}.`,
     leftBody: `La ley D'Hondt castiga a los partidos medianos que se dividen en provincias pequeñas. La diferencia (${leftGain} escaños) es mayor que la mayoría de los grupos del Congreso.`,
+    vivKicker: 'Vivienda · el problema que precipita las elecciones',
+    vivTitle: `La vivienda pasó del ${dec(viv2022)} % en 2022 al ${dec(viv2026)} % en 2026: hoy es lo que más preocupa a los españoles.`,
+    vivLede: `Porcentaje de españoles que citan la vivienda entre los tres principales problemas del país, barómetro del CIS mes a mes. En ${monthYear(viv.latest.field_end)}: ${dec(viv.latest.pct_multi)} %, por delante de la economía y la inmigración. El ${dec(viv.latest.pct_personal)} % dice que le afecta personalmente.`,
+    vivChartLabel: 'Cita la vivienda entre los principales problemas de España (%)',
+    vivDecree: 'Línea discontinua: 2 de octubre de 2026, el Congreso tumba los decretos de vivienda.',
+    vivTopicsTitle: `Lo que más preocupa (CIS, ${monthYear(viv.latest.field_end)})`,
+    vivTrustTitle: '¿Qué partido gestionaría mejor la vivienda?',
+    vivTrustFirm: `40dB para El País y la SER`,
+    vivTrustBody: `Nadie convence: «ninguno» es la respuesta más frecuente (${dec(trustLast.options.ninguno)} %). El PSOE sigue en cabeza (${dec(trustLast.options.psoe)} %) pero pierde ${vivPoints(delta('psoe') ?? 0)} puntos desde enero de 2025; el PP pierde ${vivPoints(delta('pp') ?? 0)} y Vox se mantiene (${dec(trustLast.options.vox)} %). La crisis no se traduce, por ahora, en un ganador claro.`,
+    vivNotPublished: 'no publicado',
+    vivTable: 'Ver los datos por año',
+    vivYear: 'Año',
+    vivAvg: 'Media',
+    vivSource: 'Fuente: CIS, barómetros mensuales (pregunta de respuesta múltiple: hasta tres problemas).',
     calendarKicker: 'Fechas posibles',
     calendarTitle: 'Cuándo se votaría, según el día de la disolución',
     calendarBody: 'Las elecciones se celebran 54 días después de que el BOE publique el decreto de disolución.',
@@ -194,6 +253,20 @@ const copy = {
     leftKicker: 'La division à gauche du PSOE',
     leftTitle: `Séparés, Sumar et Podemos obtiennent ${leftDivided} sièges. Ensemble, avec les mêmes voix, ils en auraient ${united.sumar_podemos_seats_median}.`,
     leftBody: `La règle D'Hondt punit les partis moyens qui se divisent dans les petites provinces. L'écart (${leftGain} sièges) dépasse la taille de la plupart des groupes du Congrès.`,
+    vivKicker: 'Logement · le problème qui précipite les élections',
+    vivTitle: `Le logement est passé de ${dec(viv2022)} % en 2022 à ${dec(viv2026)} % en 2026 : c'est aujourd'hui la première inquiétude des Espagnols.`,
+    vivLede: `Part des Espagnols qui citent le logement parmi les trois principaux problèmes du pays, baromètre du CIS mois par mois. En ${monthYear(viv.latest.field_end)} : ${dec(viv.latest.pct_multi)} %, devant l'économie et l'immigration. ${dec(viv.latest.pct_personal)} % disent en souffrir personnellement.`,
+    vivChartLabel: 'Cite le logement parmi les principaux problèmes de l’Espagne (%)',
+    vivDecree: 'Ligne pointillée : 2 octobre 2026, le Congrès rejette les décrets sur le logement.',
+    vivTopicsTitle: `Ce qui inquiète le plus (CIS, ${monthYear(viv.latest.field_end)})`,
+    vivTrustTitle: 'Quel parti gérerait le mieux le logement ?',
+    vivTrustFirm: `40dB pour El País et la SER`,
+    vivTrustBody: `Personne ne convainc : « aucun » est la réponse la plus fréquente (${dec(trustLast.options.ninguno)} %). Le PSOE reste en tête (${dec(trustLast.options.psoe)} %) mais perd ${vivPoints(delta('psoe') ?? 0)} points depuis janvier 2025 ; le PP en perd ${vivPoints(delta('pp') ?? 0)} et Vox se maintient (${dec(trustLast.options.vox)} %). La crise ne désigne pas, pour l'instant, de gagnant clair.`,
+    vivNotPublished: 'non publié',
+    vivTable: 'Voir les données par année',
+    vivYear: 'Année',
+    vivAvg: 'Moyenne',
+    vivSource: 'Source : CIS, baromètres mensuels (question à réponses multiples : jusqu’à trois problèmes).',
     calendarKicker: 'Dates possibles',
     calendarTitle: 'Quand on voterait, selon le jour de la dissolution',
     calendarBody: 'Le vote a lieu 54 jours après la publication du décret de dissolution au Journal officiel (BOE).',
@@ -255,6 +328,20 @@ const copy = {
     leftKicker: 'The split left of the PSOE',
     leftTitle: `Running apart, Sumar and Podemos win ${leftDivided} seats. Together, on the same votes, they would win ${united.sumar_podemos_seats_median}.`,
     leftBody: `D'Hondt punishes mid-sized parties that split in small provinces. The gap (${leftGain} seats) is bigger than most groups in Congress.`,
+    vivKicker: 'Housing · the issue behind the snap election',
+    vivTitle: `Housing went from ${dec(viv2022)}% in 2022 to ${dec(viv2026)}% in 2026: it is now what worries Spaniards most.`,
+    vivLede: `Share of Spaniards naming housing among the country’s top three problems, CIS barometer month by month. In ${monthYear(viv.latest.field_end)}: ${dec(viv.latest.pct_multi)}%, ahead of the economy and immigration. ${dec(viv.latest.pct_personal)}% say it affects them personally.`,
+    vivChartLabel: 'Names housing among Spain’s main problems (%)',
+    vivDecree: 'Dashed line: October 2, 2026, Congress votes down the housing decrees.',
+    vivTopicsTitle: `What worries Spaniards most (CIS, ${monthYear(viv.latest.field_end)})`,
+    vivTrustTitle: 'Which party would handle housing best?',
+    vivTrustFirm: `40dB for El País and SER`,
+    vivTrustBody: `Nobody convinces: “none” is the most common answer (${dec(trustLast.options.ninguno)}%). The PSOE still leads (${dec(trustLast.options.psoe)}%) but is down ${vivPoints(delta('psoe') ?? 0)} points since January 2025; the PP is down ${vivPoints(delta('pp') ?? 0)} and Vox holds (${dec(trustLast.options.vox)}%). So far the crisis has no clear winner.`,
+    vivNotPublished: 'not published',
+    vivTable: 'See the data by year',
+    vivYear: 'Year',
+    vivAvg: 'Average',
+    vivSource: 'Source: CIS monthly barometers (multiple-answer question: up to three problems).',
     calendarKicker: 'Possible dates',
     calendarTitle: 'When Spain would vote, depending on the dissolution date',
     calendarBody: 'Polling day falls 54 days after the dissolution decree is published in the official gazette (BOE).',
@@ -328,6 +415,8 @@ const jsonLd = [
 ];
 
 const barTotal = 350;
+
+
 ---
 
 <EditorialLayout
@@ -397,6 +486,87 @@ const barTotal = 350;
           <div class="es-left-compare">
             <div><span style={`background:${color('sumar')}`}></span>Sumar {nat.sumar.seats_median} + Podemos {nat.podemos.seats_median} = {leftDivided}</div>
             <div><span style={`background:${color('sumar')}`}></span>Sumar + Podemos = {united.sumar_podemos_seats_median} ({united.p10}–{united.p90})</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="content-band es-viv" id="vivienda">
+      <div class="container">
+        <p class="eyebrow">{t.vivKicker}</p>
+        <h2 class="es-h2">{t.vivTitle}</h2>
+        <p class="es-lede">{t.vivLede}</p>
+        <figure class="es-viv-chart" data-locale={locale}>
+          <figcaption>{t.vivChartLabel}</figcaption>
+          <div class="es-viv-plot">
+            <svg viewBox={`0 0 ${CH.w} ${CH.h}`} role="img" aria-label={`${t.vivChartLabel}: ${dec(vSeries[0].v)} % (${monthYear(vSeries[0].d)}) → ${dec(vLast.v)} % (${monthYear(vLast.d)})`}>
+              {[0, 10, 20, 30, 40, 50].map((g) => (
+                <g>
+                  <line x1={CH.l} x2={CH.w - CH.r} y1={vy(g)} y2={vy(g)} class={g === 0 ? 'es-axis' : 'es-grid'} />
+                  <text x={CH.l - 8} y={vy(g) + 4} class="es-tick" text-anchor="end">{g}</text>
+                </g>
+              ))}
+              {vYears.map((y) => (
+                <text x={vx(`${y}-01-01`)} y={CH.h - 8} class="es-tick" text-anchor="middle">{y}</text>
+              ))}
+              <line x1={vDecree} x2={vDecree} y1={CH.t} y2={vy(0)} class="es-event" />
+              <path d={vArea} class="es-viv-area" />
+              <path d={vPath} class="es-viv-line" />
+              <circle cx={vx(vLast.d)} cy={vy(vLast.v)} r="4.5" class="es-viv-end" />
+              <text x={vx(vLast.d) + 9} y={vy(vLast.v) + 4} class="es-viv-endlabel">{dec(vLast.v)} %</text>
+              <line class="es-viv-cross" x1="0" x2="0" y1={CH.t} y2={vy(0)} visibility="hidden" />
+              <circle class="es-viv-dot" r="5" cx="0" cy="0" visibility="hidden" />
+              <rect class="es-viv-hit" x={CH.l} y={CH.t} width={CH.w - CH.l - CH.r} height={CH.h - CH.t - CH.b} />
+            </svg>
+            <div class="es-viv-tip" hidden></div>
+            <script type="application/json" class="es-viv-data" set:html={JSON.stringify(vSeries.map((p) => [p.d, p.v, vx(p.d), vy(p.v)]))} />
+          </div>
+          <p class="es-source"><span class="es-dash" aria-hidden="true"></span>{t.vivDecree}</p>
+          <details class="es-viv-table">
+            <summary>{t.vivTable}</summary>
+            <table class="es-table">
+              <thead><tr><th>{t.vivYear}</th><th>{t.vivAvg}</th></tr></thead>
+              <tbody>
+                {Object.entries(viv.yearly).map(([y, v]) => (
+                  <tr><td>{y}</td><td class="num">{dec(v as number)} %</td></tr>
+                ))}
+              </tbody>
+            </table>
+          </details>
+          <p class="es-source">{t.vivSource} <a href={viv.latest.source_url} rel="noopener">CIS {viv.latest.study_id}</a></p>
+        </figure>
+
+        <div class="es-two es-viv-two">
+          <div class="note-card">
+            <h3 class="es-h3 es-h3-tight">{t.vivTopicsTitle}</h3>
+            <ul class="es-topics">
+              {topics.map((x) => (
+                <li class={x.problem_id === 'vivienda' ? 'is-viv' : ''}>
+                  <span class="es-topic-name">{TOPIC[x.problem_id]?.[locale] ?? x.problem_id}</span>
+                  <span class="es-topic-bar"><i style={`width:${(x.pct / topicMax) * 100}%`}></i></span>
+                  <span class="es-topic-val">{dec(x.pct)} %</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div class="note-card">
+            <h3 class="es-h3 es-h3-tight">{t.vivTrustTitle}</h3>
+            <table class="es-table es-trust">
+              <thead>
+                <tr><th></th><th>{monthYear(trustFirst.field_end)}</th><th>{monthYear(trustLast.field_end)}</th></tr>
+              </thead>
+              <tbody>
+                {TRUST_ROWS.map((k) => (
+                  <tr>
+                    <td><i class="es-swatch" style={`background:${k === 'ninguno' ? 'var(--ink-3)' : color(k)}`}></i>{trustName(k)}</td>
+                    <td class="num">{trustFirst.options[k] != null ? `${dec(trustFirst.options[k])} %` : t.vivNotPublished}</td>
+                    <td class="num">{trustLast.options[k] != null ? `${dec(trustLast.options[k])} %` : t.vivNotPublished}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <p class="es-viv-trustbody">{t.vivTrustBody}</p>
+            <p class="es-source"><a href={trustLast.source_url} rel="noopener">{t.vivTrustFirm}</a></p>
           </div>
         </div>
       </div>
@@ -483,6 +653,47 @@ const barTotal = 350;
     <MethodologyNote title={t.methodTitle} body={t.methodBody} bullets={t.methodBullets} />
   </article>
 </EditorialLayout>
+
+<script>
+  // Info-bulle de la courbe logement : point le plus proche en x.
+  document.querySelectorAll<HTMLElement>('.es-viv-chart').forEach((fig) => {
+    const svg = fig.querySelector('svg');
+    const hit = fig.querySelector<SVGRectElement>('.es-viv-hit');
+    const cross = fig.querySelector<SVGLineElement>('.es-viv-cross');
+    const dot = fig.querySelector<SVGCircleElement>('.es-viv-dot');
+    const tip = fig.querySelector<HTMLElement>('.es-viv-tip');
+    const raw = fig.querySelector('.es-viv-data')?.textContent;
+    if (!svg || !hit || !cross || !dot || !tip || !raw) return;
+    const pts = JSON.parse(raw) as [string, number, number, number][];
+    const loc = fig.dataset.locale === 'en' ? 'en-GB' : fig.dataset.locale === 'fr' ? 'fr-FR' : 'es-ES';
+    const vb = svg.viewBox.baseVal;
+    const show = (clientX: number) => {
+      const box = svg.getBoundingClientRect();
+      const x = ((clientX - box.left) / box.width) * vb.width;
+      let best = pts[0];
+      for (const p of pts) if (Math.abs(p[2] - x) < Math.abs(best[2] - x)) best = p;
+      cross.setAttribute('x1', String(best[2]));
+      cross.setAttribute('x2', String(best[2]));
+      dot.setAttribute('cx', String(best[2]));
+      dot.setAttribute('cy', String(best[3]));
+      cross.setAttribute('visibility', 'visible');
+      dot.setAttribute('visibility', 'visible');
+      const month = new Date(`${best[0]}T12:00:00`).toLocaleDateString(loc, { month: 'long', year: 'numeric' });
+      const val = loc === 'en-GB' ? best[1].toFixed(1) : best[1].toFixed(1).replace('.', ',');
+      tip.textContent = `${month} · ${val} %`;
+      tip.hidden = false;
+      tip.style.left = `${(best[2] / vb.width) * box.width}px`;
+      tip.style.top = `${(best[3] / vb.height) * box.height - 10}px`;
+    };
+    const hide = () => {
+      cross.setAttribute('visibility', 'hidden');
+      dot.setAttribute('visibility', 'hidden');
+      tip.hidden = true;
+    };
+    hit.addEventListener('pointermove', (e) => show(e.clientX));
+    hit.addEventListener('pointerleave', hide);
+  });
+</script>
 
 <style>
   .es-head {
@@ -589,12 +800,56 @@ const barTotal = 350;
   .es-prov-card h3 span { font-family: var(--mono); font-size: 11px; color: var(--ink-3); font-weight: 400; }
   .es-swing { font-size: 12.5px; color: var(--ink-2); margin: 10px 0 0; line-height: 1.45; }
   .es-track { max-width: 900px; border-left: 4px solid var(--blue); }
+
+  .es-viv-chart { margin: 1rem 0 0; }
+  .es-viv-chart figcaption { font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; color: var(--ink-3); margin-bottom: 6px; }
+  .es-viv-plot { position: relative; max-width: 820px; }
+  .es-viv-plot svg { width: 100%; height: auto; display: block; overflow: visible; }
+  .es-grid { stroke: var(--rule-2); stroke-width: 1; }
+  .es-axis { stroke: var(--rule); stroke-width: 1; }
+  .es-tick { font-family: var(--mono); font-size: 11px; fill: var(--ink-3); }
+  .es-event { stroke: var(--ink-3); stroke-width: 1; stroke-dasharray: 3 3; }
+  .es-event-label { font-family: var(--mono); font-size: 10.5px; fill: var(--ink-2); }
+  .es-viv-line { fill: none; stroke: var(--blue); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+  .es-viv-area { fill: var(--blue); opacity: 0.08; }
+  .es-viv-end { fill: var(--blue); stroke: var(--card); stroke-width: 2; }
+  .es-viv-endlabel { font-family: var(--serif); font-size: 15px; fill: var(--ink); }
+  .es-viv-cross { stroke: var(--ink-3); stroke-width: 1; }
+  .es-viv-dot { fill: var(--blue); stroke: var(--card); stroke-width: 2; }
+  .es-viv-hit { fill: transparent; cursor: crosshair; }
+  .es-viv-tip {
+    position: absolute; pointer-events: none; transform: translate(-50%, -100%);
+    background: var(--card); border: 1px solid var(--rule); border-radius: 4px;
+    padding: 5px 8px; font-family: var(--mono); font-size: 11.5px; color: var(--ink); white-space: nowrap;
+    box-shadow: 0 2px 8px rgb(0 0 0 / 0.08);
+  }
+  .es-dash { display: inline-block; width: 14px; border-top: 1px dashed var(--ink-3); margin-right: 7px; vertical-align: middle; }
+  .es-viv-table { margin-top: 10px; font-size: 13px; max-width: 360px; }
+  .es-viv-table summary { cursor: pointer; font-family: var(--mono); font-size: 11.5px; color: var(--ink-2); }
+  .es-source { font-family: var(--mono); font-size: 10.5px; color: var(--ink-3); margin: 8px 0 0; line-height: 1.5; }
+  .es-source a { color: inherit; }
+  .es-viv-two { margin-top: 24px; }
+  .es-h3-tight { margin: 0 0 12px; font-size: 1.15rem; }
+  .es-topics { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+  .es-topics li { display: grid; grid-template-columns: 110px 1fr 52px; align-items: center; gap: 10px; font-size: 13.5px; }
+  .es-topic-bar { height: 10px; background: var(--rule-2); border-radius: 2px; overflow: hidden; }
+  .es-topic-bar i { display: block; height: 100%; background: var(--ink-3); border-radius: 0 4px 4px 0; }
+  .es-topics li.is-viv .es-topic-bar i { background: var(--blue); }
+  .es-topics li.is-viv .es-topic-name { font-weight: 600; }
+  .es-topic-val { font-family: var(--mono); font-size: 12px; text-align: right; color: var(--ink-2); }
+  .es-trust td:first-child { white-space: nowrap; }
+  .es-swatch { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 7px; }
+  .es-viv-trustbody { font-size: 14px; line-height: 1.55; color: var(--ink-2); margin: 12px 0 0; }
   @media (max-width: 900px) {
     .es-tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     .es-two { grid-template-columns: 1fr; }
     .es-contested { grid-template-columns: 1fr; }
   }
   @media (max-width: 480px) {
+    /* Le SVG est réduit à ~45 % : on grossit le texte en unités du dessin. */
+    .es-tick { font-size: 22px; }
+    .es-viv-endlabel { font-size: 28px; }
+    .es-viv-line { stroke-width: 3; }
     .es-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .es-bar-caption { padding-left: 0; }
   }
