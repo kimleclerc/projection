@@ -1,0 +1,955 @@
+---
+// Desk Espagne — élections générales (Congreso, 350 sièges, D'Hondt par
+// province). Même patron que UkDesk/FranceDesk : un composant, locale en prop.
+// Les chiffres clés tiennent dans le premier enfant de [data-content-area]
+// (règle « chiffres d'abord ») ; le reste suit en sections.
+import EditorialLayout from '../layouts/EditorialLayout.astro';
+import MethodologyNote from './MethodologyNote.astro';
+import GooglePreferredSource from './GooglePreferredSource.astro';
+import es from '../../web_data/spain/latest.json';
+
+type Locale = 'en' | 'fr' | 'es';
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+
+const data = es as any;
+const meta = data.meta;
+const nat = data.national as Record<string, any>;
+const blocs = data.blocs;
+const provinces = data.provinces as Record<string, any>;
+const united = data.scenarios.united_left;
+const clacton = data.track_record.clacton_2026;
+const football = data.track_record.football_2026;
+
+const PARTY: Record<string, { name: string; color: string }> = {
+  pp: { name: 'PP', color: '#1D84CE' },
+  psoe: { name: 'PSOE', color: '#E30613' },
+  vox: { name: 'Vox', color: '#5AC035' },
+  sumar: { name: 'Sumar', color: '#E5197E' },
+  podemos: { name: 'Podemos', color: '#6C2D82' },
+  salf: { name: 'SALF', color: '#3B3B3B' },
+  erc: { name: 'ERC', color: '#F7B230' },
+  junts: { name: 'Junts', color: '#00B4A8' },
+  bildu: { name: 'EH Bildu', color: '#A4C21C' },
+  pnv: { name: 'PNV', color: '#2E8B3A' },
+  bng: { name: 'BNG', color: '#7DB7E3' },
+  cc: { name: 'CC', color: '#F2D23A' },
+  upn: { name: 'UPN', color: '#24479B' },
+  cup: { name: 'CUP', color: '#D9C400' },
+  alianca_cat: { name: 'Aliança Catalana', color: '#16324F' },
+  adelante_andalucia: { name: 'Adelante Andalucía', color: '#1F9D55' },
+};
+const name = (k: string) => PARTY[k]?.name ?? k;
+const color = (k: string) => PARTY[k]?.color ?? '#9a938a';
+
+const order = Object.keys(nat).sort((a, b) => nat[b].seats_median - nat[a].seats_median || nat[b].vote_mean - nat[a].vote_mean);
+// La barre range PP et Vox côte à côte, depuis la gauche : on voit d'un
+// coup d'œil s'ils franchissent la ligne des 176.
+const BAR_ORDER = ['pp', 'vox', 'upn', 'salf', 'cc', 'pnv', 'junts', 'alianca_cat', 'bng', 'bildu', 'erc', 'cup', 'adelante_andalucia', 'podemos', 'sumar', 'psoe'];
+const withSeats = [...BAR_ORDER.filter((k) => nat[k]), ...order.filter((k) => !BAR_ORDER.includes(k))].filter((k) => nat[k].seats_median > 0);
+const top = order.slice(0, 6);
+
+const dec = (v: number, d = 1) => (locale === 'en' ? v.toFixed(d) : v.toFixed(d).replace('.', ','));
+const pct = (p: number) => {
+  const v = p * 100;
+  if (v > 99) return locale === 'en' ? '>99' : '>99';
+  if (v < 1) return '<1';
+  return String(Math.round(v));
+};
+
+// Dans une phrase : « más de 99 », pas « >99 ».
+const pctW = (p: number) => {
+  const v = pct(p);
+  const more = { es: 'más de', fr: 'plus de', en: 'more than' }[locale];
+  const less = { es: 'menos de', fr: 'moins de', en: 'fewer than' }[locale];
+  return v === '>99' ? `${more} 99` : v === '<1' ? `${less} 1` : v;
+};
+
+const runDate = new Date(`${meta.run_date}T12:00:00`).toLocaleDateString(
+  locale === 'en' ? 'en-GB' : locale === 'fr' ? 'fr-FR' : 'es-ES',
+  { day: 'numeric', month: 'long', year: 'numeric' },
+);
+
+const psoe = nat.psoe;
+const leftDivided = united.divided_seats_median;
+const leftGain = united.sumar_podemos_seats_median - leftDivided;
+
+// Fenêtres de vote : le scrutin a lieu 54 jours après la publication du
+// décret de dissolution au BOE (LOREG, art. 42).
+const WINDOWS = [
+  { boe: '2026-10-06', vote: '2026-11-29' },
+  { boe: '2026-10-20', vote: '2026-12-13' },
+  { boe: '2026-10-27', vote: '2026-12-20' },
+];
+const longDate = (iso: string) =>
+  new Date(`${iso}T12:00:00`).toLocaleDateString(locale === 'en' ? 'en-GB' : locale === 'fr' ? 'fr-FR' : 'es-ES', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
+const capFirst = (x: string) => x.charAt(0).toUpperCase() + x.slice(1);
+
+// Provinces où un siège se joue : au moins un parti entre 25 % et 75 %
+// de chances d'en avoir un, ou un parti dont le siège médian est fragile.
+const contested = Object.entries(provinces)
+  .map(([code, p]) => {
+    const swing = Object.entries(p.parties as Record<string, any>)
+      .filter(([, v]) => v.p_at_least_one > 0.2 && v.p_at_least_one < 0.8)
+      .map(([k]) => k);
+    const frac = Object.values(p.parties as Record<string, any>).reduce(
+      (acc: number, v: any) => acc + Math.min(Math.abs(v.seats_mean - Math.round(v.seats_mean)), 0.5),
+      0,
+    );
+    return { code, ...p, swing, frac };
+  })
+  .sort((a, b) => b.frac - a.frac)
+  .slice(0, 12);
+
+const provinceRows = Object.entries(provinces)
+  .map(([code, p]) => ({ code, ...p }))
+  .sort((a: any, b: any) => b.seats - a.seats || a.name.localeCompare(b.name, 'es'));
+
+// ── Traqueur logement ────────────────────────────────────────────────
+const viv = data.vivienda;
+const vSeries = viv.series as { d: string; v: number }[];
+const CH = { w: 760, h: 260, l: 38, r: 64, t: 16, b: 30 };
+const tMin = Date.parse('2015-01-01');
+const tMax = Date.parse('2026-12-31');
+const yMax = 50;
+const vx = (iso: string) => CH.l + ((Date.parse(iso) - tMin) / (tMax - tMin)) * (CH.w - CH.l - CH.r);
+const vy = (v: number) => CH.t + (1 - v / yMax) * (CH.h - CH.t - CH.b);
+const vPath = vSeries.map((p, i) => `${i ? 'L' : 'M'}${vx(p.d).toFixed(1)},${vy(p.v).toFixed(1)}`).join(' ');
+const vArea = `${vPath} L${vx(vSeries[vSeries.length - 1].d).toFixed(1)},${vy(0)} L${vx(vSeries[0].d).toFixed(1)},${vy(0)} Z`;
+const vLast = vSeries[vSeries.length - 1];
+const vYears = [2015, 2017, 2019, 2021, 2023, 2025];
+const vDecree = vx('2026-10-02');
+const TOPIC: Record<string, Record<Locale, string>> = {
+  vivienda: { es: 'Vivienda', fr: 'Logement', en: 'Housing' },
+  economia: { es: 'Economía', fr: 'Économie', en: 'Economy' },
+  inmigracion: { es: 'Inmigración', fr: 'Immigration', en: 'Immigration' },
+  politicos: { es: 'Los políticos', fr: 'Les politiciens', en: 'Politicians' },
+  paro: { es: 'Paro', fr: 'Chômage', en: 'Unemployment' },
+  sanidad: { es: 'Sanidad', fr: 'Santé', en: 'Health care' },
+  corrupcion: { es: 'Corrupción', fr: 'Corruption', en: 'Corruption' },
+};
+const topics = viv.topics as { problem_id: string; pct: number }[];
+const topicMax = Math.max(...topics.map((x) => x.pct));
+const trustPolls = viv.trust as { firm: string; field_end: string; source_url: string; options: Record<string, number> }[];
+const trustFirst = trustPolls[0];
+const trustLast = trustPolls[trustPolls.length - 1];
+const TRUST_ROWS = ['psoe', 'pp', 'vox', 'sumar', 'podemos', 'ninguno'];
+const trustName = (k: string) =>
+  k === 'ninguno' ? (locale === 'es' ? 'Ninguno' : locale === 'fr' ? 'Aucun' : 'None') : name(k);
+const delta = (k: string) => {
+  const a = trustFirst.options[k];
+  const b = trustLast.options[k];
+  return a == null || b == null ? null : b - a;
+};
+const monthYear = (iso: string) =>
+  new Date(`${iso}T12:00:00`).toLocaleDateString(locale === 'en' ? 'en-GB' : locale === 'fr' ? 'fr-FR' : 'es-ES', {
+    month: 'long',
+    year: 'numeric',
+  });
+const viv2022 = viv.yearly['2022'];
+const viv2026 = viv.yearly['2026'];
+const vivPoints = (x: number) => dec(Math.abs(x));
+
+
+// ── Orbite (bêta) et mélange 50/50 ──────────────────────────────────
+const orbit = data.orbit;
+const blend = data.blend;
+const orbitBt = data.orbit_backtest;
+const MODEL_ROWS = ['pp', 'psoe', 'vox', 'sumar', 'podemos', 'erc', 'bildu', 'junts', 'pnv', 'salf'];
+const orbitAgrees = (orbit.blocs.pp_vox.p_majority >= 0.5) === (blocs.pp_vox.p_majority >= 0.5);
+const labsHref = `/${locale}/labs/${locale === 'es' ? 'como-funciona' : locale === 'fr' ? 'comment-ca-marche' : 'how-it-works'}`;
+
+const copy = {
+  es: {
+    title: `Elecciones generales España: encuestas, escaños y fecha — PP ${nat.pp.seats_median}, PSOE ${psoe.seats_median}, Vox ${nat.vox.seats_median} — Vote-Scope`,
+    description: `Encuestas electorales de España y proyección de los 350 escaños del Congreso, provincia por provincia. PP y Vox suman mayoría en ${pctW(blocs.pp_vox.p_majority)} de cada 100 simulaciones. Fechas posibles de unas elecciones anticipadas.`,
+    eyebrow: 'Mesa España · Congreso de los Diputados',
+    h1: 'Elecciones generales en España: encuestas y proyección de escaños',
+    promise: `Proyectamos los 350 escaños del Congreso provincia por provincia, con la ley D'Hondt y el umbral del 3 %, a partir de ${meta.n_polls_window} encuestas recientes corregidas por el sesgo de cada empresa.`,
+    whenLabel: '¿Cuándo son las próximas elecciones?',
+    whenAnswer: 'Aún no hay convocatoria. Si el BOE publica la disolución el 6 de octubre, se vota el domingo 29 de noviembre. La fecha límite es el 22 de agosto de 2027.',
+    whenLink: 'Todas las fechas posibles',
+    headline: `Con las encuestas de hoy, PP y Vox suman mayoría absoluta en ${pctW(blocs.pp_vox.p_majority)} de cada 100 simulaciones.`,
+    seats: 'escaños',
+    vote: 'del voto',
+    range: 'rango probable',
+    majority: 'Mayoría absoluta: 176',
+    updated: `Actualizado el ${runDate} · última encuesta del ${meta.last_poll_field_end.split('-').reverse().join('/')}`,
+    since2023: (k: string) => k === 'sumar' ? '31 en 2023 con Podemos' : `${nat[k].seats_2023 ? `${nat[k].seats_2023} en 2023` : 'nuevo'}`,
+    adelantoKicker: '¿Le conviene adelantar?',
+    adelantoTitle: 'Lo que dicen los números a quien tiene que decidir.',
+    adelantoRows: [
+      { label: 'PSOE', value: `${psoe.seats_median} escaños`, note: `121 en 2023 · rango ${psoe.seats_p10}–${psoe.seats_p90}` },
+      { label: 'Bloque que invistió a Sánchez en 2023', value: `${blocs.investiture_2023.median} escaños`, note: `179 en 2023 · mayoría en ${pctW(blocs.investiture_2023.p_majority)} de cada 100 simulaciones` },
+      { label: 'PP + Vox', value: `${blocs.pp_vox.median} escaños`, note: `rango ${blocs.pp_vox.p10}–${blocs.pp_vox.p90} · mayoría en ${pctW(blocs.pp_vox.p_majority)} de cada 100` },
+      { label: 'PP solo', value: `${nat.pp.seats_median} escaños`, note: `mayoría absoluta en ${pctW(blocs.pp_alone.p_majority)} de cada 100` },
+    ],
+    adelantoBody: `Las encuestas no dan hoy un motivo aritmético para adelantar: el PSOE perdería unos ${121 - psoe.seats_median} escaños y la mayoría de 2023 quedaría lejos. Quien convoque lo hará por otras razones: el bloqueo en el Congreso, el calendario o la apuesta de que la campaña cambie el voto.`,
+    leftKicker: 'La división a la izquierda del PSOE',
+    leftTitle: `Separados, Sumar y Podemos sacan ${leftDivided} escaños. Juntos, con los mismos votos, sacarían ${united.sumar_podemos_seats_median}.`,
+    leftBody: `La ley D'Hondt castiga a los partidos medianos que se dividen en provincias pequeñas. La diferencia (${leftGain} escaños) es mayor que la mayoría de los grupos del Congreso.`,
+    vivKicker: 'Vivienda · el problema que precipita las elecciones',
+    vivTitle: `La vivienda pasó del ${dec(viv2022)} % en 2022 al ${dec(viv2026)} % en 2026: hoy es lo que más preocupa a los españoles.`,
+    vivLede: `Porcentaje de españoles que citan la vivienda entre los tres principales problemas del país, barómetro del CIS mes a mes. En ${monthYear(viv.latest.field_end)}: ${dec(viv.latest.pct_multi)} %, por delante de la economía y la inmigración. El ${dec(viv.latest.pct_personal)} % dice que le afecta personalmente.`,
+    vivChartLabel: 'Cita la vivienda entre los principales problemas de España (%)',
+    vivDecree: 'Línea discontinua: 2 de octubre de 2026, el Congreso tumba los decretos de vivienda.',
+    vivTopicsTitle: `Lo que más preocupa (CIS, ${monthYear(viv.latest.field_end)})`,
+    vivTrustTitle: '¿Qué partido gestionaría mejor la vivienda?',
+    vivTrustFirm: `40dB para El País y la SER`,
+    vivTrustBody: `Nadie convence: «ninguno» es la respuesta más frecuente (${dec(trustLast.options.ninguno)} %). El PSOE sigue en cabeza (${dec(trustLast.options.psoe)} %) pero pierde ${vivPoints(delta('psoe') ?? 0)} puntos desde enero de 2025; el PP pierde ${vivPoints(delta('pp') ?? 0)} y Vox se mantiene (${dec(trustLast.options.vox)} %). La crisis no se traduce, por ahora, en un ganador claro.`,
+    vivNotPublished: 'no publicado',
+    vivTable: 'Ver los datos por año',
+    vivYear: 'Año',
+    vivAvg: 'Media',
+    vivSource: 'Fuente: CIS, barómetros mensuales (pregunta de respuesta múltiple: hasta tres problemas).',
+    orbKicker: 'Segundo modelo · Orbite (beta)',
+    orbTitle: orbitAgrees
+      ? `Orbite, nuestro modelo experimental, llega a la misma conclusión: PP y Vox suman mayoría en ${pctW(orbit.blocs.pp_vox.p_majority)} de cada 100 simulaciones.`
+      : `Orbite, nuestro modelo experimental, no llega a la misma conclusión: PP y Vox suman mayoría en ${pctW(orbit.blocs.pp_vox.p_majority)} de cada 100 simulaciones.`,
+    orbBody: `Orbite usa las mismas encuestas con otra matemática: trata la opinión como una posición que se mueve sobre una esfera, en lugar de una media. Sigue en fase beta: lo publicamos para comparar, y la mezcla al 50 % de los dos modelos es la tercera lectura. Con las encuestas de la víspera, Orbite habría colocado mal ${orbitBt.es_2023.seats_misplaced} escaños en 2023 y ${orbitBt.es_2019n.seats_misplaced} en noviembre de 2019.`,
+    orbParty: 'Partido',
+    orbMain: 'Modelo principal',
+    orbOrbit: 'Orbite (beta)',
+    orbBlend: 'Mezcla 50/50',
+    orbMajority: 'Mayoría PP + Vox',
+    orbHow: 'Cómo funciona Orbite',
+    calendarKicker: 'Fechas posibles',
+    calendarTitle: 'Cuándo se votaría, según el día de la disolución',
+    calendarBody: 'Las elecciones se celebran 54 días después de que el BOE publique el decreto de disolución.',
+    calBoe: 'Decreto en el BOE',
+    calVote: 'Día de la votación',
+    cal2027: 'En 2027, el 23 de mayo ya hay elecciones municipales y en buena parte de las comunidades autónomas.',
+    calLimit: 'Fecha límite: domingo 22 de agosto de 2027, con disolución a más tardar el 28 de junio de 2027.',
+    provKicker: 'Provincia por provincia',
+    provTitle: 'Dónde se decide el último escaño',
+    provBody: 'En estas provincias, el último escaño cambia de manos con pocos votos. Ahí se juega la mayoría.',
+    provSwing: 'Escaño en juego para',
+    provAllTitle: 'Las 52 circunscripciones',
+    provCol: 'Provincia',
+    seatsCol: 'Escaños',
+    projCol: 'Reparto más probable',
+    probCol: 'Probabilidad',
+    trackKicker: 'Por qué fiarse',
+    trackTitle: 'Probado en elecciones pasadas antes de publicarlo.',
+    trackBody: `Con las encuestas de la víspera, este método habría colocado mal ${meta.backtest.es_2023.seats_misplaced} de 350 escaños en 2023 y ${meta.backtest.es_2019n.seats_misplaced} en noviembre de 2019. El resultado real cayó dentro de nuestros rangos en ${Math.round(meta.backtest.es_2023.inside90 * 100)} de cada 100 casos.`,
+    trackClacton: `En la elección parcial de Clacton (Reino Unido, 13 de agosto de 2026) proyectamos a Nigel Farage en el ${dec(clacton.farage_projected_median)} %: obtuvo el ${dec(clacton.farage_actual)} %, y Count Binface quedó segundo, como preveíamos.`,
+    trackMore: [
+      'Fuimos de los primeros modelos en señalar que Texas podía inclinarse por los demócratas.',
+      `Antes del torneo mundial de fútbol de 2026, nuestro modelo situaba a España como favorita al título (1.ª de ${football.n_teams} selecciones). España ganó la final.`,
+    ],
+    methodTitle: 'Cómo se calcula',
+    methodBody: 'Un promedio de encuestas, trasladado a cada provincia y repartido con la ley electoral real, miles de veces.',
+    methodBullets: [
+      'Las encuestas publicadas pasan por un modelo de series temporales bayesiano (BSTS), el mismo que usamos en todas nuestras proyecciones, tras corregir el sesgo medido de cada empresa. Las reestimaciones de terceros sobre los datos del CIS no cuentan.',
+      'El voto nacional se traslada a cada provincia a partir de las generales de 2023. Los partidos nuevos parten de su último resultado: SALF de las europeas de 2024, Aliança Catalana y Adelante Andalucía de sus elecciones autonómicas.',
+      `Cada simulación añade el error real de las encuestas en España (medido de 2015 a 2023), un efecto por comunidad y otro por provincia, y reparte los escaños con D'Hondt y el umbral del 3 %. ${meta.n_draws.toLocaleString('es-ES')} simulaciones.`,
+      `Supone una votación el ${longDate(meta.election_day_assumed)}. El reparto de escaños por provincia está calculado con la población del INE hasta que el BOE publique el oficial.`,
+    ],
+  },
+  fr: {
+    title: `Élections générales en Espagne : sondages, sièges et date — PP ${nat.pp.seats_median}, PSOE ${psoe.seats_median}, Vox ${nat.vox.seats_median} — Vote-Scope`,
+    description: `Sondages espagnols et projection des 350 sièges du Congrès, province par province. PP et Vox obtiennent la majorité dans ${pctW(blocs.pp_vox.p_majority)} simulations sur 100. Dates possibles d'élections anticipées.`,
+    eyebrow: 'Desk Espagne · Congrès des députés',
+    h1: 'Élections générales en Espagne : sondages et projection des sièges',
+    promise: `Nous projetons les 350 sièges du Congrès province par province, avec la règle D'Hondt et le seuil de 3 %, à partir de ${meta.n_polls_window} sondages récents corrigés du biais de chaque institut.`,
+    whenLabel: 'Quand ont lieu les prochaines élections ?',
+    whenAnswer: 'Pas encore convoquées. Si la dissolution paraît au Journal officiel le 6 octobre, on vote le dimanche 29 novembre. La date limite est le 22 août 2027.',
+    whenLink: 'Toutes les dates possibles',
+    headline: `Avec les sondages d'aujourd'hui, PP et Vox ont la majorité absolue dans ${pctW(blocs.pp_vox.p_majority)} simulations sur 100.`,
+    seats: 'sièges',
+    vote: 'des voix',
+    range: 'fourchette probable',
+    majority: 'Majorité absolue : 176',
+    updated: `Mis à jour le ${runDate} · dernier sondage du ${meta.last_poll_field_end.split('-').reverse().join('/')}`,
+    since2023: (k: string) => k === 'sumar' ? '31 en 2023 avec Podemos' : `${nat[k].seats_2023 ? `${nat[k].seats_2023} en 2023` : 'nouveau'}`,
+    adelantoKicker: 'Sánchez a-t-il intérêt à dissoudre ?',
+    adelantoTitle: 'Ce que disent les chiffres à celui qui doit décider.',
+    adelantoRows: [
+      { label: 'PSOE', value: `${psoe.seats_median} sièges`, note: `121 en 2023 · fourchette ${psoe.seats_p10}–${psoe.seats_p90}` },
+      { label: 'Le bloc qui a investi Sánchez en 2023', value: `${blocs.investiture_2023.median} sièges`, note: `179 en 2023 · majorité dans ${pctW(blocs.investiture_2023.p_majority)} simulations sur 100` },
+      { label: 'PP + Vox', value: `${blocs.pp_vox.median} sièges`, note: `fourchette ${blocs.pp_vox.p10}–${blocs.pp_vox.p90} · majorité dans ${pctW(blocs.pp_vox.p_majority)} sur 100` },
+      { label: 'PP seul', value: `${nat.pp.seats_median} sièges`, note: `majorité absolue dans ${pctW(blocs.pp_alone.p_majority)} sur 100` },
+    ],
+    adelantoBody: `Les sondages ne donnent pas aujourd'hui de raison arithmétique de dissoudre : le PSOE perdrait environ ${121 - psoe.seats_median} sièges et la majorité de 2023 serait hors de portée. Une dissolution viendrait d'autres raisons : le blocage au Congrès, le calendrier ou le pari que la campagne fasse bouger le vote.`,
+    leftKicker: 'La division à gauche du PSOE',
+    leftTitle: `Séparés, Sumar et Podemos obtiennent ${leftDivided} sièges. Ensemble, avec les mêmes voix, ils en auraient ${united.sumar_podemos_seats_median}.`,
+    leftBody: `La règle D'Hondt punit les partis moyens qui se divisent dans les petites provinces. L'écart (${leftGain} sièges) dépasse la taille de la plupart des groupes du Congrès.`,
+    vivKicker: 'Logement · le problème qui précipite les élections',
+    vivTitle: `Le logement est passé de ${dec(viv2022)} % en 2022 à ${dec(viv2026)} % en 2026 : c'est aujourd'hui la première inquiétude des Espagnols.`,
+    vivLede: `Part des Espagnols qui citent le logement parmi les trois principaux problèmes du pays, baromètre du CIS mois par mois. En ${monthYear(viv.latest.field_end)} : ${dec(viv.latest.pct_multi)} %, devant l'économie et l'immigration. ${dec(viv.latest.pct_personal)} % disent en souffrir personnellement.`,
+    vivChartLabel: 'Cite le logement parmi les principaux problèmes de l’Espagne (%)',
+    vivDecree: 'Ligne pointillée : 2 octobre 2026, le Congrès rejette les décrets sur le logement.',
+    vivTopicsTitle: `Ce qui inquiète le plus (CIS, ${monthYear(viv.latest.field_end)})`,
+    vivTrustTitle: 'Quel parti gérerait le mieux le logement ?',
+    vivTrustFirm: `40dB pour El País et la SER`,
+    vivTrustBody: `Personne ne convainc : « aucun » est la réponse la plus fréquente (${dec(trustLast.options.ninguno)} %). Le PSOE reste en tête (${dec(trustLast.options.psoe)} %) mais perd ${vivPoints(delta('psoe') ?? 0)} points depuis janvier 2025 ; le PP en perd ${vivPoints(delta('pp') ?? 0)} et Vox se maintient (${dec(trustLast.options.vox)} %). La crise ne désigne pas, pour l'instant, de gagnant clair.`,
+    vivNotPublished: 'non publié',
+    vivTable: 'Voir les données par année',
+    vivYear: 'Année',
+    vivAvg: 'Moyenne',
+    vivSource: 'Source : CIS, baromètres mensuels (question à réponses multiples : jusqu’à trois problèmes).',
+    orbKicker: 'Deuxième modèle · Orbite (bêta)',
+    orbTitle: orbitAgrees
+      ? `Orbite, notre modèle expérimental, arrive à la même conclusion : PP et Vox ont la majorité dans ${pctW(orbit.blocs.pp_vox.p_majority)} simulations sur 100.`
+      : `Orbite, notre modèle expérimental, n'arrive pas à la même conclusion : PP et Vox ont la majorité dans ${pctW(orbit.blocs.pp_vox.p_majority)} simulations sur 100.`,
+    orbBody: `Orbite utilise les mêmes sondages avec d'autres mathématiques : il traite l'opinion comme une position qui se déplace sur une sphère, plutôt que comme une moyenne. Il est encore en bêta : nous le publions pour comparer, et le mélange à 50 % des deux modèles donne une troisième lecture. Avec les sondages de la veille, Orbite aurait mal placé ${orbitBt.es_2023.seats_misplaced} sièges en 2023 et ${orbitBt.es_2019n.seats_misplaced} en novembre 2019.`,
+    orbParty: 'Parti',
+    orbMain: 'Modèle principal',
+    orbOrbit: 'Orbite (bêta)',
+    orbBlend: 'Mélange 50/50',
+    orbMajority: 'Majorité PP + Vox',
+    orbHow: 'Comment fonctionne Orbite',
+    calendarKicker: 'Dates possibles',
+    calendarTitle: 'Quand on voterait, selon le jour de la dissolution',
+    calendarBody: 'Le vote a lieu 54 jours après la publication du décret de dissolution au Journal officiel (BOE).',
+    calBoe: 'Décret au BOE',
+    calVote: 'Jour du vote',
+    cal2027: 'En 2027, le 23 mai, il y a déjà les municipales et des élections dans une bonne partie des communautés autonomes.',
+    calLimit: 'Date limite : dimanche 22 août 2027, avec dissolution au plus tard le 28 juin 2027.',
+    provKicker: 'Province par province',
+    provTitle: 'Où se joue le dernier siège',
+    provBody: 'Dans ces provinces, le dernier siège change de mains pour quelques voix. C\'est là que se joue la majorité.',
+    provSwing: 'Siège en jeu pour',
+    provAllTitle: 'Les 52 circonscriptions',
+    provCol: 'Province',
+    seatsCol: 'Sièges',
+    projCol: 'Répartition la plus probable',
+    probCol: 'Probabilité',
+    trackKicker: 'Pourquoi nous faire confiance',
+    trackTitle: 'Testé sur les élections passées avant d\'être publié.',
+    trackBody: `Avec les sondages de la veille, cette méthode aurait mal placé ${meta.backtest.es_2023.seats_misplaced} sièges sur 350 en 2023 et ${meta.backtest.es_2019n.seats_misplaced} en novembre 2019. Le vrai résultat est tombé dans nos fourchettes ${Math.round(meta.backtest.es_2023.inside90 * 100)} fois sur 100.`,
+    trackClacton: `À la partielle de Clacton (Royaume-Uni, 13 août 2026), nous projetions Nigel Farage à ${dec(clacton.farage_projected_median)} % : il a obtenu ${dec(clacton.farage_actual)} %, et Count Binface a fini deuxième, comme prévu.`,
+    trackMore: [
+      'Nous avons été parmi les premiers modèles à signaler que le Texas pouvait basculer côté démocrate.',
+      `Avant le tournoi mondial de football 2026, notre modèle donnait l\'Espagne favorite pour le titre (1re des ${football.n_teams} équipes). L\'Espagne a gagné la finale.`,
+    ],
+    methodTitle: 'Comment c\'est calculé',
+    methodBody: 'Une moyenne des sondages, transposée dans chaque province et répartie selon la vraie loi électorale, des milliers de fois.',
+    methodBullets: [
+      'Les sondages publiés passent par un modèle bayésien de séries temporelles (BSTS), le même que dans toutes nos projections, après correction du biais mesuré de chaque institut. Les réestimations du CIS par des tiers ne comptent pas.',
+      'Le vote national est transposé dans chaque province à partir des générales de 2023. Les nouveaux partis partent de leur dernier résultat : SALF des européennes 2024, Aliança Catalana et Adelante Andalucía de leurs élections régionales.',
+      `Chaque simulation ajoute l'erreur réelle des sondages en Espagne (mesurée de 2015 à 2023), un effet par communauté et un par province, puis répartit les sièges avec D'Hondt et le seuil de 3 %. ${meta.n_draws.toLocaleString('fr-FR')} simulations.`,
+      `Suppose un vote le ${longDate(meta.election_day_assumed)}. La répartition des sièges par province est calculée sur la population de l'INE jusqu'à la publication officielle au BOE.`,
+    ],
+  },
+  en: {
+    title: `Spain General Election: Polls, Seat Projection & Date — PP ${nat.pp.seats_median}, PSOE ${psoe.seats_median}, Vox ${nat.vox.seats_median} — Vote-Scope`,
+    description: `Spanish election polls and a projection of all 350 Congress seats, province by province. PP and Vox win a majority in ${pctW(blocs.pp_vox.p_majority)} of 100 simulations. Possible dates for a snap election.`,
+    eyebrow: 'Spain Desk · Congress of Deputies',
+    h1: 'Spain general election: polls and seat projection',
+    promise: `We project all 350 seats in Congress province by province, with the D'Hondt rule and the 3% threshold, from ${meta.n_polls_window} recent polls corrected for each pollster's lean.`,
+    whenLabel: 'When is the next Spanish election?',
+    whenAnswer: 'Not called yet. If the dissolution decree is published on October 6, Spain votes on Sunday, November 29. The legal deadline is August 22, 2027.',
+    whenLink: 'Every possible date',
+    headline: `On today's polls, PP and Vox win an outright majority in ${pctW(blocs.pp_vox.p_majority)} of 100 simulations.`,
+    seats: 'seats',
+    vote: 'of the vote',
+    range: 'likely range',
+    majority: 'Majority: 176',
+    updated: `Updated ${runDate} · latest poll ${meta.last_poll_field_end}`,
+    since2023: (k: string) => k === 'sumar' ? '31 in 2023 with Podemos' : `${nat[k].seats_2023 ? `${nat[k].seats_2023} in 2023` : 'new'}`,
+    adelantoKicker: 'Does a snap election pay?',
+    adelantoTitle: 'What the numbers tell the person who has to decide.',
+    adelantoRows: [
+      { label: 'PSOE', value: `${psoe.seats_median} seats`, note: `121 in 2023 · range ${psoe.seats_p10}–${psoe.seats_p90}` },
+      { label: 'The bloc that re-elected Sánchez in 2023', value: `${blocs.investiture_2023.median} seats`, note: `179 in 2023 · majority in ${pctW(blocs.investiture_2023.p_majority)} of 100 simulations` },
+      { label: 'PP + Vox', value: `${blocs.pp_vox.median} seats`, note: `range ${blocs.pp_vox.p10}–${blocs.pp_vox.p90} · majority in ${pctW(blocs.pp_vox.p_majority)} of 100` },
+      { label: 'PP alone', value: `${nat.pp.seats_median} seats`, note: `outright majority in ${pctW(blocs.pp_alone.p_majority)} of 100` },
+    ],
+    adelantoBody: `Today's polls give no arithmetic reason to go early: the PSOE would lose about ${121 - psoe.seats_median} seats and the 2023 majority would be out of reach. A snap election would come from elsewhere: deadlock in Congress, the calendar, or a bet that the campaign moves votes.`,
+    leftKicker: 'The split left of the PSOE',
+    leftTitle: `Running apart, Sumar and Podemos win ${leftDivided} seats. Together, on the same votes, they would win ${united.sumar_podemos_seats_median}.`,
+    leftBody: `D'Hondt punishes mid-sized parties that split in small provinces. The gap (${leftGain} seats) is bigger than most groups in Congress.`,
+    vivKicker: 'Housing · the issue behind the snap election',
+    vivTitle: `Housing went from ${dec(viv2022)}% in 2022 to ${dec(viv2026)}% in 2026: it is now what worries Spaniards most.`,
+    vivLede: `Share of Spaniards naming housing among the country’s top three problems, CIS barometer month by month. In ${monthYear(viv.latest.field_end)}: ${dec(viv.latest.pct_multi)}%, ahead of the economy and immigration. ${dec(viv.latest.pct_personal)}% say it affects them personally.`,
+    vivChartLabel: 'Names housing among Spain’s main problems (%)',
+    vivDecree: 'Dashed line: October 2, 2026, Congress votes down the housing decrees.',
+    vivTopicsTitle: `What worries Spaniards most (CIS, ${monthYear(viv.latest.field_end)})`,
+    vivTrustTitle: 'Which party would handle housing best?',
+    vivTrustFirm: `40dB for El País and SER`,
+    vivTrustBody: `Nobody convinces: “none” is the most common answer (${dec(trustLast.options.ninguno)}%). The PSOE still leads (${dec(trustLast.options.psoe)}%) but is down ${vivPoints(delta('psoe') ?? 0)} points since January 2025; the PP is down ${vivPoints(delta('pp') ?? 0)} and Vox holds (${dec(trustLast.options.vox)}%). So far the crisis has no clear winner.`,
+    vivNotPublished: 'not published',
+    vivTable: 'See the data by year',
+    vivYear: 'Year',
+    vivAvg: 'Average',
+    vivSource: 'Source: CIS monthly barometers (multiple-answer question: up to three problems).',
+    orbKicker: 'Second model · Orbit (beta)',
+    orbTitle: orbitAgrees
+      ? `Orbit, our experimental model, reaches the same conclusion: PP and Vox win a majority in ${pctW(orbit.blocs.pp_vox.p_majority)} of 100 simulations.`
+      : `Orbit, our experimental model, reaches a different conclusion: PP and Vox win a majority in ${pctW(orbit.blocs.pp_vox.p_majority)} of 100 simulations.`,
+    orbBody: `Orbit uses the same polls with different mathematics: it treats opinion as a position moving on a sphere rather than as an average. It is still in beta: we publish it for comparison, and a 50/50 mix of both models gives a third reading. On eve-of-election polls, Orbit would have misplaced ${orbitBt.es_2023.seats_misplaced} seats in 2023 and ${orbitBt.es_2019n.seats_misplaced} in November 2019.`,
+    orbParty: 'Party',
+    orbMain: 'Main model',
+    orbOrbit: 'Orbit (beta)',
+    orbBlend: '50/50 mix',
+    orbMajority: 'PP + Vox majority',
+    orbHow: 'How Orbit works',
+    calendarKicker: 'Possible dates',
+    calendarTitle: 'When Spain would vote, depending on the dissolution date',
+    calendarBody: 'Polling day falls 54 days after the dissolution decree is published in the official gazette (BOE).',
+    calBoe: 'Decree in the BOE',
+    calVote: 'Polling day',
+    cal2027: 'In 2027, May 23 already brings municipal elections and votes in many of the autonomous communities.',
+    calLimit: 'Deadline: Sunday, August 22, 2027, with dissolution no later than June 28, 2027.',
+    provKicker: 'Province by province',
+    provTitle: 'Where the last seat is decided',
+    provBody: 'In these provinces the last seat changes hands on a handful of votes. That is where the majority is won.',
+    provSwing: 'Seat in play for',
+    provAllTitle: 'All 52 constituencies',
+    provCol: 'Province',
+    seatsCol: 'Seats',
+    projCol: 'Most likely split',
+    probCol: 'Chance',
+    trackKicker: 'Why trust it',
+    trackTitle: 'Tested on past elections before going live.',
+    trackBody: `Using eve-of-election polls, this method would have misplaced ${meta.backtest.es_2023.seats_misplaced} of 350 seats in 2023 and ${meta.backtest.es_2019n.seats_misplaced} in November 2019. The real result landed inside our ranges ${Math.round(meta.backtest.es_2023.inside90 * 100)} times out of 100.`,
+    trackClacton: `In the Clacton by-election (U.K., August 13, 2026) we projected Nigel Farage at ${dec(clacton.farage_projected_median)}%: he won ${dec(clacton.farage_actual)}%, with Count Binface second, as forecast.`,
+    trackMore: [
+      'We were among the first models to flag that Texas could tip toward the Democrats.',
+      `Before the 2026 international football tournament, our model had Spain as title favourite (1st of ${football.n_teams} teams). Spain won the final.`,
+    ],
+    methodTitle: 'How it works',
+    methodBody: 'A polling average, carried into every province and allocated under the real electoral law, thousands of times.',
+    methodBullets: [
+      'Published polls go through a Bayesian time-series model (BSTS), the same one behind all our forecasts, after correcting each pollster for its measured lean. Third-party re-estimates of CIS data are left out.',
+      'The national vote is carried into each province from the 2023 general election. New parties start from their latest result: SALF from the 2024 European election, Aliança Catalana and Adelante Andalucía from their regional elections.',
+      `Each simulation adds the real error of Spanish polls (measured 2015–2023), a regional effect and a provincial effect, then allocates seats under D'Hondt with the 3% threshold. ${meta.n_draws.toLocaleString('en-GB')} simulations.`,
+      `Assumes polling day on ${longDate(meta.election_day_assumed)}. Seats per province are computed from INE population until the official BOE allocation is published.`,
+    ],
+  },
+}[locale];
+// Accord en français : « moins de 1 simulations » → « moins d'une simulation ».
+const frFix = (x: any): any =>
+  typeof x === 'string'
+    ? x.replace(/moins de 1 simulations sur 100/g, "moins d'une simulation sur 100").replace(/moins de 1 sur 100/g, "moins d'une sur 100")
+    : Array.isArray(x)
+      ? x.map(frFix)
+      : x && typeof x === 'object' && typeof x !== 'function'
+        ? Object.fromEntries(Object.entries(x).map(([k, v]) => [k, frFix(v)]))
+        : x;
+const t = locale === 'fr' ? frFix(copy) : copy;
+
+const canonical = `https://vote-scope.com/${locale}/spain/`;
+const alternates = {
+  en: 'https://vote-scope.com/en/spain/',
+  fr: 'https://vote-scope.com/fr/spain/',
+  es: 'https://vote-scope.com/es/spain/',
+};
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: t.title,
+    url: canonical,
+    inLanguage: locale,
+    dateModified: meta.run_date,
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: [
+      {
+        '@type': 'Question',
+        name: t.whenLabel,
+        acceptedAnswer: { '@type': 'Answer', text: t.whenAnswer },
+      },
+    ],
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: `https://vote-scope.com/${locale}/` },
+      { '@type': 'ListItem', position: 2, name: locale === 'en' ? 'Spain' : locale === 'fr' ? 'Espagne' : 'España', item: canonical },
+    ],
+  },
+];
+
+const barTotal = 350;
+
+
+---
+
+<EditorialLayout
+  title={t.title}
+  description={t.description}
+  canonical={canonical}
+  lang={locale}
+  currentPage="spain"
+  alternates={alternates}
+  jsonLd={jsonLd}
+>
+  <article class="es-desk" data-content-area>
+    <header class="es-head">
+      <div class="container">
+        <p class="eyebrow">{t.eyebrow}</p>
+        <h1>{t.h1}</h1>
+
+        <div class="es-when">
+          <span class="es-when-label">{t.whenLabel}</span>
+          <p>{t.whenAnswer} <a href="#fechas">{t.whenLink} →</a></p>
+        </div>
+
+        <p class="es-headline">{t.headline}</p>
+
+        <div class="es-bar" role="img" aria-label={withSeats.map((k) => `${name(k)} ${nat[k].seats_median}`).join(', ')}>
+          {withSeats.map((k) => (
+            <div style={`width:${(nat[k].seats_median / barTotal) * 100}%;background:${color(k)};`} title={`${name(k)}: ${nat[k].seats_median}`} />
+          ))}
+          <span class="es-bar-majority" aria-hidden="true"></span>
+        </div>
+        <p class="es-bar-caption">{t.majority}</p>
+
+        <div class="es-tiles">
+          {top.map((k) => (
+            <div class="es-tile" style={`--party-color:${color(k)}`}>
+              <span class="es-tile-party">{name(k)}</span>
+              <strong>{nat[k].seats_median}</strong>
+              <span class="es-tile-sub">{t.seats} · {nat[k].seats_p10}–{nat[k].seats_p90}</span>
+              <span class="es-tile-sub">{dec(nat[k].vote_mean)} % {t.vote} · {t.since2023(k)}</span>
+            </div>
+          ))}
+        </div>
+        <p class="es-updated">{t.updated}</p>
+        <GooglePreferredSource locale={locale} />
+      </div>
+    </header>
+
+    <section class="content-band">
+      <div class="container es-two">
+        <div class="note-card es-adelanto">
+          <p class="eyebrow">{t.adelantoKicker}</p>
+          <h2>{t.adelantoTitle}</h2>
+          <dl>
+            {t.adelantoRows.map((r) => (
+              <div>
+                <dt>{r.label}</dt>
+                <dd><strong>{r.value}</strong><span>{r.note}</span></dd>
+              </div>
+            ))}
+          </dl>
+          <p>{t.adelantoBody}</p>
+        </div>
+        <div class="note-card es-left">
+          <p class="eyebrow">{t.leftKicker}</p>
+          <h2>{t.leftTitle}</h2>
+          <p>{t.leftBody}</p>
+          <div class="es-left-compare">
+            <div><span style={`background:${color('sumar')}`}></span>Sumar {nat.sumar.seats_median} + Podemos {nat.podemos.seats_median} = {leftDivided}</div>
+            <div><span style={`background:${color('sumar')}`}></span>Sumar + Podemos = {united.sumar_podemos_seats_median} ({united.p10}–{united.p90})</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="content-band es-viv" id="vivienda">
+      <div class="container">
+        <p class="eyebrow">{t.vivKicker}</p>
+        <h2 class="es-h2">{t.vivTitle}</h2>
+        <p class="es-lede">{t.vivLede}</p>
+        <figure class="es-viv-chart" data-locale={locale}>
+          <figcaption>{t.vivChartLabel}</figcaption>
+          <div class="es-viv-plot">
+            <svg viewBox={`0 0 ${CH.w} ${CH.h}`} role="img" aria-label={`${t.vivChartLabel}: ${dec(vSeries[0].v)} % (${monthYear(vSeries[0].d)}) → ${dec(vLast.v)} % (${monthYear(vLast.d)})`}>
+              {[0, 10, 20, 30, 40, 50].map((g) => (
+                <g>
+                  <line x1={CH.l} x2={CH.w - CH.r} y1={vy(g)} y2={vy(g)} class={g === 0 ? 'es-axis' : 'es-grid'} />
+                  <text x={CH.l - 8} y={vy(g) + 4} class="es-tick" text-anchor="end">{g}</text>
+                </g>
+              ))}
+              {vYears.map((y) => (
+                <text x={vx(`${y}-01-01`)} y={CH.h - 8} class="es-tick" text-anchor="middle">{y}</text>
+              ))}
+              <line x1={vDecree} x2={vDecree} y1={CH.t} y2={vy(0)} class="es-event" />
+              <path d={vArea} class="es-viv-area" />
+              <path d={vPath} class="es-viv-line" />
+              <circle cx={vx(vLast.d)} cy={vy(vLast.v)} r="4.5" class="es-viv-end" />
+              <text x={vx(vLast.d) + 9} y={vy(vLast.v) + 4} class="es-viv-endlabel">{dec(vLast.v)} %</text>
+              <line class="es-viv-cross" x1="0" x2="0" y1={CH.t} y2={vy(0)} visibility="hidden" />
+              <circle class="es-viv-dot" r="5" cx="0" cy="0" visibility="hidden" />
+              <rect class="es-viv-hit" x={CH.l} y={CH.t} width={CH.w - CH.l - CH.r} height={CH.h - CH.t - CH.b} />
+            </svg>
+            <div class="es-viv-tip" hidden></div>
+            <script type="application/json" class="es-viv-data" set:html={JSON.stringify(vSeries.map((p) => [p.d, p.v, vx(p.d), vy(p.v)]))} />
+          </div>
+          <p class="es-source"><span class="es-dash" aria-hidden="true"></span>{t.vivDecree}</p>
+          <details class="es-viv-table">
+            <summary>{t.vivTable}</summary>
+            <table class="es-table">
+              <thead><tr><th>{t.vivYear}</th><th>{t.vivAvg}</th></tr></thead>
+              <tbody>
+                {Object.entries(viv.yearly).map(([y, v]) => (
+                  <tr><td>{y}</td><td class="num">{dec(v as number)} %</td></tr>
+                ))}
+              </tbody>
+            </table>
+          </details>
+          <p class="es-source">{t.vivSource} <a href={viv.latest.source_url} rel="noopener">CIS {viv.latest.study_id}</a></p>
+        </figure>
+
+        <div class="es-two es-viv-two">
+          <div class="note-card">
+            <h3 class="es-h3 es-h3-tight">{t.vivTopicsTitle}</h3>
+            <ul class="es-topics">
+              {topics.map((x) => (
+                <li class={x.problem_id === 'vivienda' ? 'is-viv' : ''}>
+                  <span class="es-topic-name">{TOPIC[x.problem_id]?.[locale] ?? x.problem_id}</span>
+                  <span class="es-topic-bar"><i style={`width:${(x.pct / topicMax) * 100}%`}></i></span>
+                  <span class="es-topic-val">{dec(x.pct)} %</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div class="note-card">
+            <h3 class="es-h3 es-h3-tight">{t.vivTrustTitle}</h3>
+            <table class="es-table es-trust">
+              <thead>
+                <tr><th></th><th>{monthYear(trustFirst.field_end)}</th><th>{monthYear(trustLast.field_end)}</th></tr>
+              </thead>
+              <tbody>
+                {TRUST_ROWS.map((k) => (
+                  <tr>
+                    <td><i class="es-swatch" style={`background:${k === 'ninguno' ? 'var(--ink-3)' : color(k)}`}></i>{trustName(k)}</td>
+                    <td class="num">{trustFirst.options[k] != null ? `${dec(trustFirst.options[k])} %` : t.vivNotPublished}</td>
+                    <td class="num">{trustLast.options[k] != null ? `${dec(trustLast.options[k])} %` : t.vivNotPublished}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <p class="es-viv-trustbody">{t.vivTrustBody}</p>
+            <p class="es-source"><a href={trustLast.source_url} rel="noopener">{t.vivTrustFirm}</a></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="content-band es-orbit" id="orbite">
+      <div class="container">
+        <div class="note-card es-orbit-card">
+          <p class="eyebrow">{t.orbKicker}</p>
+          <h2>{t.orbTitle}</h2>
+          <p class="es-lede">{t.orbBody}</p>
+          <div class="es-table-wrap">
+            <table class="es-table es-models">
+              <thead>
+                <tr><th>{t.orbParty}</th><th>{t.orbMain}</th><th>{t.orbOrbit}</th><th>{t.orbBlend}</th></tr>
+              </thead>
+              <tbody>
+                {MODEL_ROWS.filter((k) => nat[k]).map((k) => (
+                  <tr>
+                    <td><i class="es-swatch" style={`background:${color(k)}`}></i>{name(k)}</td>
+                    <td class="num"><strong>{nat[k].seats_median}</strong> <span>{nat[k].seats_p10}–{nat[k].seats_p90}</span></td>
+                    <td class="num"><strong>{orbit.national[k].seats_median}</strong> <span>{orbit.national[k].seats_p10}–{orbit.national[k].seats_p90}</span></td>
+                    <td class="num"><strong>{blend.national[k].seats_median}</strong> <span>{blend.national[k].seats_p10}–{blend.national[k].seats_p90}</span></td>
+                  </tr>
+                ))}
+                <tr class="es-models-bloc">
+                  <td>{t.orbMajority}</td>
+                  <td class="num"><strong>{pct(blocs.pp_vox.p_majority)} %</strong></td>
+                  <td class="num"><strong>{pct(orbit.blocs.pp_vox.p_majority)} %</strong></td>
+                  <td class="num"><strong>{pct(blend.blocs.pp_vox.p_majority)} %</strong></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p style="margin-top:1rem;"><a class="cta-link" href={labsHref}>{t.orbHow} →</a></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="content-band" id="fechas">
+      <div class="container">
+        <p class="eyebrow">{t.calendarKicker}</p>
+        <h2 class="es-h2">{t.calendarTitle}</h2>
+        <p class="es-lede">{t.calendarBody}</p>
+        <table class="es-table es-cal">
+          <thead><tr><th>{t.calBoe}</th><th>{t.calVote}</th></tr></thead>
+          <tbody>
+            {WINDOWS.map((w) => (
+              <tr><td>{capFirst(longDate(w.boe))}</td><td><strong>{capFirst(longDate(w.vote))}</strong></td></tr>
+            ))}
+          </tbody>
+        </table>
+        <p class="es-lede">{t.cal2027}</p>
+        <p class="es-lede"><strong>{t.calLimit}</strong></p>
+      </div>
+    </section>
+
+    <section class="content-band">
+      <div class="container">
+        <p class="eyebrow">{t.provKicker}</p>
+        <h2 class="es-h2">{t.provTitle}</h2>
+        <p class="es-lede">{t.provBody}</p>
+        <div class="es-contested">
+          {contested.map((p) => (
+            <div class="es-prov-card">
+              <h3>{p.name} <span>{p.seats} {t.seats}</span></h3>
+              <p class="es-chips">
+                {Object.entries(p.modal)
+                  .sort((a, b) => b[1] - a[1])
+                  .map(([k, n]) => (
+                    <span style={`--party-color:${color(k)}`}>{name(k)} {n}</span>
+                  ))}
+              </p>
+              {p.swing.length > 0 && (
+                <p class="es-swing">{t.provSwing} {p.swing.map((k) => `${name(k)} (${pct(p.parties[k].p_at_least_one)} %)`).join(', ')}</p>
+              )}
+            </div>
+          ))}
+        </div>
+
+        <h3 class="es-h3">{t.provAllTitle}</h3>
+        <div class="es-table-wrap">
+          <table class="es-table">
+            <thead><tr><th>{t.provCol}</th><th>{t.seatsCol}</th><th>{t.projCol}</th><th>{t.probCol}</th></tr></thead>
+            <tbody>
+              {provinceRows.map((p) => (
+                <tr>
+                  <td>{p.name}</td>
+                  <td class="num">{p.seats}</td>
+                  <td class="es-chips">
+                    {Object.entries(p.modal)
+                      .sort((a, b) => b[1] - a[1])
+                      .map(([k, n]) => (
+                        <span style={`--party-color:${color(k)}`}>{name(k)} {n}</span>
+                      ))}
+                  </td>
+                  <td class="num">{pct(p.p_modal)} %</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="content-band">
+      <div class="container">
+        <div class="note-card es-track">
+          <p class="eyebrow">{t.trackKicker}</p>
+          <h2>{t.trackTitle}</h2>
+          <p>{t.trackBody}</p>
+          <p>{t.trackClacton}</p>
+          {t.trackMore.map((x) => <p>{x}</p>)}
+        </div>
+      </div>
+    </section>
+
+    <MethodologyNote title={t.methodTitle} body={t.methodBody} bullets={t.methodBullets} />
+  </article>
+</EditorialLayout>
+
+<script>
+  // Info-bulle de la courbe logement : point le plus proche en x.
+  document.querySelectorAll<HTMLElement>('.es-viv-chart').forEach((fig) => {
+    const svg = fig.querySelector('svg');
+    const hit = fig.querySelector<SVGRectElement>('.es-viv-hit');
+    const cross = fig.querySelector<SVGLineElement>('.es-viv-cross');
+    const dot = fig.querySelector<SVGCircleElement>('.es-viv-dot');
+    const tip = fig.querySelector<HTMLElement>('.es-viv-tip');
+    const raw = fig.querySelector('.es-viv-data')?.textContent;
+    if (!svg || !hit || !cross || !dot || !tip || !raw) return;
+    const pts = JSON.parse(raw) as [string, number, number, number][];
+    const loc = fig.dataset.locale === 'en' ? 'en-GB' : fig.dataset.locale === 'fr' ? 'fr-FR' : 'es-ES';
+    const vb = svg.viewBox.baseVal;
+    const show = (clientX: number) => {
+      const box = svg.getBoundingClientRect();
+      const x = ((clientX - box.left) / box.width) * vb.width;
+      let best = pts[0];
+      for (const p of pts) if (Math.abs(p[2] - x) < Math.abs(best[2] - x)) best = p;
+      cross.setAttribute('x1', String(best[2]));
+      cross.setAttribute('x2', String(best[2]));
+      dot.setAttribute('cx', String(best[2]));
+      dot.setAttribute('cy', String(best[3]));
+      cross.setAttribute('visibility', 'visible');
+      dot.setAttribute('visibility', 'visible');
+      const month = new Date(`${best[0]}T12:00:00`).toLocaleDateString(loc, { month: 'long', year: 'numeric' });
+      const val = loc === 'en-GB' ? best[1].toFixed(1) : best[1].toFixed(1).replace('.', ',');
+      tip.textContent = `${month} · ${val} %`;
+      tip.hidden = false;
+      tip.style.left = `${(best[2] / vb.width) * box.width}px`;
+      tip.style.top = `${(best[3] / vb.height) * box.height - 10}px`;
+    };
+    const hide = () => {
+      cross.setAttribute('visibility', 'hidden');
+      dot.setAttribute('visibility', 'hidden');
+      tip.hidden = true;
+    };
+    hit.addEventListener('pointermove', (e) => show(e.clientX));
+    hit.addEventListener('pointerleave', hide);
+  });
+</script>
+
+<style>
+  .es-head {
+    border-bottom: 1px solid var(--rule);
+    background: linear-gradient(135deg, color-mix(in oklab, var(--paper) 90%, var(--blue-tint)), var(--paper));
+    padding: 34px 0 26px;
+  }
+  .es-head h1 {
+    font-family: var(--serif);
+    font-size: clamp(1.9rem, 4vw, 3rem);
+    line-height: 1.08;
+    letter-spacing: -0.015em;
+    margin: 0.35rem 0 1rem;
+    max-width: 22ch;
+  }
+  .es-when {
+    max-width: 760px;
+    border-left: 4px solid var(--blue);
+    padding: 8px 0 8px 14px;
+    margin-bottom: 18px;
+  }
+  .es-when-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .es-when p { margin: 4px 0 0; font-size: 16px; line-height: 1.5; }
+  .es-headline {
+    font-family: var(--serif);
+    font-size: clamp(1.15rem, 2.2vw, 1.5rem);
+    line-height: 1.3;
+    margin: 0 0 14px;
+    max-width: 46ch;
+  }
+  .es-bar { position: relative; display: flex; height: 22px; border-radius: 3px; overflow: hidden; }
+  .es-bar-majority {
+    position: absolute;
+    left: calc(176 / 350 * 100%);
+    top: -4px;
+    bottom: -4px;
+    width: 2px;
+    background: var(--ink);
+  }
+  .es-bar-caption { font-family: var(--mono); font-size: 11px; color: var(--ink-3); margin: 6px 0 0; padding-left: calc(176 / 350 * 100% - 40px); }
+  .es-tiles { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; margin-top: 16px; }
+  .es-tile {
+    border: 1px solid var(--rule);
+    border-top: 3px solid var(--party-color);
+    border-radius: 4px;
+    background: var(--card);
+    padding: 10px 12px;
+    display: grid;
+    gap: 2px;
+  }
+  .es-tile-party { font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; color: var(--ink-2); }
+  .es-tile strong { font-family: var(--serif); font-size: 30px; font-weight: 430; line-height: 1.05; }
+  .es-tile-sub { font-family: var(--mono); font-size: 10.5px; color: var(--ink-3); line-height: 1.4; }
+  .es-updated { font-family: var(--mono); font-size: 11px; color: var(--ink-3); margin: 12px 0 0; }
+  .es-two { display: grid; grid-template-columns: 1.2fr 1fr; gap: 24px; }
+  .es-adelanto h2, .es-left h2, .es-track h2 {
+    font-family: var(--serif);
+    font-size: clamp(1.3rem, 2.4vw, 1.8rem);
+    line-height: 1.2;
+    margin: 0.3rem 0 1rem;
+  }
+  .es-adelanto dl { margin: 0 0 1rem; }
+  .es-adelanto dl > div {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 4px 14px;
+    padding: 9px 0;
+    border-bottom: 1px solid var(--rule-2);
+  }
+  .es-adelanto dt { font-size: 14px; }
+  .es-adelanto dd { margin: 0; text-align: right; display: grid; }
+  .es-adelanto dd strong { font-family: var(--serif); font-size: 20px; font-weight: 450; }
+  .es-adelanto dd span { font-family: var(--mono); font-size: 10.5px; color: var(--ink-3); }
+  .es-left-compare { display: grid; gap: 8px; margin-top: 12px; font-family: var(--mono); font-size: 12px; }
+  .es-left-compare span { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 7px; }
+  .es-h2 { font-family: var(--serif); font-size: clamp(1.4rem, 2.6vw, 2rem); line-height: 1.2; margin: 0.3rem 0 0.6rem; }
+  .es-h3 { font-family: var(--serif); font-size: 1.3rem; margin: 2rem 0 0.6rem; }
+  .es-lede { max-width: 70ch; color: var(--ink-2); line-height: 1.6; }
+  .es-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .es-table th { text-align: left; font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); padding: 8px 6px; border-bottom: 1px solid var(--rule); }
+  .es-table td { padding: 8px 6px; border-bottom: 1px solid var(--rule-2); vertical-align: top; }
+  .es-table td.num { font-family: var(--mono); }
+  .es-cal { max-width: 560px; margin: 0.8rem 0 1rem; }
+  .es-cal td, .es-cal td strong { text-transform: none; }
+  .es-table-wrap { overflow-x: auto; }
+  .es-chips { display: flex; flex-wrap: wrap; gap: 5px; margin: 0; }
+  .es-chips span {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    padding: 2px 7px;
+    border-radius: 3px;
+    border-left: 3px solid var(--party-color);
+    background: color-mix(in oklab, var(--party-color) 10%, var(--card));
+  }
+  .es-contested { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-top: 1rem; }
+  .es-prov-card { border: 1px solid var(--rule); border-radius: 5px; background: var(--card); padding: 14px; }
+  .es-prov-card h3 { font-family: var(--serif); font-size: 1.15rem; margin: 0 0 8px; display: flex; justify-content: space-between; gap: 8px; }
+  .es-prov-card h3 span { font-family: var(--mono); font-size: 11px; color: var(--ink-3); font-weight: 400; }
+  .es-swing { font-size: 12.5px; color: var(--ink-2); margin: 10px 0 0; line-height: 1.45; }
+  .es-track { max-width: 900px; border-left: 4px solid var(--blue); }
+
+  .es-viv-chart { margin: 1rem 0 0; }
+  .es-viv-chart figcaption { font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; color: var(--ink-3); margin-bottom: 6px; }
+  .es-viv-plot { position: relative; max-width: 820px; }
+  .es-viv-plot svg { width: 100%; height: auto; display: block; overflow: visible; }
+  .es-grid { stroke: var(--rule-2); stroke-width: 1; }
+  .es-axis { stroke: var(--rule); stroke-width: 1; }
+  .es-tick { font-family: var(--mono); font-size: 11px; fill: var(--ink-3); }
+  .es-event { stroke: var(--ink-3); stroke-width: 1; stroke-dasharray: 3 3; }
+  .es-event-label { font-family: var(--mono); font-size: 10.5px; fill: var(--ink-2); }
+  .es-viv-line { fill: none; stroke: var(--blue); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+  .es-viv-area { fill: var(--blue); opacity: 0.08; }
+  .es-viv-end { fill: var(--blue); stroke: var(--card); stroke-width: 2; }
+  .es-viv-endlabel { font-family: var(--serif); font-size: 15px; fill: var(--ink); }
+  .es-viv-cross { stroke: var(--ink-3); stroke-width: 1; }
+  .es-viv-dot { fill: var(--blue); stroke: var(--card); stroke-width: 2; }
+  .es-viv-hit { fill: transparent; cursor: crosshair; }
+  .es-viv-tip {
+    position: absolute; pointer-events: none; transform: translate(-50%, -100%);
+    background: var(--card); border: 1px solid var(--rule); border-radius: 4px;
+    padding: 5px 8px; font-family: var(--mono); font-size: 11.5px; color: var(--ink); white-space: nowrap;
+    box-shadow: 0 2px 8px rgb(0 0 0 / 0.08);
+  }
+  .es-dash { display: inline-block; width: 14px; border-top: 1px dashed var(--ink-3); margin-right: 7px; vertical-align: middle; }
+  .es-viv-table { margin-top: 10px; font-size: 13px; max-width: 360px; }
+  .es-viv-table summary { cursor: pointer; font-family: var(--mono); font-size: 11.5px; color: var(--ink-2); }
+  .es-source { font-family: var(--mono); font-size: 10.5px; color: var(--ink-3); margin: 8px 0 0; line-height: 1.5; }
+  .es-source a { color: inherit; }
+  .es-viv-two { margin-top: 24px; }
+  .es-h3-tight { margin: 0 0 12px; font-size: 1.15rem; }
+  .es-topics { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+  .es-topics li { display: grid; grid-template-columns: 110px 1fr 52px; align-items: center; gap: 10px; font-size: 13.5px; }
+  .es-topic-bar { height: 10px; background: var(--rule-2); border-radius: 2px; overflow: hidden; }
+  .es-topic-bar i { display: block; height: 100%; background: var(--ink-3); border-radius: 0 4px 4px 0; }
+  .es-topics li.is-viv .es-topic-bar i { background: var(--blue); }
+  .es-topics li.is-viv .es-topic-name { font-weight: 600; }
+  .es-topic-val { font-family: var(--mono); font-size: 12px; text-align: right; color: var(--ink-2); }
+  .es-trust td:first-child { white-space: nowrap; }
+  .es-swatch { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 7px; }
+  .es-viv-trustbody { font-size: 14px; line-height: 1.55; color: var(--ink-2); margin: 12px 0 0; }
+
+  .es-orbit-card { border-left: 4px solid var(--ink-3); }
+  .es-orbit-card h2 { font-family: var(--serif); font-size: clamp(1.25rem, 2.3vw, 1.7rem); line-height: 1.25; margin: 0.3rem 0 0.8rem; }
+  .es-models td.num strong { font-family: var(--serif); font-size: 17px; font-weight: 450; }
+  .es-models td.num span { display: block; font-family: var(--mono); font-size: 10.5px; color: var(--ink-3); }
+  .es-models tr.es-models-bloc td { border-top: 1px solid var(--rule); font-weight: 600; }
+  @media (max-width: 900px) {
+    .es-tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .es-two { grid-template-columns: 1fr; }
+    .es-contested { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 480px) {
+    /* Le SVG est réduit à ~45 % : on grossit le texte en unités du dessin. */
+    .es-tick { font-size: 22px; }
+    .es-viv-endlabel { font-size: 28px; }
+    .es-viv-line { stroke-width: 3; }
+    .es-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .es-bar-caption { padding-left: 0; }
+  }
+</style>

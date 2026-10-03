@@ -71,6 +71,8 @@ const localeCopy: Record<Locale, {
   matchLabel: string;
   ukLabel: string;
   franceLabel: string;
+  spain: string;
+  spainLabel: string;
   indexesLabel: string;
   sportsLabel: string;
   subscribeLabel: string;
@@ -103,6 +105,7 @@ const localeCopy: Record<Locale, {
     match: '/en/tools',
     uk: '/en/uk/',
     france: '/en/france/',
+    spain: '/en/spain/',
     indexes: '/en/indexes/',
     sports: '/en/sports/',
     lameDuck: '/en/us/indexes/lame-duck/',
@@ -121,6 +124,7 @@ const localeCopy: Record<Locale, {
     matchLabel: 'Tools',
     ukLabel: 'U.K.',
     franceLabel: 'France',
+    spainLabel: 'Spain',
     indexesLabel: 'Indexes',
     sportsLabel: 'Sports',
     subscribeLabel: 'Subscribe',
@@ -153,6 +157,7 @@ const localeCopy: Record<Locale, {
     match: '/fr/outils',
     uk: '/fr/uk/',
     france: '/fr/france/',
+    spain: '/fr/spain/',
     indexes: '/fr/indexes/',
     sports: '/fr/sports/',
     lameDuck: '/fr/us/indexes/lame-duck/',
@@ -171,6 +176,7 @@ const localeCopy: Record<Locale, {
     matchLabel: 'Outils',
     ukLabel: 'R.-U.',
     franceLabel: 'France',
+    spainLabel: 'Espagne',
     indexesLabel: 'Index',
     sportsLabel: 'Sports',
     subscribeLabel: "S'abonner",
@@ -203,6 +209,7 @@ const localeCopy: Record<Locale, {
     match: '/es/herramientas',
     uk: '/es/uk/',
     france: '/es/france/',
+    spain: '/es/spain/',
     indexes: '/es/indexes/',
     sports: '/es/sports/',
     lameDuck: '/es/us/indexes/lame-duck/',
@@ -221,6 +228,7 @@ const localeCopy: Record<Locale, {
     matchLabel: 'Herramientas',
     ukLabel: 'R.U.',
     franceLabel: 'Francia',
+    spainLabel: 'España',
     indexesLabel: 'Índices',
     sportsLabel: 'Deportes',
     subscribeLabel: 'Suscribirse',
@@ -268,6 +276,7 @@ const navLinks = [
   { href: copy.match, label: copy.matchLabel, key: 'match' },
   { href: copy.uk, label: copy.ukLabel, key: 'uk' },
   { href: copy.france, label: copy.franceLabel, key: 'france' },
+  { href: copy.spain, label: copy.spainLabel, key: 'spain' },
   { href: copy.indexes, label: copy.indexesLabel, key: 'indexes' },
   { href: copy.sports, label: copy.sportsLabel, key: 'sports' },
 ];
@@ -713,6 +722,7 @@ const languageLinks = (['en', 'fr', 'es'] as Locale[])
         <a href={copy.canada}>{copy.canadaLabel}</a>
         <a href={copy.uk}>{copy.ukLabel}</a>
         <a href={copy.france}>{copy.franceLabel}</a>
+        <a href={copy.spain}>{copy.spainLabel}</a>
         <a href={copy.sports}>Sports Scope</a>
         <a href={copy.indexes}>Instruments</a>
         <a href={copy.match}>{copy.matchLabel}</a>
