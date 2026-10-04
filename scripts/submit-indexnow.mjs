@@ -54,6 +54,10 @@ const CURATED = [
   // le soir même.
   '/fr/canada/quebec/resultats/', '/en/canada/quebec/results/', '/es/canada/quebec/resultados/',
   '/en/canada/ontario', '/fr/canada/ontario', '/es/canada/ontario',
+  // Espagne — desk ouvert le 2026-10-03 (élection anticipée probable) : hub et
+  // sondages bougent à chaque mise à jour.
+  '/en/spain/', '/fr/spain/', '/es/spain/',
+  '/en/spain/polls/', '/fr/spain/sondages/', '/es/spain/sondeos/',
   // Colombie-Britannique — desk ouvert le 2026-09-18, dans un contexte de
   // scrutin anticipé possible : la projection et le hub de sondages bougent à
   // chaque run, et l'index des 93 circonscriptions est la porte d'entrée des
