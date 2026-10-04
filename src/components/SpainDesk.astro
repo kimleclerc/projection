@@ -6,6 +6,9 @@
 import EditorialLayout from '../layouts/EditorialLayout.astro';
 import MethodologyNote from './MethodologyNote.astro';
 import GooglePreferredSource from './GooglePreferredSource.astro';
+import JurisdictionNav from './JurisdictionNav.astro';
+import DeskSections from './DeskSections.astro';
+import { partyMeta } from '../lib/riding-adapters/parties';
 import es from '../../web_data/spain/latest.json';
 
 type Locale = 'en' | 'fr' | 'es';
@@ -23,26 +26,9 @@ const united = data.scenarios.united_left;
 const clacton = data.track_record.clacton_2026;
 const football = data.track_record.football_2026;
 
-const PARTY: Record<string, { name: string; color: string }> = {
-  pp: { name: 'PP', color: '#1D84CE' },
-  psoe: { name: 'PSOE', color: '#E30613' },
-  vox: { name: 'Vox', color: '#5AC035' },
-  sumar: { name: 'Sumar', color: '#E5197E' },
-  podemos: { name: 'Podemos', color: '#6C2D82' },
-  salf: { name: 'SALF', color: '#3B3B3B' },
-  erc: { name: 'ERC', color: '#F7B230' },
-  junts: { name: 'Junts', color: '#00B4A8' },
-  bildu: { name: 'EH Bildu', color: '#A4C21C' },
-  pnv: { name: 'PNV', color: '#2E8B3A' },
-  bng: { name: 'BNG', color: '#7DB7E3' },
-  cc: { name: 'CC', color: '#F2D23A' },
-  upn: { name: 'UPN', color: '#24479B' },
-  cup: { name: 'CUP', color: '#D9C400' },
-  alianca_cat: { name: 'Aliança Catalana', color: '#16324F' },
-  adelante_andalucia: { name: 'Adelante Andalucía', color: '#1F9D55' },
-};
-const name = (k: string) => PARTY[k]?.name ?? k;
-const color = (k: string) => PARTY[k]?.color ?? '#9a938a';
+// Palette commune du site (src/lib/riding-adapters/parties.ts, clé « spain »).
+const name = (k: string) => partyMeta('spain', k).label_en;
+const color = (k: string) => partyMeta('spain', k).color;
 
 const order = Object.keys(nat).sort((a, b) => nat[b].seats_median - nat[a].seats_median || nat[b].vote_mean - nat[a].vote_mean);
 // La barre range PP et Vox côte à côte, depuis la gauche : on voit d'un
@@ -166,6 +152,17 @@ const MODEL_ROWS = ['pp', 'psoe', 'vox', 'sumar', 'podemos', 'erc', 'bildu', 'ju
 const orbitAgrees = (orbit.blocs.pp_vox.p_majority >= 0.5) === (blocs.pp_vox.p_majority >= 0.5);
 const labsHref = `/${locale}/labs/${locale === 'es' ? 'como-funciona' : locale === 'fr' ? 'comment-ca-marche' : 'how-it-works'}`;
 
+
+// ── Comparaison avec les autres projections (lignes vérifiées seulement) ──
+const others = (data.comparisons ?? []) as any[];
+const cmpRows = [
+  { name: 'Vote-Scope', href: null, date: meta.run_date, pp: nat.pp.seats_median, psoe: nat.psoe.seats_median, vox: nat.vox.seats_median, pp_vox: blocs.pp_vox.median, p: blocs.pp_vox.p_majority, own: true },
+  { name: 'Orbite (beta)', href: labsHref, date: meta.run_date, pp: orbit.national.pp.seats_median, psoe: orbit.national.psoe.seats_median, vox: orbit.national.vox.seats_median, pp_vox: orbit.blocs.pp_vox.median, p: orbit.blocs.pp_vox.p_majority, own: true },
+  ...others.map((o) => ({ name: o.name, href: o.url, date: o.date, pp: o.pp, psoe: o.psoe, vox: o.vox, pp_vox: o.pp_vox, p: o.p_majority, own: false })),
+];
+const shortDate = (iso: string) =>
+  new Date(`${iso}T12:00:00`).toLocaleDateString(locale === 'en' ? 'en-GB' : locale === 'fr' ? 'fr-FR' : 'es-ES', { day: 'numeric', month: 'short' });
+
 const copy = {
   es: {
     title: `Elecciones generales España: encuestas, escaños y fecha — PP ${nat.pp.seats_median}, PSOE ${psoe.seats_median}, Vox ${nat.vox.seats_median} — Vote-Scope`,
@@ -220,6 +217,12 @@ const copy = {
     orbBlend: 'Mezcla 50/50',
     orbMajority: 'Mayoría PP + Vox',
     orbHow: 'Cómo funciona Orbite',
+    cmpKicker: 'Cómo nos comparamos',
+    cmpTitle: 'Las otras proyecciones llegan a la misma suma: PP y Vox por encima de 176.',
+    cmpBody: 'Solo publicamos cifras comprobadas en la fuente original, con su fecha y su enlace. La probabilidad solo aparece cuando la fuente la calcula.',
+    cmpSource: 'Fuente',
+    cmpDate: 'Fecha',
+    cmpP: 'Prob. mayoría PP+Vox',
     calendarKicker: 'Fechas posibles',
     calendarTitle: 'Cuándo se votaría, según el día de la disolución',
     calendarBody: 'Las elecciones se celebran 54 días después de que el BOE publique el decreto de disolución.',
@@ -306,6 +309,12 @@ const copy = {
     orbBlend: 'Mélange 50/50',
     orbMajority: 'Majorité PP + Vox',
     orbHow: 'Comment fonctionne Orbite',
+    cmpKicker: 'Comment nous nous comparons',
+    cmpTitle: 'Les autres projections arrivent à la même somme : PP et Vox au-dessus de 176.',
+    cmpBody: 'Nous ne publions que des chiffres vérifiés à la source, avec leur date et leur lien. La probabilité n’apparaît que si la source la calcule.',
+    cmpSource: 'Source',
+    cmpDate: 'Date',
+    cmpP: 'Prob. majorité PP+Vox',
     calendarKicker: 'Dates possibles',
     calendarTitle: 'Quand on voterait, selon le jour de la dissolution',
     calendarBody: 'Le vote a lieu 54 jours après la publication du décret de dissolution au Journal officiel (BOE).',
@@ -392,6 +401,12 @@ const copy = {
     orbBlend: '50/50 mix',
     orbMajority: 'PP + Vox majority',
     orbHow: 'How Orbit works',
+    cmpKicker: 'How we compare',
+    cmpTitle: 'The other forecasts reach the same sum: PP and Vox above 176.',
+    cmpBody: 'We only publish figures checked at the original source, with their date and link. A probability only appears when the source computes one.',
+    cmpSource: 'Source',
+    cmpDate: 'Date',
+    cmpP: 'PP+Vox majority odds',
     calendarKicker: 'Possible dates',
     calendarTitle: 'When Spain would vote, depending on the dissolution date',
     calendarBody: 'Polling day falls 54 days after the dissolution decree is published in the official gazette (BOE).',
@@ -487,6 +502,7 @@ const barTotal = 350;
   alternates={alternates}
   jsonLd={jsonLd}
 >
+  <JurisdictionNav webKey="spain" lang={locale} active="projection" />
   <article class="es-desk" data-content-area>
     <header class="es-head">
       <div class="container">
@@ -665,6 +681,34 @@ const barTotal = 350;
       </div>
     </section>
 
+    <section class="content-band" id="comparar">
+      <div class="container">
+        <p class="eyebrow">{t.cmpKicker}</p>
+        <h2 class="es-h2">{t.cmpTitle}</h2>
+        <p class="es-lede">{t.cmpBody}</p>
+        <div class="es-table-wrap">
+          <table class="es-table es-cmp">
+            <thead>
+              <tr><th>{t.cmpSource}</th><th>{t.cmpDate}</th><th>PP</th><th>PSOE</th><th>Vox</th><th>PP+Vox</th><th>{t.cmpP}</th></tr>
+            </thead>
+            <tbody>
+              {cmpRows.map((r) => (
+                <tr class={r.own ? 'is-own' : ''}>
+                  <td>{r.href ? <a href={r.href} rel={r.own ? undefined : 'noopener'}>{r.name}</a> : <strong>{r.name}</strong>}</td>
+                  <td class="num">{shortDate(r.date)}</td>
+                  <td class="num">{r.pp ?? '—'}</td>
+                  <td class="num">{r.psoe ?? '—'}</td>
+                  <td class="num">{r.vox ?? '—'}</td>
+                  <td class="num"><strong>{r.pp_vox ?? '—'}</strong></td>
+                  <td class="num">{r.p == null ? '—' : `${pct(r.p)} %`}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
     <section class="content-band" id="fechas">
       <div class="container">
         <p class="eyebrow">{t.calendarKicker}</p>
@@ -742,6 +786,8 @@ const barTotal = 350;
         </div>
       </div>
     </section>
+
+    <DeskSections lang={locale} desk="spain" />
 
     <MethodologyNote title={t.methodTitle} body={t.methodBody} bullets={t.methodBullets} />
   </article>
@@ -939,6 +985,8 @@ const barTotal = 350;
   .es-models td.num strong { font-family: var(--serif); font-size: 17px; font-weight: 450; }
   .es-models td.num span { display: block; font-family: var(--mono); font-size: 10.5px; color: var(--ink-3); }
   .es-models tr.es-models-bloc td { border-top: 1px solid var(--rule); font-weight: 600; }
+  .es-cmp tr.is-own td { background: color-mix(in oklab, var(--blue) 5%, transparent); }
+  .es-cmp td a { color: inherit; }
   @media (max-width: 900px) {
     .es-tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     .es-two { grid-template-columns: 1fr; }

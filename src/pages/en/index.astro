@@ -8,6 +8,7 @@ import MethodologyNote from '../../components/MethodologyNote.astro';
 import IdentityMark from '../../components/IdentityMark.astro';
 import SearchFastPath from '../../components/SearchFastPath.astro';
 import TradeWarBand from '../../components/TradeWarBand.astro';
+import SpainBand from '../../components/SpainBand.astro';
 import RidingsCta from '../../components/RidingsCta.astro';
 import LabsHomeBand from '../../components/LabsHomeBand.astro';
 import SignalTicker from '../../islands/SignalTicker';
@@ -20,6 +21,7 @@ import frLegData from '../../../web_data/france-legislative/latest.json';
 import clactonData from '../../../web_data/uk-clacton-special/latest.json';
 import gooseData from '../../../web_data/ca-canada-goose/latest.json';
 import cusmaData from '../../../web_data/cusma-showdown/latest.json';
+import esData from '../../../web_data/spain/latest.json';
 
 const philosophy = editorialPhilosophy.en;
 const ldi = ldiData.ldi;
@@ -33,7 +35,11 @@ const goose = (gooseData as any).cgi;
 const cusma = (cusmaData as any).showdown;
 
 // ACTIVE races first; the World Cup closes the ticker as an archive.
+const esP = (esData as any).blocs.pp_vox.p_majority * 100;
+const esPmaj = esP > 99 ? '>99 %' : `${Math.round(esP)} %`;
+
 const signals = [
+  { label: 'Spain election', value: `PP+Vox ${esData.blocs.pp_vox.median} seats · majority ${esPmaj}`, href: '/en/spain/' },
   { label: 'Barrage Index', value: `${bfi.score}/100 · ${bfi.label_en}`, href: '/en/france/indexes/barrage/' },
   { label: 'French legislative', value: `p(RN majority) ${pMajRN}% under a 2024 front`, href: '/en/france/legislative-election' },
   { label: 'Clacton by-election', value: `Farage ${pFarage}% — polling day Aug 13`, href: '/en/uk/byelections/clacton/' },
@@ -45,6 +51,7 @@ const signals = [
 
 // Most striking number of each desk, injected on its card.
 const liveSignals: Record<string, string> = {
+  spain: `PP+Vox ${esData.blocs.pp_vox.median} seats · majority ${esPmaj}`,
   us: `Lame-Duck ${ldi.score}/100 · ${ldi.label_en}`,
   canada: `Goose ${goose.score}/100 · CUSMA ${cusma.gap > 0 ? '+' : ''}${cusma.gap}`,
   france: `p(RN majority) ${pMajRN}% under a 2024 front · Barrage ${bfi.score}/100`,
@@ -99,6 +106,8 @@ const liveSignals: Record<string, string> = {
   />
 
   <SearchFastPath lang="en" />
+
+  <SpainBand lang="en" />
 
   <TradeWarBand lang="en" />
 

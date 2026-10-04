@@ -54,6 +54,7 @@ const GROUP_US = { en: 'United States', fr: 'États-Unis', es: 'EE. UU.' };
 const GROUP_CA = { en: 'Canada', fr: 'Canada', es: 'Canadá' };
 const GROUP_UK = { en: 'United Kingdom', fr: 'Royaume-Uni', es: 'Reino Unido' };
 const GROUP_FR = { en: 'France', fr: 'France', es: 'Francia' };
+const GROUP_ES = { en: 'Spain', fr: 'Espagne', es: 'España' };
 
 /** Ordered — also drives the jurisdiction switcher list order. */
 export const JURISDICTION_NAV: JurisdictionNavEntry[] = [
@@ -196,6 +197,17 @@ export const JURISDICTION_NAV: JurisdictionNavEntry[] = [
         seg: { en: 'constituencies', fr: 'circonscriptions', es: 'circunscripciones' },
         label: { en: 'Constituencies', fr: 'Circonscriptions', es: 'Circunscripciones' },
       },
+    },
+  },
+  {
+    // Élections générales espagnoles — 52 circonscriptions (provinces, Ceuta,
+    // Melilla) projetées sur le hub même ; pas encore de pages par province.
+    webKey: 'spain', langs: ['en', 'fr', 'es'], group: GROUP_ES,
+    label: { en: 'Congress', fr: 'Congrès', es: 'Congreso' },
+    base: { en: '/en/spain', fr: '/fr/spain', es: '/es/spain' },
+    sections: {
+      projection: { seg: SEG_NONE },
+      polls: { seg: SEG_POLLS },
     },
   },
 ];

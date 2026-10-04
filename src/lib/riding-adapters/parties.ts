@@ -158,6 +158,30 @@ export const FR_LEG_PARTIES: Record<string, PartyMeta> = {
   other:        { label_en: 'Others',          label_fr: 'Autres',            color: '#999999', mention_fr: "d'un autre bloc",          mention_en: 'another bloc',          mention_es: 'otro bloque' },
 };
 
+/**
+ * Espagne (Congreso) — codes du moteur es_projection. Couleurs reprises par
+ * l'export moteur (es_export_web.PALETTE) : les deux listes restent alignées.
+ */
+export const ES_PARTIES: Record<string, PartyMeta> = {
+  pp:      { label_en: 'PP',      label_fr: 'PP',      color: '#1D84CE', full_en: 'People’s Party', full_fr: 'Parti populaire', mention_fr: 'du PP',      mention_en: 'the PP',      mention_es: 'el PP' },
+  psoe:    { label_en: 'PSOE',    label_fr: 'PSOE',    color: '#E30613', full_en: 'Spanish Socialist Workers’ Party', full_fr: 'Parti socialiste ouvrier espagnol', mention_fr: 'du PSOE', mention_en: 'the PSOE', mention_es: 'el PSOE' },
+  vox:     { label_en: 'Vox',     label_fr: 'Vox',     color: '#5AC035', mention_fr: 'de Vox',     mention_en: 'Vox',         mention_es: 'Vox' },
+  sumar:   { label_en: 'Sumar',   label_fr: 'Sumar',   color: '#E5197E', mention_fr: 'de Sumar',   mention_en: 'Sumar',       mention_es: 'Sumar' },
+  podemos: { label_en: 'Podemos', label_fr: 'Podemos', color: '#6C2D82', mention_fr: 'de Podemos', mention_en: 'Podemos',     mention_es: 'Podemos' },
+  salf:    { label_en: 'SALF',    label_fr: 'SALF',    color: '#3B3B3B', full_en: 'Se Acabó La Fiesta', full_fr: 'Se Acabó La Fiesta', mention_fr: 'de SALF', mention_en: 'SALF', mention_es: 'SALF' },
+  erc:     { label_en: 'ERC',     label_fr: 'ERC',     color: '#F7B230', mention_fr: 'd’ERC',      mention_en: 'ERC',         mention_es: 'ERC' },
+  junts:   { label_en: 'Junts',   label_fr: 'Junts',   color: '#00B4A8', mention_fr: 'de Junts',   mention_en: 'Junts',       mention_es: 'Junts' },
+  bildu:   { label_en: 'EH Bildu', label_fr: 'EH Bildu', color: '#A4C21C', mention_fr: 'd’EH Bildu', mention_en: 'EH Bildu',  mention_es: 'EH Bildu' },
+  pnv:     { label_en: 'PNV',     label_fr: 'PNV',     color: '#2E8B3A', mention_fr: 'du PNV',     mention_en: 'the PNV',     mention_es: 'el PNV' },
+  bng:     { label_en: 'BNG',     label_fr: 'BNG',     color: '#7DB7E3', mention_fr: 'du BNG',     mention_en: 'the BNG',     mention_es: 'el BNG' },
+  cc:      { label_en: 'CC',      label_fr: 'CC',      color: '#F2D23A', full_en: 'Canarian Coalition', full_fr: 'Coalition canarienne', mention_fr: 'de CC', mention_en: 'CC', mention_es: 'CC' },
+  upn:     { label_en: 'UPN',     label_fr: 'UPN',     color: '#24479B', mention_fr: 'd’UPN',      mention_en: 'UPN',         mention_es: 'UPN' },
+  cup:     { label_en: 'CUP',     label_fr: 'CUP',     color: '#D9C400', mention_fr: 'de la CUP',  mention_en: 'the CUP',     mention_es: 'la CUP' },
+  alianca_cat: { label_en: 'Aliança Catalana', label_fr: 'Aliança Catalana', color: '#16324F', mention_fr: 'd’Aliança Catalana', mention_en: 'Aliança Catalana', mention_es: 'Aliança Catalana' },
+  adelante_andalucia: { label_en: 'Adelante Andalucía', label_fr: 'Adelante Andalucía', color: '#1F9D55', mention_fr: 'd’Adelante Andalucía', mention_en: 'Adelante Andalucía', mention_es: 'Adelante Andalucía' },
+  es_oth:  { label_en: 'Others',  label_fr: 'Autres',  color: '#9A938A', mention_fr: 'd’un autre parti', mention_en: 'another party', mention_es: 'otros' },
+};
+
 const PALETTES: Record<string, Record<string, PartyMeta>> = {
   'federal-ca': CA_FEDERAL_PARTIES,
   'quebec': QC_PARTIES,
@@ -171,6 +195,7 @@ const PALETTES: Record<string, Record<string, PartyMeta>> = {
   // ce que la palette doit pouvoir nommer (us_ind / us_oth y sont déjà).
   'us-governor': US_HOUSE_PARTIES,
   'france': FR_LEG_PARTIES,
+  'spain': ES_PARTIES,
 };
 
 /**

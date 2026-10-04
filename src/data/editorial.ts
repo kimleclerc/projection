@@ -86,6 +86,16 @@ export const desks: Record<'en' | 'fr' | 'es', Desk[]> = {
       signal: 'Clacton special desk is live',
     },
     {
+      id: 'spain',
+      name: 'Spain Desk',
+      eyebrow: 'Snap general election?',
+      question: 'If Sánchez calls it, who governs Spain?',
+      description:
+        'All 350 Congress seats projected province by province under D’Hondt, the dates a snap election could fall on, a housing tracker, and a second experimental model for comparison.',
+      href: '/en/spain/',
+      signal: 'New: Spain general election desk',
+    },
+    {
       id: 'france',
       name: 'France Desk',
       eyebrow: '2027 Presidential',
@@ -138,6 +148,16 @@ export const desks: Record<'en' | 'fr' | 'es', Desk[]> = {
       signal: 'Le desk spécial Clacton est en ligne',
     },
     {
+      id: 'spain',
+      name: 'Desk Espagne',
+      eyebrow: 'Élections anticipées ?',
+      question: 'Si Sánchez dissout, qui gouverne l’Espagne ?',
+      description:
+        'Les 350 sièges du Congrès projetés province par province à la D’Hondt, les dates possibles d’une élection anticipée, un traqueur du logement et un second modèle expérimental pour comparer.',
+      href: '/fr/spain/',
+      signal: 'Nouveau : desk des élections espagnoles',
+    },
+    {
       id: 'france',
       name: 'Desk France',
       eyebrow: 'Présidentielle 2027',
@@ -188,6 +208,16 @@ export const desks: Record<'en' | 'fr' | 'es', Desk[]> = {
         '650 circunscripciones calibradas contra los MRP publicados, anclaje de parciales reales y un desk especial para Clacton — Farage bajo investigación, mercados como referencia.',
       href: '/es/uk/',
       signal: 'El desk especial de Clacton está en vivo',
+    },
+    {
+      id: 'spain',
+      name: 'Mesa España',
+      eyebrow: '¿Adelanto electoral?',
+      question: 'Si Sánchez convoca, ¿quién gobierna España?',
+      description:
+        'Los 350 escaños del Congreso proyectados provincia por provincia con la ley D’Hondt, las fechas posibles de un adelanto, un termómetro de la vivienda y un segundo modelo experimental para comparar.',
+      href: '/es/spain/',
+      signal: 'Nuevo: mesa de las elecciones generales',
     },
     {
       id: 'france',
