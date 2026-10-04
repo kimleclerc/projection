@@ -1,8 +1,8 @@
 # Vote-Scope
 
-> Projections électorales canadiennes, américaines, françaises et britanniques basées sur un modèle BSTS bayésien avec agrégation de sondages et simulations Monte Carlo. Trilingue (EN/FR/ES). Par Kim Leclerc.
+> Projections électorales canadiennes, américaines, françaises, britanniques et espagnoles basées sur un modèle BSTS bayésien avec agrégation de sondages et simulations Monte Carlo. Trilingue (EN/FR/ES). Par Kim Leclerc.
 
-Vote-Scope (vote-scope.com) est un outil de projection électorale indépendant et non partisan créé par Kim Leclerc (kimleclerc.ca). Il couvre les élections fédérales canadiennes (343 sièges), provinciales du Québec (127) et de l'Ontario (124), la Chambre des représentants américaine (435 districts), le Sénat américain (35 courses contestées en 2026), les élections générales britanniques (650 circonscriptions) et la présidentielle française 2027, avec des pages spéciales d'événement, des index éditoriaux et une page publique de track record.
+Vote-Scope (vote-scope.com) est un outil de projection électorale indépendant et non partisan créé par Kim Leclerc (kimleclerc.ca). Il couvre les élections fédérales canadiennes (343 sièges), provinciales du Québec (127) et de l'Ontario (124), la Chambre des représentants américaine (435 districts), le Sénat américain (35 courses contestées en 2026), les élections générales britanniques (650 circonscriptions), les élections générales espagnoles (Congrès, 350 sièges en 52 circonscriptions à la D'Hondt) et la présidentielle française 2027, avec des pages spéciales d'événement, des index éditoriaux et une page publique de track record.
 
 Toutes les pages existent en trois langues : anglais (`/en/`), français (`/fr/`) et espagnol (`/es/`). Le site comprend une page individuelle pour chacune des ~1677 circonscriptions/districts (projection, élu·e en exercice, candidats du dernier scrutin, démographie, voisinage, trajectoire), au sein de plus de 7900 pages statiques. Les URLs ci-dessous montrent la variante anglaise canonique ; remplacer `/en/` par `/fr/` ou `/es/` pour les autres langues (les segments de chemin sont localisés : `ridings`→`circonscriptions`→`distritos`, `constituencies`→`circonscriptions`→`circunscripciones`, `house`→`chambre`→`house`, `senate`→`senat`→`senate`, `governors`→`gouverneurs`→`gobernadores`, `races`→`courses`→`carreras`).
 
@@ -46,6 +46,8 @@ Le site contient aussi une verticale sport distincte, `Sports Scope`, sous `/en/
 - [Élection générale R.-U.](https://vote-scope.com/en/uk/general-election/): Projection — 650 circonscriptions (cycle uk_2029, baseline 2024)
 - [Index circonscriptions R.-U.](https://vote-scope.com/en/uk/constituencies/): Les 650 circonscriptions de Westminster ; Irlande du Nord individualisée (DUP, Sinn Féin, SDLP, Alliance, UUP, TUV)
 - [France](https://vote-scope.com/en/france/): Présidentielle française 2027 — scénarios de second tour
+- [Espagne](https://vote-scope.com/en/spain/): Élections générales espagnoles — projection des 350 sièges du Congrès province par province (D'Hondt, seuil de 3 %), modèle BSTS + second modèle expérimental Orbite (bêta) et mélange 50/50, dates possibles d'une élection anticipée (vote le 54e jour après la dissolution au BOE ; date limite 22 août 2027), traqueur du logement (baromètre du CIS), comparaison avec les autres projections publiées
+- [Sondages Espagne](https://vote-scope.com/en/spain/polls/): Tous les sondages nationaux publiés sur le Congrès depuis 2023, institut par institut (réestimations du CIS par des tiers exclues)
 - [Budget — analyse fiscale](https://vote-scope.com/en/budget/): Analyse indépendante et trilingue des budgets et mises à jour économiques (Canada fédéral, Ontario, Québec) — chiffres, secteurs, impact concret. Une page permanente par édition, archives conservées. Non affiliée à un gouvernement.
 - [Budget Canada fédéral](https://vote-scope.com/en/budget/canada/): Toutes les éditions du budget fédéral canadien analysées (ex. Budget 2025, déposé le 4 novembre 2025)
 - [Budget Ontario](https://vote-scope.com/en/budget/ontario/): Toutes les éditions du budget de l'Ontario analysées
@@ -57,6 +59,33 @@ Le site contient aussi une verticale sport distincte, `Sports Scope`, sous `/en/
 - [Sports Scope NHL](https://vote-scope.com/en/sports/nhl/): Projections Coupe Stanley 2025-26 — probabilités, séries, scores, méthode
 - [Sports Scope — Track record](https://vote-scope.com/en/sports/track-record/): Historique des calls sport
 - [Coupe du monde 2026](https://vote-scope.com/en/sports/wc2026/): Page tournoi international 2026
+
+## Valeurs courantes
+
+<!-- valeurs-courantes:debut -->
+### Instantané au 2026-10-03 (régénéré automatiquement à chaque publication)
+
+Premier et deuxième partis en sièges projetés (médiane ou moyenne selon la juridiction), et probabilité que le premier obtienne la majorité. Pour une valeur à citer, lire le `latest_url` du manifeste `/api/v1/manifest.json`.
+
+| Élection | Données au | Premier | Deuxième | Probabilité de majorité |
+|---|---|---|---|---|
+| Canada fédéral (343 sièges) | 2026-10-03 | Libéral 229 | Conservateur 81 | > 99 % |
+| Québec (127 sièges) | 2026-10-03 | PQ 66 | PLQ 36 | 53 % |
+| Ontario (124 sièges) | 2026-10-03 | Progressiste-conservateur 67 | NPD de l’Ontario 28 | 74 % |
+| Colombie-Britannique (93 sièges) | 2026-10-03 | Parti conservateur de la C.-B. 52 | NPD de la C.-B. 39 | 73 % |
+| Chambre des représentants US (435 sièges) | 2026-10-03 | Démocrate 235 | Républicain 200 | 97 % |
+| Sénat US (100 sièges) | 2026-10-03 | Démocrate 52 | Républicain 47 | 65 % |
+| Gouverneurs US (50 postes) | 2026-10-03 | Démocrate 26 | Républicain 24 | 60 % |
+| Royaume-Uni (650 sièges) | 2026-10-03 | Travailliste 235 | Reform UK 153 | < 1 % |
+| Espagne, Congrès (350 sièges) | 2026-10-03 | PP 140 | PSOE 102 | bloc PP+Vox 205 sièges : > 99 % |
+
+Indices maison :
+- Lame-Duck Index (déclin du pouvoir présidentiel) : 79,5/100 (Canard boiteux) — données du 2026-10-03
+- Canada Goose Index : 85,6/100 (Bernache qui klaxonne) — données du 2026-10-03
+- Indice Barrage (solidité du front contre l’extrême droite) : 11,2/100 (Rompu) — données du 2026-10-03
+- Indice Fraser intérimaire : 68,7 (Signal Fraser positif) — données du 2026-10-03
+- Duel ACEUM / CUSMA (écart de levier Canada–É.-U.) : +65,1 (Le Canada domine la table) — données du 2026-10-03
+<!-- valeurs-courantes:fin -->
 
 ## Méthodologie
 

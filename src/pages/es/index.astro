@@ -8,6 +8,7 @@ import MethodologyNote from '../../components/MethodologyNote.astro';
 import IdentityMark from '../../components/IdentityMark.astro';
 import SearchFastPath from '../../components/SearchFastPath.astro';
 import TradeWarBand from '../../components/TradeWarBand.astro';
+import SpainBand from '../../components/SpainBand.astro';
 import RidingsCta from '../../components/RidingsCta.astro';
 import LabsHomeBand from '../../components/LabsHomeBand.astro';
 import SignalTicker from '../../islands/SignalTicker';
@@ -20,6 +21,7 @@ import frLegData from '../../../web_data/france-legislative/latest.json';
 import clactonData from '../../../web_data/uk-clacton-special/latest.json';
 import gooseData from '../../../web_data/ca-canada-goose/latest.json';
 import cusmaData from '../../../web_data/cusma-showdown/latest.json';
+import esData from '../../../web_data/spain/latest.json';
 
 const philosophy = editorialPhilosophy.es;
 const ldi = ldiData.ldi;
@@ -33,7 +35,11 @@ const goose = (gooseData as any).cgi;
 const cusma = (cusmaData as any).showdown;
 
 // Primero las carreras ACTIVAS; el Mundial cierra la cinta como archivo.
+const esP = (esData as any).blocs.pp_vox.p_majority * 100;
+const esPmaj = esP > 99 ? '>99 %' : `${Math.round(esP)} %`;
+
 const signals = [
+  { label: 'Elecciones España', value: `PP+Vox ${esData.blocs.pp_vox.median} escaños · mayoría ${esPmaj}`, href: '/es/spain/' },
   { label: 'Índice Barrage', value: `${bfi.score}/100 · ${bfi.label_es}`, href: '/es/france/indexes/barrage/' },
   { label: 'Legislativas FR', value: `p(mayoría RN) ${pMajRN}% con frente 2024`, href: '/es/france/legislativas' },
   { label: 'Parcial de Clacton', value: `Farage ${pFarage}% — 13 de agosto`, href: '/es/uk/byelections/clacton/' },
@@ -45,6 +51,7 @@ const signals = [
 
 // La cifra más llamativa de cada desk, inyectada en su tarjeta.
 const liveSignals: Record<string, string> = {
+  spain: `PP+Vox ${esData.blocs.pp_vox.median} escaños · mayoría ${esPmaj}`,
   us: `Lame-Duck ${ldi.score}/100`,
   canada: `Goose ${goose.score}/100 · T-MEC ${cusma.gap > 0 ? '+' : ''}${cusma.gap}`,
   france: `p(mayoría RN) ${pMajRN}% con frente 2024 · Barrage ${bfi.score}/100`,
@@ -99,6 +106,8 @@ const liveSignals: Record<string, string> = {
   />
 
   <SearchFastPath lang="es" />
+
+  <SpainBand lang="es" />
 
   <TradeWarBand lang="es" />
 

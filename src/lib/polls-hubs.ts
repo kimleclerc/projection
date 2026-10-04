@@ -39,6 +39,24 @@ const SEG: Record<HubLang, string> = { en: 'polls', fr: 'sondages', es: 'sondeos
 const SITE = 'https://vote-scope.com';
 
 export const POLLS_HUBS: Record<string, PollsHubConfig> = {
+  spain: {
+    webKey: 'spain', currentPage: 'spain', langs: ['en', 'fr', 'es'], seg: SEG,
+    base: { en: '/en/spain', fr: '/fr/spain', es: '/es/spain' },
+    copy: {
+      en: { eyebrow: 'Polls · Spain · Congress of Deputies', h1: 'Spanish election polls.',
+        lede1: 'PP, PSOE, Vox, Sumar, Podemos and the regional parties: every published national poll on voting intention for the Congress, pollster by pollster.',
+        lede2: 'Vote-Scope aggregates them, corrects each pollster for its measured lean, and projects all 350 seats province by province. Below: the trend against the model estimate, then the full table.',
+        ogEyebrow: 'POLLS · SPAIN', ogTitle: 'Spanish election polls', seoTitle: 'Spain Election Polls', ogSub: 'Vote-Scope · Congress of Deputies' },
+      fr: { eyebrow: 'Sondages · Espagne · Congrès des députés', h1: 'Les sondages des élections espagnoles.',
+        lede1: 'PP, PSOE, Vox, Sumar, Podemos et les partis régionaux : chaque sondage national publié sur les intentions de vote au Congrès, institut par institut.',
+        lede2: 'Vote-Scope les agrège, corrige chaque institut de son biais mesuré et projette les 350 sièges province par province. Ci-dessous : la tendance face à l’estimation du modèle, puis le tableau complet.',
+        ogEyebrow: 'SONDAGES · ESPAGNE', ogTitle: 'Sondages des élections espagnoles', seoTitle: 'Sondages élections Espagne', ogSub: 'Vote-Scope · Congrès des députés' },
+      es: { eyebrow: 'Encuestas · España · Congreso de los Diputados', h1: 'Encuestas electorales de España.',
+        lede1: 'PP, PSOE, Vox, Sumar, Podemos y los partidos regionales: todas las encuestas nacionales publicadas sobre intención de voto al Congreso, empresa por empresa.',
+        lede2: 'Vote-Scope las agrega, corrige el sesgo medido de cada empresa y proyecta los 350 escaños provincia por provincia. Abajo: la tendencia frente a la estimación del modelo, y la tabla completa.',
+        ogEyebrow: 'ENCUESTAS · ESPAÑA', ogTitle: 'Encuestas electorales de España', seoTitle: 'Encuestas electorales España', ogSub: 'Vote-Scope · Congreso de los Diputados' },
+    },
+  },
   'us-house': {
     webKey: 'us-house', currentPage: 'us', langs: ['en', 'fr', 'es'], seg: SEG, hasCards: true,
     base: { en: '/en/us/house', fr: '/fr/us/chambre', es: '/es/us/house' },
