@@ -1,5 +1,5 @@
 import { useMemo } from 'preact/hooks';
-import { deriveRows, numFmt, timeFmt, useLive, type Locale, type PartyInfo } from './qcLiveBus';
+import { deriveRows, numFmt, outcomeLabel, outcomeOf, timeFmt, useLive, type Locale, type PartyInfo, type RidingInfo } from './qcLiveBus';
 
 /**
  * Résultat en direct d'UNE circonscription, en tête de sa page. Avant 20 h :
@@ -10,17 +10,19 @@ import { deriveRows, numFmt, timeFmt, useLive, type Locale, type PartyInfo } fro
 const copy = {
   fr: { title: 'Résultats en direct', before: (n: string) => `Les résultats de ${n} s’afficheront ici dès la fermeture des bureaux, à 20 h le 5 octobre.`,
         waiting: 'En attente des premiers bureaux de cette circonscription.', elected: 'Élu·e', leading: 'En tête', polls: 'bureaux dépouillés',
-        updated: 'Données de', all: 'Tous les résultats du Québec →' },
+        updated: 'Données de', at: 'appel à', all: 'Tous les résultats du Québec →' },
   en: { title: 'Live results', before: (n: string) => `Results for ${n} will appear here when polls close at 8 p.m. on October 5.`,
         waiting: 'Waiting for the first polls in this riding.', elected: 'Elected', leading: 'Leading', polls: 'polls counted',
-        updated: 'Data as of', all: 'All Quebec results →' },
+        updated: 'Data as of', at: 'called at', all: 'All Quebec results →' },
   es: { title: 'Resultados en directo', before: (n: string) => `Los resultados de ${n} aparecerán aquí al cierre de las urnas, a las 20:00 del 5 de octubre.`,
         waiting: 'A la espera de las primeras mesas de este distrito.', elected: 'Electo', leading: 'En cabeza', polls: 'mesas escrutadas',
-        updated: 'Datos de las', all: 'Todos los resultados de Quebec →' },
+        updated: 'Datos de las', at: 'anunciado a las', all: 'Todos los resultados de Quebec →' },
 };
 
-export default function QcLiveRiding({ lang, ridingId, name, parties, resultsHref }:
-  { lang: Locale; ridingId: string; name: string; parties: PartyInfo[]; resultsHref: string }) {
+export default function QcLiveRiding({ lang, ridingId, name, parties, resultsHref, info }:
+  { lang: Locale; ridingId: string; name: string; parties: PartyInfo[]; resultsHref: string;
+    /** Sortant, détenteur et genres (src/data/qc-live-ridings.json) pour « réélu·e / élu·e / gain ». */
+    info?: RidingInfo }) {
   const t = copy[lang];
   const { data } = useLive();
   const pmap = useMemo(() => new Map(parties.map((p) => [p.code, p])), [parties]);
@@ -41,7 +43,8 @@ export default function QcLiveRiding({ lang, ridingId, name, parties, resultsHre
             <ul class="qlr-cands">
               {cands.slice(0, 6).map((c, i) => {
                 const p = pmap.get(c.party_code);
-                const status = i === 0 ? (row?.call ? t.elected : t.leading) : null;
+                const o = i === 0 ? outcomeOf(row?.call ?? null, info) : null;
+                const status = i === 0 ? (o ? `${outcomeLabel(o, lang)}${o.kind === 'gain' && o.from ? ` (${pmap.get(o.from)?.label ?? o.from.toUpperCase()})` : ''} · ${t.at} ${timeFmt(row?.call?.called_at, lang)}` : t.leading) : null;
                 return (
                   <li key={`${c.party_code}-${c.candidate_name}`} class={i === 0 ? 'is-first' : ''}>
                     <span class="qlr-name"><i style={`background:${p?.color ?? '#90a4ae'}`}></i><strong>{c.candidate_name}</strong> <small>{p?.label ?? c.party_code.toUpperCase()}</small>

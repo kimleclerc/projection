@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'preact/hooks';
-import { deriveRows, numFmt, useLive, type Locale, type PartyInfo, type RidingInfo } from './qcLiveBus';
+import { deriveRows, numFmt, outcomeLabel, outcomeOf, timeFmt, useLive, type Locale, type PartyInfo, type RidingInfo } from './qcLiveBus';
 
 /**
  * Les 127 circonscriptions : recherche, filtres, 25 lignes puis « voir tout ».
@@ -34,7 +34,8 @@ export default function QcLiveList({ lang, parties, ridings }: { lang: Locale; p
   if (!data || !rows.some((x) => x.r?.party)) return null;
 
   const norm = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
-  const isGain = (x: typeof rows[number]) => !!x.r?.party && !!x.rd.winner2022 && x.r.party !== x.rd.winner2022;
+  const holderOf = (x: typeof rows[number]) => x.rd.holder ?? x.rd.winner2022;
+  const isGain = (x: typeof rows[number]) => !!x.r?.party && !!holderOf(x) && x.r.party !== holderOf(x);
   let shown = rows.filter((x) => !q || norm(x.rd.name).includes(norm(q)));
   if (f === 'close') shown = shown.filter((x) => x.r && !x.r.call && x.r.margin !== null && x.r.margin < 5).sort((a, b) => (a.r!.margin ?? 0) - (b.r!.margin ?? 0));
   if (f === 'gains') shown = shown.filter(isGain);
@@ -63,8 +64,13 @@ export default function QcLiveList({ lang, parties, ridings }: { lang: Locale; p
                 <td class="num">{r?.leader ? numFmt(r.leader.vote_pct ?? 0, lang) : ''}</td>
                 <td class="num">{r?.margin != null ? `+${numFmt(r.margin, lang)}` : ''}</td>
                 <td class="num">{r?.polls?.total ? `${r.polls.reported ?? 0}/${r.polls.total}` : ''}</td>
-                <td>{r?.call ? <span class="qll-badge is-called">{t.calledBadge}</span> : r?.leader ? <span class="qll-badge">{t.leadingBadge}</span> : null}
-                  {isGain({ rd, r }) && <span class="qll-badge is-gain">{t.gainBadge}</span>}</td>
+                <td>{(() => {
+                  const o = outcomeOf(r?.call ?? null, rd);
+                  if (o) return <><span class={`qll-badge is-called is-${o.kind}`}>{outcomeLabel(o, lang)}</span>
+                    <small class="qll-time">{timeFmt(r?.call?.called_at, lang)}</small></>;
+                  return <>{r?.leader ? <span class="qll-badge">{t.leadingBadge}</span> : null}
+                    {isGain({ rd, r }) && <span class="qll-badge is-gain">{t.gainBadge}</span>}</>;
+                })()}</td>
               </tr>
             );
           })}

@@ -23,6 +23,7 @@ import QcLiveTileMap from '../islands/QcLiveTileMap.tsx';
 import QcLiveFeed from '../islands/QcLiveFeed.tsx';
 import QcLiveList from '../islands/QcLiveList.tsx';
 import ridingsSource from '../../web_data/quebec/ridings.json';
+import liveRidingData from '../data/qc-live-ridings.json';
 
 // LECTURE PUBLIQUE = RAIL STATIQUE. Chaque lecture du Worker est une invocation
 // facturée, même servie par `caches.default` : le cache protège le Durable
@@ -95,7 +96,10 @@ const liveRidings = (ridingsSource as any).ridings.map((r: any) => ({
   region: r.region ?? 'rest',
   winner2022: r.baseline_result?.winner ?? null,
   projected: r.projection?.winner ?? null,
+  ...((liveRidingData as any)[r.riding_id] ?? {}),
 }));
+// Sièges projetés avant le scrutin, pour la jauge « vs projection ».
+const projectedSeats = Object.fromEntries(quebecMeta.parties.map((p: any) => [p.party, p.seats_projected]));
 const pollsBase = { fr: 'sondages', en: 'polls', es: 'sondeos' }[locale];
 
 // ── Textes ─────────────────────────────────────────────────────────
@@ -103,7 +107,7 @@ const COPY = {
   fr: {
     eyebrow: 'Élection générale québécoise · 5 octobre 2026',
     h1: 'Élections Québec 2026 : les résultats en direct',
-    lede: 'Dès la fermeture des bureaux, à 20 h le 5 octobre, cette page porte le dépouillement en direct des 127 circonscriptions : voix, bureaux dépouillés, sièges, et les gagnants annoncés dès que le résultat est certain. Ajoutez-la à vos favoris; d’ici là, voici ce qui s’y passera et où en est la course.',
+    lede: 'Dès la fermeture des bureaux, à 20 h le 5 octobre, cette page porte le dépouillement en direct des 127 circonscriptions : voix, bureaux dépouillés, sièges, et les gagnants annoncés dès que le résultat est certain. Elle se met à jour d’elle-même : l’heure de chaque annonce, qui forme le gouvernement, et l’écart avec notre projection.',
     scheduleTitle: 'Le déroulé de la soirée',
     schedule: [
       { time: '20 h 00', label: 'Fermeture des bureaux', text: 'Élections Québec commence à publier les résultats par bureau de vote. La source officielle se rafraîchit toutes les deux à cinq minutes; cette page suit la même cadence.' },
@@ -142,7 +146,7 @@ const COPY = {
   en: {
     eyebrow: 'Quebec general election · October 5, 2026',
     h1: 'Quebec election 2026: live results',
-    lede: 'From the moment polls close at 8 p.m. on October 5, this page carries the live count across all 127 ridings: votes, polls reporting, seats, and our race calls the moment they are safe enough to publish. Bookmark it; until then, here is what will happen here and where the race stands.',
+    lede: 'From the moment polls close at 8 p.m. on October 5, this page carries the live count across all 127 ridings: votes, polls reporting, seats, and our race calls the moment they are safe enough to publish. It updates on its own: the time of every call, who forms the government, and the gap with our forecast.',
     scheduleTitle: 'How the night unfolds',
     schedule: [
       { time: '8:00 p.m.', label: 'Polls close', text: 'Élections Québec begins publishing results poll by poll. The official source refreshes every two to five minutes; this page follows the same cadence.' },
@@ -181,7 +185,7 @@ const COPY = {
   es: {
     eyebrow: 'Elección general de Quebec · 5 de octubre de 2026',
     h1: 'Elecciones de Quebec 2026: resultados en directo',
-    lede: 'Desde el cierre de las urnas, a las 20:00 del 5 de octubre, esta página lleva el recuento en directo de los 127 distritos: votos, mesas escrutadas, escaños y nuestros pronunciamientos en cuanto son lo bastante seguros para publicarse. Guárdala en tus favoritos; hasta entonces, esto es lo que ocurrirá aquí y cómo va la contienda.',
+    lede: 'Desde el cierre de las urnas, a las 20:00 del 5 de octubre, esta página lleva el recuento en directo de los 127 distritos: votos, mesas escrutadas, escaños y nuestros pronunciamientos en cuanto son lo bastante seguros para publicarse. Se actualiza sola: la hora de cada anuncio, quién forma el gobierno y la diferencia con nuestra proyección.',
     scheduleTitle: 'El desarrollo de la noche',
     schedule: [
       { time: '20:00', label: 'Cierre de las mesas', text: 'Élections Québec empieza a publicar los resultados mesa por mesa. La fuente oficial se actualiza cada dos a cinco minutos; esta página sigue la misma cadencia.' },
@@ -239,7 +243,7 @@ const runDateText = new Intl.DateTimeFormat(
 
 <section class="qen-live">
   <div class="container">
-    <QuebecElectionNightLive client:load eventId={LIVE_EVENT_ID} lang={locale} apiBase={liveApiBase} fallbackApiBase={liveFallbackApiBase} />
+    <QuebecElectionNightLive client:load eventId={LIVE_EVENT_ID} lang={locale} apiBase={liveApiBase} fallbackApiBase={liveFallbackApiBase} projected={projectedSeats} />
   </div>
 </section>
 

@@ -6,17 +6,17 @@ import tiles from '../data/qc-tiles.json';
  * Carte en tuiles des 127 circonscriptions : une case par siège, placée à peu
  * près selon la géographie (scripts/build-qc-tiles.py). Avant 20 h : la
  * projection d'avant-scrutin. Le soir : teinte pâle = en tête, pleine = élu,
- * coin = gain par rapport à 2022.
+ * coin = la circonscription change de parti (par rapport au sortant).
  */
 const copy = {
   fr: { title: 'La carte des 127 circonscriptions', before: 'Projection d’avant-scrutin. La carte passe au dépouillement à 20 h.',
-        live: 'Pâle : en tête. Plein : élu. Coin blanc : gain par rapport à 2022.', leading: 'en tête', elected: 'élu·e', projected: 'projeté',
+        live: 'Pâle : en tête. Plein : élu. Coin blanc : la circonscription change de parti.', leading: 'en tête', elected: 'élu·e', projected: 'projeté',
         noResult: 'aucun résultat', gain: 'gain', polls: 'bureaux', open: 'Voir la circonscription →', tap: 'Touchez une case pour le détail.' },
   en: { title: 'Map of all 127 ridings', before: 'Pre-election projection. The map switches to the live count at 8 p.m.',
-        live: 'Light: leading. Solid: elected. White corner: gain from 2022.', leading: 'leading', elected: 'elected', projected: 'projected',
+        live: 'Light: leading. Solid: elected. White corner: the seat changes hands.', leading: 'leading', elected: 'elected', projected: 'projected',
         noResult: 'no results yet', gain: 'gain', polls: 'polls', open: 'Open the riding →', tap: 'Tap a square for details.' },
   es: { title: 'El mapa de los 127 distritos', before: 'Proyección previa. El mapa pasa al recuento a las 20:00.',
-        live: 'Claro: en cabeza. Lleno: electo. Esquina blanca: ganancia respecto a 2022.', leading: 'en cabeza', elected: 'electo', projected: 'proyectado',
+        live: 'Claro: en cabeza. Lleno: electo. Esquina blanca: el distrito cambia de partido.', leading: 'en cabeza', elected: 'electo', projected: 'proyectado',
         noResult: 'sin resultados', gain: 'ganancia', polls: 'mesas', open: 'Ver el distrito →', tap: 'Toca una casilla para ver el detalle.' },
 };
 
@@ -33,7 +33,8 @@ export default function QcLiveTileMap({ lang, parties, ridings }: { lang: Locale
     const r = rows.get(rid); const rd = ridings.find((x) => x.id === rid);
     const party = live ? r?.party ?? null : rd?.projected ?? null;
     const state = !live ? 'projected' : r?.call ? 'elected' : r?.party ? 'leading' : 'none';
-    const gain = live && !!party && !!rd?.winner2022 && party !== rd.winner2022;
+    const held = rd?.holder ?? rd?.winner2022;
+    const gain = live && !!party && !!held && party !== held;
     return { r, rd, party, state, gain };
   };
 

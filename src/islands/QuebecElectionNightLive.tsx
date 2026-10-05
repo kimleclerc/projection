@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import '../styles/quebec-election-night-live.css';
 import { readDgeqDirect } from './dgeqDirect';
-import { publishLive } from './qcLiveBus';
+import { publishLive, governmentStatus } from './qcLiveBus';
 
 /**
  * La couche directe de la soirée québécoise : sièges en tête et appelés, et
@@ -65,7 +65,14 @@ const copy = {
         direct: 'Source directe du directeur général des élections — nos appels et nos projections ne sont pas disponibles.',
         search: 'Chercher une circonscription', anomalies: 'candidats ou partis inconnus du registre',
         before: 'Les premiers résultats arrivent le lundi 5 octobre à 20 h, à la fermeture des bureaux. Gardez cette page dans vos favoris : elle se mettra à jour d’elle-même.',
-        anomaliesBlocked: 'aucun appel automatique possible', anomaliesOverridden: 'des appels automatiques ont été publiés malgré l’anomalie' },
+        anomaliesBlocked: 'aucun appel automatique possible', anomaliesOverridden: 'des appels automatiques ont été publiés malgré l’anomalie',
+        party: 'Parti', elected: 'Élus', ahead: 'En tête', total: 'Total', vsProj: 'Écart', projCol: 'Projection', projTitle: 'Par rapport à notre projection',
+        projNote: (n: number) => `Élus et en tête comparés aux sièges que notre projection d’avant-scrutin donnait à chaque parti. Les premiers bureaux trompent : à lire après une heure de dépouillement (${n} circonscriptions sur 127 ont des résultats).`,
+        better: 'mieux que prévu', worse: 'moins bien que prévu', asExpected: 'comme prévu',
+        govTitle: 'L’Assemblée nationale', govNone: 'Aucun appel sur le gouvernement pour l’instant : il faut d’abord que des circonscriptions soient annoncées.',
+        gov: (p: string) => `${p} formera le gouvernement`, govMaj: (p: string) => `Gouvernement ${p} majoritaire`,
+        govMin: (p: string | null) => p ? `Gouvernement ${p} minoritaire` : 'Gouvernement minoritaire', at: 'Appel à', manual: 'appel de la rédaction',
+        auto: 'certain d’après les circonscriptions annoncées' },
   en: { live: 'Live', waiting: 'Waiting for the first official results', connecting: 'Connecting to the official count…',
         unavailable: 'Live results temporarily unavailable', lastKnown: 'Last known update', updated: 'Data as of',
         seats: 'Seats', popular: 'Popular vote', called: 'elected', leading: 'leading', majority: `Majority: ${MAJORITY}`, ridings: 'Ridings',
@@ -75,7 +82,14 @@ const copy = {
         direct: 'Reading the chief electoral officer directly — our calls and projections are unavailable.',
         search: 'Find a riding', anomalies: 'candidates or parties unknown to the registry',
         before: 'The first results arrive on Monday, October 5 at 8 p.m., when polls close. Bookmark this page: it will update on its own.',
-        anomaliesBlocked: 'no automatic call possible', anomaliesOverridden: 'automatic calls were published over the anomaly' },
+        anomaliesBlocked: 'no automatic call possible', anomaliesOverridden: 'automatic calls were published over the anomaly',
+        party: 'Party', elected: 'Elected', ahead: 'Leading', total: 'Total', vsProj: 'Gap', projCol: 'Forecast', projTitle: 'Compared with our forecast',
+        projNote: (n: number) => `Elected and leading seats compared with what our pre-election forecast gave each party. Early polls mislead: read this after an hour of counting (${n} of 127 ridings are reporting).`,
+        better: 'better than forecast', worse: 'worse than forecast', asExpected: 'as forecast',
+        govTitle: 'The National Assembly', govNone: 'No call on the government yet: ridings have to be called first.',
+        gov: (p: string) => `${p} will form the government`, govMaj: (p: string) => `${p} majority government`,
+        govMin: (p: string | null) => p ? `${p} minority government` : 'Minority government', at: 'Called at', manual: 'newsroom call',
+        auto: 'certain from the ridings called' },
   es: { live: 'En directo', waiting: 'A la espera de los primeros resultados oficiales', connecting: 'Conectando con el recuento oficial…',
         unavailable: 'Resultados en directo temporalmente no disponibles', lastKnown: 'Última actualización conocida', updated: 'Datos del',
         seats: 'Escaños', popular: 'Voto popular', called: 'electos', leading: 'en cabeza', majority: `Mayoría: ${MAJORITY}`, ridings: 'Distritos',
@@ -85,7 +99,14 @@ const copy = {
         direct: 'Lectura directa del director general de elecciones — nuestras asignaciones y proyecciones no están disponibles.',
         search: 'Buscar un distrito', anomalies: 'candidatos o partidos desconocidos para el registro',
         before: 'Los primeros resultados llegan el lunes 5 de octubre a las 20:00, al cierre de las urnas. Guarda esta página en tus favoritos: se actualizará sola.',
-        anomaliesBlocked: 'sin asignación automática', anomaliesOverridden: 'se publicaron asignaciones automáticas pese a la anomalía' },
+        anomaliesBlocked: 'sin asignación automática', anomaliesOverridden: 'se publicaron asignaciones automáticas pese a la anomalía',
+        party: 'Partido', elected: 'Electos', ahead: 'En cabeza', total: 'Total', vsProj: 'Diferencia', projCol: 'Proyección', projTitle: 'Frente a nuestra proyección',
+        projNote: (n: number) => `Electos y en cabeza comparados con los escaños que nuestra proyección previa daba a cada partido. Las primeras mesas engañan: léase tras una hora de recuento (${n} de 127 distritos con resultados).`,
+        better: 'mejor de lo previsto', worse: 'peor de lo previsto', asExpected: 'como se previó',
+        govTitle: 'La Asamblea Nacional', govNone: 'Aún no hay anuncio sobre el gobierno: primero deben anunciarse distritos.',
+        gov: (p: string) => `${p} formará el gobierno`, govMaj: (p: string) => `Gobierno mayoritario del ${p}`,
+        govMin: (p: string | null) => p ? `Gobierno minoritario del ${p}` : 'Gobierno minoritario', at: 'Anunciado a las', manual: 'anuncio de la redacción',
+        auto: 'seguro según los distritos anunciados' },
 };
 
 function storageKey(eventId: string) { return `vs-live-${eventId}`; }
@@ -109,8 +130,10 @@ function num(v: number, locale: Locale, digits = 1): string {
   return v.toLocaleString(locale === 'en' ? 'en-CA' : locale === 'es' ? 'es-ES' : 'fr-CA', { minimumFractionDigits: digits, maximumFractionDigits: digits });
 }
 
-export default function QuebecElectionNightLive({ eventId, lang, apiBase, fallbackApiBase, headless = false }:
+export default function QuebecElectionNightLive({ eventId, lang, apiBase, fallbackApiBase, headless = false, projected = {} }:
   { eventId: string; lang: Locale; apiBase: string; fallbackApiBase?: string;
+    /** Sièges projetés avant le scrutin, par parti (jauge « vs projection »). */
+    projected?: Record<string, number>;
     /** Lit et diffuse le direct sans rien afficher (pages de circonscription). */
     headless?: boolean }) {
   const t = copy[lang];
@@ -292,6 +315,8 @@ export default function QuebecElectionNightLive({ eventId, lang, apiBase, fallba
       .sort((a, b) => b.pct - a.pct).slice(0, 6) : [];
   }, [data, meta]);
 
+  const gov = useMemo(() => governmentStatus(data as any), [data]);
+  const reporting = (data?.results ?? []).filter((r) => (r.polls?.reported ?? 0) > 0).length;
   const sourceStamp = data?.source?.source_updated_at ?? null;
   const ageMin = sourceStamp ? Math.floor((now - new Date(sourceStamp).getTime()) / 60_000) : null;
   const stale = !complete && !!data && !fromStorage && data.source?.healthy !== false && ageMin !== null && ageMin * 60_000 > STALE_AFTER_MS;
@@ -329,12 +354,41 @@ export default function QuebecElectionNightLive({ eventId, lang, apiBase, fallba
             {tally.map((p) => <i key={p.code} style={`width:${(100 * p.total) / TOTAL}%;background:${p.color}`}>{p.called > 0 && <b style={`width:${(100 * p.called) / p.total}%`}></b>}</i>)}
             <em style={`--m:${(100 * MAJORITY) / TOTAL}%`} aria-hidden="true"></em>
           </div>
-          <ul class="qcl-legend">
-            {tally.map((p) => <li key={p.code}><i style={`background:${p.color}`}></i><span>{p.label}</span><strong>{p.total}</strong><small>{p.called} {t.called} · {p.leading} {t.leading}</small></li>)}
-          </ul>
+          <table class="qcl-table">
+            <thead><tr><th>{t.party}</th><th class="num">{t.elected}</th><th class="num">{t.ahead}</th><th class="num">{t.total}</th><th class="num">{t.projCol}</th><th class="num">{t.vsProj}</th></tr></thead>
+            <tbody>
+              {[...tally, ...Object.entries(projected).filter(([code, n]) => n > 0 && !tally.some((x) => x.code === code))
+                  .map(([code]) => ({ code, called: 0, leading: 0, total: 0, ...(meta.get(code) ?? { color: '#78909c', label: code.toUpperCase() }) }))
+              ].map((p) => {
+                const proj = projected[p.code];
+                const d = typeof proj === 'number' ? p.total - proj : null;
+                return <tr key={p.code}>
+                  <th scope="row"><i style={`background:${p.color}`}></i>{p.label}</th>
+                  <td class="num">{p.called}</td><td class="num">{p.leading}</td><td class="num qcl-total">{p.total}</td><td class="num qcl-proj">{typeof proj === 'number' ? proj : '—'}</td>
+                  <td class={`num qcl-gauge${d === null ? '' : d > 0 ? ' is-up' : d < 0 ? ' is-down' : ' is-even'}`}
+                    title={d === null ? '' : d > 0 ? t.better : d < 0 ? t.worse : t.asExpected}>
+                    {d === null ? '—' : d === 0 ? '=' : `${d > 0 ? '+' : '−'}${Math.abs(d)}`}
+                  </td>
+                </tr>;
+              })}
+            </tbody>
+          </table>
           <p class="qcl-majority">{t.majority} · {decided}/{TOTAL}</p>
+          <p class="qcl-note">{t.projNote(reporting)}</p>
         </div>
       )}
+
+      <div class="qcl-gov">
+        <h3>{t.govTitle}</h3>
+        {gov.length === 0 ? <p class="qcl-gov-none">{t.govNone}</p> : (
+          <ol>{gov.map((g) => {
+            const label = g.party ? (meta.get(g.party)?.label ?? g.party.toUpperCase()) : null;
+            const text = g.kind === 'government' ? t.gov(label ?? '') : g.kind === 'majority' ? t.govMaj(label ?? '') : t.govMin(label);
+            const color = g.party ? meta.get(g.party)?.color ?? '#78909c' : '#78909c';
+            return <li key={g.kind} style={`--c:${color}`}><strong>{text}</strong><span>{t.at} {fmtTime(g.at, lang)} · {g.manual ? t.manual : t.auto}</span></li>;
+          })}</ol>
+        )}
+      </div>
 
       {popular.length > 0 && (
         <div class="qcl-popular">

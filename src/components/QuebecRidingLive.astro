@@ -8,6 +8,7 @@
 import QuebecElectionNightLive from '../islands/QuebecElectionNightLive.tsx';
 import QcLiveRiding from '../islands/QcLiveRiding.tsx';
 import { partyMeta } from '../lib/riding-adapters/parties';
+import liveRidingData from '../data/qc-live-ridings.json';
 
 interface Props { locale: 'fr' | 'en' | 'es'; ridingId: string; name: string }
 const { locale, ridingId, name } = Astro.props;
@@ -23,5 +24,6 @@ const resultsHref = { fr: '/fr/canada/quebec/resultats/', en: '/en/canada/quebec
 ---
 <div>
   <QuebecElectionNightLive client:load headless eventId={LIVE_EVENT_ID} lang={locale} apiBase={liveApiBase} fallbackApiBase={liveFallbackApiBase} />
-  <QcLiveRiding client:load lang={locale} ridingId={ridingId} name={name} parties={parties} resultsHref={resultsHref} />
+  <QcLiveRiding client:load lang={locale} ridingId={ridingId} name={name} parties={parties} resultsHref={resultsHref}
+    info={{ id: ridingId, name, href: '', region: '', winner2022: null, projected: null, ...((liveRidingData as any)[ridingId] ?? {}) }} />
 </div>
