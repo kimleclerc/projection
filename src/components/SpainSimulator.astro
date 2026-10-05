@@ -1,0 +1,412 @@
+---
+// Simulateur D'Hondt — Espagne (Congreso, 350 sièges, 52 circonscriptions).
+// Tout tourne dans le navigateur à partir de web_data/spain/simulator.json :
+// translation logit calée sur le niveau national choisi (même méthode que la
+// projection), puis D'Hondt par province avec le seuil de 3 %. Le scénario de
+// l'utilisateur n'est jamais présenté comme notre projection.
+import EditorialLayout from '../layouts/EditorialLayout.astro';
+import JurisdictionNav from './JurisdictionNav.astro';
+import doc from '../../web_data/spain/simulator.json';
+
+type Locale = 'en' | 'fr' | 'es';
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const d = doc as any;
+const NATIONAL = ['pp', 'psoe', 'vox', 'sumar', 'podemos', 'salf'];
+const parties = (d.parties as { code: string; label: string; color: string; default: number; seats_projected: number }[])
+  .map((p) => ({ ...p, default: Math.round(p.default * 10) / 10 }));
+const nationalParties = parties.filter((p) => NATIONAL.includes(p.code));
+const regionalParties = parties.filter((p) => !NATIONAL.includes(p.code));
+
+// Résultat national de 2023 (Sumar comprenait Podemos) : scénario de départ.
+const PRESET_2023: Record<string, number> = {
+  pp: 33.1, psoe: 31.7, vox: 12.4, sumar: 12.3, podemos: 0, salf: 0, erc: 1.9, junts: 1.6, bildu: 1.4,
+  pnv: 1.1, bng: 0.6, cc: 0.5, upn: 0.2, cup: 0.4, alianca_cat: 0, adelante_andalucia: 0,
+};
+
+const paths = {
+  es: { hub: '/es/herramientas', self: '/es/herramientas/simulador-espana', projection: '/es/spain/' },
+  fr: { hub: '/fr/outils', self: '/fr/outils/simulateur-espagne', projection: '/fr/spain/' },
+  en: { hub: '/en/tools', self: '/en/tools/spain-simulator', projection: '/en/spain/' },
+}[locale];
+
+const copy = {
+  es: {
+    title: 'Simulador de elecciones generales: calcula los escaños con la ley D’Hondt — Vote-Scope',
+    description: 'Mueve el voto de cada partido y calcula los 350 escaños del Congreso provincia por provincia con la ley D’Hondt y el umbral del 3 %. Comparado con nuestra proyección.',
+    eyebrow: 'Herramienta · España · Congreso de los Diputados',
+    h1: 'Calcula los escaños: tu escenario, la ley D’Hondt.',
+    lede: 'Elige el porcentaje de voto de cada partido. Repartimos los 350 escaños en las 52 circunscripciones con la ley electoral real. Es tu escenario, no nuestra proyección.',
+    national: 'Partidos nacionales',
+    regional: 'Partidos regionales',
+    others: 'Otros y blanco',
+    over: 'La suma pasa del 100 %: baja algún partido.',
+    presets: 'Escenarios',
+    pProjection: 'Nuestra proyección',
+    p2023: 'Resultado de 2023',
+    pTie: 'Empate PP-PSOE',
+    seats: 'escaños',
+    vsProjection: 'vs. proyección',
+    majority: 'Mayoría absoluta: 176',
+    ppVox: 'PP + Vox',
+    inv: 'Bloque de la investidura de 2023',
+    yes: 'mayoría',
+    no: 'sin mayoría',
+    provinces: 'Provincia por provincia',
+    share: 'Copiar el enlace de este escenario',
+    copied: 'Enlace copiado',
+    note: 'Cada partido se traslada a las provincias desde su reparto de 2023 (o de su última elección si es nuevo), sin el ruido provincial de la proyección: el resultado es el reparto más probable de tu escenario.',
+    back: 'Ver la proyección Vote-Scope →',
+  },
+  fr: {
+    title: 'Simulateur des élections en Espagne : calculez les sièges à la D’Hondt — Vote-Scope',
+    description: 'Changez le vote de chaque parti et calculez les 350 sièges du Congrès province par province, avec la règle D’Hondt et le seuil de 3 %. Comparé à notre projection.',
+    eyebrow: 'Outil · Espagne · Congrès des députés',
+    h1: 'Calculez les sièges : votre scénario, la règle D’Hondt.',
+    lede: 'Choisissez le pourcentage de chaque parti. Nous répartissons les 350 sièges dans les 52 circonscriptions selon la vraie loi électorale. C’est votre scénario, pas notre projection.',
+    national: 'Partis nationaux',
+    regional: 'Partis régionaux',
+    others: 'Autres et blancs',
+    over: 'Le total dépasse 100 % : baissez un parti.',
+    presets: 'Scénarios',
+    pProjection: 'Notre projection',
+    p2023: 'Résultat de 2023',
+    pTie: 'Égalité PP-PSOE',
+    seats: 'sièges',
+    vsProjection: 'vs projection',
+    majority: 'Majorité absolue : 176',
+    ppVox: 'PP + Vox',
+    inv: 'Bloc de l’investiture de 2023',
+    yes: 'majorité',
+    no: 'pas de majorité',
+    provinces: 'Province par province',
+    share: 'Copier le lien de ce scénario',
+    copied: 'Lien copié',
+    note: 'Chaque parti est transposé dans les provinces à partir de sa répartition de 2023 (ou de sa dernière élection s’il est nouveau), sans le bruit provincial de la projection : le résultat est la répartition la plus probable de votre scénario.',
+    back: 'Voir la projection Vote-Scope →',
+  },
+  en: {
+    title: 'Spain Election Simulator: D’Hondt Seat Calculator — Vote-Scope',
+    description: 'Set each party’s vote and calculate all 350 Congress seats province by province under D’Hondt with the 3% threshold. Compared with our projection.',
+    eyebrow: 'Tool · Spain · Congress of Deputies',
+    h1: 'Calculate the seats: your scenario, the D’Hondt rule.',
+    lede: 'Pick each party’s vote share. We allocate all 350 seats across the 52 constituencies under the real electoral law. This is your scenario, not our projection.',
+    national: 'National parties',
+    regional: 'Regional parties',
+    others: 'Others and blank',
+    over: 'The total is above 100%: lower a party.',
+    presets: 'Scenarios',
+    pProjection: 'Our projection',
+    p2023: '2023 result',
+    pTie: 'PP-PSOE tie',
+    seats: 'seats',
+    vsProjection: 'vs projection',
+    majority: 'Majority: 176',
+    ppVox: 'PP + Vox',
+    inv: 'The bloc that re-elected Sánchez in 2023',
+    yes: 'majority',
+    no: 'no majority',
+    provinces: 'Province by province',
+    share: 'Copy a link to this scenario',
+    copied: 'Link copied',
+    note: 'Each party is carried into the provinces from its 2023 pattern (or its latest election if new), without the projection’s provincial noise: the result is the most likely split for your scenario.',
+    back: 'See the Vote-Scope projection →',
+  },
+}[locale];
+
+const canonical = `https://vote-scope.com${paths.self}`;
+const alternates = {
+  es: 'https://vote-scope.com/es/herramientas/simulador-espana',
+  fr: 'https://vote-scope.com/fr/outils/simulateur-espagne',
+  en: 'https://vote-scope.com/en/tools/spain-simulator',
+};
+const slider = (p: { code: string; label: string; color: string; default: number }, max: number) => ({ ...p, max });
+const rows = [
+  ...nationalParties.map((p) => slider(p, 50)),
+  ...regionalParties.map((p) => slider(p, 6)),
+];
+const clientCopy = { seats: copy.seats, yes: copy.yes, no: copy.no, copied: copy.copied, over: copy.over, locale };
+---
+
+<EditorialLayout
+  title={copy.title}
+  description={copy.description}
+  canonical={canonical}
+  lang={locale}
+  currentPage="match"
+  alternates={alternates}
+  jsonLd={{ '@context': 'https://schema.org', '@type': 'WebApplication', name: copy.h1, url: canonical, applicationCategory: 'EducationalApplication', inLanguage: locale, operatingSystem: 'Any' }}
+>
+  <JurisdictionNav webKey="spain" lang={locale} active="projection" />
+  <article class="sim-es" data-content-area>
+    <header class="sim-head">
+      <div class="container">
+        <p class="eyebrow">{copy.eyebrow}</p>
+        <h1>{copy.h1}</h1>
+        <p class="sim-lede">{copy.lede}</p>
+      </div>
+    </header>
+
+    <section class="content-band">
+      <div class="container sim-grid">
+        <form class="sim-controls" onsubmit="return false" aria-label={copy.h1}>
+          <div class="sim-presets">
+            <span>{copy.presets}</span>
+            <button type="button" data-preset="projection">{copy.pProjection}</button>
+            <button type="button" data-preset="2023">{copy.p2023}</button>
+            <button type="button" data-preset="tie">{copy.pTie}</button>
+          </div>
+          <h2>{copy.national}</h2>
+          {rows.filter((r) => NATIONAL.includes(r.code)).map((r) => (
+            <label class="sim-row" style={`--party-color:${r.color}`}>
+              <span class="sim-name">{r.label}</span>
+              <input type="range" min="0" max={r.max} step="0.1" value={r.default} data-party={r.code} />
+              <input type="number" min="0" max={r.max} step="0.1" value={r.default} data-party-num={r.code} aria-label={`${r.label} %`} />
+            </label>
+          ))}
+          <details class="sim-regional">
+            <summary>{copy.regional}</summary>
+            {rows.filter((r) => !NATIONAL.includes(r.code)).map((r) => (
+              <label class="sim-row" style={`--party-color:${r.color}`}>
+                <span class="sim-name">{r.label}</span>
+                <input type="range" min="0" max={r.max} step="0.1" value={r.default} data-party={r.code} />
+                <input type="number" min="0" max={r.max} step="0.1" value={r.default} data-party-num={r.code} aria-label={`${r.label} %`} />
+              </label>
+            ))}
+          </details>
+          <p class="sim-others">{copy.others} : <strong data-others>—</strong></p>
+          <p class="sim-warn" data-warn hidden>{copy.over}</p>
+        </form>
+
+        <div class="sim-out" aria-live="polite">
+          <div class="sim-bar" data-bar><span class="sim-maj" aria-hidden="true"></span></div>
+          <p class="sim-bar-cap">{copy.majority}</p>
+          <div class="sim-blocs">
+            <div><span>{copy.ppVox}</span><strong data-bloc="ppvox">—</strong><em data-bloc-tag="ppvox"></em></div>
+            <div><span>{copy.inv}</span><strong data-bloc="inv">—</strong><em data-bloc-tag="inv"></em></div>
+          </div>
+          <table class="sim-table">
+            <thead><tr><th></th><th>{copy.seats}</th><th>{copy.vsProjection}</th></tr></thead>
+            <tbody data-table></tbody>
+          </table>
+          <button type="button" class="sim-share" data-share>{copy.share}</button>
+          <p class="sim-note">{copy.note}</p>
+          <p><a class="cta-link" href={paths.projection}>{copy.back}</a></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="content-band">
+      <div class="container">
+        <h2 class="sim-h2">{copy.provinces}</h2>
+        <div class="sim-provinces" data-provinces></div>
+      </div>
+    </section>
+  </article>
+</EditorialLayout>
+
+<script type="application/json" id="sim-es-doc" set:html={JSON.stringify({ doc: { ...d, parties }, copy: clientCopy, preset2023: PRESET_2023 })} />
+
+<script>
+  type P = { code: string; label: string; color: string; default: number; seats_projected: number };
+  type Prov = { code: string; name: string; seats: number; weight: number; base: number[] };
+  const raw = JSON.parse(document.getElementById('sim-es-doc')!.textContent!);
+  const doc = raw.doc as { meta: { threshold: number; majority: number }; parties: P[]; provinces: Prov[] };
+  const copy = raw.copy as Record<string, string>;
+  const parties = doc.parties;
+  const K = parties.length;
+  const provs = doc.provinces;
+  const W = provs.map((p) => p.weight);
+  const wSum = W.reduce((a, b) => a + b, 0);
+  const w = W.map((x) => x / wSum);
+  const idx: Record<string, number> = Object.fromEntries(parties.map((p, i) => [p.code, i]));
+  const EPS = 1e-6;
+  const logit = (x: number) => { const c = Math.min(Math.max(x, EPS), 1 - EPS); return Math.log(c / (1 - c)); };
+  const expit = (x: number) => 1 / (1 + Math.exp(-Math.max(-40, Math.min(40, x))));
+  const fmt = (v: number) => (copy.locale === 'en' ? v.toFixed(1) : v.toFixed(1).replace('.', ','));
+
+  // Translation logit calée : Σ w·expit(base + d) = cible (même méthode que la projection).
+  function provinceShares(target: number[]): number[][] {
+    const out = provs.map(() => new Array(K).fill(0));
+    for (let k = 0; k < K; k++) {
+      const T = target[k];
+      if (T <= 0) continue;
+      const lb = provs.map((p) => (p.base[k] > 0 ? logit(p.base[k]) : null));
+      let d = 0;
+      for (let it = 0; it < 40; it++) {
+        let f = -T, g = 0;
+        lb.forEach((b, i) => { if (b === null) return; const s = expit(b + d); f += w[i] * s; g += w[i] * s * (1 - s); });
+        if (g < EPS) break;
+        d -= f / g;
+        if (Math.abs(f) < 1e-9) break;
+      }
+      lb.forEach((b, i) => { if (b !== null) out[i][k] = expit(b + d); });
+    }
+    out.forEach((row) => { const t = row.reduce((a, b) => a + b, 0); if (t > 0.985) row.forEach((_, k) => (row[k] *= 0.985 / t)); });
+    return out;
+  }
+
+  function dhondt(shares: number[], seats: number): number[] {
+    const res = new Array(K).fill(0);
+    if (seats === 1) { res[shares.indexOf(Math.max(...shares))] = 1; return res; }
+    const q: [number, number][] = [];
+    shares.forEach((s, k) => { if (s >= doc.meta.threshold) for (let j = 1; j <= seats; j++) q.push([s / j, k]); });
+    q.sort((a, b) => b[0] - a[0]);
+    q.slice(0, seats).forEach(([, k]) => res[k]++);
+    return res;
+  }
+
+  const ranges = [...document.querySelectorAll<HTMLInputElement>('input[type=range][data-party]')];
+  const nums = [...document.querySelectorAll<HTMLInputElement>('input[data-party-num]')];
+  const get = () => parties.map((p) => Number(ranges.find((r) => r.dataset.party === p.code)?.value ?? 0));
+  const set = (vals: Record<string, number>) => {
+    for (const r of ranges) { const v = vals[r.dataset.party!]; if (v != null) r.value = String(v); }
+    for (const n of nums) { const v = vals[n.dataset.partyNum!]; if (v != null) n.value = String(v); }
+  };
+
+  const bar = document.querySelector<HTMLElement>('[data-bar]')!;
+  const tbody = document.querySelector<HTMLElement>('[data-table]')!;
+  const provBox = document.querySelector<HTMLElement>('[data-provinces]')!;
+  const BAR_ORDER = ['pp', 'vox', 'upn', 'salf', 'cc', 'pnv', 'junts', 'alianca_cat', 'bng', 'bildu', 'erc', 'cup', 'adelante_andalucia', 'podemos', 'sumar', 'psoe'];
+
+  function render() {
+    const pct = get();
+    const total = pct.reduce((a, b) => a + b, 0);
+    document.querySelector<HTMLElement>('[data-others]')!.textContent = `${fmt(Math.max(0, 100 - total))} %`;
+    document.querySelector<HTMLElement>('[data-warn]')!.hidden = total <= 100.05;
+    const scale = total > 100 ? 100 / total : 1;
+    const shares = provinceShares(pct.map((v) => (v * scale) / 100));
+    const seatsBy = provs.map((p, i) => dhondt(shares[i], p.seats));
+    const tot = new Array(K).fill(0);
+    seatsBy.forEach((row) => row.forEach((s, k) => (tot[k] += s)));
+
+    bar.querySelectorAll('div').forEach((n) => n.remove());
+    for (const code of BAR_ORDER) {
+      const k = idx[code];
+      if (k === undefined || !tot[k]) continue;
+      const seg = document.createElement('div');
+      seg.style.width = `${(tot[k] / 350) * 100}%`;
+      seg.style.background = parties[k].color;
+      seg.title = `${parties[k].label}: ${tot[k]}`;
+      bar.appendChild(seg);
+    }
+    const sum = (codes: string[]) => codes.reduce((a, c) => a + (idx[c] !== undefined ? tot[idx[c]] : 0), 0);
+    const blocs: [string, number][] = [
+      ['ppvox', sum(['pp', 'vox', 'upn'])],
+      ['inv', sum(['psoe', 'sumar', 'podemos', 'erc', 'junts', 'bildu', 'pnv', 'bng', 'cc'])],
+    ];
+    for (const [key, v] of blocs) {
+      document.querySelector<HTMLElement>(`[data-bloc="${key}"]`)!.textContent = `${v} ${copy.seats}`;
+      const tag = document.querySelector<HTMLElement>(`[data-bloc-tag="${key}"]`)!;
+      tag.textContent = v >= doc.meta.majority ? copy.yes : copy.no;
+      tag.className = v >= doc.meta.majority ? 'is-yes' : 'is-no';
+    }
+    tbody.innerHTML = '';
+    parties.map((p, k) => ({ p, k })).filter(({ k }) => tot[k] > 0 || parties[k].seats_projected > 0)
+      .sort((a, b) => tot[b.k] - tot[a.k])
+      .forEach(({ p, k }) => {
+        const diff = tot[k] - p.seats_projected;
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td><i style="background:${p.color}"></i>${p.label}</td><td class="num"><strong>${tot[k]}</strong></td><td class="num ${diff > 0 ? 'up' : diff < 0 ? 'down' : ''}">${diff > 0 ? '+' : ''}${diff}</td>`;
+        tbody.appendChild(tr);
+      });
+    provBox.innerHTML = '';
+    provs.map((p, i) => ({ p, i })).sort((a, b) => b.p.seats - a.p.seats || a.p.name.localeCompare(b.p.name, 'es'))
+      .forEach(({ p, i }) => {
+        const card = document.createElement('div');
+        card.className = 'sim-prov';
+        const chips = seatsBy[i].map((s, k) => ({ s, k })).filter((x) => x.s > 0).sort((a, b) => b.s - a.s)
+          .map(({ s, k }) => `<span style="--party-color:${parties[k].color}">${parties[k].label} ${s}</span>`).join('');
+        card.innerHTML = `<h3>${p.name} <em>${p.seats}</em></h3><p>${chips}</p>`;
+        provBox.appendChild(card);
+      });
+    const hash = parties.map((p, k) => (pct[k] ? `${p.code}=${pct[k]}` : '')).filter(Boolean).join('&');
+    history.replaceState(null, '', `#${hash}`);
+  }
+
+  ranges.forEach((r) => r.addEventListener('input', () => {
+    const n = nums.find((x) => x.dataset.partyNum === r.dataset.party); if (n) n.value = r.value; render();
+  }));
+  nums.forEach((n) => n.addEventListener('input', () => {
+    const r = ranges.find((x) => x.dataset.party === n.dataset.partyNum); if (r) r.value = n.value; render();
+  }));
+  const projection = Object.fromEntries(parties.map((p) => [p.code, p.default]));
+  document.querySelectorAll<HTMLButtonElement>('[data-preset]').forEach((b) => b.addEventListener('click', () => {
+    const which = b.dataset.preset;
+    if (which === 'projection') set(projection);
+    if (which === '2023') set(raw.preset2023);
+    if (which === 'tie') { const avg = (projection.pp + projection.psoe) / 2; set({ ...projection, pp: Math.round(avg * 10) / 10, psoe: Math.round(avg * 10) / 10 }); }
+    render();
+  }));
+  document.querySelector<HTMLButtonElement>('[data-share]')!.addEventListener('click', async (e) => {
+    try { await navigator.clipboard.writeText(location.href); (e.target as HTMLElement).textContent = copy.copied; } catch { /* presse-papiers indisponible */ }
+  });
+  if (location.hash.length > 1) {
+    const vals: Record<string, number> = Object.fromEntries(parties.map((p) => [p.code, 0]));
+    for (const part of location.hash.slice(1).split('&')) { const [k, v] = part.split('='); if (k in vals && !Number.isNaN(Number(v))) vals[k] = Number(v); }
+    set(vals);
+  }
+  render();
+</script>
+
+<style>
+  .sim-head { padding: 34px 0 24px; border-bottom: 1px solid var(--rule); }
+  .sim-head h1 { font-family: var(--serif); font-size: clamp(1.9rem, 4vw, 3rem); line-height: 1.08; margin: 0.35rem 0 0.8rem; max-width: 24ch; }
+  .sim-lede { max-width: 70ch; color: var(--ink-2); line-height: 1.6; margin: 0; }
+  .sim-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 32px; align-items: start; }
+  .sim-controls h2 { font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-3); margin: 18px 0 8px; }
+  .sim-presets { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .sim-presets span { font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); margin-right: 4px; }
+  .sim-presets button, .sim-share {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; padding: 7px 10px; border-radius: 3px;
+    border: 1px solid var(--rule); background: var(--card); color: var(--ink); cursor: pointer;
+  }
+  .sim-presets button:hover, .sim-share:hover { border-color: var(--ink-3); }
+  .sim-row { display: grid; grid-template-columns: 130px 1fr 64px; gap: 10px; align-items: center; padding: 5px 0; border-bottom: 1px solid var(--rule-2); }
+  .sim-name { font-size: 14px; border-left: 3px solid var(--party-color); padding-left: 8px; }
+  .sim-row input[type=range] { width: 100%; accent-color: var(--party-color); }
+  .sim-row input[type=number] { width: 64px; font-family: var(--mono); font-size: 13px; padding: 4px; border: 1px solid var(--rule); border-radius: 3px; background: var(--card); color: var(--ink); }
+  .sim-regional { margin-top: 12px; }
+  .sim-regional summary { cursor: pointer; font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-3); padding: 6px 0; }
+  .sim-others { font-family: var(--mono); font-size: 12px; color: var(--ink-2); margin: 12px 0 0; }
+  .sim-warn { color: #b0202a; font-size: 13px; margin: 6px 0 0; }
+  .sim-out { position: sticky; top: 16px; }
+  .sim-bar { position: relative; display: flex; height: 26px; border-radius: 3px; overflow: hidden; background: var(--rule-2); }
+  .sim-bar div { height: 100%; }
+  .sim-maj { position: absolute; left: calc(176 / 350 * 100%); top: -4px; bottom: -4px; width: 2px; background: var(--ink); z-index: 1; }
+  .sim-bar-cap { font-family: var(--mono); font-size: 11px; color: var(--ink-3); margin: 6px 0 14px; }
+  .sim-blocs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+  .sim-blocs div { border: 1px solid var(--rule); border-radius: 4px; background: var(--card); padding: 10px 12px; display: grid; gap: 2px; }
+  .sim-blocs span { font-size: 12.5px; color: var(--ink-2); }
+  .sim-blocs strong { font-family: var(--serif); font-size: 26px; font-weight: 430; }
+  .sim-blocs em { font-style: normal; font-family: var(--mono); font-size: 11px; }
+  .sim-blocs em.is-yes { color: #1f7a3a; }
+  .sim-blocs em.is-no { color: var(--ink-3); }
+  .sim-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .sim-table th { text-align: left; font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); padding: 6px; border-bottom: 1px solid var(--rule); }
+  .sim-table td { padding: 6px; border-bottom: 1px solid var(--rule-2); }
+  .sim-table td i { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 7px; }
+  .sim-table td.num { font-family: var(--mono); }
+  .sim-table td.up { color: #1f7a3a; }
+  .sim-table td.down { color: #b0202a; }
+  .sim-share { margin-top: 14px; }
+  .sim-note { font-size: 12.5px; color: var(--ink-3); line-height: 1.5; margin: 12px 0; }
+  .sim-h2 { font-family: var(--serif); font-size: clamp(1.4rem, 2.6vw, 2rem); margin: 0 0 12px; }
+  .sim-provinces { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+  .sim-prov { border: 1px solid var(--rule); border-radius: 4px; background: var(--card); padding: 10px; }
+  .sim-prov h3 { font-family: var(--serif); font-size: 1rem; margin: 0 0 6px; display: flex; justify-content: space-between; }
+  .sim-prov h3 em { font-style: normal; font-family: var(--mono); font-size: 11px; color: var(--ink-3); }
+  .sim-prov p { display: flex; flex-wrap: wrap; gap: 4px; margin: 0; }
+  .sim-prov span { font-family: var(--mono); font-size: 11px; padding: 1px 6px; border-radius: 3px; border-left: 3px solid var(--party-color); background: color-mix(in oklab, var(--party-color) 10%, var(--card)); }
+  @media (max-width: 900px) {
+    .sim-grid { grid-template-columns: 1fr; }
+    .sim-out { position: static; }
+    .sim-provinces { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 480px) {
+    .sim-row { grid-template-columns: 96px 1fr 58px; }
+    .sim-provinces { grid-template-columns: 1fr; }
+  }
+</style>

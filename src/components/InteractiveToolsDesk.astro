@@ -6,22 +6,23 @@ import quebecDoc from '../../web_data/quebec/simulator.json';
 import federalDoc from '../../web_data/federal/simulator.json';
 import ontarioDoc from '../../web_data/ontario/simulator.json';
 import usHouseDoc from '../../web_data/us-house/simulator.json';
+import spainDoc from '../../web_data/spain/simulator.json';
 
 interface Props {
   locale: 'fr' | 'en' | 'es';
 }
 const { locale } = Astro.props;
 const paths = {
-  fr: { labs:'/fr/labs/', hub:'/fr/outils', qc:'/fr/outils/simulateur-quebec', ca:'/fr/outils/simulateur-canada', on:'/fr/outils/simulateur-ontario', match:'/fr/canada/quebec/match' , house:'/fr/outils/simulateur-chambre-us' },
-  en: { labs:'/en/labs/', hub:'/en/tools', qc:'/en/tools/quebec-simulator', ca:'/en/tools/canada-simulator', on:'/en/tools/ontario-simulator', match:'/en/canada/quebec/match' , house:'/en/tools/us-house-simulator' },
-  es: { labs:'/es/labs/', hub:'/es/herramientas', qc:'/es/herramientas/simulador-quebec', ca:'/es/herramientas/simulador-canada', on:'/es/herramientas/simulador-ontario', match:'/es/canada/quebec/match' , house:'/es/herramientas/simulador-camara-us' },
+  fr: { labs:'/fr/labs/', hub:'/fr/outils', qc:'/fr/outils/simulateur-quebec', ca:'/fr/outils/simulateur-canada', on:'/fr/outils/simulateur-ontario', match:'/fr/canada/quebec/match' , house:'/fr/outils/simulateur-chambre-us', es:'/fr/outils/simulateur-espagne' },
+  en: { labs:'/en/labs/', hub:'/en/tools', qc:'/en/tools/quebec-simulator', ca:'/en/tools/canada-simulator', on:'/en/tools/ontario-simulator', match:'/en/canada/quebec/match' , house:'/en/tools/us-house-simulator', es:'/en/tools/spain-simulator' },
+  es: { labs:'/es/labs/', hub:'/es/herramientas', qc:'/es/herramientas/simulador-quebec', ca:'/es/herramientas/simulador-canada', on:'/es/herramientas/simulador-ontario', match:'/es/canada/quebec/match' , house:'/es/herramientas/simulador-camara-us', es:'/es/herramientas/simulador-espana' },
 }[locale];
 const copy = {
   fr: {
     title:'Jouez avec la politique.',
     description:'Simulateurs, jeux et outils interactifs pour voir comment une course peut changer — sans confondre votre scénario avec notre projection.',
     featured:'Instrument phare', qc:'Simulateur Québec', open:'Ouvrir le simulateur', ridings:'circonscriptions',
-    available:'Autres simulateurs disponibles', ca:'Simulateur Canada', on:'Simulateur Ontario', house:'Simulateur Chambre US', play:'Jouer', districts:'districts',
+    available:'Autres simulateurs disponibles', ca:'Simulateur Canada', on:'Simulateur Ontario', house:'Simulateur Chambre US', es:'Simulateur Espagne', esSub:'350 sièges · D’Hondt', play:'Jouer', districts:'districts',
     match:'Le Match', matchBody:'Quelques cartes à glisser. Une circonscription qui vous ressemble.', matchCta:'Trouver mon match',
     labs:'Orbite, le moteur quantique', labsBody:'Et si on prévoyait une élection avec la physique d’Einstein? Orbite, notre moteur expérimental à qubits, affronte notre projection de référence au Québec, en Colombie-Britannique et aux États-Unis. Science en direct : voyez où ils s’entendent, et où ils se contredisent.', labsCta:'Découvrir Orbite',
   },
@@ -29,7 +30,7 @@ const copy = {
     title:'Play with politics.',
     description:'Simulators, games and interactive tools to see how a race can change — without confusing your scenario with our projection.',
     featured:'Featured instrument', qc:'Quebec simulator', open:'Open the simulator', ridings:'ridings',
-    available:'Other available simulators', ca:'Canada simulator', on:'Ontario simulator', house:'U.S. House simulator', play:'Play', districts:'districts',
+    available:'Other available simulators', ca:'Canada simulator', on:'Ontario simulator', house:'U.S. House simulator', es:'Spain simulator', esSub:'350 seats · D’Hondt', play:'Play', districts:'districts',
     match:'The Match', matchBody:'Swipe a few cards. Find a riding that feels like you.', matchCta:'Find my match',
     labs:'Orbit, the quantum engine', labsBody:'What if you forecast an election with Einstein’s physics? Orbit, our experimental qubit engine, goes head to head with our reference forecast in Quebec, British Columbia and the United States. Live science: see where they agree, and where they clash.', labsCta:'Discover Orbit',
   },
@@ -37,7 +38,7 @@ const copy = {
     title:'Juega con la política.',
     description:'Simuladores, juegos y herramientas interactivas para ver cómo puede cambiar una carrera — sin confundir tu escenario con nuestra proyección.',
     featured:'Instrumento destacado', qc:'Simulador Quebec', open:'Abrir el simulador', ridings:'distritos',
-    available:'Otros simuladores disponibles', ca:'Simulador Canadá', on:'Simulador Ontario', house:'Simulador Cámara EE. UU.', play:'Jugar', districts:'distritos',
+    available:'Otros simuladores disponibles', ca:'Simulador Canadá', on:'Simulador Ontario', house:'Simulador Cámara EE. UU.', es:'Simulador España', esSub:'350 escaños · D’Hondt', play:'Jugar', districts:'distritos',
     match:'El Match', matchBody:'Desliza unas cartas. Encuentra un distrito que se parezca a ti.', matchCta:'Encontrar mi match',
     labs:'Órbita, el motor cuántico', labsBody:'¿Y si pronosticáramos una elección con la física de Einstein? Órbita, nuestro motor experimental con qubits, se enfrenta a nuestra proyección de referencia en Quebec, Columbia Británica y Estados Unidos. Ciencia en directo: vea dónde coinciden y dónde se contradicen.', labsCta:'Descubrir Órbita',
   },
@@ -95,6 +96,14 @@ const alternates = { en:'https://vote-scope.com/en/tools', fr:'https://vote-scop
           <div><h3>{copy.on}</h3><p>{ontarioDoc.meta.total_seats} {copy.ridings}</p><strong>{copy.play} →</strong></div>
           <span><SimulatorSeatPreview doc={ontarioDoc} label={copy.on} /></span>
         </a>
+        <a href={paths.es}>
+          <div><h3>{copy.es}</h3><p>{copy.esSub}</p><strong>{copy.play} →</strong></div>
+          <span class="tools-es-preview" aria-hidden="true">
+            {(spainDoc as any).parties.filter((p: any) => p.seats_projected > 0).sort((a: any, b: any) => b.seats_projected - a.seats_projected).map((p: any) => (
+              <i style={`flex:${p.seats_projected};background:${p.color}`}></i>
+            ))}
+          </span>
+        </a>
         <a href={paths.house}>
           <div><h3>{copy.house}</h3><p>{usHouseDoc.meta.total_seats} {copy.districts}</p><strong>{copy.play} →</strong></div>
           <span><SimulatorSeatPreview doc={usHouseDoc} label={copy.house} /></span>
@@ -142,6 +151,8 @@ const alternates = { en:'https://vote-scope.com/en/tools', fr:'https://vote-scop
   .tools-rail p { margin:8px 0 26px; color:var(--ink-3); font-size:13px; }
   .tools-rail strong { font:600 11px var(--mono); letter-spacing:.08em; text-transform:uppercase; }
   .tools-rail > a > span { min-width:0; padding:10px; background:var(--paper-2); }
+  .tools-es-preview { display:flex !important; align-items:center; gap:2px; padding:40px 14px !important; }
+  .tools-es-preview i { display:block; height:34px; border-radius:2px; }
   .tools-match { background:var(--paper-2); }
   .tools-labs { padding:52px 0; border-bottom:1px solid var(--rule); }
   .tools-labs h2 { margin:0; font:430 clamp(36px,4vw,54px)/.95 var(--serif); }

@@ -304,6 +304,16 @@ export const DESKS: DeskGroup[] = [
         ),
         href: samePath('/spain/#vivienda'),
       },
+      {
+        id: 'es-simulator',
+        label: l10n('D’Hondt simulator', 'Simulateur D’Hondt', 'Simulador D’Hondt'),
+        blurb: l10n(
+          'Set each party’s vote and see the 350 seats fall province by province.',
+          'Réglez le vote de chaque parti et voyez tomber les 350 sièges province par province.',
+          'Ajusta el voto de cada partido y mira cómo caen los 350 escaños provincia por provincia.',
+        ),
+        href: perLang('/tools/spain-simulator', '/outils/simulateur-espagne', '/herramientas/simulador-espana'),
+      },
     ],
   },
   {
