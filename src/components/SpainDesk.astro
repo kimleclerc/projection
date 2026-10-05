@@ -173,6 +173,19 @@ const cmpRows = [
 const shortDate = (iso: string) =>
   new Date(`${iso}T12:00:00`).toLocaleDateString(locale === 'en' ? 'en-GB' : locale === 'fr' ? 'fr-FR' : 'es-ES', { day: 'numeric', month: 'short' });
 
+
+// Période d'interdiction des sondages en Espagne (LOREG, art. 69.7 : cinq
+// jours avant le vote). Vote-Scope est publié depuis le Canada et continue sa
+// projection ; la note s'affiche seulement pendant la période (date du build,
+// la nuit reconstruit le site chaque jour).
+const today = new Date().toISOString().slice(0, 10);
+const inBlackout = today >= '2026-11-24' && today <= '2026-11-29';
+const blackoutNote = {
+  es: 'Vote-Scope se publica desde Canadá. La ley electoral española prohíbe a los medios sujetos a ella publicar encuestas en los cinco días previos a la votación; nuestra proyección sigue actualizándose hasta el 29 de noviembre.',
+  fr: 'Vote-Scope est publié depuis le Canada. La loi électorale espagnole interdit aux médias qui y sont soumis de publier des sondages dans les cinq jours précédant le vote ; notre projection continue d’être mise à jour jusqu’au 29 novembre.',
+  en: 'Vote-Scope is published from Canada. Spanish electoral law bars media subject to it from publishing polls in the five days before the vote; our projection keeps updating through November 29.',
+}[locale];
+
 const copy = {
   es: {
     title: `Elecciones generales 29 de noviembre: encuestas y escaños — PP ${nat.pp.seats_median}, PSOE ${psoe.seats_median}, Vox ${nat.vox.seats_median} — Vote-Scope`,
@@ -518,6 +531,7 @@ const barTotal = 350;
           <p>{t.whenAnswer} <a href="#fechas">{t.whenLink} →</a></p>
         </div>
 
+        {inBlackout && <p class="es-blackout">{blackoutNote}</p>}
         <p class="es-headline">{t.headline}</p>
 
         <div class="es-bar" role="img" aria-label={withSeats.map((k) => `${name(k)} ${nat[k].seats_median}`).join(', ')}>
@@ -865,6 +879,7 @@ const barTotal = 350;
     color: var(--ink-3);
   }
   .es-when p { margin: 4px 0 0; font-size: 16px; line-height: 1.5; }
+  .es-blackout { max-width: 760px; font-size: 13.5px; line-height: 1.5; color: var(--ink-2); border: 1px solid var(--rule); border-radius: 4px; background: var(--card); padding: 10px 12px; margin: 0 0 16px; }
   .es-headline {
     font-family: var(--serif);
     font-size: clamp(1.15rem, 2.2vw, 1.5rem);
