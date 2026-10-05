@@ -11,6 +11,11 @@ export function loadQuantum(key: LabsKey): any | null {
   return existsSync(f) ? JSON.parse(readFileSync(f, 'utf-8')) : null;
 }
 
+export function loadQuantumFile(name: string): any | null {
+  const f = resolve(dir, `${name}.json`);
+  return existsSync(f) ? JSON.parse(readFileSync(f, 'utf-8')) : null;
+}
+
 // Tirage annoncé (avant qu'il ait lieu) : date de la veille du vote.
 export const QUANTUM_PLANNED: Partial<Record<LabsKey, string>> = { qc_2026: '2026-10-04' };
 
@@ -52,6 +57,7 @@ export const QT = {
     colMachineP: 'Machine',
     colOthers: 'Autres issues tirées',
     safe: 'acquise',
+    secondChip: (m: string, raw: string, cor: string, pr: string, pc: string, lab: string) => `Deuxième puce, mêmes ${'1 024'} circuits : ${m}. ${lab} : ${raw} sièges en moyenne (${cor} après correction), chances de majorité ${pr} (${pc} après correction). Les deux puces déforment l’élection dans le même sens.`,
     jobs: 'Tâches IBM',
     sec: 's',
   },
@@ -92,6 +98,7 @@ export const QT = {
     colMachineP: 'Machine',
     colOthers: 'Other outcomes drawn',
     safe: 'safe',
+    secondChip: (m: string, raw: string, cor: string, pr: string, pc: string, lab: string) => `Second chip, same 1,024 circuits: ${m}. ${lab}: ${raw} seats on average (${cor} after correction), chance of a majority ${pr} (${pc} after correction). Both chips distort the election in the same direction.`,
     jobs: 'IBM jobs',
     sec: 's',
   },
@@ -132,6 +139,7 @@ export const QT = {
     colMachineP: 'Máquina',
     colOthers: 'Otros resultados sorteados',
     safe: 'segura',
+    secondChip: (m: string, raw: string, cor: string, pr: string, pc: string, lab: string) => `Segundo chip, los mismos 1024 circuitos: ${m}. ${lab}: ${raw} escaños de media (${cor} tras la corrección), probabilidad de mayoría ${pr} (${pc} tras la corrección). Los dos chips deforman la elección en el mismo sentido.`,
     jobs: 'Tareas de IBM',
     sec: 's',
   },
