@@ -8,7 +8,9 @@ import MethodologyNote from '../../components/MethodologyNote.astro';
 import IdentityMark from '../../components/IdentityMark.astro';
 import SearchFastPath from '../../components/SearchFastPath.astro';
 import TradeWarBand from '../../components/TradeWarBand.astro';
+import SpainBand from '../../components/SpainBand.astro';
 import RidingsCta from '../../components/RidingsCta.astro';
+import LabsHomeBand from '../../components/LabsHomeBand.astro';
 import SignalTicker from '../../islands/SignalTicker';
 import AnimatedNumber from '../../islands/AnimatedNumber';
 import { desks, editorialPhilosophy, instruments } from '../../data/editorial';
@@ -19,6 +21,7 @@ import frLegData from '../../../web_data/france-legislative/latest.json';
 import clactonData from '../../../web_data/uk-clacton-special/latest.json';
 import gooseData from '../../../web_data/ca-canada-goose/latest.json';
 import cusmaData from '../../../web_data/cusma-showdown/latest.json';
+import esData from '../../../web_data/spain/latest.json';
 
 const philosophy = editorialPhilosophy.en;
 const ldi = ldiData.ldi;
@@ -32,7 +35,11 @@ const goose = (gooseData as any).cgi;
 const cusma = (cusmaData as any).showdown;
 
 // ACTIVE races first; the World Cup closes the ticker as an archive.
+const esP = (esData as any).blocs.pp_vox.p_majority * 100;
+const esPmaj = esP > 99 ? '>99 %' : `${Math.round(esP)} %`;
+
 const signals = [
+  { label: 'Spain election', value: `PP+Vox ${esData.blocs.pp_vox.median} seats · majority ${esPmaj}`, href: '/en/spain/' },
   { label: 'Barrage Index', value: `${bfi.score}/100 · ${bfi.label_en}`, href: '/en/france/indexes/barrage/' },
   { label: 'French legislative', value: `p(RN majority) ${pMajRN}% under a 2024 front`, href: '/en/france/legislative-election' },
   { label: 'Clacton by-election', value: `Farage ${pFarage}% — polling day Aug 13`, href: '/en/uk/byelections/clacton/' },
@@ -44,6 +51,7 @@ const signals = [
 
 // Most striking number of each desk, injected on its card.
 const liveSignals: Record<string, string> = {
+  spain: `PP+Vox ${esData.blocs.pp_vox.median} seats · majority ${esPmaj}`,
   us: `Lame-Duck ${ldi.score}/100 · ${ldi.label_en}`,
   canada: `Goose ${goose.score}/100 · CUSMA ${cusma.gap > 0 ? '+' : ''}${cusma.gap}`,
   france: `p(RN majority) ${pMajRN}% under a 2024 front · Barrage ${bfi.score}/100`,
@@ -99,6 +107,8 @@ const liveSignals: Record<string, string> = {
 
   <SearchFastPath lang="en" />
 
+  <SpainBand lang="en" />
+
   <TradeWarBand lang="en" />
 
   <section class="content-band" style="background:var(--surface-alt,#f9f7f2);padding:2rem 0;">
@@ -151,6 +161,8 @@ const liveSignals: Record<string, string> = {
     </div>
   </section>
 
+  <LabsHomeBand lang="en" />
+
   <DeskSections lang="en" />
 
   <InstrumentGrid
@@ -172,7 +184,7 @@ const liveSignals: Record<string, string> = {
     title="How the projections are built."
     body={philosophy.proof}
     bullets={[
-      'All projections aggregate public polls in a Bayesian BSTS model — house effects measured and corrected, correlations estimated from the data, accuracy calibrated on past elections. Simulation only translates it all into seats.',
+      'Most of our projections aggregate public polls in a Bayesian BSTS model — house effects measured and corrected, accuracy calibrated on past elections. Simulation only translates it all into seats.',
       'Prediction-market data (Polymarket) sits beside the model as a disagreement detector, not a substitute.',
       'Riding and constituency probabilities are conditioned on national and regional swings, then re-aggregated to seat distributions.',
       'Source data, methodology notes, and model outputs are public at each desk. Updated on a rolling basis as new polls arrive.',

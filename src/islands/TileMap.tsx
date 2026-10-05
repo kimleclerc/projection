@@ -70,6 +70,10 @@ interface Props {
   query?: string;
   /** Libellé de la bascule : « bascule » en projection, « gain sur » en scénario. */
   flipWord?: string;
+  /** Carte d'un indicateur plutôt que d'un résultat (ex. participation) :
+   *  remplace « marge … pt » dans la fiche. Facultatif, défaut inchangé. */
+  metricLabel?: string;
+  metricUnit?: string;
 }
 
 const COPY = {
@@ -88,9 +92,11 @@ const HACHURE = 'tmap-hachure';
 
 const DEFAUT_H = 0.78;
 
-export default function TileMap({ blocs, canvas, ridings, locale, colors, labels, query = '', flipWord }: Props) {
+export default function TileMap({ blocs, canvas, ridings, locale, colors, labels, query = '', flipWord, metricLabel, metricUnit }: Props) {
   const [sel, setSel] = useState<string | null>(null);
   const t = COPY[locale] ?? COPY.fr;
+  const mLabel = metricLabel ?? t.margin;
+  const mUnit = metricUnit ?? t.pt;
   const byId = useMemo(() => new Map(ridings.map((r) => [r.id, r])), [ridings]);
   const hauteurEtiq = (b: TileBloc) => b.label_h ?? DEFAUT_H;
   const toile = canvas ?? {
@@ -150,7 +156,7 @@ export default function TileMap({ blocs, canvas, ridings, locale, colors, labels
                       role="button"
                       tabIndex={0}
                       aria-pressed={choisi}
-                      aria-label={`${r.name} — ${nom(r.winner)}${r.changed && r.from ? `, ${flipWord ?? t.from} ${nom(r.from)}` : ''}, ${t.margin} ${nf(r.margin)}`}
+                      aria-label={`${r.name} — ${nom(r.winner)}${r.changed && r.from ? `, ${flipWord ?? t.from} ${nom(r.from)}` : ''}, ${mLabel} ${nf(r.margin)}`}
                       onClick={() => setSel(id)}
                       onMouseEnter={() => setSel(id)}
                       onFocus={() => setSel(id)}
@@ -223,7 +229,7 @@ export default function TileMap({ blocs, canvas, ridings, locale, colors, labels
               {nom(cur.winner)}
             </span>
             {cur.changed && cur.from && <span class="tmap-gain">{flipWord ?? t.from} {nom(cur.from)}</span>}
-            <span class="tmap-marge">{t.margin} {nf(cur.margin)} {t.pt}</span>
+            <span class="tmap-marge">{mLabel} {nf(cur.margin)} {mUnit}</span>
             {cur.href && <a class="tmap-lien" href={cur.href}>{t.open} →</a>}
           </>
         ) : <span class="tmap-vide">{t.pick}</span>}

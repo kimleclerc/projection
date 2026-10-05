@@ -1,0 +1,34 @@
+---
+import EditorialLayout from '../../../../../layouts/EditorialLayout.astro';
+import QuebecAdvanceVote from '../../../../../components/QuebecAdvanceVote.astro';
+
+const canonical = 'https://vote-scope.com/fr/canada/quebec/vote-par-anticipation/';
+const title = 'Vote par anticipation Québec 2026 : participation par circonscription | Vote-Scope';
+const description = 'Élections Québec 2026 : taux de participation au vote par anticipation des 27 et 28 septembre dans les 127 circonscriptions, part des votes déjà exprimés, carte et comparaison par région.';
+const alternates = { fr: 'https://vote-scope.com/fr/canada/quebec/vote-par-anticipation/', en: 'https://vote-scope.com/en/canada/quebec/advance-voting/', es: 'https://vote-scope.com/es/canada/quebec/voto-anticipado/' };
+---
+
+<EditorialLayout
+  title={title}
+  description={description}
+  canonical={canonical}
+  lang="fr"
+  currentPage="canada"
+  ogImage="https://vote-scope.com/og/projections/quebec/fr.png"
+  alternates={alternates}
+  jsonLd={[
+    { '@context': 'https://schema.org', '@type': 'WebPage', name: title, description, url: canonical, inLanguage: 'fr' },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: 'https://vote-scope.com/fr/' },
+        { '@type': 'ListItem', position: 2, name: 'Canada', item: 'https://vote-scope.com/fr/canada/' },
+        { '@type': 'ListItem', position: 3, name: 'Québec', item: 'https://vote-scope.com/fr/canada/quebec/' },
+        { '@type': 'ListItem', position: 4, name: 'Vote par anticipation', item: 'https://vote-scope.com/fr/canada/quebec/vote-par-anticipation/' },
+      ],
+    },
+  ]}
+>
+  <QuebecAdvanceVote locale="fr" />
+</EditorialLayout>

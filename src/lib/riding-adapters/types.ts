@@ -215,6 +215,8 @@ export interface RidingData {
 
   // Optional slots — hidden when absent
   demographics?: RidingDemographics;
+  /** Participation au vote par anticipation (DGEQ, préliminaire). Québec 2026. */
+  advanceVote?: RidingAdvanceVote;
   member?: RidingMember;     // current sitting member
   candidates?: RidingCandidate[];  // candidates from the most recent general election (baseline cycle)
   declaredCandidates?: DeclaredCandidate[];  // declared / on-ballot candidates for the UPCOMING election
@@ -282,4 +284,26 @@ export function ridingSlug(id: string, name: string): string {
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '');
   return `${id}-${norm}`;
+}
+
+export interface RidingAdvanceVote {
+  /** % des électeurs inscrits qui ont voté par anticipation. */
+  turnoutPct: number;
+  /** Rang sur `total` (1 = taux le plus élevé). */
+  rank: number;
+  total: number;
+  /** Estimation de la part des votes totaux déjà exprimée (taux ÷ participation 2022). */
+  shareEstPct?: number;
+  turnout2022Pct?: number;
+  provincialTurnoutPct: number;
+  provincialShareEstPct: number;
+  /** Taux BVA de 2022 sur les inscrits ; absent si la carte a trop changé. */
+  turnout2022AdvancePct?: number;
+  /** Variation relative du taux depuis 2022, en % (ex. 12 = +12 %). */
+  changeVs2022Pct?: number;
+  changeRank?: number;
+  nComparable2022?: number;
+  provincialChangeVs2022Pct?: number;
+  dates: string[];
+  preliminary: boolean;
 }

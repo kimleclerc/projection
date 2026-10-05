@@ -3,7 +3,7 @@
   "type": "module",
   "scripts": {
     "dev": "astro dev",
-    "prebuild": "npm run sync:machine-metadata -- --check && npm run validate:live-data && npm run check:mini-sim && npm run check:basemaps",
+    "prebuild": "npm run sync:machine-metadata && npm run validate:live-data && npm run check:mini-sim && npm run check:basemaps",
     "build": "astro build && node scripts/copy-legacy.mjs && pagefind --site dist && npm run check:og",
     "preview": "astro preview",
     "validate:editorial": "node scripts/validate-editorial-astro.mjs",

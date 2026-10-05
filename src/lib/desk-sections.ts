@@ -51,7 +51,7 @@ export interface DeskItem {
 }
 
 export interface DeskGroup {
-  id: 'us' | 'canada' | 'uk' | 'france' | 'indexes' | 'sports';
+  id: 'us' | 'canada' | 'uk' | 'france' | 'spain' | 'indexes' | 'sports';
   label: L10n;
   hub: L10n;
   items: DeskItem[];
@@ -281,6 +281,38 @@ export const DESKS: DeskGroup[] = [
           'Qué solidez le queda al cortafuegos contra la extrema derecha.',
         ),
         href: samePath('/france/indexes/barrage/'),
+      },
+    ],
+  },
+  {
+    id: 'spain',
+    label: l10n('Spain', 'Espagne', 'España'),
+    hub: samePath('/spain/'),
+    items: [
+      fromJurisdiction('spain', l10n(
+        'All 350 seats projected province by province, and the calendar to the November 29 vote.',
+        'Les 350 sièges projetés province par province, et le calendrier jusqu’au vote du 29 novembre.',
+        'Los 350 escaños proyectados provincia por provincia, y el calendario hasta el 29 de noviembre.',
+      ), { sections: ['polls'] }),
+      {
+        id: 'es-housing',
+        label: l10n('Housing tracker', 'Traqueur du logement', 'Termómetro de la vivienda'),
+        blurb: l10n(
+          'How housing became Spain’s top worry, and which party voters trust on it.',
+          'Comment le logement est devenu la première inquiétude des Espagnols, et à qui ils font confiance.',
+          'Cómo la vivienda se convirtió en la primera preocupación de España, y en quién confían los votantes.',
+        ),
+        href: samePath('/spain/#vivienda'),
+      },
+      {
+        id: 'es-simulator',
+        label: l10n('D’Hondt simulator', 'Simulateur D’Hondt', 'Simulador D’Hondt'),
+        blurb: l10n(
+          'Set each party’s vote and see the 350 seats fall province by province.',
+          'Réglez le vote de chaque parti et voyez tomber les 350 sièges province par province.',
+          'Ajusta el voto de cada partido y mira cómo caen los 350 escaños provincia por provincia.',
+        ),
+        href: perLang('/tools/spain-simulator', '/outils/simulateur-espagne', '/herramientas/simulador-espana'),
       },
     ],
   },

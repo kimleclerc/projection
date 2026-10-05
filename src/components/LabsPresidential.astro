@@ -1,0 +1,169 @@
+---
+// Orbite — présidentielle française : premier tour, accès au second tour et
+// chances de victoire, scénario par scénario, contre la projection de référence.
+import { type Locale, T, labsUrl, compare, pct, fmt, fmtDate, MAIN_PAGES, frCandidateColor } from '../lib/labs';
+import LabsSeatBars from './LabsSeatBars.astro';
+
+interface Props { locale: Locale; d: any }
+const { locale, d } = Astro.props;
+const t = T[locale];
+const P = locale === 'en' ? '%' : ' %';
+const name = (id: string) => d.names?.[id]?.name ?? id;
+const cmp = compare('fr_pres_2027', d, locale);
+
+const TX = {
+  fr: {
+    title: 'Présidentielle française 2027 selon Orbite',
+    dek: 'Mêmes sondages, autre physique. Pour chaque scénario de candidatures assez sondé, Orbite suit le premier tour sur sa sphère, ouvre le cône des possibles jusqu’au 18 avril 2027, puis joue le second tour avec les sondages de duel ou, à défaut, les reports de voix.',
+    barsTitle: (s: string) => `Chances de victoire — scénario « ${s} »`,
+    barsNote: 'Sur 100. La barre du haut, c’est Orbite ; celle du bas, notre projection de référence.',
+    scenario: 'Scénario',
+    polls: 'sondages de ce scénario',
+    cand: 'Candidat·e',
+    first: '1er tour (Orbite)',
+    range: '8 chances sur 10',
+    firstRef: '1er tour réf.',
+    top2: 'Au 2e tour',
+    win: 'Victoire',
+    ref: 'réf.',
+    duels: 'Duels les plus probables',
+    duelLine: (p: string, share: string, src: string) => `${p} des cas · part au 2e tour ${share} · ${src}`,
+    srcPolls: 'sondages de second tour',
+    srcTransfers: 'reports de voix a priori',
+    caveatTitle: 'À lire avec prudence',
+    caveat: (cov: string) => `À six mois du vote, le cône des possibles d’Orbite est large : il ne suppose pas que les sondages d’aujourd’hui sont ceux d’avril. Orbite n’utilise que les sondages du scénario lui-même ; la référence emprunte aussi ceux des scénarios voisins. Les duels sans sondage de second tour ni report de voix connu (${cov} des cas) sont laissés de côté dans le calcul des chances de victoire.`,
+    goMain: 'Voir la projection de référence',
+    days: 'Jours avant le 1er tour',
+  },
+  en: {
+    title: 'French presidential election 2027, according to Orbit',
+    dek: 'Same polls, different physics. For each candidate line-up with enough polling, Orbit tracks the first round on its sphere, opens the cone of possibilities to April 18, 2027, then plays the runoff with head-to-head polls or, failing that, vote transfers.',
+    barsTitle: (s: string) => `Chance of winning — "${s}" line-up`,
+    barsNote: 'Out of 100. The top bar is Orbit; the bottom one, our reference forecast.',
+    scenario: 'Line-up',
+    polls: 'polls of this line-up',
+    cand: 'Candidate',
+    first: '1st round (Orbit)',
+    range: '8 in 10 range',
+    firstRef: '1st round ref.',
+    top2: 'Makes runoff',
+    win: 'Wins',
+    ref: 'ref.',
+    duels: 'Most likely runoffs',
+    duelLine: (p: string, share: string, src: string) => `${p} of cases · runoff share ${share} · ${src}`,
+    srcPolls: 'runoff polls',
+    srcTransfers: 'prior vote transfers',
+    caveatTitle: 'Read with care',
+    caveat: (cov: string) => `Six months out, Orbit’s cone of possibilities is wide: it does not assume today’s polls are April’s. Orbit only uses the line-up’s own polls; the reference also borrows from neighbouring line-ups. Runoffs with neither a head-to-head poll nor known vote transfers (${cov} of cases) are left out of the chance of winning.`,
+    goMain: 'See the reference forecast',
+    days: 'Days to the first round',
+  },
+  es: {
+    title: 'Presidencial francesa 2027 según Órbita',
+    dek: 'Mismas encuestas, otra física. Para cada escenario de candidaturas con suficientes encuestas, Órbita sigue la primera vuelta en su esfera, abre el cono de posibilidades hasta el 18 de abril de 2027 y juega la segunda vuelta con las encuestas de duelo o, si no las hay, con los trasvases de voto.',
+    barsTitle: (s: string) => `Probabilidad de victoria — escenario «${s}»`,
+    barsNote: 'Sobre 100. La barra de arriba es Órbita; la de abajo, nuestra proyección de referencia.',
+    scenario: 'Escenario',
+    polls: 'encuestas de este escenario',
+    cand: 'Candidatura',
+    first: '1.ª vuelta (Órbita)',
+    range: '8 de cada 10',
+    firstRef: '1.ª vuelta ref.',
+    top2: 'Pasa a 2.ª',
+    win: 'Gana',
+    ref: 'ref.',
+    duels: 'Duelos más probables',
+    duelLine: (p: string, share: string, src: string) => `${p} de los casos · voto en 2.ª ${share} · ${src}`,
+    srcPolls: 'encuestas de segunda vuelta',
+    srcTransfers: 'trasvases de voto a priori',
+    caveatTitle: 'Leer con prudencia',
+    caveat: (cov: string) => `A seis meses de la votación, el cono de posibilidades de Órbita es amplio: no supone que las encuestas de hoy serán las de abril. Órbita solo usa las encuestas del propio escenario; la referencia también toma prestadas las de escenarios vecinos. Los duelos sin encuesta de segunda vuelta ni trasvase conocido (${cov} de los casos) quedan fuera del cálculo de la probabilidad de victoria.`,
+    goMain: 'Ver la proyección de referencia',
+    days: 'Días para la primera vuelta',
+  },
+}[locale];
+const top = d.scenarios?.[0];
+---
+
+<article class="lp container" data-content-area>
+  <header class="lp-hero">
+    <p class="lp-kicker"><a href={labsUrl(locale)}>{t.brand}</a> · {t.engine} · {t.updated} {fmtDate(d.as_of, locale)}</p>
+    <h1>{TX.title}</h1>
+    <p class="lp-dek">{TX.dek}</p>
+    <p class="lp-meta">{TX.days}{locale === 'fr' ? ' : ' : ': '}<strong>{d.days_to_election}</strong> · <a href={MAIN_PAGES[locale].fr_pres_2027}>{TX.goMain} →</a></p>
+  </header>
+
+  {top && (
+    <section class="lp-section">
+      <h2>{TX.barsTitle(top.label)}</h2>
+      <p class="lp-muted">{TX.barsNote}</p>
+      <LabsSeatBars cmp={cmp} locale={locale} />
+    </section>
+  )}
+
+  {(d.scenarios ?? []).map((sc: any) => (
+    <section class="lp-section lp-card">
+      <p class="lp-kicker">{TX.scenario} · {sc.n_polls} {TX.polls}</p>
+      <h2>{sc.label}</h2>
+      <div class="lp-scroll">
+        <table class="lp-table">
+          <thead><tr><th>{TX.cand}</th><th>{TX.first}</th><th>{TX.range}</th><th>{TX.firstRef}</th><th>{TX.top2}</th><th>{TX.win}</th></tr></thead>
+          <tbody>
+            {[...sc.candidates].sort((a: any, b: any) => b.center - a.center).map((c: any) => {
+              const r = sc.prod?.[c.id];
+              return (
+                <tr>
+                  <td><span class="lp-dot" style={`background:${frCandidateColor(d, c.id)}`}></span>{name(c.id)}</td>
+                  <td><strong>{fmt(c.center, locale, 1)}{P}</strong></td>
+                  <td class="lp-dim">{fmt(c.p10, locale, 0)}–{fmt(c.p90, locale, 0)}{P}</td>
+                  <td class="lp-dim">{r ? `${fmt(r.first_round, locale, 1)}${P}` : '—'}</td>
+                  <td>{pct(c.p_top2, locale)}<span class="lp-ref">{TX.ref} {r ? pct(r.p_top2, locale) : '—'}</span></td>
+                  <td><strong>{pct(c.p_win, locale)}</strong><span class="lp-ref">{TX.ref} {r ? pct(r.p_win, locale) : '—'}</span></td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+      <h3>{TX.duels}</h3>
+      <ul class="lp-duels">
+        {sc.duels.slice(0, 3).map((x: any) => (
+          <li>
+            <strong>{name(x.a)}</strong> – <strong>{name(x.b)}</strong>{locale === 'fr' ? ' : ' : ': '}
+            {TX.duelLine(pct(x.p_duel, locale), `${fmt(x.a_share, locale, 1)}${P} ± ${fmt(x.a_sd, locale, 1)}`,
+                         x.source.startsWith('sondages') ? TX.srcPolls : TX.srcTransfers)}
+          </li>
+        ))}
+      </ul>
+    </section>
+  ))}
+
+  <aside class="lp-caveat">
+    <p class="lp-kicker">{TX.caveatTitle}</p>
+    <p>{TX.caveat(pct(1 - (top?.duel_coverage ?? 1), locale))}</p>
+  </aside>
+</article>
+
+<style>
+  .lp { max-width: 1080px; padding-block: 56px 96px; }
+  .lp-kicker { margin: 0 0 12px; font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); }
+  .lp-kicker a { color: inherit; }
+  .lp h1 { font-family: var(--serif); font-size: clamp(34px, 5vw, 58px); font-weight: 420; line-height: 1.05; margin: 0 0 16px; letter-spacing: -.02em; }
+  .lp-dek { max-width: 780px; margin: 0; color: var(--ink-2); font-size: 18px; line-height: 1.6; }
+  .lp-meta { margin: 16px 0 0; font-size: 14px; color: var(--ink-3); }
+  .lp-section { margin-top: 56px; }
+  .lp-section h2 { font-family: var(--serif); font-size: clamp(24px, 3.2vw, 32px); font-weight: 450; margin: 0 0 10px; }
+  .lp-section h3 { font-family: var(--serif); font-size: 20px; font-weight: 450; margin: 26px 0 8px; }
+  .lp-muted { color: var(--ink-3); font-size: 14px; }
+  .lp-card { padding: 24px; border: 1px solid var(--rule); border-radius: 8px; background: var(--card); }
+  .lp-scroll { overflow-x: auto; }
+  .lp-table { width: 100%; border-collapse: collapse; font-size: 15px; }
+  .lp-table th { text-align: left; font-family: var(--mono); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); border-bottom: 1px solid var(--rule); padding: 8px 10px; white-space: nowrap; }
+  .lp-table td { border-bottom: 1px solid var(--rule-2); padding: 9px 10px; white-space: nowrap; }
+  .lp-dim { color: var(--ink-3); }
+  .lp-ref { display: block; font-family: var(--mono); font-size: 11px; color: var(--ink-3); }
+  .lp-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; vertical-align: middle; }
+  .lp-duels { margin: 0; padding-left: 18px; color: var(--ink-2); line-height: 1.7; }
+  .lp-caveat { margin-top: 56px; padding: 20px 22px; border-left: 3px solid var(--duck-deep); background: color-mix(in oklab, var(--duck) 10%, var(--card)); border-radius: 0 6px 6px 0; }
+  .lp-caveat p:last-child { margin: 0; color: var(--ink-2); line-height: 1.6; }
+</style>

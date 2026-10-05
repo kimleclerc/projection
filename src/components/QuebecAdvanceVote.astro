@@ -1,0 +1,280 @@
+---
+/**
+ * Vote par anticipation, Québec 2026 — page publique en trois langues.
+ * Source : web_data/quebec/advance_vote.json (moteur, build_qc_advance_vote_web.py),
+ * taux préliminaires du DGEQ en % des électeurs inscrits. Tuiles : simulator.json.
+ * Blocs en enfants directs de [data-content-area] pour l'insertion publicitaire.
+ */
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import '../styles/minisim.css';
+import TileMap from '../islands/TileMap';
+import { getAllQuebecRidings } from '../lib/riding-adapters/quebec';
+import advance from '../../web_data/quebec/advance_vote.json';
+import ridingsSource from '../../web_data/quebec/ridings.json';
+
+interface Props { locale: 'fr' | 'en' | 'es'; }
+const { locale } = Astro.props;
+
+const loc = locale === 'fr' ? 'fr-CA' : locale === 'es' ? 'es' : 'en-CA';
+const pc = (n: number, d = 1) => {
+  const s = n.toLocaleString(loc, { minimumFractionDigits: d, maximumFractionDigits: d });
+  return locale === 'en' ? `${s}%` : `${s} %`;
+};
+
+const meta: any = (advance as any).meta;
+const rows: any[] = (advance as any).ridings;
+const prov = meta.provincial;
+const top = rows[0];
+const bottom = rows[rows.length - 1];
+
+// Liens vers les pages de circonscription
+const slugById = new Map(getAllQuebecRidings().map((r) => [r.id, r.slug]));
+const base = { fr: '/fr/canada/quebec/circonscriptions/', en: '/en/canada/quebec/ridings/', es: '/es/canada/quebec/distritos/' }[locale];
+const hrefOf = (id: string) => (slugById.get(id) ? `${base}${slugById.get(id)}/` : undefined);
+const nameOf = (r: any) => (locale === 'en' ? r.name_en : r.name_fr);
+
+// Association avec la projection (moyennes, pas causalité) : 30 circonscriptions
+// au taux le plus élevé contre les 30 au taux le plus bas.
+const proj = new Map<string, any>(((ridingsSource as any).ridings as any[]).map((r) => [r.riding_id, r.projection?.vote_mean ?? {}]));
+const avg = (ids: any[], p: string) => ids.reduce((s, r) => s + (proj.get(r.riding_id)?.[p] ?? 0), 0) / ids.length;
+const hi = rows.slice(0, 30), lo = rows.slice(-30);
+const assoc = { caqHi: avg(hi, 'caq'), caqLo: avg(lo, 'caq'), plqHi: avg(hi, 'plq'), plqLo: avg(lo, 'plq') };
+
+// Carte : classes de taux
+const BUCKETS = [
+  { key: 'b1', max: 15, color: '#deebf7' },
+  { key: 'b2', max: 20, color: '#9ecae1' },
+  { key: 'b3', max: 25, color: '#6baed6' },
+  { key: 'b4', max: 30, color: '#3182bd' },
+  { key: 'b5', max: Infinity, color: '#08519c' },
+];
+const bucketOf = (v: number) => BUCKETS.find((b) => v < b.max)!.key;
+const BL = {
+  fr: { b1: 'Moins de 15 %', b2: '15 à 20 %', b3: '20 à 25 %', b4: '25 à 30 %', b5: '30 % et plus' },
+  en: { b1: 'Under 15%', b2: '15 to 20%', b3: '20 to 25%', b4: '25 to 30%', b5: '30% or more' },
+  es: { b1: 'Menos del 15 %', b2: '15 a 20 %', b3: '20 a 25 %', b4: '25 a 30 %', b5: '30 % o más' },
+}[locale];
+const colors = Object.fromEntries(BUCKETS.map((b) => [b.key, b.color]));
+let blocs: any[] = [], canvas: any;
+try {
+  const t = JSON.parse(readFileSync(resolve(process.cwd(), 'web_data', 'quebec', 'simulator.json'), 'utf-8'))?.tiles;
+  blocs = t?.blocs ?? []; canvas = t?.canvas;
+} catch { blocs = []; }
+const tiles = rows.map((r) => ({ id: r.riding_id, name: nameOf(r), winner: bucketOf(r.advance_turnout_pct), margin: r.advance_turnout_pct, href: hrefOf(r.riding_id) }));
+
+// Comparaison avec 2022 (circonscriptions dont la carte a peu changé)
+const sg = (n: number) => `${n > 0 ? '+' : n < 0 ? '−' : ''}${Math.abs(n)}${locale === 'en' ? '%' : ' %'}`;
+const comp = rows.filter((r) => r.change_vs_2022_pct != null).sort((x, y) => y.change_vs_2022_pct - x.change_vs_2022_pct);
+const up5 = comp.slice(0, 5), down5 = comp.slice(-5).reverse();
+const listOf = (xs: any[]) => xs.map((r) => `${nameOf(r)} (${sg(r.change_vs_2022_pct)})`).join(', ');
+const otherEarly = prov.other_early_share_2022_pct;
+const allEarly = Math.round(prov.advance_share_est_pct + otherEarly);
+
+const REG_ORDER = ['qcc', 'rest', 'mtl'];
+const regLabel = (k: string) => meta.regions[k]?.[`label_${locale}`] ?? meta.regions[k]?.label_fr;
+const byRegion = REG_ORDER.map((k) => ({ key: k, label: regLabel(k), stats: meta.regions[k], rows: rows.filter((r) => r.region === k) }));
+
+const T = {
+  fr: {
+    eyebrow: 'Élections Québec 2026 · vote par anticipation',
+    h1: 'Vote par anticipation : la participation dans les 127 circonscriptions',
+    lede: `Les 27 et 28 septembre, ${pc(prov.advance_turnout_pct)} des électeurs inscrits ont voté par anticipation. C'est environ ${prov.advance_share_est_pct} % des votes attendus déjà dans l'urne, une semaine avant le scrutin. Le taux varie de ${pc(top.advance_turnout_pct)} à ${top.name_fr} à ${pc(bottom.advance_turnout_pct)} à ${bottom.name_fr}.`,
+    k1: 'Électeurs inscrits qui ont voté', k2: 'Part estimée des votes déjà exprimés', k3: 'Taux le plus élevé', k4: 'Taux le plus bas', k5: 'Par rapport à 2022',
+    k5small: `2022 : ${pc(prov.advance_turnout_2022_pct)}`,
+    precision: `Ces chiffres ne comptent que le vote par anticipation en bureau des 27 et 28 septembre. D'autres électeurs votent aussi avant le jour du scrutin : au bureau du directeur du scrutin, dans les résidences pour aînés, à domicile ou hors de leur circonscription. En 2022, ces autres votes représentaient ${pc(otherEarly)} des bulletins. En les ajoutant, la part des votes exprimés avant le 5 octobre devrait avoisiner ${allEarly} %.`,
+    regTitle: 'Par région', regRate: 'Taux', regShare: 'Part estimée des votes', regVs: 'Par rapport à 2022',
+    vsTitle: 'Par rapport à 2022',
+    vs1: `En 2022, ${pc(prov.advance_turnout_2022_pct)} des électeurs inscrits avaient voté par anticipation en bureau. Cette année, c'est ${pc(prov.advance_turnout_pct)}, une hausse de ${prov.change_vs_2022_pct} %. La hausse est à peu près la même dans les trois grandes régions.`,
+    vs2: `Les plus fortes hausses : ${listOf(up5)}. Ce sont surtout des circonscriptions où l'on votait très peu par anticipation en 2022 : elles rattrapent la moyenne. Les plus faibles : ${listOf(down5)}.`,
+    vs3: `Comparaison faite sur les ${prov.n_comparable_2022} circonscriptions dont la carte a peu changé depuis 2022. Les autres sont marquées d'un tiret dans les tableaux.`,
+    pastTitle: 'Ce que les élections passées en disent',
+    past1: `Une circonscription qui vote par anticipation plus ou moins que prévu annonce-t-elle un changement de député ? Nous l'avons vérifié sur 2014 → 2018 (la vague caquiste) et 2018 → 2022, à partir des résultats par bureau de vote d'Élections Québec.`,
+    past2: `Ce qui en ressort : un vote par anticipation plus fort que prévu annonçait surtout une participation totale plus forte le jour du scrutin. Il n'annonçait ni un changement de député, ni l'ampleur de la vague. En 2018, là où le vote par anticipation avait été inhabituellement fort, la CAQ a même un peu moins progressé qu'ailleurs, à participation égale. Le vote par anticipation dit donc combien de gens votent, pas pour qui.`,
+    past3: `Cette année, la hausse est un peu plus faible là où la CAQ était la plus forte en 2022. C'est cohérent avec des électeurs caquistes moins pressés d'aller voter, mais le lien est faible, et l'âge ou la composition des circonscriptions peuvent l'expliquer tout autant.`,
+    mapTitle: 'Carte des 127 circonscriptions', mapHelp: 'Une tuile par circonscription, colorée selon le pourcentage des électeurs inscrits qui ont voté par anticipation.',
+    readTitle: 'Ce que ça veut dire',
+    read1: `La région de Québec et Chaudière-Appalaches a voté tôt bien plus que Montréal et Laval : environ ${meta.regions.qcc.advance_share_est_pct} % des votes attendus y sont déjà exprimés, contre environ ${meta.regions.mtl.advance_share_est_pct} % à Montréal et Laval. Les circonscriptions anglophones et allophones de l'île ont les taux les plus bas.`,
+    read2: `Les 30 circonscriptions où le vote par anticipation a été le plus fort sont aussi celles où notre projection donne, en moyenne, la CAQ plus forte (${pc(assoc.caqHi)} contre ${pc(assoc.caqLo)} dans les 30 où il a été le plus faible) et le PLQ plus faible (${pc(assoc.plqHi)} contre ${pc(assoc.plqLo)}). C'est une association entre territoires, pas une information sur le choix des électeurs : le vote par anticipation reste secret.`,
+    nightTitle: 'Pour lire les résultats du 5 octobre',
+    night: 'Plus le vote par anticipation est élevé dans une circonscription, plus une grande part de ses bulletins a été déposée avant la dernière semaine de campagne. Un mouvement de fin de campagne y aura donc moins de prise que là où presque tout se joue le jour même.',
+    tableTitle: (l: string) => `${l} : toutes les circonscriptions`,
+    th: ['Circonscription', 'Taux (inscrits)', 'Par rapport à 2022', 'Participation 2022', 'Part estimée des votes'],
+    method: `Source : Élections Québec, taux de participation préliminaires au vote par anticipation, susceptibles d'être révisés. Le taux est un pourcentage des électeurs inscrits. La part estimée des votes déjà exprimés divise ce taux par la participation de 2022 dans la circonscription : si la participation totale augmente cette année, les parts réelles seront un peu plus basses. Moyennes provinciale et régionales pondérées par le nombre d'électeurs inscrits. Taux de 2022 : résultats par bureau de vote d'Élections Québec, bulletins déposés aux bureaux de vote par anticipation, portés sur la carte 2026 ; un tiret signale une circonscription dont la carte a trop changé pour comparer.`,
+    api: 'Les données sont dans nos données ouvertes', apiHref: '/fr/api/',
+    metric: 'taux', unit: '%',
+  },
+  en: {
+    eyebrow: 'Quebec 2026 election · advance voting',
+    h1: 'Advance voting: turnout in all 127 ridings',
+    lede: `On September 27 and 28, ${pc(prov.advance_turnout_pct)} of registered electors voted in advance. That is about ${prov.advance_share_est_pct}% of expected votes already cast, a week before election day. The rate ranges from ${pc(top.advance_turnout_pct)} in ${top.name_en} to ${pc(bottom.advance_turnout_pct)} in ${bottom.name_en}.`,
+    k1: 'Registered electors who voted', k2: 'Estimated share of votes already cast', k3: 'Highest rate', k4: 'Lowest rate', k5: 'Compared with 2022',
+    k5small: `2022: ${pc(prov.advance_turnout_2022_pct)}`,
+    precision: `These figures only count in-person advance voting on September 27 and 28. Other electors also vote before election day: at the returning officer's office, in seniors' residences, at home or outside their riding. In 2022, those other votes made up ${pc(otherEarly)} of ballots. Adding them, the share of votes cast before October 5 should be around ${allEarly}%.`,
+    regTitle: 'By region', regRate: 'Rate', regShare: 'Estimated share of votes', regVs: 'Compared with 2022',
+    vsTitle: 'Compared with 2022',
+    vs1: `In 2022, ${pc(prov.advance_turnout_2022_pct)} of registered electors voted at the advance polls. This year it is ${pc(prov.advance_turnout_pct)}, an increase of ${prov.change_vs_2022_pct}%. The increase is about the same in all three large regions.`,
+    vs2: `The largest increases: ${listOf(up5)}. These are mostly ridings where very few people voted early in 2022: they are catching up with the average. The smallest: ${listOf(down5)}.`,
+    vs3: `Comparison made on the ${prov.n_comparable_2022} ridings whose boundaries changed little since 2022. The others show a dash in the tables.`,
+    pastTitle: 'What past elections tell us',
+    past1: `Does a riding that votes early more or less than expected signal a change of member? We checked 2014 → 2018 (the CAQ wave) and 2018 → 2022, using Élections Québec's poll-by-poll results.`,
+    past2: `The finding: a stronger-than-expected advance vote mostly signalled higher overall turnout on election day. It did not signal a change of member, nor the size of the wave. In 2018, where the advance vote had been unusually strong, the CAQ actually gained a little less than elsewhere, at equal turnout. The advance vote tells you how many people vote, not for whom.`,
+    past3: `This year, the increase is somewhat smaller where the CAQ was strongest in 2022. That fits CAQ voters in less of a hurry to vote, but the link is weak, and age or the make-up of the ridings could explain it just as well.`,
+    mapTitle: 'Map of the 127 ridings', mapHelp: 'One tile per riding, coloured by the percentage of registered electors who voted in advance.',
+    readTitle: 'What it means',
+    read1: `Quebec City and Chaudière-Appalaches voted early far more than Montreal and Laval: about ${meta.regions.qcc.advance_share_est_pct}% of expected votes are already cast there, against about ${meta.regions.mtl.advance_share_est_pct}% in Montreal and Laval. The island's English- and allophone-majority ridings have the lowest rates.`,
+    read2: `The 30 ridings with the strongest advance vote are also those where our projection has the CAQ stronger on average (${pc(assoc.caqHi)} vs ${pc(assoc.caqLo)} in the 30 weakest) and the PLQ weaker (${pc(assoc.plqHi)} vs ${pc(assoc.plqLo)}). This is an association between places, not information about how people voted: the advance ballot is secret.`,
+    nightTitle: 'Reading the October 5 results',
+    night: 'The higher the advance vote in a riding, the larger the share of its ballots cast before the campaign\'s last week. A late shift will therefore have less grip there than where nearly everything happens on election day.',
+    tableTitle: (l: string) => `${l}: all ridings`,
+    th: ['Riding', 'Rate (registered)', 'Compared with 2022', '2022 turnout', 'Estimated share of votes'],
+    method: 'Source: Élections Québec, preliminary advance-poll turnout rates, subject to revision. The rate is a percentage of registered electors. The estimated share of votes already cast divides that rate by the riding\'s 2022 turnout: if overall turnout rises this year, the real shares will be somewhat lower. Provincial and regional averages are weighted by registered electors. 2022 rates: Élections Québec poll-by-poll results, ballots cast at advance polls, carried over to the 2026 map; a dash marks a riding whose boundaries changed too much to compare.',
+    api: 'The data is in our open data', apiHref: '/api/',
+    metric: 'rate', unit: '%',
+  },
+  es: {
+    eyebrow: 'Elecciones de Quebec 2026 · voto anticipado',
+    h1: 'Voto anticipado: la participación en los 127 distritos',
+    lede: `El 27 y 28 de septiembre, el ${pc(prov.advance_turnout_pct)} de los electores inscritos votó por anticipado. Es cerca del ${prov.advance_share_est_pct} % de los votos esperados ya emitidos, una semana antes de la elección. La tasa va del ${pc(top.advance_turnout_pct)} en ${top.name_fr} al ${pc(bottom.advance_turnout_pct)} en ${bottom.name_fr}.`,
+    k1: 'Electores inscritos que votaron', k2: 'Parte estimada de los votos ya emitidos', k3: 'Tasa más alta', k4: 'Tasa más baja', k5: 'Frente a 2022',
+    k5small: `2022: ${pc(prov.advance_turnout_2022_pct)}`,
+    precision: `Estas cifras solo cuentan el voto anticipado en persona del 27 y 28 de septiembre. Otros electores también votan antes del día de la elección: en la oficina del director de escrutinio, en residencias para mayores, a domicilio o fuera de su distrito. En 2022, esos otros votos representaron el ${pc(otherEarly)} de las papeletas. Sumándolos, la parte de los votos emitidos antes del 5 de octubre debería rondar el ${allEarly} %.`,
+    regTitle: 'Por región', regRate: 'Tasa', regShare: 'Parte estimada de los votos', regVs: 'Frente a 2022',
+    vsTitle: 'Frente a 2022',
+    vs1: `En 2022, el ${pc(prov.advance_turnout_2022_pct)} de los electores inscritos votó por anticipado en persona. Este año es el ${pc(prov.advance_turnout_pct)}, un aumento del ${prov.change_vs_2022_pct} %. El aumento es más o menos el mismo en las tres grandes regiones.`,
+    vs2: `Los mayores aumentos: ${listOf(up5)}. Son sobre todo distritos donde muy poca gente votó por anticipado en 2022: se están acercando al promedio. Los menores: ${listOf(down5)}.`,
+    vs3: `Comparación hecha en los ${prov.n_comparable_2022} distritos cuyos límites cambiaron poco desde 2022. Los demás aparecen con un guion en las tablas.`,
+    pastTitle: 'Lo que dicen las elecciones pasadas',
+    past1: `¿Un distrito que vota por anticipado más o menos de lo esperado anuncia un cambio de diputado? Lo comprobamos en 2014 → 2018 (la ola de la CAQ) y 2018 → 2022, con los resultados por mesa de Élections Québec.`,
+    past2: `Lo que sale: un voto anticipado más fuerte de lo esperado anunciaba sobre todo una participación total más alta el día de la elección. No anunciaba un cambio de diputado ni el tamaño de la ola. En 2018, donde el voto anticipado había sido inusualmente fuerte, la CAQ incluso avanzó un poco menos que en otros lugares, a igual participación. El voto anticipado dice cuánta gente vota, no por quién.`,
+    past3: `Este año, el aumento es algo menor donde la CAQ era más fuerte en 2022. Encaja con votantes de la CAQ con menos prisa por votar, pero el vínculo es débil, y la edad o la composición de los distritos podrían explicarlo igual de bien.`,
+    mapTitle: 'Mapa de los 127 distritos', mapHelp: 'Una casilla por distrito, coloreada según el porcentaje de electores inscritos que votó por anticipado.',
+    readTitle: 'Qué significa',
+    read1: `La región de Quebec y Chaudière-Appalaches votó temprano mucho más que Montreal y Laval: cerca del ${meta.regions.qcc.advance_share_est_pct} % de los votos esperados ya se emitió allí, frente a cerca del ${meta.regions.mtl.advance_share_est_pct} % en Montreal y Laval. Los distritos anglófonos y alófonos de la isla tienen las tasas más bajas.`,
+    read2: `Los 30 distritos con el voto anticipado más fuerte son también aquellos donde nuestra proyección da, en promedio, una CAQ más fuerte (${pc(assoc.caqHi)} frente a ${pc(assoc.caqLo)} en los 30 más débiles) y un PLQ más débil (${pc(assoc.plqHi)} frente a ${pc(assoc.plqLo)}). Es una asociación entre territorios, no una información sobre cómo votó la gente: el voto anticipado es secreto.`,
+    nightTitle: 'Para leer los resultados del 5 de octubre',
+    night: 'Cuanto más alto es el voto anticipado en un distrito, mayor es la parte de sus papeletas depositada antes de la última semana de campaña. Un cambio de última hora tendrá allí menos peso que donde casi todo ocurre el mismo día.',
+    tableTitle: (l: string) => `${l}: todos los distritos`,
+    th: ['Distrito', 'Tasa (inscritos)', 'Frente a 2022', 'Participación 2022', 'Parte estimada de los votos'],
+    method: 'Fuente: Élections Québec, tasas preliminares de participación en el voto anticipado, sujetas a revisión. La tasa es un porcentaje de los electores inscritos. La parte estimada de los votos ya emitidos divide esa tasa por la participación de 2022 en el distrito: si la participación total sube este año, las partes reales serán algo más bajas. Promedios provincial y regionales ponderados por electores inscritos. Tasas de 2022: resultados por mesa de Élections Québec, papeletas depositadas en las mesas de voto anticipado, trasladadas al mapa de 2026; un guion señala un distrito cuyos límites cambiaron demasiado para comparar.',
+    api: 'Los datos están en nuestros datos abiertos', apiHref: '/es/api/',
+    metric: 'tasa', unit: '%',
+  },
+}[locale];
+---
+
+<article class="qav" data-content-area>
+  <header class="container qav-head">
+    <p class="eyebrow">{T.eyebrow}</p>
+    <h1>{T.h1}</h1>
+    <p class="qav-lede">{T.lede}</p>
+  </header>
+
+  <section class="container qav-keys">
+    <div><span>{T.k1}</span><strong>{pc(prov.advance_turnout_pct)}</strong></div>
+    <div><span>{T.k2}</span><strong>≈ {prov.advance_share_est_pct}{locale === 'en' ? '%' : ' %'}</strong></div>
+    <div><span>{T.k3}</span><strong>{pc(top.advance_turnout_pct)}</strong><em>{nameOf(top)}</em></div>
+    <div><span>{T.k4}</span><strong>{pc(bottom.advance_turnout_pct)}</strong><em>{nameOf(bottom)}</em></div>
+    <div><span>{T.k5}</span><strong>{sg(prov.change_vs_2022_pct)}</strong><em>{T.k5small}</em></div>
+  </section>
+
+  <section class="container qav-precision">
+    <p>{T.precision}</p>
+  </section>
+
+  <section class="container qav-regions">
+    <h2>{T.regTitle}</h2>
+    <table>
+      <thead><tr><th></th><th>{T.regRate}</th><th>{T.regVs}</th><th>{T.regShare}</th></tr></thead>
+      <tbody>
+        {byRegion.map((g) => (
+          <tr><th scope="row">{g.label} <small>({g.stats.n})</small></th><td>{pc(g.stats.advance_turnout_pct)}</td><td>{g.stats.change_vs_2022_pct != null ? sg(g.stats.change_vs_2022_pct) : '—'}</td><td>≈ {g.stats.advance_share_est_pct}{locale === 'en' ? '%' : ' %'}</td></tr>
+        ))}
+      </tbody>
+    </table>
+  </section>
+
+  {blocs.length > 0 && (
+    <section class="container qav-map">
+      <h2>{T.mapTitle}</h2>
+      <p>{T.mapHelp}</p>
+      <ul class="qav-legend">
+        {BUCKETS.map((b) => (<li><i style={`background:${b.color}`}></i>{(BL as any)[b.key]}</li>))}
+      </ul>
+      <TileMap client:visible blocs={blocs} canvas={canvas} ridings={tiles} locale={locale} colors={colors} labels={BL as any} metricLabel={T.metric} metricUnit={T.unit} />
+    </section>
+  )}
+
+  <section class="container qav-read">
+    <h2>{T.vsTitle}</h2>
+    <p>{T.vs1}</p>
+    <p>{T.vs2}</p>
+    <p class="qav-small">{T.vs3}</p>
+  </section>
+
+  <section class="container qav-read">
+    <h2>{T.pastTitle}</h2>
+    <p>{T.past1}</p>
+    <p>{T.past2}</p>
+    <p>{T.past3}</p>
+  </section>
+
+  <section class="container qav-read">
+    <h2>{T.readTitle}</h2>
+    <p>{T.read1}</p>
+    <p>{T.read2}</p>
+  </section>
+
+  <section class="container qav-night">
+    <h2>{T.nightTitle}</h2>
+    <p>{T.night}</p>
+  </section>
+
+  {byRegion.map((g) => (
+    <section class="container qav-table">
+      <h2>{T.tableTitle(g.label)}</h2>
+      <table>
+        <thead><tr>{T.th.map((h) => <th>{h}</th>)}</tr></thead>
+        <tbody>
+          {g.rows.map((r) => (
+            <tr>
+              <th scope="row">{hrefOf(r.riding_id) ? <a href={hrefOf(r.riding_id)}>{nameOf(r)}</a> : nameOf(r)}</th>
+              <td>{pc(r.advance_turnout_pct, 2)}</td>
+              <td>{r.change_vs_2022_pct != null ? sg(r.change_vs_2022_pct) : '—'}</td>
+              <td>{r.turnout_2022_pct != null ? pc(r.turnout_2022_pct) : '—'}</td>
+              <td>{r.advance_share_est_pct != null ? `≈ ${r.advance_share_est_pct}${locale === 'en' ? '%' : ' %'}` : '—'}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </section>
+  ))}
+
+  <section class="container qav-method">
+    <p>{T.method} <a href={T.apiHref}>{T.api} →</a></p>
+  </section>
+</article>
+
+<style>
+  .qav-head { padding-top: 2rem; }
+  .qav-lede { font-size: 1.15rem; max-width: 70ch; }
+  .qav-keys { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: .75rem; margin: 1.5rem auto; }
+  .qav-keys > div { border: 1px solid var(--border, #ddd); border-radius: 10px; padding: .9rem 1rem; display: flex; flex-direction: column; gap: .2rem; }
+  .qav-keys span { font-size: .85rem; opacity: .75; }
+  .qav-keys strong { font-size: 1.8rem; font-variant-numeric: tabular-nums; }
+  .qav-keys em { font-style: normal; font-size: .9rem; }
+  .qav table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+  .qav th, .qav td { text-align: left; padding: .45rem .5rem; border-bottom: 1px solid var(--border, #e5e5e5); }
+  .qav td { text-align: right; }
+  .qav thead th { font-size: .85rem; opacity: .8; }
+  .qav thead th:not(:first-child) { text-align: right; }
+  .qav-regions, .qav-map, .qav-read, .qav-night, .qav-table, .qav-method { margin: 2rem auto; }
+  .qav-legend { list-style: none; display: flex; flex-wrap: wrap; gap: .4rem 1rem; padding: 0; margin: .5rem 0 1rem; font-size: .85rem; }
+  .qav-legend i { display: inline-block; width: .9rem; height: .9rem; border-radius: 3px; margin-right: .35rem; vertical-align: -2px; border: 1px solid rgba(0,0,0,.15); }
+  .qav-read p, .qav-night p, .qav-precision p { max-width: 70ch; }
+  .qav-precision { margin: 0 auto 1.5rem; }
+  .qav-precision p { font-size: .95rem; opacity: .85; }
+  .qav-small { font-size: .9rem; opacity: .8; }
+  .qav-table { overflow-x: auto; }
+  .qav-method p { font-size: .9rem; opacity: .8; max-width: 75ch; }
+</style>

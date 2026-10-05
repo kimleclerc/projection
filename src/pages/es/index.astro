@@ -8,7 +8,9 @@ import MethodologyNote from '../../components/MethodologyNote.astro';
 import IdentityMark from '../../components/IdentityMark.astro';
 import SearchFastPath from '../../components/SearchFastPath.astro';
 import TradeWarBand from '../../components/TradeWarBand.astro';
+import SpainBand from '../../components/SpainBand.astro';
 import RidingsCta from '../../components/RidingsCta.astro';
+import LabsHomeBand from '../../components/LabsHomeBand.astro';
 import SignalTicker from '../../islands/SignalTicker';
 import AnimatedNumber from '../../islands/AnimatedNumber';
 import { desks, editorialPhilosophy, instruments } from '../../data/editorial';
@@ -19,6 +21,7 @@ import frLegData from '../../../web_data/france-legislative/latest.json';
 import clactonData from '../../../web_data/uk-clacton-special/latest.json';
 import gooseData from '../../../web_data/ca-canada-goose/latest.json';
 import cusmaData from '../../../web_data/cusma-showdown/latest.json';
+import esData from '../../../web_data/spain/latest.json';
 
 const philosophy = editorialPhilosophy.es;
 const ldi = ldiData.ldi;
@@ -32,7 +35,11 @@ const goose = (gooseData as any).cgi;
 const cusma = (cusmaData as any).showdown;
 
 // Primero las carreras ACTIVAS; el Mundial cierra la cinta como archivo.
+const esP = (esData as any).blocs.pp_vox.p_majority * 100;
+const esPmaj = esP > 99 ? '>99 %' : `${Math.round(esP)} %`;
+
 const signals = [
+  { label: 'Elecciones España', value: `PP+Vox ${esData.blocs.pp_vox.median} escaños · mayoría ${esPmaj}`, href: '/es/spain/' },
   { label: 'Índice Barrage', value: `${bfi.score}/100 · ${bfi.label_es}`, href: '/es/france/indexes/barrage/' },
   { label: 'Legislativas FR', value: `p(mayoría RN) ${pMajRN}% con frente 2024`, href: '/es/france/legislativas' },
   { label: 'Parcial de Clacton', value: `Farage ${pFarage}% — 13 de agosto`, href: '/es/uk/byelections/clacton/' },
@@ -44,6 +51,7 @@ const signals = [
 
 // La cifra más llamativa de cada desk, inyectada en su tarjeta.
 const liveSignals: Record<string, string> = {
+  spain: `PP+Vox ${esData.blocs.pp_vox.median} escaños · mayoría ${esPmaj}`,
   us: `Lame-Duck ${ldi.score}/100`,
   canada: `Goose ${goose.score}/100 · T-MEC ${cusma.gap > 0 ? '+' : ''}${cusma.gap}`,
   france: `p(mayoría RN) ${pMajRN}% con frente 2024 · Barrage ${bfi.score}/100`,
@@ -99,6 +107,8 @@ const liveSignals: Record<string, string> = {
 
   <SearchFastPath lang="es" />
 
+  <SpainBand lang="es" />
+
   <TradeWarBand lang="es" />
 
   <section class="content-band" style="background:var(--surface-alt,#f9f7f2);padding:2rem 0;">
@@ -151,6 +161,8 @@ const liveSignals: Record<string, string> = {
     </div>
   </section>
 
+  <LabsHomeBand lang="es" />
+
   <DeskSections lang="es" />
 
   <InstrumentGrid
@@ -172,7 +184,7 @@ const liveSignals: Record<string, string> = {
     title="Cómo se construyen las proyecciones."
     body={philosophy.proof}
     bullets={[
-      'Todas las proyecciones agregan encuestas públicas en un modelo bayesiano BSTS — sesgos de encuestadora medidos y corregidos, correlaciones estimadas de los datos, exactitud calibrada sobre elecciones pasadas. La simulación solo lo traduce todo en escaños.',
+      'La mayoría de nuestras proyecciones agregan encuestas públicas en un modelo bayesiano BSTS — sesgos de encuestadora medidos y corregidos, exactitud calibrada sobre elecciones pasadas. La simulación solo lo traduce todo en escaños.',
       'Los datos de mercados de predicción (Polymarket) acompañan al modelo como detector de desacuerdo, no como sustituto.',
       'Las probabilidades por circunscripción se condicionan a los movimientos nacionales y regionales, y luego se reagrupan en distribuciones de escaños.',
       'Los datos fuente, las notas metodológicas y los resultados del modelo son públicos en cada desk. Se actualizan de forma continua a medida que llegan nuevas encuestas.',

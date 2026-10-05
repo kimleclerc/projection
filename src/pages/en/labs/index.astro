@@ -1,0 +1,29 @@
+---
+import Base from '../../../layouts/Base.astro';
+import LabsHub from '../../../components/LabsHub.astro';
+
+const LOCALE = 'en' as const;
+const url = 'https://vote-scope.com/en/labs/';
+---
+
+<Base
+  title="Orbit — the quantum and relativistic engine of VoteScope Labs"
+  description="What if you forecast an election with Einstein’s physics? Orbit, our experimental qubit engine, reads the same polls as our reference forecast and goes head to head with it in Quebec, British Columbia and the United States."
+  canonical={url}
+  lang={LOCALE}
+  currentPage="match"
+  alternates={{
+    en: 'https://vote-scope.com/en/labs/',
+    fr: 'https://vote-scope.com/fr/labs/',
+    es: 'https://vote-scope.com/es/labs/',
+  }}
+  jsonLd={[
+    { '@context': 'https://schema.org', '@type': 'WebPage', name: 'Orbit — the quantum and relativistic engine of VoteScope Labs', url, inLanguage: LOCALE },
+    { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: 'https://vote-scope.com/en/' },
+      { '@type': 'ListItem', position: 2, name: 'Labs', item: url },
+    ]},
+  ]}
+>
+  <LabsHub locale={LOCALE} />
+</Base>

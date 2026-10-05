@@ -3,11 +3,11 @@ import EditorialLayout from '../../../layouts/EditorialLayout.astro';
 import RidingsCta from '../../../components/RidingsCta.astro';
 import NewsletterCta from '../../../components/NewsletterCta.astro';
 import ProjectionEngine from '../../../components/ProjectionEngine.astro';
-import RaceNarrative from '../../../components/RaceNarrative.astro';
 import PolymarketEmbed from '../../../components/PolymarketEmbed.astro';
 import { jurisdictions } from '../../../data/jurisdictions';
 import quebecMeta from '../../../../web_data/quebec/latest.json';
-import { raceEditorial } from '../../../data/raceEditorial';
+import advanceVote from '../../../../web_data/quebec/advance_vote.json';
+const nfEs = (x: number) => x.toLocaleString('es', { maximumFractionDigits: 1 });
 
 const j = jurisdictions.quebec;
 const canonical = 'https://vote-scope.com/es/canada/quebec/';
@@ -58,7 +58,14 @@ const alternates = {
     href="/es/canada/quebec/resultados/"
     cta="Abrir la página de resultados →"
   />
-  <ProjectionEngine jurisdiction={j} locale="es"><Fragment slot="narrative"><RaceNarrative locale="es" {...raceEditorial.quebec.es} /></Fragment></ProjectionEngine>
+  <ProjectionEngine jurisdiction={j} locale="es" />
+  <RidingsCta
+    eyebrow="Voto anticipado"
+    title={`Cerca del ${advanceVote.meta.provincial.advance_share_est_pct} % de los votos ya está en las urnas`}
+    blurb={`El ${nfEs(advanceVote.meta.provincial.advance_turnout_pct)} % de los electores inscritos votó por anticipado el 27 y 28 de septiembre. La participación en cada una de las 127 circunscripciones, en el mapa y por región.`}
+    href="/es/canada/quebec/voto-anticipado/"
+    cta="Ver la participación por circunscripción →"
+  />
   <RidingsCta
     eyebrow="El simulador"
     title="¿Y si Quebec votara de otra manera?"

@@ -1,0 +1,170 @@
+---
+/**
+ * Bande d'accueil du desk Espagne (même patron que TradeWarBand).
+ *
+ * Tout ce qui est visible vient de web_data/spain/latest.json : sièges des
+ * trois premiers partis, bloc PP + Vox, logement (CIS). La phrase sur la
+ * convocation (5 octobre, vote le 29 novembre) est écrite à la main.
+ */
+import es from '../../web_data/spain/latest.json';
+import { partyMeta } from '../lib/riding-adapters/parties';
+
+interface Props {
+  lang: 'en' | 'fr' | 'es';
+}
+const { lang } = Astro.props;
+
+const d = es as any;
+const nat = d.national;
+const blocs = d.blocs;
+const viv = d.vivienda;
+const top = ['pp', 'psoe', 'vox'];
+const dec = (v: number) => (lang === 'en' ? v.toFixed(1) : v.toFixed(1).replace('.', ','));
+const p = blocs.pp_vox.p_majority * 100;
+const pTxt = {
+  es: p > 99 ? 'más de 99' : String(Math.round(p)),
+  fr: p > 99 ? 'plus de 99' : String(Math.round(p)),
+  en: p > 99 ? 'more than 99' : String(Math.round(p)),
+}[lang];
+
+const copy = {
+  es: {
+    eyebrow: 'Mesa en vivo · Elecciones generales del 29 de noviembre',
+    title: `PP y Vox suman ${blocs.pp_vox.median} escaños: mayoría absoluta en ${pTxt} de cada 100 simulaciones.`,
+    lede: `Sánchez disolvió las Cortes el 5 de octubre tras perder los decretos de vivienda: España vota el domingo 29 de noviembre. Proyectamos los 350 escaños provincia por provincia, con un segundo modelo experimental para comparar.`,
+    viv: `La vivienda, primera preocupación: ${dec(viv.latest.pct_multi)} % la cita en el CIS`,
+    vivSub: `Barómetro del CIS · ${dec(viv.yearly['2022'])} % en 2022`,
+    seats: 'escaños',
+    cta: 'Abrir la mesa España →',
+    href: '/es/spain/',
+    updated: 'Actualizado',
+  },
+  fr: {
+    eyebrow: 'Bureau en direct · Élections générales du 29 novembre',
+    title: `PP et Vox totalisent ${blocs.pp_vox.median} sièges : majorité absolue dans ${pTxt} simulations sur 100.`,
+    lede: `Sánchez a dissous les Cortes le 5 octobre après avoir perdu les décrets sur le logement : l’Espagne vote le dimanche 29 novembre. Nous projetons les 350 sièges province par province, avec un second modèle expérimental pour comparer.`,
+    viv: `Le logement, première inquiétude : ${dec(viv.latest.pct_multi)} % le citent au CIS`,
+    vivSub: `Baromètre du CIS · ${dec(viv.yearly['2022'])} % en 2022`,
+    seats: 'sièges',
+    cta: 'Ouvrir le bureau Espagne →',
+    href: '/fr/spain/',
+    updated: 'Mis à jour',
+  },
+  en: {
+    eyebrow: 'Live desk · Spain votes on November 29',
+    title: `PP and Vox total ${blocs.pp_vox.median} seats: an outright majority in ${pTxt} of 100 simulations.`,
+    lede: `Sánchez dissolved the Cortes on October 5 after losing the housing decrees: Spain votes on Sunday, November 29. We project all 350 seats province by province, with a second, experimental model for comparison.`,
+    viv: `Housing is the top worry: ${dec(viv.latest.pct_multi)}% name it in the CIS barometer`,
+    vivSub: `CIS barometer · ${dec(viv.yearly['2022'])}% in 2022`,
+    seats: 'seats',
+    cta: 'Open the Spain desk →',
+    href: '/en/spain/',
+    updated: 'Updated',
+  },
+}[lang];
+---
+
+<section class="es-band" aria-labelledby="es-band-title">
+  <div class="container es-band-inner">
+    <div class="es-band-copy">
+      <p class="es-band-eyebrow"><span class="es-band-dot" aria-hidden="true"></span>{copy.eyebrow}</p>
+      <h2 id="es-band-title">{copy.title}</h2>
+      <p class="es-band-lede">{copy.lede}</p>
+      <p class="es-band-viv">
+        <strong>{copy.viv}</strong>
+        <span>{copy.vivSub}</span>
+      </p>
+      <a class="es-band-cta" href={copy.href}>{copy.cta}</a>
+    </div>
+    <div class="es-band-facts">
+      {top.map((k) => (
+        <article class="es-band-fact" style={`--party-color:${partyMeta('spain', k).color}`}>
+          <span>{partyMeta('spain', k).label_en}</span>
+          <strong>{nat[k].seats_median}</strong>
+          <em>{copy.seats} · {nat[k].seats_p10}–{nat[k].seats_p90}</em>
+        </article>
+      ))}
+      <p class="es-band-stamp">{copy.updated} {d.meta.run_date}</p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .es-band {
+    border-block: 1px solid var(--rule, #e2ded4);
+    background: var(--surface-alt, #f9f7f2);
+    padding-block: 2.4rem;
+  }
+  .es-band-inner {
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(240px, 0.85fr);
+    gap: 2.2rem;
+    align-items: start;
+  }
+  .es-band-eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0 0 0.6rem;
+    font-family: var(--mono, monospace);
+    font-size: 10px;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--ink-3, #7a7466);
+  }
+  .es-band-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #c94040;
+    box-shadow: 0 0 0 3px rgba(201, 64, 64, 0.18);
+  }
+  .es-band-copy h2 {
+    margin: 0 0 0.7rem;
+    font-family: var(--serif, Georgia, serif);
+    font-size: clamp(24px, 3.1vw, 36px);
+    font-weight: 430;
+    line-height: 1.08;
+  }
+  .es-band-lede {
+    margin: 0 0 0.9rem;
+    max-width: 62ch;
+    color: var(--ink-2, #4a4639);
+    line-height: 1.62;
+  }
+  .es-band-viv {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    margin: 0 0 1.1rem;
+    padding-left: 0.85rem;
+    border-left: 3px solid var(--blue, #2f6fb0);
+  }
+  .es-band-viv strong { font-size: 0.98rem; line-height: 1.4; }
+  .es-band-viv span { font-family: var(--mono, monospace); font-size: 11px; color: var(--ink-3, #7a7466); }
+  .es-band-cta {
+    display: inline-block;
+    font-weight: 600;
+    text-decoration: none;
+    border-bottom: 2px solid currentColor;
+    padding-bottom: 1px;
+    color: var(--ink, #1d1b16);
+  }
+  .es-band-facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+  .es-band-fact {
+    border: 1px solid var(--rule, #e2ded4);
+    border-top: 3px solid var(--party-color);
+    border-radius: 4px;
+    background: var(--card, #fff);
+    padding: 12px;
+    display: grid;
+    gap: 2px;
+  }
+  .es-band-fact span { font-family: var(--mono, monospace); font-size: 11px; color: var(--ink-2, #4a4639); }
+  .es-band-fact strong { font-family: var(--serif, Georgia, serif); font-size: 32px; font-weight: 430; line-height: 1.05; }
+  .es-band-fact em { font-style: normal; font-family: var(--mono, monospace); font-size: 10.5px; color: var(--ink-3, #7a7466); }
+  .es-band-stamp { grid-column: 1 / -1; margin: 4px 0 0; font-family: var(--mono, monospace); font-size: 10.5px; color: var(--ink-3, #7a7466); }
+  @media (max-width: 900px) {
+    .es-band-inner { grid-template-columns: 1fr; }
+  }
+</style>

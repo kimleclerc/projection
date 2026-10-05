@@ -1,0 +1,34 @@
+---
+import EditorialLayout from '../../../../../layouts/EditorialLayout.astro';
+import QuebecAdvanceVote from '../../../../../components/QuebecAdvanceVote.astro';
+
+const canonical = 'https://vote-scope.com/en/canada/quebec/advance-voting/';
+const title = 'Quebec 2026 advance voting: turnout by riding | Vote-Scope';
+const description = 'Quebec 2026 election: advance-poll turnout on September 27 and 28 in all 127 ridings, share of votes already cast, map and regional comparison.';
+const alternates = { fr: 'https://vote-scope.com/fr/canada/quebec/vote-par-anticipation/', en: 'https://vote-scope.com/en/canada/quebec/advance-voting/', es: 'https://vote-scope.com/es/canada/quebec/voto-anticipado/' };
+---
+
+<EditorialLayout
+  title={title}
+  description={description}
+  canonical={canonical}
+  lang="en"
+  currentPage="canada"
+  ogImage="https://vote-scope.com/og/projections/quebec/en.png"
+  alternates={alternates}
+  jsonLd={[
+    { '@context': 'https://schema.org', '@type': 'WebPage', name: title, description, url: canonical, inLanguage: 'en' },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: 'https://vote-scope.com/en/' },
+        { '@type': 'ListItem', position: 2, name: 'Canada', item: 'https://vote-scope.com/en/canada/' },
+        { '@type': 'ListItem', position: 3, name: 'Quebec', item: 'https://vote-scope.com/en/canada/quebec/' },
+        { '@type': 'ListItem', position: 4, name: 'Advance voting', item: 'https://vote-scope.com/en/canada/quebec/advance-voting/' },
+      ],
+    },
+  ]}
+>
+  <QuebecAdvanceVote locale="en" />
+</EditorialLayout>

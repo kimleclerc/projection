@@ -6,6 +6,7 @@ const canonical = "https://vote-scope.com/fr/canada/quebec/resultats/";
 const title = "Élections Québec 2026 : résultats en direct | Vote-Scope";
 const description = "Élections québécoises du 5 octobre 2026 : les résultats en direct dès la fermeture des bureaux à 20 h. Sièges, voix et bureaux dépouillés par circonscription, et les gagnants annoncés au fil de la soirée.";
 const eventName = "Élection générale québécoise de 2026";
+const ogImage = "https://vote-scope.com/og/projections/quebec/fr.png";
 const alternates = {
   fr: "https://vote-scope.com/fr/canada/quebec/resultats/",
   en: "https://vote-scope.com/en/canada/quebec/results/",
@@ -19,7 +20,7 @@ const alternates = {
   canonical={canonical}
   lang="fr"
   currentPage="canada"
-  ogImage="https://vote-scope.com/og/projections/quebec/fr.png"
+  ogImage={ogImage}
   alternates={alternates}
   jsonLd={[
     {
@@ -33,10 +34,22 @@ const alternates = {
       about: {
         '@type': 'Event',
         name: eventName,
+        description,
+        image: [ogImage],
         startDate: '2026-10-05T20:00:00-04:00',
+        endDate: '2026-10-06T02:00:00-04:00',
         eventStatus: 'https://schema.org/EventScheduled',
         eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
         location: { '@type': 'Place', name: 'Québec', address: { '@type': 'PostalAddress', addressRegion: 'QC', addressCountry: 'CA' } },
+        organizer: { '@type': 'GovernmentOrganization', name: 'Élections Québec', url: 'https://www.electionsquebec.qc.ca/' },
+        performer: [
+          { '@type': 'PoliticalParty', name: 'Parti québécois' },
+          { '@type': 'PoliticalParty', name: 'Parti libéral du Québec' },
+          { '@type': 'PoliticalParty', name: 'Coalition avenir Québec' },
+          { '@type': 'PoliticalParty', name: 'Parti conservateur du Québec' },
+          { '@type': 'PoliticalParty', name: 'Québec solidaire' },
+        ],
+        offers: { '@type': 'Offer', price: 0, priceCurrency: 'CAD', availability: 'https://schema.org/InStock', url: canonical, validFrom: '2026-09-26T00:00:00-04:00' },
       },
     },
     {

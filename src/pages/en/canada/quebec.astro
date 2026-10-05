@@ -3,10 +3,10 @@ import EditorialLayout from '../../../layouts/EditorialLayout.astro';
 import RidingsCta from '../../../components/RidingsCta.astro';
 import NewsletterCta from '../../../components/NewsletterCta.astro';
 import ProjectionEngine from '../../../components/ProjectionEngine.astro';
-import RaceNarrative from '../../../components/RaceNarrative.astro';
 import { jurisdictions } from '../../../data/jurisdictions';
 import quebecMeta from '../../../../web_data/quebec/latest.json';
-import { raceEditorial } from '../../../data/raceEditorial';
+import advanceVote from '../../../../web_data/quebec/advance_vote.json';
+const nfEn = (x: number) => x.toLocaleString('en-CA', { maximumFractionDigits: 1 });
 
 const j = jurisdictions.quebec;
 const canonical = 'https://vote-scope.com/en/canada/quebec/';
@@ -57,7 +57,14 @@ const alternates = {
     href="/en/canada/quebec/results/"
     cta="Open the results page →"
   />
-  <ProjectionEngine jurisdiction={j} locale="en"><Fragment slot="narrative"><RaceNarrative locale="en" {...raceEditorial.quebec.en} /></Fragment></ProjectionEngine>
+  <ProjectionEngine jurisdiction={j} locale="en" />
+  <RidingsCta
+    eyebrow="Advance voting"
+    title={`About ${advanceVote.meta.provincial.advance_share_est_pct}% of the vote is already in`}
+    blurb={`${nfEn(advanceVote.meta.provincial.advance_turnout_pct)}% of registered electors voted at the advance polls on September 27 and 28. Turnout in each of the 127 ridings, on the map and by region.`}
+    href="/en/canada/quebec/advance-voting/"
+    cta="See turnout by riding →"
+  />
   <RidingsCta
     eyebrow="The simulator"
     title="What if Quebec voted differently?"

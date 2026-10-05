@@ -50,6 +50,7 @@ Le manifeste `https://vote-scope.com/api/v1/manifest.json` découvre tous les je
 | Gouverneurs américains | /en/us/governors | 36 en jeu / 50 | us_governor_2026 | /en/us/governors/races/ |
 | Royaume-Uni | /en/uk/general-election | 650 | uk_2029 | /en/uk/constituencies/ |
 | France présidentielle | /en/france/ | — | fr_pres_2027 | — |
+| Espagne (Congrès) | /en/spain/ | 350 (52 circonscriptions, D'Hondt) | es_next | — (provinces sur le hub) |
 
 ### Pages spéciales (élections ponctuelles)
 
@@ -74,6 +75,8 @@ Le manifeste `https://vote-scope.com/api/v1/manifest.json` découvre tous les je
 | Hub USA | /en/us/ | Chambre, Sénat, gouverneurs, indexes, specials |
 | Hub Royaume-Uni | /en/uk/ | Élection générale + circonscriptions |
 | France | /en/france/ | Présidentielle 2027 |
+| Espagne | /en/spain/ | Élections générales du 29 novembre 2026 : projection, Orbite (bêta), calendrier, logement, comparaison |
+| Sondages Espagne | /en/spain/polls/ | Tous les sondages nationaux du Congrès depuis 2023 |
 | Partielles fédérales | /en/canada/byelections/ | Archives des 3 partielles fédérales du 13 avril 2026 |
 | Lame-Duck Index | /en/us/indexes/lame-duck/ | Indice composite quotidien (0-100) du déclin présidentiel de Trump |
 | Index Fraser intérimaire | /en/indexes/fraser-interim/ | Indicateur éditorial libéral ontarien |
@@ -105,6 +108,33 @@ Chacune des ~1677 pages riding (× 3 langues) est rendue par un composant univer
 
 ---
 
+## Valeurs courantes
+
+<!-- valeurs-courantes:debut -->
+### Instantané au 2026-10-05 (régénéré automatiquement à chaque publication)
+
+Premier et deuxième partis en sièges projetés (médiane ou moyenne selon la juridiction), et probabilité que le premier obtienne la majorité. Pour une valeur à citer, lire le `latest_url` du manifeste `/api/v1/manifest.json`.
+
+| Élection | Données au | Premier | Deuxième | Probabilité de majorité |
+|---|---|---|---|---|
+| Canada fédéral (343 sièges) | 2026-10-04 | Libéral 229 | Conservateur 81 | > 99 % |
+| Québec (127 sièges) | 2026-10-04 | PQ 62 | PLQ 38 | 29 % |
+| Ontario (124 sièges) | 2026-10-04 | Progressiste-conservateur 67 | NPD de l’Ontario 28 | 74 % |
+| Colombie-Britannique (93 sièges) | 2026-10-04 | Parti conservateur de la C.-B. 52 | NPD de la C.-B. 39 | 73 % |
+| Chambre des représentants US (435 sièges) | 2026-10-04 | Démocrate 235 | Républicain 200 | 96 % |
+| Sénat US (100 sièges) | 2026-10-04 | Démocrate 52 | Républicain 47 | 64 % |
+| Gouverneurs US (50 postes) | 2026-10-04 | Démocrate 26 | Républicain 24 | 59 % |
+| Royaume-Uni (650 sièges) | 2026-10-05 | Travailliste 259 | Reform UK 141 | 6 % |
+| Espagne, Congrès (350 sièges) | 2026-10-05 | PP 135 | PSOE 105 | bloc PP+Vox 201 sièges : > 99 % |
+
+Indices maison :
+- Lame-Duck Index (déclin du pouvoir présidentiel) : 79,5/100 (Canard boiteux) — données du 2026-10-04
+- Canada Goose Index : 85,5/100 (Bernache qui klaxonne) — données du 2026-10-04
+- Indice Barrage (solidité du front contre l’extrême droite) : 11,2/100 (Rompu) — données du 2026-10-04
+- Indice Fraser intérimaire : 68,7 (Signal Fraser positif) — données du 2026-10-04
+- Duel ACEUM / CUSMA (écart de levier Canada–É.-U.) : +65,0 (Le Canada domine la table) — données du 2026-10-04
+<!-- valeurs-courantes:fin -->
+
 ## Méthodologie
 
 ### Modèle principal : BSTS bayésien
@@ -131,6 +161,10 @@ La Chambre américaine intègre, en plus du climat national :
 
 Modèle de scénarios de second tour : qualification au premier tour, probabilités de duels, robustesse des combinaisons. Sondages publics français agrégés.
 
+### Espagne (Congrès des députés)
+
+350 sièges répartis dans 52 circonscriptions (50 provinces, Ceuta et Melilla) à la D'Hondt, seuil de 3 % des votes valides par province. Moyenne nationale par le même BSTS que les autres juridictions (biais des instituts corrigés, réestimations du CIS par des tiers exclues), passage aux provinces par déplacement logit à partir des générales de 2023 avec chocs par communauté autonome et par province mesurés sur 2015-2023, puis répartition D'Hondt dans 50 000 simulations. Testé la veille des scrutins de 2016, novembre 2019 et 2023 (environ 12 à 20 sièges mal placés sur 350). Un second modèle expérimental, Orbite (bêta), et un mélange 50/50 des deux sont publiés à côté. Élection convoquée le 5 octobre 2026 pour le dimanche 29 novembre 2026 (décret au BOE le 6 octobre, campagne du 13 au 27 novembre, sondages interdits de publication en Espagne à partir du 24 novembre).
+
 ### Verticale sport : Sports Scope / NHL
 
 Pages statiques + exports JSON + couches live côté client. Modèle BSTS + Monte Carlo + GoalieLayer pour la NHL. Le discours public reste prudent : analyse et divertissement seulement, pas de conseil de pari ; les marchés prédictifs sont un benchmark externe.
@@ -144,6 +178,7 @@ Pages statiques + exports JSON + couches live côté client. Modèle BSTS + Mont
 - Sénat US : 51 sièges
 - Gouverneurs US : 26 postes sur 50 (majorité de postes, pas un seuil législatif)
 - Royaume-Uni : 326 sièges
+- Espagne : 176 sièges sur 350
 
 ---
 
@@ -168,6 +203,7 @@ Couches supplémentaires (US) : `members.json` (élus en exercice, FEC), `candid
 - **États-Unis** : Federal Election Commission (candidats), NYT (sondages district + primaires), MIT Election Lab (résultats), Census Bureau, sources GIS officielles par État pour le redécoupage
 - **Royaume-Uni** : members-api.parliament.uk (députés), electionresults.parliament.uk (candidats 2024), ONS (démographie)
 - **France** : Sondages publics agrégés (IFOP, Harris, Ipsos, OpinionWay, BVA)
+- **Espagne** : ministère de l'Intérieur (résultats officiels par province, 2015-2023), INE (population pour la répartition des sièges), CIS (baromètres, dont les principaux problèmes du pays), sondages publics agrégés (40dB, GAD3, Sigma Dos, NC Report, SocioMétrica, DYM, etc.)
 
 ---
 

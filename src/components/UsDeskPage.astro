@@ -139,7 +139,7 @@ const COPY = {
     methodTitle: 'How the U.S. projections are built.',
     methodBody: 'House and Senate control, seat fragility, and market disagreement — each built from public polls in a bias-corrected Bayesian model, calibrated on past results, with the simulation only translating votes into seats. All open on the page.',
     methodBullets: [
-      'House and Senate polls are sourced from the NYT tracker and aggregated with a Bayesian BSTS model, then run through district- and state-level simulations.',
+      'House polls (NYT tracker) feed a Bayesian BSTS model estimated by MCMC; the Senate and governors use a race-by-race model built on state polls and the national environment. Everything then runs through 50,000 Monte Carlo simulations by district and by state, with a shared national shock.',
       'District and statewide polls anchor their own seat: a race with recent local polling is pulled toward it, and polls older than 180 days are dropped rather than faded.',
       'The Lame-Duck Index (LDI) combines presidential approval, economic indicators, congressional district margins, and prediction-market odds into a single 0–100 drag score.',
       'Special elections use a fundamentals model: incumbency, prior margin, candidate profile, and any available local polling.',
@@ -196,7 +196,7 @@ const COPY = {
     methodTitle: 'Comment les projections américaines sont bâties.',
     methodBody: "Contrôle de la Chambre et du Sénat, fragilité des sièges et désaccord avec le marché — chacun bâti à partir de sondages publics dans un modèle bayésien aux biais corrigés, calibré sur les résultats passés, la simulation ne faisant que traduire les votes en sièges. Le tout ouvert sur la page.",
     methodBullets: [
-      "Les sondages Chambre et Sénat viennent du suivi du NYT, sont agrégés par un modèle BSTS bayésien, puis passés en simulation par district et par État.",
+      "Les sondages de la Chambre (suivi du NYT) alimentent un modèle bayésien BSTS estimé par MCMC ; le Sénat et les gouverneurs passent par un modèle course par course, bâti sur les sondages d'État et l'environnement national. Le tout est ensuite rejoué en 50 000 simulations Monte Carlo par district et par État, avec un choc national commun.",
       "Les sondages de circonscription et d'État ancrent leur propre siège : une course récemment sondée est tirée vers son sondage, et un sondage de plus de 180 jours est écarté plutôt qu'atténué.",
       "Le Lame-Duck Index (LDI) combine approbation présidentielle, indicateurs économiques, marges de district et cotes de marchés de prédiction en un score de 0 à 100.",
       "Les élections partielles utilisent un modèle de fondamentaux : titularité, marge historique, profil des candidats, et sondages locaux disponibles.",
@@ -253,7 +253,7 @@ const COPY = {
     methodTitle: 'Cómo se construyen las proyecciones de EE. UU.',
     methodBody: 'Control de la Cámara y el Senado, fragilidad de escaños y desacuerdo con el mercado — cada uno construido a partir de encuestas públicos en un modelo bayesiano con sesgos corregidos, calibrado sobre resultados pasados; la simulación solo traduce votos en escaños. Todo abierto en la página.',
     methodBullets: [
-      'Las encuestas de Cámara y Senado provienen del seguimiento del NYT, se agregan con un modelo BSTS bayesiano y luego se simulan por distrito y por estado.',
+      'Las encuestas de la Cámara (seguimiento del NYT) alimentan un modelo bayesiano BSTS estimado por MCMC; el Senado y los gobernadores usan un modelo carrera por carrera, basado en encuestas estatales y el entorno nacional. Todo se juega luego en 50.000 simulaciones Monte Carlo por distrito y por estado, con un choque nacional común.',
       'Las encuestas de distrito y estatales anclan su propio escaño: una contienda con encuesta local reciente se acerca a él, y una encuesta de más de 180 días se descarta en lugar de atenuarse.',
       'El Lame-Duck Index (LDI) combina aprobación presidencial, indicadores económicos, márgenes de distrito y cuotas de mercados de predicción en un puntaje de 0 a 100.',
       'Las elecciones especiales usan un modelo de fundamentos: incumbencia, margen histórico, perfil de candidatos y encuestas locales disponibles.',

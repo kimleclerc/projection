@@ -79,6 +79,12 @@ export interface LameDuckMidterms {
   senate_dem_prob?: number;
   house_seats_dem?: number;
   senate_seats_dem?: number;
+  house_seats_rep?: number;
+  senate_seats_rep?: number;
+  house_seats_dem_median?: number;
+  house_seats_rep_median?: number;
+  senate_seats_dem_median?: number;
+  senate_seats_rep_median?: number;
   house_majority?: number;
   senate_majority?: number;
 }

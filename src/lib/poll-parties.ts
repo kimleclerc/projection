@@ -17,6 +17,7 @@ const WEBKEY_TO_PALETTE: Record<string, string> = {
   quebec: 'quebec',
   ontario: 'ontario',
   uk: 'uk',
+  spain: 'spain',
 };
 
 const ES_ARTICLES = ['los ', 'las ', 'el ', 'la '];

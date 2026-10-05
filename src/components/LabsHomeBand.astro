@@ -1,0 +1,81 @@
+---
+// Encart d'accueil — Orbite, le moteur quantique et relativiste de VoteScope Labs.
+import { type Locale, type LabsKey, T, NAMES, labsUrl, hasLabs, loadLabs, compare } from '../lib/labs';
+import LabsSeatBars from './LabsSeatBars.astro';
+
+interface Props { lang: Locale }
+const { lang } = Astro.props;
+const t = T[lang];
+const featured: LabsKey[] = ['qc_2026', 'bc_44', 'us_house'];
+const all = (['qc_2026', 'bc_44', 'fed_46', 'on_2029', 'uk_2029', 'fr_pres_2027', 'fr_leg', 'us_senate', 'us_house', 'us_governor'] as LabsKey[]).filter(hasLabs);
+const cmps = Object.fromEntries(all.map((k) => [k, compare(k, loadLabs(k), lang)]));
+const counts = { same: 0, status: 0, different: 0 } as Record<string, number>;
+for (const k of all) counts[cmps[k].verdict] += 1;
+const blurb = {
+  fr: 'Notre moteur expérimental fait voyager l’opinion sur une sphère courbe et compte les sièges avec des qubits. Mêmes sondages que notre projection de référence : voyez où les deux s’entendent, et où ils se contredisent.',
+  en: 'Our experimental engine sends opinion travelling across a curved sphere and counts seats with qubits. Same polls as our reference forecast: see where the two agree, and where they clash.',
+  es: 'Nuestro motor experimental hace viajar la opinión sobre una esfera curva y cuenta los escaños con qubits. Mismas encuestas que nuestra proyección de referencia: vea dónde coinciden y dónde se contradicen.',
+}[lang];
+const cta = { fr: 'Explorer Orbite', en: 'Explore Orbit', es: 'Explorar Órbita' }[lang];
+---
+
+<section class="lhb content-band" aria-labelledby="lhb-title">
+  <div class="container lhb-inner">
+    <div class="lhb-copy">
+      <div class="lhb-brand">
+        <span class="lhb-orbit" aria-hidden="true"><span></span></span>
+        <span class="lhb-engine">{t.engine}</span>
+        <span class="lhb-live"><span class="lhb-pulse" aria-hidden="true"></span>{t.live}</span>
+      </div>
+      <p class="lhb-tags">{t.tags.join(' · ')} · {t.brand}</p>
+      <h2 id="lhb-title">{t.hubTitle}</h2>
+      <p class="lhb-blurb">{blurb}</p>
+      <p class="lhb-score">
+        <span class="is-same">{t.verdict.same} · {counts.same}</span>
+        {counts.status > 0 && <span class="is-status">{t.verdict.status} · {counts.status}</span>}
+        <span class="is-different">{t.verdict.different} · {counts.different}</span>
+      </p>
+      <a class="lhb-cta" href={labsUrl(lang)}>{cta} →</a>
+    </div>
+    <div class="lhb-bars">
+      {featured.filter((k) => cmps[k]).map((k) => (
+        <a class="lhb-desk" href={labsUrl(lang, k)}>
+          <h3>{NAMES[k][lang]}</h3>
+          <LabsSeatBars cmp={cmps[k]} locale={lang} compact showLegend={false} />
+        </a>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .lhb { padding: 3rem 0; background: color-mix(in oklab, var(--blue) 6%, var(--paper)); border-block: 1px solid var(--rule); }
+  .lhb-inner { display: grid; grid-template-columns: minmax(260px, 5fr) 7fr; gap: clamp(24px, 4vw, 56px); align-items: start; }
+  .lhb-brand { display: flex; align-items: center; gap: 10px; }
+  .lhb-orbit { position: relative; width: 34px; height: 34px; border-radius: 50%; border: 1.5px solid var(--ink); flex: none; }
+  .lhb-orbit span { position: absolute; top: -5px; left: 12px; width: 9px; height: 9px; border-radius: 50%; background: var(--duck-deep);
+                    transform-origin: 4.5px 21.5px; animation: lhb-orbit 6s linear infinite; }
+  @keyframes lhb-orbit { to { transform: rotate(360deg); } }
+  .lhb-engine { font-family: var(--serif); font-size: 34px; font-weight: 500; }
+  .lhb-live { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px; font-family: var(--mono);
+              font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--red); background: var(--red-tint); }
+  .lhb-pulse { width: 7px; height: 7px; border-radius: 50%; background: var(--red); animation: lhb-pulse 1.6s ease-in-out infinite; }
+  @keyframes lhb-pulse { 50% { opacity: .25; } }
+  @media (prefers-reduced-motion: reduce) { .lhb-orbit span, .lhb-pulse { animation: none; } }
+  .lhb-tags { margin: 10px 0 0; font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
+  .lhb h2 { margin: 14px 0 12px; font-family: var(--serif); font-size: clamp(28px, 3.6vw, 40px); font-weight: 450; line-height: 1.08; }
+  .lhb-blurb { margin: 0; color: var(--ink-2); font-size: 16.5px; line-height: 1.6; }
+  .lhb-score { display: flex; flex-wrap: wrap; gap: 6px; margin: 16px 0 18px; }
+  .lhb-score span { padding: 3px 10px; border-radius: 999px; font-family: var(--mono); font-size: 10.5px; letter-spacing: .05em; text-transform: uppercase; }
+  .lhb-score .is-same { color: #2c8a3f; background: color-mix(in oklab, #2c8a3f 10%, var(--card)); }
+  .lhb-score .is-status { color: var(--duck-deep); background: color-mix(in oklab, var(--duck) 16%, var(--card)); }
+  .lhb-score .is-different { color: var(--red); background: var(--red-tint); }
+  .lhb-cta { display: inline-flex; padding: 12px 16px; background: var(--ink); color: var(--paper-3); font: 600 11px var(--mono);
+             letter-spacing: .08em; text-transform: uppercase; text-decoration: none; }
+  .lhb-bars { display: grid; gap: 12px; }
+  .lhb-desk { display: block; padding: 14px 18px 18px; border: 1px solid var(--rule); border-radius: 6px; background: var(--card); color: var(--ink); text-decoration: none; }
+  .lhb-desk:hover { border-color: var(--ink-3); }
+  .lhb-desk h3 { margin: 0; font-family: var(--serif); font-size: 19px; font-weight: 450; }
+  .lhb-desk :global(.lsb-verdict) { margin-bottom: 8px; }
+  @media (max-width: 860px) { .lhb-inner { grid-template-columns: 1fr; } }
+</style>

@@ -1,0 +1,454 @@
+---
+// Page d'une juridiction — Orbite, le moteur expérimental de VoteScope Labs,
+// comparé côte à côte à la projection de référence, avec les codes visuels des
+// pages de projection (barres de sièges, cartes de partis, couleurs, logos).
+import {
+  type Locale, type LabsKey, T, NAMES, MAIN_PAGES, labsUrl, loadLabs, loadBacktests,
+  partyLabel, partyColor, partyIcon, compare, fmt, pct, fmtDate,
+} from '../lib/labs';
+import { EXPLAINER, EXPLAINER_SLUG } from '../lib/labs-explainer';
+import LabsSeatBars from './LabsSeatBars.astro';
+import LabsQuantum from './LabsQuantum.astro';
+import LabsRidingCompare from './LabsRidingCompare.astro';
+import LabsEntangled from './LabsEntangled.astro';
+
+interface Props { locale: Locale; labsKey: LabsKey }
+const { locale, labsKey } = Astro.props;
+const t = T[locale];
+const d = loadLabs(labsKey);
+const name = NAMES[labsKey][locale];
+const isUS = labsKey.startsWith('us_');
+const isGov = labsKey === 'us_governor';
+const main = MAIN_PAGES[locale][labsKey];
+const C = locale === 'fr' ? ' : ' : ': ';
+const P = locale === 'en' ? '%' : ' %';
+const cmp = compare(labsKey, d, locale);
+const refSeats = Object.fromEntries(cmp.reference.map((s) => [s.party, s.seats]));
+const signed = (n: number) => (n > 0 ? `+${n}` : n < 0 ? `−${Math.abs(n)}` : '=');
+
+// ── Législatures ─────────────────────────────────────────────────────────────
+const prodBy: Record<string, any> = Object.fromEntries((d.prod?.parties ?? []).map((x: any) => [x.party, x]));
+const cards = !isUS
+  ? [...d.parties]
+      .filter((x: any) => x.seats_favored > 0 || (refSeats[x.party] ?? 0) > 0 || x.vote_center >= 5)
+      .sort((a: any, b: any) => b.seats_favored - a.seats_favored || b.vote_center - a.vote_center)
+  : [];
+const leader = !isUS ? d.parties.find((x: any) => x.party === cmp.leaderOrbit) : null;
+const pFirst = !isUS ? (d.p_first?.[cmp.leaderOrbit] ?? null) : null;
+const voteRows = !isUS
+  ? [...d.parties].filter((x: any) => x.vote_center >= 1).sort((a: any, b: any) => b.vote_center - a.vote_center)
+  : [];
+const vmax = Math.max(...voteRows.map((x: any) => Math.max(x.vote_p90, prodBy[x.party]?.vote ?? 0)), 1);
+const diverge = !isUS ? (d.prod?.different_favorites ?? []) : [];
+
+// ── États-Unis ──────────────────────────────────────────────────────────────
+const usParties = isUS ? d.parties.filter((x: any) => x.party !== 'us_oth') : [];
+const prodUS: Record<string, any> = prodBy;
+const prodRaces = d.prod?.races ?? {};
+const closest = isUS
+  ? [...d.races]
+      .sort((a: any, b: any) => Math.abs(a.win_prob.us_dem - 0.5) - Math.abs(b.win_prob.us_dem - 0.5))
+      .slice(0, labsKey === 'us_house' ? 25 : 15)
+      .map((r: any) => ({ ...r, prod: prodRaces[String(Number(r.id))] }))
+  : [];
+const usDiverge = isUS
+  ? d.races.map((r: any) => ({ ...r, prod: prodRaces[String(Number(r.id))] }))
+      .filter((r: any) => r.prod?.winner && r.prod.winner !== (r.win_prob.us_dem >= r.win_prob.us_rep ? 'us_dem' : 'us_rep'))
+  : [];
+const blue = partyColor(d, 'us_dem');
+const red = partyColor(d, 'us_rep');
+
+// ── Instruments ─────────────────────────────────────────────────────────────
+const ind = d.indicators ?? {};
+let spread: number | null = null;
+if (!isUS && Array.isArray(ind.poll_spread_pts)) {
+  const big = d.parties.map((x: any, i: number) => [x.vote_center, ind.poll_spread_pts[i]]).filter((x: any) => x[0] >= 5);
+  spread = big.reduce((s: number, x: any) => s + x[1], 0) / Math.max(big.length, 1);
+}
+const cone = isUS ? ind.cone_pts_at_50 : ind.cone_pts_at_30;
+
+// ── Test du passé ───────────────────────────────────────────────────────────
+const bt = loadBacktests();
+const pastCycles: Record<string, string[]> = { qc_2026: ['qc_2022', 'qc_2018'], bc_44: ['bc_2024'] };
+const btRows = (pastCycles[labsKey] ?? []).map((c) => {
+  const l = bt?.labs?.[`${c}@J-1`];
+  return { year: c.slice(-4), orbit: l?.seat_mae_favored, right: l?.winner_accuracy, ref: bt?.prod?.[c]?.mae_seats };
+}).filter((r) => r.orbit !== undefined);
+---
+
+<article class="lb container" data-content-area>
+  <header class="lb-hero">
+    <p class="lb-kicker">{t.brand} · {t.updated} {fmtDate(d.as_of, locale)}</p>
+    <div class="lb-brand">
+      <span class="lb-orbit-mark" aria-hidden="true"><span></span></span>
+      <span class="lb-engine">{t.engine}</span>
+      <span class="lb-live"><span class="lb-pulse" aria-hidden="true"></span>{t.live}</span>
+      {t.tags.map((g) => <span class="lb-tag">{g}</span>)}
+    </div>
+    <h1>{name}</h1>
+    <p class="lb-dek">{t.deskDek}</p>
+  </header>
+
+  {!isUS && leader && (
+    <section class="lb-cards" aria-label={t.favorite}>
+      <div class="lb-card lb-card--lead" style={`--pc:${partyColor(d, leader.party)}`}>
+        <p class="lb-label">{t.favorite}</p>
+        <div class="lb-lead">
+          {partyIcon(d, leader.party) && <img src={`/party-logos/${partyIcon(d, leader.party)}`} alt="" width="40" height="40" />}
+          <strong class="lb-big">{partyLabel(d, leader.party, locale)}</strong>
+        </div>
+        <span class="lb-note">{pct(pFirst, locale)} {t.chanceFirst}</span>
+      </div>
+      <div class="lb-card">
+        <p class="lb-label">{t.seatsWon}</p>
+        <strong class="lb-big">{leader.seats_favored}<span class="lb-delta">{t.vsRef} {refSeats[leader.party] ?? '—'}</span></strong>
+        <span class="lb-note">{t.range80} {leader.seats.p10} {t.and} {leader.seats.p90}</span>
+      </div>
+      <div class="lb-card">
+        <p class="lb-label">{t.majority} ({d.majority})</p>
+        <strong class="lb-big">{pct(leader.seats.p_majority, locale)}<span class="lb-delta">{t.vsRef} {pct(prodBy[leader.party]?.p_majority, locale)}</span></strong>
+        <span class="lb-note">{partyLabel(d, leader.party, locale)}</span>
+      </div>
+      <div class="lb-card">
+        <p class="lb-label">{t.agreement}</p>
+        <strong class="lb-big">{pct(d.prod?.same_favorite_share, locale)}</strong>
+        <span class="lb-note">{t.agreementNote}</span>
+      </div>
+    </section>
+  )}
+
+  {isUS && (
+    <section class="lb-cards" aria-label={t.control}>
+      {usParties.map((x: any) => (
+        <div class="lb-card lb-card--lead" style={`--pc:${partyColor(d, x.party)}`}>
+          <p class="lb-label">{partyLabel(d, x.party, locale)}{!isGov && ` · ${t.control}`}</p>
+          <strong class="lb-big">
+            {isGov ? x.seats_favored : pct(x.p_control, locale)}
+            {!isGov && <span class="lb-delta">{t.vsRef} {pct(prodUS[x.party]?.p_majority, locale)}</span>}
+          </strong>
+          <span class="lb-note">{isGov ? t.wins : t.seatsWon}{C}{isGov ? `${t.vsRef} ${refSeats[x.party] ?? '—'}` : `${x.seats_favored} · ${t.vsRef} ${refSeats[x.party] ?? '—'}`}</span>
+        </div>
+      ))}
+      <div class="lb-card">
+        <p class="lb-label">{t.generic}</p>
+        <div class="lb-split" aria-hidden="true">
+          <span style={`width:${d.generic_ballot.us_dem.center}%; background:${blue}`}></span>
+          <span style={`width:${d.generic_ballot.us_rep.center}%; background:${red}`}></span>
+        </div>
+        <strong class="lb-mid">D {fmt(d.generic_ballot.us_dem.center, locale, 1)} · R {fmt(d.generic_ballot.us_rep.center, locale, 1)}</strong>
+        <span class="lb-note">{t.days}{C}{d.days_to_election}</span>
+      </div>
+    </section>
+  )}
+
+  <section class="lb-section" aria-labelledby="lb-compare">
+    <h2 id="lb-compare">{t.compareTitle}</h2>
+    <LabsSeatBars cmp={cmp} locale={locale} />
+    {cmp.blend && (
+      <div class="lb-blend">
+        <h3>{t.blendTitle}</h3>
+        {cmp.leaderBlend && (
+          <p class="lb-blend-top">
+            <strong>{t.blend}</strong>{locale === 'fr' ? ' : ' : ': '}
+            {partyLabel(d, cmp.leaderBlend, locale)} {cmp.blend.find((s) => s.party === cmp.leaderBlend)?.seats}
+            {cmp.pBlend !== null && <> · {isUS ? t.control : t.majority} {pct(cmp.pBlend, locale)}</>}
+          </p>
+        )}
+        <p class="lb-muted">{t.blendBody}</p>
+      </div>
+    )}
+  </section>
+
+  <LabsQuantum locale={locale} labsKey={labsKey} desk={d} />
+
+  <LabsEntangled locale={locale} labsKey={labsKey} />
+
+  {labsKey === 'qc_2026' && <LabsRidingCompare locale={locale} desk={d} />}
+
+  {!isUS && (
+    <section class="lb-section" aria-labelledby="lb-parties">
+      <h2 id="lb-parties">{t.partiesTitle}</h2>
+      <div class="lb-grid">
+        {cards.map((x: any) => {
+          const ref = refSeats[x.party] ?? 0;
+          const diff = x.seats_favored - ref;
+          return (
+            <div class="lb-pcard" style={`--pc:${partyColor(d, x.party)}`}>
+              <header>
+                {partyIcon(d, x.party)
+                  ? <img src={`/party-logos/${partyIcon(d, x.party)}`} alt="" width="34" height="34" loading="lazy" decoding="async" />
+                  : <span class="lb-swatch" style={`background:${partyColor(d, x.party)}`}></span>}
+                <span class="lb-pname">{partyLabel(d, x.party, locale)}</span>
+                <span class:list={['lb-diff', diff > 0 && 'is-up', diff < 0 && 'is-down']}>{signed(diff)} {t.vsRef}</span>
+              </header>
+              <div class="lb-pseats">{x.seats_favored}</div>
+              <div class="lb-minibars" aria-hidden="true">
+                <span class="lb-mini is-orbit" style={`width:${(100 * x.seats_favored) / d.total_seats}%`}></span>
+                <span class="lb-mini is-ref" style={`width:${(100 * ref) / d.total_seats}%`}></span>
+              </div>
+              <dl class="lb-pstats">
+                <div><dt>{t.vote}</dt><dd>{fmt(x.vote_center, locale, 1)}{P}</dd></div>
+                <div><dt>{t.vote} {t.vsRef}</dt><dd>{prodBy[x.party]?.vote != null ? `${fmt(prodBy[x.party].vote, locale, 1)}${P}` : '—'}</dd></div>
+                <div><dt>{t.majority}</dt><dd>{pct(x.seats.p_majority, locale)}</dd></div>
+              </dl>
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  )}
+
+  {!isUS && (
+    <section class="lb-section" aria-labelledby="lb-votes">
+      <h2 id="lb-votes">{t.voteTitle}</h2>
+      <p class="lb-muted">{t.voteNote}</p>
+      <ul class="lb-votes">
+        {voteRows.map((x: any) => {
+          const ref = prodBy[x.party]?.vote;
+          const w = (v: number) => `${(100 * v) / vmax}%`;
+          return (
+            <li>
+              <span class="lb-vname">{partyLabel(d, x.party, locale)}</span>
+              <span class="lb-vtrack">
+                <span class="lb-vbar" style={`width:${w(x.vote_center)}; background:${partyColor(d, x.party)}`}></span>
+                <span class="lb-vrange" style={`left:${w(x.vote_p10)}; width:calc(${w(x.vote_p90)} - ${w(x.vote_p10)})`}></span>
+                {ref != null && <span class="lb-vref" style={`left:${w(ref)}`} title={`${t.reference} ${fmt(ref, locale, 1)}${P}`}></span>}
+              </span>
+              <span class="lb-vval">{fmt(x.vote_center, locale, 1)}{P}</span>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  )}
+
+  {!isUS && (
+    <section class="lb-section" aria-labelledby="lb-diverge">
+      <h2 id="lb-diverge">{t.divergeTitle}</h2>
+      {diverge.length === 0 ? <p>{t.divergeNone}</p> : (
+        <ul class="lb-diverge">
+          {diverge.map((r: any) => (
+            <li>
+              <strong>{r.name}</strong>
+              <span class="lb-chips">
+                <span class="lb-chip" style={`--pc:${partyColor(d, r.labs)}`}>{t.orbit}{C}{partyLabel(d, r.labs, locale)} · {pct(r.labs_p, locale)}</span>
+                <span class="lb-chip is-ref" style={`--pc:${partyColor(d, r.prod)}`}>{t.reference}{C}{partyLabel(d, r.prod, locale)}</span>
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+  )}
+
+  {isUS && (
+    <section class="lb-section" aria-labelledby="lb-races">
+      <h2 id="lb-races">{t.racesTitle}</h2>
+      <div class="lb-scroll">
+        <table class="lb-table">
+          <thead><tr><th>{t.race}</th><th>{t.polls}</th><th>{t.chanceD} · {t.orbit}</th><th>{t.chanceD} · {t.reference}</th></tr></thead>
+          <tbody>
+            {closest.map((r: any) => (
+              <tr>
+                <td>{r.name}</td>
+                <td>{r.n_polls}</td>
+                <td>
+                  <span class="lb-prob"><span style={`width:${100 * r.win_prob.us_dem}%; background:${blue}`}></span><span style={`background:${red}`}></span></span>
+                  <strong>{pct(r.win_prob.us_dem, locale)}</strong>
+                </td>
+                <td>
+                  {r.prod?.p_dem != null ? (
+                    <>
+                      <span class="lb-prob is-ref"><span style={`width:${100 * r.prod.p_dem}%; background:${blue}`}></span><span style={`background:${red}`}></span></span>
+                      {pct(r.prod.p_dem, locale)}
+                    </>
+                  ) : '—'}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      {usDiverge.length > 0 && (
+        <>
+          <h3>{t.divergeTitle}</h3>
+          <ul class="lb-diverge">
+            {usDiverge.map((r: any) => (
+              <li>
+                <strong>{r.name}</strong>
+                <span class="lb-chips">
+                  <span class="lb-chip" style={`--pc:${r.win_prob.us_dem >= 0.5 ? blue : red}`}>{t.orbit}{C}D {pct(r.win_prob.us_dem, locale)}</span>
+                  <span class="lb-chip is-ref" style={`--pc:${r.prod.winner === 'us_dem' ? blue : red}`}>{t.reference}{C}D {pct(r.prod.p_dem, locale)}</span>
+                </span>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+      <p class="lb-muted">{t.usNotValidated}</p>
+    </section>
+  )}
+
+  <section class="lb-section" aria-labelledby="lb-inst">
+    <h2 id="lb-inst">{t.instruments}</h2>
+    <div class="lb-cards lb-cards--inst">
+      <div class="lb-card">
+        <p class="lb-label">{t.moved}</p>
+        <strong class="lb-big">{fmt(ind.share_moved_pts, locale, 1)}</strong>
+        <span class="lb-note">{t.movedNote}</span>
+      </div>
+      {spread !== null && (
+        <div class="lb-card">
+          <p class="lb-label">{t.spread}</p>
+          <strong class="lb-big">± {fmt(spread, locale, 1)}</strong>
+          <span class="lb-note">{t.spreadNote}</span>
+        </div>
+      )}
+      {!d.nowcast && (
+        <div class="lb-card">
+          <p class="lb-label">{t.cone}</p>
+          <strong class="lb-big">± {fmt(cone, locale, 1)}</strong>
+          <span class="lb-note">{t.coneNote} {isUS ? '50' : '30'}{P}</span>
+        </div>
+      )}
+      {d.nowcast ? (
+        <div class="lb-card">
+          <p class="lb-label">{t.nowcastLabel}</p>
+          <strong class="lb-mid">{t.nowcastValue}</strong>
+          <span class="lb-note">{t.nowcastNote}</span>
+        </div>
+      ) : (
+        <div class="lb-card">
+          <p class="lb-label">{t.days}</p>
+          <strong class="lb-big">{d.days_to_election}</strong>
+          <span class="lb-note">{fmtDate(d.election_date, locale)}</span>
+        </div>
+      )}
+    </div>
+  </section>
+
+  {btRows.length > 0 && (
+    <section class="lb-section" aria-labelledby="lb-bt">
+      <h2 id="lb-bt">{t.backtests}</h2>
+      <p class="lb-muted">{t.backtestsNote}</p>
+      <div class="lb-scroll">
+        <table class="lb-table">
+          <thead><tr><th>{t.election}</th><th>{t.errOrbit}</th><th>{t.errRef}</th><th>{t.ridingsRight}</th></tr></thead>
+          <tbody>
+            {btRows.map((r) => (
+              <tr>
+                <td>{name.replace(/\d{4}$/, r.year)}</td>
+                <td><strong>{fmt(r.orbit, locale, 1)}</strong></td>
+                <td>{r.ref != null ? fmt(r.ref, locale, 1) : t.notAvailable}</td>
+                <td>{pct(r.right, locale)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  )}
+
+  <section class="lb-section" aria-labelledby="lb-how">
+    <h2 id="lb-how">{t.howTitle}</h2>
+    <div class="lb-how">
+      {t.how.map(([h, p]) => (<div><h3>{h}</h3><p>{p}</p></div>))}
+    </div>
+    <p class="lb-more"><a href={`${labsUrl(locale)}${EXPLAINER_SLUG[locale]}/`}>{EXPLAINER[locale].linkLabel} →</a></p>
+  </section>
+
+  <aside class="lb-experiment">
+    <p class="lb-label">{t.experimentTitle}</p>
+    <p>{t.experiment}</p>
+    <p class="lb-links"><a href={main}>{t.goMain} →</a> <a href={labsUrl(locale)}>{t.goHub} →</a></p>
+  </aside>
+</article>
+
+<style>
+  .lb { max-width: 1080px; padding-block: 56px 96px; }
+  .lb-hero { padding-bottom: 32px; border-bottom: 1px solid var(--rule); }
+  .lb-kicker, .lb-label { margin: 0; font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
+  .lb-kicker { margin-bottom: 14px; }
+  .lb-brand { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 14px; }
+  .lb-orbit-mark { position: relative; width: 26px; height: 26px; border-radius: 50%; border: 1.5px solid var(--ink); }
+  .lb-orbit-mark span { position: absolute; top: -4px; left: 9px; width: 7px; height: 7px; border-radius: 50%; background: var(--duck-deep);
+                        transform-origin: 3.5px 16px; animation: lb-orbit 6s linear infinite; }
+  @keyframes lb-orbit { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { .lb-orbit-mark span, .lb-pulse { animation: none; } }
+  .lb-engine { font-family: var(--serif); font-size: 26px; font-weight: 500; letter-spacing: -.01em; margin-right: 6px; }
+  .lb-live { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px; font-family: var(--mono); font-size: 10.5px;
+             letter-spacing: .08em; text-transform: uppercase; color: var(--red); background: var(--red-tint); }
+  .lb-pulse { width: 7px; height: 7px; border-radius: 50%; background: var(--red); animation: lb-pulse 1.6s ease-in-out infinite; }
+  @keyframes lb-pulse { 50% { opacity: .25; } }
+  .lb-tag { padding: 3px 10px; border-radius: 999px; border: 1px solid var(--rule); font-family: var(--mono); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); }
+  .lb-hero h1 { margin: 0 0 16px; font-family: var(--serif); font-size: clamp(40px, 6vw, 72px); font-weight: 420; letter-spacing: -.02em; line-height: 1; }
+  .lb-dek { max-width: 700px; margin: 0; color: var(--ink-2); font-size: 18px; line-height: 1.6; }
+  .lb-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 16px; margin-top: 32px; }
+  .lb-card { border: 1px solid var(--rule); border-radius: 6px; background: var(--card); padding: 20px; display: flex; flex-direction: column; gap: 8px; }
+  .lb-card--lead { border-top: 4px solid var(--pc, var(--duck)); }
+  .lb-lead { display: flex; align-items: center; gap: 10px; }
+  .lb-lead img { width: 40px; height: 40px; object-fit: contain; }
+  .lb-big { font-family: var(--serif); font-size: 36px; font-weight: 450; line-height: 1.05; }
+  .lb-mid { font-family: var(--serif); font-size: 24px; font-weight: 450; }
+  .lb-delta { margin-left: 10px; font-family: var(--mono); font-size: 12px; font-weight: 400; color: var(--ink-3); }
+  .lb-note { color: var(--ink-3); font-size: 13px; line-height: 1.45; }
+  .lb-split { display: flex; height: 12px; border-radius: 3px; overflow: hidden; background: var(--rule); }
+  .lb-section { margin-top: 60px; }
+  .lb-section h2 { font-family: var(--serif); font-size: clamp(26px, 3.4vw, 34px); font-weight: 450; margin: 0 0 16px; }
+  .lb-section h3 { font-family: var(--serif); font-size: 20px; font-weight: 450; margin: 28px 0 10px; }
+  .lb-muted { color: var(--ink-3); font-size: 14px; line-height: 1.55; }
+  .lb-blend { margin-top: 40px; padding: 18px 20px; border: 1px dashed var(--rule); border-radius: 6px; background: var(--card); }
+  .lb-blend h3 { margin-top: 0; }
+  .lb-blend-top { margin: 0 0 8px; font-family: var(--mono); font-size: 13px; color: var(--ink-2); }
+  .lb-blend .lb-muted { margin: 0; max-width: 760px; }
+  .lb-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+  .lb-pcard { border: 1px solid var(--rule); border-top: 3px solid var(--pc); background: var(--card); border-radius: 4px; padding: 18px 20px 20px; }
+  .lb-pcard header { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+  .lb-pcard header img { width: 34px; height: 34px; object-fit: contain; flex: none; }
+  .lb-swatch { width: 10px; height: 10px; border-radius: 2px; }
+  .lb-pname { flex: 1; font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
+  .lb-diff { font-family: var(--mono); font-size: 11px; color: var(--ink-3); white-space: nowrap; }
+  .lb-diff.is-up { color: #2c8a3f; }
+  .lb-diff.is-down { color: #b03030; }
+  .lb-pseats { font-family: var(--serif); font-size: 44px; font-weight: 430; letter-spacing: -.02em; line-height: 1; }
+  .lb-minibars { display: grid; gap: 3px; margin-top: 12px; }
+  .lb-mini { display: block; height: 6px; border-radius: 3px; background: var(--pc); min-width: 2px; }
+  .lb-mini.is-ref { opacity: .35; }
+  .lb-pstats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 14px 0 0; }
+  .lb-pstats div { display: flex; flex-direction: column; gap: 2px; }
+  .lb-pstats dt { font-family: var(--mono); font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
+  .lb-pstats dd { margin: 0; font-family: var(--mono); font-size: 13px; }
+  .lb-votes { list-style: none; padding: 0; margin: 18px 0 0; display: grid; gap: 12px; }
+  .lb-votes li { display: grid; grid-template-columns: minmax(90px, 180px) 1fr 64px; align-items: center; gap: 12px; font-size: 14px; }
+  .lb-vname { font-family: var(--mono); font-size: 12px; color: var(--ink-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .lb-vtrack { position: relative; height: 18px; background: var(--rule-2); border-radius: 3px; }
+  .lb-vbar { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 3px; }
+  .lb-vrange { position: absolute; top: 50%; height: 2px; margin-top: -1px; background: var(--ink); opacity: .55; }
+  .lb-vref { position: absolute; top: -4px; bottom: -4px; width: 3px; margin-left: -1px; background: var(--ink); border-radius: 1px; }
+  .lb-vval { font-family: var(--mono); font-size: 13px; text-align: right; }
+  .lb-diverge { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 10px; }
+  .lb-diverge li { border: 1px solid var(--rule); border-radius: 6px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; background: var(--card); font-size: 14px; }
+  .lb-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .lb-chip { display: inline-flex; align-items: center; padding: 3px 9px; border-radius: 999px; font-family: var(--mono); font-size: 11px;
+             border-left: 6px solid var(--pc); background: color-mix(in oklab, var(--pc) 12%, var(--card)); }
+  .lb-chip.is-ref { background: var(--card); border: 1px solid var(--rule); border-left: 6px solid var(--pc); }
+  .lb-scroll { overflow-x: auto; }
+  .lb-table { width: 100%; border-collapse: collapse; font-size: 15px; }
+  .lb-table th { text-align: left; font-family: var(--mono); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); border-bottom: 1px solid var(--rule); padding: 8px 10px; white-space: nowrap; }
+  .lb-table td { border-bottom: 1px solid var(--rule-2); padding: 10px; white-space: nowrap; }
+  .lb-prob { display: inline-flex; vertical-align: middle; width: 90px; height: 10px; margin-right: 8px; border-radius: 2px; overflow: hidden; }
+  .lb-prob span:last-child { flex: 1; }
+  .lb-prob.is-ref { opacity: .55; height: 7px; }
+  .lb-how { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; }
+  .lb-how h3 { margin-top: 0; }
+  .lb-how p { color: var(--ink-2); line-height: 1.6; margin: 0; }
+  .lb-more { margin-top: 20px; font-weight: 600; }
+  .lb-more a, .lb-links a { color: var(--ink); font-weight: 600; }
+  .lb-experiment { margin-top: 60px; padding: 22px 24px; border-left: 3px solid var(--duck-deep); background: color-mix(in oklab, var(--duck) 10%, var(--card)); border-radius: 0 6px 6px 0; }
+  .lb-experiment p { margin: 8px 0 0; color: var(--ink-2); line-height: 1.6; }
+  .lb-links { display: flex; gap: 24px; flex-wrap: wrap; }
+  @media (max-width: 640px) {
+    .lb-big { font-size: 30px; }
+    .lb-votes li { grid-template-columns: 90px 1fr 54px; gap: 8px; }
+  }
+</style>
