@@ -7,7 +7,8 @@ import { loadQuantum, loadQuantumFile, QUANTUM_PLANNED, QT } from '../lib/labs-q
 
 interface Props { locale: Locale; labsKey: LabsKey; desk: any }
 const { locale, labsKey, desk } = Astro.props;
-const q = loadQuantum(labsKey);
+// tirage principal : le tirage final (Orbite avec le dernier sondage), sinon le premier
+const q = loadQuantumFile(`${labsKey}_final_fez`) ?? loadQuantum(labsKey);
 const planned = QUANTUM_PLANNED[labsKey];
 const t = QT[locale];
 const C = locale === 'fr' ? ' : ' : ': ';
@@ -52,8 +53,13 @@ const ridings = ((q?.ridings ?? []) as any[]).map((r) => {
   const others = Object.entries(r.drawn as Record<string, number>).filter(([p]) => p !== fav).sort((a, b) => b[1] - a[1]);
   return { ...r, fav, pe, pm: (r.drawn as Record<string, number>)[fav] ?? 0, others };
 }).sort((a, b) => a.name.localeCompare(b.name, 'fr'));
-const second = q ? loadQuantumFile(`${labsKey}_ibm_fez`) : null;
-const secondLead = second && rows[0] ? second.parties?.[rows[0].p] : null;
+// tous les tirages de la soirée, dans l'ordre
+const runs = [
+  loadQuantum(labsKey), loadQuantumFile(`${labsKey}_ibm_fez`),
+  loadQuantumFile(`${labsKey}_final_fez`), loadQuantumFile(`${labsKey}_final_fez_twirl`),
+].filter(Boolean).map((r: any) => ({ r, x: rows[0] ? r.parties?.[rows[0].p] : null })).filter((v: any) => v.x);
+const runTime = (iso?: string) => iso ? new Date(iso).toLocaleTimeString(locale === 'fr' ? 'fr-CA' : locale === 'es' ? 'es-ES' : 'en-US',
+  { hour: '2-digit', minute: '2-digit', timeZone: 'America/Toronto' }) : '';
 const when = q?.run_at ? new Date(q.run_at) : null;
 const whenTxt = when
   ? when.toLocaleString(locale === 'fr' ? 'fr-CA' : locale === 'es' ? 'es-ES' : 'en-US',
@@ -130,9 +136,28 @@ const whenTxt = when
           </table>
         </div>
 
-        {secondLead && (
-          <p class="lq-small">{t.secondChip(second.machine, fmt(secondLead.drawn_mean, locale, 1), fmt(secondLead.corrected_mean, locale, 1),
-            pct(secondLead.drawn_p_majority, locale), pct(secondLead.corrected_p_majority, locale), rows[0].label)}</p>
+        {runs.length > 1 && (
+          <>
+            <h3>{t.runsTitle}</h3>
+            <p class="lq-small">{t.runsNote}</p>
+            <div class="lq-scroll">
+              <table class="lq-table">
+                <thead><tr><th>{t.colRun}</th><th>{t.colDrawn}</th><th>{t.colExact}</th><th>{t.colRaw}</th><th>{t.colCorrected}</th><th>{t.pMaj}</th></tr></thead>
+                <tbody>
+                  {runs.map(({ r, x }: any) => (
+                    <tr>
+                      <td>{r.machine.replace('ibm_', '')} · {runTime(r.run_at)}{r.twirling ? ` · ${t.twirled}` : ''}</td>
+                      <td class="lq-dim">{fmt(r.elections_drawn, locale, 0)}</td>
+                      <td>{fmt(x.exact_mean, locale, 1)}</td>
+                      <td>{fmt(x.drawn_mean, locale, 1)}</td>
+                      <td><strong>{fmt(x.corrected_mean, locale, 1)}</strong></td>
+                      <td class="lq-dim">{pct(x.exact_p_majority, locale)} → {pct(x.drawn_p_majority, locale)} → <strong>{pct(x.corrected_p_majority, locale)}</strong></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
 
         {ridings.length > 0 && (
