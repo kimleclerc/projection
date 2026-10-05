@@ -54,6 +54,7 @@ const REHEARSAL_MODES = new Set(['simulation', 'demo']);
 // identifiant d'événement surchargé (répétition) ou `?direct=1` lève la barrière.
 const DEFAULT_EVENT_ID = 'qc-2026-10-05';
 const OPENS_AT = Date.parse('2026-10-05T19:30:00-04:00');
+const EARLY_UNTIL = Date.parse('2026-10-05T20:30:00-04:00');
 
 const copy = {
   fr: { live: 'En direct', waiting: 'En attente des premiers résultats officiels', connecting: 'Connexion au dépouillement officiel…',
@@ -250,7 +251,12 @@ export default function QuebecElectionNightLive({ eventId, lang, apiBase, fallba
         inFlight.current = false;
       }
       setNow(Date.now());
-      const backoff = Math.min(10 * 60_000, jittered() * 2 ** Math.min(failures.current, 4));
+      // Entre l'ouverture de la barrière (19 h 30) et les premiers résultats
+      // (20 h et quelques), il n'existe rien à lire : chaque échec est attendu.
+      // Sans plafond, l'attente doublerait jusqu'à 10 min et un lecteur arrivé
+      // tôt verrait les premiers résultats en retard. Plafond de 2 min jusqu'à 20 h 30.
+      const cap = Date.now() < EARLY_UNTIL ? 2 * 60_000 : 10 * 60_000;
+      const backoff = Math.min(cap, jittered() * 2 ** Math.min(failures.current, 4));
       schedule(failures.current ? backoff : jittered());
     };
 
