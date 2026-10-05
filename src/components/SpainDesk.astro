@@ -65,10 +65,17 @@ const leftGain = united.sumar_podemos_seats_median - leftDivided;
 
 // Fenêtres de vote : le scrutin a lieu 54 jours après la publication du
 // décret de dissolution au BOE (LOREG, art. 42).
-const WINDOWS = [
-  { boe: '2026-10-06', vote: '2026-11-29' },
-  { boe: '2026-10-20', vote: '2026-12-13' },
-  { boe: '2026-10-27', vote: '2026-12-20' },
+// Calendrier légal (LOREG) à partir du décret publié au BOE le 6 octobre
+// 2026 ; recoupé avec 2023 (décret du 30 mai → campagne du 7 juillet).
+const CALENDAR: { date: string; step: Record<Locale, string> }[] = [
+  { date: '2026-10-06', step: { es: 'Publicación del decreto de disolución en el BOE', fr: 'Publication du décret de dissolution au BOE', en: 'Dissolution decree published in the BOE' } },
+  { date: '2026-10-16', step: { es: 'Último día para inscribir coaliciones', fr: 'Dernier jour pour inscrire les coalitions', en: 'Last day to register coalitions' } },
+  { date: '2026-10-26', step: { es: 'Fin de la presentación de candidaturas (desde el 21 de octubre)', fr: 'Fin du dépôt des candidatures (depuis le 21 octobre)', en: 'Candidate lists close (open from October 21)' } },
+  { date: '2026-11-02', step: { es: 'Proclamación de las candidaturas', fr: 'Proclamation des candidatures', en: 'Candidate lists proclaimed' } },
+  { date: '2026-11-13', step: { es: 'Arranca la campaña (hasta el 27 de noviembre)', fr: 'Début de la campagne (jusqu’au 27 novembre)', en: 'Campaign opens (until November 27)' } },
+  { date: '2026-11-24', step: { es: 'Desde este día está prohibido publicar encuestas en España', fr: 'Publication de sondages interdite en Espagne à partir de ce jour', en: 'Publishing polls in Spain is banned from this day' } },
+  { date: '2026-11-28', step: { es: 'Jornada de reflexión', fr: 'Jour de réflexion', en: 'Day of reflection' } },
+  { date: '2026-11-29', step: { es: 'Día de la votación', fr: 'Jour du vote', en: 'Polling day' } },
 ];
 const longDate = (iso: string) =>
   new Date(`${iso}T12:00:00`).toLocaleDateString(locale === 'en' ? 'en-GB' : locale === 'fr' ? 'fr-FR' : 'es-ES', {
@@ -166,14 +173,14 @@ const shortDate = (iso: string) =>
 
 const copy = {
   es: {
-    title: `Elecciones generales España: encuestas, escaños y fecha — PP ${nat.pp.seats_median}, PSOE ${psoe.seats_median}, Vox ${nat.vox.seats_median} — Vote-Scope`,
-    description: `Encuestas electorales España y proyección de los 350 escaños, provincia por provincia: PP ${nat.pp.seats_median}, PSOE ${psoe.seats_median}, Vox ${nat.vox.seats_median}. Fechas posibles del adelanto electoral.`,
-    eyebrow: 'Mesa España · Congreso de los Diputados',
+    title: `Elecciones generales 29 de noviembre: encuestas y escaños — PP ${nat.pp.seats_median}, PSOE ${psoe.seats_median}, Vox ${nat.vox.seats_median} — Vote-Scope`,
+    description: `Encuestas electorales España y proyección de los 350 escaños, provincia por provincia: PP ${nat.pp.seats_median}, PSOE ${psoe.seats_median}, Vox ${nat.vox.seats_median}. Elecciones el 29 de noviembre.`,
+    eyebrow: 'Mesa España · Elecciones generales del 29 de noviembre',
     h1: 'Elecciones generales en España: encuestas y proyección de escaños',
     promise: `Proyectamos los 350 escaños del Congreso provincia por provincia, con la ley D'Hondt y el umbral del 3 %, a partir de ${meta.n_polls_window} encuestas recientes corregidas por el sesgo de cada empresa.`,
     whenLabel: '¿Cuándo son las próximas elecciones?',
-    whenAnswer: 'Aún no hay convocatoria. Si el BOE publica la disolución el 6 de octubre, se vota el domingo 29 de noviembre. La fecha límite es el 22 de agosto de 2027.',
-    whenLink: 'Todas las fechas posibles',
+    whenAnswer: 'El domingo 29 de noviembre de 2026. Pedro Sánchez anunció el 5 de octubre la disolución de las Cortes; el decreto se publica en el BOE el 6 de octubre.',
+    whenLink: 'Calendario electoral',
     headline: `Con las encuestas de hoy, PP y Vox suman mayoría absoluta en ${pctW(blocs.pp_vox.p_majority)} de cada 100 simulaciones.`,
     seats: 'escaños',
     vote: 'del voto',
@@ -181,15 +188,15 @@ const copy = {
     majority: 'Mayoría absoluta: 176',
     updated: `Actualizado el ${runDate} · última encuesta del ${meta.last_poll_field_end.split('-').reverse().join('/')}`,
     since2023: (k: string) => k === 'sumar' ? '31 en 2023 con Podemos' : `${nat[k].seats_2023 ? `${nat[k].seats_2023} en 2023` : 'nuevo'}`,
-    adelantoKicker: '¿Le conviene adelantar?',
-    adelantoTitle: 'Lo que dicen los números a quien tiene que decidir.',
+    adelantoKicker: 'Un adelanto con las encuestas en contra',
+    adelantoTitle: 'Sánchez convoca cuando los números le son desfavorables.',
     adelantoRows: [
       { label: 'PSOE', value: `${psoe.seats_median} escaños`, note: `121 en 2023 · rango ${psoe.seats_p10}–${psoe.seats_p90}` },
       { label: 'Bloque que invistió a Sánchez en 2023', value: `${blocs.investiture_2023.median} escaños`, note: `179 en 2023 · mayoría en ${pctW(blocs.investiture_2023.p_majority)} de cada 100 simulaciones` },
       { label: 'PP + Vox', value: `${blocs.pp_vox.median} escaños`, note: `rango ${blocs.pp_vox.p10}–${blocs.pp_vox.p90} · mayoría en ${pctW(blocs.pp_vox.p_majority)} de cada 100` },
       { label: 'PP solo', value: `${nat.pp.seats_median} escaños`, note: `mayoría absoluta en ${pctW(blocs.pp_alone.p_majority)} de cada 100` },
     ],
-    adelantoBody: `Las encuestas no dan hoy un motivo aritmético para adelantar: el PSOE perdería unos ${121 - psoe.seats_median} escaños y la mayoría de 2023 quedaría lejos. Quien convoque lo hará por otras razones: el bloqueo en el Congreso, el calendario o la apuesta de que la campaña cambie el voto.`,
+    adelantoBody: `Con las encuestas de hoy, el PSOE perdería unos ${121 - psoe.seats_median} escaños y la mayoría que lo invistió en 2023 quedaría lejos. La campaña empieza el 13 de noviembre: es la última oportunidad de mover estos números.`,
     leftKicker: 'La división a la izquierda del PSOE',
     leftTitle: `Separados, Sumar y Podemos sacan ${leftDivided} escaños. Juntos, con los mismos votos, sacarían ${united.sumar_podemos_seats_median}.`,
     leftBody: `La ley D'Hondt castiga a los partidos medianos que se dividen en provincias pequeñas. La diferencia (${leftGain} escaños) es mayor que la mayoría de los grupos del Congreso.`,
@@ -224,13 +231,11 @@ const copy = {
     cmpSource: 'Fuente',
     cmpDate: 'Fecha',
     cmpP: 'Prob. mayoría PP+Vox',
-    calendarKicker: 'Fechas posibles',
-    calendarTitle: 'Cuándo se votaría, según el día de la disolución',
-    calendarBody: 'Las elecciones se celebran 54 días después de que el BOE publique el decreto de disolución.',
-    calBoe: 'Decreto en el BOE',
-    calVote: 'Día de la votación',
-    cal2027: 'En 2027, el 23 de mayo ya hay elecciones municipales y en buena parte de las comunidades autónomas.',
-    calLimit: 'Fecha límite: domingo 22 de agosto de 2027, con disolución a más tardar el 28 de junio de 2027.',
+    calendarKicker: 'Calendario electoral',
+    calendarTitle: 'Las fechas clave hasta el 29 de noviembre',
+    calendarBody: 'Fechas fijadas por la ley electoral a partir de la publicación del decreto en el BOE.',
+    calBoe: 'Fecha',
+    calVote: 'Etapa',
     provKicker: 'Provincia por provincia',
     provTitle: 'Dónde se decide el último escaño',
     provBody: 'En estas provincias, el último escaño cambia de manos con pocos votos. Ahí se juega la mayoría.',
@@ -254,18 +259,18 @@ const copy = {
       'Las encuestas publicadas pasan por un modelo de series temporales bayesiano (BSTS), el mismo que usamos en todas nuestras proyecciones, tras corregir el sesgo medido de cada empresa. Las reestimaciones de terceros sobre los datos del CIS no cuentan.',
       'El voto nacional se traslada a cada provincia a partir de las generales de 2023. Los partidos nuevos parten de su último resultado: SALF de las europeas de 2024, Aliança Catalana y Adelante Andalucía de sus elecciones autonómicas.',
       `Cada simulación añade el error real de las encuestas en España (medido de 2015 a 2023), un efecto por comunidad y otro por provincia, y reparte los escaños con D'Hondt y el umbral del 3 %. ${meta.n_draws.toLocaleString('es-ES')} simulaciones.`,
-      `Supone una votación el ${longDate(meta.election_day_assumed)}. El reparto de escaños por provincia está calculado con la población del INE hasta que el BOE publique el oficial.`,
+      `Votación el ${longDate(meta.election_day_assumed)}. El reparto de escaños por provincia está calculado con la población del INE hasta que el BOE publique el oficial.`,
     ],
   },
   fr: {
-    title: `Élections générales en Espagne : sondages, sièges et date — PP ${nat.pp.seats_median}, PSOE ${psoe.seats_median}, Vox ${nat.vox.seats_median} — Vote-Scope`,
-    description: `Sondages des élections en Espagne et projection des 350 sièges, province par province : PP ${nat.pp.seats_median}, PSOE ${psoe.seats_median}, Vox ${nat.vox.seats_median}. Dates possibles d’un scrutin anticipé.`,
-    eyebrow: 'Desk Espagne · Congrès des députés',
+    title: `Élections en Espagne le 29 novembre : sondages et sièges — PP ${nat.pp.seats_median}, PSOE ${psoe.seats_median}, Vox ${nat.vox.seats_median} — Vote-Scope`,
+    description: `Sondages des élections en Espagne et projection des 350 sièges, province par province : PP ${nat.pp.seats_median}, PSOE ${psoe.seats_median}, Vox ${nat.vox.seats_median}. Vote le 29 novembre.`,
+    eyebrow: 'Desk Espagne · Élections générales du 29 novembre',
     h1: 'Élections générales en Espagne : sondages et projection des sièges',
     promise: `Nous projetons les 350 sièges du Congrès province par province, avec la règle D'Hondt et le seuil de 3 %, à partir de ${meta.n_polls_window} sondages récents corrigés du biais de chaque institut.`,
     whenLabel: 'Quand ont lieu les prochaines élections ?',
-    whenAnswer: 'Pas encore convoquées. Si la dissolution paraît au Journal officiel le 6 octobre, on vote le dimanche 29 novembre. La date limite est le 22 août 2027.',
-    whenLink: 'Toutes les dates possibles',
+    whenAnswer: 'Le dimanche 29 novembre 2026. Pedro Sánchez a annoncé le 5 octobre la dissolution des Cortes ; le décret paraît au Journal officiel (BOE) le 6 octobre.',
+    whenLink: 'Calendrier électoral',
     headline: `Avec les sondages d'aujourd'hui, PP et Vox ont la majorité absolue dans ${pctW(blocs.pp_vox.p_majority)} simulations sur 100.`,
     seats: 'sièges',
     vote: 'des voix',
@@ -273,15 +278,15 @@ const copy = {
     majority: 'Majorité absolue : 176',
     updated: `Mis à jour le ${runDate} · dernier sondage du ${meta.last_poll_field_end.split('-').reverse().join('/')}`,
     since2023: (k: string) => k === 'sumar' ? '31 en 2023 avec Podemos' : `${nat[k].seats_2023 ? `${nat[k].seats_2023} en 2023` : 'nouveau'}`,
-    adelantoKicker: 'Sánchez a-t-il intérêt à dissoudre ?',
-    adelantoTitle: 'Ce que disent les chiffres à celui qui doit décider.',
+    adelantoKicker: 'Une élection anticipée avec les sondages contre lui',
+    adelantoTitle: 'Sánchez dissout quand les chiffres lui sont défavorables.',
     adelantoRows: [
       { label: 'PSOE', value: `${psoe.seats_median} sièges`, note: `121 en 2023 · fourchette ${psoe.seats_p10}–${psoe.seats_p90}` },
       { label: 'Le bloc qui a investi Sánchez en 2023', value: `${blocs.investiture_2023.median} sièges`, note: `179 en 2023 · majorité dans ${pctW(blocs.investiture_2023.p_majority)} simulations sur 100` },
       { label: 'PP + Vox', value: `${blocs.pp_vox.median} sièges`, note: `fourchette ${blocs.pp_vox.p10}–${blocs.pp_vox.p90} · majorité dans ${pctW(blocs.pp_vox.p_majority)} sur 100` },
       { label: 'PP seul', value: `${nat.pp.seats_median} sièges`, note: `majorité absolue dans ${pctW(blocs.pp_alone.p_majority)} sur 100` },
     ],
-    adelantoBody: `Les sondages ne donnent pas aujourd'hui de raison arithmétique de dissoudre : le PSOE perdrait environ ${121 - psoe.seats_median} sièges et la majorité de 2023 serait hors de portée. Une dissolution viendrait d'autres raisons : le blocage au Congrès, le calendrier ou le pari que la campagne fasse bouger le vote.`,
+    adelantoBody: `Avec les sondages d'aujourd'hui, le PSOE perdrait environ ${121 - psoe.seats_median} sièges et la majorité qui l'a investi en 2023 serait hors de portée. La campagne commence le 13 novembre : c'est la dernière occasion de faire bouger ces chiffres.`,
     leftKicker: 'La division à gauche du PSOE',
     leftTitle: `Séparés, Sumar et Podemos obtiennent ${leftDivided} sièges. Ensemble, avec les mêmes voix, ils en auraient ${united.sumar_podemos_seats_median}.`,
     leftBody: `La règle D'Hondt punit les partis moyens qui se divisent dans les petites provinces. L'écart (${leftGain} sièges) dépasse la taille de la plupart des groupes du Congrès.`,
@@ -316,13 +321,11 @@ const copy = {
     cmpSource: 'Source',
     cmpDate: 'Date',
     cmpP: 'Prob. majorité PP+Vox',
-    calendarKicker: 'Dates possibles',
-    calendarTitle: 'Quand on voterait, selon le jour de la dissolution',
-    calendarBody: 'Le vote a lieu 54 jours après la publication du décret de dissolution au Journal officiel (BOE).',
-    calBoe: 'Décret au BOE',
-    calVote: 'Jour du vote',
-    cal2027: 'En 2027, le 23 mai, il y a déjà les municipales et des élections dans une bonne partie des communautés autonomes.',
-    calLimit: 'Date limite : dimanche 22 août 2027, avec dissolution au plus tard le 28 juin 2027.',
+    calendarKicker: 'Calendrier électoral',
+    calendarTitle: 'Les dates clés jusqu’au 29 novembre',
+    calendarBody: 'Dates fixées par la loi électorale à partir de la publication du décret au Journal officiel.',
+    calBoe: 'Date',
+    calVote: 'Étape',
     provKicker: 'Province par province',
     provTitle: 'Où se joue le dernier siège',
     provBody: 'Dans ces provinces, le dernier siège change de mains pour quelques voix. C\'est là que se joue la majorité.',
@@ -346,18 +349,18 @@ const copy = {
       'Les sondages publiés passent par un modèle bayésien de séries temporelles (BSTS), le même que dans toutes nos projections, après correction du biais mesuré de chaque institut. Les réestimations du CIS par des tiers ne comptent pas.',
       'Le vote national est transposé dans chaque province à partir des générales de 2023. Les nouveaux partis partent de leur dernier résultat : SALF des européennes 2024, Aliança Catalana et Adelante Andalucía de leurs élections régionales.',
       `Chaque simulation ajoute l'erreur réelle des sondages en Espagne (mesurée de 2015 à 2023), un effet par communauté et un par province, puis répartit les sièges avec D'Hondt et le seuil de 3 %. ${meta.n_draws.toLocaleString('fr-FR')} simulations.`,
-      `Suppose un vote le ${longDate(meta.election_day_assumed)}. La répartition des sièges par province est calculée sur la population de l'INE jusqu'à la publication officielle au BOE.`,
+      `Vote le ${longDate(meta.election_day_assumed)}. La répartition des sièges par province est calculée sur la population de l'INE jusqu'à la publication officielle au BOE.`,
     ],
   },
   en: {
-    title: `Spain General Election: Polls, Seat Projection & Date — PP ${nat.pp.seats_median}, PSOE ${psoe.seats_median}, Vox ${nat.vox.seats_median} — Vote-Scope`,
-    description: `Spain election polls and a projection of all 350 seats, province by province: PP ${nat.pp.seats_median}, PSOE ${psoe.seats_median}, Vox ${nat.vox.seats_median}. Possible dates for a snap election.`,
-    eyebrow: 'Spain Desk · Congress of Deputies',
+    title: `Spain Election, November 29: Polls & Seat Projection — PP ${nat.pp.seats_median}, PSOE ${psoe.seats_median}, Vox ${nat.vox.seats_median} — Vote-Scope`,
+    description: `Spain election polls and a projection of all 350 seats, province by province: PP ${nat.pp.seats_median}, PSOE ${psoe.seats_median}, Vox ${nat.vox.seats_median}. Polling day: November 29.`,
+    eyebrow: 'Spain Desk · General election, November 29',
     h1: 'Spain general election: polls and seat projection',
     promise: `We project all 350 seats in Congress province by province, with the D'Hondt rule and the 3% threshold, from ${meta.n_polls_window} recent polls corrected for each pollster's lean.`,
     whenLabel: 'When is the next Spanish election?',
-    whenAnswer: 'Not called yet. If the dissolution decree is published on October 6, Spain votes on Sunday, November 29. The legal deadline is August 22, 2027.',
-    whenLink: 'Every possible date',
+    whenAnswer: 'Sunday, November 29, 2026. Pedro Sánchez announced the dissolution of the Cortes on October 5; the decree is published in the official gazette (BOE) on October 6.',
+    whenLink: 'Election calendar',
     headline: `On today's polls, PP and Vox win an outright majority in ${pctW(blocs.pp_vox.p_majority)} of 100 simulations.`,
     seats: 'seats',
     vote: 'of the vote',
@@ -365,15 +368,15 @@ const copy = {
     majority: 'Majority: 176',
     updated: `Updated ${runDate} · latest poll ${meta.last_poll_field_end}`,
     since2023: (k: string) => k === 'sumar' ? '31 in 2023 with Podemos' : `${nat[k].seats_2023 ? `${nat[k].seats_2023} in 2023` : 'new'}`,
-    adelantoKicker: 'Does a snap election pay?',
-    adelantoTitle: 'What the numbers tell the person who has to decide.',
+    adelantoKicker: 'A snap election against the polls',
+    adelantoTitle: 'Sánchez goes to the country with the numbers against him.',
     adelantoRows: [
       { label: 'PSOE', value: `${psoe.seats_median} seats`, note: `121 in 2023 · range ${psoe.seats_p10}–${psoe.seats_p90}` },
       { label: 'The bloc that re-elected Sánchez in 2023', value: `${blocs.investiture_2023.median} seats`, note: `179 in 2023 · majority in ${pctW(blocs.investiture_2023.p_majority)} of 100 simulations` },
       { label: 'PP + Vox', value: `${blocs.pp_vox.median} seats`, note: `range ${blocs.pp_vox.p10}–${blocs.pp_vox.p90} · majority in ${pctW(blocs.pp_vox.p_majority)} of 100` },
       { label: 'PP alone', value: `${nat.pp.seats_median} seats`, note: `outright majority in ${pctW(blocs.pp_alone.p_majority)} of 100` },
     ],
-    adelantoBody: `Today's polls give no arithmetic reason to go early: the PSOE would lose about ${121 - psoe.seats_median} seats and the 2023 majority would be out of reach. A snap election would come from elsewhere: deadlock in Congress, the calendar, or a bet that the campaign moves votes.`,
+    adelantoBody: `On today's polls, the PSOE would lose about ${121 - psoe.seats_median} seats and the majority that re-elected him in 2023 would be out of reach. The campaign opens on November 13: the last chance to move these numbers.`,
     leftKicker: 'The split left of the PSOE',
     leftTitle: `Running apart, Sumar and Podemos win ${leftDivided} seats. Together, on the same votes, they would win ${united.sumar_podemos_seats_median}.`,
     leftBody: `D'Hondt punishes mid-sized parties that split in small provinces. The gap (${leftGain} seats) is bigger than most groups in Congress.`,
@@ -408,13 +411,11 @@ const copy = {
     cmpSource: 'Source',
     cmpDate: 'Date',
     cmpP: 'PP+Vox majority odds',
-    calendarKicker: 'Possible dates',
-    calendarTitle: 'When Spain would vote, depending on the dissolution date',
-    calendarBody: 'Polling day falls 54 days after the dissolution decree is published in the official gazette (BOE).',
-    calBoe: 'Decree in the BOE',
-    calVote: 'Polling day',
-    cal2027: 'In 2027, May 23 already brings municipal elections and votes in many of the autonomous communities.',
-    calLimit: 'Deadline: Sunday, August 22, 2027, with dissolution no later than June 28, 2027.',
+    calendarKicker: 'Election calendar',
+    calendarTitle: 'Key dates up to November 29',
+    calendarBody: 'Dates set by electoral law from the publication of the decree in the official gazette.',
+    calBoe: 'Date',
+    calVote: 'Step',
     provKicker: 'Province by province',
     provTitle: 'Where the last seat is decided',
     provBody: 'In these provinces the last seat changes hands on a handful of votes. That is where the majority is won.',
@@ -438,7 +439,7 @@ const copy = {
       'Published polls go through a Bayesian time-series model (BSTS), the same one behind all our forecasts, after correcting each pollster for its measured lean. Third-party re-estimates of CIS data are left out.',
       'The national vote is carried into each province from the 2023 general election. New parties start from their latest result: SALF from the 2024 European election, Aliança Catalana and Adelante Andalucía from their regional elections.',
       `Each simulation adds the real error of Spanish polls (measured 2015–2023), a regional effect and a provincial effect, then allocates seats under D'Hondt with the 3% threshold. ${meta.n_draws.toLocaleString('en-GB')} simulations.`,
-      `Assumes polling day on ${longDate(meta.election_day_assumed)}. Seats per province are computed from INE population until the official BOE allocation is published.`,
+      `Polling day: ${longDate(meta.election_day_assumed)}. Seats per province are computed from INE population until the official BOE allocation is published.`,
     ],
   },
 }[locale];
@@ -718,13 +719,11 @@ const barTotal = 350;
         <table class="es-table es-cal">
           <thead><tr><th>{t.calBoe}</th><th>{t.calVote}</th></tr></thead>
           <tbody>
-            {WINDOWS.map((w) => (
-              <tr><td>{capFirst(longDate(w.boe))}</td><td><strong>{capFirst(longDate(w.vote))}</strong></td></tr>
+            {CALENDAR.map((c) => (
+              <tr class={c.date === '2026-11-29' ? 'is-vote' : ''}><td>{capFirst(longDate(c.date))}</td><td>{c.step[locale]}</td></tr>
             ))}
           </tbody>
         </table>
-        <p class="es-lede">{t.cal2027}</p>
-        <p class="es-lede"><strong>{t.calLimit}</strong></p>
       </div>
     </section>
 
@@ -922,7 +921,8 @@ const barTotal = 350;
   .es-table th { text-align: left; font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); padding: 8px 6px; border-bottom: 1px solid var(--rule); }
   .es-table td { padding: 8px 6px; border-bottom: 1px solid var(--rule-2); vertical-align: top; }
   .es-table td.num { font-family: var(--mono); }
-  .es-cal { max-width: 560px; margin: 0.8rem 0 1rem; }
+  .es-cal tr.is-vote td { font-weight: 600; }
+  .es-cal { max-width: 680px; margin: 0.8rem 0 1rem; }
   .es-cal td, .es-cal td strong { text-transform: none; }
   .es-table-wrap { overflow-x: auto; }
   .es-chips { display: flex; flex-wrap: wrap; gap: 5px; margin: 0; }

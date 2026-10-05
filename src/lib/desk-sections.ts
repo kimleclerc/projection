@@ -290,9 +290,9 @@ export const DESKS: DeskGroup[] = [
     hub: samePath('/spain/'),
     items: [
       fromJurisdiction('spain', l10n(
-        'All 350 seats projected province by province, with the dates a snap election could fall on.',
-        'Les 350 sièges projetés province par province, et les dates possibles d’une élection anticipée.',
-        'Los 350 escaños proyectados provincia por provincia, y las fechas posibles de un adelanto electoral.',
+        'All 350 seats projected province by province, and the calendar to the November 29 vote.',
+        'Les 350 sièges projetés province par province, et le calendrier jusqu’au vote du 29 novembre.',
+        'Los 350 escaños proyectados provincia por provincia, y el calendario hasta el 29 de noviembre.',
       ), { sections: ['polls'] }),
       {
         id: 'es-housing',

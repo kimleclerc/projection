@@ -3,8 +3,8 @@
  * Bande d'accueil du desk Espagne (même patron que TradeWarBand).
  *
  * Tout ce qui est visible vient de web_data/spain/latest.json : sièges des
- * trois premiers partis, bloc PP + Vox, logement (CIS). Seule la phrase sur
- * la date suit le calendrier légal et se réécrit à la convocation.
+ * trois premiers partis, bloc PP + Vox, logement (CIS). La phrase sur la
+ * convocation (5 octobre, vote le 29 novembre) est écrite à la main.
  */
 import es from '../../web_data/spain/latest.json';
 import { partyMeta } from '../lib/riding-adapters/parties';
@@ -29,9 +29,9 @@ const pTxt = {
 
 const copy = {
   es: {
-    eyebrow: 'Mesa en vivo · Elecciones generales en España',
+    eyebrow: 'Mesa en vivo · Elecciones generales del 29 de noviembre',
     title: `PP y Vox suman ${blocs.pp_vox.median} escaños: mayoría absoluta en ${pTxt} de cada 100 simulaciones.`,
-    lede: `Sánchez sopesa un adelanto tras perder los decretos de vivienda. Si el BOE publica la disolución el 6 de octubre, se vota el 29 de noviembre. Proyectamos los 350 escaños provincia por provincia, con un segundo modelo experimental para comparar.`,
+    lede: `Sánchez disolvió las Cortes el 5 de octubre tras perder los decretos de vivienda: España vota el domingo 29 de noviembre. Proyectamos los 350 escaños provincia por provincia, con un segundo modelo experimental para comparar.`,
     viv: `La vivienda, primera preocupación: ${dec(viv.latest.pct_multi)} % la cita en el CIS`,
     vivSub: `Barómetro del CIS · ${dec(viv.yearly['2022'])} % en 2022`,
     seats: 'escaños',
@@ -40,9 +40,9 @@ const copy = {
     updated: 'Actualizado',
   },
   fr: {
-    eyebrow: 'Bureau en direct · Élections générales en Espagne',
+    eyebrow: 'Bureau en direct · Élections générales du 29 novembre',
     title: `PP et Vox totalisent ${blocs.pp_vox.median} sièges : majorité absolue dans ${pTxt} simulations sur 100.`,
-    lede: `Sánchez envisage une élection anticipée après avoir perdu les décrets sur le logement. Si la dissolution paraît au Journal officiel le 6 octobre, l’Espagne vote le 29 novembre. Nous projetons les 350 sièges province par province, avec un second modèle expérimental pour comparer.`,
+    lede: `Sánchez a dissous les Cortes le 5 octobre après avoir perdu les décrets sur le logement : l’Espagne vote le dimanche 29 novembre. Nous projetons les 350 sièges province par province, avec un second modèle expérimental pour comparer.`,
     viv: `Le logement, première inquiétude : ${dec(viv.latest.pct_multi)} % le citent au CIS`,
     vivSub: `Baromètre du CIS · ${dec(viv.yearly['2022'])} % en 2022`,
     seats: 'sièges',
@@ -51,9 +51,9 @@ const copy = {
     updated: 'Mis à jour',
   },
   en: {
-    eyebrow: 'Live desk · Spain general election',
+    eyebrow: 'Live desk · Spain votes on November 29',
     title: `PP and Vox total ${blocs.pp_vox.median} seats: an outright majority in ${pTxt} of 100 simulations.`,
-    lede: `Sánchez is weighing a snap election after losing the housing decrees. If dissolution is published on October 6, Spain votes on November 29. We project all 350 seats province by province, with a second, experimental model for comparison.`,
+    lede: `Sánchez dissolved the Cortes on October 5 after losing the housing decrees: Spain votes on Sunday, November 29. We project all 350 seats province by province, with a second, experimental model for comparison.`,
     viv: `Housing is the top worry: ${dec(viv.latest.pct_multi)}% name it in the CIS barometer`,
     vivSub: `CIS barometer · ${dec(viv.yearly['2022'])}% in 2022`,
     seats: 'seats',
