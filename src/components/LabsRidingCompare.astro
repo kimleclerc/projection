@@ -1,0 +1,106 @@
+---
+// Les 127 circonscriptions du Québec : favori et chance selon Harfang des
+// neiges (projection de référence), selon Orbite, et selon le mélange 50/50
+// (moyenne des deux chances). Québec seulement : la référence est lue dans
+// web_data/quebec/latest.json au moment du build.
+import { existsSync, readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { type Locale, partyLabel, partyColor, pct } from '../lib/labs';
+import { MODEL_RELEASES } from '../data/modelVersion';
+
+interface Props { locale: Locale; desk: any }
+const { locale, desk } = Astro.props;
+const refName = MODEL_RELEASES[0].name;
+const f = resolve(process.cwd(), 'web_data', 'quebec', 'latest.json');
+const ref = existsSync(f) ? JSON.parse(readFileSync(f, 'utf-8')) : null;
+const R = new Map<string, any>((ref?.ridings ?? []).map((r: any) => [String(Number(r.riding_id)), r]));
+
+const top = (wp: Record<string, number>) => Object.entries(wp).sort((a, b) => b[1] - a[1])[0] ?? ['', 0];
+const rows = ((desk?.ridings ?? []) as any[]).flatMap((o) => {
+  const r = R.get(String(Number(o.id)));
+  if (!r) return [];
+  const wr: Record<string, number> = r.projection?.win_prob ?? {};
+  const wo: Record<string, number> = o.win_prob ?? {};
+  const parties = [...new Set([...Object.keys(wr), ...Object.keys(wo)])];
+  const wb = Object.fromEntries(parties.map((p) => [p, ((wr[p] ?? 0) + (wo[p] ?? 0)) / 2]));
+  const [fr, pr] = top(wr), [fo, po] = top(wo), [fb, pb] = top(wb);
+  return [{ id: o.id, name: r.name_fr ?? o.name, fr, pr, fo, po, fb, pb, agree: fr === fo }];
+}).sort((a, b) => a.name.localeCompare(b.name, 'fr'));
+const nAgree = rows.filter((r) => r.agree).length;
+
+const TX = {
+  fr: {
+    title: (n: number) => `Les ${n} circonscriptions : ${refName}, Orbite et le mélange`,
+    dek: (a: number, n: number) => `Pour chaque circonscription, le favori et sa chance de l’emporter selon notre projection de référence (${refName}), selon Orbite, et selon le mélange 50/50, qui fait la moyenne des deux chances. Les deux moteurs désignent le même favori dans ${a} circonscriptions sur ${n} ; les autres sont marquées.`,
+    only: 'Seulement les désaccords',
+    riding: 'Circonscription', ref: refName, orbit: 'Orbite', blend: 'Mélange 50/50',
+    split: 'désaccord',
+  },
+  en: {
+    title: (n: number) => `All ${n} ridings: ${refName}, Orbit and the blend`,
+    dek: (a: number, n: number) => `For each riding, the favourite and its chance of winning according to our reference forecast (${refName}), according to Orbit, and according to the 50/50 blend, which averages both chances. The two engines pick the same favourite in ${a} of ${n} ridings; the others are flagged.`,
+    only: 'Disagreements only',
+    riding: 'Riding', ref: refName, orbit: 'Orbit', blend: '50/50 blend',
+    split: 'split',
+  },
+  es: {
+    title: (n: number) => `Las ${n} circunscripciones: ${refName}, Órbita y la mezcla`,
+    dek: (a: number, n: number) => `Para cada circunscripción, el favorito y su probabilidad de ganar según nuestra proyección de referencia (${refName}), según Órbita y según la mezcla 50/50, que promedia ambas probabilidades. Los dos motores eligen el mismo favorito en ${a} de ${n} circunscripciones; las demás están señaladas.`,
+    only: 'Solo los desacuerdos',
+    riding: 'Circunscripción', ref: refName, orbit: 'Órbita', blend: 'Mezcla 50/50',
+    split: 'desacuerdo',
+  },
+}[locale];
+const cell = (p: string, v: number) => ({ label: partyLabel(desk, p, locale), color: partyColor(desk, p), v: pct(v, locale) });
+---
+
+{rows.length > 0 && (
+  <section class="lrc" aria-labelledby="lrc-title">
+    <h2 id="lrc-title">{TX.title(rows.length)}</h2>
+    <p class="lrc-dek">{TX.dek(nAgree, rows.length)}</p>
+    <label class="lrc-toggle"><input type="checkbox" data-lrc-only /> {TX.only}</label>
+    <div class="lrc-scroll">
+      <table class="lrc-table" data-lrc>
+        <thead><tr><th>{TX.riding}</th><th>{TX.ref}</th><th>{TX.orbit}</th><th>{TX.blend}</th></tr></thead>
+        <tbody>
+          {rows.map((r) => {
+            const a = cell(r.fr, r.pr), b = cell(r.fo, r.po), c = cell(r.fb, r.pb);
+            return (
+              <tr data-agree={r.agree ? '1' : '0'}>
+                <td>{r.name}{!r.agree && <span class="lrc-flag">{TX.split}</span>}</td>
+                <td><span class="lrc-dot" style={`background:${a.color}`}></span>{a.label} <span class="lrc-p">{a.v}</span></td>
+                <td><span class="lrc-dot" style={`background:${b.color}`}></span>{b.label} <span class="lrc-p">{b.v}</span></td>
+                <td><span class="lrc-dot" style={`background:${c.color}`}></span><strong>{c.label}</strong> <span class="lrc-p">{c.v}</span></td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  </section>
+)}
+
+<script>
+  document.querySelectorAll<HTMLInputElement>('[data-lrc-only]').forEach((box) => {
+    const table = box.closest('.lrc')?.querySelector('[data-lrc]');
+    box.addEventListener('change', () => {
+      table?.querySelectorAll<HTMLTableRowElement>('tbody tr').forEach((tr) => {
+        tr.hidden = box.checked && tr.dataset.agree === '1';
+      });
+    });
+  });
+</script>
+
+<style>
+  .lrc { margin-top: 60px; }
+  .lrc h2 { font-family: var(--serif); font-size: clamp(24px, 3.2vw, 32px); font-weight: 450; margin: 0 0 10px; }
+  .lrc-dek { max-width: 780px; margin: 0 0 12px; color: var(--ink-2); font-size: 16px; line-height: 1.6; }
+  .lrc-toggle { display: inline-flex; gap: 8px; align-items: center; font-family: var(--mono); font-size: 12px; color: var(--ink-2); margin-bottom: 10px; cursor: pointer; }
+  .lrc-scroll { max-height: 620px; overflow: auto; border: 1px solid var(--rule); border-radius: 6px; }
+  .lrc-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .lrc-table th { position: sticky; top: 0; background: var(--card); text-align: left; font-family: var(--mono); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); border-bottom: 1px solid var(--rule); padding: 8px 10px; white-space: nowrap; }
+  .lrc-table td { border-bottom: 1px solid var(--rule-2); padding: 7px 10px; white-space: nowrap; }
+  .lrc-dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+  .lrc-p { font-family: var(--mono); font-size: 12px; color: var(--ink-3); }
+  .lrc-flag { margin-left: 8px; padding: 1px 6px; border-radius: 3px; font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: .06em; background: color-mix(in oklab, var(--duck) 22%, var(--card)); color: var(--ink-2); }
+</style>

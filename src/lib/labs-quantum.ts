@@ -11,6 +11,11 @@ export function loadQuantum(key: LabsKey): any | null {
   return existsSync(f) ? JSON.parse(readFileSync(f, 'utf-8')) : null;
 }
 
+export function loadQuantumFile(name: string): any | null {
+  const f = resolve(dir, `${name}.json`);
+  return existsSync(f) ? JSON.parse(readFileSync(f, 'utf-8')) : null;
+}
+
 // Tirage annoncé (avant qu'il ait lieu) : date de la veille du vote.
 export const QUANTUM_PLANNED: Partial<Record<LabsKey, string>> = { qc_2026: '2026-10-04' };
 
@@ -52,6 +57,10 @@ export const QT = {
     colMachineP: 'Machine',
     colOthers: 'Autres issues tirées',
     safe: 'acquise',
+    secondChip: (m: string, raw: string, cor: string, pr: string, pc: string, lab: string) => `Deuxième puce, mêmes ${'1 024'} circuits : ${m}. ${lab} : ${raw} sièges en moyenne (${cor} après correction), chances de majorité ${pr} (${pc} après correction). Les deux puces déforment l’élection dans le même sens.`,
+    runsTitle: 'Tous les tirages de la soirée',
+    runsNote: 'Sièges moyens du PQ : calcul exact d’Orbite, machine brute, machine corrigée ; puis chances de majorité (exact → brut → corrigé). Les deux premiers tirages ont été faits avant le dernier sondage Forum ; le calcul exact de chaque ligne est celui d’Orbite au même moment. « Torsade » : chaque circuit est rejoué sous des emballages aléatoires qui changent les erreurs systématiques de la puce en bruit qui se moyenne.',
+    colRun: 'Tirage', colDrawn: 'Élections', twirled: 'torsade',
     jobs: 'Tâches IBM',
     sec: 's',
   },
@@ -92,6 +101,10 @@ export const QT = {
     colMachineP: 'Machine',
     colOthers: 'Other outcomes drawn',
     safe: 'safe',
+    secondChip: (m: string, raw: string, cor: string, pr: string, pc: string, lab: string) => `Second chip, same 1,024 circuits: ${m}. ${lab}: ${raw} seats on average (${cor} after correction), chance of a majority ${pr} (${pc} after correction). Both chips distort the election in the same direction.`,
+    runsTitle: 'Every draw of the night',
+    runsNote: 'PQ average seats: Orbit’s exact calculation, raw machine, corrected machine; then chance of a majority (exact → raw → corrected). The first two draws were made before the final Forum poll; each row’s exact calculation is Orbit’s at that time. “Twirling”: each circuit is replayed under random wrappers that turn the chip’s systematic errors into noise that averages out.',
+    colRun: 'Draw', colDrawn: 'Elections', twirled: 'twirling',
     jobs: 'IBM jobs',
     sec: 's',
   },
@@ -132,6 +145,10 @@ export const QT = {
     colMachineP: 'Máquina',
     colOthers: 'Otros resultados sorteados',
     safe: 'segura',
+    secondChip: (m: string, raw: string, cor: string, pr: string, pc: string, lab: string) => `Segundo chip, los mismos 1024 circuitos: ${m}. ${lab}: ${raw} escaños de media (${cor} tras la corrección), probabilidad de mayoría ${pr} (${pc} tras la corrección). Los dos chips deforman la elección en el mismo sentido.`,
+    runsTitle: 'Todos los sorteos de la noche',
+    runsNote: 'Escaños medios del PQ: cálculo exacto de Órbita, máquina bruta, máquina corregida; luego probabilidad de mayoría (exacto → bruto → corregido). Los dos primeros sorteos se hicieron antes de la última encuesta de Forum; el cálculo exacto de cada fila es el de Órbita en ese momento. «Torsión»: cada circuito se repite bajo envolturas aleatorias que convierten los errores sistemáticos del chip en ruido que se promedia.',
+    colRun: 'Sorteo', colDrawn: 'Elecciones', twirled: 'torsión',
     jobs: 'Tareas de IBM',
     sec: 's',
   },
