@@ -65,6 +65,7 @@ const copy = {
         complete: 'Dépouillement terminé', source: 'Source officielle : Élections Québec. Les appels sont ceux de Vote-Scope.',
         direct: 'Source directe du directeur général des élections — nos appels et nos projections ne sont pas disponibles.',
         search: 'Chercher une circonscription', anomalies: 'candidats ou partis inconnus du registre',
+        soon: 'Les bureaux ferment à 20 h. Les premiers résultats d’Élections Québec apparaîtront ici dans les minutes qui suivent; inutile de rafraîchir, la page se met à jour d’elle-même.',
         before: 'Les premiers résultats arrivent le lundi 5 octobre à 20 h, à la fermeture des bureaux. Gardez cette page dans vos favoris : elle se mettra à jour d’elle-même.',
         anomaliesBlocked: 'aucun appel automatique possible', anomaliesOverridden: 'des appels automatiques ont été publiés malgré l’anomalie',
         party: 'Parti', elected: 'Élus', ahead: 'En tête', total: 'Total', vsProj: 'Écart', projCol: 'Projection', projTitle: 'Par rapport à notre projection',
@@ -82,6 +83,7 @@ const copy = {
         complete: 'Count complete', source: 'Official source: Élections Québec. Calls are Vote-Scope’s.',
         direct: 'Reading the chief electoral officer directly — our calls and projections are unavailable.',
         search: 'Find a riding', anomalies: 'candidates or parties unknown to the registry',
+        soon: 'Polls close at 8 p.m. The first results from Élections Québec will appear here within minutes; no need to refresh, the page updates on its own.',
         before: 'The first results arrive on Monday, October 5 at 8 p.m., when polls close. Bookmark this page: it will update on its own.',
         anomaliesBlocked: 'no automatic call possible', anomaliesOverridden: 'automatic calls were published over the anomaly',
         party: 'Party', elected: 'Elected', ahead: 'Leading', total: 'Total', vsProj: 'Gap', projCol: 'Forecast', projTitle: 'Compared with our forecast',
@@ -99,6 +101,7 @@ const copy = {
         complete: 'Recuento completo', source: 'Fuente oficial: Élections Québec. Las asignaciones son de Vote-Scope.',
         direct: 'Lectura directa del director general de elecciones — nuestras asignaciones y proyecciones no están disponibles.',
         search: 'Buscar un distrito', anomalies: 'candidatos o partidos desconocidos para el registro',
+        soon: 'Las urnas cierran a las 20:00. Los primeros resultados de Élections Québec aparecerán aquí en los minutos siguientes; no hace falta recargar, la página se actualiza sola.',
         before: 'Los primeros resultados llegan el lunes 5 de octubre a las 20:00, al cierre de las urnas. Guarda esta página en tus favoritos: se actualizará sola.',
         anomaliesBlocked: 'sin asignación automática', anomaliesOverridden: 'se publicaron asignaciones automáticas pese a la anomalía',
         party: 'Partido', elected: 'Electos', ahead: 'En cabeza', total: 'Total', vsProj: 'Diferencia', projCol: 'Proyección', projTitle: 'Frente a nuestra proyección',
@@ -338,7 +341,7 @@ export default function QuebecElectionNightLive({ eventId, lang, apiBase, fallba
 
   if (!data) {
     return <section class={`qcl${failed ? ' qcl-is-failed' : ''}`} aria-live="polite"><div class="qcl-head"><span class="qcl-label"><i></i>{t.live}</span></div>
-      <p class="qcl-state">{beforeOpen ? t.before : failed ? t.unavailable : t.connecting}</p></section>;
+      <p class="qcl-state">{beforeOpen ? t.before : failed ? (Date.now() < EARLY_UNTIL - 15 * 60_000 ? t.soon : t.unavailable) : t.connecting}</p></section>;
   }
 
   return (
