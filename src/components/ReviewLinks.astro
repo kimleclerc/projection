@@ -1,0 +1,51 @@
+---
+/**
+ * Liens vers les bilans d'après-scrutin : le nôtre (Track Record) et le bulletin
+ * des sondeurs (méthodologie). Placé sur le Track Record et la méthodologie.
+ */
+interface Props { locale: 'fr' | 'en' | 'es'; }
+const { locale } = Astro.props;
+
+const T = {
+  fr: {
+    title: 'Les bilans d’élection',
+    links: [
+      ['Québec 2026 : notre bilan', 'Le gouvernement, le vote, les sièges et les 127 circonscriptions : ce qu’on a vu juste et nos erreurs.', '/fr/track-record/quebec-2026/'],
+      ['Quels sondeurs croire ?', 'Le classement des maisons de sondage, mis à jour après chaque élection.', '/fr/methodologie/sondeurs/'],
+    ],
+  },
+  en: {
+    title: 'Election reviews',
+    links: [
+      ['Quebec 2026: how we did', 'The government, the vote, the seats and all 127 ridings: what we got right and where we went wrong.', '/en/track-record/quebec-2026/'],
+      ['Which pollsters to trust?', 'Polling firms ranked by accuracy, updated after every election.', '/en/methodology/pollsters/'],
+    ],
+  },
+  es: {
+    title: 'Balances electorales',
+    links: [
+      ['Quebec 2026: nuestro balance', 'El gobierno, el voto, los escaños y los 127 distritos: lo que acertamos y nuestros errores.', '/es/track-record/quebec-2026/'],
+      ['¿A qué encuestadoras creer?', 'La clasificación de las encuestadoras, actualizada tras cada elección.', '/es/metodologia/encuestadoras/'],
+    ],
+  },
+}[locale];
+---
+
+<section class="container review-links">
+  <h2>{T.title}</h2>
+  <div class="review-links-grid">
+    {T.links.map(([t, d, h]) => (
+      <a href={h}><strong>{t} →</strong><span>{d}</span></a>
+    ))}
+  </div>
+</section>
+
+<style>
+  .review-links { margin: 2.5rem auto; }
+  .review-links h2 { font-family: var(--serif); font-size: 1.5rem; margin-bottom: .75rem; }
+  .review-links-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: .75rem; }
+  .review-links-grid a { display: grid; gap: .3rem; padding: 1rem 1.1rem; border: 1px solid var(--rule); border-radius: 8px; background: var(--card); }
+  .review-links-grid a:hover { border-color: var(--blue); }
+  .review-links-grid strong { font-family: var(--serif); font-size: 1.15rem; color: var(--blue); }
+  .review-links-grid span { font-size: .92rem; color: var(--ink-2); line-height: 1.5; }
+</style>

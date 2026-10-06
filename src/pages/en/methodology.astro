@@ -2,6 +2,7 @@
 import { getEntry } from 'astro:content';
 import EditorialLayout from '../../layouts/EditorialLayout.astro';
 import EditorialStory from '../../components/EditorialStory.astro';
+import ReviewLinks from '../../components/ReviewLinks.astro';
 import ModelChangelog from '../../components/ModelChangelog.astro';
 
 const entry = await getEntry('editorial', 'en/methodology');
@@ -26,5 +27,6 @@ const d = entry.data;
   ]}
 >
   <EditorialStory entry={entry} />
+  <ReviewLinks locale="en" />
   <ModelChangelog locale="en" />
 </EditorialLayout>

@@ -2,6 +2,7 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import Base from '../../layouts/Base.astro';
+import ReviewLinks from '../../components/ReviewLinks.astro';
 import KeepDigging from '../../components/KeepDigging.astro';
 import CalibrationSection from '../../components/CalibrationSection.astro';
 import ResolvedCalls from '../../components/ResolvedCalls.astro';
@@ -102,6 +103,8 @@ function fmtDate(iso: string) {
         <span class="track-stat-note">Volume des bons calls moins tout volume qui aurait résolu contre nous</span>
       </div>
     </section>
+
+    <ReviewLinks locale="fr" />
 
     <section class="track-resolved container" aria-labelledby="track-resolved-title">
       <p class="track-section-label" id="track-resolved-title">Appels résolus</p>
