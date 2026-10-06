@@ -33,7 +33,7 @@ const clock = (hm: string) => {
 
 const slugById = new Map(getAllQuebecRidings().map((r) => [r.id, r.slug]));
 const ridingBase = { fr: '/fr/canada/quebec/circonscriptions/', en: '/en/canada/quebec/ridings/', es: '/es/canada/quebec/distritos/' }[locale];
-const hrefOf = (id: string) => (slugById.get(id) ? `${ridingBase}${slugById.get(id)}` : undefined);
+const hrefOf = (id: string) => (slugById.get(id) ? `${ridingBase}${slugById.get(id)}/` : undefined);
 
 const res = B.result;
 const mean = (xs: number[]) => xs.reduce((s, x) => s + x, 0) / xs.length;
@@ -123,7 +123,7 @@ const T = {
       'Le soir du vote, afficher côte à côte la médiane des sièges et le décompte des circonscriptions en tête, en disant d’avance combien de circonscriptions risquent de basculer : c’est le portrait le plus honnête.',
     ],
     note: 'Résultats préliminaires d’Élections Québec, tous les bureaux dépouillés ; ce bilan sera revu avec les résultats officiels. Projections telles que publiées la veille du vote.',
-    links: [['Méthodologie', '/fr/methodologie'], ['Bulletin des sondeurs', '/fr/methodologie/sondeurs'], ['Les résultats', '/fr/canada/quebec/resultats'], ['Track Record', '/fr/track-record']],
+    links: [['Méthodologie', '/fr/methodologie/'], ['Bulletin des sondeurs', '/fr/methodologie/sondeurs/'], ['Les résultats', '/fr/canada/quebec/resultats/'], ['Track Record', '/fr/track-record/']],
     seatsUnit: 'sièges', none: '—',
   },
   en: {
@@ -187,7 +187,7 @@ const T = {
       'On election night, show the seat median and the count of ridings each party leads side by side, saying in advance how many ridings may flip: that is the most honest picture.',
     ],
     note: 'Preliminary results from Élections Québec, all polls counted; this review will be updated with the official results. Projections as published on the eve of the vote.',
-    links: [['Methodology', '/en/methodology'], ['Pollster report card', '/en/methodology/pollsters'], ['The results', '/en/canada/quebec/results'], ['Track Record', '/en/track-record']],
+    links: [['Methodology', '/en/methodology/'], ['Pollster report card', '/en/methodology/pollsters/'], ['The results', '/en/canada/quebec/results/'], ['Track Record', '/en/track-record/']],
     seatsUnit: 'seats', none: '—',
   },
   es: {
@@ -251,7 +251,7 @@ const T = {
       'La noche electoral, mostrar juntos la mediana de escaños y el recuento de distritos en cabeza, diciendo de antemano cuántos distritos pueden cambiar: es el retrato más honesto.',
     ],
     note: 'Resultados preliminares de Élections Québec, todas las mesas escrutadas; este balance se revisará con los resultados oficiales. Proyecciones tal como se publicaron la víspera.',
-    links: [['Metodología', '/es/metodologia'], ['Boletín de encuestadoras', '/es/metodologia/encuestadoras'], ['Los resultados', '/es/canada/quebec/resultados'], ['Historial', '/es/track-record']],
+    links: [['Metodología', '/es/metodologia/'], ['Boletín de encuestadoras', '/es/metodologia/encuestadoras/'], ['Los resultados', '/es/canada/quebec/resultados/'], ['Historial', '/es/track-record/']],
     seatsUnit: 'escaños', none: '—',
   },
 }[locale];
