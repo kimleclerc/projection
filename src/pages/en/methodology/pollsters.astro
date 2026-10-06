@@ -1,0 +1,33 @@
+---
+import EditorialLayout from '../../../layouts/EditorialLayout.astro';
+import PollsterScorecards from '../../../components/PollsterScorecards.astro';
+
+const canonical = 'https://vote-scope.com/en/methodology/pollsters';
+const title = 'Pollster report card: which polls to trust? Léger, Pallas, Mainstreet… | Vote-Scope';
+const description = 'Polling firms ranked by accuracy, election after election: Léger, Forum, Pallas, Research Co., Liaison, Synopsis and Mainstreet in Quebec 2026.';
+const alternates = { fr: 'https://vote-scope.com/fr/methodologie/sondeurs', en: 'https://vote-scope.com/en/methodology/pollsters', es: 'https://vote-scope.com/es/metodologia/encuestadoras' };
+---
+
+<EditorialLayout
+  title={title}
+  description={description}
+  canonical={canonical}
+  lang="en"
+  currentPage="methodology"
+  ogImage="https://vote-scope.com/og/projections/quebec/en.png"
+  alternates={alternates}
+  jsonLd={[
+    { '@context': 'https://schema.org', '@type': 'WebPage', name: title, description, url: canonical, inLanguage: 'en' },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: 'https://vote-scope.com/en/' },
+        { '@type': 'ListItem', position: 2, name: 'Methodology', item: 'https://vote-scope.com/en/methodology' },
+        { '@type': 'ListItem', position: 3, name: 'Pollster report card', item: 'https://vote-scope.com/en/methodology/pollsters' },
+      ],
+    },
+  ]}
+>
+  <PollsterScorecards locale="en" />
+</EditorialLayout>

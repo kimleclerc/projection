@@ -226,6 +226,12 @@ const COPY = {
 
 const deskHref = `/${locale}/canada/quebec/`;
 const trackHref = `/${locale}/track-record/`;
+// Bilan d'après-scrutin : notre projection et les sondeurs face au résultat.
+const REVIEW = {
+  fr: { title: 'Le bilan', ours: ['Notre bilan', 'Ce qu’on a vu juste, nos erreurs, nos deux moteurs et nos annonces du soir.', '/fr/track-record/quebec-2026'], polls: ['Quels sondeurs croire ?', 'Léger, Forum, Pallas, Mainstreet… le classement des maisons de sondage.', '/fr/methodologie/sondeurs'] },
+  en: { title: 'The review', ours: ['How we did', 'What we got right, our misses, our two engines and our election-night calls.', '/en/track-record/quebec-2026'], polls: ['Which pollsters to trust?', 'Léger, Forum, Pallas, Mainstreet… polling firms ranked by accuracy.', '/en/methodology/pollsters'] },
+  es: { title: 'El balance', ours: ['Nuestro balance', 'Lo que acertamos, nuestros errores, nuestros dos motores y los anuncios de la noche.', '/es/track-record/quebec-2026'], polls: ['¿A qué encuestadoras creer?', 'Léger, Forum, Pallas, Mainstreet… la clasificación de las encuestadoras.', '/es/metodologia/encuestadoras'] },
+}[locale];
 const seatTotal = seatParties.reduce((s, p) => s + p.seats_projected, 0) || totalSeats;
 const runDateText = new Intl.DateTimeFormat(
   { fr: 'fr-CA', en: 'en-CA', es: 'es-ES' }[locale],
@@ -245,6 +251,17 @@ const runDateText = new Intl.DateTimeFormat(
 <section class="qen-live">
   <div class="container">
     <QuebecElectionNightLive client:load eventId={LIVE_EVENT_ID} lang={locale} apiBase={liveApiBase} fallbackApiBase={liveFallbackApiBase} projected={projectedSeats} projectedBy={projectedBy} />
+  </div>
+</section>
+
+<section class="qen-review">
+  <div class="container">
+    <h2>{REVIEW.title}</h2>
+    <div class="qen-review-grid">
+      {[REVIEW.ours, REVIEW.polls].map(([t, d, h]) => (
+        <a href={h}><strong>{t} →</strong><span>{d}</span></a>
+      ))}
+    </div>
   </div>
 </section>
 
@@ -356,6 +373,13 @@ const runDateText = new Intl.DateTimeFormat(
 <style>
   .qen-hero { padding: 80px 0 40px; border-bottom: 1px solid var(--rule); background: var(--paper); }
   .qen-hero h1 { margin: 8px 0 16px; font-family: var(--serif); font-size: clamp(38px, 5vw, 62px); font-weight: 420; letter-spacing: -0.02em; line-height: 1.04; max-width: 980px; }
+  .qen-review { margin: 2rem 0; }
+  .qen-review h2 { font-family: var(--serif); font-size: 1.5rem; margin-bottom: .75rem; }
+  .qen-review-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: .75rem; }
+  .qen-review-grid a { display: grid; gap: .3rem; padding: 1rem 1.1rem; border: 1px solid var(--rule); border-radius: 8px; background: var(--card); }
+  .qen-review-grid a:hover { border-color: var(--blue); }
+  .qen-review-grid strong { font-family: var(--serif); font-size: 1.15rem; color: var(--blue); }
+  .qen-review-grid span { font-size: .92rem; color: var(--ink-2); line-height: 1.5; }
   .qen-hero .lede { max-width: 780px; font-family: var(--serif); font-size: clamp(17px, 1.8vw, 20px); line-height: 1.55; color: var(--ink-2); }
 
   section h2 { font-family: var(--serif); font-size: clamp(26px, 3vw, 34px); font-weight: 460; letter-spacing: -0.01em; margin-bottom: 10px; }

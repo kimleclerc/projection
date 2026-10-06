@@ -1,0 +1,532 @@
+---
+/**
+ * Bilan de nos projections, élection québécoise du 5 octobre 2026.
+ * Sous-page du Track Record, trois langues. Données : src/data/qc-bilan-2026.json
+ * (bilan_qc_2026.py du moteur, export_web). Compare la projection de référence
+ * (Harfang des neiges), Orbite, le mélange 50/50 et Fastest Call au résultat.
+ * Blocs en enfants directs de [data-content-area] pour l'insertion publicitaire.
+ */
+import { getAllQuebecRidings } from '../lib/riding-adapters/quebec';
+import { partyMeta } from '../lib/riding-adapters/parties';
+import bilan from '../data/qc-bilan-2026.json';
+
+interface Props { locale: 'fr' | 'en' | 'es'; }
+const { locale } = Astro.props;
+
+const B: any = bilan;
+const PARTIES = ['pq', 'plq', 'pcq', 'qs', 'caq'];
+const loc = locale === 'fr' ? 'fr-CA' : locale === 'es' ? 'es' : 'en-CA';
+const num = (n: number, d = 1) => n.toLocaleString(loc, { minimumFractionDigits: d, maximumFractionDigits: d });
+const pct = (p: number) => `${Math.round(p * 100)}${locale === 'en' ? '%' : ' %'}`;
+const pt = (n: number, d = 1) => `${n > 0 ? '+' : n < 0 ? '−' : ''}${num(Math.abs(n), d)}`;
+const label = (code: string) => {
+  const m = partyMeta('quebec', code);
+  return locale === 'en' ? m.label_en : m.label_fr;
+};
+const color = (code: string) => partyMeta('quebec', code).color;
+const clock = (hm: string) => {
+  const [h, m] = hm.split(':').map(Number);
+  if (locale === 'en') return `${((h + 11) % 12) + 1}:${String(m).padStart(2, '0')} ${h < 12 ? 'a.m.' : 'p.m.'}`;
+  if (locale === 'fr') return `${h} h ${String(m).padStart(2, '0')}`;
+  return hm;
+};
+
+const slugById = new Map(getAllQuebecRidings().map((r) => [r.id, r.slug]));
+const ridingBase = { fr: '/fr/canada/quebec/circonscriptions/', en: '/en/canada/quebec/ridings/', es: '/es/canada/quebec/distritos/' }[locale];
+const hrefOf = (id: string) => (slugById.get(id) ? `${ridingBase}${slugById.get(id)}` : undefined);
+
+const res = B.result;
+const mean = (xs: number[]) => xs.reduce((s, x) => s + x, 0) / xs.length;
+const voteErr = (k: string) => mean(PARTIES.map((p) => Math.abs(B.vote[p][k] - res.vote[p])));
+const seatErr = (k: string) => mean(PARTIES.map((p) => Math.abs(B.seats[p][k] - res.seats[p])));
+const inRange = (v: number, r: number[]) => v >= r[0] && v <= r[1];
+const covered = (k: string, kind: 'vote' | 'seats') =>
+  PARTIES.filter((p) => inRange(kind === 'vote' ? res.vote[p] : res.seats[p], B[kind][p][k])).length;
+
+const RS = B.ridings_summary;
+// Du raté le plus serré (on donnait de bonnes chances au gagnant) au plus net.
+const misses = (B.ridings as any[]).filter((r) => r.harfang.fav !== r.winner).sort((a, b) => b.harfang.p_winner - a.harfang.p_winner);
+const disagree = (B.ridings as any[]).filter((r) => r.harfang.fav !== r.orbite.fav);
+const orbRight = disagree.filter((r) => r.orbite.fav === r.winner).length;
+const harRight = disagree.filter((r) => r.harfang.fav === r.winner).length;
+const Q = B.quantum;
+const C = B.calls;
+
+const REGIONS: Record<string, Record<string, string>> = {
+  mtl: { fr: 'Montréal et Laval', en: 'Montreal and Laval', es: 'Montreal y Laval' },
+  crown: { fr: 'Couronnes de Montréal', en: 'Montreal suburbs', es: 'Coronas de Montreal' },
+  qcc: { fr: 'Région de Québec', en: 'Quebec City region', es: 'Región de Quebec' },
+  chap: { fr: 'Chaudière-Appalaches', en: 'Chaudière-Appalaches', es: 'Chaudière-Appalaches' },
+  estrie: { fr: 'Estrie', en: 'Eastern Townships', es: 'Estrie' },
+  rest: { fr: 'Reste du Québec', en: 'Rest of Quebec', es: 'Resto de Quebec' },
+};
+
+const T = {
+  fr: {
+    eyebrow: 'Track Record · élection québécoise du 5 octobre 2026',
+    h1: 'Québec 2026 : notre bilan',
+    lede: `Le PQ minoritaire, le PLQ en opposition officielle, le PCQ troisième : c'était notre scénario le plus probable. Voici, chiffre par chiffre, ce qu'on a vu juste et où on s'est trompés.`,
+    k: [
+      ['Le gouvernement', 'PQ minoritaire', `notre issue la plus probable (${pct(B.odds.pq_minority_first)})`],
+      ['Vote', `${num(voteErr('harfang'))} pt`, 'd’écart moyen par parti'],
+      ['Sièges', `${num(seatErr('harfang_median'))}`, 'sièges d’écart moyen par parti'],
+      ['Circonscriptions', `${RS.harfang.hits} / 127`, `bons gagnants, ${pct(RS.harfang.hits / 127)} (mélange : ${RS.blend.hits})`],
+      ['Appels du soir', `${C.n} / ${C.n}`, 'aucun démenti'],
+    ],
+    seatsTitle: 'Les sièges',
+    seatsIntro: `Nos deux moteurs lisent les mêmes sondages. Harfang des neiges est notre projection de référence ; Orbite, notre moteur quantique, la double dans nos Labs. Chaque chiffre est la médiane de milliers d'élections simulées, avec la fourchette où tombent 8 simulations sur 10.`,
+    thSeats: ['Parti', 'Élus', 'Harfang, médiane', 'Harfang, en tête', 'Orbite, médiane', 'Orbite, en tête'],
+    seatsRead: `Harfang : ${num(seatErr('harfang_median'))} sièges d'écart en moyenne, le PCQ exact. Orbite : ${num(seatErr('orbite_median'))}. Nos fourchettes contenaient le résultat pour ${covered('harfang_80', 'seats')} partis sur 5 (Harfang) et ${covered('orbite_80', 'seats')} sur 5 (Orbite). Les deux ratés de Harfang sont QS (9 élus, 6 projetés) et la CAQ, rayée de la carte : nous lui donnions ${pct(B.odds.caq_zero)} de chances de finir à zéro.`,
+    favTitle: 'La médiane ou la carte ?',
+    favText: (h: string, b: string) => `Sur notre carte, chaque circonscription est colorée selon son favori. Les additionner donne ${h} pour Harfang, un peu moins juste que la médiane : les erreurs locales s'annulent en partie dans le total. Nos probabilités annonçaient d'avance environ ${num(127 - RS.harfang.expected, 0)} circonscriptions où le favori perdrait ; il y en a eu ${127 - RS.harfang.hits}. Le mélange des deux moteurs donne ${b}.`,
+    voteTitle: 'Le vote',
+    thVote: ['Parti', 'Résultat', 'Harfang', 'Orbite', 'Moyenne des sondages'],
+    voteRead: `Harfang tombe à ${num(voteErr('harfang'))} point près en moyenne, mieux que la moyenne des derniers sondages (${num(voteErr('polls'))}). PQ, PLQ et PCQ sont à moins d'un point. Nos deux erreurs sont celles des sondages : la CAQ trop haute de 2 points, QS trop bas de 1,6. Orbite se trompe un peu plus (${num(voteErr('orbite'))}), mais ses fourchettes, plus larges, contenaient les cinq résultats ; celles de Harfang, trois sur cinq.`,
+    ridTitle: 'Les 127 circonscriptions',
+    ridIntro: 'Nombre de circonscriptions où le favori de chaque moteur a gagné.',
+    ridLabels: { harfang: 'Harfang des neiges', orbite: 'Orbite', blend: 'Mélange 50/50' },
+    expected: (x: string) => `${x} attendues selon ses probabilités`,
+    ridRead: `Harfang a eu le nombre de bons gagnants qu'il annonçait : ses probabilités étaient justes. Orbite a eu plus de bons gagnants que prévu : il était trop prudent. Le mélange 50/50 des deux, que nous publions dans les Labs, fait mieux que chacun.`,
+    calTitle: 'Quand on disait…, on avait raison…',
+    thCal: ['Probabilité annoncée', 'Harfang', 'Orbite', 'Mélange'],
+    calRead: `Aucune des 45 circonscriptions données gagnées à 99 % ou plus par Harfang n'a basculé.`,
+    missTitle: 'Nos 17 ratés',
+    missIntro: 'Les circonscriptions où le favori de Harfang a perdu, du raté le plus serré au plus net : en tête, celles où nous donnions déjà de bonnes chances au gagnant.',
+    thMiss: ['Circonscription', 'Gagnant', 'Ses chances selon Harfang', 'Favori de Harfang', 'Orbite', 'Mélange', 'Écart final'],
+    regTitle: 'Où nous nous sommes trompés',
+    regIntro: 'Écart moyen entre notre projection et le résultat, par circonscription, en points. Positif : nous avions le parti trop haut.',
+    thReg: ['Région', 'Circ.', 'Bons'],
+    regRead: `Deux erreurs ressortent. Québec solidaire était sous-estimé de 7 points dans les circonscriptions de Montréal : son vote y est plus concentré que nous le pensions, et il a pris Rosemont, Taschereau et Sherbrooke. Et la CAQ s'est effondrée surtout dans ses anciens châteaux forts de la Beauce et de Québec, au profit du PCQ, alors que nous étalions sa chute plus également.`,
+    disTitle: 'Harfang contre Orbite',
+    disText: `Les deux moteurs ne désignaient pas le même favori dans ${disagree.length} circonscriptions. Orbite avait raison ${orbRight} fois, Harfang ${harRight} fois.`,
+    thDis: ['Circonscription', 'Harfang', 'Orbite', 'Gagnant'],
+    qTitle: 'Orbite sur ordinateur classique et sur puce quantique',
+    qIntro: `La veille du vote, Orbite a tiré ${Q.elections.toLocaleString(loc)} élections sur la puce quantique Fez d'IBM, en ${Q.qpu_seconds} secondes de machine. Même modèle, deux machines : voici ce que chacune donnait.`,
+    thQ: ['', 'Ordinateur classique', 'Puce Fez', 'Résultat'],
+    qRows: { hits: 'Bons gagnants', maj: 'Chances d’une majorité PQ' },
+    qRead: (d: any) => `La puce reproduit le calcul classique presque à l'identique : même nombre de bons gagnants, et une seule circonscription où le favori change (${d.name}, gagnée par ${label(d.winner)}, que les deux machines ratent). Le bruit de la puce déplace environ un siège, surtout vers la CAQ. Les machines quantiques d'aujourd'hui ne rendent pas la projection plus juste ; elles la refont, avec un peu de bruit.`,
+    callTitle: 'Fastest Call, le soir du vote',
+    callText: `Nous avons annoncé le gagnant des ${C.n} circonscriptions, sans qu'aucune annonce soit contredite par le dépouillement. ${C.auto} ont été annoncées automatiquement, quand nos deux moteurs donnaient le feu vert ; ${C.console} après vérification, dont ${C.against_model} contre l'avis du modèle, toutes justes. Le gouvernement péquiste a été annoncé à ${clock(C.government)}, sa minorité à ${clock(C.minority)}.`,
+    callK: [['avant 21 h', '21h'], ['avant 22 h', '22h'], ['avant minuit', '24h']],
+    mediaTitle: 'Nos annonces face aux grands réseaux',
+    mediaIntro: 'Deux annonces comptaient lundi soir : qui formera le gouvernement, puis s’il sera majoritaire ou minoritaire.',
+    thMedia: ['', 'Le PQ formera le gouvernement', 'Gouvernement minoritaire'],
+    media: [['Vote-Scope', '20 h 27', '21 h 22'], ['CTV News', 'vers 20 h 18', '21 h 38'], ['Radio-Canada', '20 h 37', '22 h 00'], ['TVA Nouvelles', 'vers 20 h 45', 'vers 22 h']],
+    mediaRead: 'CTV a été le premier à annoncer le gouvernement péquiste, neuf minutes avant nous. Sur la minorité, l’annonce qui décidait de la soirée, nous étions les premiers : 16 minutes avant CTV et environ 38 minutes avant Radio-Canada et TVA. Si vous suiviez la soirée avec Vote-Scope, vous pouviez aller vous coucher tôt, sans surprise le lendemain matin : aucune de nos 127 annonces n’a été démentie.',
+    mediaSrc: 'Heures des réseaux selon leurs propres reportages et fils en direct ; « vers » quand ils ne donnent pas la minute.',
+    callMedian: `en médiane, ${C.median_minutes} minutes après la fermeture des bureaux`,
+    lessTitle: 'Ce que nous retenons',
+    less: [
+      'Nos fourchettes de vote étaient trop étroites quand tous les sondeurs se trompent dans le même sens, comme sur la CAQ et QS. Nous allons les élargir pour tenir compte de cette erreur commune.',
+      'Notre carte doit mieux suivre où un parti gagne ou perd : un vote concentré à Montréal pour QS, une chute concentrée dans ses châteaux forts pour la CAQ.',
+      'Le mélange de nos deux moteurs a eu plus de bons gagnants que chacun d’eux. Nous allons lui donner plus de place.',
+      'Le soir du vote, afficher côte à côte la médiane des sièges et le décompte des circonscriptions en tête, en disant d’avance combien de circonscriptions risquent de basculer : c’est le portrait le plus honnête.',
+    ],
+    note: 'Résultats préliminaires d’Élections Québec, tous les bureaux dépouillés ; ce bilan sera revu avec les résultats officiels. Projections telles que publiées la veille du vote.',
+    links: [['Méthodologie', '/fr/methodologie'], ['Bulletin des sondeurs', '/fr/methodologie/sondeurs'], ['Les résultats', '/fr/canada/quebec/resultats'], ['Track Record', '/fr/track-record']],
+    seatsUnit: 'sièges', none: '—',
+  },
+  en: {
+    eyebrow: 'Track Record · Quebec election, October 5, 2026',
+    h1: 'Quebec 2026: how we did',
+    lede: `A PQ minority, the Liberals as official opposition, the Conservatives third: that was our most likely outcome. Here is, number by number, what we got right and where we went wrong.`,
+    k: [
+      ['Government', 'PQ minority', `our most likely outcome (${pct(B.odds.pq_minority_first)})`],
+      ['Vote', `${num(voteErr('harfang'))} pt`, 'off per party, on average'],
+      ['Seats', `${num(seatErr('harfang_median'))}`, 'seats off per party, on average'],
+      ['Ridings', `${RS.harfang.hits} / 127`, `right winners, ${pct(RS.harfang.hits / 127)} (blend: ${RS.blend.hits})`],
+      ['Election-night calls', `${C.n} / ${C.n}`, 'none overturned'],
+    ],
+    seatsTitle: 'Seats',
+    seatsIntro: `Our two engines read the same polls. Harfang des neiges is our reference projection; Orbit, our quantum engine, runs alongside it in our Labs. Each number is the median of thousands of simulated elections, with the range where 8 simulations in 10 fall.`,
+    thSeats: ['Party', 'Elected', 'Harfang, median', 'Harfang, leading', 'Orbit, median', 'Orbit, leading'],
+    seatsRead: `Harfang: ${num(seatErr('harfang_median'))} seats off on average, Conservatives exact. Orbit: ${num(seatErr('orbite_median'))}. Our ranges held the result for ${covered('harfang_80', 'seats')} of 5 parties (Harfang) and ${covered('orbite_80', 'seats')} of 5 (Orbit). Harfang's two misses are QS (9 elected, 6 projected) and the CAQ, wiped out: we gave it a ${pct(B.odds.caq_zero)} chance of ending at zero.`,
+    favTitle: 'The median or the map?',
+    favText: (h: string, b: string) => `On our map, each riding is coloured by its favourite. Adding them up gives ${h} for Harfang, slightly less accurate than the median: local misses partly cancel out in the total. Our probabilities announced in advance about ${num(127 - RS.harfang.expected, 0)} ridings where the favourite would lose; there were ${127 - RS.harfang.hits}. The blend of both engines gives ${b}.`,
+    voteTitle: 'The vote',
+    thVote: ['Party', 'Result', 'Harfang', 'Orbit', 'Poll average'],
+    voteRead: `Harfang was within ${num(voteErr('harfang'))} point on average, better than the average of the final polls (${num(voteErr('polls'))}). PQ, Liberals and Conservatives are within a point. Our two misses are the polls' misses: the CAQ 2 points too high, QS 1.6 too low. Orbit misses a bit more (${num(voteErr('orbite'))}), but its wider ranges held all five results; Harfang's held three of five.`,
+    ridTitle: 'The 127 ridings',
+    ridIntro: "Number of ridings where each engine's favourite won.",
+    ridLabels: { harfang: 'Harfang des neiges', orbite: 'Orbit', blend: '50/50 blend' },
+    expected: (x: string) => `${x} expected from its probabilities`,
+    ridRead: `Harfang got the number of right winners it announced: its probabilities were sound. Orbit got more right than expected: it was too cautious. The 50/50 blend of the two, which we publish in the Labs, beat both.`,
+    calTitle: 'When we said…, we were right…',
+    thCal: ['Stated probability', 'Harfang', 'Orbit', 'Blend'],
+    calRead: `None of the 45 ridings Harfang gave at 99% or more flipped.`,
+    missTitle: 'Our 17 misses',
+    missIntro: "Ridings where Harfang's favourite lost, from the closest miss to the clearest: at the top, ridings where we already gave the winner a good chance.",
+    thMiss: ['Riding', 'Winner', 'Its chance per Harfang', "Harfang's favourite", 'Orbit', 'Blend', 'Final margin'],
+    regTitle: 'Where we went wrong',
+    regIntro: 'Average gap between our projection and the result, per riding, in points. Positive: we had the party too high.',
+    thReg: ['Region', 'Ridings', 'Right'],
+    regRead: `Two misses stand out. Québec solidaire was underestimated by 7 points in Montreal ridings: its vote there is more concentrated than we thought, and it took Rosemont, Taschereau and Sherbrooke. And the CAQ collapsed mostly in its former strongholds of the Beauce and Quebec City, to the Conservatives' benefit, while we spread its drop more evenly.`,
+    disTitle: 'Harfang versus Orbit',
+    disText: `The two engines picked different favourites in ${disagree.length} ridings. Orbit was right ${orbRight} times, Harfang ${harRight} times.`,
+    thDis: ['Riding', 'Harfang', 'Orbit', 'Winner'],
+    qTitle: 'Orbit on a regular computer and on a quantum chip',
+    qIntro: `On the eve of the vote, Orbit drew ${Q.elections.toLocaleString(loc)} elections on IBM's Fez quantum chip, in ${Q.qpu_seconds} seconds of machine time. Same model, two machines: here is what each gave.`,
+    thQ: ['', 'Regular computer', 'Fez chip', 'Result'],
+    qRows: { hits: 'Right winners', maj: 'Chance of a PQ majority' },
+    qRead: (d: any) => `The chip reproduces the regular calculation almost exactly: the same number of right winners, and a single riding where the favourite changes (${d.name}, won by ${label(d.winner)}, which both machines miss). The chip's noise moves about one seat, mostly toward the CAQ. Today's quantum machines do not make the projection more accurate; they redo it, with a little noise.`,
+    callTitle: 'Fastest Call, election night',
+    callText: `We called the winner in all ${C.n} ridings, and the count overturned none of the calls. ${C.auto} were called automatically, when both our engines gave the green light; ${C.console} after a check, including ${C.against_model} against the model's view, all right. The PQ government was called at ${clock(C.government)}, its minority at ${clock(C.minority)}.`,
+    callK: [['before 9 p.m.', '21h'], ['before 10 p.m.', '22h'], ['before midnight', '24h']],
+    mediaTitle: 'Our calls versus the major networks',
+    mediaIntro: 'Two calls mattered on Monday night: who would form the government, then whether it would be a majority or a minority.',
+    thMedia: ['', 'PQ to form government', 'Minority government'],
+    media: [['Vote-Scope', '8:27 p.m.', '9:22 p.m.'], ['CTV News', 'about 8:18 p.m.', '9:38 p.m.'], ['Radio-Canada', '8:37 p.m.', '10:00 p.m.'], ['TVA Nouvelles', 'about 8:45 p.m.', 'about 10 p.m.']],
+    mediaRead: 'CTV was first to call the PQ government, nine minutes before us. On the minority, the call that settled the night, we were first: 16 minutes ahead of CTV and about 38 minutes ahead of Radio-Canada and TVA. If you followed the night on Vote-Scope, you could go to bed early with no surprise the next morning: none of our 127 calls was overturned.',
+    mediaSrc: 'Network times from their own reports and live blogs; "about" where they do not give the minute.',
+    callMedian: `a median ${C.median_minutes} minutes after polls closed`,
+    lessTitle: 'What we take away',
+    less: [
+      'Our vote ranges were too narrow when every pollster misses in the same direction, as with the CAQ and QS. We will widen them to account for that shared error.',
+      'Our map must better track where a party gains or loses: a vote concentrated in Montreal for QS, a drop concentrated in its strongholds for the CAQ.',
+      'The blend of our two engines picked more right winners than either. We will give it a bigger role.',
+      'On election night, show the seat median and the count of ridings each party leads side by side, saying in advance how many ridings may flip: that is the most honest picture.',
+    ],
+    note: 'Preliminary results from Élections Québec, all polls counted; this review will be updated with the official results. Projections as published on the eve of the vote.',
+    links: [['Methodology', '/en/methodology'], ['Pollster report card', '/en/methodology/pollsters'], ['The results', '/en/canada/quebec/results'], ['Track Record', '/en/track-record']],
+    seatsUnit: 'seats', none: '—',
+  },
+  es: {
+    eyebrow: 'Historial · elecciones de Quebec del 5 de octubre de 2026',
+    h1: 'Quebec 2026: nuestro balance',
+    lede: `El PQ en minoría, el PLQ como oposición oficial, el PCQ tercero: era nuestro escenario más probable. Aquí está, cifra por cifra, lo que acertamos y dónde nos equivocamos.`,
+    k: [
+      ['El gobierno', 'PQ en minoría', `nuestro desenlace más probable (${pct(B.odds.pq_minority_first)})`],
+      ['Voto', `${num(voteErr('harfang'))} pt`, 'de error medio por partido'],
+      ['Escaños', `${num(seatErr('harfang_median'))}`, 'escaños de error medio por partido'],
+      ['Distritos', `${RS.harfang.hits} / 127`, `ganadores acertados, ${pct(RS.harfang.hits / 127)} (mezcla: ${RS.blend.hits})`],
+      ['Anuncios de la noche', `${C.n} / ${C.n}`, 'ninguno desmentido'],
+    ],
+    seatsTitle: 'Los escaños',
+    seatsIntro: `Nuestros dos motores leen las mismas encuestas. Harfang des neiges es nuestra proyección de referencia; Órbita, nuestro motor cuántico, la acompaña en nuestros Labs. Cada cifra es la mediana de miles de elecciones simuladas, con el rango donde caen 8 simulaciones de cada 10.`,
+    thSeats: ['Partido', 'Electos', 'Harfang, mediana', 'Harfang, en cabeza', 'Órbita, mediana', 'Órbita, en cabeza'],
+    seatsRead: `Harfang: ${num(seatErr('harfang_median'))} escaños de error medio, el PCQ exacto. Órbita: ${num(seatErr('orbite_median'))}. Nuestros rangos contenían el resultado para ${covered('harfang_80', 'seats')} partidos de 5 (Harfang) y ${covered('orbite_80', 'seats')} de 5 (Órbita). Los dos fallos de Harfang son QS (9 electos, 6 proyectados) y la CAQ, borrada del mapa: le dábamos un ${pct(B.odds.caq_zero)} de probabilidad de terminar en cero.`,
+    favTitle: '¿La mediana o el mapa?',
+    favText: (h: string, b: string) => `En nuestro mapa, cada distrito se colorea según su favorito. Sumarlos da ${h} para Harfang, algo menos preciso que la mediana: los errores locales se compensan en parte en el total. Nuestras probabilidades anunciaban de antemano unos ${num(127 - RS.harfang.expected, 0)} distritos donde el favorito perdería; hubo ${127 - RS.harfang.hits}. La mezcla de ambos motores da ${b}.`,
+    voteTitle: 'El voto',
+    thVote: ['Partido', 'Resultado', 'Harfang', 'Órbita', 'Media de encuestas'],
+    voteRead: `Harfang queda a ${num(voteErr('harfang'))} punto de media, mejor que la media de las últimas encuestas (${num(voteErr('polls'))}). PQ, PLQ y PCQ están a menos de un punto. Nuestros dos fallos son los de las encuestas: la CAQ 2 puntos alta, QS 1,6 baja. Órbita falla algo más (${num(voteErr('orbite'))}), pero sus rangos, más amplios, contenían los cinco resultados; los de Harfang, tres de cinco.`,
+    ridTitle: 'Los 127 distritos',
+    ridIntro: 'Número de distritos donde ganó el favorito de cada motor.',
+    ridLabels: { harfang: 'Harfang des neiges', orbite: 'Órbita', blend: 'Mezcla 50/50' },
+    expected: (x: string) => `${x} esperados según sus probabilidades`,
+    ridRead: `Harfang acertó tantos ganadores como anunciaba: sus probabilidades eran justas. Órbita acertó más de lo previsto: era demasiado prudente. La mezcla 50/50 de ambos, que publicamos en los Labs, supera a cada uno.`,
+    calTitle: 'Cuando decíamos…, acertábamos…',
+    thCal: ['Probabilidad anunciada', 'Harfang', 'Órbita', 'Mezcla'],
+    calRead: `Ninguno de los 45 distritos que Harfang daba al 99 % o más cambió de manos.`,
+    missTitle: 'Nuestros 17 fallos',
+    missIntro: 'Los distritos donde perdió el favorito de Harfang, del fallo más ajustado al más claro: arriba, aquellos donde ya dábamos buenas probabilidades al ganador.',
+    thMiss: ['Distrito', 'Ganador', 'Sus probabilidades según Harfang', 'Favorito de Harfang', 'Órbita', 'Mezcla', 'Margen final'],
+    regTitle: 'Dónde nos equivocamos',
+    regIntro: 'Diferencia media entre nuestra proyección y el resultado, por distrito, en puntos. Positivo: teníamos al partido demasiado alto.',
+    thReg: ['Región', 'Distr.', 'Aciertos'],
+    regRead: `Destacan dos errores. Québec solidaire estaba subestimado en 7 puntos en los distritos de Montreal: su voto allí está más concentrado de lo que pensábamos, y ganó Rosemont, Taschereau y Sherbrooke. Y la CAQ se hundió sobre todo en sus antiguos bastiones de la Beauce y Quebec, en beneficio del PCQ, mientras nosotros repartíamos su caída de forma más pareja.`,
+    disTitle: 'Harfang frente a Órbita',
+    disText: `Los dos motores no tenían el mismo favorito en ${disagree.length} distritos. Órbita acertó ${orbRight} veces, Harfang ${harRight}.`,
+    thDis: ['Distrito', 'Harfang', 'Órbita', 'Ganador'],
+    qTitle: 'Órbita en un ordenador clásico y en un chip cuántico',
+    qIntro: `La víspera de la votación, Órbita sorteó ${Q.elections.toLocaleString(loc)} elecciones en el chip cuántico Fez de IBM, en ${Q.qpu_seconds} segundos de máquina. Mismo modelo, dos máquinas: esto daba cada una.`,
+    thQ: ['', 'Ordenador clásico', 'Chip Fez', 'Resultado'],
+    qRows: { hits: 'Ganadores acertados', maj: 'Probabilidad de mayoría del PQ' },
+    qRead: (d: any) => `El chip reproduce el cálculo clásico casi idéntico: el mismo número de ganadores acertados, y un solo distrito donde cambia el favorito (${d.name}, ganado por ${label(d.winner)}, que ambas máquinas fallan). El ruido del chip mueve cerca de un escaño, sobre todo hacia la CAQ. Las máquinas cuánticas de hoy no hacen la proyección más precisa; la rehacen, con algo de ruido.`,
+    callTitle: 'Fastest Call, la noche electoral',
+    callText: `Anunciamos el ganador de los ${C.n} distritos, sin que el escrutinio desmintiera ningún anuncio. ${C.auto} se anunciaron automáticamente, cuando nuestros dos motores daban luz verde; ${C.console} tras una verificación, ${C.against_model} de ellos contra la opinión del modelo, todos acertados. El gobierno del PQ se anunció a las ${clock(C.government)}, su minoría a las ${clock(C.minority)}.`,
+    callK: [['antes de las 21:00', '21h'], ['antes de las 22:00', '22h'], ['antes de medianoche', '24h']],
+    mediaTitle: 'Nuestros anuncios frente a las grandes cadenas',
+    mediaIntro: 'Dos anuncios contaban el lunes por la noche: quién formaría el gobierno y si sería mayoritario o minoritario.',
+    thMedia: ['', 'El PQ formará gobierno', 'Gobierno minoritario'],
+    media: [['Vote-Scope', '20:27', '21:22'], ['CTV News', 'hacia las 20:18', '21:38'], ['Radio-Canada', '20:37', '22:00'], ['TVA Nouvelles', 'hacia las 20:45', 'hacia las 22:00']],
+    mediaRead: 'CTV fue la primera en anunciar el gobierno del PQ, nueve minutos antes que nosotros. Sobre la minoría, el anuncio que decidía la noche, fuimos los primeros: 16 minutos antes que CTV y unos 38 minutos antes que Radio-Canada y TVA. Si seguía la noche con Vote-Scope, podía irse a dormir temprano sin sorpresas a la mañana siguiente: ninguno de nuestros 127 anuncios fue desmentido.',
+    mediaSrc: 'Horas de las cadenas según sus propios reportajes y directos; «hacia» cuando no dan el minuto.',
+    callMedian: `una mediana de ${C.median_minutes} minutos tras el cierre de las mesas`,
+    lessTitle: 'Lo que retenemos',
+    less: [
+      'Nuestros rangos de voto eran demasiado estrechos cuando todas las encuestadoras fallan en el mismo sentido, como con la CAQ y QS. Los ampliaremos para tener en cuenta ese error común.',
+      'Nuestro mapa debe seguir mejor dónde gana o pierde un partido: un voto concentrado en Montreal para QS, una caída concentrada en sus bastiones para la CAQ.',
+      'La mezcla de nuestros dos motores acertó más ganadores que cada uno. Le daremos más peso.',
+      'La noche electoral, mostrar juntos la mediana de escaños y el recuento de distritos en cabeza, diciendo de antemano cuántos distritos pueden cambiar: es el retrato más honesto.',
+    ],
+    note: 'Resultados preliminares de Élections Québec, todas las mesas escrutadas; este balance se revisará con los resultados oficiales. Proyecciones tal como se publicaron la víspera.',
+    links: [['Metodología', '/es/metodologia'], ['Boletín de encuestadoras', '/es/metodologia/encuestadoras'], ['Los resultados', '/es/canada/quebec/resultados'], ['Historial', '/es/track-record']],
+    seatsUnit: 'escaños', none: '—',
+  },
+}[locale];
+
+const favLine = (k: string) => PARTIES.map((p) => `${label(p)} ${B.seats[p][k]}`).join(', ');
+const favErr = (k: string) => num(seatErr(k));
+const favH = `${favLine('harfang_fav')} (${favErr('harfang_fav')} ${T.seatsUnit})`;
+const favB = `${favLine('blend_fav')} (${favErr('blend_fav')})`;
+const range = (r: number[], d = 0) => `${num(r[0], d)}–${num(r[1], d)}`;
+const calRows = RS.harfang.calibration.map((c: any, i: number) => ({
+  label: c.from >= 0.99 ? '≥ 99 %' : `${Math.round(c.from * 100)}–${Math.round(c.to * 100)} %`,
+  n: c.n, h: c.got, o: RS.orbite.calibration[i]?.got, b: RS.blend.calibration[i]?.got,
+}));
+const pctCell = (x: number | undefined) => (x == null ? T.none : pct(x));
+---
+
+<article class="qr" data-content-area>
+  <header class="container qr-head">
+    <p class="eyebrow">{T.eyebrow}</p>
+    <h1>{T.h1}</h1>
+    <p class="qr-lede">{T.lede}</p>
+  </header>
+
+  <section class="container qr-keys">
+    {T.k.map(([k, v, s]) => (<div><span>{k}</span><strong>{v}</strong><em>{s}</em></div>))}
+  </section>
+
+  <section class="container qr-block">
+    <h2>{T.seatsTitle}</h2>
+    <p class="qr-intro">{T.seatsIntro}</p>
+    <div class="qr-scroll">
+      <table>
+        <thead><tr>{T.thSeats.map((h) => <th>{h}</th>)}</tr></thead>
+        <tbody>
+          {PARTIES.map((p) => {
+            const s = B.seats[p];
+            return (
+              <tr>
+                <th scope="row"><i class="chip" style={`--c:${color(p)}`}></i>{label(p)}</th>
+                <td class="qr-strong">{res.seats[p]}</td>
+                <td>{s.harfang_median} <small class={inRange(res.seats[p], s.harfang_80) ? '' : 'out'}>{range(s.harfang_80)}</small></td>
+                <td>{s.harfang_fav}</td>
+                <td>{s.orbite_median} <small class={inRange(res.seats[p], s.orbite_80) ? '' : 'out'}>{range(s.orbite_80)}</small></td>
+                <td>{s.orbite_fav}</td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+    <p>{T.seatsRead}</p>
+    <h3>{T.favTitle}</h3>
+    <p>{T.favText(favH, favB)}</p>
+  </section>
+
+  <section class="container qr-block">
+    <h2>{T.voteTitle}</h2>
+    <div class="qr-scroll">
+      <table>
+        <thead><tr>{T.thVote.map((h) => <th>{h}</th>)}</tr></thead>
+        <tbody>
+          {PARTIES.map((p) => {
+            const v = B.vote[p];
+            return (
+              <tr>
+                <th scope="row"><i class="chip" style={`--c:${color(p)}`}></i>{label(p)}</th>
+                <td class="qr-strong">{num(res.vote[p])}</td>
+                <td>{num(v.harfang)} <small class={inRange(res.vote[p], v.harfang_80) ? '' : 'out'}>{range(v.harfang_80, 1)}</small></td>
+                <td>{num(v.orbite)} <small class={inRange(res.vote[p], v.orbite_80) ? '' : 'out'}>{range(v.orbite_80, 1)}</small></td>
+                <td>{num(v.polls)}</td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+    <p>{T.voteRead}</p>
+  </section>
+
+  <section class="container qr-block">
+    <h2>{T.ridTitle}</h2>
+    <p class="qr-intro">{T.ridIntro}</p>
+    <div class="qr-engines">
+      {(['harfang', 'orbite', 'blend'] as const).map((k) => (
+        <div class={k === 'blend' ? 'is-best' : ''}>
+          <span>{T.ridLabels[k]}</span>
+          <strong>{RS[k].hits}<small> / 127 · {pct(RS[k].hits / 127)}</small></strong>
+          <div class="qr-meter" aria-hidden="true"><i style={`width:${(RS[k].hits / 127) * 100}%`}></i></div>
+          <em>{T.expected(num(RS[k].expected, 0))}</em>
+        </div>
+      ))}
+    </div>
+    <p>{T.ridRead}</p>
+    <h3>{T.calTitle}</h3>
+    <div class="qr-scroll">
+      <table>
+        <thead><tr>{T.thCal.map((h) => <th>{h}</th>)}</tr></thead>
+        <tbody>
+          {calRows.map((c: any) => (
+            <tr><th scope="row">{locale === 'en' ? c.label.replace(' %', '%') : c.label}</th><td>{pctCell(c.h)}</td><td>{pctCell(c.o)}</td><td>{pctCell(c.b)}</td></tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <p class="qr-small">{T.calRead}</p>
+  </section>
+
+  <section class="container qr-block">
+    <h2>{T.missTitle}</h2>
+    <p class="qr-intro">{T.missIntro}</p>
+    <div class="qr-scroll">
+      <table>
+        <thead><tr>{T.thMiss.map((h) => <th>{h}</th>)}</tr></thead>
+        <tbody>
+          {misses.map((r: any) => (
+            <tr>
+              <th scope="row">{hrefOf(r.id) ? <a href={hrefOf(r.id)}>{r.name}</a> : r.name}</th>
+              <td><i class="chip" style={`--c:${color(r.winner)}`}></i>{label(r.winner)}</td>
+              <td class="qr-strong">{pct(r.harfang.p_winner)}</td>
+              <td>{label(r.harfang.fav)} <small>{pct(r.harfang.p)}</small></td>
+              <td class={r.orbite.fav === r.winner ? 'ok' : ''}>{label(r.orbite.fav)} <small>{pct(r.orbite.p)}</small></td>
+              <td class={r.blend.fav === r.winner ? 'ok' : ''}>{label(r.blend.fav)} <small>{pct(r.blend.p)}</small></td>
+              <td>{num(r.margin)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="container qr-block">
+    <h2>{T.regTitle}</h2>
+    <p class="qr-intro">{T.regIntro}</p>
+    <div class="qr-scroll">
+      <table>
+        <thead><tr>{T.thReg.map((h) => <th>{h}</th>)}{PARTIES.map((p) => <th>{label(p)}</th>)}</tr></thead>
+        <tbody>
+          {B.regions.map((g: any) => (
+            <tr>
+              <th scope="row">{REGIONS[g.key]?.[locale] ?? g.key}</th>
+              <td>{g.n}</td><td>{g.hits}</td>
+              {PARTIES.map((p) => <td class={Math.abs(g.err[p]) >= 4 ? 'big' : ''}>{pt(g.err[p])}</td>)}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <p>{T.regRead}</p>
+  </section>
+
+  <section class="container qr-block">
+    <h2>{T.disTitle}</h2>
+    <p>{T.disText}</p>
+    <div class="qr-scroll">
+      <table>
+        <thead><tr>{T.thDis.map((h) => <th>{h}</th>)}</tr></thead>
+        <tbody>
+          {disagree.map((r: any) => (
+            <tr>
+              <th scope="row">{hrefOf(r.id) ? <a href={hrefOf(r.id)}>{r.name}</a> : r.name}</th>
+              <td class={r.harfang.fav === r.winner ? 'ok' : ''}>{label(r.harfang.fav)} <small>{pct(r.harfang.p)}</small></td>
+              <td class={r.orbite.fav === r.winner ? 'ok' : ''}>{label(r.orbite.fav)} <small>{pct(r.orbite.p)}</small></td>
+              <td><i class="chip" style={`--c:${color(r.winner)}`}></i>{label(r.winner)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="container qr-block">
+    <h2>{T.qTitle}</h2>
+    <p class="qr-intro">{T.qIntro}</p>
+    <div class="qr-scroll">
+      <table>
+        <thead><tr>{T.thQ.map((h) => <th>{h}</th>)}</tr></thead>
+        <tbody>
+          {PARTIES.map((p) => (
+            <tr>
+              <th scope="row"><i class="chip" style={`--c:${color(p)}`}></i>{label(p)} <small>({T.seatsUnit})</small></th>
+              <td>{num(Q.seats[p].classical)}</td><td>{num(Q.seats[p].quantum)}</td><td class="qr-strong">{res.seats[p]}</td>
+            </tr>
+          ))}
+          <tr><th scope="row">{T.qRows.hits}</th><td>{Q.ridings.exact.hits}</td><td>{Q.ridings.drawn.hits}</td><td>127</td></tr>
+          <tr><th scope="row">{T.qRows.maj}</th><td>{pct(Q.pq_majority.classical)}</td><td>{pct(Q.pq_majority.quantum)}</td><td>{T.none}</td></tr>
+        </tbody>
+      </table>
+    </div>
+    {Q.differs.length > 0 && <p>{T.qRead(Q.differs[0])}</p>}
+  </section>
+
+  <section class="container qr-block">
+    <h2>{T.callTitle}</h2>
+    <p>{T.callText}</p>
+    <div class="qr-calls">
+      {T.callK.map(([l, k]) => (
+        <div><strong>{C.by_hour[k]}</strong><span>{l}</span><div class="qr-meter" aria-hidden="true"><i style={`width:${(C.by_hour[k] / C.n) * 100}%`}></i></div></div>
+      ))}
+    </div>
+    <p class="qr-small">{C.n} {locale === 'fr' ? 'annonces' : locale === 'es' ? 'anuncios' : 'calls'} · {T.callMedian}</p>
+  </section>
+
+  <section class="container qr-block">
+    <h2>{T.mediaTitle}</h2>
+    <p class="qr-intro">{T.mediaIntro}</p>
+    <div class="qr-scroll">
+      <table>
+        <thead><tr>{T.thMedia.map((h) => <th>{h}</th>)}</tr></thead>
+        <tbody>
+          {T.media.map(([n, g, m], i) => (
+            <tr class={i === 0 ? 'qr-us' : ''}><th scope="row">{n}</th><td>{g}</td><td>{m}</td></tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <p>{T.mediaRead}</p>
+    <p class="qr-small">{T.mediaSrc}</p>
+  </section>
+
+  <section class="container qr-block">
+    <h2>{T.lessTitle}</h2>
+    <ul class="qr-less">{T.less.map((l) => <li>{l}</li>)}</ul>
+  </section>
+
+  <section class="container qr-foot">
+    <p>{T.note}</p>
+    <nav>{T.links.map(([l, h]) => <a href={h}>{l} →</a>)}</nav>
+  </section>
+</article>
+
+<style>
+  .qr-head { padding-top: 2rem; display: grid; gap: .75rem; }
+  .qr-head h1 { font-family: var(--serif); font-size: clamp(2rem, 4.5vw, 3rem); line-height: 1.08; text-wrap: balance; }
+  .qr-lede { font-family: var(--serif); font-size: clamp(1.05rem, 1.8vw, 1.25rem); line-height: 1.55; color: var(--ink-2); max-width: 68ch; }
+  .qr-keys { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: .75rem; margin: 1.75rem auto; }
+  .qr-keys > div { border: 1px solid var(--rule); background: var(--card); border-radius: 8px; padding: .9rem 1rem; display: flex; flex-direction: column; gap: .2rem; }
+  .qr-keys span { font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
+  .qr-keys strong { font-family: var(--serif); font-size: 1.7rem; font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1.15; }
+  .qr-keys em { font-style: normal; font-size: .88rem; color: var(--ink-2); }
+  .qr-block { margin: 2.5rem auto; display: grid; gap: .9rem; }
+  .qr-block h2 { font-family: var(--serif); font-size: 1.6rem; line-height: 1.2; }
+  .qr-block h3 { font-family: var(--serif); font-size: 1.15rem; margin-top: .5rem; }
+  .qr-block p { max-width: 70ch; line-height: 1.6; color: var(--ink-2); }
+  .qr-intro { color: var(--ink-3) !important; }
+  .qr-small { font-size: .9rem; color: var(--ink-3) !important; }
+  .qr-scroll { overflow-x: auto; }
+  .qr table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; font-size: .95rem; }
+  .qr th, .qr td { text-align: right; padding: .5rem .6rem; border-bottom: 1px solid var(--rule-2); white-space: nowrap; }
+  .qr th:first-child { text-align: left; }
+  .qr thead th { font-family: var(--mono); font-size: 11px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); border-bottom: 1px solid var(--rule); }
+  .qr tbody th { font-weight: 500; }
+  .qr tbody th a { color: var(--blue); text-decoration: underline; text-underline-offset: 3px; }
+  .qr td small, .qr th small { color: var(--ink-3); font-size: .8rem; margin-left: .25rem; }
+  .qr td small.out { color: var(--red); }
+  .qr td.ok { color: var(--blue); font-weight: 600; }
+  .qr td.big { color: var(--red); font-weight: 600; }
+  .qr-strong { font-weight: 700; }
+  .qr tr.qr-us th, .qr tr.qr-us td { font-weight: 700; color: var(--blue); }
+  .chip { display: inline-block; width: .7rem; height: .7rem; border-radius: 2px; background: var(--c); margin-right: .45rem; vertical-align: -1px; }
+  .qr-engines { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: .75rem; }
+  .qr-engines > div { border: 1px solid var(--rule); border-radius: 8px; padding: 1rem; display: grid; gap: .35rem; background: var(--card); }
+  .qr-engines > div.is-best { border-color: var(--blue); }
+  .qr-engines span { font-size: .9rem; color: var(--ink-2); font-weight: 500; }
+  .qr-engines strong { font-family: var(--serif); font-size: 2.2rem; line-height: 1; font-variant-numeric: tabular-nums; }
+  .qr-engines strong small { font-size: 1rem; color: var(--ink-3); font-weight: 400; }
+  .qr-engines em { font-style: normal; font-size: .85rem; color: var(--ink-3); }
+  .qr-meter { height: 6px; background: var(--paper-2); border-radius: 3px; overflow: hidden; }
+  .qr-meter i { display: block; height: 100%; background: var(--blue); }
+  .qr-calls { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: .75rem; }
+  .qr-calls > div { display: grid; gap: .3rem; }
+  .qr-calls strong { font-family: var(--serif); font-size: 1.9rem; line-height: 1; font-variant-numeric: tabular-nums; }
+  .qr-calls span { font-size: .88rem; color: var(--ink-3); }
+  .qr-less { display: grid; gap: .6rem; padding-left: 1.2rem; max-width: 70ch; color: var(--ink-2); line-height: 1.6; }
+  .qr-foot { margin: 2.5rem auto 3rem; border-top: 1px solid var(--rule); padding-top: 1.25rem; display: grid; gap: .75rem; }
+  .qr-foot p { font-size: .9rem; color: var(--ink-3); max-width: 75ch; }
+  .qr-foot nav { display: flex; flex-wrap: wrap; gap: .5rem 1.25rem; }
+  .qr-foot a { color: var(--blue); font-weight: 500; }
+</style>

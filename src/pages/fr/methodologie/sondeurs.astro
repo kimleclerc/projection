@@ -1,0 +1,33 @@
+---
+import EditorialLayout from '../../../layouts/EditorialLayout.astro';
+import PollsterScorecards from '../../../components/PollsterScorecards.astro';
+
+const canonical = 'https://vote-scope.com/fr/methodologie/sondeurs';
+const title = 'Bulletin des sondeurs : quels sondages croire? Léger, Pallas, Mainstreet… | Vote-Scope';
+const description = 'Le classement des maisons de sondage selon leur justesse, élection après élection : Léger, Forum, Pallas, Research Co., Liaison, Synopsis, Mainstreet au Québec 2026.';
+const alternates = { fr: 'https://vote-scope.com/fr/methodologie/sondeurs', en: 'https://vote-scope.com/en/methodology/pollsters', es: 'https://vote-scope.com/es/metodologia/encuestadoras' };
+---
+
+<EditorialLayout
+  title={title}
+  description={description}
+  canonical={canonical}
+  lang="fr"
+  currentPage="methodology"
+  ogImage="https://vote-scope.com/og/projections/quebec/fr.png"
+  alternates={alternates}
+  jsonLd={[
+    { '@context': 'https://schema.org', '@type': 'WebPage', name: title, description, url: canonical, inLanguage: 'fr' },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: 'https://vote-scope.com/fr/' },
+        { '@type': 'ListItem', position: 2, name: 'Méthodologie', item: 'https://vote-scope.com/fr/methodologie' },
+        { '@type': 'ListItem', position: 3, name: 'Bulletin des sondeurs', item: 'https://vote-scope.com/fr/methodologie/sondeurs' },
+      ],
+    },
+  ]}
+>
+  <PollsterScorecards locale="fr" />
+</EditorialLayout>

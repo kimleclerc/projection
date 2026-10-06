@@ -1,0 +1,33 @@
+---
+import EditorialLayout from '../../../layouts/EditorialLayout.astro';
+import QuebecReview2026 from '../../../components/QuebecReview2026.astro';
+
+const canonical = 'https://vote-scope.com/fr/track-record/quebec-2026';
+const title = 'Élections Québec 2026 : notre bilan, ce qu’on a vu juste et nos erreurs | Vote-Scope';
+const description = 'Notre projection de l’élection québécoise du 5 octobre 2026 face au résultat : sièges, vote, 127 circonscriptions, nos deux moteurs, le mélange 50/50 et nos annonces du soir.';
+const alternates = { fr: 'https://vote-scope.com/fr/track-record/quebec-2026', en: 'https://vote-scope.com/en/track-record/quebec-2026', es: 'https://vote-scope.com/es/track-record/quebec-2026' };
+---
+
+<EditorialLayout
+  title={title}
+  description={description}
+  canonical={canonical}
+  lang="fr"
+  currentPage="intl"
+  ogImage="https://vote-scope.com/og/projections/quebec/fr.png"
+  alternates={alternates}
+  jsonLd={[
+    { '@context': 'https://schema.org', '@type': 'WebPage', name: title, description, url: canonical, inLanguage: 'fr' },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: 'https://vote-scope.com/fr/' },
+        { '@type': 'ListItem', position: 2, name: 'Track Record', item: 'https://vote-scope.com/fr/track-record' },
+        { '@type': 'ListItem', position: 3, name: 'Québec 2026', item: 'https://vote-scope.com/fr/track-record/quebec-2026' },
+      ],
+    },
+  ]}
+>
+  <QuebecReview2026 locale="fr" />
+</EditorialLayout>
