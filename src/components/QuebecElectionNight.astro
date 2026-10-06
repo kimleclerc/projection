@@ -100,6 +100,7 @@ const liveRidings = (ridingsSource as any).ridings.map((r: any) => ({
 }));
 // Sièges projetés avant le scrutin, pour la jauge « vs projection ».
 const projectedSeats = Object.fromEntries(quebecMeta.parties.map((p: any) => [p.party, p.seats_projected]));
+const projectedBy = Object.fromEntries((ridingsSource as any).ridings.map((r: any) => [r.riding_id, r.projection?.winner]).filter(([, w]: any) => w));
 const pollsBase = { fr: 'sondages', en: 'polls', es: 'sondeos' }[locale];
 
 // ── Textes ─────────────────────────────────────────────────────────
@@ -243,7 +244,7 @@ const runDateText = new Intl.DateTimeFormat(
 
 <section class="qen-live">
   <div class="container">
-    <QuebecElectionNightLive client:load eventId={LIVE_EVENT_ID} lang={locale} apiBase={liveApiBase} fallbackApiBase={liveFallbackApiBase} projected={projectedSeats} />
+    <QuebecElectionNightLive client:load eventId={LIVE_EVENT_ID} lang={locale} apiBase={liveApiBase} fallbackApiBase={liveFallbackApiBase} projected={projectedSeats} projectedBy={projectedBy} />
   </div>
 </section>
 

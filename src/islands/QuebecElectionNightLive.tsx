@@ -69,7 +69,7 @@ const copy = {
         before: 'Les premiers résultats arrivent le lundi 5 octobre à 20 h, à la fermeture des bureaux. Gardez cette page dans vos favoris : elle se mettra à jour d’elle-même.',
         anomaliesBlocked: 'aucun appel automatique possible', anomaliesOverridden: 'des appels automatiques ont été publiés malgré l’anomalie',
         party: 'Parti', elected: 'Élus', ahead: 'En tête', total: 'Total', vsProj: 'Écart', projCol: 'Projection', projTitle: 'Par rapport à notre projection',
-        projNote: (n: number) => `Élus et en tête comparés aux sièges que notre projection d’avant-scrutin donnait à chaque parti. Les premiers bureaux trompent : à lire après une heure de dépouillement (${n} circonscriptions sur 127 ont des résultats).`,
+        projNote: (n: number) => `Projection : les sièges que notre projection d’avant-scrutin donnait à chaque parti dans les ${n} circonscriptions qui ont déjà des résultats. Écart : élus et en tête moins cette projection. Les premiers bureaux trompent : l’écart se stabilise avec le dépouillement.`,
         better: 'mieux que prévu', worse: 'moins bien que prévu', asExpected: 'comme prévu',
         govTitle: 'L’Assemblée nationale', govNone: 'Aucun appel sur le gouvernement pour l’instant : il faut d’abord que des circonscriptions soient annoncées.',
         gov: (p: string) => `${p} formera le gouvernement`, govMaj: (p: string) => `Gouvernement ${p} majoritaire`,
@@ -87,7 +87,7 @@ const copy = {
         before: 'The first results arrive on Monday, October 5 at 8 p.m., when polls close. Bookmark this page: it will update on its own.',
         anomaliesBlocked: 'no automatic call possible', anomaliesOverridden: 'automatic calls were published over the anomaly',
         party: 'Party', elected: 'Elected', ahead: 'Leading', total: 'Total', vsProj: 'Gap', projCol: 'Forecast', projTitle: 'Compared with our forecast',
-        projNote: (n: number) => `Elected and leading seats compared with what our pre-election forecast gave each party. Early polls mislead: read this after an hour of counting (${n} of 127 ridings are reporting).`,
+        projNote: (n: number) => `Forecast: the seats our pre-election forecast gave each party in the ${n} ridings already reporting. Gap: elected and leading minus that forecast. Early polls mislead: the gap settles as the count goes on.`,
         better: 'better than forecast', worse: 'worse than forecast', asExpected: 'as forecast',
         govTitle: 'The National Assembly', govNone: 'No call on the government yet: ridings have to be called first.',
         gov: (p: string) => `${p} will form the government`, govMaj: (p: string) => `${p} majority government`,
@@ -105,7 +105,7 @@ const copy = {
         before: 'Los primeros resultados llegan el lunes 5 de octubre a las 20:00, al cierre de las urnas. Guarda esta página en tus favoritos: se actualizará sola.',
         anomaliesBlocked: 'sin asignación automática', anomaliesOverridden: 'se publicaron asignaciones automáticas pese a la anomalía',
         party: 'Partido', elected: 'Electos', ahead: 'En cabeza', total: 'Total', vsProj: 'Diferencia', projCol: 'Proyección', projTitle: 'Frente a nuestra proyección',
-        projNote: (n: number) => `Electos y en cabeza comparados con los escaños que nuestra proyección previa daba a cada partido. Las primeras mesas engañan: léase tras una hora de recuento (${n} de 127 distritos con resultados).`,
+        projNote: (n: number) => `Proyección: los escaños que nuestra proyección previa daba a cada partido en los ${n} distritos que ya tienen resultados. Diferencia: electos y en cabeza menos esa proyección. Las primeras mesas engañan: la diferencia se estabiliza con el recuento.`,
         better: 'mejor de lo previsto', worse: 'peor de lo previsto', asExpected: 'como se previó',
         govTitle: 'La Asamblea Nacional', govNone: 'Aún no hay anuncio sobre el gobierno: primero deben anunciarse distritos.',
         gov: (p: string) => `${p} formará el gobierno`, govMaj: (p: string) => `Gobierno mayoritario del ${p}`,
@@ -134,10 +134,12 @@ function num(v: number, locale: Locale, digits = 1): string {
   return v.toLocaleString(locale === 'en' ? 'en-CA' : locale === 'es' ? 'es-ES' : 'fr-CA', { minimumFractionDigits: digits, maximumFractionDigits: digits });
 }
 
-export default function QuebecElectionNightLive({ eventId, lang, apiBase, fallbackApiBase, headless = false, projected = {} }:
+export default function QuebecElectionNightLive({ eventId, lang, apiBase, fallbackApiBase, headless = false, projected = {}, projectedBy = {} }:
   { eventId: string; lang: Locale; apiBase: string; fallbackApiBase?: string;
     /** Sièges projetés avant le scrutin, par parti (jauge « vs projection »). */
     projected?: Record<string, number>;
+    /** Gagnant projeté par circonscription : l'écart se mesure sur les MÊMES circonscriptions. */
+    projectedBy?: Record<string, string>;
     /** Lit et diffuse le direct sans rien afficher (pages de circonscription). */
     headless?: boolean }) {
   const t = copy[lang];
@@ -325,6 +327,13 @@ export default function QuebecElectionNightLive({ eventId, lang, apiBase, fallba
   }, [data, meta]);
 
   const gov = useMemo(() => governmentStatus(data as any), [data]);
+  // Projection restreinte aux circonscriptions qui ont des résultats (élus + en tête).
+  const projectedHere = useMemo(() => {
+    const acc: Record<string, number> = {};
+    for (const row of rows) if (row.party) { const w = projectedBy[row.id]; if (w) acc[w] = (acc[w] ?? 0) + 1; }
+    return acc;
+  }, [rows, projectedBy]);
+  const useHere = Object.keys(projectedBy).length > 0;
   const reporting = (data?.results ?? []).filter((r) => (r.polls?.reported ?? 0) > 0).length;
   const sourceStamp = data?.source?.source_updated_at ?? null;
   const ageMin = sourceStamp ? Math.floor((now - new Date(sourceStamp).getTime()) / 60_000) : null;
@@ -369,7 +378,7 @@ export default function QuebecElectionNightLive({ eventId, lang, apiBase, fallba
               {[...tally, ...Object.entries(projected).filter(([code, n]) => n > 0 && !tally.some((x) => x.code === code))
                   .map(([code]) => ({ code, called: 0, leading: 0, total: 0, ...(meta.get(code) ?? { color: '#78909c', label: code.toUpperCase() }) }))
               ].map((p) => {
-                const proj = projected[p.code];
+                const proj = useHere ? (projectedHere[p.code] ?? 0) : projected[p.code];
                 const d = typeof proj === 'number' ? p.total - proj : null;
                 return <tr key={p.code}>
                   <th scope="row"><i style={`background:${p.color}`}></i>{p.label}</th>
@@ -383,7 +392,7 @@ export default function QuebecElectionNightLive({ eventId, lang, apiBase, fallba
             </tbody>
           </table>
           <p class="qcl-majority">{t.majority} · {decided}/{TOTAL}</p>
-          <p class="qcl-note">{t.projNote(reporting)}</p>
+          <p class="qcl-note">{t.projNote(decided)}</p>
         </div>
       )}
 
