@@ -107,7 +107,7 @@ const pollsBase = { fr: 'sondages', en: 'polls', es: 'sondeos' }[locale];
 const COPY = {
   fr: {
     eyebrow: 'Élection générale québécoise · 5 octobre 2026',
-    h1: 'Élections Québec 2026 : les résultats en direct',
+    h1: 'Élections Québec 2026 : les résultats, le PQ forme un gouvernement minoritaire',
     lede: 'Dès la fermeture des bureaux, à 20 h le 5 octobre, cette page porte le dépouillement en direct des 127 circonscriptions : voix, bureaux dépouillés, sièges, et les gagnants annoncés dès que le résultat est certain. Elle se met à jour d’elle-même : l’heure de chaque annonce, qui forme le gouvernement, et l’écart avec notre projection.',
     scheduleTitle: 'Le déroulé de la soirée',
     schedule: [
@@ -125,8 +125,8 @@ const COPY = {
     ],
     methodNote: `Notre bilan : ${callsCorrect} bonnes annonces sur ${callsTotal} lors des dernières élections.`,
     trackCta: 'Voir toutes nos annonces →',
-    projectionTitle: 'Où en est la course aujourd’hui',
-    projectionLede: 'Ce n’est pas une prévision de la soirée : c’est l’état de la course au moment où vous lisez, recalculé chaque nuit jusqu’au scrutin.',
+    projectionTitle: 'Notre projection d’avant-scrutin',
+    projectionLede: 'Les sièges que notre modèle donnait à chaque parti la veille du vote, à comparer au résultat ci-dessus.',
     majorityLabel: `Majorité : ${majority} sièges`,
     seatsLabel: 'sièges projetés',
     runLabel: 'Projection du',
@@ -146,7 +146,7 @@ const COPY = {
   },
   en: {
     eyebrow: 'Quebec general election · October 5, 2026',
-    h1: 'Quebec election 2026: live results',
+    h1: 'Quebec election 2026 results: the PQ forms a minority government',
     lede: 'From the moment polls close at 8 p.m. on October 5, this page carries the live count across all 127 ridings: votes, polls reporting, seats, and our race calls the moment they are safe enough to publish. It updates on its own: the time of every call, who forms the government, and the gap with our forecast.',
     scheduleTitle: 'How the night unfolds',
     schedule: [
@@ -164,8 +164,8 @@ const COPY = {
     ],
     methodNote: `Our record: ${callsCorrect} correct calls out of ${callsTotal} in recent elections.`,
     trackCta: 'See all our calls →',
-    projectionTitle: 'Where the race stands today',
-    projectionLede: 'This is not a forecast of election night: it is the state of the race as you read it, recomputed every night until the vote.',
+    projectionTitle: 'Our pre-election forecast',
+    projectionLede: 'The seats our model gave each party on the eve of the vote, to compare with the result above.',
     majorityLabel: `Majority: ${majority} seats`,
     seatsLabel: 'projected seats',
     runLabel: 'Projection of',
@@ -185,7 +185,7 @@ const COPY = {
   },
   es: {
     eyebrow: 'Elección general de Quebec · 5 de octubre de 2026',
-    h1: 'Elecciones de Quebec 2026: resultados en directo',
+    h1: 'Elecciones de Quebec 2026: resultados, el PQ forma un gobierno minoritario',
     lede: 'Desde el cierre de las urnas, a las 20:00 del 5 de octubre, esta página lleva el recuento en directo de los 127 distritos: votos, mesas escrutadas, escaños y nuestros pronunciamientos en cuanto son lo bastante seguros para publicarse. Se actualiza sola: la hora de cada anuncio, quién forma el gobierno y la diferencia con nuestra proyección.',
     scheduleTitle: 'El desarrollo de la noche',
     schedule: [
@@ -203,8 +203,8 @@ const COPY = {
     ],
     methodNote: `Nuestro historial: ${callsCorrect} anuncios acertados de ${callsTotal} en las últimas elecciones.`,
     trackCta: 'Ver todos nuestros anuncios →',
-    projectionTitle: 'Cómo va la contienda hoy',
-    projectionLede: 'No es un pronóstico de la noche electoral: es el estado de la contienda en el momento en que usted lee, recalculado cada noche hasta la votación.',
+    projectionTitle: 'Nuestra proyección previa',
+    projectionLede: 'Los escaños que nuestro modelo daba a cada partido la víspera de la votación, para comparar con el resultado de arriba.',
     majorityLabel: `Mayoría: ${majority} escaños`,
     seatsLabel: 'escaños proyectados',
     runLabel: 'Proyección del',
@@ -266,20 +266,6 @@ const runDateText = new Intl.DateTimeFormat(
   </div>
 </section>
 
-<section class="qen-schedule">
-  <div class="container">
-    <h2>{COPY.scheduleTitle}</h2>
-    <ol class="qen-steps">
-      {COPY.schedule.map((s) => (
-        <li>
-          <span class="qen-time">{s.time}</span>
-          <h3>{s.label}</h3>
-          <p>{s.text}</p>
-        </li>
-      ))}
-    </ol>
-  </div>
-</section>
 
 <section class="qen-method">
   <div class="container">
