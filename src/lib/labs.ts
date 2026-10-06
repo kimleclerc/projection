@@ -7,7 +7,10 @@ import { partyMeta, partyMark } from './riding-adapters/parties';
 export type Locale = 'fr' | 'en' | 'es';
 export type LabsKey = 'qc_2026' | 'bc_44' | 'fed_46' | 'on_2029' | 'uk_2029' | 'fr_pres_2027' | 'fr_leg' | 'us_senate' | 'us_house' | 'us_governor';
 
-export const LABS_KEYS: LabsKey[] = ['qc_2026', 'bc_44', 'fed_46', 'on_2029', 'uk_2029', 'fr_pres_2027', 'fr_leg', 'us_senate', 'us_house', 'us_governor'];
+// Ordre d'affichage : élections à venir d'abord, de la plus proche à la plus
+// lointaine, puis le scrutin qui vient d'avoir lieu, puis le reste. À revoir
+// à chaque scrutin (liste post-élection).
+export const LABS_KEYS: LabsKey[] = ['bc_44', 'us_house', 'us_senate', 'us_governor', 'qc_2026', 'fed_46', 'on_2029', 'uk_2029', 'fr_pres_2027', 'fr_leg'];
 
 export const SLUGS: Record<Locale, Record<LabsKey, string>> = {
   fr: { qc_2026: 'quebec', bc_44: 'colombie-britannique', fed_46: 'federal', on_2029: 'ontario', uk_2029: 'royaume-uni', fr_pres_2027: 'presidentielle-france', fr_leg: 'legislatives-france', us_senate: 'senat', us_house: 'chambre', us_governor: 'gouverneurs' },

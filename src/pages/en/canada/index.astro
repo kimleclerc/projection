@@ -13,6 +13,9 @@ import fraserData from '../../../../web_data/on-fraser-interim/latest.json';
 import gooseData from '../../../../web_data/ca-canada-goose/latest.json';
 import showdownData from '../../../../web_data/cusma-showdown/latest.json';
 import DeskSections from '../../../components/DeskSections.astro';
+import ElectionsBand from '../../../components/ElectionsBand.astro';
+import qcResults from '../../../data/qc-results-2026.json';
+import { partyMeta } from '../../../lib/riding-adapters/parties';
 
 const meta = federalData.meta;
 const parties = federalData.parties as Array<{
@@ -46,6 +49,8 @@ const qcLeader = [...(quebecData.parties ?? [])]
   .sort((a: any, b: any) => (b.seats_projected ?? b.seats_mean ?? 0) - (a.seats_projected ?? a.seats_mean ?? 0))[0] as any;
 const qcLeaderLabel = qcLeader?.label_en ?? qcLeader?.label_en ?? '';
 const qcLeaderSeats = Math.round(qcLeader?.seats_projected ?? qcLeader?.seats_mean ?? 0);
+const qcWinLabel = (partyMeta('quebec', qcResults.winner) as any).label_en;
+const qcWinSeats = qcResults.parties[0].seats;
 ---
 
 <EditorialLayout
@@ -76,15 +81,17 @@ const qcLeaderSeats = Math.round(qcLeader?.seats_projected ?? qcLeader?.seats_me
 >
   <EditorialHero
     eyebrow="Canada Desk"
-    title={`${qcLeaderLabel} leads Quebec at ${qcLeaderSeats} of 127 seats.`}
-    promise="Federal, Quebec, Ontario, British Columbia and by-elections — read race by race, from public polls down to the seat." leads at ${qcLeaderSeats} of 127 seats. Federal, Ontario and by-elections read race by race, from public polls down to the seat.`}
-    question="Who will win the Quebec election on October 5?"
+    title={`The ${qcWinLabel} will form a minority government in Quebec: ${qcWinSeats} of 127 seats.`}
+    promise="Federal, Quebec, Ontario, British Columbia and by-elections — read race by race, from public polls down to the seat."
+    question="British Columbia votes on October 24: who will win?"
     primaryHref="/en/indexes/"
     primaryLabel="View instruments"
     secondaryHref="/en/"
     secondaryLabel="All desks"
     preferredSourceLocale="en"
   />
+
+  <ElectionsBand lang="en" scope="canada" />
 
   <section class="content-band">
     <div class="container">
@@ -155,11 +162,11 @@ const qcLeaderSeats = Math.round(qcLeader?.seats_projected ?? qcLeader?.seats_me
         <p class="eyebrow">Provincial · Québec</p>
         <h3 style="font-family:var(--serif);font-size:1.4rem;margin:0.25rem 0;">{qcTop.label_en}</h3>
         <p style="font-size:2rem;font-weight:700;margin:0.25rem 0;">
-          <AnimatedNumber client:visible value={qcTop.seats_projected} />
+          <AnimatedNumber client:visible value={qcResults.parties[0].seats} />
           <span style="font-size:1rem;font-weight:400;"> / {quebecData.meta.total_seats} seats</span>
         </p>
-        <p style="font-family:var(--mono);font-size:0.8rem;color:var(--ink-3);">Majority probability: {qcMaj}%</p>
-        <p style="margin-top:1rem;"><a href="/en/canada/quebec/" class="cta-link" style="font-family:var(--mono);font-size:0.8rem;text-transform:uppercase;letter-spacing:.08em;">Open Quebec projection →</a></p>
+        <p style="font-family:var(--mono);font-size:0.8rem;color:var(--ink-3);">Minority government · {qcResults.parties[0].vote_pct}% of the vote</p>
+        <p style="margin-top:1rem;"><a href="/en/canada/quebec/results/" class="cta-link" style="font-family:var(--mono);font-size:0.8rem;text-transform:uppercase;letter-spacing:.08em;">Quebec results →</a></p>
         <p style="margin-top:0.35rem;"><a href="/en/canada/quebec/ridings/" class="cta-link" style="font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-3);">Browse 127 ridings →</a></p>
       </div>
       <div class="note-card" style={`border-left:4px solid ${onTop.color};`}>

@@ -9,6 +9,7 @@ import IdentityMark from '../../components/IdentityMark.astro';
 import SearchFastPath from '../../components/SearchFastPath.astro';
 import TradeWarBand from '../../components/TradeWarBand.astro';
 import SpainBand from '../../components/SpainBand.astro';
+import ElectionsBand from '../../components/ElectionsBand.astro';
 import RidingsCta from '../../components/RidingsCta.astro';
 import LabsHomeBand from '../../components/LabsHomeBand.astro';
 import SignalTicker from '../../islands/SignalTicker';
@@ -107,6 +108,8 @@ const liveSignals: Record<string, string> = {
 
   <SearchFastPath lang="en" />
 
+  <ElectionsBand lang="en" />
+
   <SpainBand lang="en" />
 
   <TradeWarBand lang="en" />
@@ -136,13 +139,6 @@ const liveSignals: Record<string, string> = {
   <SignalTicker client:idle signals={signals} locale="en" />
 
 
-  <RidingsCta
-    eyebrow="Quebec · October 5 results"
-    title="Quebec election results: the PQ forms a minority government"
-    blurb="Who won in your riding? The winners in all 127 ridings, the seat count, the popular vote and the gap with our forecast."
-    href="/en/canada/quebec/results/"
-    cta="See the results →"
-  />
 
   <section class="content-band">
     <div class="container">

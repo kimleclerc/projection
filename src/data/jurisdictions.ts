@@ -204,9 +204,9 @@ export const jurisdictions: Record<string, Jurisdiction> = {
     dataPath: 'quebec',
     geoPath: 'quebec',
     heroTitle: {
-      fr: 'Prévision <em>québécoise</em>',
-      en: 'Quebec <em>Forecast</em>',
-      es: 'Pronóstico <em>de Quebec</em>',
+      fr: 'Projection <em>d’avant-scrutin</em>',
+      en: 'Pre-election <em>forecast</em>',
+      es: 'Proyección <em>previa</em>',
     },
     institution: {
       fr: "Composition actuelle de l'Assemblée nationale",
@@ -219,19 +219,19 @@ export const jurisdictions: Record<string, Jurisdiction> = {
       es: 'Fuentes: Élections Québec, sondeadoras públicas',
     },
     mapSubtitle: {
-      fr: 'Projection par circonscription basée sur les résultats 2022, les sondages provinciaux et les tendances régionales.',
-      en: 'Riding projection based on 2022 results, provincial polling and regional trends.',
-      es: 'Proyección por distrito basada en los resultados de 2022, las encuestas provinciales y las tendencias regionales.',
+      fr: 'Projection d’avant-scrutin par circonscription (sondages et résultats de 2022), à comparer aux résultats du 5 octobre.',
+      en: 'Pre-election riding forecast (polls and 2022 results), to compare with the October 5 results.',
+      es: 'Proyección previa por distrito (encuestas y resultados de 2022), para comparar con los resultados del 5 de octubre.',
     },
     pageTitle: {
-      fr: 'Sondages élections Québec 2026 — qui va gagner? — Vote-Scope',
-      en: 'Who Will Win the 2026 Quebec Election? — Vote-Scope',
-      es: 'Encuestas elecciones Quebec 2026 — ¿quién ganará? — Vote-Scope',
+      fr: 'Élections Québec 2026 : qui a gagné? Résultats et projection — Vote-Scope',
+      en: 'Who Won the 2026 Quebec Election? Results and Forecast — Vote-Scope',
+      es: 'Elecciones Quebec 2026: ¿quién ganó? Resultados y proyección — Vote-Scope',
     },
     metaDescription: {
-      fr: 'Qui va gagner les élections du Québec le 5 octobre 2026? Sondages Léger, Pallas et plus agrégés, projection des 127 circonscriptions de l\'Assemblée nationale, probabilités de majorité. Mise à jour continue.',
-      en: 'Who wins the Quebec election on October 5, 2026? Léger, Pallas and more polls aggregated, all 127 National Assembly ridings projected, majority odds. Updated with every poll.',
-      es: '¿Quién gana las elecciones de Quebec del 5 de octubre de 2026? Encuestas Léger, Pallas y más agregadas, 127 distritos de la Asamblea Nacional proyectados. Actualizado continuamente.',
+      fr: 'Qui a gagné les élections du Québec du 5 octobre 2026? Le Parti québécois forme un gouvernement minoritaire. Résultats, notre projection d\'avant-scrutin et les 127 circonscriptions de l\'Assemblée nationale.',
+      en: 'Who won the October 5, 2026 Quebec election? The Parti Québécois forms a minority government. Results, our pre-election forecast and all 127 National Assembly ridings.',
+      es: '¿Quién ganó las elecciones de Quebec del 5 de octubre de 2026? El Parti Québécois forma un gobierno minoritario. Resultados, nuestra proyección previa y los 127 distritos de la Asamblea Nacional.',
     },
     baselineYear: 2022,
     seatsTotal: 127,
@@ -243,10 +243,7 @@ export const jurisdictions: Record<string, Jurisdiction> = {
     slug: { en: 'quebec', fr: 'quebec' },
     currentPage: 'canada',
     electionDate: '2026-10-05',
-    countdown: {
-      title: { fr: 'Le Québec vote le 5 octobre.', en: 'Quebec votes on October 5.', es: 'Quebec vota el 5 de octubre.' },
-      kicker: { fr: 'Compte à rebours Québec 2026', en: 'Quebec 2026 countdown', es: 'Cuenta atrás Quebec 2026' },
-    },
+    // Compte à rebours retiré après le scrutin (liste post-élection).
   },
 
   usHouse: {

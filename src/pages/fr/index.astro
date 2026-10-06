@@ -9,6 +9,7 @@ import IdentityMark from '../../components/IdentityMark.astro';
 import SearchFastPath from '../../components/SearchFastPath.astro';
 import TradeWarBand from '../../components/TradeWarBand.astro';
 import SpainBand from '../../components/SpainBand.astro';
+import ElectionsBand from '../../components/ElectionsBand.astro';
 import RidingsCta from '../../components/RidingsCta.astro';
 import LabsHomeBand from '../../components/LabsHomeBand.astro';
 import SignalTicker from '../../islands/SignalTicker';
@@ -107,6 +108,8 @@ const liveSignals: Record<string, string> = {
 
   <SearchFastPath lang="fr" />
 
+  <ElectionsBand lang="fr" />
+
   <SpainBand lang="fr" />
 
   <TradeWarBand lang="fr" />
@@ -136,13 +139,6 @@ const liveSignals: Record<string, string> = {
   <SignalTicker client:idle signals={signals} locale="fr" />
 
 
-  <RidingsCta
-    eyebrow="Québec · résultats du 5 octobre"
-    title="Résultats de l'élection québécoise : le PQ forme un gouvernement minoritaire"
-    blurb="Qui a gagné chez vous? Les gagnants des 127 circonscriptions, les sièges et le vote populaire, et l’écart avec notre projection."
-    href="/fr/canada/quebec/resultats/"
-    cta="Voir les résultats →"
-  />
 
   <section class="content-band">
     <div class="container">
