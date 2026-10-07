@@ -1,0 +1,112 @@
+/* ── COUCHE COMMUNE ──────────────────────────────────────────────────
+ * L'apparence de chaque rôle (en-tête de page, bouton, lien d'action) est définie
+ * ICI, une seule fois, selon docs/DESIGN.md.
+ *
+ * Les classes vs-* sont les classes communes à utiliser dans tout nouveau code.
+ * Les anciennes classes propres à chaque desk sont rattachées ci-dessous en attendant
+ * leur migration ; les !important ne servent qu'à ça : passer devant les styles
+ * encore définis dans chaque composant. Une classe migrée sort de la liste.
+ */
+
+/* ── En-tête de page ─────────────────────────────────────────────── */
+.vs-page-head {
+  background: var(--paper) !important;
+  border-bottom: 1px solid var(--rule);
+}
+.vs-page-head h1,
+.vs-page-title {
+  max-width: 920px;
+  margin: 0 0 12px !important;
+  color: var(--ink) !important;
+  font-family: var(--sans) !important;
+  font-size: clamp(34px, 4.6vw, 56px) !important;
+  font-style: normal !important;
+  font-weight: 700 !important;
+  line-height: 1.04 !important;
+  letter-spacing: -0.01em !important;
+}
+.vs-page-head h1 em,
+.vs-page-head h1 i,
+.vs-page-title em,
+.vs-page-title i { font-style: normal !important; color: inherit !important; }
+
+/* Métadonnées : dates, sources, nombre de sondages. */
+.vs-meta {
+  color: var(--ink-3);
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+/* ── Boutons ─────────────────────────────────────────────────────── */
+.vs-btn,
+.btn-primary, .cta-btn, .nav-cta, .lhb-cta, .ukbye-subscribe-cta,
+.fr-cta-strong, .frc-cta-strong,
+.vs-btn-secondary,
+.btn-outline, .fr-cta, .frc-cta, .bd-cta, .up-cta, .ridings-cta, .nl-cta,
+.coffee-btn, .affiliate-cta {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 9px 16px !important;
+  border: 2px solid var(--ink) !important;
+  border-radius: 2px !important;
+  font-family: var(--sans) !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  line-height: 1.2 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  text-decoration: none !important;
+  cursor: pointer;
+}
+/* Primaire : fond noir. */
+.vs-btn,
+.btn-primary, .cta-btn, .nav-cta, .lhb-cta, .ukbye-subscribe-cta,
+.fr-cta-strong, .frc-cta-strong {
+  background: var(--ink) !important;
+  color: var(--paper) !important;
+}
+/* Secondaire : contour. */
+.vs-btn-secondary,
+.btn-outline, .fr-cta:not(.fr-cta-strong), .frc-cta:not(.frc-cta-strong),
+.bd-cta, .up-cta, .ridings-cta, .nl-cta, .coffee-btn, .affiliate-cta {
+  background: var(--paper) !important;
+  color: var(--ink) !important;
+}
+.vs-btn:hover,
+.btn-primary:hover, .cta-btn:hover, .nav-cta:hover, .lhb-cta:hover, .ukbye-subscribe-cta:hover,
+.fr-cta-strong:hover, .frc-cta-strong:hover { background: var(--ink-2) !important; border-color: var(--ink-2) !important; }
+.vs-btn-secondary:hover,
+.btn-outline:hover, .fr-cta:not(.fr-cta-strong):hover, .frc-cta:not(.frc-cta-strong):hover,
+.bd-cta:hover, .up-cta:hover, .ridings-cta:hover, .nl-cta:hover, .coffee-btn:hover, .affiliate-cta:hover { background: var(--paper-2) !important; }
+
+/* ── Lien d'action (texte souligné) ──────────────────────────────── */
+.vs-link,
+.cta-link, .lh-cta, .lx-cta, .cta, .byhub-card-cta, .onhub-card-cta, .bh-card-cta, .bj-item-cta,
+.tw-band-cta, .shelf-cta, .es-band-cta, .eq-cta, .election-cta, .vibe-text-button {
+  padding: 0 !important;
+  border: 0 !important;
+  background: none !important;
+  color: var(--ink) !important;
+  font-family: var(--sans) !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  text-decoration: underline !important;
+  text-decoration-thickness: 1px !important;
+  text-underline-offset: 3px;
+}
+.vs-link:hover,
+.cta-link:hover, .lh-cta:hover, .lx-cta:hover, .cta:hover, .byhub-card-cta:hover, .onhub-card-cta:hover,
+.bh-card-cta:hover, .bj-item-cta:hover, .tw-band-cta:hover, .shelf-cta:hover, .es-band-cta:hover,
+.eq-cta:hover, .election-cta:hover, .vibe-text-button:hover { text-decoration-thickness: 2px !important; }
+
+/* Pas d'étiquette au-dessus du titre de page (docs/DESIGN.md §6) : la petite ligne
+   qui précède immédiatement le h1 d'un en-tête est masquée. Le contexte est déjà
+   donné par le menu et le fil de la page. */
+.vs-page-head :is(p, span, div):has(+ h1) { display: none !important; }

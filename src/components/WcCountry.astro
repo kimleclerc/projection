@@ -36,7 +36,7 @@ const fmtDate = (iso?: string) => iso ? new Date(iso + 'T12:00:00Z').toLocaleDat
     <p class="eyebrow">
       {t.conf}: {team.confederation} · {t.grp} {team.group}{team.is_host ? ` · ${t.host}` : ''}
     </p>
-    <h1 style="margin:0.25rem 0;">{flagFor(team.team)} {name}</h1>
+    <h1 class="vs-page-title" style="margin:0.25rem 0;">{flagFor(team.team)} {name}</h1>
     <p style="font-size:2.5rem;font-weight:700;color:var(--accent);margin:0.5rem 0;">
       <AnimatedNumber client:visible value={team.p_champion} decimals={2} suffix="%" />
     </p>

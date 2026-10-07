@@ -44,10 +44,18 @@ const listIdx = process.argv.indexOf('--list');
 const listRule = listIdx > -1 ? process.argv[listIdx + 1] : null;
 
 const totals = Object.fromEntries(RULES.map((r) => [r.id, 0]));
+// Uniformité : tout titre de page passe par la couche commune (vs-page-head ou vs-page-title).
+totals['titre-hors-systeme'] = 0;
+const TITLE_EXEMPT = ['src/islands/VibeMatch.tsx']; // carte du jeu, pas un en-tête de page
 const perFile = new Map();
 for (const path of files(join(ROOT, 'src'))) {
   const text = readFileSync(path, 'utf8');
   const rel = relative(ROOT, path);
+  if (text.includes('<h1') && !/vs-page-(?:head|title)/.test(text) && !TITLE_EXEMPT.includes(rel)) {
+    totals['titre-hors-systeme'] += 1;
+    perFile.set(rel, (perFile.get(rel) ?? 0) + 1);
+    if (listRule === 'titre-hors-systeme') console.log(rel);
+  }
   for (const rule of RULES) {
     const hits = [...text.matchAll(rule.re)].filter((h) => {
       const start = text.lastIndexOf('\n', h.index) + 1;
@@ -69,6 +77,7 @@ for (const path of files(join(ROOT, 'src'))) {
 if (!listRule) {
   console.log('Règles de design (docs/DESIGN.md)');
   for (const r of RULES) console.log(`  ${String(totals[r.id]).padStart(5)}  ${r.id.padEnd(14)} ${r.label}`);
+  console.log(`  ${String(totals['titre-hors-systeme']).padStart(5)}  titre-hors-sys titre de page hors de la couche commune`);
   const top = [...perFile].sort((a, b) => b[1] - a[1]).slice(0, 12);
   if (top.length) {
     console.log('\nFichiers les plus touchés');

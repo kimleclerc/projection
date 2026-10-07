@@ -38,7 +38,7 @@ const alternates = Object.fromEntries(Object.entries(race.urls).map(([key, value
     <div class="radar-container">
       <a class="radar-breadcrumb" href={radarRoots[locale]}>← {copy.back}</a>
       <p class="radar-eyebrow" style="margin-top:46px">{race.office === 'house' ? copy.house : copy.senate} · #{race.rank}</p>
-      <h1>{race.name}</h1>
+      <h1 class="vs-page-title">{race.name}</h1>
       <p class="radar-dek">{race.reason_keys.map((key: string) => race.components.find((item: any) => item.key === key)?.labels[locale]).filter(Boolean).join(' · ')}</p>
 
       <section class="race-summary">
