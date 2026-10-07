@@ -41,6 +41,7 @@ const TILES: Record<string, [number, number]> = {
 const TEXT = {
   en: {
     eyebrow: '2026 SENATE FORECAST',
+    by: 'By',
     question: 'Who controls the Senate after November 3?',
     chance: 'chance of a Senate majority',
     party: { us_dem: 'Democrats', us_rep: 'Republicans', us_oth: 'Other' },
@@ -53,6 +54,7 @@ const TEXT = {
   },
   fr: {
     eyebrow: 'SÉNAT AMÉRICAIN · PROJECTION 2026',
+    by: 'Par',
     question: 'Qui contrôlera le Sénat après le 3 novembre ?',
     chance: 'de chances de majorité au Sénat',
     party: { us_dem: 'Démocrates', us_rep: 'Républicains', us_oth: 'Autres' },
@@ -65,6 +67,7 @@ const TEXT = {
   },
   es: {
     eyebrow: 'SENADO DE EE. UU. · PRONÓSTICO 2026',
+    by: 'Por',
     question: '¿Quién controlará el Senado después del 3 de noviembre?',
     chance: 'de probabilidad de mayoría en el Senado',
     party: { us_dem: 'Demócratas', us_rep: 'Republicanos', us_oth: 'Otros' },
@@ -196,8 +199,10 @@ function senateCard(data: any, lang: Lang) {
             legendSwatch([TOSSUP], t.legend[3], true)))),
       // Pied
       h('div', { justifyContent: 'space-between', alignItems: 'center', borderTop: `1px solid ${RULE}`, paddingTop: 14, fontFamily: 'JetBrains Mono', fontSize: 15, color: INK_3 },
-        h('div', {}, `${t.date(runDate)}  ·  ${t.sims(sims)}`),
-        h('div', { fontWeight: 500, fontSize: 18, color: INK, letterSpacing: '0.04em' }, 'vote-scope.com'))));
+        h('div', {}, `${t.date(runDate)}`),
+        h('div', { alignItems: 'center' },
+          h('div', { fontFamily: 'Newsreader', fontWeight: 600, fontSize: 19, color: INK_2, marginRight: 18 }, `${t.by} Kim Leclerc · @kimleclerc`),
+          h('div', { fontWeight: 500, fontSize: 18, color: INK, letterSpacing: '0.04em' }, 'vote-scope.com')))));
 }
 
 const CARDS: Record<string, { data: string; render: (data: any, lang: Lang) => Node }> = {
