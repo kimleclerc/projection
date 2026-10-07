@@ -23,6 +23,11 @@ function walk(dir) {
     const url = new URL(og);
     if (url.hostname !== 'vote-scope.com') continue;
     if (!url.searchParams.get('v')) errors.push(`${file}: image URL not versioned`);
+    // /og/live/ : image rendue à la demande par la Function Cloudflare, pas de fichier dans dist.
+    if (url.pathname.startsWith('/og/live/')) {
+      if (!existsSync(resolve(root, '..', 'functions/og/live/[[path]].ts'))) errors.push(`${file}: live OG without function`);
+      continue;
+    }
     const image = resolve(root, '.' + decodeURIComponent(url.pathname));
     if (!image.startsWith(root + '/')) throw new Error('Invalid image path');
     if (!existsSync(image)) { errors.push(`${file}: missing ${url.pathname}`); continue; }
