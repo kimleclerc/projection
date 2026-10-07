@@ -7,6 +7,40 @@ const { lang } = Astro.props;
 
 const media = [
   {
+    outlet: 'Québec Nouvelles',
+    date: '2026-09-30',
+    displayDate: { en: 'September 30, 2026', fr: '30 septembre 2026', es: '30 de septiembre de 2026' },
+    title: {
+      en: 'The last Quebec projection before the vote',
+      fr: 'Le PQ en route vers une majorité fragile : la dernière projection avant le vote',
+      es: 'La última proyección de Quebec antes de la votación',
+    },
+    body: {
+      en: 'An interview on the final Vote-Scope projection: the ridings that would decide a majority and where the Conservatives could surprise.',
+      fr: 'Un entretien sur la projection finale de Vote-Scope : les circonscriptions qui décideraient d’une majorité et celles où les conservateurs pouvaient surprendre.',
+      es: 'Una entrevista sobre la proyección final de Vote-Scope: los distritos que decidirían una mayoría y dónde los conservadores podían sorprender.',
+    },
+    url: 'https://quebecnouvelles.substack.com/p/le-pq-en-route-vers-une-majorite',
+    type: 'Article',
+  },
+  {
+    outlet: 'Québec Nouvelles',
+    date: '2026-09-10',
+    displayDate: { en: 'September 10, 2026', fr: '10 septembre 2026', es: '10 de septiembre de 2026' },
+    title: {
+      en: 'Quebec election: the PQ leads, a majority still uncertain',
+      fr: 'Élections québécoises : le PQ toujours en tête, mais la majorité demeure incertaine',
+      es: 'Elecciones en Quebec: el PQ sigue en cabeza, pero la mayoría es incierta',
+    },
+    body: {
+      en: 'A region-by-region reading of the race, including the Conservatives becoming competitive in Centre-du-Québec and on the South Shore.',
+      fr: 'Une lecture de la course région par région, dont la montée des conservateurs, devenus compétitifs dans le Centre-du-Québec et sur la Rive-Sud.',
+      es: 'Una lectura de la contienda región por región, incluido el avance de los conservadores en Centre-du-Québec y la Rive-Sud.',
+    },
+    url: 'https://quebecnouvelles.substack.com/p/elections-quebecoises-le-pq-toujours',
+    type: 'Article',
+  },
+  {
     outlet: 'PiluleRouge.ca',
     date: '2026-04-23',
     displayDate: { en: 'April 23, 2026', fr: '23 avril 2026', es: '23 de abril de 2026' },
@@ -79,57 +113,108 @@ const media = [
 const copy = {
   en: {
     eyebrow: 'About Vote-Scope',
-    title: 'Independent forecasts, built to be checked.',
-    intro: 'Vote-Scope is an independent, non-partisan election and sports intelligence project created by Kim Leclerc in Ottawa in 2026.',
+    title: 'Data, backed by experience.',
+    intro: 'Independent election forecasts for the United States, Canada and Europe, in English, French and Spanish. Founded and led by Kim Leclerc, who has spent more than twenty years inside election campaigns.',
+    authorTitle: 'Who builds the forecasts',
+    photoAlt: 'Kim Leclerc',
+    bio: [
+      'I’m Kim Leclerc. I’ve done every job a campaign has. I’ve knocked on doors, run voter ID, raised money from small donors and big ones. I’ve been a chief organizer, a leadership-race communications director, a delegate, and a candidate with my face on the lampposts. I’ve swept the floor of a campaign office and worked national war rooms on the line with the leader’s bus. I’ve also served as a political adviser and chief of staff.',
+      'Inside a major party, I rewrote the campaign organization guide, built its first social media guide and trained its first elected members to use it. I was among the first in Quebec to push for data-driven campaign software modeled on American campaigns. I’ve worked the ground in France during European elections, and knocked on doors and made calls in the United States. Today I talk regularly with Canadian pollsters.',
+    ],
+    roomTitle: 'When the whole room looks the same way',
+    room: [
+      'On the eve of the 2016 U.S. election, I was an adviser to a Canadian cabinet minister. At the weekly meeting of regional advisers in the Prime Minister’s building, everyone around the table was planning for a Clinton win. I raised my hand. From what I saw in the polls and on the ground, Trump would outperform and carry the swing states.',
+      'It wasn’t the first time. In 2015, with Justin Trudeau’s Liberals in third place and everyone expecting the NDP to replace Stephen Harper, I said Trudeau would win, and win a majority. People laughed. In 2008, I was among the first in Canada to say Barack Obama would beat Hillary Clinton for the Democratic nomination.',
+    ],
     whatTitle: 'What Vote-Scope does',
-    whatBody: 'The site turns public polling, electoral history and market signals into probabilistic forecasts, riding-level estimates and named editorial instruments. Outputs are published with their uncertainty, source context and a public methodology.',
-    authorTitle: 'About the creator',
-    authorBody: 'Kim Leclerc is a political analyst and public-affairs strategist with experience in political offices and strategic communications. Vote-Scope is a personal project: it is not affiliated with a party, polling firm or media organization.',
-    standardsTitle: 'How to assess the work',
-    standardsBody: 'Readers can inspect the methodology, compare resolved calls in the public track record and consult the disclosure policy. Errors and methodological changes are documented rather than erased.',
+    what: [
+      'Vote-Scope turns that experience into math. It isn’t a polling average run through a simulator. Each forecast runs on dozens of modules built for each jurisdiction: regional patterns, how each pollster usually misses, and what a campaign moves on the ground before the numbers show it.',
+      'Every week, those modules are tested against dozens of past elections in the U.S., Canada and the U.K. When the data looks wrong, nothing is published until the model is fixed. When a forecast moves, we check that it’s a real shift and not a glitch. That is also why we forecast by-elections, which almost nobody else models. We use AI to move faster. The judgment stays human.',
+    ],
+    recordTitle: 'Quebec, October 5, 2026',
+    record: [
+      'Less than one point of average error on party vote shares.',
+      'Government called at 8:27 p.m., minority called at 9:22 p.m., ahead of Radio-Canada.',
+    ],
+    transparencyTitle: 'Transparency',
+    transparency: 'I have worked for major political parties in Canada at the municipal, provincial and federal levels, and in campaigns in France and the United States. Vote-Scope works for no party. The polls we use, the method and our misses are all published.',
     mediaEyebrow: 'Selected interviews and media mentions',
-    mediaTitle: 'Expertise behind the model, in the public record.',
-    mediaIntro: 'These independent media appearances provide context on the experience behind Vote-Scope. They are separate from Vote-Scope’s own editorial publications.',
+    mediaTitle: 'In the public record.',
+    mediaIntro: 'Interviews and articles where Kim Leclerc and Vote-Scope’s projections were cited.',
     read: 'Open source',
     methodology: 'Read the methodology',
     track: 'View the track record',
-    contact: 'Contact Kim Leclerc',
+    contact: 'kimleclerc.ca',
   },
   fr: {
     eyebrow: 'À propos de Vote-Scope',
-    title: 'Des projections indépendantes, conçues pour être vérifiées.',
-    intro: 'Vote-Scope est un projet indépendant et non partisan d’intelligence électorale et sportive créé par Kim Leclerc à Ottawa en 2026.',
+    title: 'Les données, avec vingt ans de terrain.',
+    intro: 'Des projections électorales indépendantes pour les États-Unis, le Canada et l’Europe, en français, en anglais et en espagnol. Fondé et dirigé par Kim Leclerc, qui travaille dans les campagnes électorales depuis plus de vingt ans.',
+    authorTitle: 'Qui fait les projections',
+    photoAlt: 'Kim Leclerc',
+    bio: [
+      'Je m’appelle Kim Leclerc. J’ai fait toutes les étapes d’une campagne électorale. J’ai été militant, j’ai fait du porte-à-porte et du pointage. J’ai sollicité les petits dons comme les gros donateurs. J’ai été organisateur en chef, directeur des communications dans des courses au leadership, délégué, puis candidat, avec ma face sur les poteaux. J’ai passé le balai dans des locaux d’organisation et travaillé dans des war rooms nationaux en lien direct avec l’autobus du chef. J’ai aussi été conseiller politique et chef de cabinet.',
+      'Au sein d’un grand parti, j’ai réécrit le guide d’organisation électorale, bâti le premier guide des médias sociaux et formé les premiers élus à s’en servir. J’ai été parmi les premiers au Québec à pousser les logiciels de campagne fondés sur les données, inspirés des campagnes américaines. J’ai fait du terrain en France pendant des élections européennes, et du porte-à-porte et des appels aux États-Unis. Aujourd’hui, je parle régulièrement avec les sondeurs canadiens.',
+    ],
+    roomTitle: 'Quand toute la salle regarde dans la même direction',
+    room: [
+      'En novembre 2016, j’étais conseiller d’une ministre à Ottawa. La veille du vote américain, à la rencontre hebdomadaire des conseillers régionaux, dans l’édifice du premier ministre, on a fait le tour de la table. Tout le monde préparait l’après-Clinton. J’ai levé la main. D’après ce que je voyais dans les sondages et sur le terrain, Trump allait faire mieux que prévu et prendre les États-clés.',
+      'Ce n’était pas la première fois. En 2015, à la veille du déclenchement, les libéraux de Justin Trudeau étaient troisièmes et tout le monde voyait le NPD remplacer Stephen Harper. Je disais que Trudeau serait premier ministre, et majoritaire. On riait. En 2008, j’étais parmi les premiers au Canada à dire que Barack Obama battrait Hillary Clinton à l’investiture démocrate.',
+    ],
     whatTitle: 'Ce que fait Vote-Scope',
-    whatBody: 'Le site transforme les sondages publics, l’histoire électorale et les signaux de marché en projections probabilistes, estimations par circonscription et instruments éditoriaux nommés. Les résultats sont publiés avec leur incertitude, le contexte des sources et une méthodologie publique.',
-    authorTitle: 'À propos du créateur',
-    authorBody: 'Kim Leclerc est analyste politique et stratège en affaires publiques, avec une expérience en cabinets politiques et en communications stratégiques. Vote-Scope est un projet personnel : il n’est affilié à aucun parti, institut de sondage ou média.',
-    standardsTitle: 'Comment évaluer le travail',
-    standardsBody: 'Le lecteur peut examiner la méthodologie, comparer les appels résolus dans l’historique public et consulter la politique de divulgation. Les erreurs et changements méthodologiques sont documentés plutôt qu’effacés.',
-    mediaEyebrow: 'Entrevues et mentions médiatiques sélectionnées',
-    mediaTitle: 'L’expertise derrière le modèle, dans le dossier public.',
-    mediaIntro: 'Ces interventions dans des médias indépendants donnent du contexte sur l’expérience derrière Vote-Scope. Elles sont distinctes des publications éditoriales du site.',
+    what: [
+      'Vote-Scope met cette expérience en équations. Ce n’est pas une moyenne de sondages passée dans un simulateur. Chaque projection repose sur des dizaines de modules construits pour chaque juridiction : les particularités régionales, la façon dont chaque sondeur se trompe d’habitude, et ce qu’une campagne fait bouger sur le terrain avant que les chiffres le montrent.',
+      'Chaque semaine, ces modules sont testés sur des dizaines d’élections passées aux États-Unis, au Canada et au Royaume-Uni. Quand quelque chose cloche dans les données, rien n’est publié avant que l’outil soit corrigé. Quand une projection bouge, on vérifie que c’est un vrai mouvement, pas un accident de calcul. C’est aussi pour ça qu’on prévoit les élections partielles, que presque personne n’ose modéliser. On se sert de l’IA pour aller plus vite. Le jugement, lui, reste humain.',
+    ],
+    recordTitle: 'Québec, 5 octobre 2026',
+    record: [
+      'Moins d’un point d’écart en moyenne sur le vote des partis.',
+      'Gouvernement annoncé à 20 h 27, minorité annoncée à 21 h 22, avant Radio-Canada.',
+    ],
+    transparencyTitle: 'Transparence',
+    transparency: 'J’ai travaillé pour de grands partis politiques au Canada, aux niveaux municipal, provincial et fédéral, et dans des campagnes en France et aux États-Unis. Vote-Scope ne roule pour aucun parti. Les sondages utilisés, la méthode et nos erreurs sont publiés.',
+    mediaEyebrow: 'Entrevues et mentions médiatiques',
+    mediaTitle: 'Dans le dossier public.',
+    mediaIntro: 'Entrevues et articles où Kim Leclerc et les projections de Vote-Scope ont été cités.',
     read: 'Consulter la source',
     methodology: 'Lire la méthodologie',
     track: 'Voir l’historique',
-    contact: 'Contacter Kim Leclerc',
+    contact: 'kimleclerc.ca',
   },
   es: {
     eyebrow: 'Acerca de Vote-Scope',
-    title: 'Proyecciones independientes, hechas para ser verificadas.',
-    intro: 'Vote-Scope es un proyecto independiente y no partidista de inteligencia electoral y deportiva creado por Kim Leclerc en Ottawa en 2026.',
+    title: 'Datos, respaldados por la experiencia.',
+    intro: 'Pronósticos electorales independientes para Estados Unidos, Canadá y Europa, en español, inglés y francés. Fundado y dirigido por Kim Leclerc, con más de veinte años dentro de campañas electorales.',
+    authorTitle: 'Quién hace los pronósticos',
+    photoAlt: 'Kim Leclerc',
+    bio: [
+      'Me llamo Kim Leclerc. He hecho todos los trabajos de una campaña. He tocado puertas, identificado votantes y recaudado fondos de pequeños y grandes donantes. He sido organizador en jefe, director de comunicaciones en carreras por el liderazgo, delegado y candidato, con mi cara en los postes. He barrido el piso de un local de campaña y trabajado en war rooms nacionales en contacto directo con el autobús del líder. También he sido asesor político y jefe de gabinete.',
+      'Dentro de un gran partido, reescribí la guía de organización electoral, creé su primera guía de redes sociales y formé a sus primeros electos para usarlas. Fui de los primeros en Quebec en impulsar programas de campaña basados en datos, inspirados en las campañas estadounidenses. He hecho trabajo de terreno en Francia durante elecciones europeas, y he tocado puertas y hecho llamadas en Estados Unidos. Hoy hablo con regularidad con las encuestadoras canadienses.',
+    ],
+    roomTitle: 'Cuando toda la sala mira en la misma dirección',
+    room: [
+      'En noviembre de 2016, yo era asesor de una ministra en Ottawa. La víspera de la elección estadounidense, en la reunión semanal de asesores regionales, en el edificio del primer ministro, se hizo una ronda en la mesa. Todos se preparaban para una victoria de Clinton. Levanté la mano. Por lo que veía en las encuestas y en el terreno, Trump iba a superar las expectativas y ganar los estados clave.',
+      'No era la primera vez. En 2015, con los liberales de Justin Trudeau en tercer lugar y todos esperando que el NPD reemplazara a Stephen Harper, dije que Trudeau sería primer ministro, y con mayoría. Se rieron. En 2008, fui de los primeros en Canadá en decir que Barack Obama le ganaría a Hillary Clinton la nominación demócrata.',
+    ],
     whatTitle: 'Qué hace Vote-Scope',
-    whatBody: 'El sitio convierte encuestas públicas, historia electoral y señales de mercado en proyecciones probabilísticas, estimaciones por distrito e instrumentos editoriales propios. Los resultados se publican con su incertidumbre, contexto de fuentes y una metodología pública.',
-    authorTitle: 'Sobre el creador',
-    authorBody: 'Kim Leclerc es analista político y estratega de asuntos públicos con experiencia en oficinas políticas y comunicaciones estratégicas. Vote-Scope es un proyecto personal: no está afiliado a partidos, encuestadoras ni medios.',
-    standardsTitle: 'Cómo evaluar el trabajo',
-    standardsBody: 'El lector puede revisar la metodología, comparar pronósticos resueltos en el historial público y consultar la política de divulgación. Los errores y cambios metodológicos se documentan en lugar de borrarse.',
-    mediaEyebrow: 'Entrevistas y menciones seleccionadas',
-    mediaTitle: 'La experiencia detrás del modelo, en el registro público.',
-    mediaIntro: 'Estas apariciones en medios independientes contextualizan la experiencia detrás de Vote-Scope. Son distintas de las publicaciones editoriales del sitio.',
+    what: [
+      'Vote-Scope convierte esa experiencia en matemáticas. No es un promedio de encuestas pasado por un simulador. Cada pronóstico funciona con decenas de módulos construidos para cada jurisdicción: los patrones regionales, cómo suele equivocarse cada encuestadora y lo que una campaña mueve en el terreno antes de que lo muestren las cifras.',
+      'Cada semana, esos módulos se prueban con decenas de elecciones pasadas en Estados Unidos, Canadá y el Reino Unido. Cuando algo no cuadra en los datos, no se publica nada hasta corregir el modelo. Cuando un pronóstico se mueve, verificamos que sea un cambio real y no un error de cálculo. Por eso también pronosticamos elecciones parciales, que casi nadie modela. Usamos la IA para ir más rápido. El juicio sigue siendo humano.',
+    ],
+    recordTitle: 'Quebec, 5 de octubre de 2026',
+    record: [
+      'Menos de un punto de error medio en el voto de los partidos.',
+      'Gobierno anunciado a las 20:27, minoría anunciada a las 21:22, antes que Radio-Canada.',
+    ],
+    transparencyTitle: 'Transparencia',
+    transparency: 'He trabajado para grandes partidos políticos en Canadá, a nivel municipal, provincial y federal, y en campañas en Francia y Estados Unidos. Vote-Scope no trabaja para ningún partido. Las encuestas utilizadas, el método y nuestros errores se publican.',
+    mediaEyebrow: 'Entrevistas y menciones en medios',
+    mediaTitle: 'En el registro público.',
+    mediaIntro: 'Entrevistas y artículos donde se citó a Kim Leclerc y las proyecciones de Vote-Scope.',
     read: 'Consultar la fuente',
     methodology: 'Leer la metodología',
     track: 'Ver el historial',
-    contact: 'Contactar a Kim Leclerc',
+    contact: 'kimleclerc.ca',
   },
 }[lang];
 
@@ -153,10 +238,21 @@ const paths = {
     </div>
   </header>
 
+  <section class="about-story container">
+    <figure class="about-portrait">
+      <img src="/images/kim-leclerc.jpg" alt={copy.photoAlt} width="599" height="900" loading="lazy" decoding="async" />
+    </figure>
+    <div class="about-prose">
+      <h2>{copy.authorTitle}</h2>
+      {copy.bio.map((p) => <p>{p}</p>)}
+      <h2>{copy.roomTitle}</h2>
+      {copy.room.map((p) => <p>{p}</p>)}
+    </div>
+  </section>
   <section class="about-principles container">
-    <div><h2>{copy.whatTitle}</h2><p>{copy.whatBody}</p></div>
-    <div><h2>{copy.authorTitle}</h2><p>{copy.authorBody}</p></div>
-    <div><h2>{copy.standardsTitle}</h2><p>{copy.standardsBody}</p></div>
+    <div><h2>{copy.whatTitle}</h2>{copy.what.map((p) => <p>{p}</p>)}</div>
+    <div><h2>{copy.recordTitle}</h2><ul>{copy.record.map((r) => <li>{r}</li>)}</ul><p><a href={paths.track}>{copy.track} →</a></p></div>
+    <div><h2>{copy.transparencyTitle}</h2><p>{copy.transparency}</p></div>
   </section>
 
   <section class="media-section">
@@ -185,7 +281,7 @@ const paths = {
   <aside class="about-contact container">
     <a href="https://kimleclerc.ca" target="_blank" rel="me noopener">{copy.contact} <span aria-hidden="true">↗</span></a>
     <span aria-hidden="true">·</span>
-    <a href="https://x.com/kimleclerc" target="_blank" rel="me noopener">X — @kimleclerc <span aria-hidden="true">↗</span></a>
+    <a href="https://x.com/kimleclerc" target="_blank" rel="me noopener">X · @kimleclerc <span aria-hidden="true">↗</span></a>
   </aside>
 </article>
 
@@ -202,6 +298,17 @@ const paths = {
   .about-principles > div:first-child { padding-left: 0; border-left: 0; }
   .about-principles h2 { margin-bottom: .75rem; font-size: 1.45rem; }
   .about-principles p { color: var(--ink-2); line-height: 1.7; }
+  .about-story { display: grid; grid-template-columns: minmax(220px, 320px) 1fr; gap: clamp(2rem, 5vw, 4.5rem); padding-block: 4.5rem 1rem; align-items: start; }
+  .about-portrait { margin: 0; position: sticky; top: 6rem; }
+  .about-portrait img { display: block; width: 100%; height: auto; border-radius: 4px; filter: grayscale(.15); }
+  .about-prose { max-width: 720px; }
+  .about-prose h2 { margin: 0 0 1rem; font-size: clamp(1.6rem, 3vw, 2.3rem); letter-spacing: -.02em; }
+  .about-prose h2 + p { margin-top: 0; }
+  .about-prose p { color: var(--ink-2); font-size: 1.12rem; line-height: 1.75; margin: 0 0 1.1rem; }
+  .about-prose p + h2 { margin-top: 2.6rem; }
+  .about-principles ul { margin: 0 0 1rem; padding-left: 1.1rem; color: var(--ink-2); line-height: 1.7; }
+  .about-principles li { margin-bottom: .5rem; }
+  .about-principles p + p { margin-top: .9rem; }
   .media-section { padding: 4.5rem 0; background: var(--paper-2); border-block: 1px solid var(--rule); }
   .media-section h2 { max-width: 820px; margin: .35rem 0 .8rem; font-size: clamp(2rem, 4vw, 3.8rem); letter-spacing: -.035em; }
   .media-intro { max-width: 760px; color: var(--ink-2); font-size: 1.05rem; line-height: 1.65; }
@@ -215,6 +322,8 @@ const paths = {
   .about-contact { display: flex; justify-content: center; gap: .75rem; padding-block: 3rem; text-align: center; }
   .about-contact a { font-size: 1.2rem; border-bottom: 1px solid var(--ink); }
   @media (max-width: 820px) {
+    .about-story { grid-template-columns: 1fr; }
+    .about-portrait { position: static; max-width: 260px; }
     .about-principles { grid-template-columns: 1fr; gap: 2rem; }
     .about-principles > div { padding: 0; border-left: 0; }
     .media-list { grid-template-columns: 1fr; }
