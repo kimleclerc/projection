@@ -262,16 +262,22 @@ const openSeatCount = (data.ridings ?? []).filter(
   (r: any) => r?.open_seat).length;
 const leadLabel = partyLabel(lead);
 const secondLabel = partyLabel(second);
+// Titres US : sujet au pluriel (« Democrats have… », « Les démocrates ont… », « Los demócratas tienen… »).
+const usSubject = ({
+  en: { us_dem: 'Democrats', us_rep: 'Republicans' },
+  fr: { us_dem: 'Les démocrates', us_rep: 'Les républicains' },
+  es: { us_dem: 'Los demócratas', us_rep: 'Los republicanos' },
+} as Record<string, Record<string, string>>)[locale]?.[lead?.party] ?? leadLabel;
 const headlineById: Record<string, Record<Locale, string>> = {
   'us-house': {
-    en: `${leadLabel} lead by ${Math.abs(projectedSeatsFor(lead) - projectedSeatsFor(second))} seats. The market is more bullish.`,
-    fr: `${leadLabel} mène par ${Math.abs(projectedSeatsFor(lead) - projectedSeatsFor(second))} sièges. Le marché est plus tranché.`,
-    es: `${leadLabel} aventaja por ${Math.abs(projectedSeatsFor(lead) - projectedSeatsFor(second))} escaños. El mercado es más contundente.`,
+    en: `${usSubject} lead by ${Math.abs(projectedSeatsFor(lead) - projectedSeatsFor(second))} seats. The market is more bullish.`,
+    fr: `${usSubject} mènent par ${Math.abs(projectedSeatsFor(lead) - projectedSeatsFor(second))} sièges. Le marché est plus tranché.`,
+    es: `${usSubject} aventajan por ${Math.abs(projectedSeatsFor(lead) - projectedSeatsFor(second))} escaños. El mercado es más contundente.`,
   },
   'us-senate': {
-    en: `${leadLabel} have the map. The market sees a much tighter chamber.`,
-    fr: `${leadLabel} ont la carte. Le marché voit une chambre beaucoup plus serrée.`,
-    es: `${leadLabel} tienen el mapa. El mercado ve una cámara mucho más cerrada.`,
+    en: `${usSubject} have the map. The market sees a much tighter chamber.`,
+    fr: `${usSubject} ont la carte. Le marché voit une chambre beaucoup plus serrée.`,
+    es: `${usSubject} tienen el mapa. El mercado ve una cámara mucho más cerrada.`,
   },
   // Le compte de sièges ouverts est LU dans les données, pas écrit dans la
   // phrase : un gouverneur qui annonce son retrait en octobre changerait le
@@ -730,7 +736,7 @@ const pageNavItems = [
     <p class="pe-snapshot-note">{locale === 'fr' ? `${meta.n_polls} sondages · ${usesBsts ? 'BSTS (MCMC) · ' : ''}${nSimsFr} simulations · notre lecture exclusive de la course` : locale === 'es' ? `${meta.n_polls} encuestas · ${usesBsts ? 'BSTS (MCMC) · ' : ''}${nSimsEs} simulaciones · nuestra lectura exclusiva de la carrera` : `${meta.n_polls} polls · ${usesBsts ? 'BSTS (MCMC) · ' : ''}${nSimsEn} simulations · our exclusive read of the race`}</p>
     <ForecastShare
       locale={locale}
-      cardPath={`/og/projections/${jurisdiction.dataPath}/${locale}.png`}
+      cardPath={jurisdiction.dataPath === 'us-senate' ? `/og/live/us-senate/${locale}.png` : `/og/projections/${jurisdiction.dataPath}/${locale}.png`}
       title={jurisdiction.pageTitle[locale] ?? jurisdiction.pageTitle.en}
       shareVersion={meta.run_date}
       client:load
