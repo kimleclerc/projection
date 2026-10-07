@@ -257,7 +257,7 @@ const liveMarketLabel = marketConfig?.label[locale] ?? (locale === 'fr' ? 'Farag
 const marketHref = marketConfig
   ? `https://polymarket.com/${locale === 'en' ? '' : `${locale}/`}event/${marketConfig.slug}`
   : locale === 'fr' ? '/fr/uk/byelections/clacton/' : locale === 'es' ? '/es/uk/byelections/clacton/' : '/en/uk/byelections/clacton/';
-const snapshotKicker = locale === 'fr' ? `TABLEAU DE COURSE · RUN ${meta.run_date}` : locale === 'es' ? `TABLERO DE CARRERA · ${meta.run_date}` : `RACE BOARD · RUN ${meta.run_date}`;
+const snapshotKicker = locale === 'fr' ? `Tableau de la course · mis à jour le ${meta.run_date}` : locale === 'es' ? `Tablero de la contienda · actualizado el ${meta.run_date}` : `Race board · updated ${meta.run_date}`;
 const openSeatCount = (data.ridings ?? []).filter(
   (r: any) => r?.open_seat).length;
 const leadLabel = partyLabel(lead);
@@ -354,10 +354,10 @@ const isFr = locale === "fr";
 const isEs = locale === "es";
 const t = {
   heroTagline: isFr
-    ? "FORECAST VOTE-SCOPE · PROJECTION PROPRIÉTAIRE · AJUSTEMENTS EXCLUSIFS"
+    ? "Projection Vote-Scope, mise à jour chaque jour"
     : isEs
-    ? "FORECAST VOTE-SCOPE · PROYECCIÓN PROPIETARIA · AJUSTES EXCLUSIVOS"
-    : "VOTE-SCOPE FORECAST · PROPRIETARY PROJECTION · EXCLUSIVE ADJUSTMENTS",
+    ? "Pronóstico Vote-Scope, actualizado cada día"
+    : "Vote-Scope forecast, updated daily",
   modelBadge: modelBadge(locale),
   runDate: isFr
     ? `Dernier run : ${meta.run_date}`
@@ -698,10 +698,8 @@ const pageNavItems = [
       <span>{t.pollsCount}</span>
       <span aria-hidden="true">·</span>
       <span>{t.simulations}</span>
-    </div>
-    <div class="pe-badges">
-      <span class="pe-badge pe-badge-strong">{t.modelBadge}</span>
-      <span class="pe-badge">{meta.election_cycle}</span>
+      <span aria-hidden="true">·</span>
+      <span>{t.modelBadge}</span>
     </div>
     <GooglePreferredSource locale={locale} />
   </header>
@@ -1066,8 +1064,7 @@ const pageNavItems = [
   }
 
   .pe-title :global(em) {
-    font-style: italic;
-    color: var(--ink-2);
+    font-style: normal;
   }
 
   .pe-tagline {

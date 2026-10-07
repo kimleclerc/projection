@@ -217,8 +217,7 @@ const titleId = `${id}-title`;
     grid-template-areas: 'name odds' 'party odds';
     gap: 2px 14px;
     align-items: center;
-    padding: 12px 0 12px 12px;
-    border-left: 3px solid var(--party, var(--rule));
+    padding: 12px 0;
     color: var(--ink);
     text-decoration: none;
   }
@@ -227,6 +226,17 @@ const titleId = `${id}-title`;
     font-family: var(--serif);
     font-size: 19px;
     line-height: 1.15;
+  }
+  /* Pastille du parti favori devant le nom (plutôt qu'une barre sur le bord gauche). */
+  .cr-name::before {
+    content: '';
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    margin-right: 9px;
+    border-radius: 50%;
+    background: var(--party, var(--rule));
+    transform: translateY(-1px);
   }
   .cr-party {
     grid-area: party;
