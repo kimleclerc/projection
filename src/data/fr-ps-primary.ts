@@ -62,6 +62,45 @@ export const PS_PRIMARY = {
     en: 'Philippe Brun, whose candidacy had been validated, was suspended from the PS on September 16 and is not taking part. François Ruffin and Matthieu Pigasse did not get the agreement needed to enter.',
     es: 'Philippe Brun, cuya candidatura había sido validada, fue suspendido del PS el 16 de septiembre y no participa. François Ruffin y Matthieu Pigasse no obtuvieron el acuerdo necesario para entrar.',
   } as T,
+  // Opinion de l'électorat de gauche — PAS des intentions de vote (aucun
+  // sondage n'interroge les inscrits à la primaire). Chiffres vérifiés le
+  // 2026-10-07 dans les rapports publiés (Odoxa p. 39 ; Elabe, Observatoire
+  // d'octobre) et les notices de la Commission des sondages (méthode).
+  leftOpinion: [
+    {
+      firm: 'Odoxa', client: 'Mascaret, Public Sénat et la presse régionale', field: ['2026-09-23', '2026-09-24'], n: 1005,
+      url: 'https://www.odoxa.fr/wp-content/uploads/2026/09/Barometre-Politique-Odoxa-Septembre-2026.pdf',
+      measure: { fr: 'Cote d’adhésion (« vous la soutenez » ou « vous éprouvez de la sympathie »)', en: 'Support rating (“you support” or “you feel sympathy for” them)', es: 'Índice de adhesión («la apoya» o «siente simpatía»)' } as T,
+      group: { fr: 'Sympathisants de gauche, LFI comprise', en: 'Left-wing supporters, including LFI', es: 'Simpatizantes de izquierda, incluida LFI' } as T,
+      note: { fr: 'La plupart des répondants ont été interrogés avant le premier débat (23 septembre au soir).', en: 'Most respondents were interviewed before the first debate (evening of September 23).', es: 'La mayoría de los encuestados respondió antes del primer debate (noche del 23 de septiembre).' } as T,
+      rows: [
+        { id: 'left_glucksmann', left: 38, all: 20 },
+        { id: 'left_royal', left: 32, all: 16 },
+        { id: 'left_faure', left: 29, all: 11 },
+        { id: 'left_guedj', left: 15, all: 8 },
+        { id: 'left_maurel', left: 9, all: 4 },
+        { id: 'left_hollande', left: 42, all: 22, outside: true },
+      ],
+    },
+    {
+      firm: 'Elabe', client: 'Les Échos', field: ['2026-09-29', '2026-09-30'], n: 1000,
+      url: 'https://elabe.fr/lobservatoire-politique-octobre-2026/',
+      measure: { fr: 'Bonne image', en: 'Favourable image', es: 'Buena imagen' } as T,
+      group: { fr: 'Électeurs de gauche', en: 'Left-wing voters', es: 'Votantes de izquierda' } as T,
+      note: { fr: 'Emmanuel Maurel n’est pas testé.', en: 'Emmanuel Maurel was not tested.', es: 'Emmanuel Maurel no fue evaluado.' } as T,
+      rows: [
+        { id: 'left_glucksmann', left: 40, all: 21 },
+        { id: 'left_royal', left: 39, all: 16 },
+        { id: 'left_faure', left: 30, all: 12 },
+        { id: 'left_guedj', left: 19, all: 8 },
+        { id: 'left_hollande', left: 40, all: null, outside: true },
+      ],
+    },
+  ] as Array<{ firm: string; client: string; field: [string, string]; n: number; url: string; measure: T; group: T; note: T;
+               rows: Array<{ id: string; left: number; all: number | null; outside?: boolean }> }>,
+  // Elabe pour BFMTV et La Tribune Dimanche, 29 sept.–2 oct., n = 2005.
+  interest: { firm: 'Elabe', client: 'BFMTV, La Tribune Dimanche', field: ['2026-09-29', '2026-10-02'], n: 2005,
+              url: 'https://elabe.fr/primaire-gauche/', all: 25, left: 48, psPp: 56 },
   // À saisir le soir des résultats (parts des suffrages exprimés).
   results: {
     firstRound: null as PrimaryResult[] | null,

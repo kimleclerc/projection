@@ -121,6 +121,13 @@ const C = {
     candidatesTitle: 'Les cinq candidats',
     inPolls: (v: string, n: number) => `${v} dans les sondages présidentiels · ${n} hypothèse${n > 1 ? 's' : ''} en 90 jours`,
     neverTested: 'Jamais testé dans un sondage présidentiel',
+    opinionTitle: 'Ce qu’en pense l’électorat de gauche',
+    opinionLede: 'Aucun sondage n’interroge les inscrits à la primaire : on ne connaît pas d’intentions de vote. Ce que l’on sait, c’est l’image des candidats à gauche. Ce ne sont pas des votes : chacun peut apprécier plusieurs candidats, et les votants de la primaire, des inscrits qui paient 15 €, ne ressemblent pas forcément à l’électorat de gauche.',
+    opinionAll: (v: string) => `Ensemble des Français : ${v}`,
+    outside: 'pas candidat',
+    opinionRead: 'À gauche, la course paraît bien plus serrée que dans les sondages présidentiels : Royal et Faure y sont à moins de dix points de Glucksmann, alors qu’ils pèsent deux à trois fois moins que lui dans les intentions de vote présidentielles.',
+    interest: (a: string, l: string, p: string) => `Intérêt pour la campagne de la primaire : ${a} des Français, ${l} des sympathisants de gauche, ${p} des sympathisants PS et Place publique.`,
+    source: 'Source',
     changeTitle: 'Ce que le résultat change pour la présidentielle',
     changeLede: 'Nous comparons deux hypothèses d’une même enquête, auprès des mêmes personnes, où seul le candidat social-démocrate change. C’est la mesure la plus directe de ce que chaque vainqueur pèserait.',
     h2hHead: (n: string, ref: string) => `${n} à la place de ${ref}`,
@@ -153,6 +160,13 @@ const C = {
     candidatesTitle: 'The five candidates',
     inPolls: (v: string, n: number) => `${v} in presidential polls · ${n} lineup${n > 1 ? 's' : ''} in 90 days`,
     neverTested: 'Never tested in a presidential poll',
+    opinionTitle: 'What left-wing voters think',
+    opinionLede: 'No poll surveys the people registered for the primary, so there are no voting intentions. What we do know is how the candidates are viewed on the left. These are not votes: people can like several candidates, and primary voters, who register and pay €15, may not look like the wider left-wing electorate.',
+    opinionAll: (v: string) => `All French adults: ${v}`,
+    outside: 'not running',
+    opinionRead: 'On the left, the race looks much tighter than in presidential polls: Royal and Faure are within ten points of Glucksmann, while they score two to three times less than him in presidential voting intentions.',
+    interest: (a: string, l: string, p: string) => `Interest in the primary campaign: ${a} of French adults, ${l} of left-wing supporters, ${p} of PS and Place publique supporters.`,
+    source: 'Source',
     changeTitle: 'What the result changes for the presidential race',
     changeLede: 'We compare two lineups from the same survey, on the same people, where only the social-democratic candidate changes. It is the most direct measure of what each winner would weigh.',
     h2hHead: (n: string, ref: string) => `${n} instead of ${ref}`,
@@ -185,6 +199,13 @@ const C = {
     candidatesTitle: 'Los cinco candidatos',
     inPolls: (v: string, n: number) => `${v} en las encuestas presidenciales · ${n} combinaci${n > 1 ? 'ones' : 'ón'} en 90 días`,
     neverTested: 'Nunca incluido en una encuesta presidencial',
+    opinionTitle: 'Lo que piensa el electorado de izquierda',
+    opinionLede: 'Ninguna encuesta pregunta a los inscritos en las primarias: no hay intención de voto. Lo que sí se sabe es la imagen de los candidatos en la izquierda. No son votos: se puede apreciar a varios candidatos, y los votantes de las primarias, inscritos que pagan 15 €, no se parecen necesariamente al electorado de izquierda.',
+    opinionAll: (v: string) => `Conjunto de los franceses: ${v}`,
+    outside: 'no es candidato',
+    opinionRead: 'En la izquierda, la carrera parece mucho más ajustada que en las encuestas presidenciales: Royal y Faure están a menos de diez puntos de Glucksmann, mientras que pesan dos o tres veces menos que él en la intención de voto presidencial.',
+    interest: (a: string, l: string, p: string) => `Interés por la campaña de las primarias: ${a} de los franceses, ${l} de los simpatizantes de izquierda, ${p} de los simpatizantes del PS y Place publique.`,
+    source: 'Fuente',
     changeTitle: 'Lo que el resultado cambia para la presidencial',
     changeLede: 'Comparamos dos combinaciones de una misma encuesta, con las mismas personas, donde solo cambia el candidato socialdemócrata. Es la medida más directa de lo que pesaría cada ganador.',
     h2hHead: (n: string, ref: string) => `${n} en lugar de ${ref}`,
@@ -278,6 +299,32 @@ const maxMove = Math.max(1, ...primaryRows.flatMap((r) => (r.swap?.movers ?? [])
         </li>
       ))}
     </ul>
+  </section>
+
+  <section class="fps-section container" aria-labelledby="fps-opinion">
+    <h2 id="fps-opinion">{C.opinionTitle}</h2>
+    <p class="fps-help">{C.opinionLede}</p>
+    <div class="fps-grid">
+      {PS_PRIMARY.leftOpinion.map((o) => (
+        <div class="fps-card">
+          <h3>{o.firm} · {o.group[locale]}</h3>
+          <p class="fps-small">{o.measure[locale]} · {day(o.field[0])}–{day(o.field[1], true)} · n = {o.n.toLocaleString(L)}</p>
+          <ul class="fps-bars">
+            {o.rows.map((r) => (
+              <li class={r.outside ? 'is-outside' : ''}>
+                <span class="fps-name">{shortOf(r.id)}{r.outside && <em> · {C.outside}</em>}</span>
+                <span class="fps-track"><span class="fps-fill" style={`width:${r.left}%;background:${r.outside ? 'var(--ink-4)' : blocHex(blocOf(r.id))}`} /></span>
+                <span class="fps-val" title={r.all != null ? C.opinionAll(`${r.all} %`) : undefined}>{r.left}{locale === 'en' ? '%' : ' %'}</span>
+              </li>
+            ))}
+          </ul>
+          <p class="fps-small">{C.opinionAll(o.rows.filter((r) => !r.outside && r.all != null).map((r) => `${shortOf(r.id)} ${r.all}`).join(' · '))}</p>
+          <p class="fps-small">{o.note[locale]} {C.source} : <a href={o.url} rel="noopener">{o.firm}, {o.client}</a></p>
+        </div>
+      ))}
+    </div>
+    <p class="fps-text">{C.opinionRead}</p>
+    <p class="fps-small">{C.interest(...[PS_PRIMARY.interest.all, PS_PRIMARY.interest.left, PS_PRIMARY.interest.psPp].map((v) => `${v}${locale === 'en' ? '%' : ' %'}`) as [string, string, string])} {C.source} : <a href={PS_PRIMARY.interest.url} rel="noopener">{PS_PRIMARY.interest.firm}, {PS_PRIMARY.interest.client}</a>, {day(PS_PRIMARY.interest.field[0])}–{day(PS_PRIMARY.interest.field[1], true)}, n = {PS_PRIMARY.interest.n.toLocaleString(L)}.</p>
   </section>
 
   <section class="fps-section container" aria-labelledby="fps-change">
@@ -387,6 +434,8 @@ const maxMove = Math.max(1, ...primaryRows.flatMap((r) => (r.swap?.movers ?? [])
   .fps-half.is-neg { grid-column: 1; }
   .fps-half.is-neg .fps-fill { left: auto; right: 0; }
   .fps-val { font-family: var(--mono); font-size: 12px; color: var(--ink); text-align: right; }
+  .fps-bars li.is-outside .fps-name em { font-style: normal; color: var(--ink-3); }
+  .fps-bars li.is-outside { opacity: .75; }
   .fps-results h3 { font-family: var(--serif); font-size: 20px; font-weight: 450; margin: 0 0 10px; }
   .fps-practical { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px 40px; }
   .fps-link, .fps-links a { font-family: var(--mono); font-size: 12px; color: var(--ink-2); }
