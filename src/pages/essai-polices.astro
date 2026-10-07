@@ -1,0 +1,158 @@
+---
+/**
+ * Page d'essai typographique (non indexée, non liée) : même contenu réel rendu
+ * avec trois trios de polices. Serif = Vote-Scope parle, sans = Vote-Scope
+ * explique, mono = la machine parle. À supprimer une fois le choix fait.
+ */
+import '@fontsource-variable/newsreader/opsz.css';
+import '@fontsource-variable/geist/wght.css';
+import '@fontsource-variable/jetbrains-mono/wght.css';
+import '@fontsource/libre-caslon-text/400.css';
+import '@fontsource/libre-caslon-text/700.css';
+import '@fontsource/libre-caslon-text/400-italic.css';
+import '@fontsource-variable/libre-franklin/wght.css';
+import '@fontsource/ibm-plex-mono/400.css';
+import '@fontsource/ibm-plex-mono/500.css';
+import '@fontsource/spectral/400.css';
+import '@fontsource/spectral/600.css';
+import '@fontsource/spectral/400-italic.css';
+import '@fontsource-variable/public-sans/wght.css';
+import '@fontsource/courier-prime/400.css';
+import '@fontsource/courier-prime/700.css';
+import senate from '../../web_data/us-senate/latest.json';
+
+const parties = (senate as any).parties;
+const dem = parties.find((p: any) => p.party === 'us_dem');
+const rep = parties.find((p: any) => p.party === 'us_rep');
+const pct = Math.round(dem.p_majority * 100);
+const races = [...(senate as any).ridings]
+  .sort((a: any, b: any) => Math.abs(a.projection.p_winner - 0.5) - Math.abs(b.projection.p_winner - 0.5))
+  .slice(0, 6);
+const run = (senate as any).meta.run_date;
+
+const trios = [
+  { id: 'actuel', name: 'Actuel', note: 'Newsreader · Geist · JetBrains Mono — le trio typique des sites faits par IA.',
+    serif: '"Newsreader Variable", Georgia, serif', sans: '"Geist Variable", system-ui, sans-serif', mono: '"JetBrains Mono Variable", monospace',
+    h1w: 400, track: '-0.02em' },
+  { id: 'a', name: 'A · Presse américaine', note: 'Libre Caslon (Déclaration d’indépendance) · Libre Franklin (titres de journaux américains) · IBM Plex Mono.',
+    serif: '"Libre Caslon Text", Georgia, serif', sans: '"Libre Franklin Variable", system-ui, sans-serif', mono: '"IBM Plex Mono", monospace',
+    h1w: 400, track: '-0.005em' },
+  { id: 'b', name: 'B · Agence électorale', note: 'Spectral (serif d’écran) · Public Sans (gouvernement américain) · Courier Prime (téléscripteur).',
+    serif: 'Spectral, Georgia, serif', sans: '"Public Sans Variable", system-ui, sans-serif', mono: '"Courier Prime", monospace',
+    h1w: 400, track: '0' },
+];
+---
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Essai typographique — Vote-Scope</title>
+</head>
+<body>
+  <header class="intro">
+    <p>ESSAI TYPOGRAPHIQUE · PAGE INTERNE, NON INDEXÉE</p>
+    <h1>Trois voix pour Vote-Scope</h1>
+    <p>Même contenu, mêmes couleurs, mêmes marges. Seules les polices changent. Serif = Vote-Scope parle · sans = Vote-Scope explique · mono = la machine parle.</p>
+    <nav>{trios.map((t) => <a href={`#${t.id}`}>{t.name}</a>)}</nav>
+  </header>
+
+  {trios.map((t) => (
+    <section id={t.id} class="trio" style={`--serif:${t.serif};--sans:${t.sans};--mono:${t.mono};--h1w:${t.h1w};--track:${t.track}`}>
+      <div class="label"><strong>{t.name}</strong><span>{t.note}</span></div>
+
+      <div class="hero">
+        <div>
+          <p class="eyebrow">PROJECTIONS ÉLECTORALES INDÉPENDANTES · RUN {run}</p>
+          <h2 class="h1">Toutes les élections, en projection.</h2>
+          <p class="promise">Les midterms américains, le Canada, le Royaume-Uni, la France et l’Espagne, en français, en anglais et en espagnol. Les données, avec vingt ans de terrain.</p>
+          <p class="promise en">Every election, forecast. <em>Data, backed by experience.</em></p>
+        </div>
+        <aside class="qbox">
+          <p class="eyebrow">MIDTERMS AMÉRICAINS · 3 NOVEMBRE · J-27</p>
+          <p class="q">Qui contrôlera le Sénat?</p>
+          <p class="big">{pct}<span>&#8239;%</span></p>
+          <p class="sub">Démocrates · de chances de majorité</p>
+          <p class="mono-line">D {Math.round(dem.seats_projected)} · R {Math.round(rep.seats_projected)} · 50&#8239;000 SIMULATIONS · MAJ 18:30 HE</p>
+        </aside>
+      </div>
+
+      <div class="row">
+        <article class="card">
+          <p class="eyebrow">24 OCTOBRE · DANS 17 JOURS</p>
+          <h3>Colombie-Britannique</h3>
+          <p class="lead">Les conservateurs en avance : 55 sièges projetés sur 93</p>
+          <p class="small">Chances de majorité : 97&#8239;%</p>
+          <p class="cta">OUVRIR LA PROJECTION →</p>
+        </article>
+        <article class="card">
+          <p class="eyebrow">QUI FAIT LES PROJECTIONS</p>
+          <h3>Les données, avec vingt ans de terrain.</h3>
+          <p class="body">J’ai fait toutes les étapes d’une campagne électorale. J’ai été militant, organisateur en chef, candidat avec ma face sur les poteaux, et j’ai travaillé dans des war rooms nationaux en lien direct avec l’autobus du chef.</p>
+        </article>
+        <article class="card">
+          <p class="eyebrow">COURSES LES PLUS SERRÉES · SÉNAT</p>
+          <table>
+            <thead><tr><th>État</th><th>Favori</th><th class="num">Prob.</th><th class="num">Écart</th></tr></thead>
+            <tbody>
+              {races.map((r: any) => (
+                <tr>
+                  <td>{r.name_fr}</td>
+                  <td>{r.projection.winner === 'us_dem' ? 'D' : 'R'}</td>
+                  <td class="num">{Math.round(r.projection.p_winner * 100)}&#8239;%</td>
+                  <td class="num">{r.projection.mean_margin > 0 ? '+' : ''}{r.projection.mean_margin.toFixed(1)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </article>
+      </div>
+
+      <blockquote class="pull">« Les démocrates ont la carte. Le marché voit une chambre plus serrée. »</blockquote>
+    </section>
+  ))}
+</body>
+</html>
+
+<style is:global>
+  :root { --paper: #f6f2ea; --card: #fffdf8; --ink: #1d1b18; --ink-2: #55504a; --ink-3: #8a847b; --rule: #e1d9cb; --blue: #2a6fd0; --red: #c0392b; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--paper); color: var(--ink); font-family: system-ui, sans-serif; }
+  .intro { max-width: 1180px; margin: 0 auto; padding: 40px 24px 10px; font-family: system-ui, sans-serif; }
+  .intro p:first-child { font: 600 12px/1 ui-monospace, monospace; letter-spacing: .12em; color: var(--ink-3); }
+  .intro h1 { font-size: 34px; margin: 10px 0; }
+  .intro nav { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 14px; }
+  .intro nav a { color: var(--ink); border-bottom: 1px solid var(--ink); text-decoration: none; }
+  .trio { max-width: 1180px; margin: 28px auto; padding: 28px 24px 34px; border-top: 3px solid var(--ink); }
+  .label { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: baseline; margin-bottom: 22px; font-family: system-ui, sans-serif; }
+  .label strong { font-size: 18px; }
+  .label span { color: var(--ink-3); font-size: 14px; }
+  .eyebrow { margin: 0 0 8px; font-family: var(--mono); font-size: 12px; letter-spacing: .12em; color: var(--ink-3); }
+  .hero { display: grid; grid-template-columns: 1.5fr 1fr; gap: 36px; padding-bottom: 26px; border-bottom: 1px solid var(--rule); }
+  .h1 { margin: 0 0 16px; font-family: var(--serif); font-weight: var(--h1w); font-size: clamp(40px, 6vw, 72px); line-height: 1.02; letter-spacing: var(--track); }
+  .promise { margin: 0 0 8px; font-family: var(--sans); font-size: 18px; line-height: 1.55; color: var(--ink-2); max-width: 620px; }
+  .promise.en { font-size: 15px; color: var(--ink-3); }
+  .promise em { font-family: var(--serif); font-style: italic; color: var(--ink); }
+  .qbox { border-top: 1px solid var(--ink); border-bottom: 1px solid var(--rule); padding: 16px 0; }
+  .q { margin: 0; font-family: var(--serif); font-size: 26px; line-height: 1.2; }
+  .big { margin: 6px 0 0; font-family: var(--serif); font-size: 96px; line-height: 1; color: var(--blue); font-variant-numeric: tabular-nums lining-nums; }
+  .big span { font-size: .6em; }
+  .sub { margin: 4px 0 12px; font-family: var(--sans); font-size: 15px; color: var(--ink-2); }
+  .mono-line { margin: 0; font-family: var(--mono); font-size: 12px; letter-spacing: .06em; color: var(--ink-2); }
+  .row { display: grid; grid-template-columns: 1fr 1.3fr 1.2fr; gap: 0; margin-top: 22px; border-top: 1px solid var(--rule); }
+  .card { padding: 18px 20px 6px; border-right: 1px solid var(--rule); }
+  .card:first-child { padding-left: 0; }
+  .card:last-child { border-right: 0; padding-right: 0; }
+  .card h3 { margin: 0 0 8px; font-family: var(--serif); font-weight: 400; font-size: 26px; line-height: 1.15; }
+  .lead { margin: 0 0 6px; font-family: var(--sans); font-weight: 600; font-size: 16px; line-height: 1.4; }
+  .small { margin: 0; font-family: var(--sans); font-size: 13px; color: var(--ink-3); }
+  .cta { margin: 14px 0 0; font-family: var(--mono); font-size: 11px; letter-spacing: .1em; }
+  .body { margin: 0; font-family: var(--sans); font-size: 15px; line-height: 1.65; color: var(--ink-2); }
+  table { width: 100%; border-collapse: collapse; font-family: var(--sans); font-size: 14px; }
+  th { text-align: left; font-family: var(--mono); font-weight: 400; font-size: 11px; letter-spacing: .08em; color: var(--ink-3); border-bottom: 1px solid var(--ink); padding: 4px 0; }
+  td { padding: 6px 0; border-bottom: 1px solid var(--rule); }
+  .num { text-align: right; font-family: var(--mono); font-variant-numeric: tabular-nums; }
+  .pull { margin: 26px 0 0; padding-top: 18px; border-top: 1px solid var(--rule); font-family: var(--serif); font-style: italic; font-size: 28px; line-height: 1.3; }
+  @media (max-width: 820px) { .hero, .row { grid-template-columns: 1fr; } .card { padding-left: 0; padding-right: 0; border-right: 0; border-bottom: 1px solid var(--rule); } }
+</style>
