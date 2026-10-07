@@ -47,7 +47,7 @@ const esP = (esData as any).blocs.pp_vox.p_majority * 100;
 const esPmaj = esP > 99 ? '>99 %' : `${Math.round(esP)} %`;
 
 const signals = [
-  { label: 'Sénat américain', value: `${senateLeader} · majorité ${senatePct} %`, href: '/fr/us/senat/' },
+  { label: 'Sénat américain', value: `${senateLeader} · majorité ${senatePct}\u202f%`, href: '/fr/us/senat/' },
   { label: 'Élections Espagne', value: `PP+Vox ${esData.blocs.pp_vox.median} sièges · majorité ${esPmaj}`, href: '/fr/spain/' },
   { label: 'Indice Barrage', value: `${bfi.score}/100 · ${bfi.label_fr}`, href: '/fr/france/indexes/barrage/' },
   { label: 'Législatives FR', value: `p(majorité RN) ${pMajRN} % si front 2024`, href: '/fr/france/legislatives' },
@@ -105,7 +105,7 @@ const liveSignals: Record<string, string> = {
     title="Toutes les élections, en projection."
     promise="Les midterms américains, le Canada, le Royaume-Uni, la France et l’Espagne, en français, en anglais et en espagnol. Les données, avec vingt ans de terrain."
     questionLabel="Midterms américains · 3 novembre"
-    question={`Qui contrôlera le Sénat? ${senateLeader} : ${senatePct} % de chances de majorité.`}
+    question={`Qui contrôlera le Sénat? ${senateLeader} : ${senatePct}\u202f% de chances de majorité.`}
     primaryHref="/fr/us/senat/"
     primaryLabel="Projection du Sénat"
     secondaryHref="/fr/us/chambre/"

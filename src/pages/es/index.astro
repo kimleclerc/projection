@@ -47,7 +47,7 @@ const esP = (esData as any).blocs.pp_vox.p_majority * 100;
 const esPmaj = esP > 99 ? '>99 %' : `${Math.round(esP)} %`;
 
 const signals = [
-  { label: 'Senado de EE. UU.', value: `${senateLeader} · mayoría ${senatePct} %`, href: '/es/us/senate/' },
+  { label: 'Senado de EE. UU.', value: `${senateLeader} · mayoría ${senatePct}\u202f%`, href: '/es/us/senate/' },
   { label: 'Elecciones España', value: `PP+Vox ${esData.blocs.pp_vox.median} escaños · mayoría ${esPmaj}`, href: '/es/spain/' },
   { label: 'Índice Barrage', value: `${bfi.score}/100 · ${bfi.label_es}`, href: '/es/france/indexes/barrage/' },
   { label: 'Legislativas FR', value: `p(mayoría RN) ${pMajRN}% con frente 2024`, href: '/es/france/legislativas' },
@@ -105,7 +105,7 @@ const liveSignals: Record<string, string> = {
     title="Cada elección, pronosticada."
     promise="Las elecciones intermedias de EE. UU., Canadá, el Reino Unido, Francia y España, en español, inglés y francés. Datos, respaldados por veinte años dentro de campañas."
     questionLabel="Intermedias de EE. UU. · 3 de noviembre"
-    question={`¿Quién controlará el Senado? ${senateLeader}: ${senatePct} % de probabilidad de mayoría.`}
+    question={`¿Quién controlará el Senado? ${senateLeader}: ${senatePct}\u202f% de probabilidad de mayoría.`}
     primaryHref="/es/us/senate/"
     primaryLabel="Pronóstico del Senado"
     secondaryHref="/es/us/house/"

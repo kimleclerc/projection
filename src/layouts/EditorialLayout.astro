@@ -1,5 +1,6 @@
 ---
 import Base from './Base.astro';
+import MidtermsBand from '../components/MidtermsBand.astro';
 import type { Locale } from '../data/editorial';
 
 interface Props {
@@ -29,6 +30,10 @@ const {
   ogType = 'website',
   searchIndex = true,
 } = Astro.props;
+
+// Renvoi midterms sur les pages des autres juridictions (pas sur les pages US ni l'accueil).
+const path = new URL(canonical).pathname;
+const showMidterms = /^\/(en|fr|es)\/(canada|france|spain|uk)(\/|$)/.test(path);
 ---
 
 <Base
@@ -44,6 +49,7 @@ const {
   searchIndex={searchIndex}
 >
   <slot />
+  {showMidterms && <MidtermsBand lang={lang} />}
 </Base>
 
 <style is:global>

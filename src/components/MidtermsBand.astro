@@ -1,0 +1,85 @@
+---
+/**
+ * Renvoi vers les midterms sur les pages des autres juridictions (Canada, France,
+ * Espagne, Royaume-Uni), dans la langue du lecteur. Chiffré au dernier run du
+ * Sénat ; disparaît après le jour du vote.
+ */
+import senateData from '../../web_data/us-senate/latest.json';
+
+interface Props {
+  lang: 'en' | 'fr' | 'es';
+}
+const { lang } = Astro.props;
+
+const ELECTION_DAY = Date.UTC(2026, 10, 3);
+const today = new Date();
+const days = Math.ceil((ELECTION_DAY - Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate())) / 86400000);
+
+const parties = (senateData as any).parties.filter((p: any) => p.party !== 'us_oth');
+const lead = [...parties].sort((a: any, b: any) => (b.p_majority ?? 0) - (a.p_majority ?? 0))[0];
+const pct = Math.round((lead?.p_majority ?? 0) * 100);
+const color = lead?.color ?? 'var(--ink)';
+
+const t = {
+  en: {
+    when: days === 0 ? 'U.S. midterms · today' : `U.S. midterms · November 3 · in ${days} days`,
+    question: 'Who controls the Senate?',
+    party: { us_dem: 'Democrats', us_rep: 'Republicans' },
+    chance: 'chance of a majority',
+    links: [['Senate', '/en/us/senate/'], ['House', '/en/us/house/'], ['Governors', '/en/us/governors/']],
+    all: 'All midterm forecasts',
+    allHref: '/en/us/',
+  },
+  fr: {
+    when: days === 0 ? 'Midterms américains · aujourd’hui' : `Midterms américains · 3 novembre · dans ${days} jours`,
+    question: 'Qui contrôlera le Sénat?',
+    party: { us_dem: 'Démocrates', us_rep: 'Républicains' },
+    chance: 'de chances de majorité',
+    links: [['Sénat', '/fr/us/senat/'], ['Chambre', '/fr/us/chambre/'], ['Gouverneurs', '/fr/us/gouverneurs/']],
+    all: 'Toutes les projections des midterms',
+    allHref: '/fr/us/',
+  },
+  es: {
+    when: days === 0 ? 'Intermedias de EE. UU. · hoy' : `Intermedias de EE. UU. · 3 de noviembre · en ${days} días`,
+    question: '¿Quién controlará el Senado?',
+    party: { us_dem: 'Demócratas', us_rep: 'Republicanos' },
+    chance: 'de probabilidad de mayoría',
+    links: [['Senado', '/es/us/senate/'], ['Cámara', '/es/us/house/'], ['Gobernadores', '/es/us/gobernadores/']],
+    all: 'Todos los pronósticos de las intermedias',
+    allHref: '/es/us/',
+  },
+}[lang];
+const pctLabel = lang === 'en' ? `${pct}%` : `${pct}\u202f%`;
+const leadLabel = (t.party as Record<string, string>)[lead?.party] ?? '';
+---
+{days >= 0 && lead && (
+  <aside class="midterms-band" aria-label={t.when}>
+    <div class="container midterms-band__inner">
+      <div>
+        <p class="eyebrow">{t.when}</p>
+        <p class="midterms-q">
+          {t.question}
+          <strong style={`color:${color}`}>{`${leadLabel} ${pctLabel}`}</strong>
+          <span>{t.chance}</span>
+        </p>
+      </div>
+      <nav class="midterms-links">
+        {t.links.map(([label, href]) => <a href={href}>{label} →</a>)}
+        <a class="midterms-all" href={t.allHref}>{t.all}</a>
+      </nav>
+    </div>
+  </aside>
+)}
+
+<style>
+  .midterms-band { margin-top: 3rem; padding: 1.6rem 0; border-block: 1px solid var(--rule); background: var(--paper-2); }
+  .midterms-band__inner { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem 2rem; }
+  .midterms-band .eyebrow { margin: 0 0 .3rem; }
+  .midterms-q { margin: 0; font-family: var(--serif); font-size: clamp(1.25rem, 2.4vw, 1.6rem); line-height: 1.3; }
+  .midterms-q strong { margin-left: .4rem; font-weight: 600; }
+  .midterms-q span { margin-left: .35rem; color: var(--ink-3); font-size: .8em; }
+  .midterms-links { display: flex; flex-wrap: wrap; gap: .6rem; }
+  .midterms-links a { padding: .55rem .85rem; border: 1px solid var(--rule); border-radius: 3px; font-family: var(--mono); font-size: .72rem; letter-spacing: .07em; text-transform: uppercase; color: var(--ink); background: var(--paper); }
+  .midterms-links a:hover { border-color: var(--ink-3); }
+  .midterms-links .midterms-all { border-color: var(--ink); background: var(--ink); color: var(--paper); }
+</style>
