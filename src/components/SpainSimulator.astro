@@ -42,6 +42,8 @@ const copy = {
     national: 'Partidos nacionales',
     regional: 'Partidos regionales',
     others: 'Otros y blanco',
+    total: 'Total de los partidos',
+    balance: 'Si subes un partido por encima del 100 %, los demás bajan en proporción.',
     over: 'La suma pasa del 100 %: baja algún partido.',
     presets: 'Escenarios',
     pProjection: 'Nuestra proyección',
@@ -69,6 +71,8 @@ const copy = {
     national: 'Partis nationaux',
     regional: 'Partis régionaux',
     others: 'Autres et blancs',
+    total: 'Total des partis',
+    balance: 'Si vous montez un parti au-delà de 100 %, les autres baissent en proportion.',
     over: 'Le total dépasse 100 % : baissez un parti.',
     presets: 'Scénarios',
     pProjection: 'Notre projection',
@@ -96,6 +100,8 @@ const copy = {
     national: 'National parties',
     regional: 'Regional parties',
     others: 'Others and blank',
+    total: 'Party total',
+    balance: 'Raise a party past 100% and the others come down in proportion.',
     over: 'The total is above 100%: lower a party.',
     presets: 'Scenarios',
     pProjection: 'Our projection',
@@ -158,6 +164,11 @@ const clientCopy = { seats: copy.seats, yes: copy.yes, no: copy.no, copied: copy
             <button type="button" data-preset="2023">{copy.p2023}</button>
             <button type="button" data-preset="tie">{copy.pTie}</button>
           </div>
+          <div class="sim-total" aria-live="polite">
+            <div class="sim-votebar" data-votebar aria-hidden="true"></div>
+            <p class="sim-others">{copy.total} : <strong data-total>—</strong> · {copy.others} : <strong data-others>—</strong></p>
+            <p class="sim-hint">{copy.balance}</p>
+          </div>
           <h2>{copy.national}</h2>
           {rows.filter((r) => NATIONAL.includes(r.code)).map((r) => (
             <label class="sim-row" style={`--party-color:${r.color}`}>
@@ -176,7 +187,6 @@ const clientCopy = { seats: copy.seats, yes: copy.yes, no: copy.no, copied: copy
               </label>
             ))}
           </details>
-          <p class="sim-others">{copy.others} : <strong data-others>—</strong></p>
           <p class="sim-warn" data-warn hidden>{copy.over}</p>
         </form>
 
@@ -275,6 +285,17 @@ const clientCopy = { seats: copy.seats, yes: copy.yes, no: copy.no, copied: copy
     const pct = get();
     const total = pct.reduce((a, b) => a + b, 0);
     document.querySelector<HTMLElement>('[data-others]')!.textContent = `${fmt(Math.max(0, 100 - total))} %`;
+    document.querySelector<HTMLElement>('[data-total]')!.textContent = `${fmt(total)} %`;
+    const vb = document.querySelector<HTMLElement>('[data-votebar]')!;
+    vb.innerHTML = '';
+    for (const code of BAR_ORDER) {
+      const k = idx[code];
+      if (k === undefined || !pct[k]) continue;
+      const seg = document.createElement('div');
+      seg.style.width = `${Math.min(100, pct[k])}%`;
+      seg.style.background = parties[k].color;
+      vb.appendChild(seg);
+    }
     document.querySelector<HTMLElement>('[data-warn]')!.hidden = total <= 100.05;
     const scale = total > 100 ? 100 / total : 1;
     const shares = provinceShares(pct.map((v) => (v * scale) / 100));
@@ -326,12 +347,34 @@ const clientCopy = { seats: copy.seats, yes: copy.yes, no: copy.no, copied: copy
     history.replaceState(null, '', `#${hash}`);
   }
 
-  ranges.forEach((r) => r.addEventListener('input', () => {
-    const n = nums.find((x) => x.dataset.partyNum === r.dataset.party); if (n) n.value = r.value; render();
-  }));
-  nums.forEach((n) => n.addEventListener('input', () => {
-    const r = ranges.find((x) => x.dataset.party === n.dataset.partyNum); if (r) r.value = n.value; render();
-  }));
+  // Le total ne dépasse jamais 100 % : l'excédent est retiré aux autres
+  // partis en proportion de leur score (les « autres et blancs » d'abord
+  // absorbent la hausse tant qu'il en reste).
+  const r1 = (v: number) => Math.round(v * 10) / 10;
+  function change(code: string, raw: number) {
+    const k = idx[code];
+    const max = Number(ranges.find((x) => x.dataset.party === code)?.max ?? 100);
+    const vals = get();
+    vals[k] = Math.min(Math.max(Number.isFinite(raw) ? raw : 0, 0), max);
+    let excess = vals.reduce((a, b) => a + b, 0) - 100;
+    if (excess > 0.001) {
+      const others = vals.reduce((a, v, j) => (j === k ? a : a + v), 0);
+      if (others <= 0) vals[k] = 100;
+      else {
+        const f = Math.max(0, 1 - excess / others);
+        vals.forEach((v, j) => { if (j !== k) vals[j] = r1(v * f); });
+        excess = vals.reduce((a, b) => a + b, 0) - 100;
+        if (excess > 0) { // arrondi : on retire le reste au plus gros des autres
+          const big = vals.map((v, j) => ({ v, j })).filter((x) => x.j !== k).sort((a, b) => b.v - a.v)[0];
+          if (big) vals[big.j] = r1(Math.max(0, big.v - excess));
+        }
+      }
+    }
+    set(Object.fromEntries(parties.map((p, j) => [p.code, r1(vals[j])])));
+    render();
+  }
+  ranges.forEach((r) => r.addEventListener('input', () => change(r.dataset.party!, Number(r.value))));
+  nums.forEach((n) => n.addEventListener('change', () => change(n.dataset.partyNum!, Number(n.value))));
   const projection = Object.fromEntries(parties.map((p) => [p.code, p.default]));
   document.querySelectorAll<HTMLButtonElement>('[data-preset]').forEach((b) => b.addEventListener('click', () => {
     const which = b.dataset.preset;
@@ -370,7 +413,11 @@ const clientCopy = { seats: copy.seats, yes: copy.yes, no: copy.no, copied: copy
   .sim-row input[type=number] { width: 64px; font-family: var(--mono); font-size: 13px; padding: 4px; border: 1px solid var(--rule); border-radius: 3px; background: var(--card); color: var(--ink); }
   .sim-regional { margin-top: 12px; }
   .sim-regional summary { cursor: pointer; font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-3); padding: 6px 0; }
-  .sim-others { font-family: var(--mono); font-size: 12px; color: var(--ink-2); margin: 12px 0 0; }
+  .sim-total { margin-top: 14px; padding: 10px 12px; border: 1px solid var(--rule); border-radius: 4px; background: var(--card); }
+  .sim-votebar { display: flex; height: 10px; border-radius: 2px; overflow: hidden; background: var(--rule-2); }
+  .sim-votebar div { height: 100%; }
+  .sim-others { font-family: var(--mono); font-size: 12px; color: var(--ink-2); margin: 8px 0 0; }
+  .sim-hint { font-size: 12px; color: var(--ink-3); margin: 4px 0 0; }
   .sim-warn { color: #b0202a; font-size: 13px; margin: 6px 0 0; }
   .sim-out { position: sticky; top: 16px; }
   .sim-bar { position: relative; display: flex; height: 26px; border-radius: 3px; overflow: hidden; background: var(--rule-2); }
