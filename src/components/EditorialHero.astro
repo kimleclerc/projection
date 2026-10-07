@@ -11,6 +11,7 @@ interface Props {
   secondaryHref?: string;
   secondaryLabel?: string;
   preferredSourceLocale?: 'en' | 'fr' | 'es';
+  questionLabel?: string;
 }
 
 const {
@@ -23,7 +24,9 @@ const {
   secondaryHref = '',
   secondaryLabel = '',
   preferredSourceLocale,
+  questionLabel,
 } = Astro.props;
+const label = questionLabel ?? { fr: 'Une page, une question', es: 'Una página, una pregunta' }[preferredSourceLocale ?? 'en'] ?? 'One page, one question';
 ---
 
 <section class="editorial-hero">
@@ -35,7 +38,7 @@ const {
       {preferredSourceLocale && <GooglePreferredSource locale={preferredSourceLocale} />}
     </div>
     <aside class="hero-question" aria-label="Page question">
-      <span>One page, one question</span>
+      <span>{label}</span>
       <strong>{question}</strong>
       {(primaryHref || secondaryHref) && (
         <div class="hero-actions">

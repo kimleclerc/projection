@@ -7,7 +7,7 @@ import MarketCheck from '../../components/MarketCheck.astro';
 import MethodologyNote from '../../components/MethodologyNote.astro';
 import IdentityMark from '../../components/IdentityMark.astro';
 import SearchFastPath from '../../components/SearchFastPath.astro';
-import TradeWarBand from '../../components/TradeWarBand.astro';
+import AuthorStrip from '../../components/AuthorStrip.astro';
 import SpainBand from '../../components/SpainBand.astro';
 import ElectionsBand from '../../components/ElectionsBand.astro';
 import RidingsCta from '../../components/RidingsCta.astro';
@@ -23,8 +23,15 @@ import clactonData from '../../../web_data/uk-clacton-special/latest.json';
 import gooseData from '../../../web_data/ca-canada-goose/latest.json';
 import cusmaData from '../../../web_data/cusma-showdown/latest.json';
 import esData from '../../../web_data/spain/latest.json';
+import senateData from '../../../web_data/us-senate/latest.json';
 
 const philosophy = editorialPhilosophy.en;
+
+// Encadré du haut : la question du Sénat, chiffrée avec le dernier run.
+const senateParties = (senateData as any).parties;
+const senateLead = [...senateParties].filter((p: any) => p.party !== 'us_oth').sort((a: any, b: any) => (b.p_majority ?? 0) - (a.p_majority ?? 0))[0];
+const senatePct = Math.round((senateLead?.p_majority ?? 0) * 100);
+const senateLeader = ({"us_dem": "Democrats", "us_rep": "Republicans"} as Record<string, string>)[senateLead?.party] ?? '';
 const ldi = ldiData.ldi;
 const deltaSign = ldi.delta_7d >= 0 ? '+' : '';
 
@@ -40,14 +47,13 @@ const esP = (esData as any).blocs.pp_vox.p_majority * 100;
 const esPmaj = esP > 99 ? '>99 %' : `${Math.round(esP)} %`;
 
 const signals = [
+  { label: 'U.S. Senate', value: `${senateLeader} · majority ${senatePct}%`, href: '/en/us/senate/' },
   { label: 'Spain election', value: `PP+Vox ${esData.blocs.pp_vox.median} seats · majority ${esPmaj}`, href: '/en/spain/' },
   { label: 'Barrage Index', value: `${bfi.score}/100 · ${bfi.label_en}`, href: '/en/france/indexes/barrage/' },
   { label: 'French legislative', value: `p(RN majority) ${pMajRN}% under a 2024 front`, href: '/en/france/legislative-election' },
-  { label: 'Clacton by-election', value: `Farage ${pFarage}% — polling day Aug 13`, href: '/en/uk/byelections/clacton/' },
   { label: 'Lame-Duck Index', value: `${ldi.score}/100 · ${ldi.label_en}`, href: '/en/us/indexes/lame-duck/' },
   { label: 'Canada Goose Index', value: `${goose.score}/100 · ${goose.label_en}`, href: '/en/canada/indexes/canada-goose/' },
   { label: 'CUSMA duel', value: `gap ${cusma.gap > 0 ? '+' : ''}${cusma.gap} — ${cusma.label_en}`, href: '/en/indexes/cusma-showdown/' },
-  { label: 'World Cup 2026', value: '🇪🇸 Spain champions — archive', href: '/en/sports/wc2026/' },
 ];
 
 // Most striking number of each desk, injected on its card.
@@ -62,13 +68,13 @@ const liveSignals: Record<string, string> = {
 ---
 
 <EditorialLayout
-  title="Vote-Scope — Election & Sports Intelligence"
-  description="Live electoral and sports projections, prediction-market signals, and editorial instruments. Clear answers on who's leading, what's fragile, and what the market is missing."
+  title="Vote-Scope — Election forecasts: U.S. midterms, Canada and Europe"
+  description="Independent election forecasts for the 2026 U.S. midterms, Canada, the U.K., France and Spain: Senate, House and governor odds, polls and seat projections, updated daily. By Kim Leclerc."
   canonical="https://vote-scope.com/en/"
   lang="en"
   currentPage="intl"
   ogImage="https://vote-scope.com/og/vote-scope.png"
-  alternates={{ en: 'https://vote-scope.com/en/', fr: 'https://vote-scope.com/fr/' }}
+  alternates={{ en: 'https://vote-scope.com/en/', fr: 'https://vote-scope.com/fr/', es: 'https://vote-scope.com/es/' }}
   jsonLd={[
     {
       '@context': 'https://schema.org',
@@ -95,14 +101,15 @@ const liveSignals: Record<string, string> = {
   ]}
 >
   <EditorialHero
-    eyebrow="Election & sports intelligence"
-    title="A bureau of electoral and sports intelligence."
-    promise="Not just who’s ahead. What’s moving, what’s fragile, and what the market is missing."
-    question="Who’s ahead, what’s fragile, and where is the market wrong?"
-    primaryHref="/en/indexes/"
-    primaryLabel="View instruments"
-    secondaryHref="/en/us/"
-    secondaryLabel="Open U.S. desk"
+    eyebrow="Independent election forecasts"
+    title="Every election, forecast."
+    promise="The U.S. midterms, Canada, the U.K., France and Spain, in English, French and Spanish. Data, backed by twenty years inside campaigns."
+    questionLabel="U.S. midterms · November 3"
+    question={`Who controls the Senate? ${senateLeader} ${senatePct}% chance of a majority.`}
+    primaryHref="/en/us/senate/"
+    primaryLabel="Senate forecast"
+    secondaryHref="/en/us/house/"
+    secondaryLabel="House forecast"
     preferredSourceLocale="en"
   />
 
@@ -110,31 +117,11 @@ const liveSignals: Record<string, string> = {
 
   <ElectionsBand lang="en" />
 
+  <AuthorStrip lang="en" />
+
   <SpainBand lang="en" />
 
-  <TradeWarBand lang="en" />
 
-  <section class="content-band" style="background:var(--surface-alt,#f9f7f2);padding:2rem 0;">
-    <div class="container" style="display:flex;align-items:center;gap:2rem;flex-wrap:wrap;">
-      <div>
-        <p class="eyebrow" style="margin-bottom:0.25rem;display:flex;align-items:center;gap:.6rem;"><IdentityMark src="/assets/identity/lame-duck.png" label="Lame duck" size={36} /> Today's headline number</p>
-        <div style={`font-size:3.5rem;font-weight:800;color:${ldi.zone_color};line-height:1;`}>
-          <AnimatedNumber client:visible value={ldi.score} decimals={1} />
-          <span style="font-size:1.25rem;font-weight:400;color:var(--text);"> /100</span>
-        </div>
-        <p style={`font-weight:700;font-size:1.1rem;color:${ldi.zone_color};margin-top:0.25rem;`}>{ldi.label_en}</p>
-        <p style="font-size:0.9rem;color:var(--text-muted);margin-top:0.25rem;">
-          Lame-Duck Index · 7d: <strong>{deltaSign}{ldi.delta_7d}</strong> · as of {ldiData.meta.as_of_date}
-        </p>
-      </div>
-      <div style="flex:1;min-width:200px;">
-        <p>The flagship Vote-Scope instrument measures presidential drag ahead of the 2026 midterms. Higher = more lame duck. Currently in the <strong style={`color:${ldi.zone_color};`}>{ldi.label_en}</strong> zone.</p>
-        <p style="margin-top:0.75rem;">
-          <a href="/en/us/indexes/lame-duck/" class="cta-link">Open full index →</a>
-        </p>
-      </div>
-    </div>
-  </section>
 
   <SignalTicker client:idle signals={signals} locale="en" />
 
@@ -163,7 +150,7 @@ const liveSignals: Record<string, string> = {
 
   <InstrumentGrid
     instruments={instruments.en.slice(0, 6)}
-    title="The numbers are public. The signal is ours."
+    title="Indexes we track"
     intro="Each index answers one question with one number you can follow over time — presidential drag, majority fragility, and where the model and the market disagree."
   />
 

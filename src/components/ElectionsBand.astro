@@ -81,7 +81,8 @@ const items = CALENDAR
   .filter((e) => e.d >= -RECENT_DAYS);
 const results = items.filter((e) => e.d < 0).sort((a, b) => b.d - a.d);
 const upcoming = items.filter((e) => e.d >= 0).sort((a, b) => a.d - b.d);
-const ordered = [...results, ...upcoming];
+// Les scrutins à venir d'abord ; un résultat récent passe après.
+const ordered = [...upcoming, ...results];
 
 const when = (e: { d: number; date: string }) => e.d < 0
   ? L(`Résultats · ${dateFmt(e.date)}`, `Results · ${dateFmt(e.date)}`, `Resultados · ${dateFmt(e.date)}`)

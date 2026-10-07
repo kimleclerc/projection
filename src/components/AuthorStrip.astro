@@ -1,0 +1,59 @@
+---
+/** Bandeau « qui fait les projections » de l'accueil : photo, deux phrases, lien vers À propos. */
+interface Props {
+  lang: 'en' | 'fr' | 'es';
+}
+const { lang } = Astro.props;
+
+const copy = {
+  en: {
+    eyebrow: 'Who builds the forecasts',
+    title: 'Data, backed by experience.',
+    body: 'Kim Leclerc has spent more than twenty years inside election campaigns, from door-knocking to national war rooms, in Canada, France and the United States. Vote-Scope turns that experience into models tested every week against past elections.',
+    about: 'About Kim Leclerc',
+    href: '/en/about/',
+  },
+  fr: {
+    eyebrow: 'Qui fait les projections',
+    title: 'Les données, avec vingt ans de terrain.',
+    body: 'Kim Leclerc travaille dans les campagnes électorales depuis plus de vingt ans, du porte-à-porte aux war rooms nationaux, au Canada, en France et aux États-Unis. Vote-Scope met cette expérience dans des modèles testés chaque semaine sur des élections passées.',
+    about: 'À propos de Kim Leclerc',
+    href: '/fr/a-propos/',
+  },
+  es: {
+    eyebrow: 'Quién hace los pronósticos',
+    title: 'Datos, respaldados por la experiencia.',
+    body: 'Kim Leclerc lleva más de veinte años dentro de campañas electorales, del puerta a puerta a los war rooms nacionales, en Canadá, Francia y Estados Unidos. Vote-Scope convierte esa experiencia en modelos probados cada semana con elecciones pasadas.',
+    about: 'Acerca de Kim Leclerc',
+    href: '/es/acerca-de/',
+  },
+}[lang];
+---
+<section class="author-strip">
+  <div class="container author-strip__inner">
+    <img src="/images/kim-leclerc.jpg" alt="Kim Leclerc" width="599" height="900" loading="lazy" decoding="async" />
+    <div>
+      <p class="eyebrow">{copy.eyebrow}</p>
+      <h2>{copy.title}</h2>
+      <p>{copy.body}</p>
+      <p class="author-links">
+        <a href={copy.href}>{copy.about} →</a>
+        <a href="https://x.com/kimleclerc" target="_blank" rel="me noopener">X · @kimleclerc ↗</a>
+      </p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .author-strip { padding: 2.5rem 0; border-bottom: 1px solid var(--rule); }
+  .author-strip__inner { display: grid; grid-template-columns: 120px 1fr; gap: 1.75rem; align-items: center; max-width: 900px; }
+  .author-strip img { width: 120px; height: 150px; object-fit: cover; object-position: top; border-radius: 4px; }
+  .author-strip h2 { margin: .2rem 0 .6rem; font-size: clamp(1.4rem, 2.6vw, 1.9rem); }
+  .author-strip p { margin: 0; color: var(--ink-2); line-height: 1.65; }
+  .author-links { display: flex; flex-wrap: wrap; gap: 1.25rem; margin-top: .9rem !important; font-family: var(--mono); font-size: .75rem; letter-spacing: .06em; text-transform: uppercase; }
+  .author-links a { border-bottom: 1px solid var(--ink); color: var(--ink); }
+  @media (max-width: 560px) {
+    .author-strip__inner { grid-template-columns: 84px 1fr; gap: 1rem; align-items: start; }
+    .author-strip img { width: 84px; height: 105px; }
+  }
+</style>

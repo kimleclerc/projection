@@ -7,7 +7,7 @@ import MarketCheck from '../../components/MarketCheck.astro';
 import MethodologyNote from '../../components/MethodologyNote.astro';
 import IdentityMark from '../../components/IdentityMark.astro';
 import SearchFastPath from '../../components/SearchFastPath.astro';
-import TradeWarBand from '../../components/TradeWarBand.astro';
+import AuthorStrip from '../../components/AuthorStrip.astro';
 import SpainBand from '../../components/SpainBand.astro';
 import ElectionsBand from '../../components/ElectionsBand.astro';
 import RidingsCta from '../../components/RidingsCta.astro';
@@ -23,8 +23,15 @@ import clactonData from '../../../web_data/uk-clacton-special/latest.json';
 import gooseData from '../../../web_data/ca-canada-goose/latest.json';
 import cusmaData from '../../../web_data/cusma-showdown/latest.json';
 import esData from '../../../web_data/spain/latest.json';
+import senateData from '../../../web_data/us-senate/latest.json';
 
 const philosophy = editorialPhilosophy.es;
+
+// Encadré du haut : la question du Sénat, chiffrée avec le dernier run.
+const senateParties = (senateData as any).parties;
+const senateLead = [...senateParties].filter((p: any) => p.party !== 'us_oth').sort((a: any, b: any) => (b.p_majority ?? 0) - (a.p_majority ?? 0))[0];
+const senatePct = Math.round((senateLead?.p_majority ?? 0) * 100);
+const senateLeader = ({"us_dem": "Demócratas", "us_rep": "Republicanos"} as Record<string, string>)[senateLead?.party] ?? '';
 const ldi = ldiData.ldi;
 const deltaSign = ldi.delta_7d >= 0 ? '+' : '';
 
@@ -40,14 +47,13 @@ const esP = (esData as any).blocs.pp_vox.p_majority * 100;
 const esPmaj = esP > 99 ? '>99 %' : `${Math.round(esP)} %`;
 
 const signals = [
+  { label: 'Senado de EE. UU.', value: `${senateLeader} · mayoría ${senatePct} %`, href: '/es/us/senate/' },
   { label: 'Elecciones España', value: `PP+Vox ${esData.blocs.pp_vox.median} escaños · mayoría ${esPmaj}`, href: '/es/spain/' },
   { label: 'Índice Barrage', value: `${bfi.score}/100 · ${bfi.label_es}`, href: '/es/france/indexes/barrage/' },
   { label: 'Legislativas FR', value: `p(mayoría RN) ${pMajRN}% con frente 2024`, href: '/es/france/legislativas' },
-  { label: 'Parcial de Clacton', value: `Farage ${pFarage}% — 13 de agosto`, href: '/es/uk/byelections/clacton/' },
   { label: 'Lame-Duck Index', value: `${ldi.score}/100 · ${ldi.label_es ?? ldi.label_en}`, href: '/es/us/indexes/lame-duck/' },
   { label: 'Canada Goose Index', value: `${goose.score}/100 · ${goose.label_es}`, href: '/es/canada/indexes/canada-goose/' },
   { label: 'Duelo T-MEC', value: `brecha ${cusma.gap > 0 ? '+' : ''}${cusma.gap} — ${cusma.label_es}`, href: '/es/indexes/cusma-showdown/' },
-  { label: 'Mundial 2026', value: '🇪🇸 España campeona — archivo', href: '/es/sports/wc2026/' },
 ];
 
 // La cifra más llamativa de cada desk, inyectada en su tarjeta.
@@ -62,8 +68,8 @@ const liveSignals: Record<string, string> = {
 ---
 
 <EditorialLayout
-  title="Vote-Scope — Inteligencia Electoral y Deportiva"
-  description="Proyecciones electorales y deportivas en vivo, señales de mercados de predicción e instrumentos editoriales. Respuestas claras sobre quién va adelante, qué es frágil y qué pierde el mercado."
+  title="Vote-Scope — Pronósticos electorales: elecciones intermedias de EE. UU., Canadá y Europa"
+  description="Pronósticos electorales independientes para las elecciones intermedias de 2026 en EE. UU., Canadá, el Reino Unido, Francia y España: Senado, Cámara, gobernadores, encuestas y escaños, actualizados a diario. Por Kim Leclerc."
   canonical="https://vote-scope.com/es/"
   lang="es"
   currentPage="intl"
@@ -95,14 +101,15 @@ const liveSignals: Record<string, string> = {
   ]}
 >
   <EditorialHero
-    eyebrow="Inteligencia electoral y deportiva"
-    title="Una oficina de inteligencia electoral y deportiva."
-    promise="No solo quién va adelante. Qué se está moviendo, qué es frágil y qué está perdiendo el mercado."
-    question="¿Quién va adelante, qué es frágil y dónde se equivoca el mercado?"
-    primaryHref="/es/indexes/"
-    primaryLabel="Ver instrumentos"
-    secondaryHref="/es/us/"
-    secondaryLabel="Abrir desk EE. UU."
+    eyebrow="Pronósticos electorales independientes"
+    title="Cada elección, pronosticada."
+    promise="Las elecciones intermedias de EE. UU., Canadá, el Reino Unido, Francia y España, en español, inglés y francés. Datos, respaldados por veinte años dentro de campañas."
+    questionLabel="Intermedias de EE. UU. · 3 de noviembre"
+    question={`¿Quién controlará el Senado? ${senateLeader}: ${senatePct} % de probabilidad de mayoría.`}
+    primaryHref="/es/us/senate/"
+    primaryLabel="Pronóstico del Senado"
+    secondaryHref="/es/us/house/"
+    secondaryLabel="Pronóstico de la Cámara"
     preferredSourceLocale="es"
   />
 
@@ -110,31 +117,11 @@ const liveSignals: Record<string, string> = {
 
   <ElectionsBand lang="es" />
 
+  <AuthorStrip lang="es" />
+
   <SpainBand lang="es" />
 
-  <TradeWarBand lang="es" />
 
-  <section class="content-band" style="background:var(--surface-alt,#f9f7f2);padding:2rem 0;">
-    <div class="container" style="display:flex;align-items:center;gap:2rem;flex-wrap:wrap;">
-      <div>
-        <p class="eyebrow" style="margin-bottom:0.25rem;display:flex;align-items:center;gap:.6rem;"><IdentityMark src="/assets/identity/lame-duck.png" label="Pato cojo" size={36} /> Cifra del día</p>
-        <div style={`font-size:3.5rem;font-weight:800;color:${ldi.zone_color};line-height:1;`}>
-          <AnimatedNumber client:visible value={ldi.score} decimals={1} />
-          <span style="font-size:1.25rem;font-weight:400;color:var(--text);"> /100</span>
-        </div>
-        <p style={`font-weight:700;font-size:1.1rem;color:${ldi.zone_color};margin-top:0.25rem;`}>{ldi.label_en}</p>
-        <p style="font-size:0.9rem;color:var(--text-muted);margin-top:0.25rem;">
-          Lame-Duck Index · 7d: <strong>{deltaSign}{ldi.delta_7d}</strong> · al {ldiData.meta.as_of_date}
-        </p>
-      </div>
-      <div style="flex:1;min-width:200px;">
-        <p>El instrumento insignia de Vote-Scope mide el peso presidencial antes de las elecciones de medio término 2026. Más alto = más "pato cojo". Actualmente en zona <strong style={`color:${ldi.zone_color};`}>{ldi.label_en}</strong>.</p>
-        <p style="margin-top:0.75rem;">
-          <a href="/es/us/indexes/lame-duck/" class="cta-link">Abrir índice completo →</a>
-        </p>
-      </div>
-    </div>
-  </section>
 
   <SignalTicker client:idle signals={signals} locale="es" />
 
@@ -163,7 +150,7 @@ const liveSignals: Record<string, string> = {
 
   <InstrumentGrid
     instruments={instruments.es.slice(0, 6)}
-    title="Los números son públicos. La señal es nuestra."
+    title="Los índices que seguimos"
     intro="Cada índice responde a una pregunta con un número que puedes seguir en el tiempo — peso presidencial, fragilidad de las mayorías y dónde difieren el modelo y el mercado."
   />
 
