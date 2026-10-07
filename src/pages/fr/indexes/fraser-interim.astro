@@ -63,7 +63,7 @@ const periods = data.periods;
   <section class="content-band">
     <div class="container">
       <p class="eyebrow">Score de l'indice · au {asOf}</p>
-      <div class="note-card" style="border-left:4px solid var(--blue-tint,#3b82f6);max-width:600px;margin-top:1rem;">
+      <div class="note-card" style="border-top: 3px solid var(--ink);max-width:600px;margin-top:1rem;">
         <h2 style="font-size:3.5rem;margin:0.25rem 0;color:var(--text);">
           <AnimatedNumber client:visible value={score} decimals={1} />
           <span style="font-size:1.1rem;font-weight:400;">/100</span>
@@ -79,7 +79,7 @@ const periods = data.periods;
   <section class="content-band">
     <div class="container">
       <p class="eyebrow">Interprétation</p>
-      <div class="note-card" style="max-width:720px;border-left:4px solid var(--rule);">
+      <div class="note-card" style="max-width:720px;border-top: 1px solid var(--rule);">
         <p style="font-size:1.1rem;line-height:1.65;">{data.interpretation.fr}</p>
       </div>
     </div>
@@ -144,7 +144,7 @@ const periods = data.periods;
   <section class="content-band">
     <div class="container">
       <p class="eyebrow">Mises en garde</p>
-      <div class="note-card" style="max-width:720px;border-left:4px solid #e3b03a;">
+      <div class="note-card" style="max-width:720px;border-top: 3px solid var(--ink);">
         <p style="line-height:1.65;">{data.caveat.fr}</p>
       </div>
     </div>
@@ -193,11 +193,11 @@ const periods = data.periods;
   }
 
   .fraser-period-card[data-type="interim"] {
-    border-left: 4px solid var(--duck-deep, #6b5b3e);
+    border-top: 3px solid var(--ink);
   }
 
   .fraser-period-card[data-type="regular"] {
-    border-left: 4px solid #c0392b;
+    border-top: 3px solid var(--ink);
   }
 
   .fraser-period-header {
@@ -211,15 +211,15 @@ const periods = data.periods;
   .fraser-period-pill {
     display: inline-block;
     padding: 2px 8px;
-    border-radius: 999px;
-    font-family: var(--mono, ui-monospace, monospace);
+    border-radius: 2px;
+    font-family: var(--mono, var(--mono);
     font-size: 10px;
     letter-spacing: 0;
     color: #fff;
   }
 
   .fraser-period-dates {
-    font-family: var(--mono, ui-monospace, monospace);
+    font-family: var(--mono, var(--mono);
     font-size: 10px;
     color: var(--ink-3, #888);
     white-space: nowrap;
@@ -259,7 +259,7 @@ const periods = data.periods;
   }
 
   .fraser-period-stats dt {
-    font-family: var(--mono, ui-monospace, monospace);
+    font-family: var(--mono, var(--mono);
     font-size: 9px;
     letter-spacing: 0;
     color: var(--ink-3, #888);
@@ -268,7 +268,7 @@ const periods = data.periods;
 
   .fraser-period-stats dd {
     margin: 0;
-    font-family: var(--mono, ui-monospace, monospace);
+    font-family: var(--mono, var(--mono);
     font-size: 12px;
     font-weight: 600;
   }

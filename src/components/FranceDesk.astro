@@ -630,7 +630,7 @@ const C = COPY[locale];
         />
       </div>
       {primaryOpen && (
-        <a class="note-card" href={primaryHref} style="display:block;text-decoration:none;color:inherit;border-left:4px solid var(--bloc-left_social_dem, #e5567f);">
+        <a class="note-card" href={primaryHref} style="display:block;text-decoration:none;color:inherit;border-top: 4px solid var(--bloc-left_social_dem, #e5567f);">
           <p class="eyebrow">{primaryCopy.eyebrow}</p>
           <h3 style="margin:0.25rem 0;">{primaryCopy.title}</h3>
           <p>{primaryCopy.body}</p>
@@ -638,26 +638,26 @@ const C = COPY[locale];
         </a>
       )}
       {effectCopy && (
-        <a class="note-card" href={effectHref} style="display:block;text-decoration:none;color:inherit;border-left:4px solid var(--ink);">
+        <a class="note-card" href={effectHref} style="display:block;text-decoration:none;color:inherit;border-top: 3px solid var(--ink);">
           <p class="eyebrow">{effectCopy.eyebrow}</p>
           <h3 style="margin:0.25rem 0;">{effectCopy.title}</h3>
           <p>{effectCopy.body}</p>
           <footer style="margin-top:0.75rem;"><span class="cta-link">{effectCopy.cta}</span></footer>
         </a>
       )}
-      <a class="note-card" href={barrageHref} style={`display:block;text-decoration:none;color:inherit;border-left:4px solid ${bfi.zone_color ?? 'var(--ink-3)'};`}>
+      <a class="note-card" href={barrageHref} style={`display:block;text-decoration:none;color:inherit;border-top: 4px solid ${bfi.zone_color ??'var(--ink-3)'};`}>
         <p class="eyebrow">{barrageCopy.eyebrow}</p>
         <h3 style="margin:0.25rem 0;">{barrageCopy.title} — <span style={`color:${bfi.zone_color ?? 'inherit'}`}>{typeof bfi.score === 'number' ? (locale === 'en' ? bfi.score.toFixed(1) : bfi.score.toFixed(1).replace('.', ',')) : '—'}/100 · {barrageCopy.zone ?? ''}</span></h3>
         <p>{barrageCopy.question}</p>
         <footer style="margin-top:0.75rem;"><span class="cta-link">{barrageCopy.cta}</span></footer>
       </a>
-      <a class="note-card" href={legHref} style="display:block;text-decoration:none;color:inherit;border-left:4px solid var(--bloc-far_right, #2b4f8c);">
+      <a class="note-card" href={legHref} style="display:block;text-decoration:none;color:inherit;border-top: 4px solid var(--bloc-far_right, #2b4f8c);">
         <p class="eyebrow">{legCopy.eyebrow}</p>
         <h3 style="margin:0.25rem 0;">{legCopy.title}</h3>
         <p>{legCopy.body}</p>
         <footer style="margin-top:0.75rem;"><span class="cta-link">{legCopy.cta}</span></footer>
       </a>
-      <a class="note-card" href={mapsHref} style="display:block;text-decoration:none;color:inherit;border-left:4px solid var(--bloc-centre, #b7860f);">
+      <a class="note-card" href={mapsHref} style="display:block;text-decoration:none;color:inherit;border-top: 4px solid var(--bloc-centre, #b7860f);">
         <p class="eyebrow">{mapsCopy.eyebrow}</p>
         <h3 style="margin:0.25rem 0;">{mapsCopy.title}</h3>
         <p>{mapsCopy.body}</p>
@@ -772,7 +772,7 @@ const C = COPY[locale];
   .fr-provenance {
     margin-top: 12px;
     padding-left: 10px;
-    border-left: 2px solid var(--rule);
+    border-top: 1px solid var(--rule);
     max-width: 62ch;
     font-family: var(--mono);
     font-size: 13px;
@@ -795,7 +795,7 @@ const C = COPY[locale];
     align-items: center;
     padding: 9px 16px;
     border: 1px solid var(--rule);
-    border-radius: 999px;
+    border-radius: 2px;
     font-family: var(--mono);
     font-size: 13px;
     letter-spacing: 0;
@@ -928,7 +928,7 @@ const C = COPY[locale];
   .fr-add-n { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: var(--ink); color: var(--paper-3); font-family: var(--mono); font-size: 13px; }
   .fr-add h3 { margin: 10px 0 6px; font-family: var(--serif); font-size: 19px; font-weight: 450; }
   .fr-add p { margin: 0; color: var(--ink-2); font-size: 15px; line-height: 1.6; }
-  .fr-how { margin-top: 22px; padding: 16px 18px; border-left: 3px solid var(--ink); max-width: 760px; }
+  .fr-how { margin-top: 22px; padding: 16px 18px; border-top: 3px solid var(--ink); max-width: 760px; }
   .fr-how h3 { margin: 0 0 8px; font-family: var(--serif); font-size: 19px; font-weight: 450; }
   .fr-how ul { margin: 0 0 14px; padding-left: 18px; color: var(--ink-2); line-height: 1.7; }
   .fr-more-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
@@ -956,7 +956,7 @@ const C = COPY[locale];
   }
   .fr-explorer-card {
     border: 1px solid var(--rule);
-    border-radius: 8px;
+    border-radius: 2px;
     background: var(--card);
     padding: 20px;
   }
@@ -1000,7 +1000,7 @@ const C = COPY[locale];
     font-size: 9px;
     letter-spacing: 0;
     padding: 3px 7px;
-    border-radius: 999px;
+    border-radius: 2px;
     border: 1px solid var(--rule);
     color: var(--ink-2);
     white-space: nowrap;

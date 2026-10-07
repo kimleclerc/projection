@@ -171,7 +171,7 @@ for (const u of ec.units) stateNameByAbbr[u.state] = locale === 'fr' ? u.name_fr
     </div>
     <div class="up-hero-cards">
       {[{ b: rep, lead: repLead }, { b: dem, lead: demLead }].map(({ b, lead }) => (
-        <div class="up-hero-card" style={`border-left:3px solid ${partyVar(b.party)}`}>
+        <div class="up-hero-card" style={`border-top: 4px solid ${partyVar(b.party)}`}>
           <span class="up-hc-party">{locale === 'fr' ? b.label_fr : locale === 'es' ? b.label_es : b.label_en}</span>
           <span class="up-hc-lead">{lead?.name} <b>{fmtPct1(lead?.share ?? 0, locale)}</b></span>
           <span class="up-hc-sub">{C.leads}</span>
@@ -289,16 +289,16 @@ for (const u of ec.units) stateNameByAbbr[u.state] = locale === 'fr' ? u.name_fr
   .up-hc-lead b { color: var(--ink); }
   .up-hc-sub { font-family: var(--mono); font-size: 13px; color: var(--ink-3); }
   .up-cta-row { display: flex; gap: 10px; margin-top: 24px; }
-  .up-cta { display: inline-flex; align-items: center; padding: 9px 16px; border: 1px solid var(--rule); border-radius: 999px; font-family: var(--mono); font-size: 13px; letter-spacing: 0; color: var(--ink-2); text-decoration: none; transition: border-color 0.15s, color 0.15s; }
+  .up-cta { display: inline-flex; align-items: center; padding: 9px 16px; border: 1px solid var(--rule); border-radius: 2px; font-family: var(--mono); font-size: 13px; letter-spacing: 0; color: var(--ink-2); text-decoration: none; transition: border-color 0.15s, color 0.15s; }
   .up-cta:hover { border-color: var(--ink); color: var(--ink); }
   .up-section { max-width: 1080px; margin-top: 56px; }
   .up-intro { max-width: 760px; }
   .up-intro p { margin: 0 0 0.85rem; color: var(--ink-2); font-size: 1.02rem; line-height: 1.7; }
   .up-section-title { margin: 0 0 12px; font-family: var(--serif); font-size: clamp(26px, 3vw, 38px); font-weight: 700; letter-spacing: -0.01em; line-height: 1.05; }
   .up-section-help { max-width: 640px; margin: 0 0 22px; color: var(--ink-3); font-family: var(--mono); font-size: 13px; line-height: 1.6; }
-  .up-card { border: 1px solid var(--rule); border-radius: 8px; background: var(--card); padding: 20px; }
+  .up-card { border: 1px solid var(--rule); border-radius: 2px; background: var(--card); padding: 20px; }
   .up-scenarios { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
-  .up-scen { border: 1px solid var(--rule); border-radius: 8px; background: var(--card); padding: 16px; }
+  .up-scen { border: 1px solid var(--rule); border-radius: 2px; background: var(--card); padding: 16px; }
   .up-scen-label { margin: 0 0 12px; font-family: var(--serif); font-size: 16px; color: var(--ink); }
   .up-scen-field { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
   .up-scen-field li { display: flex; align-items: center; gap: 8px; }
@@ -308,7 +308,7 @@ for (const u of ec.units) stateNameByAbbr[u.state] = locale === 'fr' ? u.name_fr
   .up-scen-fill { display: block; height: 100%; border-radius: 4px; }
   .up-scen-pct { font-family: var(--mono); font-size: 13px; color: var(--ink); width: 42px; text-align: right; }
   .up-early { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
-  .up-early-card { border: 1px solid var(--rule); border-radius: 8px; background: var(--card); padding: 14px; }
+  .up-early-card { border: 1px solid var(--rule); border-radius: 2px; background: var(--card); padding: 14px; }
   .up-early-state { margin: 0 0 10px; font-family: var(--serif); font-size: 15px; color: var(--ink); }
   .up-early-party { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
   .up-early-top { font-family: var(--mono); font-size: 13px; color: var(--ink-2); }

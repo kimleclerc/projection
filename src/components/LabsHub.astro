@@ -120,17 +120,15 @@ const explainerUrl = `${labsUrl(locale)}${EXPLAINER_SLUG[locale]}/`;
   .lh-brand { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 18px; }
   .lh-orbit { position: relative; display: inline-block; width: 30px; height: 30px; border-radius: 50%; border: 1.5px solid var(--ink); flex: none; }
   .lh-orbit span { position: absolute; top: -4px; left: 11px; width: 8px; height: 8px; border-radius: 50%; background: var(--duck-deep);
-                   transform-origin: 4px 19px; animation: lh-orbit 6s linear infinite; }
+                   transform-origin: 4px 19px; }
   .lh-orbit--big { width: 72px; height: 72px; border-width: 2px; }
   .lh-orbit--big span { top: -7px; left: 29px; width: 12px; height: 12px; transform-origin: 6px 42px; }
-  @keyframes lh-orbit { to { transform: rotate(360deg); } }
   @media (prefers-reduced-motion: reduce) { .lh-orbit span, .lh-pulse { animation: none; } }
   .lh-engine { font-family: var(--serif); font-size: 30px; font-weight: 700; margin-right: 6px; }
-  .lh-live { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px; font-family: var(--mono); font-size: 13px;
+  .lh-live { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 2px; font-family: var(--mono); font-size: 13px;
              letter-spacing: 0; color: var(--red); background: var(--red-tint); }
-  .lh-pulse { width: 7px; height: 7px; border-radius: 50%; background: var(--red); animation: lh-pulse 1.6s ease-in-out infinite; }
-  @keyframes lh-pulse { 50% { opacity: .25; } }
-  .lh-tag { padding: 3px 10px; border-radius: 999px; border: 1px solid var(--rule); font-family: var(--mono); font-size: 13px; letter-spacing: 0; color: var(--ink-2); }
+  .lh-pulse { width: 7px; height: 7px; border-radius: 50%; background: var(--red); }
+  .lh-tag { padding: 3px 10px; border-radius: 2px; border: 1px solid var(--rule); font-family: var(--mono); font-size: 13px; letter-spacing: 0; color: var(--ink-2); }
   .lh-hero h1 { max-width: 860px; margin: 0 0 18px; font-family: var(--serif); font-size: clamp(38px, 6vw, 70px); font-weight: 700; letter-spacing: -0.01em; line-height: 1.02; }
   .lh-dek { max-width: 760px; margin: 0; color: var(--ink-2); font-size: 18px; line-height: 1.6; }
   .lh-cta { margin: 18px 0 0; font-weight: 600; }
@@ -139,7 +137,7 @@ const explainerUrl = `${labsUrl(locale)}${EXPLAINER_SLUG[locale]}/`;
   .lh-section h2, .lh-why h2 { font-family: var(--serif); font-size: clamp(26px, 3.4vw, 34px); font-weight: 700; margin: 0 0 12px; }
   .lh-muted { color: var(--ink-3); font-size: 14px; line-height: 1.55; max-width: 760px; }
   .lh-score { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 22px; }
-  .lh-score span { padding: 4px 12px; border-radius: 999px; font-family: var(--mono); font-size: 13px; letter-spacing: 0; }
+  .lh-score span { padding: 4px 12px; border-radius: 2px; font-family: var(--mono); font-size: 13px; letter-spacing: 0; }
   .lh-score .is-same { color: #2c8a3f; background: color-mix(in oklab, #2c8a3f 10%, var(--card)); }
   .lh-score .is-status { color: var(--duck-deep); background: color-mix(in oklab, var(--duck) 16%, var(--card)); }
   .lh-score .is-different { color: var(--red); background: var(--red-tint); }
@@ -151,7 +149,7 @@ const explainerUrl = `${labsUrl(locale)}${EXPLAINER_SLUG[locale]}/`;
   .lh-p { font-family: var(--mono); font-size: 13px; color: var(--ink-3); }
   .lh-p strong { color: var(--ink); }
   .lh-open { display: inline-block; margin-top: 26px; font-size: 14px; font-weight: 600; }
-  .lh-why { display: flex; align-items: center; gap: 26px; margin-top: 56px; padding: 26px 28px; border-radius: 8px;
+  .lh-why { display: flex; align-items: center; gap: 26px; margin-top: 56px; padding: 26px 28px; border-radius: 2px;
             background: color-mix(in oklab, var(--blue) 7%, var(--card)); border: 1px solid var(--rule); }
   .lh-why p { margin: 0; color: var(--ink-2); font-size: 17px; line-height: 1.65; }
   .lh-how { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; }
@@ -163,7 +161,7 @@ const explainerUrl = `${labsUrl(locale)}${EXPLAINER_SLUG[locale]}/`;
   .lh-table { width: 100%; border-collapse: collapse; font-size: 15px; }
   .lh-table th { text-align: left; font-family: var(--mono); font-size: 13px; letter-spacing: 0; color: var(--ink-3); border-bottom: 1px solid var(--rule); padding: 8px 10px; white-space: nowrap; }
   .lh-table td { border-bottom: 1px solid var(--rule-2); padding: 10px; white-space: nowrap; }
-  .lh-experiment { margin-top: 56px; padding: 22px 24px; border-left: 3px solid var(--duck-deep); background: color-mix(in oklab, var(--duck) 10%, var(--card)); border-radius: 0 6px 6px 0; }
+  .lh-experiment { margin-top: 56px; padding: 22px 24px; border-top: 3px solid var(--ink); background: color-mix(in oklab, var(--duck) 10%, var(--card)); border-radius: 0 6px 6px 0; }
   .lh-experiment p { margin: 0; color: var(--ink-2); line-height: 1.6; }
   .lh-experiment .lh-label { margin-bottom: 8px; }
   @media (max-width: 560px) { .lh-why { flex-direction: column; align-items: flex-start; } }

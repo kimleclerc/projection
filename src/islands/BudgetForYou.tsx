@@ -53,10 +53,10 @@ export default function BudgetForYou({ audiences, locale }: Props) {
         .fy-picker { margin-bottom:18px; }
         .fy-prompt { display:block; font-family:var(--serif); font-size:18px; color:var(--ink); margin-bottom:10px; }
         .fy-chips { display:flex; flex-wrap:wrap; gap:8px; }
-        .fy-chip { padding:8px 14px; border:1px solid var(--rule); border-radius:999px; background:var(--card); font-family:var(--mono); font-size:12px; color:var(--ink-2); cursor:pointer; transition:border-color .15s; }
+        .fy-chip { padding:8px 14px; border:1px solid var(--rule); border-radius: 2px; background:var(--card); font-family:var(--mono); font-size:12px; color:var(--ink-2); cursor:pointer; transition:border-color .15s; }
         .fy-chip:hover { border-color:var(--ink-2); }
         .fy-chip.is-on { background:var(--ink); color:var(--paper-3); border-color:var(--ink); }
-        .fy-panel { border:1px solid var(--rule); border-radius:8px; background:var(--card); padding:20px; }
+        .fy-panel { border:1px solid var(--rule); border-radius: 2px; background:var(--card); padding:20px; }
         .fy-summary { margin:0 0 16px; color:var(--ink-2); font-size:15px; line-height:1.65; }
         .fy-impact-lab { margin:0 0 10px; font-family:var(--mono); font-size:10px; letter-spacing: 0; color:var(--ink-3); }
         .fy-measures { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:12px; }

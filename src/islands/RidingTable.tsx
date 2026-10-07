@@ -33,11 +33,11 @@ function injectStyles() {
   const s = document.createElement('style');
   s.id = 'rt-style';
   s.textContent = `
-.rt-wrap { --rt-row-rule: color-mix(in oklab, var(--rule, #ddd) 76%, transparent); font-family: var(--mono, ui-monospace, monospace); font-size: 13px; color: var(--ink, #1a1a1a); }
+.rt-wrap { --rt-row-rule: color-mix(in oklab, var(--rule, #ddd) 76%, transparent); font-family: var(--mono, var(--mono); font-size: 13px; color: var(--ink, #1a1a1a); }
 .rt-controls { display: flex; flex-wrap: wrap; gap: 12px 18px; align-items: center; margin-bottom: 14px; }
 .rt-search { padding: 7px 10px; border: 1px solid var(--rule, #ddd); border-radius: 4px; font-family: inherit; font-size: 13px; background: var(--paper, #fff); color: var(--ink, #1a1a1a); min-width: 200px; }
 .rt-chips { display: inline-flex; flex-wrap: wrap; gap: 4px; }
-.rt-chip { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border: 1px solid var(--rule, #ddd); border-radius: 999px; font-size: 12px; color: var(--ink-2, #555); background: transparent; cursor: pointer; transition: background 0.12s, color 0.12s, border-color 0.12s; }
+.rt-chip { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border: 1px solid var(--rule, #ddd); border-radius: 2px; font-size: 12px; color: var(--ink-2, #555); background: transparent; cursor: pointer; transition: background 0.12s, color 0.12s, border-color 0.12s; }
 .rt-chip:hover { background: var(--card, #f5f5f0); }
 .rt-chip[data-active="true"] { background: var(--ink, #1a1a1a); color: var(--paper-3, #fafaf5); border-color: var(--ink, #1a1a1a); }
 .rt-chip-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
@@ -57,7 +57,7 @@ function injectStyles() {
 .rt-name a { color: inherit; text-decoration: underline; text-decoration-color: color-mix(in oklab, currentColor 28%, transparent); text-decoration-thickness: 1px; text-underline-offset: 3px; }
 .rt-name a:hover, .rt-name a:focus-visible { text-decoration-color: currentColor; }
 .rt-province { font-size: 11px; letter-spacing: 0; color: var(--ink-3, #888); }
-.rt-pill { display: inline-flex; align-items: center; gap: 5px; padding: 3px 8px; border: 1px solid; border-radius: 999px; font-size: 11px; font-weight: 500; background: color-mix(in oklab, currentColor 12%, transparent); }
+.rt-pill { display: inline-flex; align-items: center; gap: 5px; padding: 3px 8px; border: 1px solid; border-radius: 2px; font-size: 11px; font-weight: 500; background: color-mix(in oklab, currentColor 12%, transparent); }
 .rt-pill-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
 .rt-num { font-variant-numeric: tabular-nums; text-align: right; color: var(--ink-2, #555); }
 .rt-shift-flip { color: #b03030; font-weight: 500; }

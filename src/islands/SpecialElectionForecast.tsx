@@ -459,9 +459,7 @@ const specialElectionStyles = `
   }
 
   .special-big-number {
-    background:
-      radial-gradient(circle at 85% 20%, color-mix(in oklch, var(--red) 18%, transparent), transparent 34%),
-      var(--card);
+    background: var(--card);
   }
 
   .special-pair {
@@ -565,7 +563,7 @@ const specialElectionStyles = `
     height: 18px;
     overflow: hidden;
     border: 1px solid var(--rule);
-    border-radius: 999px;
+    border-radius: 2px;
     background: var(--paper-2);
   }
 
@@ -666,7 +664,7 @@ const specialElectionStyles = `
 
   .special-baseline span {
     border: 1px solid var(--rule);
-    border-radius: 999px;
+    border-radius: 2px;
     padding: 7px 11px;
     background: var(--paper-2);
     font-family: var(--mono);

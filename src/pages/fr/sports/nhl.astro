@@ -95,7 +95,7 @@ const trendUp = aliveBoard.filter((t) => t.trend_direction === 'up').slice(0, 3)
       <p class="eyebrow">Favoris actuels — au {boardMeta.run_date}</p>
       <div class="content-grid-2" style="gap:1.5rem;margin-top:1rem;">
         {topThree.map((team, i) => (
-          <div class="note-card" style={`border-left:4px solid ${team.color};`}>
+          <div class="note-card" style={`border-top: 4px solid ${team.color};`}>
             <p class="eyebrow">{i === 0 ? 'Favori Coupe' : i === 1 ? 'Dauphin' : 'Troisième'} · {team.conference.toUpperCase()}</p>
             <h3 style="font-size:1.6rem;margin:0.25rem 0;">
               {team.emoji} {team.label_fr}
@@ -180,7 +180,7 @@ const trendUp = aliveBoard.filter((t) => t.trend_direction === 'up').slice(0, 3)
         {gaps.map((team) => {
           const modelHigher = team.p_cup_bsts > team.p_cup_market;
           return (
-            <div class="note-card" style={`border-left:4px solid ${modelHigher ? '#27ae60' : '#e74c3c'};`}>
+            <div class="note-card" style={`border-top: 4px solid ${modelHigher ?'#27ae60' : '#e74c3c'};`}>
               <p class="eyebrow">{modelHigher ? 'Modèle au-dessus du marché' : 'Marché au-dessus du modèle'}</p>
               <h3 style="margin:0.25rem 0;">{team.emoji} {team.label_fr}</h3>
               <p>

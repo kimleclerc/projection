@@ -119,7 +119,7 @@ export default function UsPrimaryStandings({ dem, rep, locale, maxRows = 12 }: P
 
       <style>{`
         .ups-tabs { display:flex; gap:8px; margin-bottom:14px; }
-        .ups-tab { flex:1; padding:10px 14px; border:1px solid var(--rule); border-radius:8px; background:var(--card); font-family:var(--mono); font-size:13px; color:var(--ink-2); cursor:pointer; transition:border-color .15s, color .15s; }
+        .ups-tab { flex:1; padding:10px 14px; border:1px solid var(--rule); border-radius: 2px; background:var(--card); font-family:var(--mono); font-size:13px; color:var(--ink-2); cursor:pointer; transition:border-color .15s, color .15s; }
         .ups-tab-n { display:block; font-size:10px; color:var(--ink-3); margin-top:3px; }
         .ups-tab:hover { border-color:var(--ink-2); }
         .ups-tab.is-on { color:#fff; }
@@ -132,7 +132,7 @@ export default function UsPrimaryStandings({ dem, rep, locale, maxRows = 12 }: P
         .ups-rank { font-family:var(--mono); font-size:11px; color:var(--ink-3); width:18px; }
         .ups-name { font-family:var(--serif); font-size:16px; color:var(--ink); }
         .ups-lane { font-family:var(--mono); font-size:9px; letter-spacing: 0; color:var(--ink-3); }
-        .ups-status { font-family:var(--mono); font-size:9px; letter-spacing: 0; padding:2px 7px; border-radius:999px; border:1px solid var(--rule); color:var(--ink-2); }
+        .ups-status { font-family:var(--mono); font-size:9px; letter-spacing: 0; padding:2px 7px; border-radius: 2px; border:1px solid var(--rule); color:var(--ink-2); }
         .ups-status.is-probable { background:var(--blue-tint); border-color:var(--blue-soft); color:var(--blue); }
         .ups-status.is-ineligible { background:rgba(217,119,6,.12); border-color:rgba(217,119,6,.45); color:#b45309; }
         :global(:root[data-theme='dark']) .ups-status.is-ineligible { color:#f0b072; }

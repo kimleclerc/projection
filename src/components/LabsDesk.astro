@@ -372,15 +372,13 @@ const btRows = (pastCycles[labsKey] ?? []).map((c) => {
   .lb-brand { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 14px; }
   .lb-orbit-mark { position: relative; width: 26px; height: 26px; border-radius: 50%; border: 1.5px solid var(--ink); }
   .lb-orbit-mark span { position: absolute; top: -4px; left: 9px; width: 7px; height: 7px; border-radius: 50%; background: var(--duck-deep);
-                        transform-origin: 3.5px 16px; animation: lb-orbit 6s linear infinite; }
-  @keyframes lb-orbit { to { transform: rotate(360deg); } }
+                        transform-origin: 3.5px 16px; }
   @media (prefers-reduced-motion: reduce) { .lb-orbit-mark span, .lb-pulse { animation: none; } }
   .lb-engine { font-family: var(--serif); font-size: 26px; font-weight: 700; letter-spacing: -.01em; margin-right: 6px; }
-  .lb-live { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px; font-family: var(--mono); font-size: 13px;
+  .lb-live { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 2px; font-family: var(--mono); font-size: 13px;
              letter-spacing: 0; color: var(--red); background: var(--red-tint); }
-  .lb-pulse { width: 7px; height: 7px; border-radius: 50%; background: var(--red); animation: lb-pulse 1.6s ease-in-out infinite; }
-  @keyframes lb-pulse { 50% { opacity: .25; } }
-  .lb-tag { padding: 3px 10px; border-radius: 999px; border: 1px solid var(--rule); font-family: var(--mono); font-size: 13px; letter-spacing: 0; color: var(--ink-2); }
+  .lb-pulse { width: 7px; height: 7px; border-radius: 50%; background: var(--red); }
+  .lb-tag { padding: 3px 10px; border-radius: 2px; border: 1px solid var(--rule); font-family: var(--mono); font-size: 13px; letter-spacing: 0; color: var(--ink-2); }
   .lb-hero h1 { margin: 0 0 16px; font-family: var(--serif); font-size: clamp(40px, 6vw, 72px); font-weight: 700; letter-spacing: -0.01em; line-height: 1; }
   .lb-dek { max-width: 700px; margin: 0; color: var(--ink-2); font-size: 18px; line-height: 1.6; }
   .lb-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 16px; margin-top: 32px; }
@@ -429,9 +427,9 @@ const btRows = (pastCycles[labsKey] ?? []).map((c) => {
   .lb-diverge { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 10px; }
   .lb-diverge li { border: 1px solid var(--rule); border-radius: 6px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; background: var(--card); font-size: 14px; }
   .lb-chips { display: flex; flex-wrap: wrap; gap: 6px; }
-  .lb-chip { display: inline-flex; align-items: center; padding: 3px 9px; border-radius: 999px; font-family: var(--mono); font-size: 13px;
-             border-left: 6px solid var(--pc); background: color-mix(in oklab, var(--pc) 12%, var(--card)); }
-  .lb-chip.is-ref { background: var(--card); border: 1px solid var(--rule); border-left: 6px solid var(--pc); }
+  .lb-chip { display: inline-flex; align-items: center; padding: 3px 9px; border-radius: 2px; font-family: var(--mono); font-size: 13px;
+             border-top: 4px solid var(--pc); background: color-mix(in oklab, var(--pc) 12%, var(--card)); }
+  .lb-chip.is-ref { background: var(--card); border: 1px solid var(--rule); border-top: 4px solid var(--pc); }
   .lb-scroll { overflow-x: auto; }
   .lb-table { width: 100%; border-collapse: collapse; font-size: 15px; }
   .lb-table th { text-align: left; font-family: var(--mono); font-size: 13px; letter-spacing: 0; color: var(--ink-3); border-bottom: 1px solid var(--rule); padding: 8px 10px; white-space: nowrap; }
@@ -444,7 +442,7 @@ const btRows = (pastCycles[labsKey] ?? []).map((c) => {
   .lb-how p { color: var(--ink-2); line-height: 1.6; margin: 0; }
   .lb-more { margin-top: 20px; font-weight: 600; }
   .lb-more a, .lb-links a { color: var(--ink); font-weight: 600; }
-  .lb-experiment { margin-top: 60px; padding: 22px 24px; border-left: 3px solid var(--duck-deep); background: color-mix(in oklab, var(--duck) 10%, var(--card)); border-radius: 0 6px 6px 0; }
+  .lb-experiment { margin-top: 60px; padding: 22px 24px; border-top: 3px solid var(--ink); background: color-mix(in oklab, var(--duck) 10%, var(--card)); border-radius: 0 6px 6px 0; }
   .lb-experiment p { margin: 8px 0 0; color: var(--ink-2); line-height: 1.6; }
   .lb-links { display: flex; gap: 24px; flex-wrap: wrap; }
   @media (max-width: 640px) {

@@ -666,13 +666,13 @@ const watchList = editorial ? pickList(editorial, 'watch', locale) : [];
           <div><p>{t.methodBody}</p></div>
         </div>
         <div class="lame-duck-stats" style="margin-top:1.5rem">
-          <article style={`border-left:4px solid ${sides.canada?.color ?? '#2f6fb0'};padding-left:1rem`}>
+          <article style={`border-top: 4px solid ${sides.canada?.color ??'#2f6fb0'};padding-left:1rem`}>
             <p>{sides.canada?.name} · {t.canadaSub}</p>
             <strong class="is-blue">{sides.canada?.score?.toFixed(1)}<span>/100</span></strong>
             <em>{showdownLabel({ label_en: sides.canada?.label_en, label_fr: sides.canada?.label_fr }, locale)}</em>
             {canadaHref && <a class="btn-outline" href={canadaHref} style="margin-top:.6rem;display:inline-block">{t.openIndex} ↗</a>}
           </article>
-          <article style={`border-left:4px solid ${sides.us?.color ?? '#c94040'};padding-left:1rem`}>
+          <article style={`border-top: 4px solid ${sides.us?.color ??'#c94040'};padding-left:1rem`}>
             <p>{sides.us?.name} · {t.usSub}</p>
             <strong class="is-red">{sides.us?.strength?.toFixed(1)}<span>/100</span></strong>
             <em>{t.strengthLabel} · LDI {sides.us?.ldi?.toFixed(1)}</em>

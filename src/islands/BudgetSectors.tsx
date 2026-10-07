@@ -65,11 +65,11 @@ export default function BudgetSectors({ sectors, locale }: Props) {
       <style>{`
         .bs-filter { display:flex; align-items:center; gap:8px; margin-bottom:16px; }
         .bs-filter-lab { font-family:var(--mono); font-size:11px; letter-spacing: 0; color:var(--ink-3); }
-        .bs-chip { padding:5px 12px; border:1px solid var(--rule); border-radius:999px; background:var(--card); font-family:var(--mono); font-size:12px; color:var(--ink-2); cursor:pointer; }
+        .bs-chip { padding:5px 12px; border:1px solid var(--rule); border-radius: 2px; background:var(--card); font-family:var(--mono); font-size:12px; color:var(--ink-2); cursor:pointer; }
         .bs-chip.is-on { background:var(--ink); color:var(--paper-3); border-color:var(--ink); }
         .bs-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:14px; }
-        .bs-card { border:1px solid var(--rule); border-radius:8px; background:var(--card); padding:18px; display:flex; flex-direction:column; }
-        .bs-card.is-high { border-left:3px solid #b45309; }
+        .bs-card { border:1px solid var(--rule); border-radius: 2px; background:var(--card); padding:18px; display:flex; flex-direction:column; }
+        .bs-card.is-high { border-top: 3px solid var(--ink); }
         .bs-card-head { display:flex; align-items:baseline; justify-content:space-between; gap:8px; margin-bottom:8px; }
         .bs-title { margin:0; font-family:var(--serif); font-size:17px; line-height:1.25; color:var(--ink); }
         .bs-prio { font-family:var(--mono); font-size:9px; letter-spacing: 0; color:#b45309; white-space:nowrap; }

@@ -106,7 +106,7 @@ const winnerUrl = winnerEmbed?.url ?? undefined;
       <p class="eyebrow">Última instantánea antes de la final — modelo al {meta.run_date}</p>
       <div class="content-grid-2" style="gap:1.5rem;margin-top:1rem;">
         {topThree.map((team, i) => (
-          <div class="note-card" style="border-left:4px solid var(--accent);">
+          <div class="note-card" style="border-top: 3px solid var(--ink);">
             <p class="eyebrow">
               {i === 0 ? 'Ventaja del modelo' : 'Finalista'}
               · {team.confederation} · Grupo {team.group}
@@ -221,7 +221,7 @@ const winnerUrl = winnerEmbed?.url ?? undefined;
         <h2>Dónde terminaron las sedes.</h2>
         <div class="content-grid-2" style="gap:1rem;margin-top:1rem;">
           {hostTeams.map((team) => (
-            <div class="note-card" style="border-left:4px solid var(--accent);">
+            <div class="note-card" style="border-top: 3px solid var(--ink);">
               <p class="eyebrow">Sede · {team.confederation} · Grupo {team.group}</p>
               <h3 style="margin:0.25rem 0;">{flagFor(team.team)} {team.labels.es}</h3>
               <p>Campeón: <strong>{team.p_champion}%</strong> · Fase final: <strong>{team.p_knockout_stage}%</strong></p>

@@ -96,14 +96,14 @@ const qcWinSeats = qcResults.parties[0].seats;
     <div class="container">
       <p class="eyebrow">T-MEC · Instrumentos en vivo</p>
       <div class="content-grid-2" style="gap:1.5rem;align-items:start;">
-        <div class="note-card" style={`border-left:4px solid ${gooseData.cgi.zone_color};`}>
+        <div class="note-card" style={`border-top: 4px solid ${gooseData.cgi.zone_color};`}>
           <p class="eyebrow">Canada Goose Index · {gooseData.meta.pm}</p>
           <h2 style="font-size:3rem;margin:0.25rem 0;color:var(--text);"><AnimatedNumber client:visible value={gooseData.cgi.score} decimals={1} /><span style="font-size:1.1rem;font-weight:400;">/100</span></h2>
           <p style={`font-weight:700;color:${gooseData.cgi.zone_color};`}>{gooseData.cgi.label_es}</p>
           <p style="margin-top:0.5rem;">La fuerza política interna de Carney en Canadá — la mano detrás de la revisión del T-MEC.</p>
           <p style="margin-top:0.75rem;"><a href="/es/canada/indexes/canada-goose/" class="cta-link">Abrir el Canada Goose Index</a></p>
         </div>
-        <div class="note-card" style={`border-left:4px solid ${showdownData.showdown.zone_color};`}>
+        <div class="note-card" style={`border-top: 4px solid ${showdownData.showdown.zone_color};`}>
           <p class="eyebrow">Mesa de guerra comercial · T-MEC</p>
           <h2 style="font-size:3rem;margin:0.25rem 0;color:var(--text);">{showdownData.showdown.gap > 0 ? '+' : ''}{showdownData.showdown.gap}</h2>
           <p style={`font-weight:700;color:${showdownData.showdown.zone_color};`}>{showdownData.showdown.label_es}</p>
@@ -121,7 +121,7 @@ const qcWinSeats = qcResults.parties[0].seats;
       <h2>Proyección federal — al {meta.run_date}</h2>
       <p style="margin-bottom:1.5rem;">Basada en {meta.n_polls} sondeos · {meta.n_simulations.toLocaleString()} simulaciones</p>
       <div class="content-grid-2" style="gap:1.5rem;margin-bottom:2rem;">
-        <div class="note-card" style={`border-left:4px solid ${lib.color};`}>
+        <div class="note-card" style={`border-top: 4px solid ${lib.color};`}>
           <p class="eyebrow">Liberal</p>
           <h3 style="font-size:2.5rem;margin:0.25rem 0;">
             <AnimatedNumber client:visible value={lib.seats_projected} />
@@ -129,7 +129,7 @@ const qcWinSeats = qcResults.parties[0].seats;
           </h3>
           <p>Probabilidad de mayoría: <strong>{pMajority}%</strong> · Partido más grande: <strong>{pLargest}%</strong></p>
         </div>
-        <div class="note-card" style={`border-left:4px solid ${con.color};`}>
+        <div class="note-card" style={`border-top: 4px solid ${con.color};`}>
           <p class="eyebrow">Conservador</p>
           <h3 style="font-size:2.5rem;margin:0.25rem 0;">
             <AnimatedNumber client:visible value={con.seats_projected} />
@@ -146,7 +146,7 @@ const qcWinSeats = qcResults.parties[0].seats;
 
   <section class="content-band">
     <div class="container content-grid-2">
-      <div class="note-card" style={`border-left:4px solid ${lib.color};`}>
+      <div class="note-card" style={`border-top: 4px solid ${lib.color};`}>
         <p class="eyebrow">Proyección federal</p>
         <h3 style="font-family:var(--serif);font-size:1.4rem;margin:0.25rem 0;">{lib.label_en}</h3>
         <p style="font-size:2rem;font-weight:700;margin:0.25rem 0;">
@@ -157,7 +157,7 @@ const qcWinSeats = qcResults.parties[0].seats;
         <p style="margin-top:1rem;"><a href="/es/canada/federal/" class="cta-link" style="font-family:var(--mono);font-size:0.8rem;letter-spacing: 0;">Proyección federal completa</a></p>
         <p style="margin-top:0.35rem;"><a href="/es/canada/federal/distritos/" class="cta-link" style="font-family:var(--mono);font-size:0.75rem;letter-spacing: 0;color:var(--ink-3);">Explorar los 343 distritos</a></p>
       </div>
-      <div class="note-card" style={`border-left:4px solid ${qcTop.color};`}>
+      <div class="note-card" style={`border-top: 4px solid ${qcTop.color};`}>
         <p class="eyebrow">Provincial · Quebec</p>
         <h3 style="font-family:var(--serif);font-size:1.4rem;margin:0.25rem 0;">{qcTop.label_en}</h3>
         <p style="font-size:2rem;font-weight:700;margin:0.25rem 0;">
@@ -168,7 +168,7 @@ const qcWinSeats = qcResults.parties[0].seats;
         <p style="margin-top:1rem;"><a href="/es/canada/quebec/resultados/" class="cta-link" style="font-family:var(--mono);font-size:0.8rem;letter-spacing: 0;">Resultados de Quebec</a></p>
         <p style="margin-top:0.35rem;"><a href="/es/canada/quebec/distritos/" class="cta-link" style="font-family:var(--mono);font-size:0.75rem;letter-spacing: 0;color:var(--ink-3);">Explorar los 127 distritos</a></p>
       </div>
-      <div class="note-card" style={`border-left:4px solid ${onTop.color};`}>
+      <div class="note-card" style={`border-top: 4px solid ${onTop.color};`}>
         <p class="eyebrow">Provincial · Ontario</p>
         <h3 style="font-family:var(--serif);font-size:1.4rem;margin:0.25rem 0;">{onTop.label_en}</h3>
         <p style="font-size:2rem;font-weight:700;margin:0.25rem 0;">
@@ -179,7 +179,7 @@ const qcWinSeats = qcResults.parties[0].seats;
         <p style="margin-top:1rem;"><a href="/es/canada/ontario/" class="cta-link" style="font-family:var(--mono);font-size:0.8rem;letter-spacing: 0;">Abrir proyección Ontario</a></p>
         <p style="margin-top:0.35rem;"><a href="/es/canada/ontario/distritos/" class="cta-link" style="font-family:var(--mono);font-size:0.75rem;letter-spacing: 0;color:var(--ink-3);">Explorar los 124 distritos</a></p>
       </div>
-      <div class="note-card" style={`border-left:4px solid ${bcTop.color};`}>
+      <div class="note-card" style={`border-top: 4px solid ${bcTop.color};`}>
         <p class="eyebrow">Provincial · Columbia Británica</p>
         <h3 style="font-family:var(--serif);font-size:1.4rem;margin:0.25rem 0;">{bcTop.label_en}</h3>
         <p style="font-size:2rem;font-weight:700;margin:0.25rem 0;">
@@ -195,12 +195,12 @@ const qcWinSeats = qcResults.parties[0].seats;
         <h3><a href="/es/canada/byelections/">Extraordinarias federales</a></h3>
         <p>Desks individuales para cada elección extraordinaria con proyecciones fundamentales, resultados históricos y archivos de carreras resueltas.</p>
       </div>
-      <div class="note-card" style="border-left:4px solid #1A4782;">
+      <div class="note-card" style="border-top: 3px solid var(--ink);">
         <p class="eyebrow">Extraordinarias &#xb7; Ontario</p>
         <h3><a href="/es/canada/ontario/byelections/">Extraordinarias de Ontario &#x2192;</a></h3>
         <p>Tres esca&#xf1;os vacantes &#x2014; Hamilton East&#x2014;Stoney Creek, Scarborough Southwest y York&#x2014;Simcoe. Votaciones previstas el 3 de septiembre de 2026.</p>
       </div>
-      <div class="note-card" style="border-left:4px solid var(--blue-tint,#3b82f6);">
+      <div class="note-card" style="border-top: 3px solid var(--ink);">
         <p class="eyebrow">Indicador editorial</p>
         <h3 style="font-family:var(--serif);font-size:1.4rem;margin:0.25rem 0;">Índice Fraser interino</h3>
         <p style="font-size:2rem;font-weight:700;margin:0.25rem 0;">

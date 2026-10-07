@@ -4,7 +4,7 @@
   "scripts": {
     "dev": "astro dev",
     "prebuild": "npm run sync:machine-metadata && npm run validate:live-data && npm run check:mini-sim && npm run check:basemaps",
-    "build": "astro build && node scripts/copy-legacy.mjs && pagefind --site dist && npm run check:og",
+    "build": "astro build && node scripts/copy-legacy.mjs && pagefind --site dist && npm run check:og && npm run check:design",
     "preview": "astro preview",
     "validate:editorial": "node scripts/validate-editorial-astro.mjs",
     "check:polymarket": "node scripts/check-polymarket-embeds.mjs",
@@ -15,7 +15,8 @@
     "indexnow": "node scripts/submit-indexnow.mjs",
     "indexnow:all": "node scripts/submit-indexnow.mjs --all",
     "check:basemaps": "node scripts/check-basemaps.mjs",
-    "check:og": "node scripts/check-og.mjs"
+    "check:og": "node scripts/check-og.mjs",
+    "check:design": "node scripts/check-design.mjs --strict"
   },
   "dependencies": {
     "@astrojs/preact": "^5.1.2",

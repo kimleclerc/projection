@@ -156,7 +156,7 @@ export default function WcBeatTheModel({ lang, board }: Props) {
 
   const share = async () => {
     if (!complete) return;
-    const text = `${t.shareChampion}: ${flagFor(champ.team)} ${champ.labels[lang]} 🏆 — ${t.shareVs} ${pct(lang, champ.p_champion)}. ${t.boldness}: ${boldnessScore}/100. ${t.shareTry} https://vote-scope.com/${lang}/sports/wc2026/`;
+    const text = `${t.shareChampion}: ${flagFor(champ.team)} ${champ.labels[lang]} — ${t.shareVs} ${pct(lang, champ.p_champion)}. ${t.boldness}: ${boldnessScore}/100. ${t.shareTry} https://vote-scope.com/${lang}/sports/wc2026/`;
     try {
       if (navigator.share) {
         await navigator.share({ text });
@@ -228,7 +228,7 @@ export default function WcBeatTheModel({ lang, board }: Props) {
         .btm-label { font-family: var(--mono, monospace); font-size: 11px; letter-spacing: 0; color: var(--ink-3, #666); min-width: 180px; }
         .btm-row select { padding: 8px 10px; border: 1px solid var(--rule, #ccc); border-radius: 4px; background: var(--paper, #fff); color: var(--text, #111); font-size: 0.95rem; min-width: 220px; }
         .btm-odds { font-size: 0.85rem; color: var(--ink-3, #555); }
-        .btm-result { margin-top: 1.5rem; padding: 1.25rem; border: 1px solid var(--rule, #ddd); border-left: 4px solid var(--red, #c33); border-radius: 4px; }
+        .btm-result { margin-top: 1.5rem; padding: 1.25rem; border: 1px solid var(--rule, #ddd); border-top: 3px solid var(--ink); border-radius: 4px; }
         .btm-meter-label { margin: 0 0 6px; font-size: 0.9rem; }
         .btm-meter { height: 10px; background: var(--surface-alt, #eee); border-radius: 5px; overflow: hidden; }
         .btm-meter-fill { height: 100%; background: var(--red, #c33); transition: width 0.5s ease; }

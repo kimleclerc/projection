@@ -20,7 +20,7 @@ export interface ChartTheme {
 }
 
 const FALLBACK: ChartTheme = {
-  axis: '#6a635a', grid: '#d8d3c8', surface: '#fffdf6', ink: '#3a3530',
+  axis: '#6a635a', grid: '#d8d3c8', surface: '#ffffff', ink: '#3a3530',
 };
 
 export function readChartTheme(): ChartTheme {

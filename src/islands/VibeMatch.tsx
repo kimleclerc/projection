@@ -619,7 +619,7 @@ export default function VibeMatch({ parties, ridings, locale, campaignVersion, c
     const context = canvas.getContext('2d');
     if (!context) return;
 
-    context.fillStyle = '#f5f1e8';
+    context.fillStyle = '#ffffff';
     context.fillRect(0, 0, canvas.width, canvas.height);
     context.save();
     context.translate(540, 700);
@@ -645,7 +645,7 @@ export default function VibeMatch({ parties, ridings, locale, campaignVersion, c
     ranked.slice(0, 3).forEach((party, index) => {
       const y = 400 + index * 230;
       const isTop = index === 0;
-      context.fillStyle = isTop ? '#fffdf6' : 'rgba(255,253,246,.72)';
+      context.fillStyle = isTop ? '#ffffff' : 'rgba(255,253,246,.72)';
       context.strokeStyle = '#d8d0c2';
       context.lineWidth = 3;
       context.beginPath();
