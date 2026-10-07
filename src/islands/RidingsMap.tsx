@@ -726,10 +726,10 @@ export default function RidingsMap({
         .rm-pop { font-family: var(--mono, ui-monospace, monospace); font-size: 12px; line-height: 1.4; color: var(--ink, #1a1a1a); }
         .rm-pop-head { display: flex; align-items: baseline; gap: 8px; margin-bottom: 8px; }
         .rm-pop-title { font-family: var(--serif, Georgia, serif); font-size: 18px; font-weight: 600; margin: 0; flex: 1 1 auto; }
-        .rm-pop-province { font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3, #888); }
+        .rm-pop-province { font-size: 10px; letter-spacing: 0; color: var(--ink-3, #888); }
         .rm-pop-pill { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border: 1px solid; border-radius: 999px; font-size: 11px; font-weight: 600; margin-bottom: 12px; }
         .rm-pop-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
-        .rm-pop-eyebrow { font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3, #888); margin: 10px 0 6px; }
+        .rm-pop-eyebrow { font-size: 10px; letter-spacing: 0; color: var(--ink-3, #888); margin: 10px 0 6px; }
         .rm-pop-eyebrow-byel { color: var(--ink, #1a1a1a); font-weight: 700; }
         .rm-pop-row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 2px 0; }
         .rm-pop-key { color: var(--ink-2, #555); }

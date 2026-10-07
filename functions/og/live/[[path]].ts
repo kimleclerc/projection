@@ -12,14 +12,14 @@ type Lang = 'en' | 'fr' | 'es';
 type Env = { ASSETS: { fetch: (req: Request | string) => Promise<Response> } };
 type Ctx = { request: Request; env: Env; params: { path?: string[] }; waitUntil: (p: Promise<unknown>) => void };
 
-const PAPER = '#f6f2ea';
-const CARD = '#fffdf8';
-const INK = '#1d1b18';
-const INK_2 = '#55504a';
-const INK_3 = '#8a847b';
-const RULE = '#e4ddd0';
-const TOSSUP = '#c8b88e';
-const EMPTY = '#ece6da';
+const PAPER = '#f3f3f3';
+const CARD = '#ffffff';
+const INK = '#111111';
+const INK_2 = '#444444';
+const INK_3 = '#777777';
+const RULE = '#dddddd';
+const TOSSUP = '#c9b27c';
+const EMPTY = '#ececec';
 
 const ELECTION_DAY = Date.UTC(2026, 10, 3);
 
@@ -40,7 +40,7 @@ const TILES: Record<string, [number, number]> = {
 
 const TEXT = {
   en: {
-    eyebrow: '2026 SENATE FORECAST',
+    eyebrow: '2026 Senate forecast',
     by: 'By',
     question: 'Who controls the Senate after November 3?',
     chance: 'chance of a Senate majority',
@@ -53,7 +53,7 @@ const TEXT = {
     date: (d: Date) => d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' }),
   },
   fr: {
-    eyebrow: 'SÉNAT AMÉRICAIN · PROJECTION 2026',
+    eyebrow: 'Sénat américain · projection 2026',
     by: 'Par',
     question: 'Qui contrôlera le Sénat après le 3 novembre ?',
     chance: 'de chances de majorité au Sénat',
@@ -66,7 +66,7 @@ const TEXT = {
     date: (d: Date) => d.toLocaleDateString('fr-CA', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' }),
   },
   es: {
-    eyebrow: 'SENADO DE EE. UU. · PRONÓSTICO 2026',
+    eyebrow: 'Senado de EE. UU. · pronóstico 2026',
     by: 'Por',
     question: '¿Quién controlará el Senado después del 3 de noviembre?',
     chance: 'de probabilidad de mayoría en el Senado',
@@ -101,15 +101,15 @@ const ratingColor = (code: string, colors: Record<string, string>) => {
   return mix(base, strength === 'solid' ? 1 : strength === 'likely' ? 0.68 : 0.42);
 };
 
-let fontCache: Promise<{ name: string; data: ArrayBuffer; weight: 400 | 500 | 600; style: 'normal' }[]> | null = null;
+let fontCache: Promise<{ name: string; data: ArrayBuffer; weight: 500 | 600 | 700; style: 'normal' }[]> | null = null;
 const loadFonts = (env: Env, origin: string) => {
   if (!fontCache) {
     const get = (file: string) => env.ASSETS.fetch(`${origin}/og-fonts/${file}`).then((r) => r.arrayBuffer());
     fontCache = Promise.all([
-      get('newsreader-latin-400-normal.woff').then((data) => ({ name: 'Newsreader', data, weight: 400 as const, style: 'normal' as const })),
-      get('newsreader-latin-600-normal.woff').then((data) => ({ name: 'Newsreader', data, weight: 600 as const, style: 'normal' as const })),
-      get('jetbrains-mono-latin-400-normal.woff').then((data) => ({ name: 'JetBrains Mono', data, weight: 400 as const, style: 'normal' as const })),
-      get('jetbrains-mono-latin-500-normal.woff').then((data) => ({ name: 'JetBrains Mono', data, weight: 500 as const, style: 'normal' as const })),
+      get('barlow-latin-500-normal.woff').then((data) => ({ name: 'Barlow', data, weight: 500 as const, style: 'normal' as const })),
+      get('barlow-latin-600-normal.woff').then((data) => ({ name: 'Barlow', data, weight: 600 as const, style: 'normal' as const })),
+      get('barlow-latin-700-normal.woff').then((data) => ({ name: 'Barlow', data, weight: 700 as const, style: 'normal' as const })),
+      get('barlow-condensed-latin-700-normal.woff').then((data) => ({ name: 'Barlow Condensed', data, weight: 700 as const, style: 'normal' as const })),
     ]);
     fontCache.catch(() => { fontCache = null; });
   }
@@ -147,8 +147,8 @@ function senateCard(data: any, lang: Lang) {
     const strong = code && (code.startsWith('solid') || code.startsWith('likely'));
     return h('div', {
       position: 'absolute', left: c * (TILE + GAP), top: r * (TILE + GAP), width: TILE, height: TILE,
-      backgroundColor: fill, borderRadius: 5, alignItems: 'center', justifyContent: 'center',
-      fontFamily: 'JetBrains Mono', fontWeight: 500, fontSize: 12,
+      backgroundColor: fill, borderRadius: 2, alignItems: 'center', justifyContent: 'center',
+      fontFamily: 'Barlow', fontWeight: 600, fontSize: 12,
       color: !code ? '#b9b1a3' : strong ? '#ffffff' : INK,
     }, st);
   });
@@ -156,29 +156,29 @@ function senateCard(data: any, lang: Lang) {
   const legendSwatch = (fills: string[], label: string, last = false) =>
     h('div', { alignItems: 'center', marginRight: last ? 0 : 12 },
       ...fills.map((fill) => h('div', { width: 12, height: 12, borderRadius: 3, backgroundColor: fill, marginRight: 3 })),
-      h('div', { fontFamily: 'JetBrains Mono', fontSize: 13, color: INK_2, marginLeft: 3 }, label));
+      h('div', { fontFamily: 'Barlow', fontWeight: 500, fontSize: 13, color: INK_2, marginLeft: 3 }, label));
 
   const seg = (n: number, fill: string, label: string | null) =>
     h('div', { width: `${n}%`, height: 30, backgroundColor: fill, alignItems: 'center', justifyContent: 'center',
-      color: '#fff', fontFamily: 'JetBrains Mono', fontWeight: 500, fontSize: 16 }, label ?? '');
+      color: '#fff', fontFamily: 'Barlow', fontWeight: 600, fontSize: 16 }, label ?? '');
 
   return h('div', { width: 1200, height: 630, backgroundColor: PAPER, padding: 36 },
-    h('div', { flexDirection: 'column', width: '100%', height: '100%', backgroundColor: CARD, border: `1px solid ${RULE}`, borderRadius: 18, padding: '34px 44px' },
+    h('div', { flexDirection: 'column', width: '100%', height: '100%', backgroundColor: CARD, border: `1px solid ${RULE}`, borderRadius: 2, borderTop: `6px solid ${INK}`, padding: '30px 44px' },
       // Bandeau
-      h('div', { justifyContent: 'space-between', alignItems: 'center', fontFamily: 'JetBrains Mono', fontSize: 17, letterSpacing: '0.12em', color: INK_2 },
-        h('div', { fontWeight: 500, color: INK }, `VOTE·SCOPE  ·  ${t.eyebrow}`),
-        h('div', { backgroundColor: INK, color: PAPER, padding: '6px 12px', borderRadius: 6, letterSpacing: '0.06em' }, t.days(daysLeft))),
+      h('div', { justifyContent: 'space-between', alignItems: 'center', fontFamily: 'Barlow', fontWeight: 500, fontSize: 17, letterSpacing: '0', color: INK_2 },
+        h('div', { fontWeight: 500, color: INK }, `Vote-Scope  ·  ${t.eyebrow}`),
+        h('div', { backgroundColor: INK, color: PAPER, padding: '6px 12px', borderRadius: 6, letterSpacing: '0' }, t.days(daysLeft))),
       // Corps
       h('div', { marginTop: 26, flexGrow: 1 },
         h('div', { flexDirection: 'column', width: 520 },
-          h('div', { fontFamily: 'Newsreader', fontWeight: 600, fontSize: t.question.length > 46 ? 38 : 44, lineHeight: 1.08, color: INK, letterSpacing: '-0.01em' }, t.question),
+          h('div', { fontFamily: 'Barlow', fontWeight: 700, fontSize: t.question.length > 46 ? 38 : 44, lineHeight: 1.08, color: INK, letterSpacing: '-0.01em' }, t.question),
           h('div', { alignItems: 'flex-end', marginTop: 18 },
-            h('div', { fontFamily: 'Newsreader', fontWeight: 600, fontSize: 124, lineHeight: 0.9, color: colors[leader] }, lang === 'en' ? `${pct}%` : `${pct}\u202f%`),
-            h('div', { fontFamily: 'Newsreader', fontWeight: 600, fontSize: 34, color: colors[leader], marginLeft: 18, marginBottom: 14 }, t.party[leader as 'us_dem'])),
-          h('div', { fontFamily: 'Newsreader', fontSize: 22, color: INK_2, marginTop: 8 }, t.chance),
+            h('div', { fontFamily: 'Barlow Condensed', fontWeight: 700, fontSize: 150, lineHeight: 0.9, color: colors[leader] }, lang === 'en' ? `${pct}%` : `${pct}\u202f%`),
+            h('div', { fontFamily: 'Barlow', fontWeight: 700, fontSize: 34, color: colors[leader], marginLeft: 18, marginBottom: 14 }, t.party[leader as 'us_dem'])),
+          h('div', { fontFamily: 'Barlow', fontWeight: 500, fontSize: 22, color: INK_2, marginTop: 8 }, t.chance),
           // Barre de sièges
           h('div', { flexDirection: 'column', marginTop: 24 },
-            h('div', { justifyContent: 'space-between', fontFamily: 'JetBrains Mono', fontSize: 15, color: INK_2, marginBottom: 8 },
+            h('div', { justifyContent: 'space-between', fontFamily: 'Barlow', fontWeight: 500, fontSize: 15, color: INK_2, marginBottom: 8 },
               h('div', {}, `${t.party.us_dem} ${D}`),
               h('div', {}, t.seats),
               h('div', {}, `${R} ${t.party.us_rep}`)),
@@ -188,7 +188,7 @@ function senateCard(data: any, lang: Lang) {
               seg(R, colors.us_rep, String(R))),
             h('div', { position: 'relative', height: 26, marginTop: 4 },
               h('div', { position: 'absolute', left: '51%', marginLeft: -1, top: -34, width: 2, height: 40, backgroundColor: INK }),
-              h('div', { position: 'absolute', left: '44%', top: 8, fontFamily: 'JetBrains Mono', fontSize: 13, color: INK_3 }, t.majority)))),
+              h('div', { position: 'absolute', left: '44%', top: 8, fontFamily: 'Barlow', fontWeight: 500, fontSize: 13, color: INK_3 }, t.majority)))),
         // Carte en tuiles
         h('div', { flexDirection: 'column', marginLeft: 'auto', alignItems: 'flex-end' },
           h('div', { position: 'relative', width: 12 * (TILE + GAP), height: 8 * (TILE + GAP) }, ...tiles),
@@ -198,11 +198,11 @@ function senateCard(data: any, lang: Lang) {
             legendSwatch([mix(colors.us_dem, 0.42), mix(colors.us_rep, 0.42)], t.legend[2]),
             legendSwatch([TOSSUP], t.legend[3], true)))),
       // Pied
-      h('div', { justifyContent: 'space-between', alignItems: 'center', borderTop: `1px solid ${RULE}`, paddingTop: 14, fontFamily: 'JetBrains Mono', fontSize: 15, color: INK_3 },
+      h('div', { justifyContent: 'space-between', alignItems: 'center', borderTop: `1px solid ${RULE}`, paddingTop: 14, fontFamily: 'Barlow', fontWeight: 500, fontSize: 15, color: INK_3 },
         h('div', {}, `${t.date(runDate)}`),
         h('div', { alignItems: 'center' },
-          h('div', { fontFamily: 'Newsreader', fontWeight: 600, fontSize: 19, color: INK_2, marginRight: 18 }, `${t.by} Kim Leclerc · @kimleclerc`),
-          h('div', { fontWeight: 500, fontSize: 18, color: INK, letterSpacing: '0.04em' }, 'vote-scope.com')))));
+          h('div', { fontFamily: 'Barlow', fontWeight: 700, fontSize: 19, color: INK_2, marginRight: 18 }, `${t.by} Kim Leclerc · @kimleclerc`),
+          h('div', { fontWeight: 500, fontSize: 18, color: INK, letterSpacing: '0' }, 'vote-scope.com')))));
 }
 
 const CARDS: Record<string, { data: string; render: (data: any, lang: Lang) => Node }> = {

@@ -315,7 +315,7 @@ const topSeats = (sc: any) => sc.seats.filter((r: any) => ['far_right', 'left', 
       <section class="container leg-panel">
         <h2>{copy.hotTitle}</h2>
         <p class="leg-method">{copy.hotNote}</p>
-        <p class="leg-all-link"><a href={{ fr: '/fr/france/legislatives/circonscriptions/', en: '/en/france/legislative-election/constituencies/', es: '/es/france/legislativas/circunscripciones/' }[locale]}>{{ fr: 'Parcourir les 577 circonscriptions →', en: 'Browse all 577 constituencies →', es: 'Explorar las 577 circunscripciones →' }[locale]}</a></p>
+        <p class="leg-all-link"><a href={{ fr: '/fr/france/legislatives/circonscriptions/', en: '/en/france/legislative-election/constituencies/', es: '/es/france/legislativas/circunscripciones/' }[locale]}>{{ fr: 'Parcourir les 577 circonscriptions', en: 'Browse all 577 constituencies', es: 'Explorar las 577 circunscripciones' }[locale]}</a></p>
         <ul class="leg-hotlist">
           {hot.map((c: any) => (
             <li>
@@ -371,15 +371,15 @@ const topSeats = (sc: any) => sc.seats.filter((r: any) => ['far_right', 'left', 
   }
   .leg-hero-copy { max-width: 820px; }
   .leg-kicker, .leg-meta, .leg-method { font-family: var(--mono); }
-  .leg-kicker { color: var(--accent); text-transform: uppercase; letter-spacing: .08em; font-size: .75rem; }
-  h1 { max-width: 13ch; margin: .45rem 0 1.25rem; font-family: var(--serif); font-size: clamp(3rem, 6.2vw, 6.4rem); font-weight: 500; letter-spacing: -.045em; line-height: .88; text-wrap: balance; }
+  .leg-kicker { color: var(--accent); letter-spacing: 0; font-size: .75rem; }
+  h1 { max-width: 13ch; margin: .45rem 0 1.25rem; font-family: var(--serif); font-size: clamp(3rem, 6.2vw, 6.4rem); font-weight: 700; letter-spacing: -0.01em; line-height: .88; text-wrap: balance; }
   h2 { font-family: var(--serif); font-size: clamp(1.4rem, 3vw, 2rem); margin-bottom: 1.2rem; }
   .leg-dek { max-width: 62ch; margin: 0; color: var(--ink-2); font-size: clamp(1rem, 1.5vw, 1.2rem); line-height: 1.55; }
   .leg-meta { display: flex; flex-wrap: wrap; gap: .6rem 1.2rem; margin-top: 1.5rem; font-size: .75rem; color: var(--ink-3); }
   .leg-hero-facts { border-top: 1px solid var(--ink); }
   .leg-hero-fact { display: grid; grid-template-columns: 5.2rem 1fr; align-items: baseline; gap: 1rem; padding: 1rem 0; border-bottom: 1px solid var(--rule); }
-  .leg-hero-fact strong { font-family: var(--serif); font-size: clamp(2.1rem, 4vw, 3.5rem); font-weight: 500; line-height: .9; letter-spacing: -.035em; }
-  .leg-hero-fact span { font-family: var(--mono); font-size: .68rem; line-height: 1.35; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
+  .leg-hero-fact strong { font-family: var(--serif); font-size: clamp(2.1rem, 4vw, 3.5rem); font-weight: 700; line-height: .9; letter-spacing: -0.01em; }
+  .leg-hero-fact span { font-family: var(--mono); font-size: 13px; line-height: 1.35; letter-spacing: 0; color: var(--ink-3); }
   .leg-panel { margin-top: 3rem; padding-block: 2rem; border-block: 1px solid var(--rule); }
   .leg-waiting { display: flex; gap: 1rem; align-items: center; max-width: 760px; font-family: var(--serif); font-size: 1.35rem; }
   .leg-waiting span { font-size: 2rem; color: var(--accent); }
@@ -394,12 +394,12 @@ const topSeats = (sc: any) => sc.seats.filter((r: any) => ['far_right', 'left', 
   .leg-scenario-dek { font-size: .8rem; color: var(--ink-3); min-height: 3em; }
   .leg-pmaj { margin: .8rem 0; }
   .leg-pmaj strong { font: 2.4rem var(--serif); display: block; line-height: 1; }
-  .leg-pmaj span { font-family: var(--mono); font-size: .7rem; color: var(--ink-3); text-transform: uppercase; letter-spacing: .06em; }
+  .leg-pmaj span { font-family: var(--mono); font-size: 13px; color: var(--ink-3); letter-spacing: 0; }
   .leg-seatlist { list-style: none; padding: 0; margin: 0; display: grid; gap: .45rem; }
   .leg-seatlist li { display: flex; align-items: baseline; gap: .5rem; font-size: .9rem; }
   .leg-seat-name { flex: 1; color: var(--ink-2); }
   .leg-seatlist strong { font-family: var(--serif); font-size: 1.15rem; }
-  .leg-seatlist small, .leg-hot-p { color: var(--ink-3); font-family: var(--mono); font-size: .75rem; }
+  .leg-seatlist small, .leg-hot-p { color: var(--ink-3); font-family: var(--mono); font-size: 13px; }
   .leg-hotlist { list-style: none; padding: 0; margin-top: 1rem; display: grid; gap: .5rem; max-width: 760px; }
   .leg-hotlist li { display: flex; align-items: baseline; gap: .6rem; font-size: .9rem; border-bottom: 1px dashed var(--rule); padding-bottom: .4rem; }
   .leg-hot-name { flex: 1; }
@@ -408,13 +408,13 @@ const topSeats = (sc: any) => sc.seats.filter((r: any) => ['far_right', 'left', 
   .leg-all-link { font-family: var(--mono); font-size: .8rem; margin-top: .8rem; }
   .leg-all-link a { color: var(--accent); text-decoration: none; }
   .leg-all-link a:hover { text-decoration: underline; }
-  .leg-flip { font-family: var(--mono); font-size: .65rem; color: var(--accent); text-transform: uppercase; letter-spacing: .05em; font-style: normal; }
+  .leg-flip { font-family: var(--mono); font-size: 13px; color: var(--accent); letter-spacing: 0; font-style: normal; }
   .leg-caveats ul { max-width: 78ch; color: var(--ink-2); font-size: .95rem; display: grid; gap: .6rem; padding-left: 1.2rem; }
   .leg-maps { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; }
   .leg-map { margin: 0; }
   .leg-map figcaption { display: grid; gap: .2rem; margin-bottom: .6rem; }
   .leg-map figcaption strong { font-family: var(--serif); font-size: 1.05rem; }
-  .leg-map figcaption span { font-family: var(--mono); font-size: .72rem; color: var(--ink-3); }
+  .leg-map figcaption span { font-family: var(--mono); font-size: 13px; color: var(--ink-3); }
   .leg-steps { list-style: none; counter-reset: step; padding: 0; margin: 0; display: grid; gap: 1.4rem; max-width: 80ch; }
   .leg-steps li { counter-increment: step; padding-left: 2.6rem; position: relative; }
   .leg-steps li::before { content: counter(step); position: absolute; left: 0; top: 0; width: 1.8rem; height: 1.8rem; border: 1px solid var(--rule); border-radius: 50%; display: grid; place-items: center; font-family: var(--mono); font-size: .8rem; color: var(--accent); }

@@ -117,7 +117,7 @@ function injectStyles() {
 .mlb-share { display: inline-flex; gap: 8px; }
 .mlb-table-wrap { overflow-x: auto; border: 1px solid var(--rule, #ddd); border-radius: 4px; }
 .mlb-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-.mlb-table th { text-align: right; font-weight: 500; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-2, #555); padding: 11px 12px; border-bottom: 1px solid var(--rule, #ddd); cursor: pointer; user-select: none; white-space: nowrap; background: var(--card, #f8f8f3); position: sticky; top: 0; z-index: 1; }
+.mlb-table th { text-align: right; font-weight: 500; font-size: 11px; letter-spacing: 0; color: var(--ink-2, #555); padding: 11px 12px; border-bottom: 1px solid var(--rule, #ddd); cursor: pointer; user-select: none; white-space: nowrap; background: var(--card, #f8f8f3); position: sticky; top: 0; z-index: 1; }
 .mlb-table th.mlb-left { text-align: left; }
 .mlb-table th:hover { color: var(--ink, #1a1a1a); }
 .mlb-table th[aria-sort="ascending"]::after { content: " ▲"; }
@@ -127,7 +127,7 @@ function injectStyles() {
 .mlb-table tr:hover td { background: var(--card, #f8f8f3); }
 .mlb-team { display: inline-flex; align-items: center; gap: 8px; font-family: var(--serif, Georgia, serif); font-size: 14px; color: var(--ink, #1a1a1a); }
 .mlb-team-bar { width: 4px; height: 1.05em; border-radius: 2px; display: inline-block; flex: none; }
-.mlb-div { font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3, #888); }
+.mlb-div { font-size: 11px; letter-spacing: 0; color: var(--ink-3, #888); }
 .mlb-num { font-variant-numeric: tabular-nums; text-align: right; color: var(--ink-2, #555); }
 .mlb-num.is-lead { color: var(--ink, #1a1a1a); font-weight: 600; }
 .mlb-streak-w { color: #2d7a4f; }

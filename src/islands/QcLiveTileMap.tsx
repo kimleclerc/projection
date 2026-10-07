@@ -11,13 +11,13 @@ import tiles from '../data/qc-tiles.json';
 const copy = {
   fr: { title: 'La carte des 127 circonscriptions', before: 'Projection d’avant-scrutin. La carte passe au dépouillement à 20 h.',
         live: 'Pâle : en tête. Plein : élu. Coin blanc : la circonscription change de parti.', leading: 'en tête', elected: 'élu·e', projected: 'projeté',
-        noResult: 'aucun résultat', gain: 'gain', polls: 'bureaux', open: 'Voir la circonscription →', tap: 'Touchez une case pour le détail.' },
+        noResult: 'aucun résultat', gain: 'gain', polls: 'bureaux', open: 'Voir la circonscription', tap: 'Touchez une case pour le détail.' },
   en: { title: 'Map of all 127 ridings', before: 'Pre-election projection. The map switches to the live count at 8 p.m.',
         live: 'Light: leading. Solid: elected. White corner: the seat changes hands.', leading: 'leading', elected: 'elected', projected: 'projected',
-        noResult: 'no results yet', gain: 'gain', polls: 'polls', open: 'Open the riding →', tap: 'Tap a square for details.' },
+        noResult: 'no results yet', gain: 'gain', polls: 'polls', open: 'Open the riding', tap: 'Tap a square for details.' },
   es: { title: 'El mapa de los 127 distritos', before: 'Proyección previa. El mapa pasa al recuento a las 20:00.',
         live: 'Claro: en cabeza. Lleno: electo. Esquina blanca: el distrito cambia de partido.', leading: 'en cabeza', elected: 'electo', projected: 'proyectado',
-        noResult: 'sin resultados', gain: 'ganancia', polls: 'mesas', open: 'Ver el distrito →', tap: 'Toca una casilla para ver el detalle.' },
+        noResult: 'sin resultados', gain: 'ganancia', polls: 'mesas', open: 'Ver el distrito', tap: 'Toca una casilla para ver el detalle.' },
 };
 
 export default function QcLiveTileMap({ lang, parties, ridings }: { lang: Locale; parties: PartyInfo[]; ridings: RidingInfo[] }) {

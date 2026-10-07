@@ -159,7 +159,7 @@ const orbitBt = data.orbit_backtest;
 const MODEL_ROWS = ['pp', 'psoe', 'vox', 'sumar', 'podemos', 'erc', 'bildu', 'junts', 'pnv', 'salf'];
 const orbitAgrees = (orbit.blocs.pp_vox.p_majority >= 0.5) === (blocs.pp_vox.p_majority >= 0.5);
 const simHref = { es: '/es/herramientas/simulador-espana', fr: '/fr/outils/simulateur-espagne', en: '/en/tools/spain-simulator' }[locale];
-const simLabel = { es: 'Calcula tu propio escenario con el simulador D’Hondt →', fr: 'Calculez votre propre scénario avec le simulateur D’Hondt →', en: 'Build your own scenario with the D’Hondt simulator →' }[locale];
+const simLabel = { es: 'Calcula tu propio escenario con el simulador D’Hondt', fr: 'Calculez votre propre scénario avec le simulateur D’Hondt', en: 'Build your own scenario with the D’Hondt simulator' }[locale];
 const labsHref = `/${locale}/labs/${locale === 'es' ? 'como-funciona' : locale === 'fr' ? 'comment-ca-marche' : 'how-it-works'}`;
 
 
@@ -528,7 +528,7 @@ const barTotal = 350;
 
         <div class="es-when">
           <span class="es-when-label">{t.whenLabel}</span>
-          <p>{t.whenAnswer} <a href="#fechas">{t.whenLink} →</a></p>
+          <p>{t.whenAnswer} <a href="#fechas">{t.whenLink}</a></p>
         </div>
 
         {inBlackout && <p class="es-blackout">{blackoutNote}</p>}
@@ -695,7 +695,7 @@ const barTotal = 350;
               </tbody>
             </table>
           </div>
-          <p style="margin-top:1rem;"><a class="cta-link" href={labsHref}>{t.orbHow} →</a></p>
+          <p style="margin-top:1rem;"><a class="cta-link" href={labsHref}>{t.orbHow}</a></p>
         </div>
       </div>
     </section>
@@ -861,7 +861,7 @@ const barTotal = 350;
     font-family: var(--serif);
     font-size: clamp(1.9rem, 4vw, 3rem);
     line-height: 1.08;
-    letter-spacing: -0.015em;
+    letter-spacing: -0.01em;
     margin: 0.35rem 0 1rem;
     max-width: 22ch;
   }
@@ -873,9 +873,8 @@ const barTotal = 350;
   }
   .es-when-label {
     font-family: var(--mono);
-    font-size: 11px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
+    font-size: 13px;
+    letter-spacing: 0;
     color: var(--ink-3);
   }
   .es-when p { margin: 4px 0 0; font-size: 16px; line-height: 1.5; }
@@ -896,7 +895,7 @@ const barTotal = 350;
     width: 2px;
     background: var(--ink);
   }
-  .es-bar-caption { font-family: var(--mono); font-size: 11px; color: var(--ink-3); margin: 6px 0 0; padding-left: calc(176 / 350 * 100% - 40px); }
+  .es-bar-caption { font-family: var(--mono); font-size: 13px; color: var(--ink-3); margin: 6px 0 0; padding-left: calc(176 / 350 * 100% - 40px); }
   .es-tiles { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; margin-top: 16px; }
   .es-tile {
     border: 1px solid var(--rule);
@@ -907,11 +906,11 @@ const barTotal = 350;
     display: grid;
     gap: 2px;
   }
-  .es-tile-party { font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; color: var(--ink-2); }
-  .es-tile strong { font-family: var(--serif); font-size: 30px; font-weight: 430; line-height: 1.05; }
-  .es-tile-sub { font-family: var(--mono); font-size: 10.5px; color: var(--ink-3); line-height: 1.4; }
+  .es-tile-party { font-family: var(--mono); font-size: 13px; letter-spacing: 0; color: var(--ink-2); }
+  .es-tile strong { font-family: var(--serif); font-size: 30px; font-weight: 700; line-height: 1.05; }
+  .es-tile-sub { font-family: var(--mono); font-size: 13px; color: var(--ink-3); line-height: 1.4; }
   .es-sim-link { margin: 14px 0 0; }
-  .es-updated { font-family: var(--mono); font-size: 11px; color: var(--ink-3); margin: 12px 0 0; }
+  .es-updated { font-family: var(--mono); font-size: 13px; color: var(--ink-3); margin: 12px 0 0; }
   .es-two { display: grid; grid-template-columns: 1.2fr 1fr; gap: 24px; }
   .es-adelanto h2, .es-left h2, .es-track h2 {
     font-family: var(--serif);
@@ -929,15 +928,15 @@ const barTotal = 350;
   }
   .es-adelanto dt { font-size: 14px; }
   .es-adelanto dd { margin: 0; text-align: right; display: grid; }
-  .es-adelanto dd strong { font-family: var(--serif); font-size: 20px; font-weight: 450; }
-  .es-adelanto dd span { font-family: var(--mono); font-size: 10.5px; color: var(--ink-3); }
-  .es-left-compare { display: grid; gap: 8px; margin-top: 12px; font-family: var(--mono); font-size: 12px; }
+  .es-adelanto dd strong { font-family: var(--serif); font-size: 20px; font-weight: 700; }
+  .es-adelanto dd span { font-family: var(--mono); font-size: 13px; color: var(--ink-3); }
+  .es-left-compare { display: grid; gap: 8px; margin-top: 12px; font-family: var(--mono); font-size: 13px; }
   .es-left-compare span { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 7px; }
   .es-h2 { font-family: var(--serif); font-size: clamp(1.4rem, 2.6vw, 2rem); line-height: 1.2; margin: 0.3rem 0 0.6rem; }
   .es-h3 { font-family: var(--serif); font-size: 1.3rem; margin: 2rem 0 0.6rem; }
   .es-lede { max-width: 70ch; color: var(--ink-2); line-height: 1.6; }
   .es-table { width: 100%; border-collapse: collapse; font-size: 14px; }
-  .es-table th { text-align: left; font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); padding: 8px 6px; border-bottom: 1px solid var(--rule); }
+  .es-table th { text-align: left; font-family: var(--mono); font-size: 13px; letter-spacing: 0; color: var(--ink-3); padding: 8px 6px; border-bottom: 1px solid var(--rule); }
   .es-table td { padding: 8px 6px; border-bottom: 1px solid var(--rule-2); vertical-align: top; }
   .es-table td.num { font-family: var(--mono); }
   .es-cal tr.is-vote td { font-weight: 600; }
@@ -947,7 +946,7 @@ const barTotal = 350;
   .es-chips { display: flex; flex-wrap: wrap; gap: 5px; margin: 0; }
   .es-chips span {
     font-family: var(--mono);
-    font-size: 11.5px;
+    font-size: 13px;
     padding: 2px 7px;
     border-radius: 3px;
     border-left: 3px solid var(--party-color);
@@ -956,19 +955,19 @@ const barTotal = 350;
   .es-contested { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-top: 1rem; }
   .es-prov-card { border: 1px solid var(--rule); border-radius: 5px; background: var(--card); padding: 14px; }
   .es-prov-card h3 { font-family: var(--serif); font-size: 1.15rem; margin: 0 0 8px; display: flex; justify-content: space-between; gap: 8px; }
-  .es-prov-card h3 span { font-family: var(--mono); font-size: 11px; color: var(--ink-3); font-weight: 400; }
+  .es-prov-card h3 span { font-family: var(--mono); font-size: 13px; color: var(--ink-3); font-weight: 400; }
   .es-swing { font-size: 12.5px; color: var(--ink-2); margin: 10px 0 0; line-height: 1.45; }
   .es-track { max-width: 900px; border-left: 4px solid var(--blue); }
 
   .es-viv-chart { margin: 1rem 0 0; }
-  .es-viv-chart figcaption { font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; color: var(--ink-3); margin-bottom: 6px; }
+  .es-viv-chart figcaption { font-family: var(--mono); font-size: 13px; letter-spacing: 0; color: var(--ink-3); margin-bottom: 6px; }
   .es-viv-plot { position: relative; max-width: 820px; }
   .es-viv-plot svg { width: 100%; height: auto; display: block; overflow: visible; }
   .es-grid { stroke: var(--rule-2); stroke-width: 1; }
   .es-axis { stroke: var(--rule); stroke-width: 1; }
-  .es-tick { font-family: var(--mono); font-size: 11px; fill: var(--ink-3); }
+  .es-tick { font-family: var(--mono); font-size: 13px; fill: var(--ink-3); }
   .es-event { stroke: var(--ink-3); stroke-width: 1; stroke-dasharray: 3 3; }
-  .es-event-label { font-family: var(--mono); font-size: 10.5px; fill: var(--ink-2); }
+  .es-event-label { font-family: var(--mono); font-size: 13px; fill: var(--ink-2); }
   .es-viv-line { fill: none; stroke: var(--blue); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
   .es-viv-area { fill: var(--blue); opacity: 0.08; }
   .es-viv-end { fill: var(--blue); stroke: var(--card); stroke-width: 2; }
@@ -979,13 +978,13 @@ const barTotal = 350;
   .es-viv-tip {
     position: absolute; pointer-events: none; transform: translate(-50%, -100%);
     background: var(--card); border: 1px solid var(--rule); border-radius: 4px;
-    padding: 5px 8px; font-family: var(--mono); font-size: 11.5px; color: var(--ink); white-space: nowrap;
+    padding: 5px 8px; font-family: var(--mono); font-size: 13px; color: var(--ink); white-space: nowrap;
     box-shadow: 0 2px 8px rgb(0 0 0 / 0.08);
   }
   .es-dash { display: inline-block; width: 14px; border-top: 1px dashed var(--ink-3); margin-right: 7px; vertical-align: middle; }
   .es-viv-table { margin-top: 10px; font-size: 13px; max-width: 360px; }
-  .es-viv-table summary { cursor: pointer; font-family: var(--mono); font-size: 11.5px; color: var(--ink-2); }
-  .es-source { font-family: var(--mono); font-size: 10.5px; color: var(--ink-3); margin: 8px 0 0; line-height: 1.5; }
+  .es-viv-table summary { cursor: pointer; font-family: var(--mono); font-size: 13px; color: var(--ink-2); }
+  .es-source { font-family: var(--mono); font-size: 13px; color: var(--ink-3); margin: 8px 0 0; line-height: 1.5; }
   .es-source a { color: inherit; }
   .es-viv-two { margin-top: 24px; }
   .es-h3-tight { margin: 0 0 12px; font-size: 1.15rem; }
@@ -995,7 +994,7 @@ const barTotal = 350;
   .es-topic-bar i { display: block; height: 100%; background: var(--ink-3); border-radius: 0 4px 4px 0; }
   .es-topics li.is-viv .es-topic-bar i { background: var(--blue); }
   .es-topics li.is-viv .es-topic-name { font-weight: 600; }
-  .es-topic-val { font-family: var(--mono); font-size: 12px; text-align: right; color: var(--ink-2); }
+  .es-topic-val { font-family: var(--mono); font-size: 13px; text-align: right; color: var(--ink-2); }
   .es-trust td:first-child { white-space: nowrap; }
   .es-swatch { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 7px; }
   .es-viv-trustbody { font-size: 14px; line-height: 1.55; color: var(--ink-2); margin: 12px 0 0; }
@@ -1003,7 +1002,7 @@ const barTotal = 350;
   .es-orbit-card { border-left: 4px solid var(--ink-3); }
   .es-orbit-card h2 { font-family: var(--serif); font-size: clamp(1.25rem, 2.3vw, 1.7rem); line-height: 1.25; margin: 0.3rem 0 0.8rem; }
   .es-models td.num strong { font-family: var(--serif); font-size: 17px; font-weight: 450; }
-  .es-models td.num span { display: block; font-family: var(--mono); font-size: 10.5px; color: var(--ink-3); }
+  .es-models td.num span { display: block; font-family: var(--mono); font-size: 13px; color: var(--ink-3); }
   .es-models tr.es-models-bloc td { border-top: 1px solid var(--rule); font-weight: 600; }
   .es-cmp tr.is-own td { background: color-mix(in oklab, var(--blue) 5%, transparent); }
   .es-cmp td a { color: inherit; }

@@ -81,7 +81,7 @@ const RACE_MODULES = import.meta.glob<{ default: RawRace }>(
   { eager: true },
 );
 
-/** '../../web_data/canada-byelection-foo/latest.json' → 'canada-byelection-foo' */
+/** '../../web_data/canada-byelection-foo/latest.json' 'canada-byelection-foo' */
 function dataPathOf(modulePath: string): string {
   return modulePath.split('/').slice(-2, -1)[0] ?? '';
 }

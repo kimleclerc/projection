@@ -354,20 +354,20 @@ const btRows = (pastCycles[labsKey] ?? []).map((c) => {
     <div class="lb-how">
       {t.how.map(([h, p]) => (<div><h3>{h}</h3><p>{p}</p></div>))}
     </div>
-    <p class="lb-more"><a href={`${labsUrl(locale)}${EXPLAINER_SLUG[locale]}/`}>{EXPLAINER[locale].linkLabel} →</a></p>
+    <p class="lb-more"><a href={`${labsUrl(locale)}${EXPLAINER_SLUG[locale]}/`}>{EXPLAINER[locale].linkLabel}</a></p>
   </section>
 
   <aside class="lb-experiment">
     <p class="lb-label">{t.experimentTitle}</p>
     <p>{t.experiment}</p>
-    <p class="lb-links"><a href={main}>{t.goMain} →</a> <a href={labsUrl(locale)}>{t.goHub} →</a></p>
+    <p class="lb-links"><a href={main}>{t.goMain}</a> <a href={labsUrl(locale)}>{t.goHub}</a></p>
   </aside>
 </article>
 
 <style>
   .lb { max-width: 1080px; padding-block: 56px 96px; }
   .lb-hero { padding-bottom: 32px; border-bottom: 1px solid var(--rule); }
-  .lb-kicker, .lb-label { margin: 0; font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
+  .lb-kicker, .lb-label { margin: 0; font-family: var(--mono); font-size: 13px; letter-spacing: 0; color: var(--ink-3); }
   .lb-kicker { margin-bottom: 14px; }
   .lb-brand { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 14px; }
   .lb-orbit-mark { position: relative; width: 26px; height: 26px; border-radius: 50%; border: 1.5px solid var(--ink); }
@@ -375,27 +375,27 @@ const btRows = (pastCycles[labsKey] ?? []).map((c) => {
                         transform-origin: 3.5px 16px; animation: lb-orbit 6s linear infinite; }
   @keyframes lb-orbit { to { transform: rotate(360deg); } }
   @media (prefers-reduced-motion: reduce) { .lb-orbit-mark span, .lb-pulse { animation: none; } }
-  .lb-engine { font-family: var(--serif); font-size: 26px; font-weight: 500; letter-spacing: -.01em; margin-right: 6px; }
-  .lb-live { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px; font-family: var(--mono); font-size: 10.5px;
-             letter-spacing: .08em; text-transform: uppercase; color: var(--red); background: var(--red-tint); }
+  .lb-engine { font-family: var(--serif); font-size: 26px; font-weight: 700; letter-spacing: -.01em; margin-right: 6px; }
+  .lb-live { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px; font-family: var(--mono); font-size: 13px;
+             letter-spacing: 0; color: var(--red); background: var(--red-tint); }
   .lb-pulse { width: 7px; height: 7px; border-radius: 50%; background: var(--red); animation: lb-pulse 1.6s ease-in-out infinite; }
   @keyframes lb-pulse { 50% { opacity: .25; } }
-  .lb-tag { padding: 3px 10px; border-radius: 999px; border: 1px solid var(--rule); font-family: var(--mono); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); }
-  .lb-hero h1 { margin: 0 0 16px; font-family: var(--serif); font-size: clamp(40px, 6vw, 72px); font-weight: 420; letter-spacing: -.02em; line-height: 1; }
+  .lb-tag { padding: 3px 10px; border-radius: 999px; border: 1px solid var(--rule); font-family: var(--mono); font-size: 13px; letter-spacing: 0; color: var(--ink-2); }
+  .lb-hero h1 { margin: 0 0 16px; font-family: var(--serif); font-size: clamp(40px, 6vw, 72px); font-weight: 700; letter-spacing: -0.01em; line-height: 1; }
   .lb-dek { max-width: 700px; margin: 0; color: var(--ink-2); font-size: 18px; line-height: 1.6; }
   .lb-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 16px; margin-top: 32px; }
   .lb-card { border: 1px solid var(--rule); border-radius: 6px; background: var(--card); padding: 20px; display: flex; flex-direction: column; gap: 8px; }
   .lb-card--lead { border-top: 4px solid var(--pc, var(--duck)); }
   .lb-lead { display: flex; align-items: center; gap: 10px; }
   .lb-lead img { width: 40px; height: 40px; object-fit: contain; }
-  .lb-big { font-family: var(--serif); font-size: 36px; font-weight: 450; line-height: 1.05; }
-  .lb-mid { font-family: var(--serif); font-size: 24px; font-weight: 450; }
-  .lb-delta { margin-left: 10px; font-family: var(--mono); font-size: 12px; font-weight: 400; color: var(--ink-3); }
+  .lb-big { font-family: var(--serif); font-size: 36px; font-weight: 700; line-height: 1.05; }
+  .lb-mid { font-family: var(--serif); font-size: 24px; font-weight: 700; }
+  .lb-delta { margin-left: 10px; font-family: var(--mono); font-size: 13px; font-weight: 400; color: var(--ink-3); }
   .lb-note { color: var(--ink-3); font-size: 13px; line-height: 1.45; }
   .lb-split { display: flex; height: 12px; border-radius: 3px; overflow: hidden; background: var(--rule); }
   .lb-section { margin-top: 60px; }
-  .lb-section h2 { font-family: var(--serif); font-size: clamp(26px, 3.4vw, 34px); font-weight: 450; margin: 0 0 16px; }
-  .lb-section h3 { font-family: var(--serif); font-size: 20px; font-weight: 450; margin: 28px 0 10px; }
+  .lb-section h2 { font-family: var(--serif); font-size: clamp(26px, 3.4vw, 34px); font-weight: 700; margin: 0 0 16px; }
+  .lb-section h3 { font-family: var(--serif); font-size: 20px; font-weight: 700; margin: 28px 0 10px; }
   .lb-muted { color: var(--ink-3); font-size: 14px; line-height: 1.55; }
   .lb-blend { margin-top: 40px; padding: 18px 20px; border: 1px dashed var(--rule); border-radius: 6px; background: var(--card); }
   .lb-blend h3 { margin-top: 0; }
@@ -406,21 +406,21 @@ const btRows = (pastCycles[labsKey] ?? []).map((c) => {
   .lb-pcard header { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
   .lb-pcard header img { width: 34px; height: 34px; object-fit: contain; flex: none; }
   .lb-swatch { width: 10px; height: 10px; border-radius: 2px; }
-  .lb-pname { flex: 1; font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
-  .lb-diff { font-family: var(--mono); font-size: 11px; color: var(--ink-3); white-space: nowrap; }
+  .lb-pname { flex: 1; font-family: var(--mono); font-size: 13px; letter-spacing: 0; color: var(--ink-2); }
+  .lb-diff { font-family: var(--mono); font-size: 13px; color: var(--ink-3); white-space: nowrap; }
   .lb-diff.is-up { color: #2c8a3f; }
   .lb-diff.is-down { color: #b03030; }
-  .lb-pseats { font-family: var(--serif); font-size: 44px; font-weight: 430; letter-spacing: -.02em; line-height: 1; }
+  .lb-pseats { font-family: var(--serif); font-size: 44px; font-weight: 700; letter-spacing: -0.01em; line-height: 1; }
   .lb-minibars { display: grid; gap: 3px; margin-top: 12px; }
   .lb-mini { display: block; height: 6px; border-radius: 3px; background: var(--pc); min-width: 2px; }
   .lb-mini.is-ref { opacity: .35; }
   .lb-pstats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 14px 0 0; }
   .lb-pstats div { display: flex; flex-direction: column; gap: 2px; }
-  .lb-pstats dt { font-family: var(--mono); font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
+  .lb-pstats dt { font-family: var(--mono); font-size: 9px; letter-spacing: 0; color: var(--ink-3); }
   .lb-pstats dd { margin: 0; font-family: var(--mono); font-size: 13px; }
   .lb-votes { list-style: none; padding: 0; margin: 18px 0 0; display: grid; gap: 12px; }
   .lb-votes li { display: grid; grid-template-columns: minmax(90px, 180px) 1fr 64px; align-items: center; gap: 12px; font-size: 14px; }
-  .lb-vname { font-family: var(--mono); font-size: 12px; color: var(--ink-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .lb-vname { font-family: var(--mono); font-size: 13px; color: var(--ink-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .lb-vtrack { position: relative; height: 18px; background: var(--rule-2); border-radius: 3px; }
   .lb-vbar { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 3px; }
   .lb-vrange { position: absolute; top: 50%; height: 2px; margin-top: -1px; background: var(--ink); opacity: .55; }
@@ -429,12 +429,12 @@ const btRows = (pastCycles[labsKey] ?? []).map((c) => {
   .lb-diverge { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 10px; }
   .lb-diverge li { border: 1px solid var(--rule); border-radius: 6px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; background: var(--card); font-size: 14px; }
   .lb-chips { display: flex; flex-wrap: wrap; gap: 6px; }
-  .lb-chip { display: inline-flex; align-items: center; padding: 3px 9px; border-radius: 999px; font-family: var(--mono); font-size: 11px;
+  .lb-chip { display: inline-flex; align-items: center; padding: 3px 9px; border-radius: 999px; font-family: var(--mono); font-size: 13px;
              border-left: 6px solid var(--pc); background: color-mix(in oklab, var(--pc) 12%, var(--card)); }
   .lb-chip.is-ref { background: var(--card); border: 1px solid var(--rule); border-left: 6px solid var(--pc); }
   .lb-scroll { overflow-x: auto; }
   .lb-table { width: 100%; border-collapse: collapse; font-size: 15px; }
-  .lb-table th { text-align: left; font-family: var(--mono); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); border-bottom: 1px solid var(--rule); padding: 8px 10px; white-space: nowrap; }
+  .lb-table th { text-align: left; font-family: var(--mono); font-size: 13px; letter-spacing: 0; color: var(--ink-3); border-bottom: 1px solid var(--rule); padding: 8px 10px; white-space: nowrap; }
   .lb-table td { border-bottom: 1px solid var(--rule-2); padding: 10px; white-space: nowrap; }
   .lb-prob { display: inline-flex; vertical-align: middle; width: 90px; height: 10px; margin-right: 8px; border-radius: 2px; overflow: hidden; }
   .lb-prob span:last-child { flex: 1; }

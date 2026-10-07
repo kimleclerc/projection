@@ -64,7 +64,7 @@ const leadLabel = (t.party as Record<string, string>)[lead?.party] ?? '';
         </p>
       </div>
       <nav class="midterms-links">
-        {t.links.map(([label, href]) => <a href={href}>{label} →</a>)}
+        {t.links.map(([label, href]) => <a href={href}>{label}</a>)}
         <a class="midterms-all" href={t.allHref}>{t.all}</a>
       </nav>
     </div>
@@ -79,7 +79,7 @@ const leadLabel = (t.party as Record<string, string>)[lead?.party] ?? '';
   .midterms-q strong { margin-left: .4rem; font-weight: 600; }
   .midterms-q span { margin-left: .35rem; color: var(--ink-3); font-size: .8em; }
   .midterms-links { display: flex; flex-wrap: wrap; gap: .6rem; }
-  .midterms-links a { padding: .55rem .85rem; border: 1px solid var(--rule); border-radius: 3px; font-family: var(--mono); font-size: .72rem; letter-spacing: .07em; text-transform: uppercase; color: var(--ink); background: var(--paper); }
+  .midterms-links a { padding: .55rem .85rem; border: 1px solid var(--rule); border-radius: 3px; font-family: var(--mono); font-size: 13px; letter-spacing: 0; color: var(--ink); background: var(--paper); }
   .midterms-links a:hover { border-color: var(--ink-3); }
   .midterms-links .midterms-all { border-color: var(--ink); background: var(--ink); color: var(--paper); }
 </style>

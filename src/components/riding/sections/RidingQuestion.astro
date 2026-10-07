@@ -8,12 +8,12 @@
  * across jurisdictions because it only uses fields every adapter provides.
  *
  * Question selection (in order):
- *   1. Vacant + byelection date → "Who succeeds X in this open seat?"
- *   2. Vacant (no date)        → "Who wins this open seat?"
- *   3. p_close_race ≥ 0.35     → "Who wins this toss-up?"
- *   4. winner ≠ baseline.winner → "Will [old] lose [seat] to [new]?"
- *   5. p_winner ≥ 0.85         → "How safely does [winner] hold [seat]?"
- *   6. otherwise (leaning)     → "Can [winner] hold [seat]?"
+ *   1. Vacant + byelection date "Who succeeds X in this open seat?"
+ *   2. Vacant (no date)        "Who wins this open seat?"
+ *   3. p_close_race ≥ 0.35     "Who wins this toss-up?"
+ *   4. winner ≠ baseline.winner "Will [old] lose [seat] to [new]?"
+ *   5. p_winner ≥ 0.85         "How safely does [winner] hold [seat]?"
+ *   6. otherwise (leaning)     "Can [winner] hold [seat]?"
  *
  * Mention forms use partyMeta.mention_en / mention_fr ("the Conservatives",
  * "Sinn Féin", "du PQ", "de la CAQ"). Stay laconic — one short question.
@@ -132,7 +132,7 @@ const eyebrow = { en: 'The question', fr: 'La question', es: 'La pregunta' }[lan
     margin: 6px 0 0;
     font-family: var(--serif);
     font-size: clamp(26px, 3.2vw, 38px);
-    font-weight: 420;
+    font-weight: 700;
     letter-spacing: -0.01em;
     line-height: 1.15;
     max-width: 900px;

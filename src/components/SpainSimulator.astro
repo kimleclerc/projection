@@ -60,7 +60,7 @@ const copy = {
     share: 'Copiar el enlace de este escenario',
     copied: 'Enlace copiado',
     note: 'Cada partido se traslada a las provincias desde su reparto de 2023 (o de su última elección si es nuevo), sin el ruido provincial de la proyección: el resultado es el reparto más probable de tu escenario.',
-    back: 'Ver la proyección Vote-Scope →',
+    back: 'Ver la proyección Vote-Scope',
   },
   fr: {
     title: 'Simulateur des élections en Espagne : calculez les sièges à la D’Hondt — Vote-Scope',
@@ -89,7 +89,7 @@ const copy = {
     share: 'Copier le lien de ce scénario',
     copied: 'Lien copié',
     note: 'Chaque parti est transposé dans les provinces à partir de sa répartition de 2023 (ou de sa dernière élection s’il est nouveau), sans le bruit provincial de la projection : le résultat est la répartition la plus probable de votre scénario.',
-    back: 'Voir la projection Vote-Scope →',
+    back: 'Voir la projection Vote-Scope',
   },
   en: {
     title: 'Spain Election Simulator: D’Hondt Seat Calculator — Vote-Scope',
@@ -118,7 +118,7 @@ const copy = {
     share: 'Copy a link to this scenario',
     copied: 'Link copied',
     note: 'Each party is carried into the provinces from its 2023 pattern (or its latest election if new), without the projection’s provincial noise: the result is the most likely split for your scenario.',
-    back: 'See the Vote-Scope projection →',
+    back: 'See the Vote-Scope projection',
   },
 }[locale];
 
@@ -399,11 +399,11 @@ const clientCopy = { seats: copy.seats, yes: copy.yes, no: copy.no, copied: copy
   .sim-head h1 { font-family: var(--serif); font-size: clamp(1.9rem, 4vw, 3rem); line-height: 1.08; margin: 0.35rem 0 0.8rem; max-width: 24ch; }
   .sim-lede { max-width: 70ch; color: var(--ink-2); line-height: 1.6; margin: 0; }
   .sim-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 32px; align-items: start; }
-  .sim-controls h2 { font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-3); margin: 18px 0 8px; }
+  .sim-controls h2 { font-family: var(--mono); font-size: 13px; letter-spacing: 0; color: var(--ink-3); margin: 18px 0 8px; }
   .sim-presets { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-  .sim-presets span { font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); margin-right: 4px; }
+  .sim-presets span { font-family: var(--mono); font-size: 13px; letter-spacing: 0; color: var(--ink-3); margin-right: 4px; }
   .sim-presets button, .sim-share {
-    font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; padding: 7px 10px; border-radius: 3px;
+    font-family: var(--mono); font-size: 13px; letter-spacing: 0; padding: 7px 10px; border-radius: 3px;
     border: 1px solid var(--rule); background: var(--card); color: var(--ink); cursor: pointer;
   }
   .sim-presets button:hover, .sim-share:hover { border-color: var(--ink-3); }
@@ -412,27 +412,27 @@ const clientCopy = { seats: copy.seats, yes: copy.yes, no: copy.no, copied: copy
   .sim-row input[type=range] { width: 100%; accent-color: var(--party-color); }
   .sim-row input[type=number] { width: 64px; font-family: var(--mono); font-size: 13px; padding: 4px; border: 1px solid var(--rule); border-radius: 3px; background: var(--card); color: var(--ink); }
   .sim-regional { margin-top: 12px; }
-  .sim-regional summary { cursor: pointer; font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-3); padding: 6px 0; }
+  .sim-regional summary { cursor: pointer; font-family: var(--mono); font-size: 13px; letter-spacing: 0; color: var(--ink-3); padding: 6px 0; }
   .sim-total { margin-top: 14px; padding: 10px 12px; border: 1px solid var(--rule); border-radius: 4px; background: var(--card); }
   .sim-votebar { display: flex; height: 10px; border-radius: 2px; overflow: hidden; background: var(--rule-2); }
   .sim-votebar div { height: 100%; }
-  .sim-others { font-family: var(--mono); font-size: 12px; color: var(--ink-2); margin: 8px 0 0; }
+  .sim-others { font-family: var(--mono); font-size: 13px; color: var(--ink-2); margin: 8px 0 0; }
   .sim-hint { font-size: 12px; color: var(--ink-3); margin: 4px 0 0; }
   .sim-warn { color: #b0202a; font-size: 13px; margin: 6px 0 0; }
   .sim-out { position: sticky; top: 16px; }
   .sim-bar { position: relative; display: flex; height: 26px; border-radius: 3px; overflow: hidden; background: var(--rule-2); }
   .sim-bar div { height: 100%; }
   .sim-maj { position: absolute; left: calc(176 / 350 * 100%); top: -4px; bottom: -4px; width: 2px; background: var(--ink); z-index: 1; }
-  .sim-bar-cap { font-family: var(--mono); font-size: 11px; color: var(--ink-3); margin: 6px 0 14px; }
+  .sim-bar-cap { font-family: var(--mono); font-size: 13px; color: var(--ink-3); margin: 6px 0 14px; }
   .sim-blocs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
   .sim-blocs div { border: 1px solid var(--rule); border-radius: 4px; background: var(--card); padding: 10px 12px; display: grid; gap: 2px; }
   .sim-blocs span { font-size: 12.5px; color: var(--ink-2); }
-  .sim-blocs strong { font-family: var(--serif); font-size: 26px; font-weight: 430; }
-  .sim-blocs em { font-style: normal; font-family: var(--mono); font-size: 11px; }
+  .sim-blocs strong { font-family: var(--serif); font-size: 26px; font-weight: 700; }
+  .sim-blocs em { font-style: normal; font-family: var(--mono); font-size: 13px; }
   .sim-blocs em.is-yes { color: #1f7a3a; }
   .sim-blocs em.is-no { color: var(--ink-3); }
   .sim-table { width: 100%; border-collapse: collapse; font-size: 14px; }
-  .sim-table th { text-align: left; font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); padding: 6px; border-bottom: 1px solid var(--rule); }
+  .sim-table th { text-align: left; font-family: var(--mono); font-size: 13px; letter-spacing: 0; color: var(--ink-3); padding: 6px; border-bottom: 1px solid var(--rule); }
   .sim-table td { padding: 6px; border-bottom: 1px solid var(--rule-2); }
   .sim-table td i { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 7px; }
   .sim-table td.num { font-family: var(--mono); }
@@ -444,9 +444,9 @@ const clientCopy = { seats: copy.seats, yes: copy.yes, no: copy.no, copied: copy
   .sim-provinces { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
   .sim-prov { border: 1px solid var(--rule); border-radius: 4px; background: var(--card); padding: 10px; }
   .sim-prov h3 { font-family: var(--serif); font-size: 1rem; margin: 0 0 6px; display: flex; justify-content: space-between; }
-  .sim-prov h3 em { font-style: normal; font-family: var(--mono); font-size: 11px; color: var(--ink-3); }
+  .sim-prov h3 em { font-style: normal; font-family: var(--mono); font-size: 13px; color: var(--ink-3); }
   .sim-prov p { display: flex; flex-wrap: wrap; gap: 4px; margin: 0; }
-  .sim-prov span { font-family: var(--mono); font-size: 11px; padding: 1px 6px; border-radius: 3px; border-left: 3px solid var(--party-color); background: color-mix(in oklab, var(--party-color) 10%, var(--card)); }
+  .sim-prov span { font-family: var(--mono); font-size: 13px; padding: 1px 6px; border-radius: 3px; border-left: 3px solid var(--party-color); background: color-mix(in oklab, var(--party-color) 10%, var(--card)); }
   @media (max-width: 900px) {
     .sim-grid { grid-template-columns: 1fr; }
     .sim-out { position: static; }

@@ -362,24 +362,24 @@ const nFirms = firms.length || new Set(polls.map((p) => p.firm)).size;
 
 <style>
   .polls-hub { padding: 32px 0 56px; background: var(--paper-2); }
-  .polls-meta-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px; font-family: var(--mono); font-size: 12px; letter-spacing: .04em; color: var(--ink-2); text-transform: uppercase; margin-bottom: 16px; }
+  .polls-meta-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px; font-family: var(--mono); font-size: 13px; letter-spacing: 0; color: var(--ink-2); margin-bottom: 16px; }
   .polls-meta-row strong { color: var(--ink); }
   .sep { color: var(--rule); }
 
   .poll-chart-card { background: var(--card); border: 1px solid var(--rule); border-radius: 8px; padding: 24px 24px 16px; margin-bottom: 24px; }
-  .poll-chart-header h2 { font-family: var(--serif); font-size: clamp(20px, 2.4vw, 26px); font-weight: 500; margin: 0 0 4px; color: var(--ink); }
+  .poll-chart-header h2 { font-family: var(--serif); font-size: clamp(20px, 2.4vw, 26px); font-weight: 700; margin: 0 0 4px; color: var(--ink); }
   .poll-chart-header p { font-family: var(--serif); font-size: 14px; line-height: 1.5; color: var(--ink-2); margin: 0 0 8px; max-width: 640px; }
   .poll-chart-card :global(.pe-chart) { width: 100%; height: 380px; }
   .poll-chart-card :global(.pe-chart-loading),
-  .poll-chart-card :global(.pe-chart-error) { font-family: var(--mono); font-size: 12px; color: var(--ink-2); padding: 16px 0; }
+  .poll-chart-card :global(.pe-chart-error) { font-family: var(--mono); font-size: 13px; color: var(--ink-2); padding: 16px 0; }
 
-  .poll-legend { display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 16px; font-family: var(--mono); font-size: 11px; letter-spacing: .04em; text-transform: uppercase; color: var(--ink-2); }
+  .poll-legend { display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 16px; font-family: var(--mono); font-size: 13px; letter-spacing: 0; color: var(--ink-2); }
   .legend-item { display: inline-flex; align-items: center; gap: 6px; }
   .swatch { width: 12px; height: 12px; border-radius: 2px; background: var(--c); display: inline-block; }
 
   .poll-table-wrap { overflow-x: auto; border: 1px solid var(--rule); background: var(--card); border-radius: 4px; }
-  .poll-table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 12px; }
-  .poll-table thead th { position: sticky; top: 0; background: var(--paper); text-align: left; font-weight: 500; letter-spacing: .06em; text-transform: uppercase; font-size: 10px; color: var(--ink-2); padding: 10px 12px; border-bottom: 1px solid var(--rule); white-space: nowrap; }
+  .poll-table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 13px; }
+  .poll-table thead th { position: sticky; top: 0; background: var(--paper); text-align: left; font-weight: 500; letter-spacing: 0; font-size: 10px; color: var(--ink-2); padding: 10px 12px; border-bottom: 1px solid var(--rule); white-space: nowrap; }
   .poll-table tbody td { padding: 10px 12px; border-bottom: 1px solid var(--rule); vertical-align: top; }
   .poll-table tbody tr:last-child td { border-bottom: 0; }
   .poll-table tbody tr:hover { background: color-mix(in oklab, var(--accent, var(--ink)) 5%, var(--card)); }
@@ -389,10 +389,10 @@ const nFirms = firms.length || new Set(polls.map((p) => p.firm)).size;
   .firm-link:hover { border-bottom-color: var(--ink); }
   .quarantine-mark { color: #a45a00; font-family: var(--mono); font-weight: 700; margin-left: 3px; cursor: help; }
   .basis-note { display: block; max-width: 28em; font-size: 11px; line-height: 1.4; color: var(--ink-2); margin-bottom: 8px; }
-  .client { display: block; font-family: var(--mono); font-size: 10px; color: var(--ink-2); margin-top: 2px; }
+  .client { display: block; font-family: var(--mono); font-size: 13px; color: var(--ink-2); margin-top: 2px; }
   .scope-note { display: block; width: max-content; max-width: 190px; margin-top: 7px; padding: 5px 7px; border: 1px solid color-mix(in oklab, var(--accent, #7a5a16) 38%, var(--rule)); border-radius: 4px; background: color-mix(in oklab, var(--accent, #7a5a16) 7%, var(--card)); font-family: var(--mono); font-size: 9px; line-height: 1.35; color: var(--ink); }
   .scope-note strong, .scope-note span { display: block; }
-  .scope-note strong { letter-spacing: .025em; text-transform: uppercase; }
+  .scope-note strong { letter-spacing: .025em; }
   .scope-note span { margin-top: 1px; color: var(--ink-2); }
   .poll-table tbody tr.is-scoped-poll { background: color-mix(in oklab, var(--accent, #7a5a16) 3%, var(--card)); }
   .c-dates, .c-sample, .c-pop { white-space: nowrap; color: var(--ink-2); }
@@ -401,13 +401,13 @@ const nFirms = firms.length || new Set(polls.map((p) => p.firm)).size;
   .c-src a { color: var(--ink-2); text-decoration: none; border-bottom: 1px dotted var(--rule); }
   .c-src a:hover { color: var(--ink); }
   .c-share { white-space: nowrap; }
-  .share-link { display: inline-block; padding: 3px 8px; border: 1px solid var(--rule); border-radius: 4px; color: var(--ink); text-decoration: none; font-size: 11px; letter-spacing: .04em; transition: background .15s ease, border-color .15s ease; }
+  .share-link { display: inline-block; padding: 3px 8px; border: 1px solid var(--rule); border-radius: 4px; color: var(--ink); text-decoration: none; font-size: 11px; letter-spacing: 0; transition: background .15s ease, border-color .15s ease; }
   .share-link:hover { background: color-mix(in oklab, var(--accent, var(--ink)) 10%, var(--card)); border-color: var(--ink-3); }
   .muted { color: var(--rule); }
 
   .bars { display: flex; flex-direction: column; gap: 4px; }
   .bar-row { display: grid; grid-template-columns: 54px 1fr 28px; align-items: center; gap: 8px; }
-  .bar-label { color: var(--c); font-size: 10px; letter-spacing: .04em; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .bar-label { color: var(--c); font-size: 10px; letter-spacing: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .bar-track { height: 8px; background: color-mix(in oklab, var(--ink) 8%, transparent); border-radius: 2px; overflow: hidden; }
   .bar-fill { display: block; height: 100%; background: var(--c); border-radius: 2px; }
   .bar-val { text-align: right; font-variant-numeric: tabular-nums; color: var(--ink); }

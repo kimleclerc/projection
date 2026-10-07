@@ -60,7 +60,7 @@ const T = {
     flip: (a: string, b: string) =>
       `The general-election map still shows ${a}. In the by-election the model favours ${b}.`,
     hold: (a: string) => `Both readings favour ${a}.`,
-    open: 'Full by-election desk →',
+    open: 'Full by-election desk',
   },
   fr: {
     eyebrow: 'Partielle — le prochain scrutin dans ce siège',
@@ -79,7 +79,7 @@ const T = {
     flip: (a: string, b: string) =>
       `La carte générale donne encore ${a}. À la partielle, le modèle favorise ${b}.`,
     hold: (a: string) => `Les deux lectures favorisent ${a}.`,
-    open: 'Ouvrir le desk de la partielle →',
+    open: 'Ouvrir le desk de la partielle',
   },
   es: {
     eyebrow: 'Parcial — la próxima votación en este escaño',
@@ -98,7 +98,7 @@ const T = {
     flip: (a: string, b: string) =>
       `El mapa general todavía muestra ${a}. En la parcial el modelo favorece ${b}.`,
     hold: (a: string) => `Ambas lecturas favorecen ${a}.`,
-    open: 'Abrir la mesa de la parcial →',
+    open: 'Abrir la mesa de la parcial',
   },
 }[lang];
 
@@ -178,18 +178,17 @@ const maxShare = Math.max(1, ...topParties.map((p) => p.voteMean));
 
   .bf-label {
     font-family: var(--mono);
-    font-size: 11px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
+    font-size: 13px;
+    letter-spacing: 0;
     color: var(--ink-3);
   }
 
   .bf-fav {
     font-family: var(--serif);
     font-size: clamp(30px, 4vw, 46px);
-    font-weight: 430;
+    font-weight: 700;
     line-height: 1.05;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.01em;
     margin-top: 2px;
   }
 
@@ -205,8 +204,8 @@ const maxShare = Math.max(1, ...topParties.map((p) => p.voteMean));
     margin: 0;
     padding: 0;
     font-family: var(--mono);
-    font-size: 11px;
-    letter-spacing: 0.04em;
+    font-size: 13px;
+    letter-spacing: 0;
     color: var(--ink-3);
     text-align: right;
   }
@@ -238,7 +237,7 @@ const maxShare = Math.max(1, ...topParties.map((p) => p.voteMean));
 
   .bf-val {
     font-family: var(--mono);
-    font-size: 12px;
+    font-size: 13px;
     text-align: right;
     color: var(--ink-2);
   }
@@ -267,9 +266,8 @@ const maxShare = Math.max(1, ...topParties.map((p) => p.voteMean));
   .bf-open {
     margin-top: 14px;
     font-family: var(--mono);
-    font-size: 11px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
+    font-size: 13px;
+    letter-spacing: 0;
   }
 
   @media (max-width: 640px) {

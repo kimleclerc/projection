@@ -143,7 +143,7 @@ export default function UsElectoralMap({ frame, locale }: Props) {
         .ecm-bar-dem { background:var(--dem); justify-content:flex-start; padding-left:10px; }
         .ecm-bar-rep { background:var(--rep); justify-content:flex-end; padding-right:10px; }
         .ecm-270 { position:absolute; top:-4px; bottom:-4px; width:0; border-left:2px dashed var(--ink); }
-        .ecm-270 span { position:absolute; top:-18px; left:50%; transform:translateX(-50%); white-space:nowrap; font-family:var(--mono); font-size:9px; letter-spacing:0.06em; text-transform:uppercase; color:var(--ink-2); }
+        .ecm-270 span { position:absolute; top:-18px; left:50%; transform:translateX(-50%); white-space:nowrap; font-family:var(--mono); font-size:9px; letter-spacing: 0; color:var(--ink-2); }
         .ecm-grid { position:relative; width:100%; margin:26px 0 14px; }
         .ecm-tile { position:absolute; padding:0; border:1.5px solid var(--paper-3, #fff); border-radius:4px; color:#fff; cursor:default; display:flex; flex-direction:column; align-items:center; justify-content:center; line-height:1; transition:outline 0.1s ease; }
         .ecm-abbr { font-family:var(--mono); font-size:clamp(7px, 1.1vw, 12px); font-weight:700; }

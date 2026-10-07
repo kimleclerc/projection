@@ -36,7 +36,7 @@ type DgeqRiding = {
   candidats?: DgeqCandidate[];
 };
 
-/** `689` → `"00689"`. Le flux envoie un entier ; toute jointure tient sur 5 chiffres. */
+/** `689` `"00689"`. Le flux envoie un entier ; toute jointure tient sur 5 chiffres. */
 function ridingId(value: number | undefined): string {
   return typeof value === 'number' ? String(value).padStart(5, '0') : '';
 }

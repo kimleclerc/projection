@@ -495,7 +495,7 @@ const C = COPY[locale];
               <span class="fr-hl-cand">{e.name} <b>{fmtPct1(e.share, locale)}</b></span>
             ))}
           </div>
-          <span class="fr-hl-more">{C.seePoll} →</span>
+          <span class="fr-hl-more">{C.seePoll}</span>
         </a>
       )}
       {heroLead && (
@@ -561,7 +561,7 @@ const C = COPY[locale];
         ))}
       </ol>
       <div class="fr-cta-row">
-        <a class="fr-cta fr-cta-strong" href={pollsBase}>{C.allPolls} →</a>
+        <a class="fr-cta fr-cta-strong" href={pollsBase}>{C.allPolls}</a>
         <a class="fr-cta" href="#fr-explorer-title">{C.ctaExplore} ↓</a>
       </div>
     </section>
@@ -587,7 +587,7 @@ const C = COPY[locale];
     <div class="fr-how">
       <h3>{C.howTitle}</h3>
       <ul>{C.howItems.map((t) => <li>{t}</li>)}</ul>
-      <a class="fr-cta" href={C.methodHref}>{C.ctaMethod} →</a>
+      <a class="fr-cta" href={C.methodHref}>{C.ctaMethod}</a>
     </div>
   </section>
 
@@ -613,7 +613,7 @@ const C = COPY[locale];
       ))}
     </ul>
     <div class="fr-cta-row" style="margin-top:18px;">
-      <a class="fr-cta" href={candBase}>{C.allCandidates} →</a>
+      <a class="fr-cta" href={candBase}>{C.allCandidates}</a>
     </div>
   </section>
 
@@ -634,7 +634,7 @@ const C = COPY[locale];
           <p class="eyebrow">{primaryCopy.eyebrow}</p>
           <h3 style="margin:0.25rem 0;">{primaryCopy.title}</h3>
           <p>{primaryCopy.body}</p>
-          <footer style="margin-top:0.75rem;"><span class="cta-link">{primaryCopy.cta} →</span></footer>
+          <footer style="margin-top:0.75rem;"><span class="cta-link">{primaryCopy.cta}</span></footer>
         </a>
       )}
       {effectCopy && (
@@ -642,26 +642,26 @@ const C = COPY[locale];
           <p class="eyebrow">{effectCopy.eyebrow}</p>
           <h3 style="margin:0.25rem 0;">{effectCopy.title}</h3>
           <p>{effectCopy.body}</p>
-          <footer style="margin-top:0.75rem;"><span class="cta-link">{effectCopy.cta} →</span></footer>
+          <footer style="margin-top:0.75rem;"><span class="cta-link">{effectCopy.cta}</span></footer>
         </a>
       )}
       <a class="note-card" href={barrageHref} style={`display:block;text-decoration:none;color:inherit;border-left:4px solid ${bfi.zone_color ?? 'var(--ink-3)'};`}>
         <p class="eyebrow">{barrageCopy.eyebrow}</p>
         <h3 style="margin:0.25rem 0;">{barrageCopy.title} — <span style={`color:${bfi.zone_color ?? 'inherit'}`}>{typeof bfi.score === 'number' ? (locale === 'en' ? bfi.score.toFixed(1) : bfi.score.toFixed(1).replace('.', ',')) : '—'}/100 · {barrageCopy.zone ?? ''}</span></h3>
         <p>{barrageCopy.question}</p>
-        <footer style="margin-top:0.75rem;"><span class="cta-link">{barrageCopy.cta} →</span></footer>
+        <footer style="margin-top:0.75rem;"><span class="cta-link">{barrageCopy.cta}</span></footer>
       </a>
       <a class="note-card" href={legHref} style="display:block;text-decoration:none;color:inherit;border-left:4px solid var(--bloc-far_right, #2b4f8c);">
         <p class="eyebrow">{legCopy.eyebrow}</p>
         <h3 style="margin:0.25rem 0;">{legCopy.title}</h3>
         <p>{legCopy.body}</p>
-        <footer style="margin-top:0.75rem;"><span class="cta-link">{legCopy.cta} →</span></footer>
+        <footer style="margin-top:0.75rem;"><span class="cta-link">{legCopy.cta}</span></footer>
       </a>
       <a class="note-card" href={mapsHref} style="display:block;text-decoration:none;color:inherit;border-left:4px solid var(--bloc-centre, #b7860f);">
         <p class="eyebrow">{mapsCopy.eyebrow}</p>
         <h3 style="margin:0.25rem 0;">{mapsCopy.title}</h3>
         <p>{mapsCopy.body}</p>
-        <footer style="margin-top:0.75rem;"><span class="cta-link">{mapsCopy.cta} →</span></footer>
+        <footer style="margin-top:0.75rem;"><span class="cta-link">{mapsCopy.cta}</span></footer>
       </a>
     </div>
   </section>
@@ -734,17 +734,16 @@ const C = COPY[locale];
   .fr-kicker {
     margin: 0 0 16px;
     font-family: var(--mono);
-    font-size: 12px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
+    font-size: 13px;
+    letter-spacing: 0;
     color: var(--ink-3);
   }
   .fr-title {
     margin: 0 0 18px;
     font-family: var(--serif);
     font-size: clamp(36px, 6.5vw, 78px);
-    font-weight: 420;
-    letter-spacing: -0.02em;
+    font-weight: 700;
+    letter-spacing: -0.01em;
     line-height: 1;
   }
   .fr-title em {
@@ -763,7 +762,7 @@ const C = COPY[locale];
     flex-wrap: wrap;
     gap: 8px 14px;
     font-family: var(--mono);
-    font-size: 12px;
+    font-size: 13px;
     color: var(--ink-2);
   }
   .fr-meta span[aria-hidden] {
@@ -776,7 +775,7 @@ const C = COPY[locale];
     border-left: 2px solid var(--rule);
     max-width: 62ch;
     font-family: var(--mono);
-    font-size: 11px;
+    font-size: 13px;
     line-height: 1.5;
     color: var(--ink-3);
   }
@@ -798,8 +797,8 @@ const C = COPY[locale];
     border: 1px solid var(--rule);
     border-radius: 999px;
     font-family: var(--mono);
-    font-size: 12px;
-    letter-spacing: 0.04em;
+    font-size: 13px;
+    letter-spacing: 0;
     color: var(--ink-2);
     text-decoration: none;
     transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
@@ -835,9 +834,8 @@ const C = COPY[locale];
   .fr-hl-label {
     display: block;
     font-family: var(--mono);
-    font-size: 10px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
+    font-size: 13px;
+    letter-spacing: 0;
     color: var(--ink-3);
     margin-bottom: 10px;
   }
@@ -889,7 +887,7 @@ const C = COPY[locale];
   }
   .fr-hl-firm span, .fr-hl-scenario {
     font-family: var(--mono);
-    font-size: 11px;
+    font-size: 13px;
     color: var(--ink-3);
   }
   .fr-hl-scenario { margin: -4px 0 10px; }
@@ -897,15 +895,15 @@ const C = COPY[locale];
     margin-top: auto;
     padding-top: 12px;
     font-family: var(--mono);
-    font-size: 11px;
+    font-size: 13px;
     color: var(--ink-2);
   }
   .fr-hl-opp { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
   .fr-hl-opp li { display: grid; gap: 2px; }
   .fr-hl-opp-name { display: flex; align-items: center; gap: 8px; font-family: var(--serif); font-size: 17px; color: var(--ink); }
-  .fr-hl-opp-p { font-family: var(--mono); font-size: 12px; color: var(--ink-2); }
+  .fr-hl-opp-p { font-family: var(--mono); font-size: 13px; color: var(--ink-2); }
   .fr-hl-opp-p b { color: var(--ink); }
-  .fr-hl-opp-duel { font-family: var(--mono); font-size: 11px; color: var(--ink-3); }
+  .fr-hl-opp-duel { font-family: var(--mono); font-size: 13px; color: var(--ink-3); }
   .fr-latest-list { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--rule); }
   .fr-latest-list a {
     display: grid;
@@ -919,7 +917,7 @@ const C = COPY[locale];
   }
   .fr-latest-list a:hover { background: var(--card); }
   .fr-latest-firm { font-family: var(--serif); font-size: 17px; color: var(--ink); }
-  .fr-latest-date { font-family: var(--mono); font-size: 11px; color: var(--ink-3); }
+  .fr-latest-date { font-family: var(--mono); font-size: 13px; color: var(--ink-3); }
   .fr-latest-top { display: flex; flex-wrap: wrap; gap: 4px 14px; font-family: var(--mono); font-size: 13px; color: var(--ink-2); }
   .fr-latest-top b { color: var(--ink); }
   @media (max-width: 640px) {
@@ -927,7 +925,7 @@ const C = COPY[locale];
   }
   .fr-add { list-style: none; margin: 8px 0 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
   .fr-add li { border: 1px solid var(--rule); border-radius: 6px; background: var(--card); padding: 18px; }
-  .fr-add-n { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: var(--ink); color: var(--paper-3); font-family: var(--mono); font-size: 12px; }
+  .fr-add-n { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: var(--ink); color: var(--paper-3); font-family: var(--mono); font-size: 13px; }
   .fr-add h3 { margin: 10px 0 6px; font-family: var(--serif); font-size: 19px; font-weight: 450; }
   .fr-add p { margin: 0; color: var(--ink-2); font-size: 15px; line-height: 1.6; }
   .fr-how { margin-top: 22px; padding: 16px 18px; border-left: 3px solid var(--ink); max-width: 760px; }
@@ -944,7 +942,7 @@ const C = COPY[locale];
     margin: 0 0 12px;
     font-family: var(--serif);
     font-size: clamp(26px, 3vw, 38px);
-    font-weight: 430;
+    font-weight: 700;
     letter-spacing: -0.01em;
     line-height: 1.05;
   }
@@ -953,7 +951,7 @@ const C = COPY[locale];
     margin: 0 0 22px;
     color: var(--ink-3);
     font-family: var(--mono);
-    font-size: 12px;
+    font-size: 13px;
     line-height: 1.6;
   }
   .fr-explorer-card {
@@ -992,7 +990,7 @@ const C = COPY[locale];
   }
   .fr-reg-bloc {
     font-family: var(--mono);
-    font-size: 10px;
+    font-size: 13px;
     color: var(--ink-3);
     margin-left: auto;
     text-align: right;
@@ -1000,8 +998,7 @@ const C = COPY[locale];
   .fr-reg-status {
     font-family: var(--mono);
     font-size: 9px;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
+    letter-spacing: 0;
     padding: 3px 7px;
     border-radius: 999px;
     border: 1px solid var(--rule);

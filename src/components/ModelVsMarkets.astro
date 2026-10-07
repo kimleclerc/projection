@@ -71,7 +71,7 @@ const C = {
     showHouse: (n: number) => `Afficher les ${n} districts de la Chambre`,
     note: 'Probabilité de victoire démocrate. Kalshi : prix renormalisés sur les issues ; Polymarket : dernier prix échangé. Les courses sans argent en jeu sont écartées.',
     asOf: (d: string) => `Données au ${d}. Vote-Scope n’est ni affilié aux bourses présentées, ni approuvé par elles ; chaque cote renvoie à sa page d’origine.`,
-    compare: 'Comparer aussi avec The Economist, DDHQ, Cook… →',
+    compare: 'Comparer aussi avec The Economist, DDHQ, Cook…',
   },
   en: {
     eyebrow: 'Model vs markets',
@@ -90,7 +90,7 @@ const C = {
     showHouse: (n: number) => `Show all ${n} House districts`,
     note: 'Probability of a Democratic win. Kalshi: prices renormalized across outcomes; Polymarket: last traded price. Races with no money at stake are left out.',
     asOf: (d: string) => `Data as of ${d}. Vote-Scope is not affiliated with or endorsed by the exchanges shown; every price links to its source.`,
-    compare: 'Also compare with The Economist, DDHQ, Cook… →',
+    compare: 'Also compare with The Economist, DDHQ, Cook…',
   },
   es: {
     eyebrow: 'Modelo frente a mercados',
@@ -109,7 +109,7 @@ const C = {
     showHouse: (n: number) => `Mostrar los ${n} distritos de la Cámara`,
     note: 'Probabilidad de victoria demócrata. Kalshi: precios renormalizados entre resultados; Polymarket: último precio negociado. Se excluyen las contiendas sin dinero en juego.',
     asOf: (d: string) => `Datos al ${d}. Vote-Scope no está afiliado a las bolsas mostradas ni cuenta con su respaldo; cada precio enlaza a su fuente.`,
-    compare: 'Comparar también con The Economist, DDHQ, Cook… →',
+    compare: 'Comparar también con The Economist, DDHQ, Cook…',
   },
 }[locale];
 
@@ -236,12 +236,12 @@ const asOf = fmtDate(doc.meta?.run_date);
 <style>
   .mvm { padding: 44px 0 56px; }
   .mvm-inner { max-width: 1000px; margin-inline: auto; }
-  .mvm-eyebrow { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); margin: 0 0 8px; }
-  .mvm h1 { font-family: var(--serif); font-size: clamp(30px, 4.6vw, 50px); font-weight: 430; line-height: 1.05; letter-spacing: -0.015em; margin: 0 0 12px; }
+  .mvm-eyebrow { font-family: var(--mono); font-size: 13px; letter-spacing: 0; color: var(--ink-3); margin: 0 0 8px; }
+  .mvm h1 { font-family: var(--serif); font-size: clamp(30px, 4.6vw, 50px); font-weight: 700; line-height: 1.05; letter-spacing: -0.01em; margin: 0 0 12px; }
   .mvm-lede { margin: 0 0 8px; color: var(--ink-2); max-width: 68ch; font-size: 16px; line-height: 1.6; }
   .mvm-block { padding-top: 36px; }
-  .mvm-block h2 { font-family: var(--serif); font-size: clamp(22px, 2.6vw, 30px); font-weight: 430; margin: 0 0 6px; }
-  .mvm-help { margin: 0 0 16px; color: var(--ink-3); font-family: var(--mono); font-size: 12px; line-height: 1.6; max-width: 72ch; }
+  .mvm-block h2 { font-family: var(--serif); font-size: clamp(22px, 2.6vw, 30px); font-weight: 700; margin: 0 0 6px; }
+  .mvm-help { margin: 0 0 16px; color: var(--ink-3); font-family: var(--mono); font-size: 13px; line-height: 1.6; max-width: 72ch; }
   .mvm-chambers { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
   .mvm-chamber { border: 1px solid var(--rule); border-radius: 6px; background: var(--card); padding: 14px 16px; }
   .mvm-chamber h3 { margin: 0 0 10px; font-family: var(--serif); font-size: 17px; font-weight: 450; }
@@ -257,8 +257,8 @@ const asOf = fmtDate(doc.meta?.run_date);
   .mvm-div { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
   .mvm-div li { display: grid; grid-template-columns: 8rem 1fr minmax(12rem, 16rem); gap: 14px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--rule); font-size: 14px; }
   .mvm-race { display: flex; flex-direction: column; }
-  .mvm-race small, .mvm-div-vals small { font-family: var(--mono); font-size: 10px; color: var(--ink-3); }
-  .mvm-div-vals { display: flex; flex-direction: column; gap: 2px; font-family: var(--mono); font-size: 12px; }
+  .mvm-race small, .mvm-div-vals small { font-family: var(--mono); font-size: 13px; color: var(--ink-3); }
+  .mvm-div-vals { display: flex; flex-direction: column; gap: 2px; font-family: var(--mono); font-size: 13px; }
   .mvm-axis { position: relative; height: 18px; background: var(--paper-2, var(--rule)); border-radius: 9px; }
   .mvm-span { position: absolute; top: 8px; height: 2px; background: var(--ink-2); }
   .mvm-dot { position: absolute; top: 3px; width: 12px; height: 12px; margin-left: -6px; border-radius: 50%; }
@@ -270,7 +270,7 @@ const asOf = fmtDate(doc.meta?.run_date);
   .mvm-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 6px; }
   .mvm-table th, .mvm-table td { padding: 7px 10px; border-bottom: 1px solid var(--rule); text-align: right; font-variant-numeric: tabular-nums; }
   .mvm-table th[scope="row"], .mvm-table thead th:first-child { text-align: left; }
-  .mvm-table thead th { font-family: var(--mono); font-size: 10px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); font-weight: 500; }
+  .mvm-table thead th { font-family: var(--mono); font-size: 13px; letter-spacing: 0; color: var(--ink-3); font-weight: 500; }
   .mvm-table td { font-family: var(--mono); }
   .mvm-table td.is-dem { color: #2E86D3; }
   .mvm-table td.is-rep { color: #D2222D; }

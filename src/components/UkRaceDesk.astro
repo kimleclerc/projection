@@ -357,39 +357,37 @@ const jsonLd = [
 <style>
   .ukrace-hero { padding-top: 40px; }
   .ukrace-kicker {
-    font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em;
-    text-transform: uppercase; color: var(--ink-3);
+    font-family: var(--mono); font-size: 13px; letter-spacing: 0; color: var(--ink-3);
   }
   .ukrace-hero h1 {
     font-family: var(--serif); font-size: clamp(2rem, 4.4vw, 3.3rem);
-    line-height: 1.08; letter-spacing: -0.015em; margin: 0.35rem 0 1rem; max-width: 20ch;
+    line-height: 1.08; letter-spacing: -0.01em; margin: 0.35rem 0 1rem; max-width: 20ch;
   }
   .ukrace-dek { font-size: 17px; line-height: 1.6; max-width: 76ch; color: var(--ink-2); }
   .ukrace-label {
-    margin-top: 42px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em;
-    text-transform: uppercase; color: var(--ink-3);
+    margin-top: 42px; font-family: var(--mono); font-size: 13px; letter-spacing: 0; color: var(--ink-3);
   }
   .ukrace-body { margin-top: 10px; font-size: 15px; line-height: 1.65; max-width: 82ch; }
-  .ukrace-note { margin-top: 10px; font-family: var(--mono); font-size: 11px; line-height: 1.6; color: var(--ink-3); max-width: 82ch; }
+  .ukrace-note { margin-top: 10px; font-family: var(--mono); font-size: 13px; line-height: 1.6; color: var(--ink-3); max-width: 82ch; }
 
   .ukrace-status-grid { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 14px; margin-top: 14px; }
   .ukrace-status {
     border: 1px solid var(--rule); border-radius: 4px; background: var(--card);
     padding: 14px; display: grid; gap: 5px;
   }
-  .ukrace-status span { font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; color: var(--ink-3); }
-  .ukrace-status strong { font-family: var(--serif); font-size: 20px; font-weight: 430; }
+  .ukrace-status span { font-family: var(--mono); font-size: 13px; letter-spacing: 0; color: var(--ink-3); }
+  .ukrace-status strong { font-family: var(--serif); font-size: 20px; font-weight: 700; }
 
   .ukrace-headline-figure {
     margin-top: 14px; padding: 20px 22px; border: 1px solid var(--rule);
     border-left: 4px solid #E4003B; border-radius: 4px; background: var(--card);
     display: grid; gap: 4px;
   }
-  .ukrace-headline-figure strong { font-family: var(--serif); font-size: 46px; font-weight: 430; letter-spacing: -0.02em; line-height: 1; }
+  .ukrace-headline-figure strong { font-family: var(--serif); font-size: 46px; font-weight: 700; letter-spacing: -0.01em; line-height: 1; }
   .ukrace-headline-figure span { font-size: 15px; }
-  .ukrace-headline-figure em { font-style: normal; font-family: var(--mono); font-size: 11px; color: var(--ink-3); }
+  .ukrace-headline-figure em { font-style: normal; font-family: var(--mono); font-size: 13px; color: var(--ink-3); }
 
-  .ukrace-range-label { margin-top: 24px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); }
+  .ukrace-range-label { margin-top: 24px; font-family: var(--mono); font-size: 13px; letter-spacing: 0; color: var(--ink-3); }
   .ukrace-ranges { margin-top: 10px; display: grid; gap: 10px; }
   .ukrace-range-row { display: grid; grid-template-columns: minmax(120px, 1.1fr) 3fr minmax(96px, auto); gap: 14px; align-items: center; }
   .ukrace-range-name { display: flex; align-items: center; gap: 8px; font-size: 14px; }
@@ -399,12 +397,12 @@ const jsonLd = [
   .ukrace-range-median { position: absolute; top: -3px; bottom: -3px; width: 2px; }
   .ukrace-range-nums { text-align: right; }
   .ukrace-range-nums strong { font-family: var(--serif); font-size: 18px; font-weight: 430; }
-  .ukrace-range-nums small { display: block; font-family: var(--mono); font-size: 10px; color: var(--ink-3); }
+  .ukrace-range-nums small { display: block; font-family: var(--mono); font-size: 13px; color: var(--ink-3); }
 
   .ukrace-table-wrap { margin-top: 14px; overflow-x: auto; }
   .ukrace-table { width: 100%; border-collapse: collapse; font-size: 14px; }
   .ukrace-table th, .ukrace-table td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--rule-2); vertical-align: top; }
-  .ukrace-table th { font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); white-space: nowrap; }
+  .ukrace-table th { font-family: var(--mono); font-size: 13px; letter-spacing: 0; color: var(--ink-3); white-space: nowrap; }
   .ukrace-table tr.is-pivotal td { background: rgba(106, 176, 35, 0.08); }
   .ukrace-table td.is-up { color: #2f7d32; font-family: var(--mono); }
   .ukrace-table td.is-down { color: #b0442f; font-family: var(--mono); }
@@ -417,10 +415,10 @@ const jsonLd = [
   .ukrace-field-list li { grid-template-columns: 10px minmax(120px, 1fr) minmax(90px, 1fr) auto; }
   .ukrace-field-list li:last-child, .ukrace-past li:last-child { border-bottom: 0; }
   .ukrace-field-list i, .ukrace-past i { width: 10px; height: 10px; border-radius: 50%; align-self: center; }
-  .ukrace-field-party, .ukrace-past-party { font-family: var(--mono); font-size: 11px; color: var(--ink-2); }
-  .ukrace-field-status { font-family: var(--mono); font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); text-align: right; }
+  .ukrace-field-party, .ukrace-past-party { font-family: var(--mono); font-size: 13px; color: var(--ink-2); }
+  .ukrace-field-status { font-family: var(--mono); font-size: 13px; letter-spacing: 0; color: var(--ink-3); text-align: right; }
   .ukrace-past li.is-winner .ukrace-past-name { font-weight: 650; }
-  .ukrace-past-votes { font-family: var(--mono); font-size: 12px; color: var(--ink-2); text-align: right; }
+  .ukrace-past-votes { font-family: var(--mono); font-size: 13px; color: var(--ink-2); text-align: right; }
   .ukrace-past-pct { font-family: var(--serif); font-size: 18px; font-weight: 430; text-align: right; }
 
   .ukrace-caveats { margin-top: 12px; padding-left: 1.1rem; max-width: 82ch; }

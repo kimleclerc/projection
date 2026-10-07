@@ -131,8 +131,8 @@ export default function UsPrimaryStandings({ dem, rep, locale, maxRows = 12 }: P
         .ups-row-head { display:flex; align-items:center; gap:8px; margin-bottom:5px; flex-wrap:wrap; }
         .ups-rank { font-family:var(--mono); font-size:11px; color:var(--ink-3); width:18px; }
         .ups-name { font-family:var(--serif); font-size:16px; color:var(--ink); }
-        .ups-lane { font-family:var(--mono); font-size:9px; letter-spacing:.05em; text-transform:uppercase; color:var(--ink-3); }
-        .ups-status { font-family:var(--mono); font-size:9px; letter-spacing:.05em; text-transform:uppercase; padding:2px 7px; border-radius:999px; border:1px solid var(--rule); color:var(--ink-2); }
+        .ups-lane { font-family:var(--mono); font-size:9px; letter-spacing: 0; color:var(--ink-3); }
+        .ups-status { font-family:var(--mono); font-size:9px; letter-spacing: 0; padding:2px 7px; border-radius:999px; border:1px solid var(--rule); color:var(--ink-2); }
         .ups-status.is-probable { background:var(--blue-tint); border-color:var(--blue-soft); color:var(--blue); }
         .ups-status.is-ineligible { background:rgba(217,119,6,.12); border-color:rgba(217,119,6,.45); color:#b45309; }
         :global(:root[data-theme='dark']) .ups-status.is-ineligible { color:#f0b072; }

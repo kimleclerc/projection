@@ -178,7 +178,7 @@ export const EQUITY_STRINGS = {
     poolTitle: "Ensemble des partis",
     poolBody: (gap: string, p: string, n: string) =>
       `Tous partis confondus, l'écart de placement des nouvelles candidatures est de ${gap} sur l'échelle de percentile (n = ${n}, p = ${p}) — aucun signe d'un placement globalement défavorable aux femmes à ce stade des nominations.`,
-    ridingsCta: 'Voir les candidatures par circonscription →',
+    ridingsCta: 'Voir les candidatures par circonscription',
     ridingsHref: '/fr/canada/quebec/circonscriptions/',
   },
   en: {
@@ -225,7 +225,7 @@ export const EQUITY_STRINGS = {
     poolTitle: 'All parties combined',
     poolBody: (gap: string, p: string, n: string) =>
       `Across all parties, the placement gap for new candidacies is ${gap} on the percentile scale (n = ${n}, p = ${p}) — no sign of a broadly unfavourable placement for women at this stage of nominations.`,
-    ridingsCta: 'See candidacies by riding →',
+    ridingsCta: 'See candidacies by riding',
     ridingsHref: '/en/canada/quebec/ridings/',
   },
   es: {
@@ -272,7 +272,7 @@ export const EQUITY_STRINGS = {
     poolTitle: 'Todos los partidos juntos',
     poolBody: (gap: string, p: string, n: string) =>
       `En conjunto, la brecha de colocación de las nuevas candidaturas es de ${gap} en la escala de percentil (n = ${n}, p = ${p}): ninguna señal de una colocación globalmente desfavorable para las mujeres en esta etapa.`,
-    ridingsCta: 'Ver candidaturas por distrito →',
+    ridingsCta: 'Ver candidaturas por distrito',
     ridingsHref: '/es/canada/quebec/distritos/',
   },
 } as const;

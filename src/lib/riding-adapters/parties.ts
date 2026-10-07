@@ -256,7 +256,7 @@ export function datifFr(genitive: string): string {
 
 /**
  * Spanish "a" + subject `mention_es`, contracting only the masculine singular
- * article: "a el" → "al" ("al PLQ"); "a la"/"a los"/"a las" stay uncontracted.
+ * article: "a el" "al" ("al PLQ"); "a la"/"a los"/"a las" stay uncontracted.
  */
 export function aEs(subjectEs: string): string {
   if (subjectEs.startsWith('el ')) return 'al ' + subjectEs.slice(3);
@@ -265,7 +265,7 @@ export function aEs(subjectEs: string): string {
 
 /**
  * Spanish "de" + subject `mention_es`, contracting only the masculine singular
- * article: "de el" → "del" ("del PLQ"); "de la"/"de los"/"de las" stay as-is.
+ * article: "de el" "del" ("del PLQ"); "de la"/"de los"/"de las" stay as-is.
  */
 export function deEs(subjectEs: string): string {
   if (subjectEs.startsWith('el ')) return 'del ' + subjectEs.slice(3);
@@ -289,7 +289,7 @@ export function agreementFr(genitive: string): { pron: 'il' | 'elle' | 'ils' | '
 }
 
 /** True when a Spanish subject `mention_es` is plural (los/las …), for verb
- *  number agreement ("Podrá" → "Podrán", "perderá" → "perderán"). */
+ *  number agreement ("Podrá" "Podrán", "perderá" "perderán"). */
 export function isPluralEs(subjectEs: string): boolean {
   return subjectEs.startsWith('los ') || subjectEs.startsWith('las ');
 }

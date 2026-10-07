@@ -108,7 +108,7 @@ const COPY = {
     dataNote: 'Anonyme. Aucun courriel, aucune adresse IP, aucun code postal : il devient une circonscription sur ton appareil, avant de nous parvenir. Nos partenaires n’y ont pas accès.',
     dataLink: 'Confidentialité', termsLink: 'Conditions',
     notFound: 'On ne trouve pas ce code. Tu peux choisir ta circonscription dans la liste.', lookupError: 'La recherche ne répond pas. Tu peux choisir ta circonscription dans la liste.',
-    chooseList: 'Choisir dans la liste', found: 'On a trouvé ta circonscription', ambiguous: 'Ce code touche plus d’une circonscription', startArrow: 'Commencer →',
+    chooseList: 'Choisir dans la liste', found: 'On a trouvé ta circonscription', ambiguous: 'Ce code touche plus d’une circonscription', startArrow: 'Commencer',
     chooseRiding: 'Choisir ma circonscription', select: 'Sélectionner…', start: 'Commencer', cardsSeen: 'cartes vues', no: 'NON', yes: 'OUI', answerCard: 'Répondre à la carte',
     answersBefore: 'réponses avant les matchs', reveal: 'Voir mes matchs', replay: 'Rejouer', resultTitle: 'Ton meilleur match aujourd’hui', hearts: 'cœurs sur 5 pour',
     localProjection: 'Voir la projection', quebecProjection: 'Voir la projection du Québec', share: 'Partager mon résultat', continueCards: 'Continuer les cartes', wholeProjection: 'Voir toute la projection du Québec',
@@ -127,7 +127,7 @@ const COPY = {
     dataNote: 'Anonymous. No email, no IP address, no postal code: it becomes a riding on your device, before it ever reaches us. Our partners have no access to it.',
     dataLink: 'Privacy', termsLink: 'Terms',
     notFound: 'We could not find that code. You can choose your riding from the list.', lookupError: 'The lookup is unavailable. You can choose your riding from the list.',
-    chooseList: 'Choose from the list', found: 'We found your riding', ambiguous: 'This code overlaps more than one riding', startArrow: 'Start →',
+    chooseList: 'Choose from the list', found: 'We found your riding', ambiguous: 'This code overlaps more than one riding', startArrow: 'Start',
     chooseRiding: 'Choose my riding', select: 'Select…', start: 'Start', cardsSeen: 'cards seen', no: 'NO', yes: 'YES', answerCard: 'Answer the card',
     answersBefore: 'answers before your matches', reveal: 'See my matches', replay: 'Play again', resultTitle: 'Your best match today', hearts: 'hearts out of 5 for',
     localProjection: 'See the projection', quebecProjection: 'See the Quebec projection', share: 'Share my result', continueCards: 'Keep swiping', wholeProjection: 'See the full Quebec projection',
@@ -146,7 +146,7 @@ const COPY = {
     dataNote: 'Anónimo. Sin correo, sin dirección IP, sin código postal: se convierte en circunscripción en tu dispositivo, antes de llegarnos. Nuestros socios no tienen acceso.',
     dataLink: 'Privacidad', termsLink: 'Términos',
     notFound: 'No encontramos ese código. Puedes elegir tu circunscripción en la lista.', lookupError: 'La búsqueda no responde. Puedes elegir tu circunscripción en la lista.',
-    chooseList: 'Elegir en la lista', found: 'Encontramos tu circunscripción', ambiguous: 'Este código abarca más de una circunscripción', startArrow: 'Empezar →',
+    chooseList: 'Elegir en la lista', found: 'Encontramos tu circunscripción', ambiguous: 'Este código abarca más de una circunscripción', startArrow: 'Empezar',
     chooseRiding: 'Elegir mi circunscripción', select: 'Seleccionar…', start: 'Empezar', cardsSeen: 'cartas vistas', no: 'NO', yes: 'SÍ', answerCard: 'Responder a la carta',
     answersBefore: 'respuestas antes de tus matches', reveal: 'Ver mis matches', replay: 'Jugar otra vez', resultTitle: 'Tu mejor match hoy', hearts: 'corazones de 5 para',
     localProjection: 'Ver la proyección', quebecProjection: 'Ver la proyección de Quebec (FR)', share: 'Compartir mi resultado', continueCards: 'Seguir con las cartas', wholeProjection: 'Ver toda la proyección de Quebec (FR)',
@@ -846,7 +846,7 @@ export default function VibeMatch({ parties, ridings, locale, campaignVersion, c
               <span class={`vibe-stamp vibe-stamp-no ${dragX < -24 ? 'is-visible' : ''}`}>{t.no}</span>
               <span class={`vibe-stamp vibe-stamp-yes ${dragX > 24 ? 'is-visible' : ''}`}>{t.yes}</span>
               <h1>{cardText(current, locale)}</h1>
-              <div class="vibe-card-directions" aria-hidden="true"><span>← {t.no}</span><span>{t.yes} →</span></div>
+              <div class="vibe-card-directions" aria-hidden="true"><span>← {t.no}</span><span>{t.yes}</span></div>
             </article>
           </div>
 

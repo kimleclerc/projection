@@ -14,9 +14,9 @@ interface Props { lang: Lang; groupKey: string; }
 const { lang, groupKey } = Astro.props;
 
 const T: Record<Lang, Record<string, string>> = {
-  en: { grp: 'Group', heading: 'Projected standings', note: 'Our model — group-stage finish probabilities.', team: 'Team', first: '1st%', second: '2nd%', advance: 'Advance%', champ: 'Champion%', host: 'Host nation', fixtures: 'Group-stage fixtures', vs: 'vs', tz: 'Times ET.', view: 'View team →', live: 'Live & recent scores' },
-  fr: { grp: 'Groupe', heading: 'Classement projeté', note: 'Notre modèle — probabilités de fin de phase de groupes.', team: 'Équipe', first: '1er%', second: '2e%', advance: 'Passage%', champ: 'Champion%', host: 'Nation hôte', fixtures: 'Matchs de groupe', vs: 'c.', tz: 'Heures HE.', view: 'Voir l’équipe →', live: 'Scores en direct et récents' },
-  es: { grp: 'Grupo', heading: 'Clasificación proyectada', note: 'Nuestro modelo — probabilidad de final de fase de grupos.', team: 'Equipo', first: '1.º%', second: '2.º%', advance: 'Avance%', champ: 'Campeón%', host: 'Selección sede', fixtures: 'Partidos de grupo', vs: 'vs', tz: 'Hora ET.', view: 'Ver equipo →', live: 'Marcadores en directo y recientes' },
+  en: { grp: 'Group', heading: 'Projected standings', note: 'Our model — group-stage finish probabilities.', team: 'Team', first: '1st%', second: '2nd%', advance: 'Advance%', champ: 'Champion%', host: 'Host nation', fixtures: 'Group-stage fixtures', vs: 'vs', tz: 'Times ET.', view: 'View team', live: 'Live & recent scores' },
+  fr: { grp: 'Groupe', heading: 'Classement projeté', note: 'Notre modèle — probabilités de fin de phase de groupes.', team: 'Équipe', first: '1er%', second: '2e%', advance: 'Passage%', champ: 'Champion%', host: 'Nation hôte', fixtures: 'Matchs de groupe', vs: 'c.', tz: 'Heures HE.', view: 'Voir l’équipe', live: 'Scores en direct et récents' },
+  es: { grp: 'Grupo', heading: 'Clasificación proyectada', note: 'Nuestro modelo — probabilidad de final de fase de grupos.', team: 'Equipo', first: '1.º%', second: '2.º%', advance: 'Avance%', champ: 'Campeón%', host: 'Selección sede', fixtures: 'Partidos de grupo', vs: 'vs', tz: 'Hora ET.', view: 'Ver equipo', live: 'Marcadores en directo y recientes' },
 };
 const t = T[lang];
 const standings = groups[groupKey]?.standings ?? [];
@@ -104,8 +104,7 @@ const liveFilter = standings.map((s) => label(s.labels, 'en', s.team));
 <style>
   .wc-group-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; max-width: 560px; }
   .wc-group-table th {
-    font-family: var(--mono, monospace); font-size: 10px; letter-spacing: 0.08em;
-    text-transform: uppercase; color: var(--ink-3, #666); font-weight: 400;
+    font-family: var(--mono, monospace); font-size: 10px; letter-spacing: 0; color: var(--ink-3, #666); font-weight: 400;
     padding: 6px 10px; border-bottom: 1px solid var(--rule, #ddd); text-align: left;
   }
   .wc-group-table td { padding: 6px 10px; border-bottom: 1px solid var(--rule, #eee); }

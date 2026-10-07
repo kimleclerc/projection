@@ -124,13 +124,13 @@ const COPY = {
       { value: 'Deux modèles', text: 'Une annonce part seulement si nos deux modèles indépendants la jugent sûre pour le même parti; sinon une personne décide. Dans le doute, on attend.' },
     ],
     methodNote: `Notre bilan : ${callsCorrect} bonnes annonces sur ${callsTotal} lors des dernières élections.`,
-    trackCta: 'Voir toutes nos annonces →',
+    trackCta: 'Voir toutes nos annonces',
     projectionTitle: 'Notre projection d’avant-scrutin',
     projectionLede: 'Les sièges que notre modèle donnait à chaque parti la veille du vote, à comparer au résultat ci-dessus.',
     majorityLabel: `Majorité : ${majority} sièges`,
     seatsLabel: 'sièges projetés',
     runLabel: 'Projection du',
-    deskCta: 'Ouvrir la projection détaillée →',
+    deskCta: 'Ouvrir la projection détaillée',
     closeTitle: 'Les courses qui se décideront tard',
     closeLede: 'Les huit circonscriptions où l’écart projeté est le plus mince. Ce sont celles qui seront appelées en dernier, et souvent celles qui décident de la majorité.',
     marginLabel: 'écart projeté',
@@ -163,13 +163,13 @@ const COPY = {
       { value: 'Two models', text: 'A call goes out only when our two independent models both judge it safe for the same party; otherwise a person decides. When in doubt, we wait.' },
     ],
     methodNote: `Our record: ${callsCorrect} correct calls out of ${callsTotal} in recent elections.`,
-    trackCta: 'See all our calls →',
+    trackCta: 'See all our calls',
     projectionTitle: 'Our pre-election forecast',
     projectionLede: 'The seats our model gave each party on the eve of the vote, to compare with the result above.',
     majorityLabel: `Majority: ${majority} seats`,
     seatsLabel: 'projected seats',
     runLabel: 'Projection of',
-    deskCta: 'Open the full forecast →',
+    deskCta: 'Open the full forecast',
     closeTitle: 'The races that will be decided late',
     closeLede: 'The eight ridings with the thinnest projected margin. These are the last to be called, and often the ones that decide the majority.',
     marginLabel: 'projected margin',
@@ -202,13 +202,13 @@ const COPY = {
       { value: 'Dos modelos', text: 'Un anuncio sale solo si nuestros dos modelos independientes lo consideran seguro para el mismo partido; si no, decide una persona. Ante la duda, esperamos.' },
     ],
     methodNote: `Nuestro historial: ${callsCorrect} anuncios acertados de ${callsTotal} en las últimas elecciones.`,
-    trackCta: 'Ver todos nuestros anuncios →',
+    trackCta: 'Ver todos nuestros anuncios',
     projectionTitle: 'Nuestra proyección previa',
     projectionLede: 'Los escaños que nuestro modelo daba a cada partido la víspera de la votación, para comparar con el resultado de arriba.',
     majorityLabel: `Mayoría: ${majority} escaños`,
     seatsLabel: 'escaños proyectados',
     runLabel: 'Proyección del',
-    deskCta: 'Abrir la proyección detallada →',
+    deskCta: 'Abrir la proyección detallada',
     closeTitle: 'Las contiendas que se decidirán tarde',
     closeLede: 'Los ocho distritos con el margen proyectado más estrecho. Son los últimos en adjudicarse, y a menudo los que deciden la mayoría.',
     marginLabel: 'margen proyectado',
@@ -259,7 +259,7 @@ const runDateText = new Intl.DateTimeFormat(
     <h2>{REVIEW.title}</h2>
     <div class="qen-review-grid">
       {[REVIEW.ours, REVIEW.polls].map(([t, d, h]) => (
-        <a href={h}><strong>{t} →</strong><span>{d}</span></a>
+        <a href={h}><strong>{t}</strong><span>{d}</span></a>
       ))}
     </div>
   </div>
@@ -372,7 +372,7 @@ const runDateText = new Intl.DateTimeFormat(
 
 <style>
   .qen-hero { padding: 80px 0 40px; border-bottom: 1px solid var(--rule); background: var(--paper); }
-  .qen-hero h1 { margin: 8px 0 16px; font-family: var(--serif); font-size: clamp(38px, 5vw, 62px); font-weight: 420; letter-spacing: -0.02em; line-height: 1.04; max-width: 980px; }
+  .qen-hero h1 { margin: 8px 0 16px; font-family: var(--serif); font-size: clamp(38px, 5vw, 62px); font-weight: 700; letter-spacing: -0.01em; line-height: 1.04; max-width: 980px; }
   .qen-review { margin: 2rem 0; }
   .qen-review h2 { font-family: var(--serif); font-size: 1.5rem; margin-bottom: .75rem; }
   .qen-review-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: .75rem; }
@@ -382,7 +382,7 @@ const runDateText = new Intl.DateTimeFormat(
   .qen-review-grid span { font-size: .92rem; color: var(--ink-2); line-height: 1.5; }
   .qen-hero .lede { max-width: 780px; font-family: var(--serif); font-size: clamp(17px, 1.8vw, 20px); line-height: 1.55; color: var(--ink-2); }
 
-  section h2 { font-family: var(--serif); font-size: clamp(26px, 3vw, 34px); font-weight: 460; letter-spacing: -0.01em; margin-bottom: 10px; }
+  section h2 { font-family: var(--serif); font-size: clamp(26px, 3vw, 34px); font-weight: 700; letter-spacing: -0.01em; margin-bottom: 10px; }
   .qen-lede { max-width: 720px; font-family: var(--serif); font-size: 17px; line-height: 1.6; color: var(--ink-2); margin-bottom: 28px; }
   .qen-note { margin-top: 20px; font-size: 14px; line-height: 1.6; color: var(--ink-3); max-width: 720px; }
   .qen-note a { color: var(--blue); text-decoration: underline; text-underline-offset: 3px; }
@@ -390,7 +390,7 @@ const runDateText = new Intl.DateTimeFormat(
   .qen-schedule { padding: 56px 0; background: var(--paper-2); border-bottom: 1px solid var(--rule); }
   .qen-steps { list-style: none; margin-top: 24px; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 0; border-top: 1px solid var(--rule); border-left: 1px solid var(--rule); }
   .qen-steps li { padding: 20px 18px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule); background: var(--card); }
-  .qen-time { font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--blue); }
+  .qen-time { font-family: var(--mono); font-size: 13px; letter-spacing: 0; color: var(--blue); }
   .qen-steps h3 { margin: 8px 0 8px; font-family: var(--serif); font-size: 19px; font-weight: 500; }
   .qen-steps p { font-size: 14px; line-height: 1.6; color: var(--ink-2); }
 
@@ -404,11 +404,11 @@ const runDateText = new Intl.DateTimeFormat(
   .qen-bar { position: relative; display: flex; height: 34px; border: 1px solid var(--rule); border-radius: 3px; overflow: hidden; background: var(--card); }
   .qen-bar > span { width: var(--w); background: var(--c); }
   .qen-majority { position: absolute; left: var(--m); top: -4px; bottom: -4px; width: 2px; background: var(--ink); }
-  .qen-majority-label { margin-top: 8px; font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
+  .qen-majority-label { margin-top: 8px; font-family: var(--mono); font-size: 13px; letter-spacing: 0; color: var(--ink-3); }
   .qen-legend { list-style: none; display: flex; flex-wrap: wrap; gap: 8px 22px; margin-top: 18px; }
   .qen-legend li { display: flex; align-items: center; gap: 8px; }
   .qen-legend i { width: 10px; height: 10px; border-radius: 50%; background: var(--c); }
-  .qen-party { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); }
+  .qen-party { font-family: var(--mono); font-size: 13px; letter-spacing: 0; color: var(--ink-2); }
   .qen-legend strong { font-family: var(--serif); font-size: 19px; font-weight: 500; }
 
   .qen-close { padding: 56px 0; background: var(--paper); border-bottom: 1px solid var(--rule); }
@@ -417,8 +417,8 @@ const runDateText = new Intl.DateTimeFormat(
   .qen-races a:hover { background: color-mix(in oklab, var(--c) 12%, var(--card)); }
   .qen-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--c); }
   .qen-riding { font-family: var(--serif); font-size: 16px; }
-  .qen-lead { font-family: var(--mono); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
-  .qen-margin { grid-column: 2 / -1; font-family: var(--mono); font-size: 11px; color: var(--ink-3); }
+  .qen-lead { font-family: var(--mono); font-size: 13px; letter-spacing: 0; color: var(--ink-3); }
+  .qen-margin { grid-column: 2 / -1; font-family: var(--mono); font-size: 13px; color: var(--ink-3); }
 
   .qen-links { padding: 56px 0 72px; background: var(--paper-2); }
   .qen-cards { list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; margin-top: 20px; }

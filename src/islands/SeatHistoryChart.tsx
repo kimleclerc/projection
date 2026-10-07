@@ -205,7 +205,7 @@ export default function SeatHistoryChart({
               y: -0.22,
               font: { color: axisColor, size: 11 },
             },
-            font: { family: 'JetBrains Mono Variable, monospace' },
+            font: { family: 'Barlow Condensed, Barlow, sans-serif' },
             hovermode: 'x unified' as const,
           },
           { responsive: true, displayModeBar: false },

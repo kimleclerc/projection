@@ -138,7 +138,7 @@ export default function SeatRankChart({ parties, locale }: Props) {
           // sur du sombre.
           textfont: {
             size: 11,
-            family: 'JetBrains Mono Variable, monospace',
+            family: 'Barlow Condensed, Barlow, sans-serif',
             color: textColors,
           },
           cliponaxis: false,
@@ -180,7 +180,7 @@ export default function SeatRankChart({ parties, locale }: Props) {
             // rouge PLQ, ce qui se lit comme une affirmation sur le PLQ. La
             // légende est rebâtie en HTML, en gris neutre, sous le graphique.
             showlegend: false,
-            font: { family: 'JetBrains Mono Variable, monospace' },
+            font: { family: 'Barlow Condensed, Barlow, sans-serif' },
             hovermode: 'closest' as const,
           },
           { responsive: true, displayModeBar: false },

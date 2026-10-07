@@ -58,7 +58,7 @@ export default function BudgetForYou({ audiences, locale }: Props) {
         .fy-chip.is-on { background:var(--ink); color:var(--paper-3); border-color:var(--ink); }
         .fy-panel { border:1px solid var(--rule); border-radius:8px; background:var(--card); padding:20px; }
         .fy-summary { margin:0 0 16px; color:var(--ink-2); font-size:15px; line-height:1.65; }
-        .fy-impact-lab { margin:0 0 10px; font-family:var(--mono); font-size:10px; text-transform:uppercase; letter-spacing:.08em; color:var(--ink-3); }
+        .fy-impact-lab { margin:0 0 10px; font-family:var(--mono); font-size:10px; letter-spacing: 0; color:var(--ink-3); }
         .fy-measures { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:12px; }
         .fy-measure { border-top:1px solid var(--rule); padding-top:12px; }
         .fy-measure-top { display:flex; align-items:baseline; justify-content:space-between; gap:12px; }

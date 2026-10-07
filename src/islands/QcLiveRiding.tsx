@@ -10,13 +10,13 @@ import { deriveRows, numFmt, outcomeLabel, outcomeOf, timeFmt, useLive, type Loc
 const copy = {
   fr: { title: 'Résultats en direct', before: (n: string) => `Les résultats de ${n} s’afficheront ici dès la fermeture des bureaux, à 20 h le 5 octobre.`,
         waiting: 'En attente des premiers bureaux de cette circonscription.', elected: 'Élu·e', leading: 'En tête', polls: 'bureaux dépouillés',
-        updated: 'Données de', at: 'appel à', all: 'Tous les résultats du Québec →' },
+        updated: 'Données de', at: 'appel à', all: 'Tous les résultats du Québec' },
   en: { title: 'Live results', before: (n: string) => `Results for ${n} will appear here when polls close at 8 p.m. on October 5.`,
         waiting: 'Waiting for the first polls in this riding.', elected: 'Elected', leading: 'Leading', polls: 'polls counted',
-        updated: 'Data as of', at: 'called at', all: 'All Quebec results →' },
+        updated: 'Data as of', at: 'called at', all: 'All Quebec results' },
   es: { title: 'Resultados en directo', before: (n: string) => `Los resultados de ${n} aparecerán aquí al cierre de las urnas, a las 20:00 del 5 de octubre.`,
         waiting: 'A la espera de las primeras mesas de este distrito.', elected: 'Electo', leading: 'En cabeza', polls: 'mesas escrutadas',
-        updated: 'Datos de las', at: 'anunciado a las', all: 'Todos los resultados de Quebec →' },
+        updated: 'Datos de las', at: 'anunciado a las', all: 'Todos los resultados de Quebec' },
 };
 
 export default function QcLiveRiding({ lang, ridingId, name, parties, resultsHref, info }:

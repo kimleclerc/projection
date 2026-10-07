@@ -48,7 +48,7 @@ const sorted = [...list].sort((a, b) => {
   return (lang === 'fr' ? am.label_fr : am.label_en).localeCompare(lang === 'fr' ? bm.label_fr : bm.label_en);
 });
 
-// Title-case ALL-CAPS FEC names ("MOORE, FELIX BARRY" → "Moore, Felix Barry").
+// Title-case ALL-CAPS FEC names ("MOORE, FELIX BARRY" "Moore, Felix Barry").
 const displayName = (n: string): string =>
   n === n.toUpperCase()
     ? n.toLowerCase().replace(/\b([a-zà-ÿ])/g, (m) => m.toUpperCase()).replace(/\bJr\b/g, 'Jr').replace(/\bIi+\b/gi, (m) => m.toUpperCase())
@@ -121,7 +121,7 @@ const localizedBio = (c: (typeof list)[number]): string | undefined => {
 
 <style>
   .slate { padding: 56px 0; border-bottom: 1px solid var(--rule); }
-  h2 { margin: 8px 0 6px; font-family: var(--serif); font-size: clamp(28px, 3.4vw, 40px); font-weight: 420; letter-spacing: -0.01em; }
+  h2 { margin: 8px 0 6px; font-family: var(--serif); font-size: clamp(28px, 3.4vw, 40px); font-weight: 700; letter-spacing: -0.01em; }
   .slate-lede { margin: 0 0 24px; color: var(--ink-2); font-size: 15px; max-width: 640px; }
   .slate-grid {
     list-style: none; margin: 0; padding: 0;
@@ -132,11 +132,11 @@ const localizedBio = (c: (typeof list)[number]): string | undefined => {
     border-radius: 8px; background: var(--card); padding: 14px 16px;
   }
   .cand-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
-  .cand-party { display: inline-flex; align-items: center; gap: 7px; font-family: var(--mono); font-size: 12px; color: var(--ink-2); }
+  .cand-party { display: inline-flex; align-items: center; gap: 7px; font-family: var(--mono); font-size: 13px; color: var(--ink-2); }
   .cand-swatch { width: 11px; height: 11px; border-radius: 2px; background: var(--accent); flex: none; }
   .cand-logo { width: 18px; height: 18px; object-fit: contain; flex: none; border-radius: 2px; }
   .cand-status {
-    font-family: var(--mono); font-size: 9px; letter-spacing: .06em; text-transform: uppercase;
+    font-family: var(--mono); font-size: 9px; letter-spacing: 0;
     padding: 2px 7px; border-radius: 999px; border: 1px solid var(--rule); color: var(--ink-2); white-space: nowrap;
   }
   .cand-status.is-incumbent { background: color-mix(in oklab, var(--accent) 14%, transparent); border-color: color-mix(in oklab, var(--accent) 40%, transparent); color: var(--ink); }
@@ -148,12 +148,12 @@ const localizedBio = (c: (typeof list)[number]): string | undefined => {
      que la grille ne bouge pas quand la photo officielle arrive. */
   .cand-photo-placeholder {
     display: flex; align-items: center; justify-content: center;
-    font-family: var(--mono); font-size: 26px; letter-spacing: 0.04em;
+    font-family: var(--mono); font-size: 26px; letter-spacing: 0;
     color: var(--ink-3); background: var(--paper-3, var(--rule));
     border: 1px dashed var(--rule-2, var(--rule));
   }
   .cand-portrait { margin: 8px 0 0; font-size: 13.5px; line-height: 1.55; color: var(--ink-2); }
-  .cand-src { display: inline-block; margin-top: 8px; font-family: var(--mono); font-size: 10px; letter-spacing: .04em; color: var(--ink-3); text-decoration: none; }
+  .cand-src { display: inline-block; margin-top: 8px; font-family: var(--mono); font-size: 13px; letter-spacing: 0; color: var(--ink-3); text-decoration: none; }
   .cand-src:hover { color: var(--ink); }
   @media (max-width: 420px) {
     .cand-photo { width: 72px; height: 88px; }

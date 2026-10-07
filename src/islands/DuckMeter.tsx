@@ -377,7 +377,7 @@ function WaterlineView({ value, zones, locale }: { value: number; zones: DuckZon
           <DuckSvg size={duckSize} idPrefix="meter-water" bobbing />
         </div>
       </div>
-      <div style="display:flex;justify-content:space-between;margin-top:10px;font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--ink-3)">
+      <div style="display:flex;justify-content:space-between;margin-top:10px;font-family:var(--mono);font-size:10px;letter-spacing: 0;color:var(--ink-3)">
         {labels.map((l, i) => <span key={i}>{l}</span>)}
       </div>
       <div class="meter-readout" style="margin-top:4px">

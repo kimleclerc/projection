@@ -199,7 +199,7 @@ export default function PresidentialMaps({
         .pm-wrap { display: flex; flex-direction: column; gap: 14px; }
         .pm-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; }
         .pm-segmented { display: inline-flex; border: 1px solid var(--rule, #ddd); border-radius: 4px; overflow: hidden; }
-        .pm-seg-btn { font-family: var(--mono, monospace); font-size: 11px; letter-spacing: .04em; padding: 7px 13px; background: var(--card, #fff); color: var(--ink-2, #555); border: none; border-right: 1px solid var(--rule, #ddd); cursor: pointer; }
+        .pm-seg-btn { font-family: var(--mono, monospace); font-size: 11px; letter-spacing: 0; padding: 7px 13px; background: var(--card, #fff); color: var(--ink-2, #555); border: none; border-right: 1px solid var(--rule, #ddd); cursor: pointer; }
         .pm-seg-btn:last-child { border-right: none; }
         .pm-seg-btn.is-active { background: var(--accent, var(--ink)); color: var(--paper, #fff); }
         .pm-select-wrap { display: inline-flex; align-items: center; gap: 8px; font-family: var(--mono, monospace); font-size: 11px; color: var(--ink-2, #555); }

@@ -47,7 +47,7 @@ const localizedEventUrl = eventUrl && lang !== 'en'
   : eventUrl;
 const localeParam = lang !== 'en' ? `&locale=${lang}` : '';
 const viewLabel: Record<'en' | 'fr' | 'es', string> = {
-  en: 'View on Polymarket →', fr: 'Voir sur Polymarket →', es: 'Ver en Polymarket →',
+  en: 'View on Polymarket', fr: 'Voir sur Polymarket', es: 'Ver en Polymarket',
 };
 const oddsLabel: Record<'en' | 'fr' | 'es', string> = {
   en: 'Live odds via Polymarket', fr: 'Cotes en direct via Polymarket', es: 'Cuotas en directo vía Polymarket',
@@ -85,9 +85,8 @@ const oddsLabel: Record<'en' | 'fr' | 'es', string> = {
   .pm-label {
     margin: 0 0 4px;
     font-family: var(--mono);
-    font-size: 11px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
+    font-size: 13px;
+    letter-spacing: 0;
     color: var(--ink-3, #666);
   }
 
@@ -105,9 +104,8 @@ const oddsLabel: Record<'en' | 'fr' | 'es', string> = {
     align-items: baseline;
     gap: 1rem;
     font-family: var(--mono);
-    font-size: 10px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
+    font-size: 13px;
+    letter-spacing: 0;
     color: var(--ink-3, #999);
   }
 

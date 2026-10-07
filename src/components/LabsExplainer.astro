@@ -145,7 +145,7 @@ const dmax = Math.max(...dist);
   <section class="lx-section lx-honest" aria-labelledby="h-honest">
     <h2 id="h-honest">{x.honestyTitle}</h2>
     {x.honesty.map((p) => <p>{p}</p>)}
-    <p><a class="lx-cta" href={labsUrl(locale)}>{x.cta} →</a></p>
+    <p><a class="lx-cta" href={labsUrl(locale)}>{x.cta}</a></p>
   </section>
 
   <section class="lx-section" aria-labelledby="h-refs">
@@ -159,8 +159,8 @@ const dmax = Math.max(...dist);
 <style>
   .lx { max-width: 760px; padding-block: 56px 96px; }
   .lx-hero { padding-bottom: 32px; border-bottom: 1px solid var(--rule); }
-  .lx-kicker, .lx-step, .lx-origin-label { margin: 0 0 12px; font-family: var(--mono); font-size: 11.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); }
-  .lx-hero h1 { margin: 0 0 18px; font-family: var(--serif); font-size: clamp(42px, 7vw, 76px); font-weight: 420; letter-spacing: -.02em; line-height: 1; }
+  .lx-kicker, .lx-step, .lx-origin-label { margin: 0 0 12px; font-family: var(--mono); font-size: 13px; letter-spacing: 0; color: var(--ink-3); }
+  .lx-hero h1 { margin: 0 0 18px; font-family: var(--serif); font-size: clamp(42px, 7vw, 76px); font-weight: 700; letter-spacing: -0.01em; line-height: 1; }
   .lx-dek { margin: 0; font-size: 19px; line-height: 1.6; color: var(--ink-2); }
   .lx-section { margin-top: 56px; }
   .lx-brand { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 22px; }
@@ -168,14 +168,14 @@ const dmax = Math.max(...dist);
   .lx-orbit span { position: absolute; top: -4px; left: 9px; width: 7px; height: 7px; border-radius: 50%; background: var(--duck-deep); transform-origin: 3.5px 16px; animation: lx-orbit 6s linear infinite; }
   @keyframes lx-orbit { to { transform: rotate(360deg); } }
   @media (prefers-reduced-motion: reduce) { .lx-orbit span { animation: none; } }
-  .lx-engine { font-family: var(--serif); font-size: 24px; font-weight: 500; margin-right: 4px; }
-  .lx-live, .lx-tag { padding: 3px 10px; border-radius: 999px; font-family: var(--mono); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; }
+  .lx-engine { font-family: var(--serif); font-size: 24px; font-weight: 700; margin-right: 4px; }
+  .lx-live, .lx-tag { padding: 3px 10px; border-radius: 999px; font-family: var(--mono); font-size: 13px; letter-spacing: 0; }
   .lx-live { color: var(--red); background: var(--red-tint); }
   .lx-tag { border: 1px solid var(--rule); color: var(--ink-2); }
   .lx-why { margin-top: 40px; padding: 22px 24px; border-radius: 8px; border: 1px solid var(--rule); background: color-mix(in oklab, var(--blue) 7%, var(--card)); }
-  .lx-why h2 { margin: 0 0 8px; font-family: var(--serif); font-size: 26px; font-weight: 450; }
+  .lx-why h2 { margin: 0 0 8px; font-family: var(--serif); font-size: 26px; font-weight: 700; }
   .lx-why p { margin: 0; font-size: 17px; line-height: 1.65; color: var(--ink-2); }
-  .lx-section h2 { margin: 0 0 16px; font-family: var(--serif); font-size: clamp(28px, 4vw, 38px); font-weight: 450; line-height: 1.1; }
+  .lx-section h2 { margin: 0 0 16px; font-family: var(--serif); font-size: clamp(28px, 4vw, 38px); font-weight: 700; line-height: 1.1; }
   .lx-section > p { font-size: 17px; line-height: 1.7; color: var(--ink-2); margin: 0 0 16px; }
   .lx-fig { margin: 28px 0; padding: 16px; border: 1px solid var(--rule); border-radius: 6px; background: var(--card); }
   .lx-fig svg { display: block; width: 100%; max-width: 480px; height: auto; margin: 0 auto; }
@@ -193,10 +193,10 @@ const dmax = Math.max(...dist);
   svg .link { stroke: var(--ink-4); stroke-width: 1; stroke-dasharray: 3 3; fill: none; }
   svg .dot-l { fill: var(--red); }
   svg .dot-a { fill: var(--blue); }
-  svg .lbl { font-family: var(--mono); font-size: 10px; fill: var(--ink-3); }
+  svg .lbl { font-family: var(--mono); font-size: 13px; fill: var(--ink-3); }
   svg .lbl-l { fill: var(--red); }
   svg .lbl-a { fill: var(--blue); }
-  svg .num { font-family: var(--mono); font-size: 9.5px; fill: var(--ink-3); }
+  svg .num { font-family: var(--mono); font-size: 13px; fill: var(--ink-3); }
   svg .globe { fill: color-mix(in oklab, var(--blue) 6%, transparent); stroke: var(--ink-3); stroke-width: 1; }
   svg .equator { fill: none; stroke: var(--ink-4); stroke-width: 1; stroke-dasharray: 4 3; }
   svg .leg { fill: none; stroke: var(--duck-deep); stroke-width: 2.4; }

@@ -44,7 +44,7 @@ const copy = {
     lede: 'Live prices from the Kalshi elections exchange, shown beside our projection. Traders are not a poll and they do not feed the Vote-Scope model.',
     oi: 'open interest',
     asOf: (d: string) => `Kalshi prices as of ${d}`,
-    link: 'See the market on Kalshi →',
+    link: 'See the market on Kalshi',
     tableNote: 'Probability implied by the last traded price, or the bid-ask midpoint when a contract has not traded.',
   },
   fr: {
@@ -53,7 +53,7 @@ const copy = {
     lede: 'Cotes en direct de la bourse électorale Kalshi, présentées à côté de notre projection. Des parieurs ne sont pas un sondage et n’alimentent pas le modèle Vote-Scope.',
     oi: 'd’intérêt ouvert',
     asOf: (d: string) => `Cotes Kalshi au ${d}`,
-    link: 'Voir le marché sur Kalshi →',
+    link: 'Voir le marché sur Kalshi',
     tableNote: 'Probabilité implicite du dernier prix échangé, ou du milieu bid-ask quand un contrat n’a pas été échangé.',
   },
   es: {
@@ -62,7 +62,7 @@ const copy = {
     lede: 'Precios en vivo de la bolsa electoral Kalshi, junto a nuestra proyección. Los operadores no son una encuesta y no alimentan el modelo de Vote-Scope.',
     oi: 'de interés abierto',
     asOf: (d: string) => `Precios de Kalshi al ${d}`,
-    link: 'Ver el mercado en Kalshi →',
+    link: 'Ver el mercado en Kalshi',
     tableNote: 'Probabilidad implícita del último precio negociado, o del punto medio entre compra y venta si el contrato no se ha negociado.',
   },
 }[locale];
@@ -126,9 +126,8 @@ const title = (b: { title_en: string; title_fr: string; title_es: string }) =>
 
   .kalshi-eyebrow {
     font-family: var(--mono);
-    font-size: 11px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
+    font-size: 13px;
+    letter-spacing: 0;
     color: var(--ink-3);
     margin: 0 0 6px;
   }
@@ -155,7 +154,7 @@ const title = (b: { title_en: string; title_fr: string; title_es: string }) =>
 
   .kalshi-board-head h3 { font-size: 16px; margin: 0; }
 
-  .kalshi-oi { font-family: var(--mono); font-size: 12px; color: var(--ink-3); }
+  .kalshi-oi { font-family: var(--mono); font-size: 13px; color: var(--ink-3); }
 
   .kalshi-rows { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
 

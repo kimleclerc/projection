@@ -474,8 +474,7 @@ const specialElectionStyles = `
     color: var(--ink-3);
     font-family: var(--mono);
     font-size: 11px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
+    letter-spacing: 0;
   }
 
   .special-status {
@@ -484,7 +483,7 @@ const specialElectionStyles = `
     color: var(--ink-3);
     font-family: var(--mono);
     font-size: 11px;
-    letter-spacing: 0.04em;
+    letter-spacing: 0;
   }
 
   .special-section {
@@ -559,8 +558,7 @@ const specialElectionStyles = `
     color: var(--ink-3);
     font-family: var(--mono);
     font-size: 11px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
+    letter-spacing: 0;
   }
 
   .special-vote-bar {
@@ -588,8 +586,7 @@ const specialElectionStyles = `
     color: var(--ink-3);
     font-family: var(--mono);
     font-size: 10px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
+    letter-spacing: 0;
   }
 
   .special-candidate-stats dd {

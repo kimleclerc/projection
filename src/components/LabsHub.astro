@@ -42,7 +42,7 @@ const explainerUrl = `${labsUrl(locale)}${EXPLAINER_SLUG[locale]}/`;
     </div>
     <h1>{t.hubTitle}</h1>
     <p class="lh-dek">{t.hubDek}</p>
-    <p class="lh-cta"><a href={explainerUrl}>{EXPLAINER[locale].linkLabel} →</a></p>
+    <p class="lh-cta"><a href={explainerUrl}>{EXPLAINER[locale].linkLabel}</a></p>
   </header>
 
   <section class="lh-section" aria-labelledby="lh-compare">
@@ -63,7 +63,7 @@ const explainerUrl = `${labsUrl(locale)}${EXPLAINER_SLUG[locale]}/`;
             )}
           </header>
           <LabsSeatBars cmp={x.cmp} locale={locale} compact showLegend={false} />
-          <span class="lh-open">{t.openDesk} →</span>
+          <span class="lh-open">{t.openDesk}</span>
         </a>
       ))}
     </div>
@@ -104,7 +104,7 @@ const explainerUrl = `${labsUrl(locale)}${EXPLAINER_SLUG[locale]}/`;
     <div class="lh-how">
       {t.how.map(([h, p], i) => (<div><span class="lh-num">{i + 1}</span><h3>{h}</h3><p>{p}</p></div>))}
     </div>
-    <p class="lh-cta"><a href={explainerUrl}>{EXPLAINER[locale].linkLabel} →</a></p>
+    <p class="lh-cta"><a href={explainerUrl}>{EXPLAINER[locale].linkLabel}</a></p>
   </section>
 
   <aside class="lh-experiment">
@@ -116,7 +116,7 @@ const explainerUrl = `${labsUrl(locale)}${EXPLAINER_SLUG[locale]}/`;
 <style>
   .lh { max-width: 1080px; padding-block: 56px 96px; }
   .lh-hero { padding-bottom: 36px; border-bottom: 1px solid var(--rule); }
-  .lh-kicker, .lh-label { margin: 0 0 14px; font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); }
+  .lh-kicker, .lh-label { margin: 0 0 14px; font-family: var(--mono); font-size: 13px; letter-spacing: 0; color: var(--ink-3); }
   .lh-brand { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 18px; }
   .lh-orbit { position: relative; display: inline-block; width: 30px; height: 30px; border-radius: 50%; border: 1.5px solid var(--ink); flex: none; }
   .lh-orbit span { position: absolute; top: -4px; left: 11px; width: 8px; height: 8px; border-radius: 50%; background: var(--duck-deep);
@@ -125,21 +125,21 @@ const explainerUrl = `${labsUrl(locale)}${EXPLAINER_SLUG[locale]}/`;
   .lh-orbit--big span { top: -7px; left: 29px; width: 12px; height: 12px; transform-origin: 6px 42px; }
   @keyframes lh-orbit { to { transform: rotate(360deg); } }
   @media (prefers-reduced-motion: reduce) { .lh-orbit span, .lh-pulse { animation: none; } }
-  .lh-engine { font-family: var(--serif); font-size: 30px; font-weight: 500; margin-right: 6px; }
-  .lh-live { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px; font-family: var(--mono); font-size: 10.5px;
-             letter-spacing: .08em; text-transform: uppercase; color: var(--red); background: var(--red-tint); }
+  .lh-engine { font-family: var(--serif); font-size: 30px; font-weight: 700; margin-right: 6px; }
+  .lh-live { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px; font-family: var(--mono); font-size: 13px;
+             letter-spacing: 0; color: var(--red); background: var(--red-tint); }
   .lh-pulse { width: 7px; height: 7px; border-radius: 50%; background: var(--red); animation: lh-pulse 1.6s ease-in-out infinite; }
   @keyframes lh-pulse { 50% { opacity: .25; } }
-  .lh-tag { padding: 3px 10px; border-radius: 999px; border: 1px solid var(--rule); font-family: var(--mono); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); }
-  .lh-hero h1 { max-width: 860px; margin: 0 0 18px; font-family: var(--serif); font-size: clamp(38px, 6vw, 70px); font-weight: 420; letter-spacing: -.02em; line-height: 1.02; }
+  .lh-tag { padding: 3px 10px; border-radius: 999px; border: 1px solid var(--rule); font-family: var(--mono); font-size: 13px; letter-spacing: 0; color: var(--ink-2); }
+  .lh-hero h1 { max-width: 860px; margin: 0 0 18px; font-family: var(--serif); font-size: clamp(38px, 6vw, 70px); font-weight: 700; letter-spacing: -0.01em; line-height: 1.02; }
   .lh-dek { max-width: 760px; margin: 0; color: var(--ink-2); font-size: 18px; line-height: 1.6; }
   .lh-cta { margin: 18px 0 0; font-weight: 600; }
   .lh-cta a { color: var(--ink); }
   .lh-section { margin-top: 56px; }
-  .lh-section h2, .lh-why h2 { font-family: var(--serif); font-size: clamp(26px, 3.4vw, 34px); font-weight: 450; margin: 0 0 12px; }
+  .lh-section h2, .lh-why h2 { font-family: var(--serif); font-size: clamp(26px, 3.4vw, 34px); font-weight: 700; margin: 0 0 12px; }
   .lh-muted { color: var(--ink-3); font-size: 14px; line-height: 1.55; max-width: 760px; }
   .lh-score { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 22px; }
-  .lh-score span { padding: 4px 12px; border-radius: 999px; font-family: var(--mono); font-size: 11px; letter-spacing: .05em; text-transform: uppercase; }
+  .lh-score span { padding: 4px 12px; border-radius: 999px; font-family: var(--mono); font-size: 13px; letter-spacing: 0; }
   .lh-score .is-same { color: #2c8a3f; background: color-mix(in oklab, #2c8a3f 10%, var(--card)); }
   .lh-score .is-status { color: var(--duck-deep); background: color-mix(in oklab, var(--duck) 16%, var(--card)); }
   .lh-score .is-different { color: var(--red); background: var(--red-tint); }
@@ -147,8 +147,8 @@ const explainerUrl = `${labsUrl(locale)}${EXPLAINER_SLUG[locale]}/`;
   .lh-desk { display: block; padding: 20px 22px; border: 1px solid var(--rule); border-radius: 6px; background: var(--card); color: var(--ink); text-decoration: none; transition: border-color .15s; }
   .lh-desk:hover { border-color: var(--ink-3); }
   .lh-desk header { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 16px; margin-bottom: 4px; }
-  .lh-desk h3 { margin: 0; font-family: var(--serif); font-size: 24px; font-weight: 450; }
-  .lh-p { font-family: var(--mono); font-size: 12px; color: var(--ink-3); }
+  .lh-desk h3 { margin: 0; font-family: var(--serif); font-size: 24px; font-weight: 700; }
+  .lh-p { font-family: var(--mono); font-size: 13px; color: var(--ink-3); }
   .lh-p strong { color: var(--ink); }
   .lh-open { display: inline-block; margin-top: 26px; font-size: 14px; font-weight: 600; }
   .lh-why { display: flex; align-items: center; gap: 26px; margin-top: 56px; padding: 26px 28px; border-radius: 8px;
@@ -157,11 +157,11 @@ const explainerUrl = `${labsUrl(locale)}${EXPLAINER_SLUG[locale]}/`;
   .lh-how { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; }
   .lh-num { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%;
             background: var(--ink); color: var(--paper-3); font-family: var(--mono); font-size: 13px; margin-bottom: 10px; }
-  .lh-how h3 { font-family: var(--serif); font-size: 20px; font-weight: 450; margin: 0 0 8px; }
+  .lh-how h3 { font-family: var(--serif); font-size: 20px; font-weight: 700; margin: 0 0 8px; }
   .lh-how p { color: var(--ink-2); line-height: 1.6; margin: 0; }
   .lh-scroll { overflow-x: auto; }
   .lh-table { width: 100%; border-collapse: collapse; font-size: 15px; }
-  .lh-table th { text-align: left; font-family: var(--mono); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); border-bottom: 1px solid var(--rule); padding: 8px 10px; white-space: nowrap; }
+  .lh-table th { text-align: left; font-family: var(--mono); font-size: 13px; letter-spacing: 0; color: var(--ink-3); border-bottom: 1px solid var(--rule); padding: 8px 10px; white-space: nowrap; }
   .lh-table td { border-bottom: 1px solid var(--rule-2); padding: 10px; white-space: nowrap; }
   .lh-experiment { margin-top: 56px; padding: 22px 24px; border-left: 3px solid var(--duck-deep); background: color-mix(in oklab, var(--duck) 10%, var(--card)); border-radius: 0 6px 6px 0; }
   .lh-experiment p { margin: 0; color: var(--ink-2); line-height: 1.6; }

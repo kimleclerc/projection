@@ -49,7 +49,7 @@ const teamHref = (code: string) => `${base}/${code}/`;
     <div class="wc-group-grid">
       {groupKeys.map((g) => (
         <div class="note-card wc-group-card">
-          <p class="eyebrow"><a href={groupHref(g)} class="wc-group-link">{t.groupWord} {g} →</a></p>
+          <p class="eyebrow"><a href={groupHref(g)} class="wc-group-link">{t.groupWord} {g}</a></p>
           <table class="wc-group-table">
             <thead>
               <tr>
@@ -88,8 +88,7 @@ const teamHref = (code: string) => `${base}/${code}/`;
   .wc-group-table th {
     font-family: var(--mono, monospace);
     font-size: 10px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
+    letter-spacing: 0;
     color: var(--ink-3, #666);
     font-weight: 400;
     padding: 4px 6px;

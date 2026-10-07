@@ -174,7 +174,7 @@ export function buildRound1CandidateRidings(): RidingFull[] {
 }
 
 /** T2 : duel Macron/Le Pen. Vainqueur remappé vers les blocs centre/far_right
- *  (couleur cohérente avec le reste du site) ; 'tie' → 'tossup'. */
+ *  (couleur cohérente avec le reste du site) ; 'tie' 'tossup'. */
 export function buildRound2Ridings(): RidingFull[] {
   return Object.entries(SOURCE.circonscriptions).map(([riding_id, c]) => {
     const macron = c.r2?.macron ?? 0;

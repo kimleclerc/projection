@@ -225,7 +225,7 @@ export default function WcBeatTheModel({ lang, board }: Props) {
         .btm { max-width: 640px; }
         .btm-intro { line-height: 1.6; margin-bottom: 1.25rem; }
         .btm-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 0.85rem; }
-        .btm-label { font-family: var(--mono, monospace); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3, #666); min-width: 180px; }
+        .btm-label { font-family: var(--mono, monospace); font-size: 11px; letter-spacing: 0; color: var(--ink-3, #666); min-width: 180px; }
         .btm-row select { padding: 8px 10px; border: 1px solid var(--rule, #ccc); border-radius: 4px; background: var(--paper, #fff); color: var(--text, #111); font-size: 0.95rem; min-width: 220px; }
         .btm-odds { font-size: 0.85rem; color: var(--ink-3, #555); }
         .btm-result { margin-top: 1.5rem; padding: 1.25rem; border: 1px solid var(--rule, #ddd); border-left: 4px solid var(--red, #c33); border-radius: 4px; }

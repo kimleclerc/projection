@@ -68,7 +68,7 @@ const deltaSign = ldi.delta_7d >= 0 ? '+' : '';
         <p style={`font-weight:700;color:${ldi.zone_color};font-size:1.1rem;margin-bottom:0.5rem;`}>{ldi.label_fr}</p>
         <p>Delta 7 jours: <strong>{deltaSign}{ldi.delta_7d}</strong> · {ldi.n_components} composantes · au {ldiData.meta.as_of_date}</p>
         <p style="margin-top:1rem;">
-          <a href="/fr/us/indexes/lame-duck/" class="cta-link">Index complet →</a>
+          <a href="/fr/us/indexes/lame-duck/" class="cta-link">Index complet</a>
         </p>
       </div>
     </div>
@@ -83,20 +83,20 @@ const deltaSign = ldi.delta_7d >= 0 ? '+' : '';
           <p class="eyebrow">Indice Bernache · {gooseData.meta.pm}</p>
           <h3 style="font-size:2.5rem;margin:0.25rem 0;color:var(--text);"><AnimatedNumber client:visible value={gooseData.cgi.score} decimals={1} /><span style="font-size:1.1rem;font-weight:400;">/100</span></h3>
           <p style={`font-weight:700;color:${gooseData.cgi.zone_color};`}>{gooseData.cgi.label_fr}</p>
-          <p style="margin-top:1rem;"><a href="/fr/canada/indexes/canada-goose/" class="cta-link">Ouvrir l'indice Bernache →</a></p>
+          <p style="margin-top:1rem;"><a href="/fr/canada/indexes/canada-goose/" class="cta-link">Ouvrir l'indice Bernache</a></p>
         </div>
         <div class="note-card" style={`border-left:4px solid ${showdownData.showdown.zone_color};`}>
           <p class="eyebrow">Pupitre guerre commerciale · ACEUM</p>
           <h3 style="font-size:2.5rem;margin:0.25rem 0;color:var(--text);">{showdownData.showdown.gap > 0 ? '+' : ''}{showdownData.showdown.gap}</h3>
           <p style={`font-weight:700;color:${showdownData.showdown.zone_color};`}>{showdownData.showdown.label_fr}</p>
           {(showdownData as any).war_status && (<p style="font-size:0.9rem;color:var(--text-muted);margin-top:0.4rem;">{(showdownData as any).war_status.headline_fr}</p>)}
-          <p style="margin-top:1rem;"><a href="/fr/indexes/cusma-showdown/" class="cta-link">Ouvrir le pupitre →</a></p>
+          <p style="margin-top:1rem;"><a href="/fr/indexes/cusma-showdown/" class="cta-link">Ouvrir le pupitre</a></p>
         </div>
         <div class="note-card" style={`border-left:4px solid ${barrageData.bfi.zone_color};`}>
           <p class="eyebrow">Barrage Index · France 2027</p>
           <h3 style="font-size:2.5rem;margin:0.25rem 0;color:var(--text);"><AnimatedNumber client:visible value={barrageData.bfi.score} decimals={1} /><span style="font-size:1.1rem;font-weight:400;">/100</span></h3>
           <p style={`font-weight:700;color:${barrageData.bfi.zone_color};`}>{barrageData.bfi.label_fr}</p>
-          <p style="margin-top:1rem;"><a href="/fr/france/indexes/barrage/" class="cta-link">Ouvrir le Barrage Index →</a></p>
+          <p style="margin-top:1rem;"><a href="/fr/france/indexes/barrage/" class="cta-link">Ouvrir le Barrage Index</a></p>
         </div>
       </div>
     </div>

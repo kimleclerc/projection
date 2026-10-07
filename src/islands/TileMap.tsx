@@ -230,7 +230,7 @@ export default function TileMap({ blocs, canvas, ridings, locale, colors, labels
             </span>
             {cur.changed && cur.from && <span class="tmap-gain">{flipWord ?? t.from} {nom(cur.from)}</span>}
             <span class="tmap-marge">{mLabel} {nf(cur.margin)} {mUnit}</span>
-            {cur.href && <a class="tmap-lien" href={cur.href}>{t.open} →</a>}
+            {cur.href && <a class="tmap-lien" href={cur.href}>{t.open}</a>}
           </>
         ) : <span class="tmap-vide">{t.pick}</span>}
       </p>

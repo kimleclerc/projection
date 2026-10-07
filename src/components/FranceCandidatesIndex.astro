@@ -68,7 +68,7 @@ const groups = [
   {groups.map((g) => g.items.length > 0 && (
     <section class="frci-section container">
       <h2 class="frci-group-title">{g.label}</h2>
-      {g.href && <p><a href={g.href}>{primaryCta} →</a></p>}
+      {g.href && <p><a href={g.href}>{primaryCta}</a></p>}
       <ul class="frci-grid">
         {g.items.map((c) => (
           <li>
@@ -107,21 +107,19 @@ const groups = [
     --bloc-sovereignist: #9c7ac0; --bloc-far_right: #3a6bb0;
   }
   .frci-hero { max-width: 900px; padding-bottom: 32px; border-bottom: 1px solid var(--rule); }
-  .frci-back { font-family: var(--mono); font-size: 12px; color: var(--ink-3); text-decoration: none; }
+  .frci-back { font-family: var(--mono); font-size: 13px; color: var(--ink-3); text-decoration: none; }
   .frci-back:hover { color: var(--ink); }
   .frci-kicker {
-    margin: 18px 0 12px; font-family: var(--mono); font-size: 12px; letter-spacing: 0.12em;
-    text-transform: uppercase; color: var(--ink-3);
+    margin: 18px 0 12px; font-family: var(--mono); font-size: 13px; letter-spacing: 0; color: var(--ink-3);
   }
   .frci-title {
     margin: 0 0 14px; font-family: var(--serif); font-size: clamp(38px, 5.5vw, 64px);
-    font-weight: 420; letter-spacing: -0.02em; line-height: 1;
+    font-weight: 700; letter-spacing: -0.01em; line-height: 1;
   }
   .frci-dek { max-width: 640px; margin: 0; color: var(--ink-2); font-size: 16px; line-height: 1.6; }
   .frci-section { max-width: 900px; margin-top: 40px; }
   .frci-group-title {
-    margin: 0 0 16px; font-family: var(--mono); font-size: 12px; letter-spacing: 0.1em;
-    text-transform: uppercase; color: var(--ink-3);
+    margin: 0 0 16px; font-family: var(--mono); font-size: 13px; letter-spacing: 0; color: var(--ink-3);
   }
   .frci-grid {
     list-style: none; margin: 0; padding: 0; display: grid;
@@ -136,10 +134,10 @@ const groups = [
   .frci-swatch { width: 14px; height: 14px; border-radius: 4px; flex: none; }
   .frci-card-body { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
   .frci-card-name { font-family: var(--serif); font-size: 17px; color: var(--ink); }
-  .frci-card-bloc { font-family: var(--mono); font-size: 10px; color: var(--ink-3); }
+  .frci-card-bloc { font-family: var(--mono); font-size: 13px; color: var(--ink-3); }
   .frci-card-mean {
     margin-left: auto; text-align: right; font-family: var(--serif); font-size: 20px;
     color: var(--ink); font-variant-numeric: tabular-nums; display: flex; flex-direction: column;
   }
-  .frci-card-meanlbl { font-family: var(--mono); font-size: 9px; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; }
+  .frci-card-meanlbl { font-family: var(--mono); font-size: 9px; color: var(--ink-3); letter-spacing: 0; }
 </style>

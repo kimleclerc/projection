@@ -126,7 +126,7 @@ const COPY = {
   },
 } as const;
 
-/** État → `?sim=caq:3.0,pq:-1.5|rest.caq:4.0` (vide = paramètre retiré). */
+/** État `?sim=caq:3.0,pq:-1.5|rest.caq:4.0` (vide = paramètre retiré). */
 function encodeState(nat: NationalDelta, reg: RegionalDelta): string {
   const n = Object.entries(nat)
     .filter(([, v]) => Math.abs(v) > 0.05)

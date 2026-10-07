@@ -174,7 +174,7 @@ export default function VoteTrendChart({
               y: -0.22,
               font: { color: axisColor, size: 11 },
             },
-            font: { family: 'JetBrains Mono Variable, monospace' },
+            font: { family: 'Barlow Condensed, Barlow, sans-serif' },
             hovermode: 'closest' as const,
           },
           { responsive: true, displayModeBar: false },

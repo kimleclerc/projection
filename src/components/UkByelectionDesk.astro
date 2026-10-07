@@ -224,14 +224,14 @@ const copy = {
     sourcesLabel: 'Sources',
     subscribeTitle: 'Clacton alerts',
     subscribeBody: 'Model updates, market moves and the final call — in the Vote-Scope newsletter.',
-    subscribeCta: 'Subscribe on Substack →',
+    subscribeCta: 'Subscribe on Substack',
     keepDiggingEyebrow: 'Keep digging',
     keepDiggingTitle: 'More from the U.K. Desk.',
     keepDiggingBody: 'The general-election projection, all 650 constituency profiles, and the polling hub.',
     links: [
-      { href: '/en/uk/general-election/', label: 'U.K. general election projection →' },
-      { href: '/en/uk/constituencies/E14001174-clacton/', label: 'Clacton constituency profile →' },
-      { href: '/en/uk/polls/', label: 'U.K. polling hub →' },
+      { href: '/en/uk/general-election/', label: 'U.K. general election projection' },
+      { href: '/en/uk/constituencies/E14001174-clacton/', label: 'Clacton constituency profile' },
+      { href: '/en/uk/polls/', label: 'U.K. polling hub' },
     ],
   },
   fr: {
@@ -305,14 +305,14 @@ const copy = {
     sourcesLabel: 'Sources',
     subscribeTitle: 'Alertes Clacton',
     subscribeBody: "Mises à jour du modèle, mouvements de marché et le call final — dans l'infolettre Vote-Scope.",
-    subscribeCta: "S'abonner sur Substack →",
+    subscribeCta: "S'abonner sur Substack",
     keepDiggingEyebrow: 'Continuer à creuser',
     keepDiggingTitle: 'Plus du bureau UK.',
     keepDiggingBody: 'La projection de la générale, les 650 fiches de circonscription et le hub des sondages.',
     links: [
-      { href: '/fr/uk/general-election/', label: 'Projection de la générale UK →' },
-      { href: '/fr/uk/circonscriptions/E14001174-clacton/', label: 'Fiche de la circonscription de Clacton →' },
-      { href: '/fr/uk/sondages/', label: 'Hub des sondages UK →' },
+      { href: '/fr/uk/general-election/', label: 'Projection de la générale UK' },
+      { href: '/fr/uk/circonscriptions/E14001174-clacton/', label: 'Fiche de la circonscription de Clacton' },
+      { href: '/fr/uk/sondages/', label: 'Hub des sondages UK' },
     ],
   },
   es: {
@@ -386,14 +386,14 @@ const copy = {
     sourcesLabel: 'Fuentes',
     subscribeTitle: 'Alertas Clacton',
     subscribeBody: 'Actualizaciones del modelo, movimientos de mercado y el call final — en el boletín de Vote-Scope.',
-    subscribeCta: 'Suscribirse en Substack →',
+    subscribeCta: 'Suscribirse en Substack',
     keepDiggingEyebrow: 'Seguir cavando',
     keepDiggingTitle: 'Más del desk del Reino Unido.',
     keepDiggingBody: 'La proyección de las generales, las 650 fichas de circunscripción y el hub de encuestas.',
     links: [
-      { href: '/es/uk/general-election/', label: 'Proyección de las generales del Reino Unido →' },
-      { href: '/es/uk/circunscripciones/E14001174-clacton/', label: 'Ficha de la circunscripción de Clacton →' },
-      { href: '/es/uk/sondeos/', label: 'Hub de encuestas del Reino Unido →' },
+      { href: '/es/uk/general-election/', label: 'Proyección de las generales del Reino Unido' },
+      { href: '/es/uk/circunscripciones/E14001174-clacton/', label: 'Ficha de la circunscripción de Clacton' },
+      { href: '/es/uk/sondeos/', label: 'Hub de encuestas del Reino Unido' },
     ],
   },
 }[lang];
@@ -814,17 +814,16 @@ const pc = (v: number) => `${Math.min(100, (v / SCALE_MAX) * 100)}%`;
   .ukbye .container { max-width: 920px; margin-inline: auto; padding-inline: 1.5rem; }
   .ukbye-hero { padding-top: 40px; }
   .ukbye-kicker {
-    font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em;
-    text-transform: uppercase; color: var(--ink-3);
+    font-family: var(--mono); font-size: 13px; letter-spacing: 0; color: var(--ink-3);
   }
   .ukbye-hero h1 {
-    margin-top: 10px; font-family: var(--serif); font-weight: 420;
-    font-size: clamp(42px, 7vw, 76px); letter-spacing: -0.02em; line-height: 0.98;
+    margin-top: 10px; font-family: var(--serif); font-weight: 700;
+    font-size: clamp(42px, 7vw, 76px); letter-spacing: -0.01em; line-height: 0.98;
   }
   .ukbye-dek { margin-top: 16px; max-width: 64ch; color: var(--ink-2); line-height: 1.6; font-size: 17px; }
   .ukbye-label {
-    margin-top: 48px; font-family: var(--mono); font-size: 11px;
-    letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-3);
+    margin-top: 48px; font-family: var(--mono); font-size: 13px;
+    letter-spacing: 0; color: var(--ink-3);
   }
   .ukbye-body-text { margin-top: 10px; max-width: 70ch; color: var(--ink-2); line-height: 1.65; }
 
@@ -858,8 +857,8 @@ const pc = (v: number) => `${Math.min(100, (v / SCALE_MAX) * 100)}%`;
   .ukbye-result-row:last-child { border-bottom: 0; }
   .ukbye-result-row i { width: 10px; height: 10px; border-radius: 50%; align-self: center; }
   .ukbye-result-row.is-winner .ukbye-result-name { font-weight: 650; }
-  .ukbye-result-party { font-family: var(--mono); font-size: 11px; color: var(--ink-2); }
-  .ukbye-result-votes { font-family: var(--mono); font-size: 12px; color: var(--ink-2); text-align: right; }
+  .ukbye-result-party { font-family: var(--mono); font-size: 13px; color: var(--ink-2); }
+  .ukbye-result-votes { font-family: var(--mono); font-size: 13px; color: var(--ink-2); text-align: right; }
   .ukbye-result-pct { font-family: var(--serif); font-size: 19px; font-weight: 430; text-align: right; }
   .ukbye-result-meta {
     display: flex;
@@ -869,8 +868,8 @@ const pc = (v: number) => `${Math.min(100, (v / SCALE_MAX) * 100)}%`;
     padding-top: 16px;
     border-top: 1px solid var(--rule);
   }
-  .ukbye-result-meta dt { font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); }
-  .ukbye-result-meta dd { margin: 3px 0 0; font-family: var(--serif); font-size: 21px; font-weight: 430; }
+  .ukbye-result-meta dt { font-family: var(--mono); font-size: 13px; letter-spacing: 0; color: var(--ink-3); }
+  .ukbye-result-meta dd { margin: 3px 0 0; font-family: var(--serif); font-size: 21px; font-weight: 700; }
   .ukbye-scorecard { margin-top: 12px; max-width: 82ch; font-size: 15px; line-height: 1.65; }
   .ukbye-archive-notice {
     margin-top: 30px;
@@ -881,9 +880,8 @@ const pc = (v: number) => `${Math.min(100, (v / SCALE_MAX) * 100)}%`;
   .ukbye-archive-notice-label {
     margin: 0 0 6px;
     font-family: var(--mono);
-    font-size: 11px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
+    font-size: 13px;
+    letter-spacing: 0;
     color: var(--ink-3);
   }
   .ukbye-archive-notice p { margin: 0; font-size: 14px; line-height: 1.6; color: var(--ink-2); max-width: 82ch; }
@@ -898,10 +896,10 @@ const pc = (v: number) => `${Math.min(100, (v / SCALE_MAX) * 100)}%`;
     border: 1px solid var(--rule); border-top: 3px solid var(--accent);
     border-radius: 4px; background: var(--card); padding: 16px; display: grid; gap: 4px;
   }
-  .ukbye-snap strong { font-family: var(--serif); font-size: 34px; font-weight: 430; letter-spacing: -0.01em; }
-  .ukbye-snap span { font-family: var(--mono); font-size: 11px; color: var(--ink-2); line-height: 1.4; }
+  .ukbye-snap strong { font-family: var(--serif); font-size: 34px; font-weight: 700; letter-spacing: -0.01em; }
+  .ukbye-snap span { font-family: var(--mono); font-size: 13px; color: var(--ink-2); line-height: 1.4; }
 
-  .ukbye-range-label { margin-top: 22px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); }
+  .ukbye-range-label { margin-top: 22px; font-family: var(--mono); font-size: 13px; letter-spacing: 0; color: var(--ink-3); }
   .ukbye-ranges { margin-top: 12px; display: grid; gap: 12px; }
   .ukbye-range-row { display: grid; grid-template-columns: 220px 1fr 110px; gap: 12px; align-items: center; }
   .ukbye-range-name { display: flex; align-items: center; gap: 8px; font-size: 14px; }
@@ -918,24 +916,24 @@ const pc = (v: number) => `${Math.min(100, (v / SCALE_MAX) * 100)}%`;
   .ukbye-path-cond { font-size: 14px; color: var(--ink); line-height: 1.5; min-height: 42px; }
   .ukbye-path-bar { margin-top: 10px; height: 10px; background: var(--paper-3); border-radius: 3px; overflow: hidden; }
   .ukbye-path-bar div { height: 100%; background: var(--ink); }
-  .ukbye-path-p { margin-top: 8px; font-family: var(--mono); font-size: 12px; color: var(--ink-2); }
+  .ukbye-path-p { margin-top: 8px; font-family: var(--mono); font-size: 13px; color: var(--ink-2); }
   .ukbye-path-outro { border-left: 3px solid var(--ink); padding-left: 14px; margin-top: 18px; font-style: italic; }
 
   .ukbye-table-wrap { overflow-x: auto; margin-top: 14px; }
   .ukbye-table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 560px; }
   .ukbye-table th, .ukbye-table td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--rule-2); }
-  .ukbye-table th { font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); }
+  .ukbye-table th { font-family: var(--mono); font-size: 13px; letter-spacing: 0; color: var(--ink-3); }
   .ukbye-table td:nth-child(2), .ukbye-table td:nth-child(3) { font-family: var(--mono); }
   .ukbye-table a { color: inherit; }
   .ukbye-table td:nth-child(4) { color: var(--ink-3); font-size: 12px; }
 
   .ukbye-buckets { margin-top: 12px; display: grid; gap: 8px; }
   .ukbye-bucket-row { display: grid; grid-template-columns: 90px 1fr 120px; gap: 10px; align-items: center; }
-  .ukbye-bucket-name { font-family: var(--mono); font-size: 12px; color: var(--ink-2); }
+  .ukbye-bucket-name { font-family: var(--mono); font-size: 13px; color: var(--ink-2); }
   .ukbye-bucket-track { position: relative; height: 14px; background: var(--paper-3); border-radius: 3px; }
   .ukbye-bucket-model { height: 100%; background: var(--ink); border-radius: 3px; opacity: 0.85; }
   .ukbye-bucket-market { position: absolute; top: -3px; bottom: -3px; width: 3px; background: #c94040; border-radius: 2px; }
-  .ukbye-bucket-nums { font-family: var(--mono); font-size: 12px; }
+  .ukbye-bucket-nums { font-family: var(--mono); font-size: 13px; }
   .ukbye-bucket-nums small { color: #c94040; margin-left: 6px; }
 
   .ukbye-ctx-list { margin-top: 12px; padding-left: 18px; display: grid; gap: 10px; max-width: 74ch; }
@@ -948,8 +946,8 @@ const pc = (v: number) => `${Math.min(100, (v / SCALE_MAX) * 100)}%`;
   .ukbye-ctx-name { font-size: 13px; color: var(--ink-2); }
   .ukbye-ctx-track { height: 14px; background: var(--paper-3); border-radius: 3px; overflow: hidden; }
   .ukbye-ctx-fill { height: 100%; }
-  .ukbye-ctx-pct { font-family: var(--mono); font-size: 12px; text-align: right; }
-  .ukbye-ctx-meta { margin-top: 12px; font-family: var(--mono); font-size: 11px; color: var(--ink-3); }
+  .ukbye-ctx-pct { font-family: var(--mono); font-size: 13px; text-align: right; }
+  .ukbye-ctx-meta { margin-top: 12px; font-family: var(--mono); font-size: 13px; color: var(--ink-3); }
   .ukbye-ctx-caveat {
     margin-top: 10px; padding: 10px 12px; border: 1px dashed var(--rule);
     border-radius: 4px; font-size: 13px; color: var(--ink-2); line-height: 1.5; max-width: 74ch;
@@ -969,7 +967,7 @@ const pc = (v: number) => `${Math.min(100, (v / SCALE_MAX) * 100)}%`;
     content: ''; position: absolute; left: -6px; top: 5px;
     width: 10px; height: 10px; border-radius: 50%; background: var(--ink); border: 2px solid var(--paper-3);
   }
-  .ukbye-tl-date { font-family: var(--mono); font-size: 11px; color: var(--ink-3); display: block; }
+  .ukbye-tl-date { font-family: var(--mono); font-size: 13px; color: var(--ink-3); display: block; }
   .ukbye-tl-text { color: var(--ink-2); line-height: 1.5; font-size: 14px; }
 
   .ukbye-subscribe {
@@ -979,7 +977,7 @@ const pc = (v: number) => `${Math.min(100, (v / SCALE_MAX) * 100)}%`;
   .ukbye-subscribe-cta {
     flex: none; display: inline-flex; align-items: center; min-height: 42px;
     padding: 11px 15px; border-radius: 3px; background: var(--ink); color: var(--paper-3);
-    font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; text-decoration: none;
+    font-family: var(--mono); font-size: 13px; letter-spacing: 0; text-decoration: none;
   }
   .ukbye-sources { margin-top: 12px; padding-left: 18px; display: grid; gap: 6px; }
   .ukbye-sources li { font-size: 13px; color: var(--ink-2); }

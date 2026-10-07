@@ -284,7 +284,7 @@ const upcomingByDate = upcoming.reduce((acc: Record<string, any[]>, g: any) => {
             {g.gap && (
               <p class="pdesk-gap"><strong>{T.gapTitle} :</strong> {gapText(g.gap)}</p>
             )}
-            <a class="pdesk-source" href={g.result_source_url || g.source_url} rel="noreferrer">{T.source} →</a>
+            <a class="pdesk-source" href={g.result_source_url || g.source_url} rel="noreferrer">{T.source}</a>
           </div>
         ))}
       </div>
@@ -318,7 +318,7 @@ const upcomingByDate = upcoming.reduce((acc: Record<string, any[]>, g: any) => {
 
 <style>
   .pdesk-hero { padding: 56px 0 24px; }
-  .pdesk-kicker, .pdesk-date { font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  .pdesk-kicker, .pdesk-date { font-size: .78rem; letter-spacing: 0; color: var(--muted); }
   .pdesk-hero h1 { margin: 8px 0 12px; }
   .pdesk-dek { max-width: 62ch; color: var(--muted); }
   .pdesk-asof { margin-top: 12px; font-variant-numeric: tabular-nums; font-size: .9rem; }
@@ -336,7 +336,7 @@ const upcomingByDate = upcoming.reduce((acc: Record<string, any[]>, g: any) => {
   .pdesk-winners { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 10px; }
   .pdesk-winners li { display: grid; gap: 4px; padding-bottom: 10px; border-bottom: 1px solid var(--rule); }
   .pdesk-winners li:last-child { border-bottom: 0; padding-bottom: 0; }
-  .pdesk-seat { font-size: .78rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+  .pdesk-seat { font-size: .78rem; letter-spacing: 0; color: var(--muted); }
   .pdesk-winner { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px; font-size: .95rem; }
   .pdesk-dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
   .pdesk-party { color: var(--muted); font-size: .82rem; }

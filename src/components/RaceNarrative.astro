@@ -50,7 +50,7 @@ const navItems = [
         <h3>{event.title}</h3>
         <p>{event.body}</p>
         {event.status && <p class="event-status"><strong>{t.status}:</strong> {event.status}</p>}
-        {event.sourceHref && <p class="event-source"><a href={event.sourceHref}>{event.sourceLabel ?? 'Source'} →</a></p>}
+        {event.sourceHref && <p class="event-source"><a href={event.sourceHref}>{event.sourceLabel ?? 'Source'}</a></p>}
       </article>
     ))}
   </div>
@@ -72,16 +72,16 @@ const navItems = [
 
 <style>
   .race-intro, .race-band { padding-block: 56px; border-bottom: 1px solid var(--rule); }
-  h2 { max-width: 900px; margin-top: 10px; font-family: var(--serif); font-size: clamp(34px, 5vw, 64px); font-weight: 420; line-height: 1.02; letter-spacing: -.02em; }
+  h2 { max-width: 900px; margin-top: 10px; font-family: var(--serif); font-size: clamp(34px, 5vw, 64px); font-weight: 700; line-height: 1.02; letter-spacing: -0.01em; }
   .race-verdict { max-width: 820px; margin-top: 20px; color: var(--ink-2); font-family: var(--serif); font-size: clamp(21px, 2.4vw, 30px); line-height: 1.25; }
   .prose { max-width: 820px; }
   .prose p { margin-top: 16px; color: var(--ink-2); font-size: 17px; line-height: 1.7; }
   .event-grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 16px; margin-top: 24px; }
   .event-card { border: 1px solid var(--rule); border-radius: 5px; padding: 22px; background: var(--card); }
-  .event-card h3 { margin-top: 8px; font-family: var(--serif); font-size: 25px; font-weight: 430; line-height: 1.08; }
+  .event-card h3 { margin-top: 8px; font-family: var(--serif); font-size: 25px; font-weight: 700; line-height: 1.08; }
   .event-card > p:not(.event-date) { margin-top: 12px; color: var(--ink-2); line-height: 1.55; }
-  .event-date, .event-status { font-family: var(--mono); font-size: 11px; letter-spacing: .06em; }
-  .event-source { font-family: var(--mono); font-size: 10px; letter-spacing: .06em; text-transform: uppercase; }
+  .event-date, .event-status { font-family: var(--mono); font-size: 13px; letter-spacing: 0; }
+  .event-source { font-family: var(--mono); font-size: 13px; letter-spacing: 0; }
   .turning-list { max-width: 900px; margin: 24px 0 0 22px; }
   .turning-list li { padding: 12px 0 12px 10px; border-bottom: 1px solid var(--rule-2); color: var(--ink-2); font-size: 17px; line-height: 1.5; }
   .index-links { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; margin-top: 24px; }

@@ -60,26 +60,26 @@ const rows = [
 <style>
   .lsb { margin-top: 12px; }
   .lsb-verdict { display: inline-flex; align-items: center; gap: 8px; margin: 0 0 14px; padding: 5px 12px; border-radius: 999px;
-                 font-family: var(--mono); font-size: 11.5px; letter-spacing: .06em; text-transform: uppercase; border: 1px solid var(--rule); }
+                 font-family: var(--mono); font-size: 13px; letter-spacing: 0; border: 1px solid var(--rule); }
   .lsb-dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
   .lsb-verdict--same { color: #2c8a3f; background: color-mix(in oklab, #2c8a3f 10%, var(--card)); }
   .lsb-verdict--status { color: var(--duck-deep); background: color-mix(in oklab, var(--duck) 16%, var(--card)); }
   .lsb-verdict--different { color: var(--red); background: var(--red-tint); }
   .lsb-bars { position: relative; display: grid; gap: 8px; }
   .lsb-row { display: grid; grid-template-columns: 92px 1fr; align-items: center; gap: 10px; }
-  .lsb-name { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); }
+  .lsb-name { font-family: var(--mono); font-size: 13px; letter-spacing: 0; color: var(--ink-2); }
   .lsb-row.is-orbit .lsb-name { color: var(--ink); font-weight: 600; }
   .lsb-bar { display: flex; height: 44px; border-radius: 6px; overflow: hidden; background: var(--rule); border: 1px solid var(--rule); }
   .lsb-row.is-ref .lsb-bar { height: 30px; opacity: .78; }
   .lsb-row.is-blend .lsb-bar { height: 30px; opacity: .9; background-image: repeating-linear-gradient(135deg, rgba(255,255,255,.14) 0 6px, transparent 6px 12px); }
   .lsb-row.is-blend .lsb-seg { background-image: repeating-linear-gradient(135deg, rgba(255,255,255,.16) 0 6px, transparent 6px 12px); }
   .lsb-seg { display: flex; align-items: center; justify-content: center; overflow: hidden; color: rgba(255,255,255,.94);
-             font-family: var(--mono); font-size: 12px; text-shadow: 0 1px 1px rgba(0,0,0,.25); }
+             font-family: var(--mono); font-size: 13px; text-shadow: 0 1px 1px rgba(0,0,0,.25); }
   .lsb-majority { position: absolute; top: -6px; bottom: -22px; left: calc(102px + (100% - 102px) * var(--mfrac, 0)); pointer-events: none; }
   .lsb-majority-line { position: absolute; top: 0; bottom: 18px; width: 0; border-left: 2px dashed var(--ink); }
-  .lsb-majority-label { position: absolute; bottom: 0; transform: translateX(-50%); white-space: nowrap; font-family: var(--mono); font-size: 11px; color: var(--ink-3); }
+  .lsb-majority-label { position: absolute; bottom: 0; transform: translateX(-50%); white-space: nowrap; font-family: var(--mono); font-size: 13px; color: var(--ink-3); }
   .lsb-legend { list-style: none; padding: 0; margin: 30px 0 0; display: flex; flex-wrap: wrap; gap: 10px 20px; }
-  .lsb-legend li { display: inline-flex; align-items: center; gap: 8px; font-family: var(--mono); font-size: 12px; color: var(--ink-2); }
+  .lsb-legend li { display: inline-flex; align-items: center; gap: 8px; font-family: var(--mono); font-size: 13px; color: var(--ink-2); }
   .lsb-legend img { width: 18px; height: 18px; object-fit: contain; }
   .lsb-swatch { width: 12px; height: 12px; border-radius: 3px; }
   .lsb--compact .lsb-bar { height: 28px; }
@@ -89,7 +89,7 @@ const rows = [
   .lsb--compact .lsb-majority { left: calc(86px + (100% - 86px) * var(--mfrac, 0)); }
   @media (max-width: 560px) {
     .lsb-row { grid-template-columns: 78px 1fr; gap: 6px; }
-    .lsb-name { font-size: 10px; letter-spacing: .04em; }
+    .lsb-name { font-size: 10px; letter-spacing: 0; }
     .lsb-majority { left: calc(84px + (100% - 84px) * var(--mfrac, 0)); }
     .lsb--compact .lsb-row { grid-template-columns: 78px 1fr; }
     .lsb--compact .lsb-majority { left: calc(84px + (100% - 84px) * var(--mfrac, 0)); }

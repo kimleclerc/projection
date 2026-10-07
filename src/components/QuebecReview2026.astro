@@ -478,7 +478,7 @@ const pctCell = (x: number | undefined) => (x == null ? T.none : pct(x));
 
   <section class="container qr-foot">
     <p>{T.note}</p>
-    <nav>{T.links.map(([l, h]) => <a href={h}>{l} →</a>)}</nav>
+    <nav>{T.links.map(([l, h]) => <a href={h}>{l}</a>)}</nav>
   </section>
 </article>
 
@@ -488,7 +488,7 @@ const pctCell = (x: number | undefined) => (x == null ? T.none : pct(x));
   .qr-lede { font-family: var(--serif); font-size: clamp(1.05rem, 1.8vw, 1.25rem); line-height: 1.55; color: var(--ink-2); max-width: 68ch; }
   .qr-keys { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: .75rem; margin: 1.75rem auto; }
   .qr-keys > div { border: 1px solid var(--rule); background: var(--card); border-radius: 8px; padding: .9rem 1rem; display: flex; flex-direction: column; gap: .2rem; }
-  .qr-keys span { font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
+  .qr-keys span { font-family: var(--mono); font-size: 13px; letter-spacing: 0; color: var(--ink-3); }
   .qr-keys strong { font-family: var(--serif); font-size: 1.7rem; font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1.15; }
   .qr-keys em { font-style: normal; font-size: .88rem; color: var(--ink-2); }
   .qr-block { margin: 2.5rem auto; display: grid; gap: .9rem; }
@@ -501,7 +501,7 @@ const pctCell = (x: number | undefined) => (x == null ? T.none : pct(x));
   .qr table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; font-size: .95rem; }
   .qr th, .qr td { text-align: right; padding: .5rem .6rem; border-bottom: 1px solid var(--rule-2); white-space: nowrap; }
   .qr th:first-child { text-align: left; }
-  .qr thead th { font-family: var(--mono); font-size: 11px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); border-bottom: 1px solid var(--rule); }
+  .qr thead th { font-family: var(--mono); font-size: 13px; font-weight: 500; letter-spacing: 0; color: var(--ink-3); border-bottom: 1px solid var(--rule); }
   .qr tbody th { font-weight: 500; }
   .qr tbody th a { color: var(--blue); text-decoration: underline; text-underline-offset: 3px; }
   .qr td small, .qr th small { color: var(--ink-3); font-size: .8rem; margin-left: .25rem; }

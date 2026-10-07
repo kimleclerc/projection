@@ -127,7 +127,7 @@ function rawPartyLabel(raw: string | undefined): string | undefined {
     margin: 8px 0 24px;
     font-family: var(--serif);
     font-size: clamp(28px, 3.4vw, 40px);
-    font-weight: 420;
+    font-weight: 700;
     letter-spacing: -0.01em;
   }
   .bars { list-style: none; padding: 0; margin: 0; display: grid; gap: 18px; }
@@ -142,9 +142,8 @@ function rawPartyLabel(raw: string | undefined): string | undefined {
     align-items: center;
     gap: 10px;
     font-family: var(--mono);
-    font-size: 12px;
-    letter-spacing: .08em;
-    text-transform: uppercase;
+    font-size: 13px;
+    letter-spacing: 0;
   }
   .swatch {
     width: 10px;
@@ -155,7 +154,7 @@ function rawPartyLabel(raw: string | undefined): string | undefined {
   .pct {
     font-family: var(--serif);
     font-size: 20px;
-    font-weight: 430;
+    font-weight: 700;
   }
   /* Le nom se lit comme une personne, pas comme une étiquette de série :
      sérif et casse normale, sous le sigle du parti et au-dessus de sa barre. */
@@ -173,8 +172,8 @@ function rawPartyLabel(raw: string | undefined): string | undefined {
   .nominee .raw-party,
   .nominee .tag {
     font-family: var(--mono);
-    font-size: 10px;
-    letter-spacing: .06em;
+    font-size: 13px;
+    letter-spacing: 0;
     color: var(--ink-2);
     border: 1px solid var(--rule);
     border-radius: 2px;
@@ -183,7 +182,7 @@ function rawPartyLabel(raw: string | undefined): string | undefined {
   /* « sortant·e » est un mot, pas un sigle : la capitale lui va. Le nom d'un
      parti québécois fait jusqu'à 38 caractères — en capitales il écraserait
      le nom du candidat, qui est l'information principale de la ligne. */
-  .nominee .tag { text-transform: uppercase; }
+  .nominee .tag { }
   .track {
     position: relative;
     height: 10px;
@@ -207,9 +206,8 @@ function rawPartyLabel(raw: string | undefined): string | undefined {
   .legend {
     margin-top: 18px;
     font-family: var(--mono);
-    font-size: 11px;
-    letter-spacing: .08em;
-    text-transform: uppercase;
+    font-size: 13px;
+    letter-spacing: 0;
     color: var(--ink-2);
     display: inline-flex;
     align-items: center;

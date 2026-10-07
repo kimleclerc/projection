@@ -12,9 +12,9 @@ const live = amazon.tag.trim() !== '';
 const picks = live ? amazonPicks.filter((p) => p.kind === kind) : [];
 
 const ctaLabel: Record<string, string> = {
-  en: 'View on Amazon →',
-  fr: 'Voir sur Amazon →',
-  es: 'Ver en Amazon →',
+  en: 'View on Amazon',
+  fr: 'Voir sur Amazon',
+  es: 'Ver en Amazon',
 };
 const disclosureLinkLabel: Record<string, string> = {
   en: 'How we disclose',
@@ -61,8 +61,7 @@ const linkFor = (p: AmazonPick): string =>
   .shelf-author {
     font-family: var(--mono, monospace);
     font-size: 11px;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
+    letter-spacing: 0;
     color: var(--ink-3, #666);
     margin: 0 0 0.5rem;
   }
