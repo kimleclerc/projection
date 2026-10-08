@@ -189,7 +189,7 @@ const bloc = (id: string) => cands[id]?.bloc ?? 'other';
 
   .frp-list, .frp-duels { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
   .frp-poll, .frp-duel {
-    border: 1px solid var(--rule); border-radius: 2px; background: var(--card); padding: 14px 16px;
+    border: 0; border-top: 1px solid var(--rule); border-radius: 0; background: transparent; padding: 14px 16px;
   }
   .frp-poll-head {
     display: flex; align-items: baseline; flex-wrap: wrap; gap: 6px 12px; margin-bottom: 12px;
@@ -206,8 +206,8 @@ const bloc = (id: string) => cands[id]?.bloc ?? 'other';
   .frp-bar-name { display: flex; align-items: center; gap: 7px; font-family: var(--mono); font-size: 13px; color: var(--ink-2); }
   .frp-bar-row.is-top2 .frp-bar-name { color: var(--ink); font-weight: 600; }
   .frp-swatch { width: 10px; height: 10px; border-radius: 2px; flex: none; }
-  .frp-bar-track { position: relative; height: 14px; background: var(--paper-2); border-radius: 3px; overflow: hidden; }
-  .frp-bar-fill { position: absolute; inset-block: 0; left: 0; border-radius: 3px; min-width: 2px; opacity: 0.9; }
+  .frp-bar-track { position: relative; height: 14px; background: var(--paper-2); border-radius: 2px; overflow: hidden; }
+  .frp-bar-fill { position: absolute; inset-block: 0; left: 0; border-radius: 2px; min-width: 2px; opacity: 0.9; }
   .frp-bar-row.is-top2 .frp-bar-fill { opacity: 1; }
   .frp-bar-val { font-family: var(--mono); font-size: 13px; color: var(--ink); font-variant-numeric: tabular-nums; min-width: 44px; text-align: right; }
 

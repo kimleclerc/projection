@@ -144,8 +144,8 @@ export default function UsPrimaryStandings({ dem, rep, locale, maxRows = 12 }: P
         .ups-share { margin-left:auto; font-family:var(--mono); font-size:14px; font-weight:600; color:var(--ink); }
         .ups-trend { font-family:var(--mono); font-size:11px; min-width:44px; text-align:right; }
         .ups-up { color:#2e7d32; } .ups-down { color:#c62828; } .ups-flat { color:var(--ink-3); }
-        .ups-track { height:8px; border-radius:4px; background:var(--rule); overflow:hidden; }
-        .ups-fill { height:100%; border-radius:4px; transition:width .2s ease; }
+        .ups-track { height:8px; border-radius:2px; background:var(--rule); overflow:hidden; }
+        .ups-fill { height:100%; border-radius:2px; transition:width .2s ease; }
         .ups-undecided { font-family:var(--mono); font-size:12px; color:var(--ink-3); margin-top:16px; }
       `}</style>
     </div>

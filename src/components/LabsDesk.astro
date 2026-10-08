@@ -382,7 +382,7 @@ const btRows = (pastCycles[labsKey] ?? []).map((c) => {
   .lb-hero h1 { margin: 0 0 16px; font-family: var(--serif); font-size: clamp(40px, 6vw, 72px); font-weight: 700; letter-spacing: -0.01em; line-height: 1; }
   .lb-dek { max-width: 700px; margin: 0; color: var(--ink-2); font-size: 18px; line-height: 1.6; }
   .lb-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 16px; margin-top: 32px; }
-  .lb-card { border: 1px solid var(--rule); border-radius: 6px; background: var(--card); padding: 20px; display: flex; flex-direction: column; gap: 8px; }
+  .lb-card { border: 1px solid var(--rule); border-radius: 2px; background: var(--card); padding: 20px; display: flex; flex-direction: column; gap: 8px; }
   .lb-card--lead { border-top: 4px solid var(--pc, var(--duck)); }
   .lb-lead { display: flex; align-items: center; gap: 10px; }
   .lb-lead img { width: 40px; height: 40px; object-fit: contain; }
@@ -390,17 +390,17 @@ const btRows = (pastCycles[labsKey] ?? []).map((c) => {
   .lb-mid { font-family: var(--serif); font-size: 24px; font-weight: 700; }
   .lb-delta { margin-left: 10px; font-family: var(--mono); font-size: 13px; font-weight: 400; color: var(--ink-3); }
   .lb-note { color: var(--ink-3); font-size: 13px; line-height: 1.45; }
-  .lb-split { display: flex; height: 12px; border-radius: 3px; overflow: hidden; background: var(--rule); }
+  .lb-split { display: flex; height: 12px; border-radius: 2px; overflow: hidden; background: var(--rule); }
   .lb-section { margin-top: 60px; }
   .lb-section h2 { font-family: var(--serif); font-size: clamp(26px, 3.4vw, 34px); font-weight: 700; margin: 0 0 16px; }
   .lb-section h3 { font-family: var(--serif); font-size: 20px; font-weight: 700; margin: 28px 0 10px; }
   .lb-muted { color: var(--ink-3); font-size: 14px; line-height: 1.55; }
-  .lb-blend { margin-top: 40px; padding: 18px 20px; border: 1px dashed var(--rule); border-radius: 6px; background: var(--card); }
+  .lb-blend { margin-top: 40px; padding: 18px 20px; border: 1px dashed var(--rule); border-radius: 2px; background: var(--card); }
   .lb-blend h3 { margin-top: 0; }
   .lb-blend-top { margin: 0 0 8px; font-family: var(--mono); font-size: 13px; color: var(--ink-2); }
   .lb-blend .lb-muted { margin: 0; max-width: 760px; }
   .lb-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
-  .lb-pcard { border: 1px solid var(--rule); border-top: 3px solid var(--pc); background: var(--card); border-radius: 4px; padding: 18px 20px 20px; }
+  .lb-pcard { border: 0; border-top: 1px solid var(--rule); border-top: 3px solid var(--pc); background: transparent; border-radius: 0; padding: 18px 20px 20px; }
   .lb-pcard header { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
   .lb-pcard header img { width: 34px; height: 34px; object-fit: contain; flex: none; }
   .lb-swatch { width: 10px; height: 10px; border-radius: 2px; }
@@ -410,7 +410,7 @@ const btRows = (pastCycles[labsKey] ?? []).map((c) => {
   .lb-diff.is-down { color: #b03030; }
   .lb-pseats { font-family: var(--serif); font-size: 44px; font-weight: 700; letter-spacing: -0.01em; line-height: 1; }
   .lb-minibars { display: grid; gap: 3px; margin-top: 12px; }
-  .lb-mini { display: block; height: 6px; border-radius: 3px; background: var(--pc); min-width: 2px; }
+  .lb-mini { display: block; height: 6px; border-radius: 2px; background: var(--pc); min-width: 2px; }
   .lb-mini.is-ref { opacity: .35; }
   .lb-pstats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 14px 0 0; }
   .lb-pstats div { display: flex; flex-direction: column; gap: 2px; }
@@ -419,13 +419,13 @@ const btRows = (pastCycles[labsKey] ?? []).map((c) => {
   .lb-votes { list-style: none; padding: 0; margin: 18px 0 0; display: grid; gap: 12px; }
   .lb-votes li { display: grid; grid-template-columns: minmax(90px, 180px) 1fr 64px; align-items: center; gap: 12px; font-size: 14px; }
   .lb-vname { font-family: var(--mono); font-size: 13px; color: var(--ink-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .lb-vtrack { position: relative; height: 18px; background: var(--rule-2); border-radius: 3px; }
-  .lb-vbar { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 3px; }
+  .lb-vtrack { position: relative; height: 18px; background: var(--rule-2); border-radius: 2px; }
+  .lb-vbar { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 2px; }
   .lb-vrange { position: absolute; top: 50%; height: 2px; margin-top: -1px; background: var(--ink); opacity: .55; }
   .lb-vref { position: absolute; top: -4px; bottom: -4px; width: 3px; margin-left: -1px; background: var(--ink); border-radius: 1px; }
   .lb-vval { font-family: var(--mono); font-size: 13px; text-align: right; }
   .lb-diverge { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 10px; }
-  .lb-diverge li { border: 1px solid var(--rule); border-radius: 6px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; background: var(--card); font-size: 14px; }
+  .lb-diverge li { border: 0; border-top: 1px solid var(--rule); border-radius: 0; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; background: transparent; font-size: 14px; }
   .lb-chips { display: flex; flex-wrap: wrap; gap: 6px; }
   .lb-chip { display: inline-flex; align-items: center; padding: 3px 9px; border-radius: 2px; font-family: var(--mono); font-size: 13px;
              border-top: 4px solid var(--pc); background: color-mix(in oklab, var(--pc) 12%, var(--card)); }

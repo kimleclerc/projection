@@ -833,18 +833,18 @@ const pc = (v: number) => `${Math.min(100, (v / SCALE_MAX) * 100)}%`;
   .ukbye-poll-source { font-size: 13px; color: var(--ink-3); }
   .ukbye-poll-weight-label { margin-top: 24px; }
   .ukbye-turnout-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 14px; }
-  .ukbye-turnout-grid p { margin: 0; border: 1px solid var(--rule); border-radius: 6px; background: var(--card); padding: 16px; color: var(--ink-2); font-size: 14px; line-height: 1.6; }
+  .ukbye-turnout-grid p { margin: 0; border: 0; border-top: 1px solid var(--rule); border-radius: 0; background: transparent; padding: 16px; color: var(--ink-2); font-size: 14px; line-height: 1.6; }
   .ukbye-curve-note { margin-top: 12px; max-width: 70ch; color: var(--ink-3); font-size: 13.5px; line-height: 1.6; }
 
   /* ── Page de résultat (course tenue) ───────────────────────────────── */
   .ukbye-result-card {
     margin-top: 14px;
     border: 1px solid var(--rule);
-    border-radius: 6px;
+    border-radius: 2px;
     background: var(--card);
     padding: 22px;
   }
-  .ukbye-result-bar { display: flex; height: 20px; border-radius: 3px; overflow: hidden; }
+  .ukbye-result-bar { display: flex; height: 20px; border-radius: 2px; overflow: hidden; }
   .ukbye-result-rows { list-style: none; margin: 18px 0 0; padding: 0; }
   .ukbye-result-row {
     display: grid;
@@ -894,8 +894,8 @@ const pc = (v: number) => `${Math.min(100, (v / SCALE_MAX) * 100)}%`;
   .ukbye-snap-wide { grid-column: 1 / -1; }
   .ukbye-snap em { font-style: normal; font-size: 13px; line-height: 1.55; color: var(--ink-2); max-width: 86ch; }
   .ukbye-snap {
-    border: 1px solid var(--rule); border-top: 3px solid var(--accent);
-    border-radius: 4px; background: var(--card); padding: 16px; display: grid; gap: 4px;
+    border: 0; border-top: 1px solid var(--rule); border-top: 3px solid var(--accent);
+    border-radius: 0; background: transparent; padding: 16px; display: grid; gap: 4px;
   }
   .ukbye-snap strong { font-family: var(--serif); font-size: 34px; font-weight: 700; letter-spacing: -0.01em; }
   .ukbye-snap span { font-family: var(--mono); font-size: 13px; color: var(--ink-2); line-height: 1.4; }
@@ -906,16 +906,16 @@ const pc = (v: number) => `${Math.min(100, (v / SCALE_MAX) * 100)}%`;
   .ukbye-range-name { display: flex; align-items: center; gap: 8px; font-size: 14px; }
   .ukbye-range-name i { width: 10px; height: 10px; border-radius: 50%; flex: none; }
   .ukbye-range-name small { color: var(--ink-3); display: block; font-size: 11px; }
-  .ukbye-range-track { position: relative; height: 22px; background: var(--paper-3); border-radius: 3px; }
-  .ukbye-range-band { position: absolute; top: 3px; bottom: 3px; border-radius: 3px; border: 1px solid; }
+  .ukbye-range-track { position: relative; height: 22px; background: var(--paper-3); border-radius: 2px; }
+  .ukbye-range-band { position: absolute; top: 3px; bottom: 3px; border-radius: 2px; border: 1px solid; }
   .ukbye-range-median { position: absolute; top: 0; bottom: 0; width: 3px; border-radius: 2px; }
   .ukbye-range-nums { text-align: right; font-family: var(--mono); font-size: 13px; }
   .ukbye-range-nums small { display: block; color: var(--ink-3); font-size: 11px; }
 
   .ukbye-path-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 14px; margin-top: 14px; }
-  .ukbye-path-card { border: 1px solid var(--rule); border-radius: 6px; background: var(--card); padding: 16px; }
+  .ukbye-path-card { border: 1px solid var(--rule); border-radius: 2px; background: var(--card); padding: 16px; }
   .ukbye-path-cond { font-size: 14px; color: var(--ink); line-height: 1.5; min-height: 42px; }
-  .ukbye-path-bar { margin-top: 10px; height: 10px; background: var(--paper-3); border-radius: 3px; overflow: hidden; }
+  .ukbye-path-bar { margin-top: 10px; height: 10px; background: var(--paper-3); border-radius: 2px; overflow: hidden; }
   .ukbye-path-bar div { height: 100%; background: var(--ink); }
   .ukbye-path-p { margin-top: 8px; font-family: var(--mono); font-size: 13px; color: var(--ink-2); }
   .ukbye-path-outro { border-top: 3px solid var(--ink); padding-left: 14px; margin-top: 18px; font-style: italic; }
@@ -931,8 +931,8 @@ const pc = (v: number) => `${Math.min(100, (v / SCALE_MAX) * 100)}%`;
   .ukbye-buckets { margin-top: 12px; display: grid; gap: 8px; }
   .ukbye-bucket-row { display: grid; grid-template-columns: 90px 1fr 120px; gap: 10px; align-items: center; }
   .ukbye-bucket-name { font-family: var(--mono); font-size: 13px; color: var(--ink-2); }
-  .ukbye-bucket-track { position: relative; height: 14px; background: var(--paper-3); border-radius: 3px; }
-  .ukbye-bucket-model { height: 100%; background: var(--ink); border-radius: 3px; opacity: 0.85; }
+  .ukbye-bucket-track { position: relative; height: 14px; background: var(--paper-3); border-radius: 2px; }
+  .ukbye-bucket-model { height: 100%; background: var(--ink); border-radius: 2px; opacity: 0.85; }
   .ukbye-bucket-market { position: absolute; top: -3px; bottom: -3px; width: 3px; background: #c94040; border-radius: 2px; }
   .ukbye-bucket-nums { font-family: var(--mono); font-size: 13px; }
   .ukbye-bucket-nums small { color: #c94040; margin-left: 6px; }
@@ -940,21 +940,21 @@ const pc = (v: number) => `${Math.min(100, (v / SCALE_MAX) * 100)}%`;
   .ukbye-ctx-list { margin-top: 12px; padding-left: 18px; display: grid; gap: 10px; max-width: 74ch; }
   .ukbye-ctx-list li { color: var(--ink-2); line-height: 1.6; }
 
-  .ukbye-ctx-card { border: 1px solid var(--rule); border-radius: 6px; background: var(--card); padding: 20px; margin-top: 14px; }
+  .ukbye-ctx-card { border: 1px solid var(--rule); border-radius: 2px; background: var(--card); padding: 20px; margin-top: 14px; }
   .ukbye-ctx-question { font-family: var(--serif); font-size: 19px; font-weight: 430; line-height: 1.25; }
   .ukbye-ctx-bars { margin-top: 16px; display: grid; gap: 10px; }
   .ukbye-ctx-row { display: grid; grid-template-columns: 130px 1fr 44px; align-items: center; gap: 10px; }
   .ukbye-ctx-name { font-size: 13px; color: var(--ink-2); }
-  .ukbye-ctx-track { height: 14px; background: var(--paper-3); border-radius: 3px; overflow: hidden; }
+  .ukbye-ctx-track { height: 14px; background: var(--paper-3); border-radius: 2px; overflow: hidden; }
   .ukbye-ctx-fill { height: 100%; }
   .ukbye-ctx-pct { font-family: var(--mono); font-size: 13px; text-align: right; }
   .ukbye-ctx-meta { margin-top: 12px; font-family: var(--mono); font-size: 13px; color: var(--ink-3); }
   .ukbye-ctx-caveat {
     margin-top: 10px; padding: 10px 12px; border: 1px dashed var(--rule);
-    border-radius: 4px; font-size: 13px; color: var(--ink-2); line-height: 1.5; max-width: 74ch;
+    border-radius: 2px; font-size: 13px; color: var(--ink-2); line-height: 1.5; max-width: 74ch;
   }
 
-  .ukbye-breakdown-bar { display: flex; height: 18px; border-radius: 3px; overflow: hidden; margin-top: 14px; }
+  .ukbye-breakdown-bar { display: flex; height: 18px; border-radius: 2px; overflow: hidden; margin-top: 14px; }
   .ukbye-vote-grid { margin-top: 14px; display: grid; gap: 8px; }
   .ukbye-vote-row { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--ink-2); }
   .ukbye-vote-row--winner { color: var(--ink); font-weight: 600; }
@@ -973,11 +973,11 @@ const pc = (v: number) => `${Math.min(100, (v / SCALE_MAX) * 100)}%`;
 
   .ukbye-subscribe {
     margin-top: 24px; display: flex; align-items: center; justify-content: space-between;
-    gap: 20px; border: 1px solid var(--rule); border-radius: 6px; background: var(--card); padding: 20px 24px;
+    gap: 20px; border: 0; border-top: 1px solid var(--rule); border-radius: 0; background: transparent; padding: 20px 24px;
   }
   .ukbye-subscribe-cta {
     flex: none; display: inline-flex; align-items: center; min-height: 42px;
-    padding: 11px 15px; border-radius: 3px; background: var(--ink); color: var(--paper-3);
+    padding: 11px 15px; border-radius: 2px; background: var(--ink); color: var(--paper-3);
     font-family: var(--mono); font-size: 13px; letter-spacing: 0; text-decoration: none;
   }
   .ukbye-sources { margin-top: 12px; padding-left: 18px; display: grid; gap: 6px; }

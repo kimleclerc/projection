@@ -487,7 +487,7 @@ const pctCell = (x: number | undefined) => (x == null ? T.none : pct(x));
   .qr-head h1 { font-family: var(--serif); font-size: clamp(2rem, 4.5vw, 3rem); line-height: 1.08; text-wrap: balance; }
   .qr-lede { font-family: var(--serif); font-size: clamp(1.05rem, 1.8vw, 1.25rem); line-height: 1.55; color: var(--ink-2); max-width: 68ch; }
   .qr-keys { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: .75rem; margin: 1.75rem auto; }
-  .qr-keys > div { border: 1px solid var(--rule); background: var(--card); border-radius: 2px; padding: .9rem 1rem; display: flex; flex-direction: column; gap: .2rem; }
+  .qr-keys > div { border: 0; border-top: 1px solid var(--rule); background: transparent; border-radius: 0; padding: .9rem 1rem; display: flex; flex-direction: column; gap: .2rem; }
   .qr-keys span { font-family: var(--mono); font-size: 13px; letter-spacing: 0; color: var(--ink-3); }
   .qr-keys strong { font-family: var(--serif); font-size: 1.7rem; font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1.15; }
   .qr-keys em { font-style: normal; font-size: .88rem; color: var(--ink-2); }
@@ -512,13 +512,13 @@ const pctCell = (x: number | undefined) => (x == null ? T.none : pct(x));
   .qr tr.qr-us th, .qr tr.qr-us td { font-weight: 700; color: var(--blue); }
   .chip { display: inline-block; width: .7rem; height: .7rem; border-radius: 2px; background: var(--c); margin-right: .45rem; vertical-align: -1px; }
   .qr-engines { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: .75rem; }
-  .qr-engines > div { border: 1px solid var(--rule); border-radius: 2px; padding: 1rem; display: grid; gap: .35rem; background: var(--card); }
+  .qr-engines > div { border: 0; border-top: 1px solid var(--rule); border-radius: 0; padding: 1rem; display: grid; gap: .35rem; background: transparent; }
   .qr-engines > div.is-best { border-color: var(--blue); }
   .qr-engines span { font-size: .9rem; color: var(--ink-2); font-weight: 500; }
   .qr-engines strong { font-family: var(--serif); font-size: 2.2rem; line-height: 1; font-variant-numeric: tabular-nums; }
   .qr-engines strong small { font-size: 1rem; color: var(--ink-3); font-weight: 400; }
   .qr-engines em { font-style: normal; font-size: .85rem; color: var(--ink-3); }
-  .qr-meter { height: 6px; background: var(--paper-2); border-radius: 3px; overflow: hidden; }
+  .qr-meter { height: 6px; background: var(--paper-2); border-radius: 2px; overflow: hidden; }
   .qr-meter i { display: block; height: 100%; background: var(--blue); }
   .qr-calls { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: .75rem; }
   .qr-calls > div { display: grid; gap: .3rem; }

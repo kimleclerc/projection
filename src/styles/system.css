@@ -124,3 +124,33 @@
   .container { padding-inline: 16px !important; }
 }
 .vs-page-head p { max-width: 760px; }
+
+/* ── Blocs et cadres (docs/DESIGN.md §5) ────────────────────────────
+ * Deux rôles seulement. Un BLOC de texte n'est pas une boîte : un filet en haut,
+ * comme un module de page de journal (le filet de couleur d'un parti, posé par le
+ * composant, est conservé). Un CADRE entoure un graphique ou une carte : 1 px,
+ * angles droits. Les anciennes classes sont rattachées ici en attendant leur
+ * migration vers .vs-block / .vs-figure. */
+.vs-block,
+.note-card, .lb-card, .track-stat-card, .byhub-card, .rc-card, .frci-card, .bh-card, .fps-card,
+.onhub-card, .fce-card, .eq-card, .lame-duck-component-card, .fr-hl-card, .party-card,
+.lame-duck-president-card, .story-card, .eq-bt-card, .up-card, .cabye-card, .fraser-period-card,
+.bs-card, .island-card, .lame-duck-midterm-card, .event-card, .wc-group-card, .bd-stake-card,
+.cal-card, .dataset-card, .ukbye-result-card, .ukbye-path-card, .ukbye-ctx-card, .up-hero-card,
+.up-early-card, .fr-explorer-card, .es-orbit-card, .es-prov-card, .byelection-resolved-card, .lp-card {
+  background: transparent !important;
+  border-left: 0 !important;
+  border-right: 0 !important;
+  border-bottom: 0 !important;
+  border-radius: 0 !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  border-top: 2px solid var(--ink);
+}
+.vs-figure,
+.pe-chart-card, .unc-chart-card, .poll-chart-card, .lame-duck-meter-card, .pe-projection-card,
+.media-card, .example-card {
+  background: var(--paper) !important;
+  border: 1px solid var(--rule) !important;
+  border-radius: 0 !important;
+}

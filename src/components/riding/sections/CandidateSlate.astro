@@ -129,8 +129,8 @@ const localizedBio = (c: (typeof list)[number]): string | undefined => {
     display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px;
   }
   .cand {
-    border: 1px solid var(--rule); border-top: 3px solid var(--ink);
-    border-radius: 2px; background: var(--card); padding: 14px 16px;
+    border: 0; border-top: 1px solid var(--rule); border-top: 3px solid var(--ink);
+    border-radius: 0; background: transparent; padding: 14px 16px;
   }
   .cand-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
   .cand-party { display: inline-flex; align-items: center; gap: 7px; font-family: var(--mono); font-size: 13px; color: var(--ink-2); }
@@ -144,7 +144,7 @@ const localizedBio = (c: (typeof list)[number]): string | undefined => {
   .cand-name { margin: 0; font-family: var(--serif); font-size: 18px; color: var(--ink); line-height: 1.2; }
   .cand-body { display: flex; align-items: flex-start; gap: 13px; }
   .cand-copy { min-width: 0; }
-  .cand-photo { width: 88px; height: 104px; flex: none; border-radius: 6px; object-fit: cover; object-position: 50% 20%; background: var(--rule); }
+  .cand-photo { width: 88px; height: 104px; flex: none; border-radius: 2px; object-fit: cover; object-position: 50% 20%; background: var(--rule); }
   /* Portrait provisoire : initiales centrées, même gabarit que la photo pour
      que la grille ne bouge pas quand la photo officielle arrive. */
   .cand-photo-placeholder {

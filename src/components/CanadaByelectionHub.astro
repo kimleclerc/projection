@@ -206,8 +206,8 @@ const canonical = `https://vote-scope.com/${lang}/canada/byelections/`;
       <div class="byhub-grid">
         {archives.map((config) => (
           <a href={(config.paths as any)[lang] ?? config.paths.en} class="byhub-card byhub-card--archive">
-            <span class="byhub-card-kicker">{config.kicker}</span>
-            <h2>{config.headline}</h2>
+            <span class="byhub-card-kicker">{(lang === 'en' ? undefined : (config as any)[`kicker_${lang}`]) ?? config.kicker}</span>
+            <h2>{(lang === 'en' ? undefined : (config as any)[`headline_${lang}`]) ?? config.headline}</h2>
             <span class="byhub-card-cta">{t.viewArchive}</span>
           </a>
         ))}
@@ -250,7 +250,7 @@ const canonical = `https://vote-scope.com/${lang}/canada/byelections/`;
   .byhub-card {
     position: relative; display: flex; flex-direction: column; gap: 10px;
     border: 1px solid var(--rule); border-top: 3px solid var(--accent, var(--rule));
-    border-radius: 6px; background: var(--card); padding: 22px;
+    border-radius: 2px; background: var(--card); padding: 22px;
     color: var(--ink); text-decoration: none; transition: border-color 0.15s;
   }
   .byhub-card:hover { border-color: var(--ink-3); }
@@ -266,7 +266,7 @@ const canonical = `https://vote-scope.com/${lang}/canada/byelections/`;
   .byhub-card-dek { flex: 1; margin: 0; color: var(--ink-2); font-size: 14px; line-height: 1.55; }
   .byhub-card-fav { margin: 0; font-family: var(--mono); font-size: 13px; color: var(--ink-2); }
   .byhub-badge {
-    align-self: flex-start; padding: 3px 8px; border-radius: 3px;
+    align-self: flex-start; padding: 3px 8px; border-radius: 2px;
     border: 1px solid var(--rule); font-family: var(--mono); font-size: 13px;
     letter-spacing: 0; color: var(--ink-3);
   }

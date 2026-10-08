@@ -540,7 +540,7 @@ const specialElectionStyles = `
   .special-swatch {
     width: 14px;
     height: 14px;
-    border-radius: 3px;
+    border-radius: 50%;
     flex: 0 0 auto;
   }
 
@@ -617,8 +617,8 @@ const specialElectionStyles = `
   .special-pair-row,
   .special-note,
   .special-source-list a {
-    border: 1px solid var(--rule);
-    border-radius: 4px;
+    border: 0;
+    border-radius: 0;
     background: var(--paper-2);
     padding: 14px 16px;
   }
@@ -664,8 +664,8 @@ const specialElectionStyles = `
   }
 
   .special-baseline span {
-    border: 1px solid var(--rule);
-    border-radius: 2px;
+    border: 0;
+    border-radius: 0;
     padding: 7px 11px;
     background: var(--paper-2);
     font-family: var(--mono);

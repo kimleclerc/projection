@@ -413,10 +413,10 @@ const dateLabel = (iso: string) => {
     display: block;
     max-width: 900px;
     padding: 26px 28px;
-    border: 1px solid var(--rule);
+    border: 0; border-top: 1px solid var(--rule);
     border-top: 3px solid var(--ink);
-    border-radius: 5px;
-    background: var(--card);
+    border-radius: 0;
+    background: transparent;
     text-decoration: none;
     color: inherit;
     transition: border-color 140ms ease;
@@ -454,10 +454,10 @@ const dateLabel = (iso: string) => {
     margin-top: 14px;
   }
   .ukdesk-tile {
-    border: 1px solid var(--rule);
+    border: 0; border-top: 1px solid var(--rule);
     border-top: 3px solid var(--party-color);
-    border-radius: 4px;
-    background: var(--card);
+    border-radius: 0;
+    background: transparent;
     padding: 14px;
     display: grid;
     gap: 4px;
@@ -465,7 +465,7 @@ const dateLabel = (iso: string) => {
   .ukdesk-tile-party { font-family: var(--mono); font-size: 13px; letter-spacing: 0; color: var(--ink-2); }
   .ukdesk-tile-vote { font-family: var(--serif); font-size: 30px; font-weight: 700; letter-spacing: -0.01em; }
   .ukdesk-tile-seats { font-family: var(--mono); font-size: 13px; color: var(--ink-3); }
-  .ukdesk-comp-bar { display: flex; height: 16px; border-radius: 3px; overflow: hidden; margin-top: 12px; }
+  .ukdesk-comp-bar { display: flex; height: 16px; border-radius: 2px; overflow: hidden; margin-top: 12px; }
   .ukdesk-comp-legend { display: flex; flex-wrap: wrap; gap: 8px 16px; margin-top: 10px; font-family: var(--mono); font-size: 13px; color: var(--ink-2); }
   .ukdesk-comp-legend i { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 5px; }
   .ukdesk-race-lever {
@@ -476,7 +476,7 @@ const dateLabel = (iso: string) => {
     line-height: 1.5;
     color: var(--ink-2);
   }
-  .ukdesk-resolved { border: 1px solid var(--rule); border-radius: 6px; background: var(--card); padding: 20px; }
+  .ukdesk-resolved { border: 0; border-top: 1px solid var(--rule); border-radius: 0; background: transparent; padding: 20px; }
   .ukdesk-resolved-note {
     margin-top: 14px;
     padding-top: 12px;

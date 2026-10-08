@@ -139,19 +139,19 @@ export default function UsElectoralMap({ frame, locale }: Props) {
         .ecm-tally-head { display:flex; flex-wrap:wrap; justify-content:space-between; gap:8px; align-items:baseline; margin-bottom:10px; }
         .ecm-tally-title { font-family:var(--serif); font-size:1.05rem; color:var(--ink); }
         .ecm-hint { font-family:var(--mono); font-size:11px; color:var(--ink-3); }
-        .ecm-bar { position:relative; display:flex; height:34px; border-radius:6px; overflow:hidden; border:1px solid var(--rule); }
+        .ecm-bar { position:relative; display:flex; height:34px; border-radius:2px; overflow:hidden; border:1px solid var(--rule); }
         .ecm-bar-dem, .ecm-bar-rep { display:flex; align-items:center; color:#fff; font-family:var(--mono); font-size:13px; font-weight:600; }
         .ecm-bar-dem { background:var(--dem); justify-content:flex-start; padding-left:10px; }
         .ecm-bar-rep { background:var(--rep); justify-content:flex-end; padding-right:10px; }
         .ecm-270 { position:absolute; top:-4px; bottom:-4px; width:0; border-left:2px dashed var(--ink); }
         .ecm-270 span { position:absolute; top:-18px; left:50%; transform:translateX(-50%); white-space:nowrap; font-family:var(--mono); font-size:9px; letter-spacing: 0; color:var(--ink-2); }
         .ecm-grid { position:relative; width:100%; margin:26px 0 14px; }
-        .ecm-tile { position:absolute; padding:0; border:1.5px solid var(--paper-3, #fff); border-radius:4px; color:#fff; cursor:default; display:flex; flex-direction:column; align-items:center; justify-content:center; line-height:1; transition:outline 0.1s ease; }
+        .ecm-tile { position:absolute; padding:0; border:1.5px solid var(--paper-3, #fff); border-radius:2px; color:#fff; cursor:default; display:flex; flex-direction:column; align-items:center; justify-content:center; line-height:1; transition:outline 0.1s ease; }
         .ecm-abbr { font-family:var(--mono); font-size:clamp(7px, 1.1vw, 12px); font-weight:700; }
         .ecm-ev { font-family:var(--mono); font-size:clamp(6px, 0.9vw, 10px); opacity:0.85; }
         .ecm-legend { display:flex; gap:18px; font-family:var(--mono); font-size:12px; color:var(--ink-2); margin-top:4px; }
         .ecm-legend span { display:inline-flex; align-items:center; gap:6px; }
-        .ecm-sw { width:12px; height:12px; border-radius:3px; display:inline-block; }
+        .ecm-sw { width:12px; height:12px; border-radius:50%; display:inline-block; }
         .ecm-note { font-family:var(--mono); font-size:11px; color:var(--ink-3); line-height:1.5; margin:8px 0 0; }
         .ecm-note-strong { color:var(--ink-2); }
       `}</style>

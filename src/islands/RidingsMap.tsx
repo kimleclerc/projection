@@ -691,7 +691,7 @@ export default function RidingsMap({
             >
               <span
                 class="pe-legend-swatch"
-                style={`display:inline-block;width:12px;height:12px;border-radius:3px;background:${item.color};`}
+                style={`display:inline-block;width:12px;height:12px;border-radius:50%;background:${item.color};`}
               />
               <span class="pe-legend-name" style="color:var(--ink-2,#333);">
                 {partyName(item, locale)}

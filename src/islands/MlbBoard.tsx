@@ -115,7 +115,7 @@ function injectStyles() {
 .mlb-chip[data-active="true"] { background: var(--ink, #1a1a1a); color: var(--paper-3, #fafaf5); border-color: var(--ink, #1a1a1a); }
 .mlb-meta { font-size: 12px; color: var(--ink-3, #888); margin-left: auto; }
 .mlb-share { display: inline-flex; gap: 8px; }
-.mlb-table-wrap { overflow-x: auto; border: 1px solid var(--rule, #ddd); border-radius: 4px; }
+.mlb-table-wrap { overflow-x: auto; border: 1px solid var(--rule, #ddd); border-radius: 2px; }
 .mlb-table { width: 100%; border-collapse: collapse; font-size: 13px; }
 .mlb-table th { text-align: right; font-weight: 500; font-size: 11px; letter-spacing: 0; color: var(--ink-2, #555); padding: 11px 12px; border-bottom: 1px solid var(--rule, #ddd); cursor: pointer; user-select: none; white-space: nowrap; background: var(--card, #f8f8f3); position: sticky; top: 0; z-index: 1; }
 .mlb-table th.mlb-left { text-align: left; }

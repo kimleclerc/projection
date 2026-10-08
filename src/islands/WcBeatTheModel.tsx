@@ -226,17 +226,17 @@ export default function WcBeatTheModel({ lang, board }: Props) {
         .btm-intro { line-height: 1.6; margin-bottom: 1.25rem; }
         .btm-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 0.85rem; }
         .btm-label { font-family: var(--mono, monospace); font-size: 11px; letter-spacing: 0; color: var(--ink-3, #666); min-width: 180px; }
-        .btm-row select { padding: 8px 10px; border: 1px solid var(--rule, #ccc); border-radius: 4px; background: var(--paper, #fff); color: var(--text, #111); font-size: 0.95rem; min-width: 220px; }
+        .btm-row select { padding: 8px 10px; border: 1px solid var(--rule, #ccc); border-radius: 2px; background: var(--paper, #fff); color: var(--text, #111); font-size: 0.95rem; min-width: 220px; }
         .btm-odds { font-size: 0.85rem; color: var(--ink-3, #555); }
-        .btm-result { margin-top: 1.5rem; padding: 1.25rem; border: 1px solid var(--rule, #ddd); border-top: 3px solid var(--ink); border-radius: 4px; }
+        .btm-result { margin-top: 1.5rem; padding: 1.25rem; border: 1px solid var(--rule, #ddd); border-top: 3px solid var(--ink); border-radius: 2px; }
         .btm-meter-label { margin: 0 0 6px; font-size: 0.9rem; }
-        .btm-meter { height: 10px; background: var(--surface-alt, #eee); border-radius: 5px; overflow: hidden; }
+        .btm-meter { height: 10px; background: var(--surface-alt, #eee); border-radius: 2px; overflow: hidden; }
         .btm-meter-fill { height: 100%; background: var(--red, #c33); transition: width 0.5s ease; }
         .btm-verdict { margin: 0.85rem 0 0; font-weight: 600; line-height: 1.5; }
         .btm-actions { display: flex; gap: 10px; margin-top: 1rem; flex-wrap: wrap; }
-        .btm-share { padding: 9px 18px; background: var(--red, #c33); color: var(--paper, #fff); border: 0; border-radius: 4px; font-weight: 700; font-size: 0.9rem; cursor: pointer; }
+        .btm-share { padding: 9px 18px; background: var(--red, #c33); color: var(--paper, #fff); border: 0; border-radius: 2px; font-weight: 700; font-size: 0.9rem; cursor: pointer; }
         .btm-share:hover { opacity: 0.9; }
-        .btm-reset { padding: 9px 14px; background: transparent; color: var(--ink-3, #666); border: 1px solid var(--rule, #ccc); border-radius: 4px; font-size: 0.85rem; cursor: pointer; }
+        .btm-reset { padding: 9px 14px; background: transparent; color: var(--ink-3, #666); border: 1px solid var(--rule, #ccc); border-radius: 2px; font-size: 0.85rem; cursor: pointer; }
       `}</style>
     </div>
   );

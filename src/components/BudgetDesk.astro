@@ -208,7 +208,7 @@ const dir = (d: string) => (d === 'up' ? '▲' : d === 'down' ? '▼' : '');
   .bd-quote p { font-family: var(--serif); font-size: 22px; line-height: 1.4; color: var(--ink); margin: 0 0 8px; }
   .bd-quote cite { font-family: var(--mono); font-size: 13px; color: var(--ink-3); font-style: normal; }
   .bd-nums { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
-  .bd-num { border: 1px solid var(--rule); border-radius: 2px; background: var(--card); padding: 16px; display: flex; flex-direction: column; gap: 4px; }
+  .bd-num { border: 0; border-top: 1px solid var(--rule); border-radius: 0; background: transparent; padding: 16px; display: flex; flex-direction: column; gap: 4px; }
   .bd-num-label { font-family: var(--mono); font-size: 13px; letter-spacing: 0; color: var(--ink-3); }
   .bd-num-value { font-family: var(--serif); font-size: 26px; color: var(--ink); }
   .bd-num.dir-down .bd-num-dir { color: #c62828; } .bd-num.dir-up .bd-num-dir { color: #2e7d32; }
@@ -230,7 +230,7 @@ const dir = (d: string) => (d === 'up' ? '▲' : d === 'down' ? '▼' : '');
   .bd-after { font-family: var(--mono); font-size: 13px; color: var(--ink); font-weight: 600; }
   .bd-after.dir-down { color: #c62828; } .bd-after.dir-up { color: #2e7d32; }
   .bd-gloss { display: flex; flex-direction: column; gap: 6px; max-width: 820px; }
-  .bd-gloss-item { border: 1px solid var(--rule); border-radius: 6px; background: var(--card); padding: 12px 16px; }
+  .bd-gloss-item { border: 0; border-top: 1px solid var(--rule); border-radius: 0; background: transparent; padding: 12px 16px; }
   .bd-gloss-item summary { font-family: var(--serif); font-size: 15px; color: var(--ink); cursor: pointer; }
   .bd-gloss-item p { margin: 10px 0 0; font-size: 14px; line-height: 1.6; color: var(--ink-2); }
   .bd-sources { display: flex; flex-wrap: wrap; gap: 12px; }

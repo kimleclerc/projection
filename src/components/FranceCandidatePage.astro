@@ -217,7 +217,7 @@ const C = COPY[locale];
     margin: 0; font-family: var(--serif); font-size: clamp(38px, 5.5vw, 64px);
     font-weight: 700; letter-spacing: -0.01em; line-height: 1;
   }
-  .frc-swatch { width: 16px; height: 16px; border-radius: 4px; flex: none; }
+  .frc-swatch { width: 16px; height: 16px; border-radius: 50%; flex: none; }
   .frc-badges { display: flex; flex-wrap: wrap; gap: 8px; }
   .frc-badge {
     font-family: var(--mono); font-size: 13px; letter-spacing: 0;
@@ -238,9 +238,9 @@ const C = COPY[locale];
   }
   .frc-range-track {
     position: relative; height: 26px; background: var(--paper-2);
-    border: 1px solid var(--rule); border-radius: 6px; overflow: hidden;
+    border: 1px solid var(--rule); border-radius: 2px; overflow: hidden;
   }
-  .frc-range-band { position: absolute; inset-block: 0; border-radius: 4px; opacity: 0.85; }
+  .frc-range-band { position: absolute; inset-block: 0; border-radius: 2px; opacity: 0.85; }
   .frc-range-marker {
     position: absolute; inset-block: -3px; width: 2px; background: var(--ink);
   }
@@ -257,7 +257,7 @@ const C = COPY[locale];
     gap: 12px; margin: 24px 0 0;
   }
   .frc-stats > div {
-    border: 1px solid var(--rule); border-radius: 6px; background: var(--card); padding: 12px 14px;
+    border: 0; border-top: 1px solid var(--rule); border-radius: 0; background: transparent; padding: 12px 14px;
   }
   .frc-stats dt {
     font-family: var(--mono); font-size: 13px; letter-spacing: 0;
@@ -270,7 +270,7 @@ const C = COPY[locale];
   .frc-duels { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
   .frc-duel {
     display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 12px;
-    border: 1px solid var(--rule); border-radius: 6px; background: var(--card); padding: 11px 14px;
+    border: 0; border-top: 1px solid var(--rule); border-radius: 0; background: transparent; padding: 11px 14px;
   }
   .frc-duel-out {
     font-family: var(--mono); font-size: 13px; letter-spacing: 0;
@@ -284,8 +284,8 @@ const C = COPY[locale];
   .frc-duel-score { font-family: var(--mono); font-size: 13px; color: var(--ink); font-variant-numeric: tabular-nums; }
   .frc-related { list-style: none; margin: 0 0 24px; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; }
   .frc-related-item {
-    display: flex; align-items: center; gap: 10px; border: 1px solid var(--rule);
-    border-radius: 6px; background: var(--card); padding: 11px 14px; text-decoration: none;
+    display: flex; align-items: center; gap: 10px; border: 0; border-top: 1px solid var(--rule);
+    border-radius: 0; background: transparent; padding: 11px 14px; text-decoration: none;
     transition: border-color 0.15s ease;
   }
   .frc-related-item:hover { border-color: var(--ink); }

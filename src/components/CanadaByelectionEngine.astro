@@ -303,7 +303,7 @@ if (result && result.candidates.length >= 2) {
 
   .byelection-resolved-card {
     border: 1px solid var(--rule);
-    border-radius: 6px;
+    border-radius: 2px;
     background: var(--card);
     padding: 28px 32px;
     max-width: 680px;
@@ -354,7 +354,7 @@ if (result && result.candidates.length >= 2) {
     align-items: center;
     gap: 10px;
     padding: 10px 16px;
-    border-radius: 4px;
+    border-radius: 2px;
     background: color-mix(in oklab, var(--party-color, #d71920) 12%, var(--card));
     border: 1px solid color-mix(in oklab, var(--party-color, #d71920) 30%, var(--rule));
     margin-bottom: 20px;
@@ -386,7 +386,7 @@ if (result && result.candidates.length >= 2) {
   .byelection-breakdown-bar {
     display: flex;
     height: 14px;
-    border-radius: 3px;
+    border-radius: 2px;
     overflow: hidden;
     margin-bottom: 20px;
     gap: 2px;
@@ -412,9 +412,9 @@ if (result && result.candidates.length >= 2) {
     gap: 10px;
     align-items: center;
     padding: 10px 14px;
-    border: 1px solid var(--rule);
-    border-radius: 4px;
-    background: var(--card);
+    border: 0; border-top: 1px solid var(--rule);
+    border-radius: 0;
+    background: transparent;
   }
 
   .byelection-vote-row--winner {
