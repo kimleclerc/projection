@@ -11,14 +11,16 @@
  * viennent des données publiées, jamais écrits à la main (sauf la date).
  */
 import { partyMeta, subjectFr } from '../lib/riding-adapters/parties';
+import StoryList from './StoryList.astro';
 import qcResults from '../data/qc-results-2026.json';
 import bcLatest from '../../web_data/british-columbia/latest.json';
 import houseLatest from '../../web_data/us-house/latest.json';
 import spainLatest from '../../web_data/spain/latest.json';
 
 type Lang = 'fr' | 'en' | 'es';
-interface Props { lang: Lang; scope?: 'all' | 'canada' }
-const { lang, scope = 'all' } = Astro.props;
+/** compact : sans bande ni conteneur, pour une colonne (une de l'accueil). */
+interface Props { lang: Lang; scope?: 'all' | 'canada'; compact?: boolean; exclude?: string[] }
+const { lang, scope = 'all', compact = false, exclude = [] } = Astro.props;
 
 const L = (fr: string, en: string, es: string) => ({ fr, en, es }[lang]);
 const label = (jur: string, code: string) => {
@@ -77,6 +79,7 @@ const CALENDAR = [
 const RECENT_DAYS = 21;
 const items = CALENDAR
   .filter((e) => scope === 'all' || e.canada)
+  .filter((e) => !exclude.includes(e.id))
   .map((e) => ({ ...e, d: days(e.date) }))
   .filter((e) => e.d >= -RECENT_DAYS);
 const results = items.filter((e) => e.d < 0).sort((a, b) => b.d - a.d);
@@ -88,38 +91,26 @@ const when = (e: { d: number; date: string }) => e.d < 0
   ? L(`Résultats · ${dateFmt(e.date)}`, `Results · ${dateFmt(e.date)}`, `Resultados · ${dateFmt(e.date)}`)
   : e.d === 0 ? L('Aujourd’hui', 'Today', 'Hoy')
   : L(`${dateFmt(e.date)} · dans ${e.d} jours`, `${dateFmt(e.date)} · in ${e.d} days`, `${dateFmt(e.date)} · en ${e.d} días`);
+const storyItems = ordered.map((e) => ({
+  meta: `${e.place} · ${when(e)}`,
+  title: e.headline,
+  text: e.detail,
+  href: e.href,
+  strong: e.d < 0,
+}));
 const title = scope === 'canada' ? L('Élections au Canada', 'Elections in Canada', 'Elecciones en Canadá')
   : L('Élections en cours', 'Elections now', 'Elecciones en curso');
 ---
-{ordered.length > 0 && (
+{ordered.length > 0 && (compact ? (
+  <StoryList heading={title} items={storyItems} size="sm" />
+) : (
   <section class="elections-band">
     <div class="container">
-      <p class="eyebrow">{title}</p>
-      <div class="elections-grid">
-        {ordered.map((e) => (
-          <a class={`election-card${e.d < 0 ? ' is-result' : ''}`} href={e.href}>
-            <p class="election-when">{when(e)}</p>
-            <h2>{e.place}</h2>
-            <strong>{e.headline}</strong>
-            <p class="election-detail">{e.detail}</p>
-            <span class="election-cta">{e.cta}</span>
-          </a>
-        ))}
-      </div>
+      <StoryList heading={title} items={storyItems} columns={2} />
     </div>
   </section>
-)}
+))}
 
 <style>
   .elections-band { padding: 2rem 0; border-bottom: 1px solid var(--rule); }
-  .elections-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-top: .6rem; }
-  .election-card { display: flex; flex-direction: column; gap: 6px; padding: 18px; border: 1px solid var(--rule); border-radius: 6px; background: var(--card); color: inherit; text-decoration: none; }
-  .election-card:hover { border-color: var(--ink-3); }
-  .election-card.is-result { border-color: var(--ink); border-width: 2px; }
-  .election-when { margin: 0; font-family: var(--mono); font-size: 13px; letter-spacing: 0; color: var(--ink-3); }
-  .election-card.is-result .election-when { color: var(--ink); font-weight: 700; }
-  .election-card h2 { margin: 0; font-family: var(--serif); font-size: 24px; font-weight: 700; }
-  .election-card strong { font-size: 16px; line-height: 1.35; }
-  .election-detail { margin: 0; font-size: 13px; color: var(--ink-3); }
-  .election-cta { margin-top: auto; padding-top: 6px; font-family: var(--mono); font-size: 13px; letter-spacing: 0; }
 </style>

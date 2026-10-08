@@ -1,0 +1,66 @@
+---
+/**
+ * Liste de titres commune (docs/DESIGN.md §5) : la manière normale de lister des
+ * élections, des pages ou des indices. Remplace les grilles de cartes égales.
+ * Chaque ligne : une métadonnée (date, statut), un titre lié, une phrase.
+ * `columns` répartit la liste sur 2 colonnes à partir de 900 px, sans en faire des cartes.
+ */
+export interface StoryItem {
+  meta?: string;
+  title: string;
+  text?: string;
+  href: string;
+  /** Couleur d'un parti ou d'une zone : pastille devant la métadonnée. */
+  color?: string;
+  /** Met la ligne en avant (résultat récent, direct). */
+  strong?: boolean;
+}
+interface Props {
+  items: StoryItem[];
+  heading?: string;
+  /** Niveau du titre de section (h2 par défaut). */
+  level?: 2 | 3;
+  columns?: 1 | 2;
+  /** Taille des titres de ligne. */
+  size?: 'md' | 'sm';
+}
+const { items, heading, level = 2, columns = 1, size = 'md' } = Astro.props;
+const H = level === 3 ? 'h3' : 'h2';
+const ItemH = level === 3 ? 'h4' : 'h3';
+---
+<div class={`vs-story-list size-${size}${columns === 2 ? ' cols-2' : ''}`}>
+  {heading && <H class="vs-story-heading">{heading}</H>}
+  <ul>
+    {items.map((it) => (
+      <li class={it.strong ? 'is-strong' : undefined}>
+        {it.meta && (
+          <p class="vs-story-meta">
+            {it.color && <span class="dot" style={`background:${it.color}`}></span>}
+            {it.meta}
+          </p>
+        )}
+        <ItemH class="vs-story-title"><a href={it.href}>{it.title}</a></ItemH>
+        {it.text && <p class="vs-story-text">{it.text}</p>}
+      </li>
+    ))}
+  </ul>
+</div>
+
+<style>
+  .vs-story-heading { margin: 0 0 4px; padding-bottom: 8px; border-bottom: 3px solid var(--ink); font-size: 22px; font-weight: 700; }
+  ul { margin: 0; padding: 0; list-style: none; }
+  li { padding: 14px 0; border-bottom: 1px solid var(--rule); }
+  .cols-2 ul { column-gap: 40px; }
+  @media (min-width: 900px) {
+    .cols-2 ul { columns: 2; }
+    .cols-2 li { break-inside: avoid; }
+  }
+  .vs-story-meta { margin: 0 0 4px; color: var(--ink-3); font-size: 13px; font-weight: 600; }
+  .is-strong .vs-story-meta { color: var(--ink); }
+  .dot { display: inline-block; width: 9px; height: 9px; margin-right: 7px; border-radius: 50%; }
+  .vs-story-title { margin: 0; font-size: 21px; font-weight: 700; line-height: 1.2; }
+  .size-sm .vs-story-title { font-size: 18px; }
+  .vs-story-title a { color: var(--ink); text-decoration: none; }
+  .vs-story-title a:hover { text-decoration: underline; text-underline-offset: 3px; }
+  .vs-story-text { margin: 4px 0 0; color: var(--ink-2); font-size: 15px; line-height: 1.45; }
+</style>

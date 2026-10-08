@@ -1,70 +1,23 @@
 ---
 import EditorialLayout from '../../layouts/EditorialLayout.astro';
-import EditorialHero from '../../components/EditorialHero.astro';
-import InstrumentGrid from '../../components/InstrumentGrid.astro';
+import HomeFront from '../../components/HomeFront.astro';
+import StoryList from '../../components/StoryList.astro';
 import DeskSections from '../../components/DeskSections.astro';
-import MarketCheck from '../../components/MarketCheck.astro';
 import MethodologyNote from '../../components/MethodologyNote.astro';
-import IdentityMark from '../../components/IdentityMark.astro';
 import SearchFastPath from '../../components/SearchFastPath.astro';
 import AuthorStrip from '../../components/AuthorStrip.astro';
-import SpainBand from '../../components/SpainBand.astro';
-import ElectionsBand from '../../components/ElectionsBand.astro';
-import RidingsCta from '../../components/RidingsCta.astro';
 import LabsHomeBand from '../../components/LabsHomeBand.astro';
-import SignalTicker from '../../islands/SignalTicker';
-import AnimatedNumber from '../../islands/AnimatedNumber';
-import { desks, editorialPhilosophy, instruments } from '../../data/editorial';
-
-import ldiData from '../../../web_data/us-lame-duck/latest.json';
-import bfiData from '../../../web_data/fr-barrage/latest.json';
-import frLegData from '../../../web_data/france-legislative/latest.json';
-import clactonData from '../../../web_data/uk-clacton-special/latest.json';
-import gooseData from '../../../web_data/ca-canada-goose/latest.json';
-import cusmaData from '../../../web_data/cusma-showdown/latest.json';
-import esData from '../../../web_data/spain/latest.json';
-import senateData from '../../../web_data/us-senate/latest.json';
+import { editorialPhilosophy, instruments } from '../../data/editorial';
 
 const philosophy = editorialPhilosophy.fr;
-
-// Encadré du haut : la question du Sénat, chiffrée avec le dernier run.
-const senateParties = (senateData as any).parties;
-const senateLead = [...senateParties].filter((p: any) => p.party !== 'us_oth').sort((a: any, b: any) => (b.p_majority ?? 0) - (a.p_majority ?? 0))[0];
-const senatePct = Math.round((senateLead?.p_majority ?? 0) * 100);
-const senateLeader = ({"us_dem": "Démocrates", "us_rep": "Républicains"} as Record<string, string>)[senateLead?.party] ?? '';
-const ldi = ldiData.ldi;
-const deltaSign = ldi.delta_7d >= 0 ? '+' : '';
-const bfi = (bfiData as any).bfi;
-const legCentral = (frLegData as any).scenarios.find((s: any) => s.id === (frLegData as any).meta.central_scenario);
-const pMajRN = Math.round((legCentral?.p_majority_far_right ?? 0) * 100);
-const pFarage = Math.round(((clactonData as any).model.p_farage_win ?? 0) * 1000) / 10;
-const goose = (gooseData as any).cgi;
-const cusma = (cusmaData as any).showdown;
-
-// Le bandeau ne porte que des chiffres du site — jamais de promesses.
-// Les courses ACTIVES d'abord ; la Coupe du monde ferme le bandeau en archive.
-const esP = (esData as any).blocs.pp_vox.p_majority * 100;
-const esPmaj = esP > 99 ? '>99 %' : `${Math.round(esP)} %`;
-
-const signals = [
-  { label: 'Sénat américain', value: `${senateLeader} · majorité ${senatePct}\u202f%`, href: '/fr/us/senat/' },
-  { label: 'Élections Espagne', value: `PP+Vox ${esData.blocs.pp_vox.median} sièges · majorité ${esPmaj}`, href: '/fr/spain/' },
-  { label: 'Indice Barrage', value: `${bfi.score}/100 · ${bfi.label_fr}`, href: '/fr/france/indexes/barrage/' },
-  { label: 'Législatives FR', value: `p(majorité RN) ${pMajRN} % si front 2024`, href: '/fr/france/legislatives' },
-  { label: 'Lame-Duck Index', value: `${ldi.score}/100 · ${ldi.label_fr}`, href: '/fr/us/indexes/lame-duck/' },
-  { label: 'Indice Bernache', value: `${goose.score}/100 · ${goose.label_fr}`, href: '/fr/canada/indexes/canada-goose/' },
-  { label: 'Duel ACEUM', value: `écart ${cusma.gap > 0 ? '+' : ''}${cusma.gap} — ${cusma.label_fr}`, href: '/fr/indexes/cusma-showdown/' },
-];
-
-// Chiffre le plus marquant de chaque desk, injecté sur sa carte.
-const liveSignals: Record<string, string> = {
-  spain: `PP+Vox ${esData.blocs.pp_vox.median} sièges · majorité ${esPmaj}`,
-  us: `Lame-Duck ${ldi.score}/100 · ${ldi.label_fr}`,
-  canada: `Bernache ${goose.score}/100 · ACEUM ${cusma.gap > 0 ? '+' : ''}${cusma.gap}`,
-  france: `p(majorité RN) ${pMajRN} % si front 2024 · Barrage ${bfi.score}/100`,
-  uk: `Clacton : Farage ${pFarage} % — 13 août`,
-  sports: 'MLB en direct · archive Coupe du monde',
-};
+// Une de journal (docs/DESIGN.md §7) : la course principale en grand, les autres
+// élections en colonne, puis la signature, la recherche, les desks et les indices.
+const indexItems = instruments.fr.filter((i) => i.status === 'live').slice(0, 6).map((i) => ({
+  meta: i.cadence,
+  title: i.name,
+  text: i.question,
+  href: i.href,
+}));
 ---
 
 <EditorialLayout
@@ -100,68 +53,21 @@ const liveSignals: Record<string, string> = {
     },
   ]}
 >
-  <EditorialHero
-    eyebrow="Projections électorales indépendantes"
-    title="Toutes les élections, en projection."
-    promise="Les midterms américains, le Canada, le Royaume-Uni, la France et l’Espagne, en français, en anglais et en espagnol. Les données, avec vingt ans de terrain."
-    questionLabel="Midterms américains · 3 novembre"
-    question={`Qui contrôlera le Sénat? ${senateLeader} : ${senatePct}\u202f% de chances de majorité.`}
-    primaryHref="/fr/us/senat/"
-    primaryLabel="Projection du Sénat"
-    secondaryHref="/fr/us/chambre/"
-    secondaryLabel="Projection de la Chambre"
-    preferredSourceLocale="fr"
-  />
-
-  <SearchFastPath lang="fr" />
-
-  <ElectionsBand lang="fr" />
+  <HomeFront lang="fr" />
 
   <AuthorStrip lang="fr" />
 
-  <SpainBand lang="fr" />
+  <SearchFastPath lang="fr" />
 
-
-
-  <SignalTicker client:idle signals={signals} locale="fr" />
-
-
+  <DeskSections lang="fr" />
 
   <section class="content-band">
     <div class="container">
-      <p class="eyebrow">Desks</p>
-      <div class="desk-grid">
-        {desks.fr.map((desk) => (
-          <a class="desk-card" href={desk.href}>
-            <p class="eyebrow">{desk.eyebrow}</p>
-            <h2>{desk.name}</h2>
-            <strong>{desk.question}</strong>
-            <p>{desk.description}</p>
-            <footer>{liveSignals[desk.id] ?? desk.signal}</footer>
-          </a>
-        ))}
-      </div>
+      <StoryList heading="Les indices qu’on suit" items={indexItems} columns={2} />
     </div>
   </section>
 
   <LabsHomeBand lang="fr" />
-
-  <DeskSections lang="fr" />
-
-  <InstrumentGrid
-    instruments={instruments.fr.slice(0, 6)}
-    title="Les indices qu’on suit"
-    intro="Chaque index répond à une question avec un chiffre que vous pouvez suivre dans le temps — poids présidentiel, fragilité des majorités, et là où le modèle et le marché divergent."
-  />
-
-  <MarketCheck
-    kicker="Modèle vs marché"
-    title="Là où on rejoint le marché — et là où on s’en écarte."
-    body="Polymarket et les cotes se placent juste à côté du modèle : d’un coup d’œil, vous voyez où les traders et les maths s’accordent, où le marché panique, et où Vote-Scope voit un écart."
-    modelLabel="Sortie modèle"
-    marketLabel="Repère"
-    note="Actualisé chaque jour, à côté de chaque projection."
-  />
 
   <MethodologyNote
     title="Comment les projections sont bâties."

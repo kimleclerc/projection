@@ -149,8 +149,7 @@ const bandTitle = title ?? (isDirectory ? T.titleAll : T.titleDesk);
     padding: 0;
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    border-top: 1px solid var(--rule);
-    border-left: 1px solid var(--rule);
+    column-gap: 32px;
   }
 
   /* The directory repeats the grid per desk; the head already carries a rule. */
@@ -158,16 +157,15 @@ const bandTitle = title ?? (isDirectory ? T.titleAll : T.titleDesk);
     border-top: none;
   }
 
+  /* Index de journal : des lignes séparées par un filet, pas des boîtes. */
   .ds-card {
-    padding: 18px 20px 20px;
-    border-right: 1px solid var(--rule);
+    padding: 14px 0 16px;
     border-bottom: 1px solid var(--rule);
-    background: var(--card);
   }
 
   .ds-card-title {
     font-family: var(--serif);
-    font-size: 21px;
+    font-size: 19px;
     font-weight: 700;
     line-height: 1.15;
     letter-spacing: -0.01em;
@@ -188,10 +186,8 @@ const bandTitle = title ?? (isDirectory ? T.titleAll : T.titleDesk);
   }
 
   .ds-links {
-    margin-top: 14px;
-    padding-top: 10px;
-    border-top: 1px solid var(--rule-2);
-    font-family: var(--mono);
+    margin-top: 8px;
+    font-family: var(--sans);
     font-size: 13px;
     letter-spacing: 0;
     color: var(--ink-4);
