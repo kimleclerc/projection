@@ -1,4 +1,5 @@
 ---
+const PHASE: Record<string, string> = { final: 'finale', semi_final: 'demi-finales', quarter_final: 'quarts de finale', round_of_16: 'huitièmes de finale', round_of_32: 'seizièmes de finale', group_stage: 'phase de groupes' };
 import EditorialLayout from '../../../layouts/EditorialLayout.astro';
 import EditorialHero from '../../../components/EditorialHero.astro';
 import RaceNarrative from '../../../components/RaceNarrative.astro';
@@ -146,10 +147,10 @@ const winnerUrl = winnerEmbed?.url ?? undefined;
   <section class="content-band">
     <div class="container">
       <p class="eyebrow">Les deux dernières — probabilités de titre</p>
-      <h2>Le board de la finale</h2>
+      <h2>Le tableau de la finale</h2>
       <p style="margin-bottom:1.5rem;font-size:0.9rem;">
-        Phase: {meta.tournament_phase.replace(/_/g, ' ')} ·
-        {meta.n_sims.toLocaleString()} simulations ·
+        Phase : {PHASE[meta.tournament_phase] ?? meta.tournament_phase.replace(/_/g, ' ')} ·
+        {meta.n_sims.toLocaleString('fr-FR')} simulations ·
         {meta.n_teams} équipes · {meta.n_groups} groupes
       </p>
       <div style="overflow-x:auto;">

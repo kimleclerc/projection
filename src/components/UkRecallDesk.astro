@@ -202,9 +202,9 @@ const FEED: Array<{
   {
     source: 'The Guardian', kind: 'report', when: '2026-09-03',
     url: 'https://www.theguardian.com/politics/2026/sep/03/reform-officials-plotted-to-break-law-on-foreign-donations-in-undercover-film',
-    fr: 'Le Guardian rapporte que le chef des politiques de Reform, James Orr, dit dans les images que Farage « doesn’t know, won’t know » et qu’il préférerait « rather not know », tout en jugeant le montage « totally legit ». Dan Jukes y présente l’opérateur infiltré comme un « key donor for off-the-book project » et décrit le sondage comme « clandestine ». Le journal souligne que l’enquête tombe la veille du congrès de Reform, où Farage doit parler vendredi.',
+    fr: 'Le Guardian rapporte que le chef des politiques de Reform, James Orr, dit dans les images que Farage « ne sait pas et ne saura pas » et qu’il préférerait « ne pas savoir », tout en jugeant le montage « totalement réglo ». Dan Jukes y présente l’opérateur infiltré comme un « donateur clé pour un projet hors comptabilité » et décrit le sondage comme « clandestine ». Le journal souligne que l’enquête tombe la veille du congrès de Reform, où Farage doit parler vendredi.',
     en: 'The Guardian reports that Reform’s head of policy James Orr says on camera that Farage “doesn’t know, won’t know” and would “rather not know”, while calling the arrangement “totally legit”. Dan Jukes introduces the undercover operative as a “key donor for off-the-book project” and describes the polling as “clandestine”. The paper notes the story lands on the eve of Reform’s conference, where Farage speaks on Friday.',
-    es: 'The Guardian informa de que el jefe de políticas de Reform, James Orr, dice en las imágenes que Farage «doesn’t know, won’t know» y que preferiría «rather not know», al tiempo que califica el montaje de «totally legit». Dan Jukes presenta al operativo encubierto como «key donor for off-the-book project». El diario subraya que la historia llega en vísperas del congreso de Reform.',
+    es: 'The Guardian informa de que el jefe de políticas de Reform, James Orr, dice en las imágenes que Farage «no lo sabe ni lo sabrá» y que preferiría «no saberlo», al tiempo que califica el montaje de «totalmente legítimo». Dan Jukes presenta al operativo encubierto como «donante clave para un proyecto fuera de las cuentas». El diario subraya que la historia llega en vísperas del congreso de Reform.',
   },
   {
     source: 'Reform UK', kind: 'response', when: '2026-09-03',
@@ -214,11 +214,11 @@ const FEED: Array<{
     es: 'Reform UK niega cualquier irregularidad y afirma haber sido objeto de un engaño de activistas climáticos financiados desde el extranjero que se hacían pasar por donantes. El partido dice tener un proceso de verificación aprobado por la Electoral Commission e identifica a Verbatim como una empresa creada en julio de 2026 por el Centre for Climate Reporting.',
   },
   {
-    source: 'Bridget Phillipson, présidente du Parti travailliste', kind: 'reaction', when: '2026-09-03',
+    source: { fr: 'Bridget Phillipson, présidente du Parti travailliste', en: 'Bridget Phillipson, Labour Party chair', es: 'Bridget Phillipson, presidenta del Partido Laborista' }, kind: 'reaction', when: '2026-09-03',
     url: 'https://www.theguardian.com/politics/2026/sep/03/reform-officials-plotted-to-break-law-on-foreign-donations-in-undercover-film',
-    fr: 'La présidente du Labour déclare que le scandale « goes right to the top of Reform UK » et demande à Farage de prouver que son équipe dirigeante n’a pas enfreint la loi.',
+    fr: 'La présidente du Labour déclare que le scandale « remonte jusqu’au sommet de Reform UK » et demande à Farage de prouver que son équipe dirigeante n’a pas enfreint la loi.',
     en: 'Labour’s party chair says the scandal “goes right to the top of Reform UK” and calls on Farage to prove his top team has not broken the law.',
-    es: 'La presidenta del laborismo afirma que el escándalo «goes right to the top of Reform UK» y pide a Farage que demuestre que su cúpula no infringió la ley.',
+    es: 'La presidenta del laborismo afirma que el escándalo «llega hasta la cúpula de Reform UK» y pide a Farage que demuestre que su cúpula no infringió la ley.',
   },
   {
     source: 'Ed Davey, chef des libéraux-démocrates', kind: 'reaction', when: '2026-09-03',
@@ -338,7 +338,7 @@ const jsonLd = [
               <span class="ukrecall-feed-kind">
                 {item.kind === 'report' ? t.feedKindReport : item.kind === 'reaction' ? t.feedKindReaction : t.feedKindResponse}
               </span>
-              <a href={item.url} rel="noreferrer">{item.source}</a>
+              <a href={item.url} rel="noreferrer">{typeof item.source === 'string' ? item.source : item.source[locale]}</a>
             </p>
             <p class="ukrecall-feed-body">{item[locale]}</p>
           </li>
@@ -452,8 +452,8 @@ const jsonLd = [
       title={t.methodTitle}
       body={t.methodBody}
       bullets={[
-        `Run ${d.run_date} · ${d.n_sims.toLocaleString(locale === 'en' ? 'en-GB' : locale === 'es' ? 'es-ES' : 'fr-FR')} simulations · ${Object.keys(race.grid).length} scénarios de course`,
-        `Recall of MPs Act 2015 · ${d.signatures_needed.toLocaleString(locale === 'en' ? 'en-GB' : locale === 'es' ? 'es-ES' : 'fr-FR')} signatures = 10 %`,
+        `${locale === 'en' ? 'Updated' : locale === 'es' ? 'Actualizado el' : 'Mis à jour le'} ${d.run_date} · ${d.n_sims.toLocaleString(locale === 'en' ? 'en-GB' : locale === 'es' ? 'es-ES' : 'fr-FR')} ${locale === 'es' ? 'simulaciones' : 'simulations'} · ${Object.keys(race.grid).length} ${locale === 'en' ? 'race scenarios' : locale === 'es' ? 'escenarios de carrera' : 'scénarios de course'}`,
+        `${locale === 'en' ? 'Recall of MPs Act 2015' : locale === 'es' ? 'Ley de revocación de diputados de 2015 (Recall of MPs Act)' : 'Loi de 2015 sur la révocation des députés (Recall of MPs Act)'} · ${d.signatures_needed.toLocaleString(locale === 'en' ? 'en-GB' : locale === 'es' ? 'es-ES' : 'fr-FR')} ${locale === 'es' ? 'firmas' : 'signatures'} = 10 %`,
       ]}
     />
   </article>

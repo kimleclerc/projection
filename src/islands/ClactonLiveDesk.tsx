@@ -45,7 +45,7 @@ export default function ClactonLiveDesk({ initial, lang }: { initial: LiveData; 
     <h2>{data.status_label[lang]}</h2>
     {data.turnout_pct != null && <p className="clive-turnout">{t.turnout}: <strong>{data.turnout_pct.toFixed(1)}%</strong></p>}
     {data.result && <div className="clive-result">
-      {data.result.map((row) => <p key={row.candidate}><span>{row.candidate}</span><strong>{row.votes.toLocaleString()} · {row.pct.toFixed(1)}%</strong></p>)}
+      {data.result.map((row) => <p key={row.candidate}><span>{row.candidate}</span><strong>{row.votes.toLocaleString(lang === 'en' ? 'en-GB' : lang === 'es' ? 'es-ES' : 'fr-FR')} · {row.pct.toFixed(1)}%</strong></p>)}
     </div>}
     <ol>
       {data.updates.map((update) => <li key={update.at}>

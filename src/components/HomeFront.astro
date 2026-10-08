@@ -8,6 +8,7 @@
 import ResultsTable from './ResultsTable.astro';
 import ElectionsBand from './ElectionsBand.astro';
 import senate from '../../web_data/us-senate/latest.json';
+import { partyName } from '../lib/party-names';
 
 type Lang = 'en' | 'fr' | 'es';
 interface Props { lang: Lang }
@@ -20,9 +21,6 @@ const dem = parties.find((p) => p.party === 'us_dem');
 const rep = parties.find((p) => p.party === 'us_rep');
 const lead = (dem.p_majority ?? 0) >= (rep.p_majority ?? 0) ? dem : rep;
 const pct = (p: number) => `${Math.round(p * 100)}${lang === 'en' ? '%' : ' %'}`;
-const partyName = (p: any) => lang === 'fr' ? p.label_fr
-  : lang === 'es' ? ({ us_dem: 'Demócrata', us_rep: 'Republicano', us_oth: 'Otro' } as Record<string, string>)[p.party] ?? p.label_en
-  : p.label_en;
 const leadPlural = {
   us_dem: L('Les démocrates', 'Democrats', 'Los demócratas'),
   us_rep: L('Les républicains', 'Republicans', 'Los republicanos'),
@@ -33,7 +31,7 @@ const daysLeft = Math.round((Date.parse('2026-11-03T12:00:00Z') - today.getTime(
 const nSims = Number(meta.n_simulations ?? 50000).toLocaleString(lang === 'en' ? 'en-US' : 'fr-FR');
 
 const rows = parties.map((p) => ({
-  label: partyName(p),
+  label: partyName(p, lang),
   color: p.color,
   seats: p.seats_projected,
   low: p.seats_ci_low_80 !== undefined ? Math.round(p.seats_ci_low_80) : undefined,

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'preact/hooks';
+import { partyName } from '../lib/party-names';
 
 /*
  * ProjectionHistoryChart — Preact island, client:visible.
@@ -32,7 +33,7 @@ const W = 720;
 const H = 320;
 
 function formatDate(iso: string, lang: 'en' | 'fr'): string {
-  return new Intl.DateTimeFormat(lang === 'fr' ? 'fr-CA' : 'en-CA', {
+  return new Intl.DateTimeFormat(lang === 'fr' ? 'fr-CA' : lang === 'es' ? 'es-ES' : 'en-CA', {
     month: 'short', day: 'numeric', timeZone: 'UTC',
   }).format(new Date(iso + 'T00:00:00Z'));
 }
@@ -68,7 +69,7 @@ export default function ProjectionHistoryChart({ historyUrl, parties, lang }: Pr
   }, [history, parties]);
 
   if (error) {
-    return <div class="ph-error">{lang === 'fr' ? 'Historique indisponible.' : 'History unavailable.'}</div>;
+    return <div class="ph-error">{lang === 'fr' ? 'Historique indisponible.' : lang === 'es' ? 'Historial no disponible.' : 'History unavailable.'}</div>;
   }
   if (!history || !layout) {
     return <div class="ph-skel" aria-hidden="true"><div class="ph-skel-inner"></div></div>;
@@ -83,7 +84,7 @@ export default function ProjectionHistoryChart({ historyUrl, parties, lang }: Pr
   return (
     <div class="ph-chart">
       <svg viewBox={`0 0 ${W} ${H}`} width="100%" preserveAspectRatio="xMidYMid meet" role="img"
-           aria-label={lang === 'fr' ? 'Évolution des projections par parti' : 'Projection history by party'}>
+           aria-label={lang === 'fr' ? 'Évolution des projections par parti' : lang === 'es' ? 'Evolución de las proyecciones por partido' : 'Projection history by party'}>
         {/* Y axis grid + labels */}
         {ticksY.map((tv) => (
           <g>
@@ -156,14 +157,14 @@ export default function ProjectionHistoryChart({ historyUrl, parties, lang }: Pr
                 .map(({ party, v }) => (
                   <li>
                     <span class="ph-key" style={{ background: party.color }}></span>
-                    <span class="ph-pname">{lang === 'fr' ? party.label_fr : party.label_en}</span>
+                    <span class="ph-pname">{partyName(party, lang)}</span>
                     <strong>{v!.toFixed(1)}%</strong>
                   </li>
                 ))}
             </ul>
           </>
         ) : (
-          <p class="ph-hint">{lang === 'fr' ? 'Survolez le graphique pour les valeurs précises.' : 'Hover the chart for precise values.'}</p>
+          <p class="ph-hint">{lang === 'fr' ? 'Survolez le graphique pour les valeurs précises.' : lang === 'es' ? 'Pasa el cursor sobre el gráfico para ver los valores exactos.' : 'Hover the chart for precise values.'}</p>
         )}
       </div>
     </div>

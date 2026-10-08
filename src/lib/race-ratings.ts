@@ -26,5 +26,5 @@ export const RATING_STYLE: Record<string, { light: string; dark: string; en: str
   tossup:     { light: '#8C8C8C', dark: '#8A8A8A', en: 'Toss-up',  fr: 'Incertain',  es: 'Incierto' },
   lean_rep:   { light: '#F08A72', dark: '#E8907A', en: 'Lean R',   fr: 'Penche R',   es: 'Inclina R' },
   likely_rep: { light: '#D2222D', dark: '#E14A4A', en: 'Likely R', fr: 'Probable R', es: 'Probable R' },
-  solid_rep:  { light: '#93202A', dark: '#BE3A42', en: 'Solid R',  fr: 'Sûr R',      es: 'Solide R' },
+  solid_rep:  { light: '#93202A', dark: '#BE3A42', en: 'Solid R',  fr: 'Sûr R',      es: 'Seguro R' },
 };

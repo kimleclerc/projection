@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'preact/hooks';
+import { placeName } from '../lib/place-names';
 import {
   US_TILE_GRID,
   TILE_ROWS,
@@ -49,7 +50,7 @@ const COPY = {
 function stateName(units: EcUnit[], st: string, locale: Locale): string {
   const u = units.find((x) => x.state === st);
   if (!u) return st;
-  return locale === 'fr' ? u.name_fr.replace(/ \(.*\)$/, '') : u.name_en.replace(/ \(.*\)$/, '');
+  return placeName(u, locale).replace(/ \(.*\)$/, '');
 }
 
 export default function UsElectoralMap({ frame, locale }: Props) {

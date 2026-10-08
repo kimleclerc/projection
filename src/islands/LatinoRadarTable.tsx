@@ -41,7 +41,7 @@ export default function LatinoRadarTable({ races, locale }: { races: Race[]; loc
   ] as const;
 
   return <div class="radar-explorer">
-    <div class="radar-controls" aria-label="Radar controls">
+    <div class="radar-controls" aria-label={locale === 'fr' ? 'Commandes du radar' : locale === 'es' ? 'Controles del radar' : 'Radar controls'}>
       <div class="radar-filters">
         {filters.map(([key, label]) =>
           <button type="button" class={filter === key ? 'active' : ''} aria-pressed={filter === key} onClick={() => { setFilter(key); setLimit(30); }}>{label}</button>

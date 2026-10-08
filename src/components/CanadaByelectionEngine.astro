@@ -14,7 +14,11 @@ interface Props {
   config: CanadaByelectionConfig;
 }
 
-const { lang, config } = Astro.props;
+const { lang, config: rawConfig } = Astro.props;
+// Titre, chapeau et accroche dans la langue de la page (repli sur l'anglais).
+const pick = (k: 'title' | 'description' | 'kicker' | 'headline' | 'dek') =>
+  (lang === 'en' ? undefined : (rawConfig as any)[`${k}_${lang}`]) ?? rawConfig[k];
+const config = { ...rawConfig, title: pick('title'), description: pick('description'), kicker: pick('kicker'), headline: pick('headline'), dek: pick('dek') };
 const canonicalPath = config.paths[lang] ?? config.paths.en;
 if (!canonicalPath) {
   throw new Error(`Missing canonical path for byelection ${config.slug}`);
@@ -229,14 +233,14 @@ if (result && result.candidates.length >= 2) {
         body={t.keepDiggingBody}
         links={[
           {
-            href: lang === 'fr' ? '/fr/canada/' : '/en/canada/',
-            label: lang === 'fr' ? 'Canada fédéral' : 'Canada Federal',
-            detail: lang === 'fr' ? 'Projection fédérale' : 'Federal projection',
+            href: `/${lang}/canada/`,
+            label: lang === 'fr' ? 'Canada fédéral' : lang === 'es' ? 'Canadá federal' : 'Canada Federal',
+            detail: lang === 'fr' ? 'Projection fédérale' : lang === 'es' ? 'Proyección federal' : 'Federal projection',
           },
           {
-            href: lang === 'fr' ? '/fr/canada/byelections/' : '/en/canada/byelections/',
-            label: lang === 'fr' ? 'Toutes les partielles' : 'All by-elections',
-            detail: lang === 'fr' ? '3 partielles · Avril 2026' : '3 by-elections · April 2026',
+            href: `/${lang}/canada/byelections/`,
+            label: lang === 'fr' ? 'Toutes les partielles' : lang === 'es' ? 'Todas las elecciones parciales' : 'All by-elections',
+            detail: lang === 'fr' ? '3 partielles · Avril 2026' : lang === 'es' ? '3 elecciones parciales · abril de 2026' : '3 by-elections · April 2026',
           },
           ...otherByelections.map((b) => ({
             href: `/${lang}/canada/byelections/${b.slug}/`,

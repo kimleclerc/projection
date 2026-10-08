@@ -1,3 +1,5 @@
+import { partyName } from './party-names.ts';
+import { placeName } from './place-names.ts';
 /* Mini-simulateur — types et calcul.
  *
  * Miroir TypeScript de `simulate()` dans models/web_simulator.py, qui est la
@@ -150,7 +152,7 @@ export function simulateRidings(
     const shares = Object.fromEntries(codes.map((code, index) => [code, nextShares[index]]));
     return {
       id: riding.id,
-      name: locale === 'fr' ? riding.name_fr : riding.name_en,
+      name: placeName(riding, locale),
       region: riding.region,
       baselineWinner: codes[baseFirst],
       winner: codes[nextFirst],
@@ -234,7 +236,7 @@ export function simulate(
 
 /** Libellé d'un parti dans la locale (l'espagnol retombe sur l'anglais). */
 export function partyLabel(p: SimParty, locale: string): string {
-  return locale === 'fr' ? p.label_fr : p.label_en;
+  return partyName(p, locale);
 }
 
 /** Libellé d'une région dans la locale. */

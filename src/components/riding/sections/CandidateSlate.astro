@@ -1,4 +1,5 @@
 ---
+import { partyName } from '../../../lib/party-names';
 /**
  * CandidateSlate — the "who's running" electoral slate for the UPCOMING
  * election. Distinct from CandidatesTable (which shows PAST results with
@@ -45,7 +46,7 @@ const sorted = [...list].sort((a, b) => {
   if (s !== 0) return s;
   const am = partyMeta(data.jurisdiction, a.party_code);
   const bm = partyMeta(data.jurisdiction, b.party_code);
-  return (lang === 'fr' ? am.label_fr : am.label_en).localeCompare(lang === 'fr' ? bm.label_fr : bm.label_en);
+  return (partyName(am, lang)).localeCompare(partyName(bm, lang));
 });
 
 // Title-case ALL-CAPS FEC names ("MOORE, FELIX BARRY" "Moore, Felix Barry").
@@ -82,7 +83,7 @@ const localizedBio = (c: (typeof list)[number]): string | undefined => {
     <ul class="slate-grid">
       {sorted.map((c) => {
         const meta = partyMeta(data.jurisdiction, c.party_code);
-        const partyLabel = lang === 'fr' ? meta.label_fr : meta.label_en;
+        const partyLabel = partyName(meta, lang);
         const st = statusLabel(c.status);
         const bio = localizedBio(c);
         return (
@@ -90,7 +91,7 @@ const localizedBio = (c: (typeof list)[number]): string | undefined => {
             <div class="cand-top">
               <span class="cand-party">
                 {partyMark(meta)
-                  ? <img class="cand-logo" src={`/party-logos/${partyMark(meta)}`} alt={(lang === 'fr' ? meta.full_fr : meta.full_en) ?? partyLabel} width="18" height="18" loading="lazy" decoding="async" />
+                  ? <img class="cand-logo" src={`/party-logos/${partyMark(meta)}`} alt={(lang === 'fr' ? meta.full_fr : lang === 'es' ? (meta.full_es ?? meta.full_fr) : meta.full_en) ?? partyLabel} width="18" height="18" loading="lazy" decoding="async" />
                   : <span class="cand-swatch" aria-hidden="true"></span>}
                 {partyLabel}
               </span>

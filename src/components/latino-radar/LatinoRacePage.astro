@@ -1,4 +1,5 @@
 ---
+import { sourceLabel, confidenceLabel } from '../../lib/source-labels';
 import EditorialLayout from '../../layouts/EditorialLayout.astro';
 import { partyLabel, radarCopy, radarRoots, type RadarLocale } from '../../data/latinoRadar';
 import '../../styles/latino-radar.css';
@@ -55,7 +56,7 @@ const alternates = Object.fromEntries(Object.entries(race.urls).map(([key, value
             <h2>{copy.breakdown}</h2>
             <div class="score-components">
               {race.components.map((component: any) => <article class="score-component">
-                <div><h3>{component.labels[locale]}</h3><small>{component.weight}% · {component.source.confidence}</small></div>
+                <div><h3>{component.labels[locale]}</h3><small>{component.weight}{locale === 'en' ? '%' : '\u202f%'} · {confidenceLabel(component.source.confidence, locale)}</small></div>
                 <div class="score-track" aria-label={`${component.score} sur 100`}><div class="score-fill" style={`width:${component.score}%`}></div></div>
                 <div class="score-number">{component.score.toFixed(1)}</div>
               </article>)}
@@ -87,7 +88,7 @@ const alternates = Object.fromEntries(Object.entries(race.urls).map(([key, value
             <p class="radar-kicker">{copy.sources}</p>
             <h2>{copy.sources}</h2>
             <ul class="source-list">
-              {race.sources.map((source: any) => <li><a href={source.url || undefined}>{source.label}</a> · {source.as_of}</li>)}
+              {race.sources.map((source: any) => <li><a href={source.url || undefined}>{sourceLabel(source.label, locale)}</a> · {source.as_of}</li>)}
             </ul>
             <div class="race-actions">
               <a href={race.projection_urls[locale]}>{copy.fullProjection}</a>

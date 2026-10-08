@@ -1,7 +1,10 @@
 ---
+import { partyName } from '../../../../../lib/party-names';
+import { placeNameEs } from '../../../../../lib/place-names';
 import EditorialLayout from '../../../../../layouts/EditorialLayout.astro';
 import { getGovernorRaceSummaries } from '../../../../../lib/riding-adapters/us-governor';
 import { partyMeta } from '../../../../../lib/riding-adapters/parties';
+import { RATING_STYLE } from '../../../../../lib/race-ratings';
 
 // Triées par SERRÉ D'ABORD : une liste alphabétique de 36 États enterre les
 // quatre courses qui décideront de la carte sous l'Alabama et l'Arkansas.
@@ -49,8 +52,8 @@ const canonical = 'https://vote-scope.com/es/us/gobernadores/carreras/';
             <li>
               <a href={`/es/us/gobernadores/carreras/${r.slug}/`} style={`--accent:${meta.color}`}>
                 <span class="dot" aria-hidden="true"></span>
-                <span class="name">{r.name.en}{r.openSeat && <em class="open">puesto abierto</em>}</span>
-                <span class="party">{r.rating ? r.rating.label_en : meta.label_en}</span>
+                <span class="name">{placeNameEs(r.name.en)}{r.openSeat && <em class="open">puesto abierto</em>}</span>
+                <span class="party">{r.rating ? (RATING_STYLE[r.rating.code]?.es ?? r.rating.label_en) : partyName({ ...meta, party: r.winner }, 'es')}</span>
               </a>
             </li>
           );

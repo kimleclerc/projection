@@ -1,6 +1,7 @@
 import { useUrlParam } from './lib/urlState';
 import CopyLink from './lib/CopyLink';
 import EmbedCode from './lib/EmbedCode';
+import { partyName } from '../lib/party-names';
 
 /* BarrageMeter — Preact island for the Barrage Index (Front républicain) hero meter.
  *
@@ -60,7 +61,7 @@ function activeZone(value: number, zones: BarrageZone[]): BarrageZone {
 
 function zoneLabel(z: BarrageZone, locale: 'en' | 'fr' | 'es'): string {
   if (locale === 'es') return z.label_es ?? z.label_en;
-  return locale === 'fr' ? z.label_fr : z.label_en;
+  return partyName(z, locale);
 }
 
 function fmtScore(value: number, locale: 'en' | 'fr' | 'es'): string {
@@ -300,7 +301,7 @@ export default function BarrageMeter({ score, locale, zones, defaultView = 'gaug
         {view === 'gauge' && <GaugeView value={value} zones={safeZones} locale={locale} />}
         {view === 'dam' && <DamView value={value} zones={safeZones} locale={locale} />}
       </div>
-      <div class="meter-switch" role="tablist" aria-label={locale === 'fr' ? 'Vue du compteur' : 'Meter view'}>
+      <div class="meter-switch" role="tablist" aria-label={locale === 'fr' ? 'Vue du compteur' : locale === 'es' ? 'Vista del medidor' : 'Meter view'}>
         {views.map((v) => (
           <button
             key={v.key}

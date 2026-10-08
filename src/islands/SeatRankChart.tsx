@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { readChartTheme, onThemeChange, readableOn } from './lib/chart-theme';
+import { partyName } from '../lib/party-names';
 
 export interface RankParty {
   party: string;
@@ -101,7 +102,7 @@ export default function SeatRankChart({ parties, locale }: Props) {
           .sort((a, b) => (a.p_largest ?? 0) - (b.p_largest ?? 0)
             || (a.seats_mean ?? 0) - (b.seats_mean ?? 0));
 
-        const labels = rows.map((p) => (locale === 'fr' ? p.label_fr : p.label_en));
+        const labels = rows.map((p) => (partyName(p, locale)));
         const first = rows.map((p) => p.p_largest ?? 0);
         const second = rows.map((p) => p.p_second ?? 0);
         const rest = rows.map((p) =>

@@ -238,7 +238,7 @@ const deltaTone = typeof delta === 'number' ? (delta > 0 ? 'is-up' : delta < 0 ?
           <a class="btn-outline" href="#history">{t.history}</a>
         </div>
 
-        <div class="lame-duck-stats" aria-label="Canada Goose live stats">
+        <div class="lame-duck-stats" aria-label={locale === 'fr' ? 'Chiffres en direct de l’indice Bernache' : locale === 'es' ? 'Cifras en directo del Canada Goose Index' : 'Canada Goose live stats'}>
           <article>
             <p>{t.readingLabel}</p>
             <strong>{data.cgi.score.toFixed(1)}<span>/100</span></strong>
@@ -247,7 +247,7 @@ const deltaTone = typeof delta === 'number' ? (delta > 0 ? 'is-up' : delta < 0 ?
           <article>
             <p>{t.leadStat}</p>
             <strong class="is-blue">{data.computed.leadLabel}</strong>
-            <em>Vote-Scope model</em>
+            <em>{locale === 'fr' ? 'Modèle Vote-Scope' : locale === 'es' ? 'Modelo Vote-Scope' : 'Vote-Scope model'}</em>
           </article>
           <article>
             <p>{t.runwayStat}</p>

@@ -2,6 +2,7 @@ import { GooseSvg } from './birds';
 import { useUrlParam } from './lib/urlState';
 import CopyLink from './lib/CopyLink';
 import EmbedCode from './lib/EmbedCode';
+import { partyName } from '../lib/party-names';
 
 /* GooseMeter — Preact island for the Canada Goose Index (Bernache) hero meter.
  *
@@ -59,7 +60,7 @@ function activeZone(value: number, zones: GooseZone[]): GooseZone {
 
 function zoneLabel(z: GooseZone, locale: 'en' | 'fr' | 'es'): string {
   if (locale === 'es') return z.label_es ?? z.label_en;
-  return locale === 'fr' ? z.label_fr : z.label_en;
+  return partyName(z, locale);
 }
 
 /* Flying Canada goose, side profile — server-friendly inline SVG.
@@ -215,7 +216,7 @@ export default function GooseMeter({ score, locale, zones, defaultView = 'gauge'
         {view === 'gauge' && <GaugeView value={value} zones={safeZones} locale={locale} />}
         {view === 'altitude' && <AltitudeView value={value} zones={safeZones} locale={locale} />}
       </div>
-      <div class="meter-switch" role="tablist" aria-label={locale === 'fr' ? 'Vue du compteur' : 'Meter view'}>
+      <div class="meter-switch" role="tablist" aria-label={locale === 'fr' ? 'Vue du compteur' : locale === 'es' ? 'Vista del medidor' : 'Meter view'}>
         {views.map((v) => (
           <button
             key={v.key}

@@ -1,4 +1,5 @@
 ---
+import { partyName } from '../../../lib/party-names';
 import type { RidingData } from '../../../lib/riding-adapters/types';
 import { partyMeta } from '../../../lib/riding-adapters/parties';
 
@@ -67,7 +68,7 @@ const numberFmt = new Intl.NumberFormat(LOCALE);
       <tbody>
         {data.candidates.map((c) => {
           const meta = partyMeta(data.jurisdiction, c.party_code);
-          const partyLabel = lang === 'fr' ? meta.label_fr : meta.label_en;
+          const partyLabel = partyName(meta, lang);
           return (
             <tr class={c.is_elected ? 'elected' : ''}>
               <td>

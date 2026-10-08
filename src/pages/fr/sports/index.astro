@@ -1,7 +1,6 @@
 ---
 import EditorialLayout from '../../../layouts/EditorialLayout.astro';
 import EditorialHero from '../../../components/EditorialHero.astro';
-import MarketCheck from '../../../components/MarketCheck.astro';
 import MethodologyNote from '../../../components/MethodologyNote.astro';
 import AnimatedNumber from '../../../islands/AnimatedNumber';
 import PolymarketEmbed from '../../../components/PolymarketEmbed.astro';
@@ -59,7 +58,7 @@ const mlbJays = mlbByCode.get(mlb.hero.canadian_focus.code);
 
   <section class="content-band">
     <div class="container">
-      <p class="eyebrow">MLB 2026 · desk live · run nocturne</p>
+      <p class="eyebrow">MLB 2026 · en direct · calcul chaque nuit</p>
       <h2>{mlbFav.emoji} {teamLabel(mlbFav, 'fr')} mènent la course à la Série mondiale à {fmtProb(mlbFav.p_ws, 'fr')}.</h2>
       <p>
         Les 30 équipes, {mlb.board_meta.sims.toLocaleString('fr-CA')} simulations chaque nuit — probabilités de séries, de division, de championnat et de titre.
@@ -123,15 +122,6 @@ const mlbJays = mlbByCode.get(mlb.hero.canadian_focus.code);
       </div>
     </div>
   </section>
-
-  <MarketCheck
-    kicker="Pouls du marché sport"
-    title="Le marché voit le même match. Le modèle voit le chemin."
-    body="Les cotes Polymarket et Kalshi accompagnent le modèle comme repère indépendant. Là où ils convergent, le signal est fort. Là où ils divergent, c'est la story."
-    modelLabel="Modèle Vote-Scope"
-    marketLabel="Pouls marché"
-    note="Les données de marchés de prédiction sont affichées comme repère uniquement. Le modèle et le marché sont mis à jour selon des cadences indépendantes."
-  />
 
   <DeskSections lang="fr" desk="sports" />
 

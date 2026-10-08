@@ -502,7 +502,7 @@ export default function MiniSimulator({ doc, locale, map }: Props) {
               geoUrl={map.geoUrl}
               ridings={mapRidings}
               parties={mapParties}
-              locale={locale === 'fr' ? 'fr' : 'en'}
+              locale={locale}
               center={map.center}
               zoom={map.zoom}
               idProp={map.idProp}

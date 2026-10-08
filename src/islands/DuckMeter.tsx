@@ -1,6 +1,7 @@
 import { useUrlParam } from './lib/urlState';
 import CopyLink from './lib/CopyLink';
 import EmbedCode from './lib/EmbedCode';
+import { partyName } from '../lib/party-names';
 
 /* DuckMeter — Preact island for the lame-duck index hero meter.
  *
@@ -96,7 +97,7 @@ function activeZone(value: number, zones: DuckZone[]): DuckZone {
 
 function zoneLabel(z: DuckZone, locale: 'en' | 'fr' | 'es'): string {
   if (locale === 'es') return z.label_es ?? z.label_en;
-  return locale === 'fr' ? z.label_fr : z.label_en;
+  return partyName(z, locale);
 }
 
 /* Trump-toupet rubber duck — server-friendly inline SVG.
@@ -412,7 +413,7 @@ export default function DuckMeter({ score, locale, zones, defaultView = 'gauge',
         {view === 'bathtub' && <BathtubView value={value} locale={locale} />}
         {view === 'waterline' && <WaterlineView value={value} zones={safeZones} locale={locale} />}
       </div>
-      <div class="meter-switch" role="tablist" aria-label={locale === 'fr' ? 'Vue du compteur' : 'Meter view'}>
+      <div class="meter-switch" role="tablist" aria-label={locale === 'fr' ? 'Vue du compteur' : locale === 'es' ? 'Vista del medidor' : 'Meter view'}>
         {views.map((v) => (
           <button
             key={v.key}

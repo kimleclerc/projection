@@ -234,20 +234,20 @@ function buildTicker(data: Partial<LameDuckData>, locale: LameDuckLocale = 'en')
       href: `${pathPrefix}/indexes/lame-duck/`,
     },
     {
-      tag: locale === 'es' ? 'SONDEOS' : (locale === 'fr' ? 'SONDAGES' : 'POLLS'),
+      tag: locale === 'es' ? 'SONDEOS' : (locale === 'fr' ? 'SONDAGES' : locale === 'es' ? 'ENCUESTAS' : 'POLLS'),
       tone: 'red',
       text: T.polls(localizedRaw(approval)),
       time: approval?.last_updated ?? T.tracker,
     },
     {
-      tag: locale === 'es' ? 'CÁMARA' : (locale === 'fr' ? 'CHAMBRE' : 'HOUSE'),
+      tag: locale === 'es' ? 'CÁMARA' : (locale === 'fr' ? 'CHAMBRE' : locale === 'es' ? 'CÁMARA' : 'HOUSE'),
       tone: 'blue',
       text: T.house(String(midterms.house_seats_dem ?? '—')),
       time: T.model,
       href: `${pathPrefix}/${locale === 'fr' ? 'chambre' : 'house'}/`,
     },
     {
-      tag: locale === 'es' ? 'SENADO' : (locale === 'fr' ? 'SÉNAT' : 'SENATE'),
+      tag: locale === 'es' ? 'SENADO' : (locale === 'fr' ? 'SÉNAT' : locale === 'es' ? 'SENADO' : 'SENATE'),
       tone: 'red',
       text: T.senate(((Number(midterms.senate_dem_prob ?? 0) * 100)).toFixed(0)),
       time: T.model,
@@ -260,7 +260,7 @@ function buildTicker(data: Partial<LameDuckData>, locale: LameDuckLocale = 'en')
       time: genericBallot?.last_updated ?? T.polls_time,
     },
     {
-      tag: locale === 'es' ? 'ECONOMÍA' : (locale === 'fr' ? 'ÉCONOMIE' : 'ECON'),
+      tag: locale === 'es' ? 'ECONOMÍA' : (locale === 'fr' ? 'ÉCONOMIE' : locale === 'es' ? 'ECONOMÍA' : 'ECON'),
       tone: 'duck',
       text: T.econ(localizedRaw(econ)),
       time: econ?.last_updated ?? 'FRED',

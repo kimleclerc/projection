@@ -44,7 +44,7 @@ const dir = (d: string) => (d === 'up' ? '▲' : d === 'down' ? '▼' : '');
 ---
 
 <article class="bd" data-content-area>
-  <nav class="bd-crumb container" aria-label="Breadcrumb">
+  <nav class="bd-crumb container" aria-label={locale === 'fr' ? 'Fil d’Ariane' : locale === 'es' ? 'Ruta de navegación' : 'Breadcrumb'}>
     <a href={`/${locale}/budget/`}>Budget</a> <span aria-hidden="true">/</span>
     <a href={budgetJur(locale, data.slug)}>{jur}</a> <span aria-hidden="true">/</span>
     <span>{heading}</span>

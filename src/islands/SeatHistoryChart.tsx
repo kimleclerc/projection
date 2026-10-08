@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { readChartTheme, onThemeChange } from './lib/chart-theme';
+import { partyName } from '../lib/party-names';
 
 export interface SeatRun {
   run_date: string;
@@ -106,7 +107,7 @@ export default function SeatHistoryChart({
 
         const partyByKey = new Map(parties.map((p) => [p.party, p]));
         const label = (p: HistoryParty) =>
-          locale === 'fr' ? p.label_fr : p.label_en;
+          partyName(p, locale);
 
         // Ne tracer que les partis qui ont DÉJÀ décroché un siège quelque part
         // dans la fenêtre : une ligne plate à zéro sur cinquante runs mange de

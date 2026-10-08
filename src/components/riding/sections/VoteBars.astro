@@ -1,4 +1,5 @@
 ---
+import { partyName } from '../../../lib/party-names';
 import type { RidingData } from '../../../lib/riding-adapters/types';
 
 interface Props {
@@ -77,7 +78,7 @@ function rawPartyLabel(raw: string | undefined): string | undefined {
 
     <ul class="bars">
       {parties.map((p) => {
-        const label = lang === 'fr' ? p.label_fr : p.label_en;
+        const label = partyName(p, lang);
         const baseline = baselinePct(p.code);
         const widthPct = (p.vote_mean_pct / maxPct) * 100;
         return (

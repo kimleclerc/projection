@@ -76,7 +76,7 @@ export default function HeroStats({
   }, [electionDate]);
 
   return (
-    <div class="lame-duck-stats" aria-label="Lame-Duck live stats">
+    <div class="lame-duck-stats" aria-label={locale === 'fr' ? 'Chiffres en direct de l’indice Lame-Duck' : locale === 'es' ? 'Cifras en directo del Lame-Duck Index' : 'Lame-Duck live stats'}>
       <article>
         <p>{t.reading}</p>
         <strong>

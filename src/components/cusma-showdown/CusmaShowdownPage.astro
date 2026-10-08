@@ -1,4 +1,5 @@
 ---
+import { partyName } from '../../lib/party-names';
 import EditorialLayout from '../../layouts/EditorialLayout.astro';
 import CusmaTugOfWar from '../../islands/CusmaTugOfWar.tsx';
 import PolymarketEmbed from '../PolymarketEmbed.astro';
@@ -707,7 +708,7 @@ const watchList = editorial ? pickList(editorial, 'watch', locale) : [];
           {tariff && (
             <article>
               <p>{t.tariffCardTitle}</p>
-              <strong style="font-size:1.1rem;line-height:1.3">{locale === 'fr' ? tariff.label_fr : tariff.label_en}</strong>
+              <strong style="font-size:1.1rem;line-height:1.3">{partyName(tariff, locale)}</strong>
               {tariff.market_url && <a class="btn-outline" href={tariff.market_url} target="_blank" rel="noopener" style="margin-top:.6rem;display:inline-block">{t.viewMarket} ↗</a>}
             </article>
           )}

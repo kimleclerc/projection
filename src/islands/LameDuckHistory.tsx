@@ -113,7 +113,7 @@ export default function LameDuckHistory({ history, presidents, currentScore, loc
             </div>
           </dl>
         </header>
-        <svg viewBox="0 0 900 300" role="img" aria-label="Lame-Duck Index history">
+        <svg viewBox="0 0 900 300" role="img" aria-label={locale === 'fr' ? 'Historique de l’indice Lame-Duck' : locale === 'es' ? 'Historial del Lame-Duck Index' : 'Lame-Duck Index history'}>
           {[0, 25, 50, 75, 100].map((tick) => {
             const y = 280 - (tick / 100) * 280 + 10;
             return (

@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from 'preact/hooks';
+import { partyName } from '../lib/party-names';
+import { placeName } from '../lib/place-names';
 import {
   projectFeatures,
   type GeoFeatureLike,
@@ -51,7 +53,7 @@ interface Props {
   geoUrl: string;
   ridings: RidingFull[];
   parties: MapParty[];
-  locale: 'en' | 'fr';
+  locale: 'en' | 'fr' | 'es';
   center?: [number, number];
   zoom?: number;
   /** clé de la propriété GeoJSON qui matche `riding_id` (défaut 'FEDNUM') */
@@ -120,22 +122,20 @@ function escapeHtml(s: string): string {
 function buildPopupHtml(
   riding: RidingFull,
   parties: MapParty[],
-  locale: 'en' | 'fr',
+  locale: 'en' | 'fr' | 'es',
   baselineYear: number,
   winnerThreshold: number,
 ): string {
   const partyByKey = new Map(parties.map((p) => [p.key, p]));
   const labelOf = (key: string) =>
-    partyByKey.get(key)?.[locale === 'fr' ? 'label_fr' : 'label_en'] ?? key;
+    ((partyByKey.get(key)) ? partyName(partyByKey.get(key)!, locale) : undefined) ?? key;
   const colorOf = (key: string) => partyByKey.get(key)?.color ?? '#888';
 
-  const name = locale === 'fr' ? riding.name_fr : riding.name_en;
+  const name = placeName(riding, locale);
   const winner = riding.projection.winner;
   const isTossup = winner === 'tossup' || riding.projection.p_winner < winnerThreshold;
   const winnerLabel = isTossup
-    ? locale === 'fr'
-      ? 'Indécis'
-      : 'Tossup'
+    ? locale === 'fr' ? 'Indécis' : locale === 'es' ? 'Incierto' : 'Tossup'
     : labelOf(winner);
   const winnerColor = isTossup ? '#888' : colorOf(winner);
 
@@ -152,21 +152,19 @@ function buildPopupHtml(
   const t = {
     currentProjection:
       hasByel
-        ? locale === 'fr' ? 'Prochaine générale' : 'Next general election'
-        : locale === 'fr' ? 'Projection actuelle' : 'Current projection',
-    byelection: locale === 'fr' ? 'Partielle' : 'By-election',
-    byelectionDate: locale === 'fr' ? 'Scrutin' : 'Polling day',
-    localPoll: locale === 'fr' ? 'Sondage local' : 'Local poll',
-    yes: locale === 'fr' ? 'oui' : 'yes',
-    pWin: locale === 'fr' ? 'P(victoire)' : 'P(win)',
-    closeRace: locale === 'fr' ? 'Course serrée' : 'Close race',
-    margin: locale === 'fr' ? 'Marge' : 'Margin',
-    turnout: locale === 'fr' ? 'Participation' : 'Turnout',
+        ? locale === 'fr' ? 'Prochaine générale' : locale === 'es' ? 'Próximas elecciones generales' : 'Next general election'
+        : locale === 'fr' ? 'Projection actuelle' : locale === 'es' ? 'Proyección actual' : 'Current projection',
+    byelection: locale === 'fr' ? 'Partielle' : locale === 'es' ? 'Elección parcial' : 'By-election',
+    byelectionDate: locale === 'fr' ? 'Scrutin' : locale === 'es' ? 'Día de votación' : 'Polling day',
+    localPoll: locale === 'fr' ? 'Sondage local' : locale === 'es' ? 'Encuesta local' : 'Local poll',
+    yes: locale === 'fr' ? 'oui' : locale === 'es' ? 'sí' : 'yes',
+    pWin: locale === 'fr' ? 'P(victoire)' : locale === 'es' ? 'P(victoria)' : 'P(win)',
+    closeRace: locale === 'fr' ? 'Course serrée' : locale === 'es' ? 'Contienda reñida' : 'Close race',
+    margin: locale === 'fr' ? 'Marge' : locale === 'es' ? 'Margen' : 'Margin',
+    turnout: locale === 'fr' ? 'Participation' : locale === 'es' ? 'Participación' : 'Turnout',
     baseline:
-      locale === 'fr'
-        ? `Référence ${baselineYear}`
-        : `${baselineYear} baseline`,
-    winner: locale === 'fr' ? 'Vainqueur' : 'Winner',
+      locale === 'fr' ? `Référence ${baselineYear}` : locale === 'es' ? `Referencia ${baselineYear}` : `${baselineYear} baseline`,
+    winner: locale === 'fr' ? 'Vainqueur' : locale === 'es' ? 'Ganador' : 'Winner',
   };
 
   const voteRows = votes
@@ -264,35 +262,31 @@ function buildPopupHtml(
 function buildAriaLabel(
   riding: RidingFull,
   parties: MapParty[],
-  locale: 'en' | 'fr',
+  locale: 'en' | 'fr' | 'es',
   winnerThreshold: number,
 ): string {
-  const name = locale === 'fr' ? riding.name_fr : riding.name_en;
+  const name = placeName(riding, locale);
   const partyByKey = new Map(parties.map((p) => [p.key, p]));
   const winner = riding.projection.winner;
   const isTossup = winner === 'tossup' || riding.projection.p_winner < winnerThreshold;
   const winnerLabel = isTossup
-    ? locale === 'fr'
-      ? 'indécis'
-      : 'tossup'
-    : (partyByKey.get(winner)?.[locale === 'fr' ? 'label_fr' : 'label_en'] ??
+    ? locale === 'fr' ? 'indécis' : locale === 'es' ? 'incierto' : 'tossup'
+    : (((partyByKey.get(winner)) ? partyName(partyByKey.get(winner)!, locale) : undefined) ??
       winner);
   const pct = (riding.projection.p_winner * 100).toFixed(0);
-  return locale === 'fr'
-    ? `${name} : ${winnerLabel} (probabilité ${pct} %)`
-    : `${name}: ${winnerLabel} (${pct}% probability)`;
+  return locale === 'fr' ? `${name} : ${winnerLabel} (probabilité ${pct} %)` : locale === 'es' ? `${name}: ${winnerLabel} (probabilidad ${pct} %)` : `${name}: ${winnerLabel} (${pct}% probability)`;
 }
 
 function buildScenarioPopupHtml(
   riding: RidingFull,
   parties: MapParty[],
-  locale: 'en' | 'fr',
+  locale: 'en' | 'fr' | 'es',
 ): string {
   const partyByKey = new Map(parties.map((party) => [party.key, party]));
   const labelOf = (key: string) =>
-    partyByKey.get(key)?.[locale === 'fr' ? 'label_fr' : 'label_en'] ?? key;
+    ((partyByKey.get(key)) ? partyName(partyByKey.get(key)!, locale) : undefined) ?? key;
   const colorOf = (key: string) => partyByKey.get(key)?.color ?? '#888';
-  const name = locale === 'fr' ? riding.name_fr : riding.name_en;
+  const name = placeName(riding, locale);
   const winner = riding.projection.winner;
   const voteRows = Object.entries(riding.projection.vote_mean)
     .filter(([, value]) => value >= .5)
@@ -301,8 +295,8 @@ function buildScenarioPopupHtml(
       `<div class="rm-pop-row"><span style="color:${colorOf(key)};font-weight:500;">${escapeHtml(labelOf(key))}</span><span class="rm-pop-num">${clampPct(value).toFixed(1)}%</span></div>`,
     ).join('');
   const published = riding.baseline?.winner
-    ? `<div class="rm-pop-eyebrow">${locale === 'fr' ? 'Projection publiée' : 'Published projection'}</div>
-       <div class="rm-pop-row"><span class="rm-pop-key">${locale === 'fr' ? 'Gagnant' : 'Winner'}</span><span style="color:${colorOf(riding.baseline.winner)};font-weight:500;">${escapeHtml(labelOf(riding.baseline.winner))}</span></div>`
+    ? `<div class="rm-pop-eyebrow">${locale === 'fr' ? 'Projection publiée' : locale === 'es' ? 'Proyección publicada' : 'Published projection'}</div>
+       <div class="rm-pop-row"><span class="rm-pop-key">${locale === 'fr' ? 'Gagnant' : locale === 'es' ? 'Ganador' : 'Winner'}</span><span style="color:${colorOf(riding.baseline.winner)};font-weight:500;">${escapeHtml(labelOf(riding.baseline.winner))}</span></div>`
     : '';
 
   return `<div class="rm-pop">
@@ -310,10 +304,10 @@ function buildScenarioPopupHtml(
     <div class="rm-pop-pill" style="border-color:${colorOf(winner)};color:${colorOf(winner)};">
       <span class="rm-pop-dot" style="background:${colorOf(winner)};"></span>${escapeHtml(labelOf(winner))}
     </div>
-    <div class="rm-pop-eyebrow">${locale === 'fr' ? 'Votre scénario' : 'Your scenario'}</div>
+    <div class="rm-pop-eyebrow">${locale === 'fr' ? 'Votre scénario' : locale === 'es' ? 'Tu escenario' : 'Your scenario'}</div>
     ${voteRows}
     <div class="rm-pop-sep"></div>
-    <div class="rm-pop-row"><span class="rm-pop-key">${locale === 'fr' ? 'Marge' : 'Margin'}</span><span class="rm-pop-num">${riding.projection.mean_margin.toFixed(1)}%</span></div>
+    <div class="rm-pop-row"><span class="rm-pop-key">${locale === 'fr' ? 'Marge' : locale === 'es' ? 'Margen' : 'Margin'}</span><span class="rm-pop-num">${riding.projection.mean_margin.toFixed(1)}%</span></div>
     ${published}
   </div>`;
 }
@@ -321,14 +315,12 @@ function buildScenarioPopupHtml(
 function buildScenarioAriaLabel(
   riding: RidingFull,
   parties: MapParty[],
-  locale: 'en' | 'fr',
+  locale: 'en' | 'fr' | 'es',
 ): string {
   const party = parties.find((item) => item.key === riding.projection.winner);
-  const label = party?.[locale === 'fr' ? 'label_fr' : 'label_en'] ?? riding.projection.winner;
-  const name = locale === 'fr' ? riding.name_fr : riding.name_en;
-  return locale === 'fr'
-    ? `${name} : ${label}, marge ${riding.projection.mean_margin.toFixed(1)} % dans votre scénario`
-    : `${name}: ${label}, ${riding.projection.mean_margin.toFixed(1)}% margin in your scenario`;
+  const label = ((party) ? partyName(party!, locale) : undefined) ?? riding.projection.winner;
+  const name = placeName(riding, locale);
+  return locale === 'fr' ? `${name} : ${label}, marge ${riding.projection.mean_margin.toFixed(1)} % dans votre scénario` : locale === 'es' ? `${name}: ${label}, margen de ${riding.projection.mean_margin.toFixed(1)} % en tu escenario` : `${name}: ${label}, ${riding.projection.mean_margin.toFixed(1)}% margin in your scenario`;
 }
 
 // ── Mode 'heat' : dégradé séquentiel mono-couleur ─────────────────────────
@@ -359,22 +351,22 @@ function hexToRgba(hex: string, alpha: number): string {
   return `rgba(${r},${g},${b},${alpha})`;
 }
 
-const fmtPct1 = (v: number, locale: 'en' | 'fr') =>
-  `${v.toFixed(1).replace('.', locale === 'fr' ? ',' : '.')}%`;
+const fmtPct1 = (v: number, locale: 'en' | 'fr' | 'es') =>
+  `${v.toFixed(1).replace('.', locale === 'en' ? '.' : ',')}%`;
 
 function buildHeatPopupHtml(
   riding: RidingFull,
   parties: MapParty[],
-  locale: 'en' | 'fr',
+  locale: 'en' | 'fr' | 'es',
   heatKey: string,
   heatColor: string,
 ): string {
   const partyByKey = new Map(parties.map((p) => [p.key, p]));
   const labelOf = (key: string) =>
-    partyByKey.get(key)?.[locale === 'fr' ? 'label_fr' : 'label_en'] ?? key;
+    ((partyByKey.get(key)) ? partyName(partyByKey.get(key)!, locale) : undefined) ?? key;
   const colorOf = (key: string) => partyByKey.get(key)?.color ?? '#888';
 
-  const name = locale === 'fr' ? riding.name_fr : riding.name_en;
+  const name = placeName(riding, locale);
   const heatValue = riding.projection.vote_mean[heatKey] ?? 0;
 
   const others = Object.entries(riding.projection.vote_mean)
@@ -382,7 +374,7 @@ function buildHeatPopupHtml(
     .sort((a, b) => b[1] - a[1]);
 
   const t = {
-    otherKeys: locale === 'fr' ? 'Autres' : 'Others',
+    otherKeys: locale === 'fr' ? 'Autres' : locale === 'es' ? 'Otros' : 'Others',
   };
 
   const otherRows = others
@@ -414,16 +406,16 @@ function buildHeatPopupHtml(
 function buildHeatAriaLabel(
   riding: RidingFull,
   parties: MapParty[],
-  locale: 'en' | 'fr',
+  locale: 'en' | 'fr' | 'es',
   heatKey: string,
 ): string {
-  const name = locale === 'fr' ? riding.name_fr : riding.name_en;
+  const name = placeName(riding, locale);
   const partyByKey = new Map(parties.map((p) => [p.key, p]));
   const label =
-    partyByKey.get(heatKey)?.[locale === 'fr' ? 'label_fr' : 'label_en'] ??
+    ((partyByKey.get(heatKey)) ? partyName(partyByKey.get(heatKey)!, locale) : undefined) ??
     heatKey;
   const value = fmtPct1(clampPct(riding.projection.vote_mean[heatKey] ?? 0), locale);
-  return locale === 'fr' ? `${name} : ${label} ${value}` : `${name}: ${label} ${value}`;
+  return locale === 'fr' ? `${name} : ${label} ${value}` : locale === 'es' ? `${name}: ${label} ${value}` : `${name}: ${label} ${value}`;
 }
 
 export default function RidingsMap({
@@ -593,7 +585,7 @@ export default function RidingsMap({
       )}
       {!error && !features.length && (
         <p class="pe-chart-loading" role="status">
-          {locale === 'fr' ? 'Chargement de la carte…' : 'Loading map…'}
+          {locale === 'fr' ? 'Chargement de la carte…' : locale === 'es' ? 'Cargando el mapa…' : 'Loading map…'}
         </p>
       )}
       <div
@@ -601,7 +593,7 @@ export default function RidingsMap({
         style={`--rm-height:${height}px;`}
         role="region"
         aria-label={
-          locale === 'fr' ? 'Carte des circonscriptions' : 'Riding map'
+          locale === 'fr' ? 'Carte des circonscriptions' : locale === 'es' ? 'Mapa de circunscripciones' : 'Riding map'
         }
       >
         <svg
@@ -660,7 +652,7 @@ export default function RidingsMap({
             <button
               class="rm-detail-close"
               type="button"
-              aria-label={locale === 'fr' ? 'Fermer les détails' : 'Close details'}
+              aria-label={locale === 'fr' ? 'Fermer les détails' : locale === 'es' ? 'Cerrar los detalles' : 'Close details'}
               onClick={() => setSelectedId(null)}
             >
               ×
@@ -702,7 +694,7 @@ export default function RidingsMap({
                 style={`display:inline-block;width:12px;height:12px;border-radius:3px;background:${item.color};`}
               />
               <span class="pe-legend-name" style="color:var(--ink-2,#333);">
-                {locale === 'fr' ? item.label_fr : item.label_en}
+                {partyName(item, locale)}
               </span>
               <span
                 class="pe-legend-value"

@@ -3,6 +3,7 @@ import TileMap from './TileMap';
 import type { TileBloc } from './TileMap';
 import RidingsMap from './RidingsMap';
 import type { RidingFull, MapParty } from './RidingsMap';
+import { partyName } from '../lib/party-names';
 
 /** Les deux cartes d'une page de projection, et la bascule entre elles.
  *
@@ -58,7 +59,7 @@ export default function ProjectionTiles({
 
   const colors = useMemo(() => Object.fromEntries(parties.map((p) => [p.key, p.color])), [parties]);
   const labels = useMemo(
-    () => Object.fromEntries(parties.map((p) => [p.key, locale === 'fr' ? p.label_fr : p.label_en])),
+    () => Object.fromEntries(parties.map((p) => [p.key, partyName(p, locale)])),
     [parties, locale],
   );
 
@@ -87,7 +88,7 @@ export default function ProjectionTiles({
       ) : (
         <RidingsMap
           geoUrl={geoUrl} ridings={ridings} parties={parties}
-          locale={locale === 'fr' ? 'fr' : 'en'}
+          locale={locale}
           center={center} zoom={zoom} idProp={idProp} baselineYear={baselineYear}
         />
       )}

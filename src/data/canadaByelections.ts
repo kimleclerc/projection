@@ -30,6 +30,11 @@ export interface CanadaByelectionConfig {
   kicker: string;
   headline: string;
   dek: string;
+  title_fr?: string; title_es?: string;
+  description_fr?: string; description_es?: string;
+  kicker_fr?: string; kicker_es?: string;
+  headline_fr?: string; headline_es?: string;
+  dek_fr?: string; dek_es?: string;
   /** ISO date string (YYYY-MM-DD) for the ElectionCountdown Island. */
   electionDate: string;
   /** Override title shown in ElectionCountdown. Falls back to neutral generic when absent. */
@@ -48,10 +53,20 @@ export const canadaByelections = {
     title: 'Beaches—East York By-Election Result — Vote-Scope',
     description:
       'Tanveer Shahnawaz held Beaches—East York for the Liberals on August 31, 2026. Vote-Scope called the Liberal hold on election night, but under-read the New Democratic vote by sixteen points.',
-    kicker: 'Résultat confirmé · 31 août 2026',
+    kicker: 'Result confirmed · August 31, 2026',
     headline: 'Beaches—East York.',
     dek:
-      "Tanveer Shahnawaz garde Beaches—East York pour les libéraux. Vote-Scope a appelé la victoire libérale le soir même, à 4 % des bureaux dépouillés — mais projetait le NPD à 9,6 % là où il a obtenu 25,8 %.",
+      'Tanveer Shahnawaz holds Beaches—East York for the Liberals. Vote-Scope called the Liberal win that night with 4% of polls counted — but projected the NDP at 9.6% where it took 25.8%.',
+    title_fr: 'Partielle de Beaches—East York : le résultat — Vote-Scope',
+    title_es: 'Elección parcial de Beaches—East York: el resultado — Vote-Scope',
+    description_fr: 'Tanveer Shahnawaz a conservé Beaches—East York pour les libéraux le 31 août 2026. Vote-Scope a annoncé la victoire libérale le soir même, mais a sous-estimé le vote néo-démocrate de seize points.',
+    description_es: 'Tanveer Shahnawaz retuvo Beaches—East York para los liberales el 31 de agosto de 2026. Vote-Scope anunció la victoria liberal esa misma noche, pero subestimó el voto neodemócrata en dieciséis puntos.',
+    kicker_fr: 'Résultat confirmé · 31 août 2026',
+    kicker_es: 'Resultado confirmado · 31 de agosto de 2026',
+    headline_fr: 'Beaches—East York.',
+    headline_es: 'Beaches—East York.',
+    dek_fr: 'Tanveer Shahnawaz garde Beaches—East York pour les libéraux. Vote-Scope a appelé la victoire libérale le soir même, à 4 % des bureaux dépouillés — mais projetait le NPD à 9,6 % là où il a obtenu 25,8 %.',
+    dek_es: 'Tanveer Shahnawaz retiene Beaches—East York para los liberales. Vote-Scope anunció la victoria liberal esa misma noche, con el 4 % de las mesas escrutadas, pero proyectaba al NPD en 9,6 % cuando obtuvo 25,8 %.',
     electionDate: '2026-08-31',
     result: {
       date_held: '2026-08-31',
@@ -127,7 +142,7 @@ export const canadaByelections = {
     },
     translated: {
       en: true,
-      fr: false,
+      fr: true,
     },
   },
   'chicoutimi-le-fjord': {
@@ -137,10 +152,20 @@ export const canadaByelections = {
     title: 'Chicoutimi—Le Fjord By-Election Result — Vote-Scope',
     description:
       'Daniel Gobeil gained Chicoutimi—Le Fjord for the Liberals from the Conservatives on August 31, 2026. Vote-Scope had the Liberal favoured at 79.8% when others called the race a toss-up.',
-    kicker: 'Résultat confirmé · 31 août 2026',
+    kicker: 'Result confirmed · August 31, 2026',
     headline: 'Chicoutimi—Le Fjord.',
     dek:
-      "Daniel Gobeil arrache Chicoutimi—Le Fjord aux conservateurs. Vote-Scope donnait le libéral favori à 79,8 % et au-dessus de 40 % — le résultat a confirmé le sens, mais l'ampleur nous a échappé.",
+      'Daniel Gobeil takes Chicoutimi—Le Fjord from the Conservatives. Vote-Scope had the Liberal favoured at 79.8% and above 40% — the result confirmed the direction, but we missed the size.',
+    title_fr: 'Partielle de Chicoutimi—Le Fjord : le résultat — Vote-Scope',
+    title_es: 'Elección parcial de Chicoutimi—Le Fjord: el resultado — Vote-Scope',
+    description_fr: 'Daniel Gobeil a ravi Chicoutimi—Le Fjord aux conservateurs pour les libéraux le 31 août 2026. Vote-Scope donnait le libéral favori à 79,8 % quand d’autres parlaient d’une course serrée.',
+    description_es: 'Daniel Gobeil arrebató Chicoutimi—Le Fjord a los conservadores para los liberales el 31 de agosto de 2026. Vote-Scope daba al liberal como favorito al 79,8 % cuando otros hablaban de una contienda reñida.',
+    kicker_fr: 'Résultat confirmé · 31 août 2026',
+    kicker_es: 'Resultado confirmado · 31 de agosto de 2026',
+    headline_fr: 'Chicoutimi—Le Fjord.',
+    headline_es: 'Chicoutimi—Le Fjord.',
+    dek_fr: 'Daniel Gobeil arrache Chicoutimi—Le Fjord aux conservateurs. Vote-Scope donnait le libéral favori à 79,8 % et au-dessus de 40 % — le résultat a confirmé le sens, mais l’ampleur nous a échappé.',
+    dek_es: 'Daniel Gobeil arrebata Chicoutimi—Le Fjord a los conservadores. Vote-Scope daba al liberal como favorito al 79,8 % y por encima del 40 %; el resultado confirmó la dirección, pero no acertamos la magnitud.',
     electionDate: '2026-08-31',
     result: {
       date_held: '2026-08-31',
@@ -216,7 +241,7 @@ export const canadaByelections = {
     },
     translated: {
       en: true,
-      fr: false,
+      fr: true,
     },
   },
   'north-vancouver-capilano': {
@@ -226,10 +251,20 @@ export const canadaByelections = {
     title: 'North Vancouver—Capilano By-Election Result — Vote-Scope',
     description:
       'Braeden Caley held North Vancouver—Capilano for the Liberals on August 31, 2026. Vote-Scope came within 2.6 points on the Liberal share and 0.3 on the Conservative.',
-    kicker: 'Résultat confirmé · 31 août 2026',
+    kicker: 'Result confirmed · August 31, 2026',
     headline: 'North Vancouver—Capilano.',
     dek:
-      'Braeden Caley garde North Vancouver—Capilano pour les libéraux. La projection la plus juste des trois : 61,2 % projeté contre 58,6 % obtenu chez les libéraux, 29,5 contre 29,2 chez les conservateurs.',
+      'Braeden Caley holds North Vancouver—Capilano for the Liberals. The most accurate projection of the three: 61.2% projected against 58.6% for the Liberals, 29.5 against 29.2 for the Conservatives.',
+    title_fr: 'Partielle de North Vancouver—Capilano : le résultat — Vote-Scope',
+    title_es: 'Elección parcial de North Vancouver—Capilano: el resultado — Vote-Scope',
+    description_fr: 'Braeden Caley a conservé North Vancouver—Capilano pour les libéraux le 31 août 2026. Vote-Scope a vu juste à 2,6 points près pour les libéraux et à 0,3 point pour les conservateurs.',
+    description_es: 'Braeden Caley retuvo North Vancouver—Capilano para los liberales el 31 de agosto de 2026. Vote-Scope acertó con un margen de 2,6 puntos para los liberales y de 0,3 para los conservadores.',
+    kicker_fr: 'Résultat confirmé · 31 août 2026',
+    kicker_es: 'Resultado confirmado · 31 de agosto de 2026',
+    headline_fr: 'North Vancouver—Capilano.',
+    headline_es: 'North Vancouver—Capilano.',
+    dek_fr: 'Braeden Caley garde North Vancouver—Capilano pour les libéraux. La projection la plus juste des trois : 61,2 % projeté contre 58,6 % obtenu chez les libéraux, 29,5 contre 29,2 chez les conservateurs.',
+    dek_es: 'Braeden Caley retiene North Vancouver—Capilano para los liberales. El pronóstico más certero de los tres: 61,2 % proyectado frente a 58,6 % obtenido por los liberales, 29,5 frente a 29,2 por los conservadores.',
     electionDate: '2026-08-31',
     result: {
       date_held: '2026-08-31',
@@ -305,7 +340,7 @@ export const canadaByelections = {
     },
     translated: {
       en: true,
-      fr: false,
+      fr: true,
     },
   },
   'scarborough-southwest': {
@@ -319,6 +354,16 @@ export const canadaByelections = {
     headline: 'Scarborough Southwest.',
     dek:
       'Doly Begum and the Liberals took Scarborough Southwest with the highest share of the three April 13, 2026 federal by-elections. Together with Terrebonne and University—Rosedale, the result handed the Carney government an absolute majority in the House of Commons.',
+    title_fr: 'Partielle de Scarborough-Sud-Ouest : le résultat — Vote-Scope',
+    title_es: 'Elección parcial de Scarborough Southwest: el resultado — Vote-Scope',
+    description_fr: 'Doly Begum (libérale) a remporté Scarborough-Sud-Ouest le 13 avril 2026 avec 69,6 % des voix — l’un des trois gains libéraux qui ont donné une majorité aux Communes. Vote-Scope l’avait prévu.',
+    description_es: 'Doly Begum (liberal) ganó Scarborough Southwest el 13 de abril de 2026 con el 69,6 % de los votos, una de las tres victorias liberales que aseguraron la mayoría en la Cámara de los Comunes. Vote-Scope lo había previsto.',
+    kicker_fr: 'Partielle fédérale · 13 avril 2026',
+    kicker_es: 'Elección parcial federal · 13 de abril de 2026',
+    headline_fr: 'Scarborough-Sud-Ouest.',
+    headline_es: 'Scarborough Southwest.',
+    dek_fr: 'Doly Begum et les libéraux remportent Scarborough-Sud-Ouest avec le meilleur score des trois partielles fédérales du 13 avril 2026. Avec Terrebonne et University—Rosedale, ce résultat a donné au gouvernement Carney la majorité absolue aux Communes.',
+    dek_es: 'Doly Begum y los liberales ganan Scarborough Southwest con el mayor porcentaje de las tres elecciones parciales federales del 13 de abril de 2026. Junto con Terrebonne y University—Rosedale, el resultado dio al gobierno de Carney la mayoría absoluta en la Cámara de los Comunes.',
     electionDate: '2026-04-13',
     result: {
       date_held: '2026-04-13',
@@ -373,7 +418,7 @@ export const canadaByelections = {
     },
     translated: {
       en: true,
-      fr: false,
+      fr: true,
     },
   },
   terrebonne: {
@@ -382,11 +427,21 @@ export const canadaByelections = {
     currentPage: 'canada',
     title: 'Terrebonne By-Election Result — Vote-Scope',
     description:
-      "Tatiana Auguste (Liberal) gained Terrebonne from the Bloc Québécois on April 13, 2026. Vote-Scope called the Liberal gain correctly before election day.",
-    kicker: 'Résultat confirmé · 13 avril 2026',
+      'Tatiana Auguste (Liberal) gained Terrebonne from the Bloc Québécois on April 13, 2026. Vote-Scope called the Liberal gain correctly before election day.',
+    kicker: 'Federal by-election · April 13, 2026',
     headline: 'Terrebonne.',
     dek:
-      'Tatiana Auguste et les libéraux gagnent Terrebonne. Vote-Scope had projected a Liberal gain over the Bloc with 63% confidence before the April 13, 2026 federal by-election — the result confirmed the call.',
+      'Tatiana Auguste and the Liberals take Terrebonne. Vote-Scope had projected a Liberal gain over the Bloc with 63% confidence before the April 13, 2026 federal by-election — the result confirmed the call.',
+    title_fr: 'Partielle de Terrebonne : le résultat — Vote-Scope',
+    title_es: 'Elección parcial de Terrebonne: el resultado — Vote-Scope',
+    description_fr: 'Tatiana Auguste (libérale) a ravi Terrebonne au Bloc québécois le 13 avril 2026. Vote-Scope avait annoncé le gain libéral avant le scrutin.',
+    description_es: 'Tatiana Auguste (liberal) arrebató Terrebonne al Bloque Quebequés el 13 de abril de 2026. Vote-Scope anunció correctamente la victoria liberal antes de la elección.',
+    kicker_fr: 'Partielle fédérale · 13 avril 2026',
+    kicker_es: 'Elección parcial federal · 13 de abril de 2026',
+    headline_fr: 'Terrebonne.',
+    headline_es: 'Terrebonne.',
+    dek_fr: 'Tatiana Auguste et les libéraux gagnent Terrebonne. Vote-Scope projetait un gain libéral sur le Bloc avec 63 % de confiance avant la partielle fédérale du 13 avril 2026 — le résultat a confirmé la prévision.',
+    dek_es: 'Tatiana Auguste y los liberales ganan Terrebonne. Vote-Scope proyectaba una victoria liberal sobre el Bloque con un 63 % de confianza antes de la elección parcial federal del 13 de abril de 2026, y el resultado confirmó el pronóstico.',
     electionDate: '2026-04-13',
     result: {
       date_held: '2026-04-13',
@@ -452,7 +507,7 @@ export const canadaByelections = {
     },
     translated: {
       en: true,
-      fr: false,
+      fr: true,
     },
   },
   'university-rosedale': {
@@ -466,6 +521,16 @@ export const canadaByelections = {
     headline: 'University—Rosedale.',
     dek:
       'Danielle Martin and the Liberals held University—Rosedale comfortably. With Terrebonne and Scarborough Southwest the same night, the result handed the Carney government an absolute majority in the House of Commons.',
+    title_fr: 'Partielle de University—Rosedale : le résultat — Vote-Scope',
+    title_es: 'Elección parcial de University—Rosedale: el resultado — Vote-Scope',
+    description_fr: 'Danielle Martin (libérale) a remporté University—Rosedale le 13 avril 2026 avec 64,3 % — l’une des trois victoires libérales qui ont donné au gouvernement Carney une majorité aux Communes. Vote-Scope l’avait prévu.',
+    description_es: 'Danielle Martin (liberal) ganó University—Rosedale el 13 de abril de 2026 con el 64,3 %, una de las tres victorias liberales que dieron al gobierno de Carney la mayoría en la Cámara de los Comunes. Vote-Scope lo había previsto.',
+    kicker_fr: 'Partielle fédérale · 13 avril 2026',
+    kicker_es: 'Elección parcial federal · 13 de abril de 2026',
+    headline_fr: 'University—Rosedale.',
+    headline_es: 'University—Rosedale.',
+    dek_fr: 'Danielle Martin et les libéraux conservent University—Rosedale sans difficulté. Avec Terrebonne et Scarborough-Sud-Ouest le même soir, ce résultat a donné au gouvernement Carney la majorité absolue aux Communes.',
+    dek_es: 'Danielle Martin y los liberales retienen University—Rosedale con holgura. Junto con Terrebonne y Scarborough Southwest esa misma noche, el resultado dio al gobierno de Carney la mayoría absoluta en la Cámara de los Comunes.',
     electionDate: '2026-04-13',
     result: {
       date_held: '2026-04-13',
@@ -521,7 +586,7 @@ export const canadaByelections = {
     },
     translated: {
       en: true,
-      fr: false,
+      fr: true,
     },
   },
 } satisfies Record<string, CanadaByelectionConfig>;

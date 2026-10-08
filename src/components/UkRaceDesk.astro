@@ -111,7 +111,7 @@ const copy = {
     thScenario: 'Si…', thShare: 'Part des tirages', thHold: 'p(maintien Labour)', thGreen: 'p(victoire verte)',
     anchorLabel: 'L’ancre nationale',
     anchorIntro: 'La baseline du siège est déplacée par le posterior UK du jour, pondérée vers le swing proportionnel plutôt qu’uniforme : un bastion à 48,9 % ne perd pas les points nationaux comme un siège moyen.',
-    thParty: 'Parti', th2024: 'National 2024', thNow: 'Modèle aujourd’hui', thSwing: 'Swing',
+    thParty: 'Parti', th2024: 'National 2024', thNow: 'Modèle aujourd’hui', thSwing: 'Écart',
     fieldLabel: 'Le champ',
     fieldIntro: 'Personne ne s’est formellement déclaré. Les noms ci-dessous sont des intentions rapportées, suivies pour que le modèle épouse le champ réel plutôt qu’une hypothèse sur sa taille.',
     fieldStatus: 'intention rapportée',
@@ -146,7 +146,7 @@ const copy = {
     thScenario: 'Si…', thShare: 'Parte de los sorteos', thHold: 'p(retención laborista)', thGreen: 'p(victoria verde)',
     anchorLabel: 'El ancla nacional',
     anchorIntro: 'La base del escaño se desplaza con el posterior británico del día, ponderado hacia el swing proporcional y no el uniforme: un bastión en 48,9 % no pierde los puntos nacionales como un escaño medio.',
-    thParty: 'Partido', th2024: 'Nacional 2024', thNow: 'Modelo hoy', thSwing: 'Swing',
+    thParty: 'Partido', th2024: 'Nacional 2024', thNow: 'Modelo hoy', thSwing: 'Variación',
     fieldLabel: 'El campo',
     fieldIntro: 'Nadie se ha declarado formalmente. Los nombres siguientes son intenciones reportadas, registradas para que el modelo siga el campo real y no una suposición sobre su tamaño.',
     fieldStatus: 'intención reportada',
@@ -347,7 +347,7 @@ const jsonLd = [
       title={t.methodTitle}
       body={t.methodBody}
       bullets={[
-        `${t.modelLabel} — run ${meta.run_date} · ${nfmt(meta.n_sims)} simulations · ${meta.model_version}`,
+        `${t.modelLabel} — ${lang === 'en' ? 'updated' : lang === 'es' ? 'actualizado el' : 'mis à jour le'} ${meta.run_date} · ${nfmt(meta.n_sims)} ${lang === 'es' ? 'simulaciones' : 'simulations'} · ${meta.model_version}`,
         `${t.anchorLabel} — ${anchor.source}`,
       ]}
     />

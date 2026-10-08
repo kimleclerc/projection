@@ -1,4 +1,5 @@
 ---
+import { partyName } from '../lib/party-names';
 // Desk UK — accueil de section data-driven (pattern FranceDesk : un composant,
 // locale en prop). Remplace l'ancien hub à deux cartes : le desk montre le
 // topline live du modèle, la composition réelle de la Chambre et les
@@ -76,7 +77,7 @@ const pHoldIfPolanski = Math.round((polanski?.p_lab_hold ?? 0) * 1000) / 10;
 const recallHeld = ((clactonRecall as any).horizons['2029-06-30']?.p_byelection_held ?? 0) as number;
 
 const partyLabel = (p: any) =>
-  locale === 'fr' ? p.label_fr ?? p.label_en : locale === 'es' ? p.label_es ?? p.label_en : p.label_en;
+  partyName(p, locale);
 
 const fmt1 = (v: number) =>
   locale === 'en' ? v.toFixed(1) : v.toFixed(1).replace('.', ',');
@@ -90,9 +91,11 @@ const copy = {
     eyebrow: 'U.K. Desk',
     heroTitle: splitWinner
       ? `${subj(leader)} is winning the polls. ${subj(seatLeader)} is winning ${seatGap} more seats.`
-      : `${partyLabel(leader)} leads on votes and on seats. How solid is it?`,
+      : `${subj(leader)} leads on votes and on seats. How solid is it?`,
     promise: 'Vote-Scope projects all 650 Westminster constituencies one by one, from polls corrected for house effects and calibrated on past elections. The gap between votes and seats is the whole story, and you can only see it seat by seat.',
-    question: `Today: ${shortName(seatLeader)} ${fmt1(seatLeader.vote_mean)}% → ${Math.round(seatLeader.seats_mean)} seats · ${shortName(leader)} ${fmt1(leader.vote_mean)}% → ${Math.round(leader.seats_mean)}.`,
+    question: seatLeader.party === leader.party
+      ? `Today: ${shortName(leader)} leads with ${fmt1(leader.vote_mean)}% of the vote and ${Math.round(leader.seats_mean)} projected seats.`
+      : `Today: ${shortName(seatLeader)} wins the most seats (${Math.round(seatLeader.seats_mean)}) on ${fmt1(seatLeader.vote_mean)}% of the vote; ${shortName(leader)} leads the vote on ${fmt1(leader.vote_mean)}% but gets ${Math.round(leader.seats_mean)}.`,
     openProjection: 'Open projection',
     allIndexes: 'All indexes',
     toplineLabel: `Model topline · run ${meta.run_date} · ${meta.n_polls} polls`,
@@ -140,9 +143,11 @@ const copy = {
     eyebrow: 'Bureau UK',
     heroTitle: splitWinner
       ? `${subj(leader)} gagne les sondages. ${subj(seatLeader)} gagne ${seatGap} sièges de plus.`
-      : `${partyLabel(leader)} mène aux voix comme aux sièges. Est-ce solide ?`,
+      : `${subj(leader)} mène aux voix comme aux sièges. Est-ce solide ?`,
     promise: 'Vote-Scope projette les 650 circonscriptions de Westminster une par une, à partir des sondages corrigés des biais d’institut et calibrés sur les scrutins passés. L’écart entre les voix et les sièges est toute l’histoire, et il ne se voit que siège par siège.',
-    question: `Aujourd’hui : ${shortName(seatLeader)} ${fmt1(seatLeader.vote_mean)} % → ${Math.round(seatLeader.seats_mean)} sièges · ${shortName(leader)} ${fmt1(leader.vote_mean)} % → ${Math.round(leader.seats_mean)}.`,
+    question: seatLeader.party === leader.party
+      ? `Aujourd’hui : ${shortName(leader)} mène avec ${fmt1(leader.vote_mean)} % des voix et ${Math.round(leader.seats_mean)} sièges projetés.`
+      : `Aujourd’hui : ${shortName(seatLeader)} remporte le plus de sièges (${Math.round(seatLeader.seats_mean)}) avec ${fmt1(seatLeader.vote_mean)} % des voix ; ${shortName(leader)} mène en voix à ${fmt1(leader.vote_mean)} % mais n’obtient que ${Math.round(leader.seats_mean)} sièges.`,
     openProjection: 'Ouvrir la projection',
     allIndexes: 'Tous les indices',
     toplineLabel: `Topline du modèle · run ${meta.run_date} · ${meta.n_polls} sondages`,
@@ -190,9 +195,11 @@ const copy = {
     eyebrow: 'Desk del Reino Unido',
     heroTitle: splitWinner
       ? `${subj(leader)} gana las encuestas. ${subj(seatLeader)} gana ${seatGap} escaños más.`
-      : `${partyLabel(leader)} lidera en votos y en escaños. ¿Es sólido?`,
+      : `${subj(leader)} lidera en votos y en escaños. ¿Es sólido?`,
     promise: 'Vote-Scope proyecta las 650 circunscripciones de Westminster una por una, con encuestas corregidas por sesgo de encuestadora y calibradas sobre elecciones pasadas. La brecha entre votos y escaños es toda la historia, y solo se ve escaño por escaño.',
-    question: `Hoy: ${shortName(seatLeader)} ${fmt1(seatLeader.vote_mean)} % → ${Math.round(seatLeader.seats_mean)} escaños · ${shortName(leader)} ${fmt1(leader.vote_mean)} % → ${Math.round(leader.seats_mean)}.`,
+    question: seatLeader.party === leader.party
+      ? `Hoy: ${shortName(leader)} lidera con el ${fmt1(leader.vote_mean)} % de los votos y ${Math.round(leader.seats_mean)} escaños proyectados.`
+      : `Hoy: ${shortName(seatLeader)} logra más escaños (${Math.round(seatLeader.seats_mean)}) con el ${fmt1(seatLeader.vote_mean)} % de los votos; ${shortName(leader)} lidera en votos con el ${fmt1(leader.vote_mean)} % pero obtiene ${Math.round(leader.seats_mean)}.`,
     openProjection: 'Abrir la proyección',
     allIndexes: 'Todos los índices',
     toplineLabel: `Topline del modelo · ejecución ${meta.run_date} · ${meta.n_polls} encuestas`,

@@ -126,7 +126,7 @@ export default function FranceScenarioExplorer({ scenarios, locale, embedPath }:
                 class={`fse-bar-row${qualifies ? ' is-top2' : ''}`}
                 title={`${q.name} · ${blocLabel(q.bloc, locale)} · ${fmtPct1(q.mean, locale)} ± ${q.sd
                   .toFixed(1)
-                  .replace('.', locale === 'fr' ? ',' : '.')}`}
+                  .replace('.', locale === 'en' ? '.' : ',')}`}
               >
                 <span class="fse-bar-name">
                   {q.name}

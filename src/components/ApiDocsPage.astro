@@ -1,6 +1,7 @@
 ---
 import EditorialLayout from '../layouts/EditorialLayout.astro';
 import manifest from '../../web_data/public-api/latest.json';
+import { apiTitle, apiKind } from '../data/api-titles';
 
 type Locale = 'en' | 'fr' | 'es';
 interface Props { locale: Locale }
@@ -101,7 +102,7 @@ const examples = [
     url: alternates[locale], inLanguage: locale,
     creator: { '@type': 'Person', name: 'Kim Leclerc', url: 'https://kimleclerc.ca' },
     dataset: datasets.map((dataset) => ({
-      '@type': 'Dataset', name: dataset.title, url: dataset.source_pages?.[locale] ?? dataset.backlink_url,
+      '@type': 'Dataset', name: apiTitle(dataset.id, dataset.title, locale), url: dataset.source_pages?.[locale] ?? dataset.backlink_url,
       distribution: { '@type': 'DataDownload', contentUrl: dataset.latest_url, encodingFormat: 'application/json' },
     })),
   }}
@@ -122,7 +123,7 @@ const examples = [
       <div class="section-head"><div><p class="eyebrow">{t.current}</p><h2 id="datasets-title">{datasets.length} {t.datasets}</h2></div><p>{t.asOf} {String(manifest.meta.data_through).slice(0, 10)}</p></div>
       <div class="dataset-grid">{datasets.map((dataset) => (
         <article class="dataset-card">
-          <p class="dataset-kind">{dataset.kind.replaceAll('_', ' ')}</p><h3>{dataset.title}</h3>
+          <p class="dataset-kind">{apiKind(dataset.kind, locale)}</p><h3>{apiTitle(dataset.id, dataset.title, locale)}</h3>
           <dl>
             <div><dt>{t.through}</dt><dd>{dataset.data_through ?? t.see}</dd></div>
             <div><dt>{t.model}</dt><dd>{dataset.model_version ?? t.desk}</dd></div>

@@ -1,4 +1,6 @@
 ---
+import { placeName } from '../../../lib/place-names';
+import { partyName } from '../../../lib/party-names';
 import type { RidingData } from '../../../lib/riding-adapters/types';
 import { partyMeta } from '../../../lib/riding-adapters/parties';
 
@@ -50,9 +52,9 @@ const T = {
     <ul class="cards">
       {data.neighbors.map((n) => {
         const meta = n.tone_party ? partyMeta(data.jurisdiction, n.tone_party) : null;
-        const partyLabel = meta ? (lang === 'fr' ? meta.label_fr : meta.label_en) : null;
+        const partyLabel = meta ? (partyName(meta, lang)) : null;
         const toneLabel = n.tone ? TONE_LABEL[n.tone] : null;
-        const name = lang === 'fr' ? n.name_fr : n.name_en;
+        const name = placeName(n, lang);
         // For ES we use the Spanish href when adapters populate it; otherwise
         // fall back to EN. Defaults aim to keep clicks inside the same locale.
         const href = lang === 'fr' ? n.href_fr

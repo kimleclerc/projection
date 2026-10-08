@@ -1,4 +1,5 @@
 ---
+import { partyName } from '../../../lib/party-names';
 import type { RidingData } from '../../../lib/riding-adapters/types';
 import { partyMeta } from '../../../lib/riding-adapters/parties';
 
@@ -86,7 +87,7 @@ function delta(here: number, ref: number): { sign: string; val: number; cls: str
         <tr>
           <th></th>
           {topParties.map((p) => {
-            const label = lang === 'fr' ? p.label_fr : p.label_en;
+            const label = partyName(p, lang);
             return (
               <th>
                 <span class="party" style={`--accent:${p.color}`}>

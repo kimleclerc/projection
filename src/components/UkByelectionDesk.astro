@@ -25,6 +25,7 @@ interface Props {
 }
 
 const { lang, config } = Astro.props;
+const srcLabel = (l: string | Record<string, string>) => (typeof l === 'string' ? l : l[lang] ?? l.en);
 const canonical = `https://vote-scope.com${config.paths[lang]}`;
 const alternates = ukByelectionAlternates(config);
 
@@ -404,15 +405,15 @@ const ctxPoll = config.contextPolls[0];
 const ctxQuestion = lang === 'fr' ? ctxPoll.question_fr : lang === 'es' ? ctxPoll.question_es : ctxPoll.question_en;
 
 const sources = [
-  { label: 'Wikipedia — 2026 Clacton by-election (date, candidats, boycott)', url: 'https://en.wikipedia.org/wiki/2026_Clacton_by-election' },
+  { label: { en: 'Wikipedia — 2026 Clacton by-election (date, candidates, boycott)', fr: 'Wikipédia — partielle de Clacton 2026 (date, candidats, boycott)', es: 'Wikipedia — elección parcial de Clacton 2026 (fecha, candidatos, boicot)' }, url: 'https://en.wikipedia.org/wiki/2026_Clacton_by-election' },
   { label: 'BBC News — Clacton by-election to be held 13 August', url: 'https://www.bbc.com/news/articles/c15y85gkkx5o' },
   { label: 'The Independent — Survation constituency poll (16–24 July, n=502)', url: 'https://www.independent.co.uk/news/uk/politics/count-binface-nigel-farage-clacton-byelection-poll-b3031765.html' },
   { label: 'Ipsos — British public more likely to prefer Count Binface (8–9 July 2026, n=1000)', url: 'https://www.ipsos.com/en-uk/british-public-more-likely-prefer-count-binface-wins-clacton-election-nigel-farage' },
-  { label: 'Electoral Commission — how postal votes are verified and counted', url: 'https://www.electoralcommission.org.uk/voting-and-elections/how-elections-work/how-votes-are-counted' },
-  { label: 'Polymarket — Clacton by-election Winner', url: 'https://polymarket.com/event/clacton-by-election-winner-20260707143521303' },
-  { label: 'Polymarket — Clacton 2nd place', url: 'https://polymarket.com/event/clacton-by-election-2nd-place-20260707214539733' },
-  { label: 'Polymarket — Count Binface Vote %', url: 'https://polymarket.com/event/clacton-by-election-count-binface-vote-20260708142507718' },
-  { label: 'Kalshi — Clacton by-election winner', url: 'https://kalshi.com/markets/kxclactonbyelection/clacton-byelection-winner' },
+  { label: { en: 'Electoral Commission — how postal votes are verified and counted', fr: 'Commission électorale — vérification et dépouillement des votes par correspondance', es: 'Comisión Electoral — verificación y recuento del voto por correo' }, url: 'https://www.electoralcommission.org.uk/voting-and-elections/how-elections-work/how-votes-are-counted' },
+  { label: { en: 'Polymarket — Clacton by-election winner', fr: 'Polymarket — vainqueur de la partielle de Clacton', es: 'Polymarket — ganador de la elección parcial de Clacton' }, url: 'https://polymarket.com/event/clacton-by-election-winner-20260707143521303' },
+  { label: { en: 'Polymarket — Clacton 2nd place', fr: 'Polymarket — 2ᵉ place à Clacton', es: 'Polymarket — 2.º puesto en Clacton' }, url: 'https://polymarket.com/event/clacton-by-election-2nd-place-20260707214539733' },
+  { label: { en: 'Polymarket — Count Binface vote share', fr: 'Polymarket — score de Count Binface', es: 'Polymarket — porcentaje de Count Binface' }, url: 'https://polymarket.com/event/clacton-by-election-count-binface-vote-20260708142507718' },
+  { label: { en: 'Kalshi — Clacton by-election winner', fr: 'Kalshi — vainqueur de la partielle de Clacton', es: 'Kalshi — ganador de la elección parcial de Clacton' }, url: 'https://kalshi.com/markets/kxclactonbyelection/clacton-byelection-winner' },
   { label: 'Oddschecker — Clacton by-election odds', url: 'https://www.oddschecker.com/insight/politics/20260708-clacton-by-election-odds-reform-heavy-favourites-to-win-seat' },
   { label: 'The Independent — Binface odds slashed', url: 'https://www.the-independent.com/news/uk/politics/count-binface-nigel-farage-clacton-by-election-poll-b3012680.html' },
 ];
@@ -795,7 +796,7 @@ const pc = (v: number) => `${Math.min(100, (v / SCALE_MAX) * 100)}%`;
       <p class="ukbye-label" id="ukbye-sources">{t.sourcesLabel}</p>
       <ol class="ukbye-sources">
         {sources.map((s) => (
-          <li><a href={s.url} rel="noopener">{s.label}</a></li>
+          <li><a href={s.url} rel="noopener">{srcLabel(s.label)}</a></li>
         ))}
       </ol>
     </section>

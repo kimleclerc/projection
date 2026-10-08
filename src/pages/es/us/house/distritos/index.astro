@@ -1,4 +1,6 @@
 ---
+import { partyName } from '../../../../../lib/party-names';
+import { placeNameEs } from '../../../../../lib/place-names';
 import EditorialLayout from '../../../../../layouts/EditorialLayout.astro';
 import { getAllUSHouseRidings } from '../../../../../lib/riding-adapters/us-house';
 import { partyMeta } from '../../../../../lib/riding-adapters/parties';
@@ -52,7 +54,7 @@ const canonical = 'https://vote-scope.com/es/us/house/distritos/';
               <a href={`/es/us/house/distritos/${r.slug}/`} style={`--accent:${meta.color}`}>
                 <span class="dot" aria-hidden="true"></span>
                 <span class="name">{r.name.en || r.name.fr}</span>
-                <span class="party">{meta.label_en}</span>
+                <span class="party">{partyName({ ...meta, party: r.projection.winner }, 'es')}</span>
               </a>
             </li>
           );

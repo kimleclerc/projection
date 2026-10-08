@@ -1,4 +1,5 @@
 ---
+import { placeName } from '../lib/place-names';
 // Desk présidentiel US 2028 — composant partagé fr/en/es (pattern FranceDesk :
 // logique + markup + style une seule fois, langue en prop). Produit actuel :
 // « primaire invisible » (agrégat pondéré qualité par parti) + carte du collège
@@ -53,16 +54,16 @@ const electionLong = new Date(`${meta.election_date}T00:00:00`).toLocaleDateStri
 const intro =
   locale === 'fr'
     ? [
-        `Nous sommes à mi-2026 : la présidentielle américaine de 2028 en est à sa « primaire invisible » — la course aux soutiens, aux financements et à la notoriété, bien avant le moindre vote. D'après notre agrégat pondéré qualité de ${nPolls} sondages nationaux de primaire (run du ${runDate}), ${repLead?.name} domine le champ républicain à ${fmtPct1(repLead?.share ?? 0, locale)}, tandis que ${demLead?.name} mène un champ démocrate bien plus ouvert à ${fmtPct1(demLead?.share ?? 0, locale)}.`,
+        `Nous sommes à mi-2026 : la présidentielle américaine de 2028 en est à sa « primaire invisible » — la course aux soutiens, aux financements et à la notoriété, bien avant le moindre vote. D'après notre agrégat pondéré qualité de ${nPolls} sondages nationaux de primaire (mis à jour le ${runDate}), ${repLead?.name} domine le champ républicain à ${fmtPct1(repLead?.share ?? 0, locale)}, tandis que ${demLead?.name} mène un champ démocrate bien plus ouvert à ${fmtPct1(demLead?.share ?? 0, locale)}.`,
         `La carte du collège électoral ci-dessous montre le résultat certifié de 2024 (Trump 312 / Harris 226) comme point de référence — PAS une projection 2028. Le modèle d'affrontement général se branchera quand les sondages Démocrate-contre-Républicain s'accumuleront, à partir de 2027.`,
       ]
     : locale === 'es'
     ? [
-        `Estamos a mediados de 2026: la elección presidencial estadounidense de 2028 está en su «primaria invisible» — la carrera por apoyos, financiación y notoriedad, mucho antes de cualquier voto. Según nuestra media ponderada por calidad de ${nPolls} encuestas nacionales de primarias (ejecución del ${runDate}), ${repLead?.name} domina el campo republicano con ${fmtPct1(repLead?.share ?? 0, locale)}, mientras que ${demLead?.name} encabeza un campo demócrata mucho más abierto con ${fmtPct1(demLead?.share ?? 0, locale)}.`,
+        `Estamos a mediados de 2026: la elección presidencial estadounidense de 2028 está en su «primaria invisible» — la carrera por apoyos, financiación y notoriedad, mucho antes de cualquier voto. Según nuestra media ponderada por calidad de ${nPolls} encuestas nacionales de primarias (actualizada el ${runDate}), ${repLead?.name} domina el campo republicano con ${fmtPct1(repLead?.share ?? 0, locale)}, mientras que ${demLead?.name} encabeza un campo demócrata mucho más abierto con ${fmtPct1(demLead?.share ?? 0, locale)}.`,
         `El mapa del colegio electoral que sigue muestra el resultado certificado de 2024 (Trump 312 / Harris 226) como referencia — NO una proyección de 2028. El modelo de enfrentamiento general se activará cuando se acumulen las encuestas demócrata-contra-republicano, a partir de 2027.`,
       ]
     : [
-        `It is mid-2026: the 2028 U.S. presidential race is in its "invisible primary" — the contest for endorsements, money and name recognition, long before a single vote. Based on our quality-weighted aggregate of ${nPolls} national primary polls (run of ${runDate}), ${repLead?.name} dominates the Republican field at ${fmtPct1(repLead?.share ?? 0, locale)}, while ${demLead?.name} leads a far more open Democratic field at ${fmtPct1(demLead?.share ?? 0, locale)}.`,
+        `It is mid-2026: the 2028 U.S. presidential race is in its "invisible primary" — the contest for endorsements, money and name recognition, long before a single vote. Based on our quality-weighted aggregate of ${nPolls} national primary polls (updated ${runDate}), ${repLead?.name} dominates the Republican field at ${fmtPct1(repLead?.share ?? 0, locale)}, while ${demLead?.name} leads a far more open Democratic field at ${fmtPct1(demLead?.share ?? 0, locale)}.`,
         `The electoral-college map below shows the certified 2024 result (Trump 312 / Harris 226) as a reference point — NOT a 2028 projection. The general-election model switches on once Democrat-versus-Republican matchup polling accumulates, from 2027.`,
       ];
 
@@ -154,7 +155,7 @@ const C = {
 }[locale];
 
 const stateNameByAbbr: Record<string, string> = {};
-for (const u of ec.units) stateNameByAbbr[u.state] = locale === 'fr' ? u.name_fr : u.name_en;
+for (const u of ec.units) stateNameByAbbr[u.state] = placeName(u, locale);
 ---
 
 <JurisdictionNav webKey="us-president" lang={locale} active="projection" />

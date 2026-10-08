@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { renderPollCard, type CardEntry } from '../../../../lib/og/poll-card';
 import { jurisdictions } from '../../../../data/jurisdictions';
+import { partyName } from '../../../../lib/party-names';
 
 type Lang = 'en' | 'fr' | 'es';
 const LANGS: Lang[] = ['en', 'fr', 'es'];
@@ -59,7 +60,7 @@ const projectedSeats = (party: any) =>
   Math.round(party.seats_projected ?? party.seats_median ?? party.seats_mean ?? 0);
 
 const partyLabel = (party: any, lang: Lang) =>
-  PARTY_SHORT[party.party]?.[lang] ?? (lang === 'fr' ? party.label_fr : party.label_en);
+  PARTY_SHORT[party.party]?.[lang] ?? (partyName(party, lang));
 
 export const GET: APIRoute = async ({ params }) => {
   const key = params.key as Key;

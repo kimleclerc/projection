@@ -122,7 +122,7 @@ function asDateLabel(dateString?: string) {
   return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
-export function getCanadaGooseData(): GooseData {
+export function getCanadaGooseData(locale: 'en' | 'fr' | 'es' = 'en'): GooseData {
   const raw = JSON.parse(
     readFileSync(resolve(process.cwd(), 'web_data/ca-canada-goose/latest.json'), 'utf-8'),
   ) as Partial<GooseData>;
@@ -141,7 +141,7 @@ export function getCanadaGooseData(): GooseData {
     history: raw.history ?? [],
     mandate: raw.mandate ?? {},
     market_signals: raw.market_signals ?? [],
-    ticker: buildTicker(raw),
+    ticker: buildTicker(raw, locale),
     computed: {
       daysToElection: daysUntil(meta.next_election),
       asOfLabel: asDateLabel(meta.as_of_date),
@@ -155,47 +155,50 @@ export function getCanadaGooseData(): GooseData {
   };
 }
 
-function buildTicker(data: Partial<GooseData>): GooseTickerItem[] {
+function buildTicker(data: Partial<GooseData>, locale: 'en' | 'fr' | 'es' = 'en'): GooseTickerItem[] {
   const cgi = data.cgi;
   const components = data.components ?? [];
   const mandate = data.mandate ?? {};
   const electoral = components.find((c) => c.id === 'electoral_strength');
   const approval = components.find((c) => c.id === 'government_approval');
   const econ = components.find((c) => c.id === 'economic_confidence');
+  const score = cgi?.score?.toFixed(1) ?? '—';
+  const T = {
+    en: {
+      tags: ['CGI', 'POLLS', 'SEATS', 'APPROVAL', 'ECON'],
+      cgi: `Canada Goose Index at ${score}/100`,
+      lead: `Liberal lead ${electoral?.raw_label ?? '—'}`,
+      seats: `Federal model: Liberals ${mandate.seats_mean ?? '—'} seats`,
+      approval: `Government approval ${approval?.raw_label ?? '—'}`,
+      econ: `Nanos confidence ${econ?.raw_label ?? '—'}`,
+      latest: 'latest', tracker: 'tracker', model: 'model', polls: 'polls',
+    },
+    fr: {
+      tags: ['BERNACHE', 'SONDAGES', 'SIÈGES', 'APPROBATION', 'ÉCONOMIE'],
+      cgi: `Indice Bernache à ${score}/100`,
+      lead: `Avance libérale ${electoral?.raw_label ?? '—'}`,
+      seats: `Modèle fédéral : libéraux ${mandate.seats_mean ?? '—'} sièges`,
+      approval: `Approbation du gouvernement ${approval?.raw_label ?? '—'}`,
+      econ: `Confiance Nanos ${econ?.raw_label ?? '—'}`,
+      latest: 'récent', tracker: 'sondages', model: 'modèle', polls: 'sondages',
+    },
+    es: {
+      tags: ['CGI', 'ENCUESTAS', 'ESCAÑOS', 'APROBACIÓN', 'ECONOMÍA'],
+      cgi: `Canada Goose Index en ${score}/100`,
+      lead: `Ventaja liberal ${electoral?.raw_label ?? '—'}`,
+      seats: `Modelo federal: liberales ${mandate.seats_mean ?? '—'} escaños`,
+      approval: `Aprobación del gobierno ${approval?.raw_label ?? '—'}`,
+      econ: `Confianza Nanos ${econ?.raw_label ?? '—'}`,
+      latest: 'reciente', tracker: 'encuestas', model: 'modelo', polls: 'encuestas',
+    },
+  }[locale];
 
   return [
-    {
-      tag: 'CGI',
-      tone: 'blue',
-      text: `Canada Goose Index at ${cgi?.score?.toFixed(1) ?? '—'}/100`,
-      time: data.meta?.as_of_date ?? 'latest',
-      href: '/en/canada/indexes/canada-goose/',
-    },
-    {
-      tag: 'POLLS',
-      tone: 'blue',
-      text: `Liberal lead ${electoral?.raw_label ?? '—'}`,
-      time: electoral?.last_updated ?? 'tracker',
-    },
-    {
-      tag: 'SEATS',
-      tone: 'blue',
-      text: `Federal model: Liberals ${mandate.seats_mean ?? '—'} seats`,
-      time: 'model',
-      href: '/en/canada/federal/',
-    },
-    {
-      tag: 'APPROVAL',
-      tone: 'neutral',
-      text: `Government approval ${approval?.raw_label ?? '—'}`,
-      time: approval?.last_updated ?? 'polls',
-    },
-    {
-      tag: 'ECON',
-      tone: 'duck',
-      text: `Nanos confidence ${econ?.raw_label ?? '—'}`,
-      time: econ?.last_updated ?? 'Nanos',
-    },
+    { tag: T.tags[0], tone: 'blue', text: T.cgi, time: data.meta?.as_of_date ?? T.latest, href: `/${locale}/canada/indexes/canada-goose/` },
+    { tag: T.tags[1], tone: 'blue', text: T.lead, time: electoral?.last_updated ?? T.tracker },
+    { tag: T.tags[2], tone: 'blue', text: T.seats, time: T.model, href: `/${locale}/canada/federal/` },
+    { tag: T.tags[3], tone: 'neutral', text: T.approval, time: approval?.last_updated ?? T.polls },
+    { tag: T.tags[4], tone: 'duck', text: T.econ, time: econ?.last_updated ?? 'Nanos' },
   ];
 }
 

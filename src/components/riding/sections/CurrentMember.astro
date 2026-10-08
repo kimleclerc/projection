@@ -1,4 +1,5 @@
 ---
+import { partyName } from '../../../lib/party-names';
 import type { RidingData } from '../../../lib/riding-adapters/types';
 import { partyMeta } from '../../../lib/riding-adapters/parties';
 
@@ -13,8 +14,8 @@ const m = data.member;
 
 const currentMeta = partyMeta(data.jurisdiction, m.party_current);
 const electedMeta = m.party_elected ? partyMeta(data.jurisdiction, m.party_elected) : null;
-const currentLabel = lang === 'fr' ? currentMeta.label_fr : currentMeta.label_en;
-const electedLabel = electedMeta ? (lang === 'fr' ? electedMeta.label_fr : electedMeta.label_en) : null;
+const currentLabel = partyName(currentMeta, lang);
+const electedLabel = electedMeta ? (partyName(electedMeta, lang)) : null;
 const hasCrossed = !!(m.party_elected && m.party_current !== m.party_elected);
 // UN GOUVERNEUR N'EST PAS UN·E DÉPUTÉ·E, ET NE « SIÈGE » AVEC PERSONNE : il
 // dirige l'exécutif d'un État. Les libellés parlementaires seraient faux mot

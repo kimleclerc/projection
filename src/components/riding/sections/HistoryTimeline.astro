@@ -1,4 +1,5 @@
 ---
+import { partyName } from '../../../lib/party-names';
 import type { RidingData } from '../../../lib/riding-adapters/types';
 import { partyMeta } from '../../../lib/riding-adapters/parties';
 
@@ -18,7 +19,7 @@ const cycleLabel = cycleYear
 if (!data.baseline) return null;
 
 const winnerMeta = partyMeta(data.jurisdiction, data.baseline.winner);
-const winnerLabel = lang === 'fr' ? winnerMeta.label_fr : winnerMeta.label_en;
+const winnerLabel = partyName(winnerMeta, lang);
 const swing = data.projection.mean_margin - data.baseline.margin;
 const swingSign = swing >= 0 ? '+' : '';
 

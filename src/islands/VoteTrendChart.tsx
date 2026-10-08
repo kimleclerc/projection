@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { readChartTheme, onThemeChange } from './lib/chart-theme';
+import { partyName } from '../lib/party-names';
 
 export interface PollSnapshot {
   date: string;
@@ -85,13 +86,13 @@ export default function VoteTrendChart({
           return {
             type: 'scatter' as const,
             mode: 'markers' as const,
-            name: locale === 'fr' ? meta.label_fr : meta.label_en,
+            name: partyName(meta, locale),
             x: xDates,
             y,
             marker: { color: meta.color, size: 5, opacity: 0.55 },
             legendgroup: key,
             hovertemplate: `%{x|%Y-%m-%d}<br>${
-              locale === 'fr' ? meta.label_fr : meta.label_en
+              partyName(meta, locale)
             } : %{y:.1f}%<extra></extra>`,
           };
         });
@@ -119,7 +120,7 @@ export default function VoteTrendChart({
           return {
             type: 'scatter' as const,
             mode: 'markers' as const,
-            name: `${locale === 'fr' ? meta.label_fr : meta.label_en} (${
+            name: `${partyName(meta, locale)} (${
               locale === 'fr' ? 'modèle' : locale === 'es' ? 'modelo' : 'model'
             })`,
             x: [lastDate],
@@ -142,7 +143,7 @@ export default function VoteTrendChart({
             legendgroup: key,
             showlegend: false,
             hovertemplate: `${locale === 'fr' ? 'Modèle' : locale === 'es' ? 'Modelo' : 'Model'} ${
-              locale === 'fr' ? meta.label_fr : meta.label_en
+              partyName(meta, locale)
             }<br>%{y:.1f}% [${meta.vote_ci_low_95.toFixed(
               1,
             )}–${meta.vote_ci_high_95.toFixed(1)}]<extra></extra>`,

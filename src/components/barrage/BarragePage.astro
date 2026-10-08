@@ -243,7 +243,7 @@ const duelLabel = duel.barrage_name && duel.far_right_name ? `${duel.barrage_nam
           <a class="btn-outline" href="#history">{t.history}</a>
         </div>
 
-        <div class="lame-duck-stats" aria-label="Barrage Index live stats">
+        <div class="lame-duck-stats" aria-label={locale === 'fr' ? 'Chiffres en direct de l’indice Barrage' : locale === 'es' ? 'Cifras en directo del índice Barrage' : 'Barrage Index live stats'}>
           <article>
             <p>{t.readingLabel}</p>
             <strong>{fmt1(data.bfi.score)}<span>/100</span></strong>

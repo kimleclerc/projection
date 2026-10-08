@@ -1,4 +1,5 @@
 ---
+const PHASE: Record<string, string> = { final: 'final', semi_final: 'semifinales', quarter_final: 'cuartos de final', round_of_16: 'octavos de final', round_of_32: 'dieciseisavos de final', group_stage: 'fase de grupos' };
 import EditorialLayout from '../../../layouts/EditorialLayout.astro';
 import EditorialHero from '../../../components/EditorialHero.astro';
 import RaceNarrative from '../../../components/RaceNarrative.astro';
@@ -148,8 +149,8 @@ const winnerUrl = winnerEmbed?.url ?? undefined;
       <p class="eyebrow">Las dos últimas — probabilidades de título</p>
       <h2>El tablero de la final</h2>
       <p style="margin-bottom:1.5rem;font-size:0.9rem;">
-        Fase: {meta.tournament_phase.replace(/_/g, ' ')} ·
-        {meta.n_sims.toLocaleString()} simulaciones ·
+        Fase: {PHASE[meta.tournament_phase] ?? meta.tournament_phase.replace(/_/g, ' ')} ·
+        {meta.n_sims.toLocaleString('es-ES')} simulaciones ·
         {meta.n_teams} selecciones · {meta.n_groups} grupos
       </p>
       <div style="overflow-x:auto;">
@@ -195,7 +196,7 @@ const winnerUrl = winnerEmbed?.url ?? undefined;
   <section class="content-band">
     <div class="container">
       <p class="eyebrow">Por confederación — principales contendientes</p>
-      <h2>Donde se concentra la fortaleza del torneo.</h2>
+      <h2>Dónde se concentra la fortaleza del torneo.</h2>
       <div class="content-grid-2" style="gap:1rem;margin-top:1rem;">
         {sortedConfs.map((conf) => (
           <div class="note-card">

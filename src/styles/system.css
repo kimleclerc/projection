@@ -110,3 +110,17 @@
    qui précède immédiatement le h1 d'un en-tête est masquée. Le contexte est déjà
    donné par le menu et le fil de la page. */
 .vs-page-head :is(p, span, div):has(+ h1) { display: none !important; }
+
+/* ── Largeur de page unique ─────────────────────────────────────────
+ * Toutes les pages ont la même largeur et le même bord gauche que le logo.
+ * Les colonnes plus étroites (texte, tableaux) restent alignées à gauche dans
+ * ce conteneur : jamais un conteneur plus étroit et centré. */
+.container {
+  max-width: 1280px !important;
+  margin-inline: auto !important;
+  padding-inline: 32px !important;
+}
+@media (max-width: 640px) {
+  .container { padding-inline: 16px !important; }
+}
+.vs-page-head p { max-width: 760px; }

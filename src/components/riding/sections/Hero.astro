@@ -1,5 +1,5 @@
 ---
-import { regionLabel } from '../../../lib/riding-adapters/regions';
+import { regionLabel, UK_NATIONS } from '../../../lib/riding-adapters/regions';
 import type { RidingData } from '../../../lib/riding-adapters/types';
 import RidingShape from './RidingShape.astro';
 
@@ -82,7 +82,7 @@ const urbanLabel = urbanValue ? (T.urban[urbanValue] ?? urbanValue) : null;
       <p class="eyebrow">{T.eyebrow}</p>
       <h1>{name}</h1>
       <p class="meta">
-        {T.province_prefix} <strong>{data.province}</strong>
+        {T.province_prefix} <strong>{UK_NATIONS[data.province]?.[lang] ?? data.province}</strong>
         {urbanLabel && <> · {urbanLabel}</>}
         {regionName && <> · <span class="region">{regionName}</span></>}
       </p>

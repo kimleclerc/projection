@@ -1,4 +1,5 @@
 ---
+import { partyName } from '../lib/party-names';
 /**
  * SeatUncertaintyPage — second niveau des juridictions à sièges.
  *
@@ -84,7 +85,7 @@ const partyByKey = new Map(parties.map((p) => [p.party, p]));
 const labelOf = (key: string) => {
   const p = partyByKey.get(key);
   if (!p) return key.toUpperCase();
-  return locale === 'fr' ? p.label_fr : p.label_en;
+  return partyName(p, locale);
 };
 
 const num = (v: number | undefined, digits = 0) =>
@@ -98,10 +99,10 @@ const range = (lo: number | undefined, hi: number | undefined) =>
 
 const fmtPct = (v: number | undefined) => {
   if (typeof v !== 'number') return '—';
-  if (v >= 0.995) return locale === 'fr' ? '> 99 %' : '>99%';
-  if (v > 0 && v < 0.005) return locale === 'fr' ? '< 1 %' : '<1%';
+  if (v >= 0.995) return locale === 'fr' ? '> 99 %' : locale === 'es' ? '> 99 %' : '>99%';
+  if (v > 0 && v < 0.005) return locale === 'fr' ? '< 1 %' : locale === 'es' ? '< 1 %' : '<1%';
   const n = Math.round(v * 100);
-  return locale === 'fr' ? `${n} %` : `${n}%`;
+  return locale === 'fr' ? `${n} %` : locale === 'es' ? `${n} %` : `${n}%`;
 };
 
 const jurLabel = navEntry ? navEntry.label[locale as NavLang] : jurisdiction.id;
@@ -247,7 +248,7 @@ const pageNavItems = [
             <tr>
               <th scope="row">
                 <span class="unc-swatch" style={`background:${p.color}`} aria-hidden="true" />
-                {locale === 'fr' ? p.label_fr : p.label_en}
+                {partyName(p, locale)}
               </th>
               <td class="num strong">{p.seats_projected ?? Math.round(p.seats_mean)}</td>
               <td class="num">{range(p.seats_ci_low_80, p.seats_ci_high_80)}</td>

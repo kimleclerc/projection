@@ -124,7 +124,7 @@ const sourceLabel = d.source
     {(d.population_total || d.median_age || d.employment_rate || d.unemployment_rate) && (
       <div class="block stats-grid">
         {d.population_total !== undefined && (
-          <div><dt>{T.population}</dt><dd>{d.population_total.toLocaleString(lang === 'fr' ? 'fr-CA' : 'en-CA')}</dd></div>
+          <div><dt>{T.population}</dt><dd>{d.population_total.toLocaleString(lang === 'fr' ? 'fr-CA' : lang === 'es' ? 'es-ES' : 'en-CA')}</dd></div>
         )}
         {d.median_age !== undefined && (
           <div><dt>{T.median_age}</dt><dd>{d.median_age}</dd></div>

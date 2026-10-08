@@ -15,6 +15,7 @@ export interface PartyMeta {
    *  falls back to the label when absent. */
   full_fr?: string;
   full_en?: string;
+  full_es?: string;
   /** Official logo filename in /public/party-logos/ (e.g. "qc-caq.svg").
    *  Rendered by CandidateSlate / legends; falls back
    *  to the colour swatch when absent. */
@@ -78,7 +79,7 @@ export const BC_PARTIES: Record<string, PartyMeta> = {
   bc_grn:    { label_en: 'GP',      label_fr: 'PV',       color: '#3D9B35', mention_fr: 'du Parti vert',      mention_en: 'the Green Party',        mention_es: 'el Partido Verde' },
   bc_onebc:  { label_en: 'OneBC',   label_fr: 'OneBC',    color: '#B8860B', mention_fr: "d'OneBC",            mention_en: 'OneBC',                  mention_es: 'OneBC' },
   bc_centre: { label_en: 'CentreBC', label_fr: 'CentreBC', color: '#7A5EA8', mention_fr: 'de CentreBC',       mention_en: 'CentreBC',               mention_es: 'CentreBC' },
-  bc_lib:    { label_en: 'BCU',     label_fr: 'BCU',      color: '#19BFD2', full_fr: 'BC United (ex-Parti libéral de la C.-B.)', full_en: 'BC United (formerly BC Liberal Party)', mention_fr: 'de BC United', mention_en: 'BC United', mention_es: 'BC United' },
+  bc_lib:    { label_en: 'BCU',     label_fr: 'BCU',      color: '#19BFD2', full_fr: 'BC United (ex-Parti libéral de la C.-B.)', full_en: 'BC United (formerly BC Liberal Party)', full_es: 'BC United (antes Partido Liberal de la C. B.)', mention_fr: 'de BC United', mention_en: 'BC United', mention_es: 'BC United' },
   bc_ind:    { label_en: 'IND',     label_fr: 'IND',      color: '#6B7280', mention_fr: 'indépendant·e',      mention_en: 'an independent',         mention_es: 'una candidatura independiente' },
   bc_oth:    { label_en: 'OTH',     label_fr: 'AUT',      color: '#999999', mention_fr: "d'un autre parti",   mention_en: 'another party',          mention_es: 'otro partido' },
 };

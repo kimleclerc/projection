@@ -24,6 +24,8 @@ import {
 } from './jurisdiction-nav';
 import { partyMeta } from './riding-adapters/parties';
 import { ridingSlug } from './riding-adapters/types';
+import { partyName } from './party-names';
+import { placeName } from './place-names';
 
 export interface CloseRace {
   href?: string;
@@ -135,8 +137,8 @@ export function closeRacesFor(options: {
     const meta = partyMeta(palette, r.winner);
     return {
       href: hrefFor(r),
-      name: lang === 'fr' ? r.name_fr : r.name_en,
-      partyLabel: lang === 'fr' ? meta.label_fr : meta.label_en,
+      name: placeName(r, lang),
+      partyLabel: partyName(meta, lang),
       partyColor: meta.color,
       pWinner: r.pWinner,
       margin: r.margin,

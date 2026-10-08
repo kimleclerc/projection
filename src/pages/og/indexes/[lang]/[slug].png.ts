@@ -10,6 +10,7 @@ import { getLameDuckData } from '../../../../data/lameDuck';
 import { getCanadaGooseData } from '../../../../data/canadaGoose';
 import { getBarrageData } from '../../../../data/barrage';
 import { getCusmaShowdownData, showdownLabel } from '../../../../data/cusmaShowdown';
+import { partyName } from '../../../../lib/party-names';
 
 type Lang = 'en' | 'fr' | 'es';
 const LANGS: Lang[] = ['en', 'fr', 'es'];
@@ -60,7 +61,7 @@ interface AnyZone {
 
 function zoneLabel(z: AnyZone, lang: Lang): string {
   if (lang === 'es') return z.label_es ?? z.label_en ?? '';
-  return (lang === 'fr' ? z.label_fr : z.label_en) ?? '';
+  return (partyName(z, lang)) ?? '';
 }
 
 function activeZone(value: number, zones: AnyZone[]): AnyZone | undefined {

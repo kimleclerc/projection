@@ -1,4 +1,5 @@
 ---
+import { partyName } from '../../../lib/party-names';
 import type { RidingData } from '../../../lib/riding-adapters/types';
 import { partyMeta, partyMark } from '../../../lib/riding-adapters/parties';
 
@@ -9,7 +10,7 @@ interface Props {
 
 const { data, lang } = Astro.props;
 const winnerMeta = partyMeta(data.jurisdiction, data.projection.winner);
-const winnerLabel = lang === 'fr' ? winnerMeta.label_fr : winnerMeta.label_en;
+const winnerLabel = partyName(winnerMeta, lang);
 const pWinnerPct = Math.round(data.projection.p_winner * 100);
 const margin = data.projection.mean_margin.toFixed(1);
 const closeRacePct = (data.projection.p_close_race * 100).toFixed(0);

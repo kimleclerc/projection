@@ -76,7 +76,7 @@ export const specialElections = {
       fr: '/fr/us/specials/ga13/',
       es: '/es/us/specials/ga13/',
     },
-    translated: { en: true, fr: false, es: true },
+    translated: { en: true, fr: true, es: true },
     bookContext: 'ga13',
   },
   fl20: {
@@ -94,11 +94,14 @@ export const specialElections = {
     kicker: 'Pending U.S. House special · Date TBD',
     headline: 'FL‑20 is vacant. The projection is live.',
     dek: 'Florida has not yet called the special election. Until the date and nominees are official, Vote-Scope publishes a deliberately wide party-level forecast anchored to the 119th Congress district.',
+    kicker_fr: 'Partielle à venir à la Chambre · date à fixer',
+    headline_fr: 'FL‑20 est vacant. La projection est en ligne.',
+    dek_fr: 'La Floride n’a pas encore convoqué la partielle. Tant que la date et les candidats ne sont pas officiels, Vote-Scope publie une projection volontairement large du contrôle partisan, fondée sur la carte du 119ᵉ Congrès.',
     kicker_es: 'Especial pendiente · Fecha por definir',
     headline_es: 'FL‑20 está vacante. La proyección está activa.',
     dek_es: 'Florida aún no ha convocado la elección. Hasta que se confirmen fecha y candidatos, Vote-Scope publica un pronóstico partidista amplio anclado al distrito del 119.º Congreso.',
     paths: { en: '/en/us/specials/fl20/', fr: '/fr/us/specials/fl20/', es: '/es/us/specials/fl20/' },
-    translated: { en: true, fr: false, es: true },
+    translated: { en: true, fr: true, es: true },
     bookContext: 'fl20',
   },
   tx23: {
@@ -116,11 +119,14 @@ export const specialElections = {
     kicker: 'Pending U.S. House special · Date TBD',
     headline: 'TX‑23 is vacant. The projection is live.',
     dek: 'Texas has not yet called the special election. The initial desk projects eventual party control on the 119th Congress boundaries, with extra uncertainty for turnout and an unknown field.',
+    kicker_fr: 'Partielle à venir à la Chambre · date à fixer',
+    headline_fr: 'TX‑23 est vacant. La projection est en ligne.',
+    dek_fr: 'Le Texas n’a pas encore convoqué la partielle. La projection initiale porte sur le contrôle partisan du siège dans les limites du 119ᵉ Congrès, avec une incertitude accrue sur la participation et des candidats encore inconnus.',
     kicker_es: 'Especial pendiente · Fecha por definir',
     headline_es: 'TX‑23 está vacante. La proyección está activa.',
     dek_es: 'Texas aún no ha convocado la elección. El desk inicial proyecta el control partidista en los límites del 119.º Congreso, con incertidumbre adicional por participación y candidatos desconocidos.',
     paths: { en: '/en/us/specials/tx23/', fr: '/fr/us/specials/tx23/', es: '/es/us/specials/tx23/' },
-    translated: { en: true, fr: false, es: true },
+    translated: { en: true, fr: true, es: true },
     bookContext: 'tx23',
   },
   ca1: {
@@ -138,6 +144,9 @@ export const specialElections = {
     kicker: 'Resolved special election · June 2, 2026',
     headline: 'Gallagher cleared 50%. No runoff.',
     dek: 'James Gallagher won 62.1% in the certified June 2 result, filling the CA-1 vacancy outright. Because he crossed 50%, California will not hold the provisional August 4 special general.',
+    kicker_fr: 'Partielle tranchée · 2 juin 2026',
+    headline_fr: 'Gallagher a passé la barre des 50 %. Pas de second tour.',
+    dek_fr: 'James Gallagher a obtenu 62,1 % au résultat certifié du 2 juin et pourvoit directement le siège vacant de CA-1. Comme il a dépassé 50 %, la Californie ne tiendra pas la partielle générale provisoire du 4 août.',
     kicker_es: 'Elección especial resuelta · 2 de junio de 2026',
     headline_es: 'Gallagher superó el 50 %. No habrá segunda vuelta.',
     dek_es: 'James Gallagher obtuvo 62,1 % en el resultado certificado del 2 de junio y cubrió directamente la vacante de CA-1. Al superar el 50 %, California no celebrará la elección especial provisional del 4 de agosto.',
@@ -148,7 +157,7 @@ export const specialElections = {
     },
     translated: {
       en: true,
-      fr: false,
+      fr: true,
       es: true,
     },
     // ca1: no durable Polymarket market per Grok review
@@ -187,7 +196,7 @@ export const specialElections = {
     },
     translated: {
       en: true,
-      fr: false,
+      fr: true,
       es: true,
     },
     polymarketMarket: 'ca-14-special-election-winner',
@@ -209,6 +218,9 @@ export const specialElections = {
     headline: "Fuller won.\nWe called it.",
     dek:
       "Vote-Scope built this special-election page for a no-polls runoff environment, leaning on first-round structure, district partisanship and 50,000 Monte Carlo simulations. The call held: Clay Fuller won, validating the model's first public special-election projection.",
+    kicker_fr: 'Résultat confirmé · 8 avril 2026 · Géorgie 14',
+    headline_fr: 'Fuller a gagné.\nNous l’avions prévu.',
+    dek_fr: 'Vote-Scope a bâti cette page pour un second tour sans sondages, à partir des résultats du premier tour, de l’orientation du district et de 50 000 simulations Monte-Carlo. La prévision s’est confirmée : Clay Fuller a gagné, ce qui valide la première projection publique de partielle du modèle.',
     kicker_es: 'Resultado confirmado · 8 de abril de 2026 · Georgia 14',
     headline_es: 'Fuller ganó.\nLo pronosticamos.',
     dek_es:
@@ -220,7 +232,7 @@ export const specialElections = {
     },
     translated: {
       en: true,
-      fr: false,
+      fr: true,
       es: true,
     },
     // GA-14 special is resolved; no active Polymarket market per Grok review
@@ -242,6 +254,9 @@ export const specialElections = {
     headline: 'NJ-11 result archive.',
     dek:
       "This page is now a resolved archive. Vote-Scope projected Analilia Mejia as the clear favorite before election day, and the district finished in a decisive Democratic hold.",
+    kicker_fr: 'Partielle tranchée · 16 avril',
+    headline_fr: 'Archive des résultats de NJ-11.',
+    dek_fr: 'Cette page est désormais une archive. Vote-Scope donnait Analilia Mejia nettement favorite avant le scrutin, et le district est resté démocrate avec une marge nette.',
     kicker_es: 'Elección especial resuelta · 16 de abril',
     headline_es: 'Archivo de resultados NJ-11.',
     dek_es:
@@ -253,7 +268,7 @@ export const specialElections = {
     },
     translated: {
       en: true,
-      fr: false,
+      fr: true,
       es: true,
     },
     polymarketMarket: 'nj-11-special-election-margin-of-victory',

@@ -1,4 +1,5 @@
 ---
+import { partyName } from '../lib/party-names';
 /**
  * Soirée électorale québécoise du 5 octobre 2026.
  *
@@ -86,7 +87,7 @@ const ridingsBase = { fr: 'circonscriptions', en: 'ridings', es: 'distritos' }[l
 // au build. Le gagnant de 2022 sert aux « gains »; le live.json ne le porte pas.
 const LIVE_PARTIES = ['pq', 'caq', 'plq', 'pcq', 'qs', 'qc_oth'].map((code) => {
   const m = partyMeta('quebec', code);
-  return { code, color: m.color, label: locale === 'fr' ? m.label_fr : m.label_en };
+  return { code, color: m.color, label: partyName(m, locale) };
 });
 const slugById = new Map(getAllQuebecRidings().map((d) => [d.id, d.slug]));
 const liveRidings = (ridingsSource as any).ridings.map((r: any) => ({
@@ -305,7 +306,7 @@ const runDateText = new Intl.DateTimeFormat(
     <h2>{COPY.projectionTitle}</h2>
     <p class="qen-lede">{COPY.projectionLede}</p>
 
-    <div class="qen-bar" role="img" aria-label={`${COPY.seatsLabel} — ${seatParties.map((p) => `${locale === 'fr' ? p.label_fr : p.label_en} ${p.seats_projected}`).join(', ')}`}>
+    <div class="qen-bar" role="img" aria-label={`${COPY.seatsLabel} — ${seatParties.map((p) => `${partyName(p, locale)} ${p.seats_projected}`).join(', ')}`}>
       {seatParties.map((p) => (
         <span style={`--w:${(100 * p.seats_projected) / seatTotal}%;--c:${p.color}`}></span>
       ))}
@@ -317,7 +318,7 @@ const runDateText = new Intl.DateTimeFormat(
       {seatParties.map((p) => (
         <li>
           <i style={`--c:${p.color}`} aria-hidden="true"></i>
-          <span class="qen-party">{locale === 'fr' ? p.label_fr : p.label_en}</span>
+          <span class="qen-party">{partyName(p, locale)}</span>
           <strong>{p.seats_projected}</strong>
         </li>
       ))}
@@ -341,7 +342,7 @@ const runDateText = new Intl.DateTimeFormat(
             <a href={`/${locale}/canada/quebec/${ridingsBase}/${r.slug}/`} style={`--c:${pm.color}`}>
               <span class="qen-dot" aria-hidden="true"></span>
               <span class="qen-riding">{locale === 'fr' ? r.name.fr : r.name.en}</span>
-              <span class="qen-lead">{locale === 'fr' ? pm.label_fr : pm.label_en}</span>
+              <span class="qen-lead">{partyName(pm, locale)}</span>
               <span class="qen-margin">{num(r.projection.mean_margin)} pt · {COPY.marginLabel}</span>
             </a>
           </li>

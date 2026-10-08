@@ -19,7 +19,7 @@ const crumbs: Crumb[] = [
 ];
 ---
 
-<nav class="wc-crumb" aria-label="Breadcrumb">
+<nav class="wc-crumb" aria-label={lang === 'fr' ? 'Fil d’Ariane' : lang === 'es' ? 'Ruta de navegación' : 'Breadcrumb'}>
   <ol>
     {crumbs.map((c, i) => (
       <li>

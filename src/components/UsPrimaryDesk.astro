@@ -68,6 +68,12 @@ const T = {
       statewide_results_not_published: 'The statewide result file is not published yet.',
       certification_document: 'Vote totals are published, but no certification document was found.',
       raw_download_browser_challenge: 'The raw download rejects automated clients; figures read from the official rendered page.',
+      absentee_and_questioned_count_in_progress: 'Absentee and challenged ballots are still being counted.',
+      results_portal_browser_challenge: 'The state results portal rejects automated access; figures read from the official page.',
+      results_portal_cloudflare_and_primary_map_differs_from_general: 'The state results portal blocks automated access, and the primary map differs from the general-election map.',
+      special_primary_democratic_returns_published_only_as_scans: 'Democratic returns are published only as scanned documents.',
+      statewide_raw_download_edge_blocked: 'The statewide results file blocks automated downloads.',
+      other: 'Results not yet confirmed from an official source.',
     } as Record<string, string>,
     nothingYet: 'No primary has been held yet under this date.',
     keepEyebrow: 'Keep digging',
@@ -105,6 +111,12 @@ const T = {
       statewide_results_not_published: 'Le fichier de résultats à l’échelle de l’État n’est pas encore publié.',
       certification_document: 'Les totaux sont publiés, mais aucun document de certification n’a été trouvé.',
       raw_download_browser_challenge: 'Le téléchargement brut rejette les clients automatisés ; chiffres lus sur la page officielle.',
+      absentee_and_questioned_count_in_progress: 'Le dépouillement des votes par correspondance et des bulletins contestés se poursuit.',
+      results_portal_browser_challenge: 'Le portail de résultats de l’État refuse l’accès automatisé ; chiffres lus sur la page officielle.',
+      results_portal_cloudflare_and_primary_map_differs_from_general: 'Le portail de résultats de l’État bloque l’accès automatisé, et la carte des primaires diffère de celle de l’élection générale.',
+      special_primary_democratic_returns_published_only_as_scans: 'Les résultats démocrates ne sont publiés qu’en documents numérisés.',
+      statewide_raw_download_edge_blocked: 'Le fichier de résultats de l’État bloque les téléchargements automatisés.',
+      other: 'Résultats pas encore confirmés par une source officielle.',
     } as Record<string, string>,
     nothingYet: 'Aucune primaire tenue à cette date.',
     keepEyebrow: 'Creuser encore',
@@ -142,6 +154,12 @@ const T = {
       statewide_results_not_published: 'El archivo de resultados estatal aún no se publica.',
       certification_document: 'Los totales están publicados, pero no se encontró documento de certificación.',
       raw_download_browser_challenge: 'La descarga directa rechaza clientes automatizados; cifras leídas de la página oficial.',
+      absentee_and_questioned_count_in_progress: 'Aún se cuentan los votos por correo y las papeletas impugnadas.',
+      results_portal_browser_challenge: 'El portal de resultados del estado rechaza el acceso automatizado; cifras leídas de la página oficial.',
+      results_portal_cloudflare_and_primary_map_differs_from_general: 'El portal de resultados del estado bloquea el acceso automatizado y el mapa de las primarias difiere del de la elección general.',
+      special_primary_democratic_returns_published_only_as_scans: 'Los resultados demócratas solo se publican como documentos escaneados.',
+      statewide_raw_download_edge_blocked: 'El archivo de resultados estatal bloquea las descargas automatizadas.',
+      other: 'Resultados aún no confirmados por una fuente oficial.',
     } as Record<string, string>,
     nothingYet: 'Ninguna primaria celebrada en esta fecha.',
     keepEyebrow: 'Seguir indagando',
@@ -185,7 +203,7 @@ const freshest = held.filter((g: any) => g.primary_date === latestDate);
 const earlier = held.filter((g: any) => g.primary_date !== latestDate);
 
 const chamber = (scope: string) => (scope === 'senate' ? T.senate : T.house);
-const gapText = (gap: any) => (gap ? (T.gaps[gap.issue] ?? gap.issue.replace(/_/g, ' ')) : '');
+const gapText = (gap: any) => (gap ? (T.gaps[gap.issue] ?? T.gaps.other) : '');
 
 // Une porte à venir garde son ballottage annoncé : c'est une information de
 // calendrier, pas un résultat.

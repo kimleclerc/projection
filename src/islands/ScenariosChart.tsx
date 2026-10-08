@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { readChartTheme, onThemeChange } from './lib/chart-theme';
+import { partyName } from '../lib/party-names';
 
 export interface ScenarioParty {
   party: string;
@@ -71,16 +72,14 @@ export default function ScenariosChart({ parties, locale }: Props) {
           .slice(0, 6);
         if (filtered.length === 0) {
           setError(
-            locale === 'fr'
-              ? 'Aucun parti avec probabilité ≥ 1 %.'
-              : 'No party with probability ≥ 1%.',
+            locale === 'fr' ? 'Aucun parti avec probabilité ≥ 1 %.' : locale === 'es' ? 'Ningún partido con probabilidad ≥ 1 %.' : 'No party with probability ≥ 1%.',
           );
           setLoaded(true);
           return;
         }
 
         const labels = filtered.map((p) =>
-          locale === 'fr' ? p.label_fr : p.label_en,
+          partyName(p, locale),
         );
         const colors = filtered.map((p) => p.color);
 
@@ -89,7 +88,7 @@ export default function ScenariosChart({ parties, locale }: Props) {
           hasMajoritySeries && {
             type: 'bar' as const,
             orientation: 'h' as const,
-            name: locale === 'fr' ? 'P(majorité)' : 'P(majority)',
+            name: locale === 'fr' ? 'P(majorité)' : locale === 'es' ? 'P(mayoría)' : 'P(majority)',
             y: labels,
             x: filtered.map((p) => (p.p_majority ?? 0) * 100),
             marker: { color: colors },
@@ -97,12 +96,12 @@ export default function ScenariosChart({ parties, locale }: Props) {
             textposition: 'outside' as const,
             textfont: { color: axisColor, size: 11 },
             hovertemplate:
-              `%{y}<br>${locale === 'fr' ? 'P(majorité)' : 'P(majority)'}: %{x:.1f}%<extra></extra>`,
+              `%{y}<br>${locale === 'fr' ? 'P(majorité)' : locale === 'es' ? 'P(mayoría)' : 'P(majority)'}: %{x:.1f}%<extra></extra>`,
           },
           {
             type: 'bar' as const,
             orientation: 'h' as const,
-            name: locale === 'fr' ? 'P(plus grand seul)' : 'P(largest alone)',
+            name: locale === 'fr' ? 'P(plus grand seul)' : locale === 'es' ? 'P(primero en solitario)' : 'P(largest alone)',
             y: labels,
             x: filtered.map(
               (p) => (p.p_strict_largest ?? p.p_largest ?? 0) * 100,
@@ -114,7 +113,7 @@ export default function ScenariosChart({ parties, locale }: Props) {
             textposition: 'outside' as const,
             textfont: { color: axisColor, size: 11 },
             hovertemplate:
-              `%{y}<br>${locale === 'fr' ? 'P(plus grand seul)' : 'P(largest alone)'}: %{x:.1f}%<extra></extra>`,
+              `%{y}<br>${locale === 'fr' ? 'P(plus grand seul)' : locale === 'es' ? 'P(primero en solitario)' : 'P(largest alone)'}: %{x:.1f}%<extra></extra>`,
           },
         ].filter(Boolean);
 
@@ -179,7 +178,7 @@ export default function ScenariosChart({ parties, locale }: Props) {
       )}
       {!error && !loaded && (
         <p class="pe-chart-loading" role="status">
-          {locale === 'fr' ? 'Chargement du graphique…' : 'Loading chart…'}
+          {locale === 'fr' ? 'Chargement du graphique…' : locale === 'es' ? 'Cargando el gráfico…' : 'Loading chart…'}
         </p>
       )}
       <div ref={ref} class="pe-chart" />

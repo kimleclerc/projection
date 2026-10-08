@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'preact/hooks';
+import { specialNote, specialParty } from '../data/special-notes';
 
 type Locale = 'en' | 'fr' | 'es';
 
@@ -234,7 +235,7 @@ export default function SpecialElectionForecast({
   return (
     <div class="special-engine container" data-special-slug={slug}>
       <style>{specialElectionStyles}</style>
-      <section class="special-dashboard" aria-label="Special-election forecast summary">
+      <section class="special-dashboard" aria-label={locale === 'fr' ? 'Résumé de la projection de la partielle' : locale === 'es' ? 'Resumen del pronóstico de la elección especial' : 'Special-election forecast summary'}>
         <article class="special-big-number special-panel">
           <p class="special-label">{isHeadToHead ? (locale === 'fr' ? 'Gagnant projeté' : locale === 'es' ? 'Ganador proyectado' : 'Projected winner') : t.favorite}</p>
           <strong>{pct(data.summary.favorite_probability)}</strong>
@@ -285,7 +286,7 @@ export default function SpecialElectionForecast({
         {status === 'loading' && t.loading}
         {status === 'error' && t.error}
         {status === 'ready' &&
-          `${t.updated} ${data.meta.run_date} · ${data.meta.n_simulations.toLocaleString()} ${t.simulations}`}
+          `${t.updated} ${data.meta.run_date} · ${data.meta.n_simulations.toLocaleString(locale === 'en' ? 'en-US' : locale === 'es' ? 'es-ES' : 'fr-FR')} ${t.simulations}`}
       </p>
 
       <section class="special-section" aria-labelledby="special-candidates-title">
@@ -308,7 +309,7 @@ export default function SpecialElectionForecast({
                 />
                 <div>
                   <h3>{candidate.name}</h3>
-                  <p>{candidate.party}</p>
+                  <p>{specialParty(candidate.party, locale)}</p>
                 </div>
               </div>
               <div class="special-vote-bar" aria-hidden="true">
@@ -368,20 +369,20 @@ export default function SpecialElectionForecast({
         <article class="special-section special-compact" aria-labelledby="special-district-title">
           <p class="special-label">{data.district.district}</p>
           <h2 id="special-district-title">{t.district}</h2>
-          <p>{data.district.vacancy_reason}</p>
+          <p>{specialNote(data.district.vacancy_reason, locale)}</p>
           {districtContext && (
             <div class="special-baseline">
               <span>R {districtContext.house_2024_republican_share?.toFixed(1)}%</span>
               <span>D {districtContext.house_2024_democratic_share?.toFixed(1)}%</span>
             </div>
           )}
-          {districtContext?.note && <p>{districtContext.note}</p>}
+          {districtContext?.note && <p>{specialNote(districtContext.note, locale)}</p>}
         </article>
 
         <article class="special-section special-compact" aria-labelledby="special-model-title">
           <p class="special-label">{data.meta.model_type}</p>
           <h2 id="special-model-title">{t.model}</h2>
-          <p>{data.method_note}</p>
+          <p>{specialNote(data.method_note, locale)}</p>
           <a class="special-json-link" href={dataUrl}>
             {t.json}
           </a>
@@ -395,8 +396,8 @@ export default function SpecialElectionForecast({
           <div class="special-note-list">
             {data.benchmarks.assumptions.map((item) => (
               <div class="special-note">
-                <strong>{item.label}</strong>
-                <p>{item.note}</p>
+                <strong>{specialNote(item.label, locale)}</strong>
+                <p>{specialNote(item.note, locale)}</p>
               </div>
             ))}
           </div>
@@ -408,7 +409,7 @@ export default function SpecialElectionForecast({
           <div class="special-source-list">
             {data.sources.map((source) => (
               <a href={source.url} target="_blank" rel="noopener noreferrer">
-                {source.label}
+                {specialNote(source.label, locale)}
               </a>
             ))}
           </div>

@@ -1,4 +1,5 @@
 ---
+import { partyName } from '../lib/party-names';
 import EditorialLayout from '../layouts/EditorialLayout.astro';
 import { QC_PARTIES } from '../lib/riding-adapters/parties';
 import {
@@ -37,7 +38,7 @@ const pFmt = (p: number) => (p < 0.001 ? (locale === 'en' ? '<0.001' : '<0,001')
 const party = (code: string) => QC_PARTIES[code] ?? { label_fr: code.toUpperCase(), label_en: code.toUpperCase(), color: '#888' };
 const plabel = (code: string) => {
   const m = party(code) as any;
-  return locale === 'fr' ? m.label_fr : m.label_en;
+  return partyName(m, locale);
 };
 
 // Course aux 127 : partis triés par nombre de candidatures.

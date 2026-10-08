@@ -3,11 +3,13 @@ import type { RidingFull, MapParty } from './RidingsMap';
 import { trackAnalyticsEvent } from '../lib/analytics';
 import { readUrlParam, setUrlParam } from './lib/urlState';
 import CopyLink from './lib/CopyLink';
+import { partyName } from '../lib/party-names';
+import { placeName } from '../lib/place-names';
 
 interface Props {
   ridings: RidingFull[];
   parties: MapParty[];
-  locale: 'en' | 'fr' | 'es';
+  locale: 'en' | 'fr' | 'es' | 'es';
   baselineYear?: number;
 }
 
@@ -134,22 +136,18 @@ export default function RidingTable({
         if (r.baseline.winner === winner) {
           baselineShift = 'hold';
           baselineShiftLabel =
-            locale === 'fr' ? 'Maintien' : 'Hold';
+            locale === 'fr' ? 'Maintien' : locale === 'es' ? 'Retiene' : 'Hold';
         } else {
           baselineShift = 'flip';
           const fromLabel =
-            partyByKey.get(r.baseline.winner)?.[
-              locale === 'fr' ? 'label_fr' : 'label_en'
-            ] ?? r.baseline.winner;
+            ((partyByKey.get(r.baseline.winner)) ? partyName(partyByKey.get(r.baseline.winner)!, locale) : undefined) ?? r.baseline.winner;
           const toLabel =
-            partyByKey.get(winner)?.[
-              locale === 'fr' ? 'label_fr' : 'label_en'
-            ] ?? winner;
+            ((partyByKey.get(winner)) ? partyName(partyByKey.get(winner)!, locale) : undefined) ?? winner;
           baselineShiftLabel = `${fromLabel} → ${toLabel}`;
         }
       } else {
         baselineShift = 'new';
-        baselineShiftLabel = locale === 'fr' ? 'Nouveau' : 'New';
+        baselineShiftLabel = locale === 'fr' ? 'Nouveau' : locale === 'es' ? 'Nuevo' : 'New';
       }
       return { riding: r, winnerVote, baselineShift, baselineShiftLabel };
     });
@@ -160,7 +158,7 @@ export default function RidingTable({
     return rows.filter(({ riding: r, baselineShift }) => {
       if (q) {
         const name = (
-          locale === 'fr' ? r.name_fr : r.name_en
+          placeName(r, locale)
         ).toLowerCase();
         if (!name.includes(q)) return false;
       }
@@ -179,8 +177,8 @@ export default function RidingTable({
     const cmp = (a: Row, b: Row) => {
       switch (sortKey) {
         case 'name': {
-          const an = locale === 'fr' ? a.riding.name_fr : a.riding.name_en;
-          const bn = locale === 'fr' ? b.riding.name_fr : b.riding.name_en;
+          const an = placeName(a.riding, locale);
+          const bn = placeName(b.riding, locale);
           return an.localeCompare(bn) * dir;
         }
         case 'province':
@@ -262,31 +260,32 @@ export default function RidingTable({
   };
 
   const t = {
-    search: locale === 'fr' ? 'Rechercher une circo…' : 'Search a riding…',
-    province: locale === 'fr' ? 'Province' : 'Province',
-    party: locale === 'fr' ? 'Parti gagnant' : 'Winning party',
+    search: locale === 'fr' ? 'Rechercher une circo…' : locale === 'es' ? 'Buscar una circunscripción…' : 'Search a riding…',
+    province: locale === 'fr' ? 'Province' : locale === 'es' ? 'Provincia' : 'Province',
+    party: locale === 'fr' ? 'Parti gagnant' : locale === 'es' ? 'Partido ganador' : 'Winning party',
     closeOnly:
-      locale === 'fr' ? 'Course serrée seulement' : 'Close races only',
-    clear: locale === 'fr' ? 'Effacer' : 'Clear',
+      locale === 'fr' ? 'Course serrée seulement' : locale === 'es' ? 'Solo contiendas reñidas' : 'Close races only',
+    clear: locale === 'fr' ? 'Effacer' : locale === 'es' ? 'Borrar' : 'Clear',
     showing:
       locale === 'fr'
         ? (n: number, tot: number) =>
             `${n.toLocaleString('fr-CA')} / ${tot.toLocaleString('fr-CA')} circos`
+        : locale === 'es'
+        ? (n: number, tot: number) =>
+            `${n.toLocaleString('es-ES')} / ${tot.toLocaleString('es-ES')} circunscripciones`
         : (n: number, tot: number) =>
             `${n.toLocaleString('en-CA')} / ${tot.toLocaleString('en-CA')} ridings`,
     empty:
-      locale === 'fr'
-        ? 'Aucune circo ne correspond.'
-        : 'No riding matches.',
+      locale === 'fr' ? 'Aucune circo ne correspond.' : locale === 'es' ? 'Ninguna circunscripción coincide.' : 'No riding matches.',
     loadMore:
-      locale === 'fr' ? 'Voir plus' : 'Show more',
+      locale === 'fr' ? 'Voir plus' : locale === 'es' ? 'Ver más' : 'Show more',
     cols: {
-      name: locale === 'fr' ? 'Circonscription' : 'Riding',
-      province: locale === 'fr' ? 'Prov.' : 'Prov.',
-      winner: locale === 'fr' ? 'Projection' : 'Projection',
-      vote: locale === 'fr' ? '% Vote' : 'Vote%',
-      margin: locale === 'fr' ? 'Marge' : 'Margin',
-      p_winner: locale === 'fr' ? 'P(victoire)' : 'P(win)',
+      name: locale === 'fr' ? 'Circonscription' : locale === 'es' ? 'Circunscripción' : 'Riding',
+      province: locale === 'fr' ? 'Prov.' : locale === 'es' ? 'Prov.' : 'Prov.',
+      winner: locale === 'fr' ? 'Projection' : locale === 'es' ? 'Proyección' : 'Projection',
+      vote: locale === 'fr' ? '% des voix' : locale === 'es' ? '% voto' : 'Vote%',
+      margin: locale === 'fr' ? 'Marge' : locale === 'es' ? 'Margen' : 'Margin',
+      p_winner: locale === 'fr' ? 'P(victoire)' : locale === 'es' ? 'P(victoria)' : 'P(win)',
       baseline_shift: `vs ${baselineYear}`,
     },
   };
@@ -367,7 +366,7 @@ export default function RidingTable({
                 class="rt-chip-dot"
                 style={`background:${p.color}`}
               />
-              {locale === 'fr' ? p.label_fr : p.label_en}
+              {partyName(p, locale)}
             </button>
           ))}
         </div>
@@ -402,9 +401,7 @@ export default function RidingTable({
       <div class="rt-table-wrap">
         <table class="rt-table">
           <caption class="sr-only">
-            {locale === 'fr'
-              ? 'Projection détaillée par circonscription'
-              : 'Detailed projection by electoral district'}
+            {locale === 'fr' ? 'Projection détaillée par circonscription' : locale === 'es' ? 'Proyección detallada por circunscripción' : 'Detailed projection by electoral district'}
           </caption>
           <thead>
             <tr>
@@ -480,10 +477,10 @@ export default function RidingTable({
                 const meta = partyByKey.get(r.projection.winner);
                 const color = meta?.color ?? '#888';
                 const partyLabel =
-                  meta?.[locale === 'fr' ? 'label_fr' : 'label_en'] ??
+                  ((meta) ? partyName(meta!, locale) : undefined) ??
                   r.projection.winner;
                 const name =
-                  locale === 'fr' ? r.name_fr : r.name_en;
+                  placeName(r, locale);
                 return (
                   <tr key={r.riding_id}>
                     <td class="rt-name">

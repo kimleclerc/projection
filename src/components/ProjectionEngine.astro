@@ -1,4 +1,5 @@
 ---
+import { partyName } from '../lib/party-names';
 import { RATING_ORDER, RATING_STYLE } from '../lib/race-ratings';
 import ResultsTable from './ResultsTable.astro';
 import type { Jurisdiction, Locale, ProjectionData } from '../data/jurisdictions';
@@ -224,7 +225,7 @@ const majorityMarkerPct = (majorityThreshold / totalSeats) * 100;
 const bySeats = [...orderedParties].sort((a, b) => b.seats_mean - a.seats_mean);
 const lead = bySeats[0];
 const second = bySeats[1];
-const partyLabel = (p: typeof lead) => (locale === 'fr' ? p.label_fr : p.label_en);
+const partyLabel = (p: typeof lead) => (partyName(p, locale));
 const num = (v: number) => (locale === 'en' ? String(v) : String(v).replace('.', ','));
 const pMaj = Math.round(lead.p_majority * 100);
 const pct = (value: number) => `${Math.round(value * 100)}%`;
@@ -233,7 +234,7 @@ const resultRows = bySeats
   .filter((p: any) => projectedSeatsFor(p) > 0 || (jurisdiction.showAtZeroSeats ?? []).includes(p.party))
   .slice(0, 7)
   .map((p: any) => ({
-    label: locale === 'es' ? (p.label_es ?? p.label_en) : partyLabel(p),
+    label: partyLabel(p),
     color: p.color,
     seats: projectedSeatsFor(p),
     chance: (lead.p_majority ?? 0) >= 0.01 ? p.p_majority : p.p_largest,
@@ -597,7 +598,7 @@ const keepDiggingLinks = (() => {
   // Bases de concaténation, sans slash final : les gabarits ci-dessous
   // ouvrent tous par `/`. Ajouter un slash ici produit `/fr//us/house/`.
   const prefix = locale === 'fr' ? '/fr' : locale === 'es' ? '/es' : '/en';
-  const enPrefix = locale === 'fr' ? '/fr' : '/en'; // Canada/UK only have en/fr
+  const enPrefix = prefix; // Canada et R.-U. existent maintenant dans les trois langues
   const common = {
     indexes: {
       href: `${enPrefix}/indexes/`,
@@ -610,18 +611,18 @@ const keepDiggingLinks = (() => {
     return [
       {
         href: `${enPrefix}/canada/federal/`,
-        label: locale === 'fr' ? 'Projection fédérale' : 'Federal projection',
-        detail: locale === 'fr' ? 'Canada · Chambre des communes' : 'Canada · House of Commons',
+        label: locale === 'fr' ? 'Projection fédérale' : locale === 'es' ? 'Proyección federal' : 'Federal projection',
+        detail: locale === 'fr' ? 'Canada · Chambre des communes' : locale === 'es' ? 'Canadá · Cámara de los Comunes' : 'Canada · House of Commons',
       },
       {
         href: `${enPrefix}/canada/ontario/`,
-        label: locale === 'fr' ? 'Projection Ontario' : 'Ontario projection',
-        detail: locale === 'fr' ? 'ON · Assemblée législative' : 'ON · Legislative Assembly',
+        label: locale === 'fr' ? 'Projection Ontario' : locale === 'es' ? 'Proyección de Ontario' : 'Ontario projection',
+        detail: locale === 'fr' ? 'ON · Assemblée législative' : locale === 'es' ? 'ON · Asamblea Legislativa' : 'ON · Legislative Assembly',
       },
       {
         href: `${enPrefix}/canada/quebec/`,
-        label: locale === 'fr' ? 'Projection Québec' : 'Quebec projection',
-        detail: locale === 'fr' ? 'QC · Assemblée nationale' : 'QC · National Assembly',
+        label: locale === 'fr' ? 'Projection Québec' : locale === 'es' ? 'Proyección de Quebec' : 'Quebec projection',
+        detail: locale === 'fr' ? 'QC · Assemblée nationale' : locale === 'es' ? 'QC · Asamblea Nacional' : 'QC · National Assembly',
       },
       common.indexes,
     ];
@@ -641,7 +642,7 @@ const keepDiggingLinks = (() => {
       },
       {
         href: `${prefix}/us/indexes/lame-duck/`,
-        label: locale === 'fr' ? 'Indice canard boiteux' : 'Lame-Duck Index',
+        label: locale === 'fr' ? 'Indice canard boiteux' : locale === 'es' ? 'Lame-Duck Index' : 'Lame-Duck Index',
         detail: 'Trump drag · midterms',
       },
       {
@@ -655,13 +656,13 @@ const keepDiggingLinks = (() => {
   return [
     {
       href: `${enPrefix}/uk/`,
-      label: locale === 'fr' ? 'Projection britannique' : 'U.K. projection',
-      detail: locale === 'fr' ? '650 circonscriptions' : '650 constituencies',
+      label: locale === 'fr' ? 'Projection britannique' : locale === 'es' ? 'Proyección del Reino Unido' : 'U.K. projection',
+      detail: locale === 'fr' ? '650 circonscriptions' : locale === 'es' ? '650 circunscripciones' : '650 constituencies',
     },
     {
       href: `${enPrefix}/canada/federal/`,
-      label: locale === 'fr' ? 'Comparer avec le Canada' : 'Compare with Canada',
-      detail: locale === 'fr' ? 'Modèle fédéral' : 'Federal model',
+      label: locale === 'fr' ? 'Comparer avec le Canada' : locale === 'es' ? 'Comparar con Canadá' : 'Compare with Canada',
+      detail: locale === 'fr' ? 'Modèle fédéral' : locale === 'es' ? 'Modelo federal' : 'Federal model',
     },
     {
       href: locale === 'fr' ? '/fr/us/chambre/' : `${prefix}/us/house/`,
@@ -793,7 +794,7 @@ const pageNavItems = [
         <div
           class="pe-bar-segment"
           style={`width:${s.pct}%; background:${s.color};`}
-          title={`${locale === 'fr' ? s.label_fr : s.label_en} — ${s.seats}`}
+          title={`${partyName(s, locale)} — ${s.seats}`}
         >
           <span class="pe-bar-segment-label">{s.seats}</span>
         </div>
@@ -808,7 +809,7 @@ const pageNavItems = [
         <li>
           <span class="pe-legend-swatch" style={`background:${s.color}`} />
           <span class="pe-legend-name">
-            {locale === 'fr' ? s.label_fr : s.label_en}
+            {partyName(s, locale)}
           </span>
           <span class="pe-legend-value">{s.seats}</span>
         </li>
@@ -863,7 +864,7 @@ const pageNavItems = [
         <div
           class="pe-bar-segment"
           style={`width:${s.pct}%; background:${s.color};`}
-          title={`${locale === 'fr' ? s.label_fr : s.label_en} — ${s.seats}`}
+          title={`${partyName(s, locale)} — ${s.seats}`}
         >
           <span class="pe-bar-segment-label">{s.seats}</span>
         </div>
@@ -881,7 +882,7 @@ const pageNavItems = [
               ? <img class="pe-projection-logo" src={`/party-logos/${s.logo}`} alt="" width="34" height="34" loading="lazy" decoding="async" />
               : <span class="pe-projection-swatch" style={`background:${s.color}`} />}
             <span class="pe-projection-name">
-              {locale === 'fr' ? s.label_fr : s.label_en}
+              {partyName(s, locale)}
             </span>
             {typeof s.trend_7d === 'number' && (
               <span

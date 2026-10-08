@@ -1,4 +1,5 @@
 ---
+import { specialBadge } from '../data/special-notes';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import Base from '../layouts/Base.astro';
@@ -240,9 +241,9 @@ const jsonLd = [
       <div class="special-meta">
         <span>{mc.updated} {initialData.meta.run_date}</span>
         <span aria-hidden="true">·</span>
-        <span>{initialData.meta.n_simulations.toLocaleString('en-CA')} {mc.simulations}</span>
+        <span>{initialData.meta.n_simulations.toLocaleString(lang === 'en' ? 'en-CA' : lang === 'es' ? 'es-ES' : 'fr-FR')} {mc.simulations}</span>
         <span aria-hidden="true">·</span>
-        <span>{config.modelBadge}</span>
+        <span>{specialBadge(config.modelBadge, lang)}</span>
       </div>
     </header>
 

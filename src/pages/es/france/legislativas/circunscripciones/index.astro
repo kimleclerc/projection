@@ -1,4 +1,5 @@
 ---
+import { partyName } from '../../../../../lib/party-names';
 import EditorialLayout from '../../../../../layouts/EditorialLayout.astro';
 import { getAllFranceLegRidings } from '../../../../../lib/riding-adapters/france-legislative';
 import { partyMeta } from '../../../../../lib/riding-adapters/parties';
@@ -49,7 +50,7 @@ const canonical = 'https://vote-scope.com/es/france/legislativas/circunscripcion
               <a href={`/es/france/legislativas/circunscripciones/${r.slug}/`} style={`--accent:${meta.color}`}>
                 <span class="dot" aria-hidden="true"></span>
                 <span class="name">{r.name.fr}</span>
-                <span class="party">{meta.label_en}</span>
+                <span class="party">{partyName({ ...meta, party: r.projection.winner }, 'es')}</span>
               </a>
             </li>
           );

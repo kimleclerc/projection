@@ -1,4 +1,5 @@
 ---
+import { partyName } from '../../../lib/party-names';
 /**
  * LocalPolls — district-level polls as dense rows inside a riding forecast page
  * (NYT/Upshot model, NOT 338's page-per-poll). Static Astro, no island.
@@ -131,7 +132,7 @@ for (const p of data.parties) {
   if (OTH_RE.test(p.code)) continue;
   allowed.add(p.code);
   colorByCode[p.code] = p.color;
-  labelByCode[p.code] = lang === 'fr' ? p.label_fr : p.label_en;
+  labelByCode[p.code] = partyName(p, lang);
 }
 
 /** Topline entries (desc), restricted to displayed parties, value > 0. */

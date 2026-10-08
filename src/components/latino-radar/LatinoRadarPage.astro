@@ -47,7 +47,7 @@ const alternates = {
       </div>
     </header>
 
-    <section class="radar-signal-grid" aria-label="National signals">
+    <section class="radar-signal-grid" aria-label={locale === 'fr' ? 'Signaux nationaux' : locale === 'es' ? 'Señales nacionales' : 'National signals'}>
       <div class="radar-signal"><span>{copy.house}</span><strong>{radarData.national_signals.house.eligible_races}</strong><p>{copy.racesWord} · {copy.averageIndex} {radarData.national_signals.house.average_index}</p></div>
       <div class="radar-signal"><span>{copy.senate}</span><strong>{radarData.national_signals.senate.eligible_races}</strong><p>{copy.racesWord} · {copy.averageIndex} {radarData.national_signals.senate.average_index}</p></div>
       <div class="radar-signal"><span>{copy.president}</span><strong>2028</strong><p>{copy.preliminary}</p></div>

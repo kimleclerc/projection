@@ -3,6 +3,7 @@
 import { readFileSync, existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { partyMeta, partyMark } from './riding-adapters/parties';
+import { partyName } from './party-names';
 
 export type Locale = 'fr' | 'en' | 'es';
 export type LabsKey = 'qc_2026' | 'bc_44' | 'fed_46' | 'on_2029' | 'uk_2029' | 'fr_pres_2027' | 'fr_leg' | 'us_senate' | 'us_house' | 'us_governor';
@@ -55,7 +56,7 @@ export function loadBacktests(): any | null {
 // projection), pour que les pages Labs parlent le même langage visuel.
 export function partyLabel(data: any, party: string, locale: Locale): string {
   const m = partyMeta(data.desk, party);
-  const txt = locale === 'fr' ? m.label_fr : m.label_en;
+  const txt = partyName(m, locale);
   if (txt && txt.toUpperCase() !== party.toUpperCase()) return txt;
   const l = data.labels?.[party];
   return (locale === 'fr' ? l?.fr : l?.en) || party.replace(/^(bc|qc|us|uk|on)_/, '').toUpperCase();

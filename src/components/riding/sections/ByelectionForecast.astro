@@ -1,4 +1,5 @@
 ---
+import { partyName } from '../../../lib/party-names';
 /**
  * ByelectionForecast — the operative local forecast for a riding that is about
  * to hold a by-election.
@@ -26,14 +27,14 @@ const { data, lang } = Astro.props;
 const by = data.byelection!;
 
 const favMeta = partyMeta(data.jurisdiction, by.favorite);
-const favLabel = lang === 'fr' ? favMeta.label_fr : favMeta.label_en;
+const favLabel = partyName(favMeta, lang);
 const favPct = Math.round(by.favoriteProbability * 100);
 
 const generalWinner = data.projection.winner;
 const flips = generalWinner !== by.favorite;
 
 const genMeta = partyMeta(data.jurisdiction, generalWinner);
-const genLabel = lang === 'fr' ? genMeta.label_fr : genMeta.label_en;
+const genLabel = partyName(genMeta, lang);
 
 const dateFmt = by.electionDate
   ? new Date(`${by.electionDate}T12:00:00Z`).toLocaleDateString(
@@ -134,7 +135,7 @@ const maxShare = Math.max(1, ...topParties.map((p) => p.voteMean));
         <p class="bf-label">{T.shares}</p>
         {topParties.map((p) => {
           const meta = partyMeta(data.jurisdiction, p.party);
-          const label = lang === 'fr' ? meta.label_fr : meta.label_en;
+          const label = partyName(meta, lang);
           return (
             <div class="bf-row">
               <span class="bf-party">{label}</span>

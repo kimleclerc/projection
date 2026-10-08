@@ -2,6 +2,7 @@ import { GooseSvg, DuckSvg } from './birds';
 import type { ShowdownZone, ShowdownLocale } from '../data/cusmaShowdown';
 import CopyLink from './lib/CopyLink';
 import EmbedCode from './lib/EmbedCode';
+import { partyName } from '../lib/party-names';
 
 interface Props {
   gap: number;
@@ -22,7 +23,7 @@ const T = {
 
 function zoneLabel(z: ShowdownZone, locale: ShowdownLocale): string {
   if (locale === 'es') return z.label_es ?? z.label_en;
-  return locale === 'fr' ? z.label_fr : z.label_en;
+  return partyName(z, locale);
 }
 
 /* Diverging "tug of war": domain −100..+100 mapped to x 60..540 (center 300).

@@ -1,4 +1,5 @@
 ---
+import { partyName } from '../../../lib/party-names';
 import EditorialLayout from '../../../layouts/EditorialLayout.astro';
 import EditorialHero from '../../../components/EditorialHero.astro';
 import MethodologyNote from '../../../components/MethodologyNote.astro';
@@ -119,7 +120,7 @@ const qcWinSeats = qcResults.parties[0].seats;
     <div class="container">
       <p class="eyebrow">Último del desk Canadá</p>
       <h2>Proyección federal — al {meta.run_date}</h2>
-      <p style="margin-bottom:1.5rem;">Basada en {meta.n_polls} sondeos · {meta.n_simulations.toLocaleString()} simulaciones</p>
+      <p style="margin-bottom:1.5rem;">Basada en {meta.n_polls} sondeos · {meta.n_simulations.toLocaleString('es-ES')} simulaciones</p>
       <div class="content-grid-2" style="gap:1.5rem;margin-bottom:2rem;">
         <div class="note-card" style={`border-top: 4px solid ${lib.color};`}>
           <p class="eyebrow">Liberal</p>
@@ -148,7 +149,7 @@ const qcWinSeats = qcResults.parties[0].seats;
     <div class="container content-grid-2">
       <div class="note-card" style={`border-top: 4px solid ${lib.color};`}>
         <p class="eyebrow">Proyección federal</p>
-        <h3 style="font-family:var(--serif);font-size:1.4rem;margin:0.25rem 0;">{lib.label_en}</h3>
+        <h3 style="font-family:var(--serif);font-size:1.4rem;margin:0.25rem 0;">{partyName(lib, 'es')}</h3>
         <p style="font-size:2rem;font-weight:700;margin:0.25rem 0;">
           <AnimatedNumber client:visible value={lib.seats_projected} />
           <span style="font-size:1rem;font-weight:400;"> / {meta.total_seats} escaños</span>
@@ -159,7 +160,7 @@ const qcWinSeats = qcResults.parties[0].seats;
       </div>
       <div class="note-card" style={`border-top: 4px solid ${qcTop.color};`}>
         <p class="eyebrow">Provincial · Quebec</p>
-        <h3 style="font-family:var(--serif);font-size:1.4rem;margin:0.25rem 0;">{qcTop.label_en}</h3>
+        <h3 style="font-family:var(--serif);font-size:1.4rem;margin:0.25rem 0;">{partyName(qcTop, 'es')}</h3>
         <p style="font-size:2rem;font-weight:700;margin:0.25rem 0;">
           <AnimatedNumber client:visible value={qcResults.parties[0].seats} />
           <span style="font-size:1rem;font-weight:400;"> / {quebecData.meta.total_seats} escaños</span>
@@ -170,7 +171,7 @@ const qcWinSeats = qcResults.parties[0].seats;
       </div>
       <div class="note-card" style={`border-top: 4px solid ${onTop.color};`}>
         <p class="eyebrow">Provincial · Ontario</p>
-        <h3 style="font-family:var(--serif);font-size:1.4rem;margin:0.25rem 0;">{onTop.label_en}</h3>
+        <h3 style="font-family:var(--serif);font-size:1.4rem;margin:0.25rem 0;">{partyName(onTop, 'es')}</h3>
         <p style="font-size:2rem;font-weight:700;margin:0.25rem 0;">
           <AnimatedNumber client:visible value={onTop.seats_projected} />
           <span style="font-size:1rem;font-weight:400;"> / {ontarioData.meta.total_seats} escaños</span>
@@ -181,7 +182,7 @@ const qcWinSeats = qcResults.parties[0].seats;
       </div>
       <div class="note-card" style={`border-top: 4px solid ${bcTop.color};`}>
         <p class="eyebrow">Provincial · Columbia Británica</p>
-        <h3 style="font-family:var(--serif);font-size:1.4rem;margin:0.25rem 0;">{bcTop.label_en}</h3>
+        <h3 style="font-family:var(--serif);font-size:1.4rem;margin:0.25rem 0;">{partyName(bcTop, 'es')}</h3>
         <p style="font-size:2rem;font-weight:700;margin:0.25rem 0;">
           <AnimatedNumber client:visible value={bcTop.seats_projected} />
           <span style="font-size:1rem;font-weight:400;"> / {bcData.meta.total_seats} escaños</span>
@@ -207,7 +208,7 @@ const qcWinSeats = qcResults.parties[0].seats;
           <AnimatedNumber client:visible value={fraserData.index.score} decimals={1} />
           <span style="font-size:1rem;font-weight:400;">/100</span>
         </p>
-        <p style="font-family:var(--mono);font-size:0.8rem;color:var(--ink-3);">{fraserData.index.label_fr ?? fraserData.index.label_en}</p>
+        <p style="font-family:var(--mono);font-size:0.8rem;color:var(--ink-3);">{(fraserData.index as any).label_es ?? fraserData.index.label_en}</p>
         <p style="margin-top:1rem;"><a href="/es/indexes/fraser-interim/" class="cta-link" style="font-family:var(--mono);font-size:0.8rem;letter-spacing: 0;">Abrir el índice Fraser</a></p>
       </div>
     </div>
