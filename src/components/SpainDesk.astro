@@ -3,6 +3,7 @@
 // province). Même patron que UkDesk/FranceDesk : un composant, locale en prop.
 // Les chiffres clés tiennent dans le premier enfant de [data-content-area]
 // (règle « chiffres d'abord ») ; le reste suit en sections.
+import ResultsTable from './ResultsTable.astro';
 import EditorialLayout from '../layouts/EditorialLayout.astro';
 import MethodologyNote from './MethodologyNote.astro';
 import GooglePreferredSource from './GooglePreferredSource.astro';
@@ -36,7 +37,6 @@ const order = Object.keys(nat).sort((a, b) => nat[b].seats_median - nat[a].seats
 // coup d'œil s'ils franchissent la ligne des 176.
 const BAR_ORDER = ['pp', 'vox', 'upn', 'salf', 'cc', 'pnv', 'junts', 'alianca_cat', 'bng', 'bildu', 'erc', 'cup', 'adelante_andalucia', 'podemos', 'sumar', 'psoe'];
 const withSeats = [...BAR_ORDER.filter((k) => nat[k]), ...order.filter((k) => !BAR_ORDER.includes(k))].filter((k) => nat[k].seats_median > 0);
-const top = order.slice(0, 6);
 
 const dec = (v: number, d = 1) => (locale === 'en' ? v.toFixed(d) : v.toFixed(d).replace('.', ','));
 const pct = (p: number) => {
@@ -505,7 +505,6 @@ const jsonLd = [
   },
 ];
 
-const barTotal = 350;
 
 
 ---
@@ -534,24 +533,14 @@ const barTotal = 350;
         {inBlackout && <p class="es-blackout">{blackoutNote}</p>}
         <p class="es-headline">{t.headline}</p>
 
-        <div class="es-bar" role="img" aria-label={withSeats.map((k) => `${name(k)} ${nat[k].seats_median}`).join(', ')}>
-          {withSeats.map((k) => (
-            <div style={`width:${(nat[k].seats_median / barTotal) * 100}%;background:${color(k)};`} title={`${name(k)}: ${nat[k].seats_median}`} />
-          ))}
-          <span class="es-bar-majority" aria-hidden="true"></span>
-        </div>
-        <p class="es-bar-caption">{t.majority}</p>
-
-        <div class="es-tiles">
-          {top.map((k) => (
-            <div class="es-tile" style={`--party-color:${color(k)}`}>
-              <span class="es-tile-party">{name(k)}</span>
-              <strong>{nat[k].seats_median}</strong>
-              <span class="es-tile-sub">{t.seats} · {nat[k].seats_p10}–{nat[k].seats_p90}</span>
-              <span class="es-tile-sub">{dec(nat[k].vote_mean)} % {t.vote} · {t.since2023(k)}</span>
-            </div>
-          ))}
-        </div>
+        <ResultsTable
+          lang={locale}
+          rows={withSeats.map((k) => ({ label: name(k), color: color(k), seats: nat[k].seats_median, low: nat[k].seats_p10, high: nat[k].seats_p90, chance: nat[k].vote_mean / 100 }))}
+          totalSeats={350}
+          majority={176}
+          chanceKind="vote"
+          limit={6}
+        />
         <p class="es-sim-link"><a class="cta-link" href={simHref}>{simLabel}</a></p>
         <p class="es-updated">{t.updated}</p>
         <GooglePreferredSource locale={locale} />
@@ -886,29 +875,6 @@ const barTotal = 350;
     margin: 0 0 14px;
     max-width: 46ch;
   }
-  .es-bar { position: relative; display: flex; height: 22px; border-radius: 3px; overflow: hidden; }
-  .es-bar-majority {
-    position: absolute;
-    left: calc(176 / 350 * 100%);
-    top: -4px;
-    bottom: -4px;
-    width: 2px;
-    background: var(--ink);
-  }
-  .es-bar-caption { font-family: var(--mono); font-size: 13px; color: var(--ink-3); margin: 6px 0 0; padding-left: calc(176 / 350 * 100% - 40px); }
-  .es-tiles { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; margin-top: 16px; }
-  .es-tile {
-    border: 1px solid var(--rule);
-    border-top: 3px solid var(--party-color);
-    border-radius: 4px;
-    background: var(--card);
-    padding: 10px 12px;
-    display: grid;
-    gap: 2px;
-  }
-  .es-tile-party { font-family: var(--mono); font-size: 13px; letter-spacing: 0; color: var(--ink-2); }
-  .es-tile strong { font-family: var(--serif); font-size: 30px; font-weight: 700; line-height: 1.05; }
-  .es-tile-sub { font-family: var(--mono); font-size: 13px; color: var(--ink-3); line-height: 1.4; }
   .es-sim-link { margin: 14px 0 0; }
   .es-updated { font-family: var(--mono); font-size: 13px; color: var(--ink-3); margin: 12px 0 0; }
   .es-two { display: grid; grid-template-columns: 1.2fr 1fr; gap: 24px; }
@@ -1007,7 +973,6 @@ const barTotal = 350;
   .es-cmp tr.is-own td { background: color-mix(in oklab, var(--blue) 5%, transparent); }
   .es-cmp td a { color: inherit; }
   @media (max-width: 900px) {
-    .es-tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     .es-two { grid-template-columns: 1fr; }
     .es-contested { grid-template-columns: 1fr; }
   }
@@ -1016,7 +981,5 @@ const barTotal = 350;
     .es-tick { font-size: 22px; }
     .es-viv-endlabel { font-size: 28px; }
     .es-viv-line { stroke-width: 3; }
-    .es-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .es-bar-caption { padding-left: 0; }
   }
 </style>

@@ -1,0 +1,116 @@
+---
+/**
+ * Tableau de résultats commun (docs/DESIGN.md §5) : une ligne par parti — pastille,
+ * nom, sièges projetés, chances — puis la barre de sièges avec le seuil de majorité.
+ * Remplace les rangées de « gros chiffres » en boîtes, sur toutes les juridictions.
+ */
+interface Row {
+  label: string;
+  color: string;
+  seats: number;
+  /** Probabilité 0–1 (majorité ou première place, selon `chanceKind`). */
+  chance?: number;
+  /** Fourchette 80 % des sièges, si connue. */
+  low?: number;
+  high?: number;
+}
+interface Props {
+  lang: 'en' | 'fr' | 'es';
+  rows: Row[];
+  totalSeats: number;
+  majority: number;
+  /** majority / largest : probabilité ; vote : part des voix (0–1), une décimale. */
+  chanceKind: 'majority' | 'largest' | 'vote';
+  /** Ligne « marché » sous le tableau, optionnelle. */
+  market?: { label: string; value: string; href: string };
+  /** Nombre de lignes du tableau (les suivantes sont regroupées en « Autres ») ; la barre garde tout. */
+  limit?: number;
+  /** Petite ligne de source sous le tableau (date, nombre de sondages, simulations). */
+  meta?: string;
+}
+const { lang, rows, totalSeats, majority, chanceKind, market, meta, limit } = Astro.props;
+
+const T = {
+  en: { others: 'Others', vote: 'Vote share', party: 'Party', seats: 'Projected seats', range: 'Range', majority: 'Chance of a majority', largest: 'Chance of finishing first', line: (m: number, t: number) => `${m} seats for a majority, out of ${t}` },
+  fr: { others: 'Autres', vote: 'Part des voix', party: 'Parti', seats: 'Sièges projetés', range: 'Fourchette', majority: 'Chances de majorité', largest: 'Chances de finir premier', line: (m: number, t: number) => `${m} sièges pour la majorité, sur ${t}` },
+  es: { others: 'Otros', vote: 'Voto estimado', party: 'Partido', seats: 'Escaños proyectados', range: 'Horquilla', majority: 'Probabilidad de mayoría', largest: 'Probabilidad de quedar primero', line: (m: number, t: number) => `${m} escaños para la mayoría, de ${t}` },
+}[lang];
+
+const pct = (p?: number) => {
+  if (p === undefined || p === null) return '—';
+  if (chanceKind === 'vote') {
+    const v = (p * 100).toFixed(1);
+    return lang === 'en' ? `${v}%` : `${v.replace('.', ',')}\u202f%`;
+  }
+  const v = p * 100;
+  const s = v > 99 ? '>99' : v < 1 ? '<1' : String(Math.round(v));
+  return lang === 'en' ? `${s}%` : `${s} %`;
+};
+const sorted = [...rows].sort((a, b) => b.seats - a.seats);
+const tableRows: Row[] = limit && sorted.length > limit + 1
+  ? [...sorted.slice(0, limit), {
+      label: T.others,
+      color: 'var(--ink-4)',
+      seats: sorted.slice(limit).reduce((a, r) => a + r.seats, 0),
+      chance: chanceKind === 'vote' ? sorted.slice(limit).reduce((a, r) => a + (r.chance ?? 0), 0) : undefined,
+    }]
+  : sorted;
+const showRange = rows.some((r) => r.low !== undefined && r.high !== undefined);
+const shown = rows.filter((r) => r.seats > 0);
+const others = Math.max(0, totalSeats - shown.reduce((a, r) => a + r.seats, 0));
+---
+<div class="vs-results">
+  <table>
+    <thead>
+      <tr>
+        <th scope="col">{T.party}</th>
+        <th scope="col" class="num">{T.seats}</th>
+        {showRange && <th scope="col" class="num range">{T.range}</th>}
+        <th scope="col" class="num">{chanceKind === 'majority' ? T.majority : chanceKind === 'vote' ? T.vote : T.largest}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {tableRows.map((r) => (
+        <tr>
+          <th scope="row"><span class="sw" style={`background:${r.color}`}></span>{r.label}</th>
+          <td class="num big" style={`color:${r.color}`}>{r.seats}</td>
+          {showRange && <td class="num range">{r.low !== undefined ? `${r.low}–${r.high}` : ''}</td>}
+          <td class="num big">{pct(r.chance)}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+  <div class="bar" role="img" aria-label={T.line(majority, totalSeats)}>
+    {shown.map((r) => <span style={`width:${(r.seats / totalSeats) * 100}%;background:${r.color}`}></span>)}
+    {others > 0 && <span class="rest" style={`width:${(others / totalSeats) * 100}%`}></span>}
+    <i style={`left:${(majority / totalSeats) * 100}%`}></i>
+  </div>
+  <p class="foot">{T.line(majority, totalSeats)}{meta ? ` · ${meta}` : ''}</p>
+  {market && (
+    <p class="market"><a href={market.href} target="_blank" rel="noopener">{market.label}</a> : <strong>{market.value}</strong></p>
+  )}
+</div>
+
+<style>
+  .vs-results { margin: 18px 0 8px; padding: 18px 20px 16px; background: var(--paper-2); border-top: 4px solid var(--ink); }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { padding: 8px 0; border-bottom: 1px solid var(--rule); text-align: left; vertical-align: middle; }
+  thead th { padding-top: 0; color: var(--ink-3); font-size: 13px; font-weight: 600; border-bottom: 1px solid var(--ink); }
+  tbody th { font-size: 19px; font-weight: 600; color: var(--ink); }
+  .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .big { font-family: var(--numeric); font-size: 34px; font-weight: 700; line-height: 1; color: var(--ink); }
+  .range { width: 110px; color: var(--ink-3); font-size: 15px; }
+  .sw { display: inline-block; width: 10px; height: 26px; margin-right: 12px; vertical-align: middle; }
+  .bar { position: relative; display: flex; height: 20px; margin-top: 16px; background: var(--rule); }
+  .bar span { height: 100%; }
+  .bar .rest { background: var(--ink-4); }
+  .bar i { position: absolute; top: -5px; bottom: -5px; width: 2px; margin-left: -1px; background: var(--ink); }
+  .foot { margin: 8px 0 0; color: var(--ink-3); font-size: 13px; font-weight: 600; }
+  .market { margin: 6px 0 0; font-size: 15px; color: var(--ink-2); }
+  .market a { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
+  @media (max-width: 560px) {
+    .range { display: none; }
+    .big { font-size: 28px; }
+    tbody th { font-size: 17px; }
+  }
+</style>
