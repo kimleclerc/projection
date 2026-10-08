@@ -26,7 +26,7 @@ const EYEBROW: Record<Lang, string> = {
   es: 'INSTRUMENTO EN VIVO',
 };
 
-// Questions éditoriales des instruments (mêmes angles que les pages).
+// Questions éditoriales des indices (mêmes angles que les pages).
 const COPY: Record<Slug, Record<Lang, { title: string; subtitle: string }>> = {
   'lame-duck': {
     en: { title: 'Lame-Duck Index', subtitle: 'How much political capital does Trump have left?' },
@@ -78,7 +78,7 @@ const FALLBACK = '#6a635a';
 const hexColor = (c?: string) => (c && c.startsWith('#') ? c : FALLBACK);
 
 // Date localisée pour le pied de carte (asOfLabel des getters n'est pas
-// localisé pour tous les instruments).
+// localisé pour tous les indices).
 const LOC: Record<Lang, string> = { en: 'en-US', fr: 'fr-CA', es: 'es-ES' };
 const AS_OF: Record<Lang, (s: string) => string> = {
   en: (s) => `As of ${s}`,

@@ -323,11 +323,11 @@ export const DESKS: DeskGroup[] = [
     items: [
       {
         id: 'idx-all',
-        label: l10n('All instruments', 'Tous les instruments', 'Todos los instrumentos'),
+        label: l10n('All instruments', 'Tous les indices', 'Todos los índices'),
         blurb: l10n(
-          'Every proprietary index in one filterable shelf.',
-          'Tous les indices propriétaires sur une seule étagère filtrable.',
-          'Todos los índices propios en un solo estante filtrable.',
+          'Every Vote-Scope index on one page, with a filter.',
+          'Tous les indices Vote-Scope sur une seule page, avec un filtre.',
+          'Todos los índices Vote-Scope en una sola página, con un filtro.',
         ),
         href: samePath('/indexes/'),
       },
@@ -354,7 +354,7 @@ export const DESKS: DeskGroup[] = [
       },
       {
         id: 'idx-budget',
-        label: l10n('Budget desk', 'Desk Budget', 'Mesa de Presupuesto'),
+        label: l10n('Budget desk', 'Budget', 'Presupuesto'),
         blurb: l10n(
           'Fiscal analysis, one page per budget edition.',
           'Analyse fiscale, une page par édition budgétaire.',

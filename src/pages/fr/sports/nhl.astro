@@ -79,14 +79,14 @@ const trendUp = aliveBoard.filter((t) => t.trend_direction === 'up').slice(0, 3)
   ]}
 >
   <EditorialHero
-    eyebrow="Desk NHL"
+    eyebrow="LNH"
     title="Qui a le chemin le plus propre vers la Coupe?"
     promise="10 000 simulations Monte Carlo. Couche volatilité des gardiens. Détecteur d'écarts marché. Analyse des tendances."
     question="Le favori est-il vraiment construit pour la prochaine ronde, ou le marché se trompe-t-il?"
     primaryHref="/fr/sports/"
-    primaryLabel="Hub sport"
+    primaryLabel="Tous les sports"
     secondaryHref="/fr/indexes/"
-    secondaryLabel="Tous les instruments"
+    secondaryLabel="Tous les indices"
   />
 
   <!-- Hero stats -->
@@ -130,7 +130,7 @@ const trendUp = aliveBoard.filter((t) => t.trend_direction === 'up').slice(0, 3)
   <!-- Full board top 8 -->
   <section class="content-band">
     <div class="container">
-      <p class="eyebrow">Board Coupe complet — top {topTeams.length} équipes</p>
+      <p class="eyebrow">Tableau complet de la Coupe — top {topTeams.length} équipes</p>
       <h2>Terrain classé par probabilité de championnat</h2>
       <p style="margin-bottom:1.5rem;font-size:0.9rem;">Modèle: {boardMeta.model} · {boardMeta.n_sims.toLocaleString('fr-FR')} simulations</p>
       <div style="overflow-x:auto;">
@@ -231,7 +231,7 @@ const trendUp = aliveBoard.filter((t) => t.trend_direction === 'up').slice(0, 3)
 
   <MethodologyNote
     title="Le modèle combine EWMA game-log et la couche gardien HDSV%."
-    body="Le desk NHL roule 10 000 simulations Monte Carlo chaque nuit. La force des équipes utilise une moyenne mobile exponentielle sur les données de journal de match de Natural Stat Trick. La couche gardien ajuste chaque résultat de série avec le pourcentage d'arrêts sur tirs dangereux (HDSV%) du gardien probable."
+    body="La rubrique LNH roule 10 000 simulations Monte Carlo chaque nuit. La force des équipes utilise une moyenne mobile exponentielle sur les données de journal de match de Natural Stat Trick. La couche gardien ajuste chaque résultat de série avec le pourcentage d'arrêts sur tirs dangereux (HDSV%) du gardien probable."
     bullets={[
       "L'EWMA donne plus de poids aux performances récentes en saison régulière et en séries.",
       'Couche gardien CORR ~0,55 avec les résultats de séries — pertinent mais non décisif.',

@@ -150,7 +150,7 @@ const copy = {
       : `Aujourd’hui : ${shortName(seatLeader)} remporte le plus de sièges (${Math.round(seatLeader.seats_mean)}) avec ${fmt1(seatLeader.vote_mean)} % des voix ; ${shortName(leader)} mène en voix à ${fmt1(leader.vote_mean)} % mais n’obtient que ${Math.round(leader.seats_mean)} sièges.`,
     openProjection: 'Ouvrir la projection',
     allIndexes: 'Tous les indices',
-    toplineLabel: `Topline du modèle · run ${meta.run_date} · ${meta.n_polls} sondages`,
+    toplineLabel: `Le modèle · mis à jour le ${meta.run_date} · ${meta.n_polls} sondages`,
     votes: 'voix',
     seats: 'sièges',
     compositionLabel: `Les Communes aujourd'hui — ${compTotal} des ${meta.total_seats} sièges GB suivis`,
@@ -164,7 +164,7 @@ const copy = {
     raceBody:
       `Fondamentaux seulement — aucun sondage de circonscription n’existe encore, donc une fourchette, pas un nombre. Le Labour se projette à ${fmt1(labShare.q50)} % (${fmt1(labShare.q10)}–${fmt1(labShare.q90)}) et conserve le siège dans ${fmt1(pHold)} % des simulations ; les Verts sont à ${fmt1(grnShare.q50)} % avec ${fmt1(pGreen)} % de chances de gain. Le deuxième de 2024 ici n’était pas un conservateur, mais un indépendant à 18,9 %.`,
     raceLever: `Si Zack Polanski, chef des Verts, se présente, la probabilité de maintien travailliste tombe à ${fmt1(pHoldIfPolanski)} %. Cette seule inconnue déplace la course plus que tout le reste.`,
-    raceCta: 'Ouvrir le desk de course',
+    raceCta: 'Ouvrir la rubrique de course',
     resolvedLabel: 'Partielles 2026 — jugées et réglées',
     resolvedNote: 'Clacton a été tranchée le 13 août : maintien Reform, et la vacance qui s’affichait ici a disparu.',
     leadKicker: '3 SEPT. 2026 · CLACTON',
@@ -175,7 +175,7 @@ const copy = {
     cards: [
       { href: '/fr/uk/general-election/', eyebrow: 'Projection de la générale', title: 'Générale britannique', body: `Projection des 650 sièges. Agrégation bayésienne des sondages, ${meta.n_simulations.toLocaleString('fr-FR')} simulations Monte Carlo, probabilités par siège.`, cta: 'Ouvrir la projection' },
       { href: '/fr/uk/circonscriptions/', eyebrow: 'Fiches de circonscription', title: '650 circonscriptions de Westminster', body: 'Une page par siège : projection, député en poste, résultat 2024, démographie ONS et sièges voisins.', cta: 'Explorer les 650' },
-      { href: '/fr/uk/sondages/', eyebrow: 'Hub des sondages', title: 'Chaque sondage, pondéré', body: 'La série complète des sondages UK qui alimente le modèle — firme, dates, échantillon et poids, sondage par sondage.', cta: 'Ouvrir le hub' },
+      { href: '/fr/uk/sondages/', eyebrow: 'Sondages', title: 'Chaque sondage, pondéré', body: 'La série complète des sondages UK qui alimente le modèle — firme, dates, échantillon et poids, sondage par sondage.', cta: 'Ouvrir le hub' },
     ],
     methodTitle: 'Conçu pour la profondeur, jusqu’au siège marginal.',
     methodBody:
@@ -192,7 +192,7 @@ const copy = {
     description: splitWinner
       ? `${subj(leader)} lidera las encuestas con ${fmt1(leader.vote_mean)} % y aun así termina ${seatGap} escaños por detrás de ${shortName(seatLeader)}. Vote-Scope proyecta las 650 circunscripciones de Westminster, sigue cada encuesta británica y cubre la parcial de Holborn and St Pancras y la cuestión del recall en Clacton.`
       : `${partyLabel(leader)} lidera con ${fmt1(leader.vote_mean)} % y ${Math.round(seatLeader.seats_mean)} escaños. Vote-Scope proyecta las 650 circunscripciones de Westminster.`,
-    eyebrow: 'Desk del Reino Unido',
+    eyebrow: 'del Reino Unido',
     heroTitle: splitWinner
       ? `${subj(leader)} gana las encuestas. ${subj(seatLeader)} gana ${seatGap} escaños más.`
       : `${subj(leader)} lidera en votos y en escaños. ¿Es sólido?`,
@@ -216,7 +216,7 @@ const copy = {
     raceBody:
       `Solo fundamentos — todavía no existe ninguna encuesta de circunscripción, así que es un rango, no un número. El laborismo se proyecta en ${fmt1(labShare.q50)} % (${fmt1(labShare.q10)}–${fmt1(labShare.q90)}) y retiene el escaño en ${fmt1(pHold)} % de las simulaciones; los Verdes están en ${fmt1(grnShare.q50)} % con ${fmt1(pGreen)} % de probabilidad de ganarlo. El segundo lugar de 2024 aquí no fue un conservador, sino un independiente con 18,9 %.`,
     raceLever: `Si se presenta Zack Polanski, líder de los Verdes, la probabilidad de retención laborista cae a ${fmt1(pHoldIfPolanski)} %. Esa sola incógnita mueve la contienda más que cualquier otra cosa.`,
-    raceCta: 'Abrir el desk de la contienda',
+    raceCta: 'Abrir la contienda',
     resolvedLabel: 'Parciales de 2026 — resueltas',
     resolvedNote: 'Clacton se resolvió el 13 de agosto: retención de Reform, y la vacante que aparecía aquí ya no existe.',
     leadKicker: '3 SEP 2026 · CLACTON',
@@ -227,7 +227,7 @@ const copy = {
     cards: [
       { href: '/es/uk/general-election/', eyebrow: 'Proyección de las generales', title: 'Generales británicas', body: `Proyección de 650 escaños. Agregación bayesiana de encuestas, ${meta.n_simulations.toLocaleString('es-ES')} simulaciones Monte Carlo, probabilidades por escaño.`, cta: 'Abrir la proyección' },
       { href: '/es/uk/circunscripciones/', eyebrow: 'Fichas de circunscripción', title: '650 circunscripciones de Westminster', body: 'Una página por escaño: proyección, diputado en ejercicio, resultado 2024, demografía ONS y escaños vecinos.', cta: 'Explorar las 650' },
-      { href: '/es/uk/sondeos/', eyebrow: 'Hub de encuestas', title: 'Cada encuesta, ponderada', body: 'La serie completa de encuestas del Reino Unido que alimenta el modelo — casa, fechas, muestra y peso.', cta: 'Abrir el hub' },
+      { href: '/es/uk/sondeos/', eyebrow: 'Encuestas', title: 'Cada encuesta, ponderada', body: 'La serie completa de encuestas del Reino Unido que alimenta el modelo — casa, fechas, muestra y peso.', cta: 'Abrir' },
     ],
     methodTitle: 'Construido para la profundidad, hasta el escaño marginal.',
     methodBody:

@@ -172,9 +172,9 @@ const dir = (d: string) => (d === 'up' ? '▲' : d === 'down' ? '▼' : '');
 
   <section class="bd-section container">
     <KeepDigging
-      eyebrow={locale === 'fr' ? 'Continuer à creuser' : locale === 'es' ? 'Seguir explorando' : 'Keep digging'}
+      eyebrow={locale === 'fr' ? 'Pour aller plus loin' : locale === 'es' ? 'Seguir explorando' : 'Keep digging'}
       title={locale === 'fr' ? 'D’autres budgets, d’autres desks.' : locale === 'es' ? 'Otros presupuestos, otras mesas.' : 'More budgets, more desks.'}
-      body={locale === 'fr' ? 'Toutes les éditions par juridiction, et les autres instruments Vote-Scope.' : locale === 'es' ? 'Todas las ediciones por jurisdicción, y los demás instrumentos de Vote-Scope.' : 'Every edition by jurisdiction, plus the other Vote-Scope instruments.'}
+      body={locale === 'fr' ? 'Toutes les éditions par juridiction, et les autres indices Vote-Scope.' : locale === 'es' ? 'Todas las ediciones por jurisdicción, y los demás índices de Vote-Scope.' : 'Every edition by jurisdiction, plus the other Vote-Scope instruments.'}
       links={[
         { href: budgetJur(locale, data.slug), label: `${jur} — ${UI.allEditions[locale]}`, detail: TYPE_LABEL[data.type][locale] },
         { href: `/${locale}/budget/`, label: locale === 'fr' ? 'Tous les budgets' : locale === 'es' ? 'Todos los presupuestos' : 'All budgets', detail: 'Canada · Ontario · Québec' },

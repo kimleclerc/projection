@@ -26,7 +26,7 @@ const COPY: Record<Locale, {
     eyebrow: 'PRÉSIDENTIELLE 2027 · PROJECTION',
     title: 'Premier tour projeté — casting vedette',
     duel: (l, ls, r, rs) => `2d tour projeté : ${l} ${ls} % — ${r} ${rs} %`,
-    footer: (date, n) => `Run du ${date} · ${n} sondages agrégés`,
+    footer: (date, n) => `Mis à jour le ${date} · ${n} sondages agrégés`,
   },
   en: {
     eyebrow: '2027 FRENCH PRESIDENTIAL · PROJECTION',

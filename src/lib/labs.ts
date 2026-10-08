@@ -404,7 +404,7 @@ export const T = {
     nowcastLabel: 'Horizonte',
     nowcastValue: 'Elección hoy',
     nowcastNote: 'Sin fecha electoral fijada: proyección si la elección fuera hoy, como nuestra proyección de referencia.',
-    instruments: 'Los instrumentos de Órbita',
+    instruments: 'Los índices de Órbita',
     moved: 'Votantes que cambiaron de bando desde la última elección',
     movedNote: 'como mínimo, en puntos del electorado',
     spread: 'Diferencia media entre encuestadoras',

@@ -275,7 +275,7 @@ const navLinks = [
   { href: copy.root, label: copy.homeLabel, key: 'intl' },
   { href: copy.us, label: copy.usLabel, key: 'usa-hub' },
   { href: copy.canada, label: copy.canadaLabel, key: 'canada' },
-  // Le desk interactif, placé au contact du Canada : il regroupe le Match,
+  // L’espace interactif, placé au contact du Canada : il regroupe le Match,
   // les simulateurs et les prochains jeux sans surcharger les projections.
   { href: copy.match, label: copy.matchLabel, key: 'match' },
   { href: copy.uk, label: copy.ukLabel, key: 'uk' },
@@ -528,9 +528,12 @@ const languageLinks = (['en', 'fr', 'es'] as Locale[])
 
     /* FOOTER */
     .footer { padding: 56px 0 32px; background: var(--paper-2); border-top: 1px solid var(--rule); }
-    .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 48px; margin-bottom: 40px; }
-    .footer-col h4 { font-family: var(--mono); font-size: 13px; letter-spacing: 0; color: var(--ink-3); margin: 0 0 14px; font-weight: 500; }
-    .footer-col a { display: block; color: var(--ink-2); font-size: 14px; padding: 4px 0; }
+    .footer-grid { display: flex; flex-direction: column; gap: 10px; margin-bottom: 32px; }
+    .footer-grid > div:first-child { margin-bottom: 14px; }
+    /* Une rubrique par ligne, liens côte à côte : un pied de journal, pas une grille. */
+    .footer-col { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 18px; padding: 10px 0; border-top: 1px solid var(--rule); }
+    .footer-col h4 { min-width: 150px; font-family: var(--sans); font-size: 14px; letter-spacing: 0; color: var(--ink); margin: 0; font-weight: 700; }
+    .footer-col a { display: inline; color: var(--ink-2); font-size: 15px; padding: 0; }
     .footer-col a:hover { color: var(--ink); }
     .coffee-btn {
       display: inline-grid;
@@ -549,7 +552,6 @@ const languageLinks = (['en', 'fr', 'es'] as Locale[])
       transition: transform .15s, box-shadow .15s, background .15s;
     }
     .coffee-btn:hover {
-      transform: translateY(-1px);
       background: #ffe475;
       
       color: #17130a;
@@ -573,7 +575,7 @@ const languageLinks = (['en', 'fr', 'es'] as Locale[])
     .footer-bottom { padding-top: 22px; border-top: 1px solid var(--rule); display: flex; justify-content: space-between; font-size: 13px; color: var(--ink-3); font-family: var(--mono); }
 
     @media (max-width: 900px) {
-      .footer-grid { grid-template-columns: 1fr 1fr; gap: 32px; }
+
       .nav-links    { gap: 14px; }
     }
     @media (max-width: 760px) {
@@ -618,7 +620,7 @@ const languageLinks = (['en', 'fr', 'es'] as Locale[])
     @media (max-width: 600px) {
       .container, .container-wide { padding: 0 18px; }
       .nav-links { gap: 16px; font-size: 12px; }
-      .footer-grid { grid-template-columns: 1fr; }
+      .footer-col h4 { min-width: 100%; }
     }
   </style>
 
@@ -712,7 +714,7 @@ const languageLinks = (['en', 'fr', 'es'] as Locale[])
       </div>
       <div class="footer-col">
         <h4>{copy.unitedStatesLabel}</h4>
-        <a href={copy.us}>Hub</a>
+        <a href={copy.us}>{lang === 'fr' ? 'Vue d’ensemble' : lang === 'es' ? 'Panorama' : 'Overview'}</a>
         <a href={`${copy.us}#house`}>{copy.houseLabel}</a>
         <a href={`${copy.us}#senate`}>{copy.senateLabel}</a>
         <a href={copy.lameDuck}>
@@ -726,7 +728,7 @@ const languageLinks = (['en', 'fr', 'es'] as Locale[])
         <a href={copy.france}>{copy.franceLabel}</a>
         <a href={copy.spain}>{copy.spainLabel}</a>
         <a href={copy.sports}>Sports Scope</a>
-        <a href={copy.indexes}>Instruments</a>
+        <a href={copy.indexes}>{lang === 'fr' ? 'Indices' : lang === 'es' ? 'Índices' : 'Indexes'}</a>
         <a href={copy.match}>{copy.matchLabel}</a>
         <a href={copy.root}>{copy.allRegionsLabel}</a>
       </div>

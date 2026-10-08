@@ -71,7 +71,7 @@ const t = {
     note: (it: BacktestItem) => it.note_fr,
     mae: 'MAE',
     seats: 'sièges',
-    horizon: (d: number) => `run à J−${d}`,
+    horizon: (d: number) => `projection à J−${d}`,
     leader: 'Meneur correct',
     majority: 'Statut majoritaire correct',
     ridings: 'circonscriptions correctes',
@@ -120,7 +120,7 @@ const methodologyHref =
       <div class="cal-grid">
         {items.map((it) => (
           <div class="note-card cal-card">
-            <p class="eyebrow">{it.flag} {t.election(it)} · {t.horizon(it.horizon_days)}</p>
+            <p class="eyebrow">{t.election(it)} · {t.horizon(it.horizon_days)}</p>
             <p class="cal-headline">
               <span>{t.mae}&nbsp;</span><strong>{num(it.mae_seats)}</strong><span>&nbsp;{t.seats} / {it.seats_total}</span>
               {typeof it.pct_ridings_correct === 'number' && (

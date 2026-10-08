@@ -20,7 +20,7 @@ const deltaSign = ldi.delta_7d >= 0 ? '+' : '';
 
 <EditorialLayout
   title="Index et instruments — Vote-Scope"
-  description="Des index nommés qui répondent chacun à une question précise : Lame-Duck, Fraser intérimaire, Cup Path et plus. Chaque instrument explique la tension que les chiffres seuls ne traduisent pas — Vote-Scope."
+  description="Des index nommés qui répondent chacun à une question précise : Lame-Duck, Fraser intérimaire, Cup Path et plus. Chaque indice explique la tension que les chiffres seuls ne traduisent pas — Vote-Scope."
   canonical="https://vote-scope.com/fr/indexes/"
   lang="fr"
   currentPage="indexes"
@@ -46,19 +46,19 @@ const deltaSign = ldi.delta_7d >= 0 ? '+' : '';
 >
   <EditorialHero
     eyebrow="Index"
-    title="Les instruments sont le produit."
-    promise="Chaque index Vote-Scope répond à une question vivante avec un signal nommé, une méthode transparente et un format de distribution."
-    question="Quel instrument propriétaire explique le mieux la tension?"
+    title="Des indices qui répondent à une question."
+    promise="Chaque indice Vote-Scope répond à une question précise par un chiffre suivi dans le temps, avec une méthode publiée."
+    question="Quel indice explique le mieux la situation?"
     primaryHref="/fr/us/indexes/lame-duck/"
-    primaryLabel="Ouvrir l'index live"
+    primaryLabel="Ouvrir l’indice"
     secondaryHref="/fr/"
-    secondaryLabel="Retour aux desks"
+    secondaryLabel="Retour aux rubriques"
   />
 
   <section class="content-band">
     <div class="container">
-      <p class="eyebrow">Instrument vedette</p>
-      <h2>Lame-Duck Index — live maintenant</h2>
+      <p class="eyebrow">Indice vedette</p>
+      <h2>Lame-Duck Index — en direct</h2>
       <div class="note-card" style={`border-top: 4px solid ${ldi.zone_color};max-width:640px;margin-top:1rem;`}>
         <p class="eyebrow">Lame-Duck Index · {ldiData.meta.president}</p>
         <h3 style="font-size:3rem;margin:0.25rem 0;color:var(--text);">
@@ -86,11 +86,11 @@ const deltaSign = ldi.delta_7d >= 0 ? '+' : '';
           <p style="margin-top:1rem;"><a href="/fr/canada/indexes/canada-goose/" class="cta-link">Ouvrir l'indice Bernache</a></p>
         </div>
         <div class="note-card" style={`border-top: 4px solid ${showdownData.showdown.zone_color};`}>
-          <p class="eyebrow">Pupitre guerre commerciale · ACEUM</p>
+          <p class="eyebrow">Guerre commerciale · ACEUM</p>
           <h3 style="font-size:2.5rem;margin:0.25rem 0;color:var(--text);">{showdownData.showdown.gap > 0 ? '+' : ''}{showdownData.showdown.gap}</h3>
           <p style={`font-weight:700;color:${showdownData.showdown.zone_color};`}>{showdownData.showdown.label_fr}</p>
           {(showdownData as any).war_status && (<p style="font-size:0.9rem;color:var(--text-muted);margin-top:0.4rem;">{(showdownData as any).war_status.headline_fr}</p>)}
-          <p style="margin-top:1rem;"><a href="/fr/indexes/cusma-showdown/" class="cta-link">Ouvrir le pupitre</a></p>
+          <p style="margin-top:1rem;"><a href="/fr/indexes/cusma-showdown/" class="cta-link">Ouvrir la page</a></p>
         </div>
         <div class="note-card" style={`border-top: 4px solid ${barrageData.bfi.zone_color};`}>
           <p class="eyebrow">Barrage Index · France 2027</p>
@@ -111,8 +111,8 @@ const deltaSign = ldi.delta_7d >= 0 ? '+' : '';
   <section class="content-band">
     <div class="container">
       <p class="eyebrow">Catalogue interactif</p>
-      <h2>Le catalogue — tout est live.</h2>
-      <p>Chaque instrument du catalogue est en ligne et se met à jour en continu. Pas d'annonces ni de placeholders — un instrument apparaît ici quand ses chiffres sont publics et suivis.</p>
+      <h2>Le catalogue : tout est en ligne.</h2>
+      <p>Chaque indice du catalogue est en ligne et se met à jour en continu. Un indice n’apparaît ici qu’une fois ses chiffres publics et suivis.</p>
       <InstrumentFilter
         client:visible
         lang="fr"
@@ -132,12 +132,12 @@ const deltaSign = ldi.delta_7d >= 0 ? '+' : '';
 
   <MethodologyNote
     title="Chaque index répond à une question avec un seul chiffre."
-    body="Les index Vote-Scope sont des instruments nommés, pas des tableaux de bord. Chacun porte une question unique, une méthodologie transparente, un score live mis à jour selon une cadence documentée, et un historique."
+    body="Les index Vote-Scope sont des indices nommés, pas des tableaux de bord. Chacun porte une question unique, une méthodologie transparente, un score live mis à jour selon une cadence documentée, et un historique."
     bullets={[
       "Le Lame-Duck Index (LDI) est un composite de 0 à 100 regroupant l'approbation présidentielle, le poids économique, la distribution des marges de district et les cotes des marchés de prédiction — 4 composantes, mis à jour quotidiennement.",
       "Tous les scores des index sont produits à partir de données sources publiques: BLS, Réserve fédérale, agrégateurs de sondages et Polymarket. Les sources sont documentées à chaque page d'instrument.",
       "Les pages méthodologiques des index sont publiques et versionnées. Lorsque le modèle change, le journal des modifications est publié avec le score mis à jour.",
-      "Les scores historiques sont archivés dans le JSON public de chaque desk. Aucun score n'est révisé rétroactivement sans un avis de correction documenté.",
+      "Les scores historiques sont archivés dans le JSON public de chaque rubrique. Aucun score n'est révisé rétroactivement sans un avis de correction documenté.",
     ]}
   />
 </EditorialLayout>

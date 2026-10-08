@@ -35,7 +35,7 @@ export const editorialPhilosophy = {
   },
   fr: {
     position:
-      "Vote-Scope est un bureau d’intelligence électorale et sportive qui publie ses instruments.",
+      "Vote-Scope est un bureau d’intelligence électorale et sportive qui publie ses indices.",
     promise:
       "Pas juste qui mène. Ce qui bouge, ce qui est fragile, et ce que le marché ne voit pas encore.",
     method: "une page, une question",
@@ -44,7 +44,7 @@ export const editorialPhilosophy = {
   },
   es: {
     position:
-      "Vote-Scope es una oficina de inteligencia electoral y deportiva que publica sus instrumentos.",
+      "Vote-Scope es una oficina de inteligencia electoral y deportiva que publica sus índices.",
     promise:
       "No solo quién va adelante. Qué se está moviendo, qué es frágil y qué está perdiendo el mercado.",
     method: "una página, una pregunta",
@@ -119,7 +119,7 @@ export const desks: Record<'en' | 'fr' | 'es', Desk[]> = {
   fr: [
     {
       id: 'us',
-      name: 'Desk États-Unis',
+      name: 'États-Unis',
       eyebrow: 'Midterms 2026',
       question: "Qui contrôle Washington quand la carte cesse d'être théorique?",
       description:
@@ -129,7 +129,7 @@ export const desks: Record<'en' | 'fr' | 'es', Desk[]> = {
     },
     {
       id: 'canada',
-      name: 'Desk Canada',
+      name: 'Canada',
       eyebrow: 'Fédéral + provinces',
       question: 'Où la carte canadienne est-elle solide, et où fait-elle seulement semblant?',
       description:
@@ -139,17 +139,17 @@ export const desks: Record<'en' | 'fr' | 'es', Desk[]> = {
     },
     {
       id: 'uk',
-      name: 'Desk Royaume-Uni',
+      name: 'Royaume-Uni',
       eyebrow: 'Westminster + partielles',
       question: 'La vague Reform est-elle réelle, siège par siège?',
       description:
         '650 circonscriptions calibrées sur les MRP publiés, ancrage des partielles réelles, et un desk spécial pour Clacton — Farage sous enquête, marchés en comparaison.',
       href: '/fr/uk/',
-      signal: 'Le desk spécial Clacton est en ligne',
+      signal: 'La page spéciale sur Clacton est en ligne',
     },
     {
       id: 'spain',
-      name: 'Desk Espagne',
+      name: 'Espagne',
       eyebrow: 'Élections générales · 29 novembre',
       question: 'Qui gouvernera l’Espagne après le 29 novembre ?',
       description:
@@ -159,7 +159,7 @@ export const desks: Record<'en' | 'fr' | 'es', Desk[]> = {
     },
     {
       id: 'france',
-      name: 'Desk France',
+      name: 'France',
       eyebrow: 'Présidentielle 2027',
       question: 'Qui atteint le second tour, et qui le gagne, dans un champ encore mouvant?',
       description:
@@ -173,7 +173,7 @@ export const desks: Record<'en' | 'fr' | 'es', Desk[]> = {
       eyebrow: 'Archives des modèles sportifs',
       question: 'Qu’avaient vu les modèles avant la remise des trophées?',
       description:
-        'Une verticale plus sportive pour chemins de séries, volatilité des gardiens, scores live, marchés et chaos de tournoi.',
+        'Les séries, les gardiens, les scores en direct, les marchés et les surprises des tournois.',
       href: '/fr/sports/',
       signal: 'L’Espagne a gagné le Mondial 2026; le bilan complet du modèle reste public',
     },
@@ -181,7 +181,7 @@ export const desks: Record<'en' | 'fr' | 'es', Desk[]> = {
   es: [
     {
       id: 'us',
-      name: 'Desk Estados Unidos',
+      name: 'Estados Unidos',
       eyebrow: 'Midterms 2026',
       question: '¿Quién controla Washington cuando el mapa deja de ser teórico?',
       description:
@@ -191,7 +191,7 @@ export const desks: Record<'en' | 'fr' | 'es', Desk[]> = {
     },
     {
       id: 'canada',
-      name: 'Desk Canadá',
+      name: 'Canadá',
       eyebrow: 'Federal + provincial',
       question: '¿Dónde es estable el mapa canadiense y dónde solo lo aparenta?',
       description:
@@ -201,7 +201,7 @@ export const desks: Record<'en' | 'fr' | 'es', Desk[]> = {
     },
     {
       id: 'uk',
-      name: 'Desk Reino Unido',
+      name: 'Reino Unido',
       eyebrow: 'Westminster + parciales',
       question: '¿Qué tan real es la ola de Reform, escaño por escaño?',
       description:
@@ -324,7 +324,7 @@ export const instruments: Record<'en' | 'fr' | 'es', Instrument[]> = {
       family: 'Power',
       question: 'À quel point la présidence est-elle contrainte politiquement?',
       description:
-        "Un instrument quotidien nommé pour lire le poids présidentiel, le risque au Congrès, l'approbation et l'économie.",
+        "Un indice quotidien pour lire le poids présidentiel, le risque au Congrès, l'approbation et l'économie.",
       href: '/fr/us/indexes/lame-duck/',
       status: 'live',
       cadence: 'Entrées quotidiennes / hebdomadaires',
@@ -398,7 +398,7 @@ export const instruments: Record<'en' | 'fr' | 'es', Instrument[]> = {
       family: 'Power',
       question: '¿Qué tan políticamente limitada está la presidencia ahora mismo?',
       description:
-        'Un instrumento diario con nombre propio para medir el peso presidencial, el riesgo en el Congreso, la aprobación y el sentimiento económico.',
+        'Un índice diario con nombre propio para medir el peso presidencial, el riesgo en el Congreso, la aprobación y el sentimiento económico.',
       href: '/es/us/indexes/lame-duck/',
       status: 'live',
       cadence: 'Entradas diarias / semanales',

@@ -2,7 +2,7 @@ export type RadarLocale = 'fr' | 'en' | 'es';
 
 export const radarCopy = {
   fr: {
-    eyebrow: 'Desk États-Unis · Instrument propriétaire',
+    eyebrow: 'États-Unis · Indice Vote-Scope',
     title: 'Radar Latino USA',
     dek: 'Les courses où le poids électoral latino, la compétitivité et le contrôle du Congrès se rencontrent.',
     explainer: 'L’indice combine sept signaux sans réallouer les poids. Ce n’est pas un palmarès des seules courses serrées : un siège sûr peut compter par son électorat, sa représentation ou son rôle dans le contrôle du Congrès.',
@@ -39,7 +39,7 @@ export const radarCopy = {
     showMore: 'Afficher 30 courses de plus',
     racesWord: 'courses',
     averageIndex: 'indice moyen',
-    rankingIntro: (count: number) => `${count} courses admissibles. Le classement est recalculé après chaque nouveau run Chambre ou Sénat.`,
+    rankingIntro: (count: number) => `${count} courses admissibles. Le classement est recalculé après chaque nouvelle mise à jour de la Chambre ou du Sénat.`,
     voteIndex: {
       eyebrow: 'Indice national',
       title: 'Indice du vote latino',
@@ -90,7 +90,7 @@ export const radarCopy = {
     },
   },
   en: {
-    eyebrow: 'U.S. desk · Proprietary instrument',
+    eyebrow: 'United States · Vote-Scope index',
     title: 'U.S. Latino Radar',
     dek: 'The races where Latino electoral weight, competitiveness and control of Congress intersect.',
     explainer: 'The index combines seven signals without reallocating weights. It is not a battleground-only list: a safe seat can matter through its electorate, representation or role in control of Congress.',
@@ -177,7 +177,7 @@ export const radarCopy = {
     },
   },
   es: {
-    eyebrow: 'Mesa de EE. UU. · Instrumento propio',
+    eyebrow: 'EE. UU. · Índice Vote-Scope',
     title: 'Radar Latino USA',
     dek: 'Las contiendas donde coinciden el peso electoral latino, la competitividad y el control del Congreso.',
     explainer: 'El índice combina siete señales sin redistribuir pesos. No se limita a contiendas reñidas: un escaño seguro puede importar por su electorado, representación o papel en el control del Congreso.',
@@ -214,7 +214,7 @@ export const radarCopy = {
     showMore: 'Mostrar 30 contiendas más',
     racesWord: 'contiendas',
     averageIndex: 'índice medio',
-    rankingIntro: (count: number) => `${count} contiendas admisibles. La clasificación se recalcula después de cada nueva ejecución del modelo de Cámara o Senado.`,
+    rankingIntro: (count: number) => `${count} contiendas admisibles. La clasificación se recalcula después de cada nueva actualización del modelo de Cámara o Senado.`,
     voteIndex: {
       eyebrow: 'Índice nacional',
       title: 'Índice del voto latino',

@@ -22,7 +22,7 @@ const copy = {
   fr: {
     title:'Jouez avec la politique.',
     description:'Simulateurs, jeux et outils interactifs pour voir comment une course peut changer — sans confondre votre scénario avec notre projection.',
-    featured:'Instrument phare', senate:'Sénat américain', senateSub:'100 sièges · mi-mandat du 3 novembre', senateOpen:'Ouvrir le desk Sénat', control:'Contrôle démocrate', close:'Les courses les plus serrées', qc:'Simulateur Québec', open:'Ouvrir le simulateur', ridings:'circonscriptions',
+    featured:'Indice phare', senate:'Sénat américain', senateSub:'100 sièges · mi-mandat du 3 novembre', senateOpen:'Ouvrir la rubrique Sénat', control:'Contrôle démocrate', close:'Les courses les plus serrées', qc:'Simulateur Québec', open:'Ouvrir le simulateur', ridings:'circonscriptions',
     available:'Autres simulateurs disponibles', ca:'Simulateur Canada', on:'Simulateur Ontario', house:'Simulateur Chambre US', es:'Simulateur Espagne', esSub:'350 sièges · D’Hondt', play:'Jouer', districts:'districts',
     match:'Le Match', matchBody:'Quelques cartes à glisser. Une circonscription qui vous ressemble.', matchCta:'Trouver mon match',
     labs:'Orbite, le moteur quantique', labsBody:'Et si on prévoyait une élection avec la physique d’Einstein? Orbite, notre moteur expérimental à qubits, affronte notre projection de référence au Québec, en Colombie-Britannique et aux États-Unis. Science en direct : voyez où ils s’entendent, et où ils se contredisent.', labsCta:'Découvrir Orbite',
@@ -38,13 +38,13 @@ const copy = {
   es: {
     title:'Juega con la política.',
     description:'Simuladores, juegos y herramientas interactivas para ver cómo puede cambiar una carrera — sin confundir tu escenario con nuestra proyección.',
-    featured:'Instrumento destacado', senate:'Senado de EE. UU.', senateSub:'100 escaños · elecciones intermedias del 3 de noviembre', senateOpen:'Abrir el desk del Senado', control:'Control demócrata', close:'Las contiendas más reñidas', qc:'Simulador Quebec', open:'Abrir el simulador', ridings:'distritos',
+    featured:'Instrumento destacado', senate:'Senado de EE. UU.', senateSub:'100 escaños · elecciones intermedias del 3 de noviembre', senateOpen:'Abrir el Senado', control:'Control demócrata', close:'Las contiendas más reñidas', qc:'Simulador Quebec', open:'Abrir el simulador', ridings:'distritos',
     available:'Otros simuladores disponibles', ca:'Simulador Canadá', on:'Simulador Ontario', house:'Simulador Cámara EE. UU.', es:'Simulador España', esSub:'350 escaños · D’Hondt', play:'Jugar', districts:'distritos',
     match:'El Match', matchBody:'Desliza unas cartas. Encuentra un distrito que se parezca a ti.', matchCta:'Encontrar mi match',
     labs:'Órbita, el motor cuántico', labsBody:'¿Y si pronosticáramos una elección con la física de Einstein? Órbita, nuestro motor experimental con qubits, se enfrenta a nuestra proyección de referencia en Quebec, Columbia Británica y Estados Unidos. Ciencia en directo: vea dónde coinciden y dónde se contradicen.', labsCta:'Descubrir Órbita',
   },
 }[locale];
-// Instrument phare : la course qui capte l'attention (choix éditorial, à revoir à chaque scrutin).
+// Indice phare : la course qui capte l'attention (choix éditorial, à revoir à chaque scrutin).
 const senateParties = (senateDoc as any).parties.filter((p: any) => p.seats_projected > 0).sort((a: any, b: any) => b.seats_projected - a.seats_projected);
 const senateDem = (senateDoc as any).parties.find((p: any) => p.party === 'us_dem');
 const partyName = (p: any) => (locale === 'en' ? (p.label_en ?? p.label_fr) : (p.label_fr ?? p.label_en));

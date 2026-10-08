@@ -57,7 +57,7 @@ export interface PredictionMarket {
 export const PREDICTION_MARKETS: Record<string, PredictionMarket> = {
   // Holborn and St Pancras — siège quitté par Keir Starmer le 1er septembre.
   // Ni writ ni date : le marché ouvre quand même, et il est le SEUL marché de
-  // partielle vivant au moment où les trois précédents sont morts. Le desk de
+  // partielle vivant au moment où les trois précédents sont morts. La rubrique de
   // la course lit `web_data/uk-holborn-special`, dont le champ `markets` porte
   // encore « aucun marché ouvert au 2026-09-01 » — un constat du moteur, daté
   // d'avant l'ouverture. Ce registre, lui, est à jour : la page de

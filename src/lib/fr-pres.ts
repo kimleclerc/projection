@@ -250,7 +250,7 @@ export function toScenarioCard(s: FrScenario, locale: Locale): ScenarioCard {
 /**
  * Provenance d'un scénario, en une phrase.
  *
- * Le desk affichait les configurations côte à côte sans rien dire de leur
+ * La rubrique affichait les configurations côte à côte sans rien dire de leur
  * fraîcheur : le 2026-09-14, un scénario dont le dernier sondage datait de
  * 644 jours et un sondé quatre jours plus tôt étaient indiscernables à
  * l'écran. La sélection et l'ordre ne changent pas — seule la provenance

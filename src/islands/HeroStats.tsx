@@ -24,7 +24,7 @@ const copy = {
     reading: 'Lecture du jour',
     approval: 'Approbation nette',
     countdown: 'Jours avant les élections de mi-mandat',
-    tracker: 'Tracker NYT',
+    tracker: 'Suivi du New York Times',
     election: '3 nov. 2026',
     sevenDay: '7 jours',
   },

@@ -375,9 +375,9 @@ const t = {
     : "Vote-Scope forecast, updated daily",
   modelBadge: modelBadge(locale),
   runDate: isFr
-    ? `Dernier run : ${meta.run_date}`
+    ? `Mis à jour le ${meta.run_date}`
     : isEs
-    ? `Última ejecución: ${meta.run_date}`
+    ? `Actualizado el ${meta.run_date}`
     : `Latest run: ${meta.run_date}`,
   pollsCount: isFr
     ? `${meta.n_polls} sondages agrégés`
@@ -429,16 +429,16 @@ const t = {
     : isEs
     ? "Color = partido proyectado en primer lugar. Pasa el cursor sobre un distrito para ver los detalles."
     : "Color = projected leading party. Hover a riding for details.",
-  keepDiggingEyebrow: isFr ? "Continuer à creuser" : isEs ? "Seguir explorando" : "Keep digging",
+  keepDiggingEyebrow: isFr ? "Pour aller plus loin" : isEs ? "Seguir explorando" : "Keep digging",
   keepDiggingTitle: isFr
     ? "La projection continue ailleurs."
     : isEs
     ? "La proyección continúa."
     : "The projection keeps going.",
   keepDiggingBody: isFr
-    ? "Passez d’un modèle à l’autre pour comparer les chambres, les provinces et les instruments qui alimentent le reste du site."
+    ? "Passez d’un modèle à l’autre pour comparer les chambres, les provinces et les indices qui alimentent le reste du site."
     : isEs
-    ? "Navega de un modelo al siguiente para comparar cámaras, estados y los instrumentos que alimentan el resto del sitio."
+    ? "Navega de un modelo al siguiente para comparar cámaras, estados y los índices que alimentan el resto del sitio."
     : "Move from one model to the next to compare chambers, provinces, and the instruments feeding the rest of the site.",
 };
 
@@ -602,7 +602,7 @@ const keepDiggingLinks = (() => {
   const common = {
     indexes: {
       href: `${enPrefix}/indexes/`,
-      label: locale === 'fr' ? 'Tous les instruments Vote-Scope' : locale === 'es' ? 'Todos los instrumentos Vote-Scope' : 'All Vote-Scope instruments',
+      label: locale === 'fr' ? 'Tous les indices Vote-Scope' : locale === 'es' ? 'Todos los índices Vote-Scope' : 'All Vote-Scope instruments',
       detail: locale === 'fr' ? 'Indices, projections, cartes' : locale === 'es' ? 'Índices, proyecciones, mapas' : 'Indexes, projections, maps',
     },
   };
@@ -647,7 +647,7 @@ const keepDiggingLinks = (() => {
       },
       {
         href: `${prefix}/us/`,
-        label: locale === 'fr' ? 'Desk U.S.' : locale === 'es' ? 'Desk EE. UU.' : 'U.S. desk',
+        label: locale === 'fr' ? 'États-Unis' : locale === 'es' ? 'EE. UU.' : 'U.S. desk',
         detail: locale === 'fr' ? 'Toutes les pages américaines' : locale === 'es' ? 'Todas las páginas de EE. UU.' : 'All U.S. pages',
       },
     ];

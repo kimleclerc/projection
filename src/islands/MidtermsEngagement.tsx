@@ -34,10 +34,10 @@ const copy = {
     senateTie: 'Sénat : une égalité 50-50 compte comme un contrôle républicain, puisque le vice-président Vance départage les votes.',
     seats: 'sièges démocrates projetés',
     majority: 'majorité',
-    rabbit: 'Continuer à creuser',
+    rabbit: 'Pour aller plus loin',
     houseLink: 'Ouvrir la projection Chambre',
     senateLink: 'Ouvrir la projection Sénat',
-    usDesk: 'Ouvrir le desk U.S.',
+    usDesk: 'Ouvrir la rubrique U.S.',
     indexes: 'Tous les indices Vote-Scope',
   },
   es: {
@@ -54,7 +54,7 @@ const copy = {
     rabbit: 'Seguir explorando',
     houseLink: 'Abrir proyección Cámara',
     senateLink: 'Abrir proyección Senado',
-    usDesk: 'Abrir desk U.S.',
+    usDesk: 'Abrir EE. UU.',
     indexes: 'Todos los índices Vote-Scope',
   },
 };

@@ -4,7 +4,7 @@ export interface SpecialElectionConfig {
   slug: string;
   /**
    * Jour du scrutin, ISO — `null` tant qu'une vacance attend son bref.
-   * Le desk s'en sert pour séparer les courses vives des archives : sans lui,
+   * La rubrique s'en sert pour séparer les courses vives des archives : sans lui,
    * un résultat d'avril s'affichait avec le même poids visuel qu'une course
    * en attente, et rien ne signalait qu'un desk avait dépassé sa date.
    */
