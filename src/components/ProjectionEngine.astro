@@ -2,6 +2,7 @@
 import { partyName } from '../lib/party-names';
 import { RATING_ORDER, RATING_STYLE } from '../lib/race-ratings';
 import ResultsTable from './ResultsTable.astro';
+import KimNote from './KimNote.astro';
 import type { Jurisdiction, Locale, ProjectionData } from '../data/jurisdictions';
 import { modelBadge } from '../data/modelVersion';
 import { readFileSync } from 'node:fs';
@@ -718,6 +719,8 @@ const pageNavItems = [
     </div>
     <GooglePreferredSource locale={locale} />
   </header>
+
+  <KimNote note={jurisdiction.dataPath} lang={locale} />
 
   <OnThisPage locale={locale} items={pageNavItems} />
 

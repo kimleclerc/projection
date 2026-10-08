@@ -1,0 +1,33 @@
+---
+/**
+ * Le mot de Kim — note signée et datée, placée sous le titre d'une page.
+ * Rien ne s'affiche sans note publiée dans la langue de la page (voir data/kim-notes.ts).
+ */
+import { kimNote } from '../data/kim-notes';
+interface Props { note: string; lang: 'fr' | 'en' | 'es'; draft?: boolean }
+const { note, lang, draft = false } = Astro.props;
+const n = kimNote(note, lang, draft);
+const L = { fr: { title: 'Le mot de Kim', role: 'Kim Leclerc, vingt ans de campagnes électorales' }, en: { title: 'Kim’s take', role: 'Kim Leclerc, twenty years of election campaigns' }, es: { title: 'La nota de Kim', role: 'Kim Leclerc, veinte años de campañas electorales' } }[lang];
+const date = n ? new Date(n.date + 'T12:00:00Z').toLocaleDateString(lang === 'en' ? 'en-CA' : lang === 'es' ? 'es-ES' : 'fr-CA', { day: 'numeric', month: 'long', timeZone: 'UTC' }) : '';
+---
+{n && (
+  <aside class="kim-note container" aria-label={L.title}>
+    <img src="/images/kim-leclerc.jpg" alt="" width="64" height="80" loading="lazy" />
+    <div>
+      <p class="kim-head"><strong>{L.title}</strong> · {date}</p>
+      <p class="kim-text">{n.text}</p>
+      <p class="kim-sign">— {L.role}</p>
+    </div>
+  </aside>
+)}
+
+<style>
+  .kim-note { display: grid; grid-template-columns: 64px minmax(0, 760px); gap: 18px; align-items: start; margin-top: 22px; margin-bottom: 8px; }
+  .kim-note > div { padding-top: 10px; border-top: 3px solid var(--ink); }
+  .kim-note img { width: 64px; height: 80px; object-fit: cover; object-position: top; }
+  .kim-head { margin: 0 0 6px; font-size: 14px; color: var(--ink-3); }
+  .kim-head strong { color: var(--ink); }
+  .kim-text { margin: 0; font-size: 19px; line-height: 1.5; color: var(--ink); }
+  .kim-sign { margin: 8px 0 0; font-size: 14px; font-weight: 600; color: var(--ink-2); }
+  @media (max-width: 560px) { .kim-note { grid-template-columns: 48px 1fr; gap: 12px; } .kim-note img { width: 48px; height: 60px; } .kim-text { font-size: 17px; } }
+</style>

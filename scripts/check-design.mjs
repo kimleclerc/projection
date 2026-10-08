@@ -9,7 +9,7 @@ import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
 
 const ROOT = new URL('..', import.meta.url).pathname;
-const SKIP = ['src/pages/essai-polices.astro', 'src/lib/og/', 'src/lib/wc-flags.ts'];
+const SKIP = ['src/pages/essai-polices.astro', 'src/pages/essai-signature.astro', 'src/lib/og/', 'src/lib/wc-flags.ts'];
 // Une ligne qui contient « design-ok » est une exception assumée (hachure qui porte une
 // information, légende de carte, etc.) : elle n'est pas comptée.
 
