@@ -35,7 +35,7 @@ function injectStyles() {
   const s = document.createElement('style');
   s.id = 'rt-style';
   s.textContent = `
-.rt-wrap { --rt-row-rule: color-mix(in oklab, var(--rule, #ddd) 76%, transparent); font-family: var(--mono, var(--mono); font-size: 13px; color: var(--ink, #1a1a1a); }
+.rt-wrap { min-width: 0; max-width: 100%; --rt-row-rule: color-mix(in oklab, var(--rule, #ddd) 76%, transparent); font-family: var(--sans); font-size: 13px; color: var(--ink, #1a1a1a); }
 .rt-controls { display: flex; flex-wrap: wrap; gap: 12px 18px; align-items: center; margin-bottom: 14px; }
 .rt-search { padding: 7px 10px; border: 1px solid var(--rule, #ddd); border-radius: 2px; font-family: inherit; font-size: 13px; background: var(--paper, #fff); color: var(--ink, #1a1a1a); min-width: 200px; }
 .rt-chips { display: inline-flex; flex-wrap: wrap; gap: 4px; }
@@ -46,7 +46,7 @@ function injectStyles() {
 .rt-toggle { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--ink-2, #555); cursor: pointer; }
 .rt-meta { font-size: 12px; color: var(--ink-3, #888); margin-left: auto; }
 .rt-clear { background: none; border: none; color: var(--ink-3, #888); font-size: 12px; cursor: pointer; text-decoration: underline; padding: 0; }
-.rt-table-wrap { overflow-x: auto; border: 1px solid var(--rule, #ddd); border-radius: 2px; }
+.rt-table-wrap { max-width: 100%; overflow-x: auto; border: 1px solid var(--rule, #ddd); border-radius: 2px; }
 .rt-table { width: 100%; border-collapse: collapse; font-size: 13px; }
 .rt-table th { text-align: left; font-weight: 500; font-size: 11px; letter-spacing: 0; color: var(--ink-2, #555); padding: 11px 12px; border-bottom: 1px solid var(--rule, #ddd); cursor: pointer; user-select: none; white-space: nowrap; background: var(--card, #f8f8f3); position: sticky; top: 0; z-index: 1; }
 .rt-table th:hover { color: var(--ink, #1a1a1a); }

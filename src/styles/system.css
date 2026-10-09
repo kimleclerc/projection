@@ -154,3 +154,9 @@
   border: 1px solid var(--rule) !important;
   border-radius: 0 !important;
 }
+
+/* Tableaux larges sur téléphone : ils défilent dans leur cadre au lieu d'élargir
+ * la page. Ces règles doivent exister AVANT l'activation des îlots, dont les styles
+ * n'arrivent qu'au moment où le lecteur atteint le composant. */
+.rt-table-wrap, .poll-table-wrap, .table-scroll { max-width: 100%; overflow-x: auto; }
+.rt-wrap { min-width: 0; max-width: 100%; }

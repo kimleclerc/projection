@@ -1,4 +1,5 @@
 ---
+import BrandMark from '../components/BrandMark.astro';
 // Layout embed — coquille minimale pour les modules intégrables en iframe
 // (phase 2 partage/embed). Pas de nav ni footer : tokens + fonts + le module
 // + une attribution discrète vers la page complète. noindex (le sitemap
@@ -56,7 +57,7 @@ const backLabel: Record<Locale, string> = {
     </main>
     <footer class="embed-attribution">
       <a href={`https://vote-scope.com${backPath}`} target="_blank" rel="noopener">
-        <span class="embed-logo-dot" aria-hidden="true"></span>
+        <BrandMark size={16} />
         Vote-Scope · {backLabel[lang]}
       </a>
     </footer>

@@ -8,6 +8,7 @@ import '@fontsource/barlow-condensed/500.css';
 import '@fontsource/barlow-condensed/600.css';
 import '@fontsource/barlow-condensed/700.css';
 import '../styles/tokens.css';
+import BrandMark from '../components/BrandMark.astro';
 import { affiliates, amazon } from '../data/affiliates';
 import { ads, adScriptUrl } from '../data/ads';
 import { versionSocialCardUrl } from '../lib/og/version';
@@ -49,6 +50,23 @@ const {
 } = Astro.props;
 
 const versionedOgImage = versionSocialCardUrl(ogImage);
+
+// Bandeau : date du jour et prochain scrutin suivi (calculés à chaque mise à jour du site).
+const mastLocale = lang === 'en' ? 'en-CA' : lang === 'es' ? 'es-ES' : 'fr-CA';
+const mastToday = new Date(new Date().toISOString().slice(0, 10) + 'T12:00:00Z');
+const rawMastDate = mastToday.toLocaleDateString(mastLocale, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+const mastDate = rawMastDate.charAt(0).toUpperCase() + rawMastDate.slice(1);
+const UPCOMING = [
+  { date: '2026-10-24', fr: 'La C.-B. vote', en: 'B.C. votes', es: 'Columbia Británica vota' },
+  { date: '2026-11-03', fr: 'Midterms américains', en: 'U.S. midterms', es: 'Elecciones intermedias de EE. UU.' },
+  { date: '2026-11-29', fr: 'L’Espagne vote', en: 'Spain votes', es: 'España vota' },
+];
+const nextUp = UPCOMING.map((e) => ({ ...e, d: Math.round((Date.parse(e.date + 'T12:00:00Z') - mastToday.getTime()) / 86_400_000) })).find((e) => e.d >= 0);
+const nextVote = nextUp
+  ? nextUp.d === 0
+    ? { fr: `${nextUp.fr} aujourd’hui`, en: `${nextUp.en} today`, es: `${nextUp.es} hoy` }[lang]
+    : { fr: `${nextUp.fr} dans ${nextUp.d} jour${nextUp.d > 1 ? 's' : ''}`, en: `${nextUp.en} in ${nextUp.d} day${nextUp.d > 1 ? 's' : ''}`, es: `${nextUp.es} en ${nextUp.d} día${nextUp.d > 1 ? 's' : ''}` }[lang]
+  : '';
 
 const localeCopy: Record<Locale, {
   root: string;
@@ -494,14 +512,22 @@ const languageLinks = (['en', 'fr', 'es'] as Locale[])
     .skip-link:focus { transform: translateY(0); }
 
     /* NAV */
-    .nav { border-bottom: 1px solid var(--rule); position: sticky; top: 0; z-index: 50; background: var(--paper); }
-    .nav-inner { display: flex; align-items: center; justify-content: space-between; gap: 22px; height: 60px; }
-    .logo { display: flex; align-items: baseline; gap: 10px; font-family: var(--serif); font-size: 22px; font-weight: 700; letter-spacing: -0.01em; white-space: nowrap; }
-    .logo-dot { width: 8px; height: 8px; border-radius: 2px; background: var(--red); display: inline-block; transform: translateY(-2px); }
-    .nav-links { display: flex; gap: 28px; font-size: 14px; color: var(--ink-2); }
+    /* Signature B « le bulletin » : bandeau de journal (date, logo centré, outils),
+       puis barre de menu sous un gros filet noir. Seule la barre reste fixée. */
+    .masthead { background: var(--paper); }
+    .masthead-inner { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 16px; padding-top: 14px; padding-bottom: 12px; }
+    .mast-date { margin: 0; font-size: 14px; line-height: 1.35; color: var(--ink-3); }
+    .mast-count { color: var(--ink); font-weight: 700; }
+    .masthead .nav-right { justify-self: end; }
+    .nav { position: sticky; top: 0; z-index: 50; background: var(--paper); border-top: 6px solid var(--ink); border-bottom: 1px solid var(--ink); }
+    .nav-inner { display: flex; align-items: center; justify-content: center; height: 46px; }
+    .logo { display: flex; align-items: center; gap: 12px; font-family: var(--sans); font-size: 40px; font-weight: 700; letter-spacing: -0.01em; line-height: 1; white-space: nowrap; color: var(--ink); }
+    .logo-mark { flex: 0 0 auto; }
+    
+    .nav-links { display: flex; gap: 26px; font-size: 15px; font-weight: 600; color: var(--ink); }
     .nav-links a { padding: 6px 0; border-bottom: 1px solid transparent; }
     .nav-links a:hover { border-color: var(--ink); }
-    .nav-links a.current { color: var(--ink); font-weight: 500; }
+    .nav-links a.current { color: var(--ink); border-color: var(--ink); border-bottom-width: 3px; }
     .nav-right { display: flex; align-items: center; gap: 10px; }
     .nav-search { display: inline-flex; }
     .nav-search pagefind-modal-trigger {
@@ -579,23 +605,12 @@ const languageLinks = (['en', 'fr', 'es'] as Locale[])
       .nav-links    { gap: 14px; }
     }
     @media (max-width: 760px) {
-      .nav-inner {
-        flex-wrap: wrap;
-        align-content: center;
-        gap: 8px 14px;
-        height: auto;
-        min-height: 60px;
-        padding-top: 8px;
-        padding-bottom: 8px;
-      }
-      .logo {
-        flex: 1 1 auto;
-      }
-      .nav-right {
-        margin-left: auto;
-      }
+      .masthead-inner { grid-template-columns: 1fr auto; padding-top: 10px; padding-bottom: 10px; }
+      .mast-date { display: none; }
+      .logo { font-size: 28px; gap: 8px; }
+      .logo-mark { width: 30px; height: 30px; }
+      .nav-inner { justify-content: flex-start; height: 44px; }
       .nav-links {
-        order: 3;
         flex: 1 0 100%;
         gap: 18px;
         overflow-x: auto;
@@ -616,6 +631,12 @@ const languageLinks = (['en', 'fr', 'es'] as Locale[])
       .lang-toggle {
         padding: 7px 9px;
       }
+    }
+    @media (max-width: 560px) {
+      .masthead .nav-cta { display: none !important; }
+      .masthead .nav-right { gap: 6px; }
+      .masthead .lang-toggle { padding: 6px 7px; }
+      .masthead .theme-toggle { min-width: 40px; min-height: 40px; }
     }
     @media (max-width: 600px) {
       .container, .container-wide { padding: 0 18px; }
@@ -641,18 +662,13 @@ const languageLinks = (['en', 'fr', 'es'] as Locale[])
 <body>
 <a class="skip-link" href="#main-content">{copy.skipLabel}</a>
 
-<nav class="nav" aria-label={lang === 'fr' ? 'Navigation principale' : lang === 'es' ? 'Navegación principal' : 'Primary navigation'} data-analytics-region="header">
-  <div class="container nav-inner">
+<header class="masthead">
+  <div class="container masthead-inner">
+    <p class="mast-date">{mastDate}{nextVote && <><br /><span class="mast-count">{nextVote}</span></>}</p>
     <a class="logo" href={copy.root}>
-      <span class="logo-dot"></span>Vote-Scope
+      <BrandMark size={40} class="logo-mark" />
+      <span>Vote-Scope</span>
     </a>
-    <div class="nav-links">
-      {navLinks.map(link => (
-        <a href={link.href} class={currentPage === link.key ? 'current' : ''} aria-current={currentPage === link.key ? 'page' : undefined}>
-          {link.label}
-        </a>
-      ))}
-    </div>
     <div class="nav-right">
       <span class="nav-search">
         <pagefind-modal-trigger compact aria-label={lang === 'fr' ? 'Rechercher sur Vote-Scope' : lang === 'es' ? 'Buscar en Vote-Scope' : 'Search Vote-Scope'}></pagefind-modal-trigger>
@@ -676,6 +692,17 @@ const languageLinks = (['en', 'fr', 'es'] as Locale[])
       <a class="nav-cta" href={copy.subscribeUrl} target="_blank" rel="noopener" data-analytics-event="newsletter_click" data-analytics-location="header">{copy.subscribeLabel}</a>
     </div>
   </div>
+</header>
+<nav class="nav" aria-label={lang === 'fr' ? 'Navigation principale' : lang === 'es' ? 'Navegación principal' : 'Primary navigation'} data-analytics-region="header">
+  <div class="container nav-inner">
+    <div class="nav-links">
+      {navLinks.map(link => (
+        <a href={link.href} class={currentPage === link.key ? 'current' : ''} aria-current={currentPage === link.key ? 'page' : undefined}>
+          {link.label}
+        </a>
+      ))}
+    </div>
+  </div>
 </nav>
 
 <main id="main-content" data-pagefind-body={searchIndex ? true : undefined}>
@@ -687,7 +714,7 @@ const languageLinks = (['en', 'fr', 'es'] as Locale[])
     <div class="footer-grid">
       <div>
         <a class="logo" href={copy.root} style="margin-bottom:14px;display:inline-flex">
-          <span class="logo-dot"></span>Vote-Scope
+          <BrandMark size={28} class="logo-mark" /><span style="font-size:26px">Vote-Scope</span>
         </a>
         <p style="font-size:14px;color:var(--ink-3);max-width:320px;line-height:1.6;margin-top:10px">
           {copy.footerDescription}

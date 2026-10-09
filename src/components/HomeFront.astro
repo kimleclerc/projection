@@ -26,6 +26,11 @@ const leadPlural = {
   us_rep: L('Les républicains', 'Republicans', 'Los republicanos'),
 }[lead.party as 'us_dem' | 'us_rep'];
 
+// Parti qui détient la majorité au Sénat sortant (119ᵉ Congrès) : « conserver » pour lui,
+// « obtenir » pour l'autre. À changer si la composition change avant le scrutin.
+const SENATE_INCUMBENT = 'us_rep';
+const keeps = lead.party === SENATE_INCUMBENT;
+
 const today = new Date(new Date().toISOString().slice(0, 10) + 'T12:00:00Z');
 const daysLeft = Math.round((Date.parse('2026-11-03T12:00:00Z') - today.getTime()) / 86_400_000);
 const nSims = Number(meta.n_simulations ?? 50000).toLocaleString(lang === 'en' ? 'en-US' : 'fr-FR');
@@ -50,9 +55,9 @@ const T = {
     : L('Midterms américains · 3 novembre', 'U.S. midterms · November 3', 'Elecciones intermedias de EE. UU. · 3 de noviembre'),
   question: L('Qui contrôlera le Sénat?', 'Who will control the Senate?', '¿Quién controlará el Senado?'),
   answer: L(
-    `${leadPlural} ont ${pct(lead.p_majority)} de chances de contrôler le Sénat, selon ${nSims} simulations.`,
-    `${leadPlural} have a ${pct(lead.p_majority)} chance of controlling the Senate, across ${nSims} simulations.`,
-    `${leadPlural} tienen un ${pct(lead.p_majority)} de probabilidad de controlar el Senado, según ${nSims} simulaciones.`),
+    `${leadPlural} ont ${pct(lead.p_majority)} de chances ${keeps ? 'de conserver' : 'd’obtenir'} la majorité au Sénat, selon ${nSims} simulations.`,
+    `${leadPlural} have a ${pct(lead.p_majority)} chance of ${keeps ? 'keeping' : 'winning'} the Senate majority, across ${nSims} simulations.`,
+    `${leadPlural} tienen un ${pct(lead.p_majority)} de probabilidad de ${keeps ? 'conservar' : 'obtener'} la mayoría en el Senado, según ${nSims} simulaciones.`),
   senate: L('Projection du Sénat', 'Senate forecast', 'Pronóstico del Senado'),
   house: L('Projection de la Chambre', 'House forecast', 'Pronóstico de la Cámara'),
   gov: L('Gouverneurs', 'Governors', 'Gobernadores'),

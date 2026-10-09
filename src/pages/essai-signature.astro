@@ -78,7 +78,7 @@ const nav = ['États-Unis', 'Canada', 'Royaume-Uni', 'France', 'Espagne', 'Indic
       <nav class="b-nav">{nav.map((n) => <a href="#b">{n}</a>)}</nav>
       <div class="b-main">
         <p class="b-kicker">Sénat américain</p>
-        <h2 class="b-q">Les démocrates ont {pct}&#8239;% de chances de prendre le Sénat</h2>
+        <h2 class="b-q">Les démocrates ont {pct}&#8239;% de chances d’obtenir la majorité au Sénat</h2>
         <div class="b-bar"><span style={`width:${dem.seats_projected}%;background:${dem.color}`}>{Math.round(dem.seats_projected)}</span><span style={`width:${rep.seats_projected}%;background:${rep.color}`}>{Math.round(rep.seats_projected)}</span><i></i></div>
         <p class="b-note">51 sièges pour la majorité · par Kim Leclerc</p>
       </div>
@@ -106,7 +106,7 @@ const nav = ['États-Unis', 'Canada', 'Royaume-Uni', 'France', 'Espagne', 'Indic
       </div>
       <div class="c-main">
         <p class="c-kicker">Sénat américain · élection le 3 novembre</p>
-        <h2 class="c-q">Les démocrates ont <mark>{pct}&#8239;%</mark> de chances de prendre le Sénat.</h2>
+        <h2 class="c-q">Les démocrates ont <mark>{pct}&#8239;%</mark> de chances d’obtenir la majorité au Sénat.</h2>
         <p class="c-sub">Sièges projetés : démocrates <mark>{Math.round(dem.seats_projected)}</mark>, républicains <mark>{Math.round(rep.seats_projected)}</mark>. Majorité à 51.</p>
       </div>
     </div>
