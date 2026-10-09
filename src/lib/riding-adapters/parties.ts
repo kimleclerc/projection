@@ -220,6 +220,11 @@ export function partyMark(meta: PartyMeta): string | undefined {
   return meta.icon ?? meta.logo;
 }
 
+/** Tous les partis d'un scrutin (pour les pages qui reçoivent des codes côté client). */
+export function partyPalette(jurisdiction: string): Record<string, PartyMeta> {
+  return PALETTES[jurisdiction] ?? CA_FEDERAL_PARTIES;
+}
+
 export function partyMeta(jurisdiction: string, code: string): PartyMeta {
   const palette = PALETTES[jurisdiction] ?? CA_FEDERAL_PARTIES;
   const meta = palette[code];

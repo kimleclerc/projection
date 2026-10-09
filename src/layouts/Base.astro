@@ -366,6 +366,8 @@ const derivedAlternates: Record<Locale, string> = {
 const languageLinks = (['en', 'fr', 'es'] as Locale[])
   .filter((locale) => locale !== lang)
   .map((locale) => ({ locale, label: languageLabels[locale], href: derivedAlternates[locale] }));
+import { MY_RACES_URL } from '../lib/follow';
+const myRacesLabel = lang === 'fr' ? 'Mes courses' : lang === 'es' ? 'Mis contiendas' : 'My races';
 ---
 <!DOCTYPE html>
 <html lang={lang} data-theme="light">
@@ -539,7 +541,9 @@ const languageLinks = (['en', 'fr', 'es'] as Locale[])
       --pagefind-ui-border-radius: 2px;
       font-size: 12px;
     }
-    .nav-cta { font-family: var(--mono); font-size: 13px; letter-spacing: 0; padding: 8px 14px; background: var(--ink); color: var(--paper-3); border-radius: 2px; display: inline-block; }
+    .nav-mine { font-size: 14px; font-weight: 600; color: var(--ink); text-decoration: none; white-space: nowrap; }
+    .nav-mine:hover { text-decoration: underline; text-underline-offset: 3px; }
+    .nav-cta { font-family: var(--sans); font-size: 13px; letter-spacing: 0; padding: 8px 14px; background: var(--ink); color: var(--paper-3); border-radius: 2px; display: inline-block; }
     /* Dark mode toggle */
     .theme-toggle { min-width: 44px; min-height: 44px; background: none; border: 1px solid var(--rule); border-radius: 2px; padding: 7px 8px; cursor: pointer; color: var(--ink-3); line-height: 1; display: flex; align-items: center; justify-content: center; transition: color .15s, border-color .15s; }
     .theme-toggle:hover { color: var(--ink); border-color: var(--ink-3); }
@@ -634,6 +638,7 @@ const languageLinks = (['en', 'fr', 'es'] as Locale[])
     }
     @media (max-width: 560px) {
       .masthead .nav-cta { display: none !important; }
+      .masthead .nav-mine { display: none; }
       .masthead .nav-right { gap: 6px; }
       .masthead .lang-toggle { padding: 6px 7px; }
       .masthead .theme-toggle { min-width: 40px; min-height: 40px; }
@@ -682,6 +687,7 @@ const languageLinks = (['en', 'fr', 'es'] as Locale[])
           ))}
         </div>
       )}
+      <a class="nav-mine" href={MY_RACES_URL[lang as 'fr' | 'en' | 'es'] ?? MY_RACES_URL.en}>{myRacesLabel}</a>
       <!-- Dark mode toggle -->
       <button class="theme-toggle" id="theme-toggle" aria-label={copy.themeLabel} aria-pressed="false" type="button">
         <!-- Moon (show in light mode) -->
@@ -757,6 +763,7 @@ const languageLinks = (['en', 'fr', 'es'] as Locale[])
         <a href={copy.sports}>Sports Scope</a>
         <a href={copy.indexes}>{lang === 'fr' ? 'Indices' : lang === 'es' ? 'Índices' : 'Indexes'}</a>
         <a href={copy.match}>{copy.matchLabel}</a>
+        <a href={MY_RACES_URL[lang as 'fr' | 'en' | 'es'] ?? MY_RACES_URL.en}>{myRacesLabel}</a>
         <a href={copy.root}>{copy.allRegionsLabel}</a>
       </div>
       <div class="footer-col">

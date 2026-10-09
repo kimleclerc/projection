@@ -16,6 +16,8 @@ interface Props {
   ogType?: string;
   /** Include the page in the internal Pagefind search index. */
   searchIndex?: boolean;
+  /** Page personnelle (ex. « Mes courses ») : hors des moteurs de recherche. */
+  noindex?: boolean;
 }
 
 const {
@@ -29,6 +31,7 @@ const {
   ogImage = 'https://vote-scope.com/og/vote-scope.png',
   ogType = 'website',
   searchIndex = true,
+  noindex = false,
 } = Astro.props;
 
 // Renvoi midterms sur les pages des autres juridictions (pas sur les pages US ni l'accueil).
@@ -47,6 +50,7 @@ const showMidterms = /^\/(en|fr|es)\/(canada|france|spain|uk)(\/|$)/.test(path);
   ogImage={ogImage}
   ogType={ogType}
   searchIndex={searchIndex}
+  noindex={noindex}
 >
   <slot />
   {showMidterms && <MidtermsBand lang={lang} />}

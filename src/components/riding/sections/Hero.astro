@@ -3,6 +3,9 @@ import { usStateName } from '../../../lib/place-names';
 import { regionLabel, UK_NATIONS } from '../../../lib/riding-adapters/regions';
 import type { RidingData } from '../../../lib/riding-adapters/types';
 import RidingShape from './RidingShape.astro';
+import FollowButton from '../../../islands/FollowButton.tsx';
+import { FOLLOW_ELECTIONS } from '../../../lib/follow';
+import { placeName } from '../../../lib/place-names';
 
 interface Props {
   data: RidingData;
@@ -11,6 +14,12 @@ interface Props {
 
 const { data, lang } = Astro.props;
 const name = lang === 'fr' ? data.name.fr : data.name.en;
+// Suivi : seulement pour les scrutins listés dans FOLLOW_ELECTIONS.
+const canFollow = !!FOLLOW_ELECTIONS[data.jurisdiction];
+const followNames = { fr: data.name.fr, en: data.name.en, es: placeName({ name_en: data.name.en, name_fr: data.name.fr }, 'es') };
+const followSnap = data.results
+  ? { w: data.results.winner, p: 1, d: data.results.date, final: true }
+  : { w: data.projection.winner, p: Math.round(data.projection.p_winner * 1000) / 1000, d: data.runDate ?? '' };
 
 const PROVINCE_PREFIX_EN: Record<string, string> = {
   'federal-ca': 'Federal riding —',
@@ -86,12 +95,14 @@ const urbanLabel = urbanValue ? (T.urban[urbanValue] ?? urbanValue) : null;
         {urbanLabel && <> · {urbanLabel}</>}
         {regionName && <> · <span class="region">{regionName}</span></>}
       </p>
+      {canFollow && <FollowButton client:idle lang={lang} j={data.jurisdiction} id={data.id} slug={data.slug} name={followNames} snap={followSnap} />}
     </div>
     {data.shapePath && <RidingShape data={data} lang={lang} />}
   </div>
 </section>
 
 <style>
+  :global(.follow-row) { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin: 16px 0 0; }
   .riding-hero {
     padding: 64px 0 32px;
     border-bottom: 1px solid var(--rule);

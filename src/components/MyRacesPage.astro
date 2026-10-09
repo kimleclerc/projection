@@ -1,0 +1,65 @@
+---
+/**
+ * « Mes courses » (gabarit Liste, docs/DESIGN.md § 7) : les courses suivies dans
+ * ce navigateur, groupées par scrutin, avec le chiffre du jour et le changement
+ * depuis la dernière visite. Page personnelle : hors index et hors plan du site.
+ */
+import EditorialLayout from '../layouts/EditorialLayout.astro';
+import PageHeader from './PageHeader.astro';
+import MyRaces from '../islands/MyRaces.tsx';
+import { FOLLOW_ELECTIONS, MY_RACES_URL, type Lang } from '../lib/follow';
+import { partyPalette } from '../lib/riding-adapters/parties';
+import { partyName } from '../lib/party-names';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const L = (fr: string, en: string, es: string) => ({ fr, en, es }[lang]);
+
+// Noms et couleurs des partis, par scrutin : le navigateur ne reçoit que des codes.
+const parties = Object.fromEntries(Object.keys(FOLLOW_ELECTIONS).map((j) => [
+  j,
+  Object.fromEntries(Object.entries(partyPalette(j)).map(([code, meta]) => [code, { l: partyName({ ...meta, code }, lang), c: meta.color }])),
+]));
+
+const title = L('Mes courses', 'My races', 'Mis contiendas');
+const promise = L(
+  'Les courses que vous suivez, avec le chiffre du jour et ce qui a changé depuis votre dernière visite. La liste est enregistrée dans ce navigateur seulement : rien n’est envoyé à Vote-Scope, et elle ne passe pas d’un appareil à l’autre.',
+  'The races you follow, with today’s number and what changed since your last visit. The list is saved in this browser only: nothing is sent to Vote-Scope, and it does not carry over to other devices.',
+  'Las contiendas que sigue, con la cifra del día y lo que cambió desde su última visita. La lista se guarda solo en este navegador: no se envía nada a Vote-Scope y no pasa de un dispositivo a otro.',
+);
+const canonical = `https://vote-scope.com${MY_RACES_URL[lang]}`;
+---
+<EditorialLayout
+  title={`${title} — Vote-Scope`}
+  description={promise}
+  canonical={canonical}
+  lang={lang}
+  currentPage="my-races"
+  searchIndex={false}
+  noindex
+  alternates={{ fr: `https://vote-scope.com${MY_RACES_URL.fr}`, en: `https://vote-scope.com${MY_RACES_URL.en}`, es: `https://vote-scope.com${MY_RACES_URL.es}` }}
+>
+  <PageHeader title={title} promise={promise} />
+  <section class="my-races">
+    <div class="container">
+      <MyRaces client:load lang={lang} parties={parties} />
+    </div>
+  </section>
+</EditorialLayout>
+
+<style>
+  .my-races { padding: 8px 0 48px; }
+  .my-races :global(.mr-group) { margin-top: 32px; }
+  .my-races :global(.mr-group h2) { margin: 0; padding-bottom: 6px; border-bottom: 2px solid var(--ink); font-size: 22px; font-weight: 700; }
+  .my-races :global(.mr-group .vs-meta) { margin: 6px 0 0; }
+  .my-races :global(.mr-scroll) { max-width: 100%; overflow-x: auto; }
+  .my-races :global(.mr-table) { width: 100%; min-width: 560px; border-collapse: collapse; margin-top: 8px; }
+  .my-races :global(.mr-table th), .my-races :global(.mr-table td) { padding: 10px 12px 10px 0; border-bottom: 1px solid var(--rule); text-align: left; vertical-align: top; font-size: 15px; }
+  .my-races :global(.mr-table thead th) { color: var(--ink-3); font-size: 13px; font-weight: 600; }
+  .my-races :global(.mr-table tbody th) { font-weight: 700; }
+  .my-races :global(.mr-table tbody th a) { color: var(--ink); }
+  .my-races :global(.mr-dot) { display: inline-block; width: 9px; height: 9px; margin-right: 7px; border-radius: 50%; }
+  .my-races :global(.mr-big) { font-weight: 700; color: var(--ink); }
+  .my-races :global(.mr-unfollow) { background: none; border: 0; padding: 0; font: inherit; font-size: 14px; cursor: pointer; color: var(--ink-2); }
+  .my-races :global(.mr-empty) { max-width: 72ch; font-size: 17px; }
+</style>

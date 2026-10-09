@@ -20,7 +20,7 @@ export default defineConfig({
   integrations: [
     preact(),
     sitemap({
-      filter: (page) => !page.includes('/embed/'),
+      filter: (page) => !page.includes('/embed/') && !/\/(mes-courses|my-races|mis-contiendas|data\/follow)(\/|$)/.test(page),
       changefreq: 'weekly',
       // Les canonicals et les URLs servies portent le slash final (Cloudflare
       // 308 depuis la forme sans slash). Sans cette normalisation, Bing voit
