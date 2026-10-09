@@ -11,6 +11,7 @@ import {
 } from '../lib/mini-sim';
 import { readUrlParam, setUrlParam } from './lib/urlState';
 import CopyLink from './lib/CopyLink';
+import SavedScenarios from './lib/SavedScenarios';
 import RidingsMap, { type MapParty, type RidingFull } from './RidingsMap';
 
 export interface SimulatorMapConfig {
@@ -450,6 +451,22 @@ export default function MiniSimulator({ doc, locale, map }: Props) {
         </button>
         {touched && <CopyLink locale={locale} />}
       </div>
+
+      <SavedScenarios
+        locale={locale}
+        cycle={doc.meta.election_cycle}
+        runDate={doc.meta.run_date}
+        parties={doc.parties.map((p) => ({ code: p.code, label: partyLabel(p, locale) }))}
+        current={touched ? encodeState(nat, reg) : ''}
+        seatsNow={seats}
+        seatsFor={(sim) => { const [n, r] = decodeState(sim, doc); return simulate(doc, n, r); }}
+        onOpen={(sim) => {
+          const [n, r] = decodeState(sim, doc);
+          setNat(n);
+          setReg(r);
+          setScope(Object.keys(r).length && !Object.keys(n).length ? Object.keys(r)[0] : 'national');
+        }}
+      />
 
       <p class="msim-anchor">
         {!touched && (
