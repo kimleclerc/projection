@@ -107,7 +107,7 @@ function injectStyles() {
   const s = document.createElement('style');
   s.id = 'mlb-style';
   s.textContent = `
-.mlb-wrap { --mlb-row-rule: color-mix(in oklab, var(--rule, #ddd) 76%, transparent); font-family: var(--mono, var(--mono); font-size: 13px; color: var(--ink, #1a1a1a); }
+.mlb-wrap { --mlb-row-rule: color-mix(in oklab, var(--rule, #ddd) 76%, transparent); font-family: var(--sans); font-size: 13px; color: var(--ink, #1a1a1a); }
 .mlb-controls { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; margin-bottom: 14px; }
 .mlb-chips { display: inline-flex; flex-wrap: wrap; gap: 4px; }
 .mlb-chip { display: inline-flex; align-items: center; gap: 5px; padding: 4px 12px; border: 1px solid var(--rule, #ddd); border-radius: 2px; font-size: 12px; color: var(--ink-2, #555); background: transparent; cursor: pointer; transition: background 0.12s, color 0.12s, border-color 0.12s; }

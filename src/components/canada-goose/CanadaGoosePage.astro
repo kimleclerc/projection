@@ -241,7 +241,7 @@ const deltaTone = typeof delta === 'number' ? (delta > 0 ? 'is-up' : delta < 0 ?
         <div class="lame-duck-stats" aria-label={locale === 'fr' ? 'Chiffres en direct de l’indice Bernache' : locale === 'es' ? 'Cifras en directo del Canada Goose Index' : 'Canada Goose live stats'}>
           <article>
             <p>{t.readingLabel}</p>
-            <strong>{data.cgi.score.toFixed(1)}<span>/100</span></strong>
+            <strong>{Math.round(data.cgi.score)}<span>/100</span></strong>
             <em class={deltaTone}>{deltaArrow} {typeof delta === 'number' ? Math.abs(delta).toFixed(1) : '—'} · 7{locale === 'en' ? 'd' : locale === 'es' ? 'd' : 'j'}</em>
           </article>
           <article>

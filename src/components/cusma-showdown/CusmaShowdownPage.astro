@@ -669,7 +669,7 @@ const watchList = editorial ? pickList(editorial, 'watch', locale) : [];
         <div class="lame-duck-stats" style="margin-top:1.5rem">
           <article style={`border-top: 4px solid ${sides.canada?.color ??'#2f6fb0'};padding-left:1rem`}>
             <p>{sides.canada?.name} · {t.canadaSub}</p>
-            <strong class="is-blue">{sides.canada?.score?.toFixed(1)}<span>/100</span></strong>
+            <strong class="is-blue">{sides.canada?.score != null ? Math.round(sides.canada.score) : '—'}<span>/100</span></strong>
             <em>{showdownLabel({ label_en: sides.canada?.label_en, label_fr: sides.canada?.label_fr }, locale)}</em>
             {canadaHref && <a class="btn-outline" href={canadaHref} style="margin-top:.6rem;display:inline-block">{t.openIndex} ↗</a>}
           </article>

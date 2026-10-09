@@ -1,0 +1,158 @@
+---
+/**
+ * Page des indices, commune aux trois langues (docs/DESIGN.md § 7, gabarit « indice ») :
+ * un tableau comparatif — ce que mesure chaque indice, sa valeur du jour à l'unité,
+ * sa zone, sa variation, sa date — puis la méthode. Pas d'« indice vedette ».
+ */
+import EditorialLayout from '../layouts/EditorialLayout.astro';
+import PageHeader from './PageHeader.astro';
+import MethodologyNote from './MethodologyNote.astro';
+import AffiliateCard from './AffiliateCard.astro';
+import PolymarketEmbed from './PolymarketEmbed.astro';
+import { instruments } from '../data/editorial';
+import ldiData from '../../web_data/us-lame-duck/latest.json';
+import gooseData from '../../web_data/ca-canada-goose/latest.json';
+import showdownData from '../../web_data/cusma-showdown/latest.json';
+import barrageData from '../../web_data/fr-barrage/latest.json';
+import fraserData from '../../web_data/on-fraser-interim/latest.json';
+
+type Lang = 'en' | 'fr' | 'es';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const L = (fr: string, en: string, es: string) => ({ fr, en, es }[lang]);
+const label = (x: any) => (lang === 'fr' ? x.label_fr : lang === 'es' ? x.label_es : x.label_en) ?? x.label_en;
+const signed = (v: number) => `${v > 0 ? '+' : v < 0 ? '−' : ''}${lang === 'en' ? Math.abs(v).toFixed(1) : Math.abs(v).toFixed(1).replace('.', ',')}`;
+const dateFmt = (iso?: string) => iso ? new Date(iso + 'T12:00:00Z').toLocaleDateString(lang === 'en' ? 'en-CA' : lang === 'es' ? 'es-ES' : 'fr-CA', { day: 'numeric', month: 'long', timeZone: 'UTC' }) : '—';
+const inst = Object.fromEntries(instruments[lang].map((i) => [i.id, i]));
+
+const rows = [
+  { id: 'lame-duck', value: `${Math.round((ldiData as any).ldi.score)}/100`, zone: label((ldiData as any).ldi), color: (ldiData as any).ldi.zone_color, delta: (ldiData as any).ldi.delta_7d, date: (ldiData as any).meta.as_of_date },
+  { id: 'canada-goose', value: `${Math.round((gooseData as any).cgi.score)}/100`, zone: label((gooseData as any).cgi), color: (gooseData as any).cgi.zone_color, delta: (gooseData as any).cgi.delta_7d, date: (gooseData as any).meta.as_of_date },
+  { id: 'barrage', value: `${Math.round((barrageData as any).bfi.score)}/100`, zone: label((barrageData as any).bfi), color: (barrageData as any).bfi.zone_color, delta: (barrageData as any).bfi.delta_7d, date: (barrageData as any).meta.as_of_date },
+  { id: 'fraser-interim', value: `${Math.round((fraserData as any).index.score)}/100`, zone: (fraserData as any).index[`label_${lang}`] ?? L('Signal Fraser positif', 'Positive Fraser signal', 'Señal Fraser positiva'), color: undefined, delta: undefined, date: (fraserData as any).meta.as_of_date },
+  { id: 'cusma-showdown', value: L(`${Math.round((showdownData as any).showdown.gap) > 0 ? '+' : ''}${Math.round((showdownData as any).showdown.gap)} pts`, `${Math.round((showdownData as any).showdown.gap) > 0 ? '+' : ''}${Math.round((showdownData as any).showdown.gap)} pts`, `${Math.round((showdownData as any).showdown.gap) > 0 ? '+' : ''}${Math.round((showdownData as any).showdown.gap)} pts`), zone: label((showdownData as any).showdown), color: (showdownData as any).showdown.zone_color, delta: (showdownData as any).showdown.delta_7d, date: (showdownData as any).meta.as_of_date ?? (showdownData as any).meta.run_date },
+].filter((r) => inst[r.id]);
+const tabled = new Set(rows.map((r) => r.id));
+const others = instruments[lang].filter((i) => i.status === 'live' && !tabled.has(i.id));
+
+const T = {
+  title: L('Les indices Vote-Scope', 'Vote-Scope indexes', 'Los índices de Vote-Scope'),
+  promise: L('Chaque indice répond à une question par un chiffre suivi dans le temps, calculé à partir de données publiques et publié avec sa méthode.',
+             'Each index answers one question with a number tracked over time, built from public data and published with its method.',
+             'Cada índice responde a una pregunta con una cifra que se sigue en el tiempo, calculada con datos públicos y publicada con su método.'),
+  colIndex: L('Indice', 'Index', 'Índice'), colQ: L('Ce qu’il mesure', 'What it measures', 'Qué mide'),
+  colValue: L('Aujourd’hui', 'Today', 'Hoy'), colZone: L('Zone', 'Zone', 'Zona'), colDelta: L('Sur 7 jours', '7-day change', 'En 7 días'), colDate: L('Mis à jour', 'Updated', 'Actualizado'),
+  scale: L('Scores de 0 à 100. Le duel ACEUM est un écart en points entre deux indices.', 'Scores from 0 to 100. The CUSMA showdown is a gap in points between two indexes.', 'Puntuaciones de 0 a 100. El duelo T-MEC es una diferencia en puntos entre dos índices.'),
+  others: L('Autres indices', 'Other indexes', 'Otros índices'),
+  methodTitle: L('Comment ces indices sont construits', 'How these indexes are built', 'Cómo se construyen estos índices'),
+  methodBody: L('Chaque indice combine quelques composantes publiques, pondérées et affichées sur sa page. Les scores sont arrondis à l’unité : une décimale suggérerait une précision que ces mesures n’ont pas.',
+                'Each index combines a few public components, weighted and shown on its page. Scores are rounded to whole numbers: a decimal would suggest a precision these measures do not have.',
+                'Cada índice combina unos pocos componentes públicos, ponderados y mostrados en su página. Las puntuaciones se redondean a la unidad: un decimal sugeriría una precisión que estas medidas no tienen.'),
+  bullets: lang === 'fr' ? [
+    'Sources publiques : sondages, indicateurs économiques, marchés de prédiction (Polymarket). Chaque page d’indice les liste.',
+    'Les méthodes sont publiques et versionnées ; un changement de méthode est daté et expliqué.',
+    'L’historique de chaque indice est publié dans l’API ouverte ; aucun score n’est révisé après coup sans avis de correction.',
+  ] : lang === 'es' ? [
+    'Fuentes públicas: encuestas, indicadores económicos, mercados de predicción (Polymarket). Cada página de índice las enumera.',
+    'Los métodos son públicos y tienen versión; todo cambio de método se fecha y se explica.',
+    'El historial de cada índice se publica en la API abierta; ninguna puntuación se revisa a posteriori sin aviso de corrección.',
+  ] : [
+    'Public sources: polls, economic indicators, prediction markets (Polymarket). Each index page lists them.',
+    'Methods are public and versioned; any change of method is dated and explained.',
+    'Each index’s history is published in the open API; no score is revised after the fact without a correction notice.',
+  ],
+};
+const canonical = `https://vote-scope.com/${lang}/indexes/`;
+---
+
+<EditorialLayout
+  title={`${T.title} — Vote-Scope`}
+  description={T.promise}
+  canonical={canonical}
+  lang={lang}
+  currentPage="indexes"
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={{ en: 'https://vote-scope.com/en/indexes/', fr: 'https://vote-scope.com/fr/indexes/', es: 'https://vote-scope.com/es/indexes/' }}
+  jsonLd={[
+    { '@context': 'https://schema.org', '@type': 'CollectionPage', name: T.title, url: canonical, inLanguage: lang },
+    { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: `https://vote-scope.com/${lang}/` },
+      { '@type': 'ListItem', position: 2, name: T.title, item: canonical },
+    ] },
+  ]}
+>
+  <PageHeader title={T.title} promise={T.promise} />
+
+  <section class="ix">
+    <div class="container">
+      <div class="ix-scroll">
+        <table class="ix-table">
+          <thead>
+            <tr><th scope="col">{T.colIndex}</th><th scope="col" class="ix-q">{T.colQ}</th><th scope="col" class="num">{T.colValue}</th><th scope="col">{T.colZone}</th><th scope="col" class="num">{T.colDelta}</th><th scope="col">{T.colDate}</th></tr>
+          </thead>
+          <tbody>
+            {rows.map((r) => (
+              <tr>
+                <th scope="row"><a href={inst[r.id].href}>{inst[r.id].name}</a></th>
+                <td class="ix-q">{inst[r.id].question}</td>
+                <td class="num big">{r.value}</td>
+                <td>{r.color && <span class="dot" style={`background:${r.color}`}></span>}{r.zone}</td>
+                <td class="num">{r.delta === undefined || r.delta === null ? '—' : signed(r.delta)}</td>
+                <td class="vs-meta">{dateFmt(r.date)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p class="vs-meta ix-note">{T.scale}</p>
+
+      {others.length > 0 && (
+        <>
+          <h2 class="ix-h2">{T.others}</h2>
+          <ul class="ix-others">
+            {others.map((i) => (
+              <li><a href={i.href}>{i.name}</a><span>{i.question}</span></li>
+            ))}
+          </ul>
+        </>
+      )}
+    </div>
+  </section>
+
+  <section class="content-band">
+    <div class="container">
+      <AffiliateCard partner="nordvpn" lang={lang} visual variant="evergreen" placement="indexes-hub" />
+    </div>
+  </section>
+
+  <section class="content-band">
+    <div class="container">
+      <PolymarketEmbed slug="2026-balance-of-power-d-senate-d-house-949" lang={lang} title={L('Mi-mandat américain 2026 — équilibre des pouvoirs', '2026 U.S. midterms — balance of power', 'Elecciones intermedias de EE. UU. 2026 — equilibrio de poderes')} />
+    </div>
+  </section>
+
+  <MethodologyNote title={T.methodTitle} body={T.methodBody} bullets={T.bullets} />
+</EditorialLayout>
+
+<style>
+  .ix { padding: 8px 0 32px; }
+  .ix-scroll { max-width: 100%; overflow-x: auto; }
+  .ix-table { width: 100%; min-width: 760px; border-collapse: collapse; border-top: 4px solid var(--ink); }
+  .ix-table th, .ix-table td { padding: 12px 12px 12px 0; border-bottom: 1px solid var(--rule); text-align: left; vertical-align: top; font-size: 15px; }
+  .ix-table thead th { color: var(--ink-3); font-size: 13px; font-weight: 600; border-bottom: 1px solid var(--ink); }
+  .ix-table tbody th { font-size: 17px; font-weight: 700; white-space: nowrap; }
+  .ix-table tbody th a { color: var(--ink); text-decoration: none; }
+  .ix-table tbody th a:hover { text-decoration: underline; text-underline-offset: 3px; }
+  .ix-q { max-width: 360px; color: var(--ink-2); }
+  .num { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .ix-table .big { font-family: var(--numeric); font-size: 26px; font-weight: 700; line-height: 1.1; }
+  .ix-table td.vs-meta { white-space: nowrap; }
+  .dot { display: inline-block; width: 9px; height: 9px; margin-right: 7px; border-radius: 50%; }
+  .ix-note { margin: 10px 0 0; }
+  .ix-h2 { margin: 36px 0 0; padding-bottom: 8px; border-bottom: 3px solid var(--ink); font-size: 22px; font-weight: 700; }
+  .ix-others { margin: 0; padding: 0; list-style: none; }
+  .ix-others li { display: grid; grid-template-columns: minmax(180px, 280px) 1fr; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--rule); font-size: 15px; }
+  .ix-others a { color: var(--ink); font-weight: 700; }
+  .ix-others span { color: var(--ink-2); }
+  @media (max-width: 640px) { .ix-others li { grid-template-columns: 1fr; gap: 4px; } }
+</style>

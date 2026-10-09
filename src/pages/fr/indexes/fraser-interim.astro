@@ -65,7 +65,7 @@ const periods = data.periods;
       <p class="eyebrow">Score de l'indice · au {asOf}</p>
       <div class="note-card" style="border-top: 3px solid var(--ink);max-width:600px;margin-top:1rem;">
         <h2 style="font-size:3.5rem;margin:0.25rem 0;color:var(--text);">
-          <AnimatedNumber client:visible value={score} decimals={1} />
+          <AnimatedNumber client:visible value={Math.round(score)} />
           <span style="font-size:1.1rem;font-weight:400;">/100</span>
         </h2>
         <p style="font-weight:700;font-size:1.15rem;margin-bottom:0.5rem;">{labelFr}</p>
@@ -212,14 +212,14 @@ const periods = data.periods;
     display: inline-block;
     padding: 2px 8px;
     border-radius: 2px;
-    font-family: var(--mono, var(--mono);
+    font-family: var(--sans);
     font-size: 10px;
     letter-spacing: 0;
     color: #fff;
   }
 
   .fraser-period-dates {
-    font-family: var(--mono, var(--mono);
+    font-family: var(--sans);
     font-size: 10px;
     color: var(--ink-3, #888);
     white-space: nowrap;
@@ -259,7 +259,7 @@ const periods = data.periods;
   }
 
   .fraser-period-stats dt {
-    font-family: var(--mono, var(--mono);
+    font-family: var(--sans);
     font-size: 9px;
     letter-spacing: 0;
     color: var(--ink-3, #888);
@@ -268,7 +268,7 @@ const periods = data.periods;
 
   .fraser-period-stats dd {
     margin: 0;
-    font-family: var(--mono, var(--mono);
+    font-family: var(--sans);
     font-size: 12px;
     font-weight: 600;
   }

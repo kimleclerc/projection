@@ -86,7 +86,7 @@ export default function LatinoRadarTable({ races, locale }: { races: Race[]; loc
           <span class={`radar-movement ${movement > 0 ? 'up' : movement < 0 ? 'down' : ''}`} role="cell">
             {movement > 0 ? '+' : ''}{movement.toFixed(1)}
           </span>
-          <span class="radar-score" role="cell"><strong>{race.score.toFixed(1)}</strong><small>/100</small></span>
+          <span class="radar-score" role="cell"><strong>{Math.round(race.score)}</strong><small>/100</small></span>
         </a>;
       })}
     </div>

@@ -1,197 +1,153 @@
 ---
+/**
+ * Répertoire d'outils (docs/DESIGN.md § 7) : ce qu'on peut faire, en liste.
+ * Chaque simulateur montre en aperçu son vrai point de départ (la projection du jour),
+ * pas une illustration. Pas d'« indice phare », pas de vitrine.
+ */
 import EditorialLayout from '../layouts/EditorialLayout.astro';
-import SimulatorSeatPreview from './SimulatorSeatPreview.astro';
-import '../styles/interactive-tools.css';
+import PageHeader from './PageHeader.astro';
+import { partyName } from '../lib/party-names';
 import quebecDoc from '../../web_data/quebec/simulator.json';
 import federalDoc from '../../web_data/federal/simulator.json';
 import ontarioDoc from '../../web_data/ontario/simulator.json';
 import usHouseDoc from '../../web_data/us-house/simulator.json';
 import spainDoc from '../../web_data/spain/dhondt.json';
-import senateDoc from '../../web_data/us-senate/latest.json';
 
-interface Props {
-  locale: 'fr' | 'en' | 'es';
-}
+interface Props { locale: 'fr' | 'en' | 'es' }
 const { locale } = Astro.props;
+const L = (fr: string, en: string, es: string) => ({ fr, en, es }[locale]);
+
 const paths = {
-  fr: { labs:'/fr/labs/', hub:'/fr/outils', qc:'/fr/outils/simulateur-quebec', ca:'/fr/outils/simulateur-canada', on:'/fr/outils/simulateur-ontario', match:'/fr/canada/quebec/match' , house:'/fr/outils/simulateur-chambre-us', senate:'/fr/us/senat/', es:'/fr/outils/simulateur-espagne' },
-  en: { labs:'/en/labs/', hub:'/en/tools', qc:'/en/tools/quebec-simulator', ca:'/en/tools/canada-simulator', on:'/en/tools/ontario-simulator', match:'/en/canada/quebec/match' , house:'/en/tools/us-house-simulator', senate:'/en/us/senate/', es:'/en/tools/spain-simulator' },
-  es: { labs:'/es/labs/', hub:'/es/herramientas', qc:'/es/herramientas/simulador-quebec', ca:'/es/herramientas/simulador-canada', on:'/es/herramientas/simulador-ontario', match:'/es/canada/quebec/match' , house:'/es/herramientas/simulador-camara-us', senate:'/es/us/senate/', es:'/es/herramientas/simulador-espana' },
+  fr: { labs: '/fr/labs/', hub: '/fr/outils', qc: '/fr/outils/simulateur-quebec', ca: '/fr/outils/simulateur-canada', on: '/fr/outils/simulateur-ontario', match: '/fr/canada/quebec/match', house: '/fr/outils/simulateur-chambre-us', es: '/fr/outils/simulateur-espagne' },
+  en: { labs: '/en/labs/', hub: '/en/tools', qc: '/en/tools/quebec-simulator', ca: '/en/tools/canada-simulator', on: '/en/tools/ontario-simulator', match: '/en/canada/quebec/match', house: '/en/tools/us-house-simulator', es: '/en/tools/spain-simulator' },
+  es: { labs: '/es/labs/', hub: '/es/herramientas', qc: '/es/herramientas/simulador-quebec', ca: '/es/herramientas/simulador-canada', on: '/es/herramientas/simulador-ontario', match: '/es/canada/quebec/match', house: '/es/herramientas/simulador-camara-us', es: '/es/herramientas/simulador-espana' },
 }[locale];
-const copy = {
-  fr: {
-    title:'Jouez avec la politique.',
-    description:'Simulateurs, jeux et outils interactifs pour voir comment une course peut changer — sans confondre votre scénario avec notre projection.',
-    featured:'Indice phare', senate:'Sénat américain', senateSub:'100 sièges · mi-mandat du 3 novembre', senateOpen:'Ouvrir la rubrique Sénat', control:'Contrôle démocrate', close:'Les courses les plus serrées', qc:'Simulateur Québec', open:'Ouvrir le simulateur', ridings:'circonscriptions',
-    available:'Autres simulateurs disponibles', ca:'Simulateur Canada', on:'Simulateur Ontario', house:'Simulateur Chambre US', es:'Simulateur Espagne', esSub:'350 sièges · D’Hondt', play:'Jouer', districts:'districts',
-    match:'Le Match', matchBody:'Quelques cartes à glisser. Une circonscription qui vous ressemble.', matchCta:'Trouver mon match',
-    labs:'Orbite, le moteur quantique', labsBody:'Et si on prévoyait une élection avec la physique d’Einstein? Orbite, notre moteur expérimental à qubits, affronte notre projection de référence au Québec, en Colombie-Britannique et aux États-Unis. Science en direct : voyez où ils s’entendent, et où ils se contredisent.', labsCta:'Découvrir Orbite',
-  },
-  en: {
-    title:'Play with politics.',
-    description:'Simulators, games and interactive tools to see how a race can change — without confusing your scenario with our projection.',
-    featured:'Featured instrument', senate:'U.S. Senate', senateSub:'100 seats · November 3 midterms', senateOpen:'Open the Senate desk', control:'Democratic control', close:'Closest races', qc:'Quebec simulator', open:'Open the simulator', ridings:'ridings',
-    available:'Other available simulators', ca:'Canada simulator', on:'Ontario simulator', house:'U.S. House simulator', es:'Spain simulator', esSub:'350 seats · D’Hondt', play:'Play', districts:'districts',
-    match:'The Match', matchBody:'Swipe a few cards. Find a riding that feels like you.', matchCta:'Find my match',
-    labs:'Orbit, the quantum engine', labsBody:'What if you forecast an election with Einstein’s physics? Orbit, our experimental qubit engine, goes head to head with our reference forecast in Quebec, British Columbia and the United States. Live science: see where they agree, and where they clash.', labsCta:'Discover Orbit',
-  },
-  es: {
-    title:'Juega con la política.',
-    description:'Simuladores, juegos y herramientas interactivas para ver cómo puede cambiar una carrera — sin confundir tu escenario con nuestra proyección.',
-    featured:'Instrumento destacado', senate:'Senado de EE. UU.', senateSub:'100 escaños · elecciones intermedias del 3 de noviembre', senateOpen:'Abrir el Senado', control:'Control demócrata', close:'Las contiendas más reñidas', qc:'Simulador Quebec', open:'Abrir el simulador', ridings:'distritos',
-    available:'Otros simuladores disponibles', ca:'Simulador Canadá', on:'Simulador Ontario', house:'Simulador Cámara EE. UU.', es:'Simulador España', esSub:'350 escaños · D’Hondt', play:'Jugar', districts:'distritos',
-    match:'El Match', matchBody:'Desliza unas cartas. Encuentra un distrito que se parezca a ti.', matchCta:'Encontrar mi match',
-    labs:'Órbita, el motor cuántico', labsBody:'¿Y si pronosticáramos una elección con la física de Einstein? Órbita, nuestro motor experimental con qubits, se enfrenta a nuestra proyección de referencia en Quebec, Columbia Británica y Estados Unidos. Ciencia en directo: vea dónde coinciden y dónde se contradicen.', labsCta:'Descubrir Órbita',
-  },
-}[locale];
-// Indice phare : la course qui capte l'attention (choix éditorial, à revoir à chaque scrutin).
-const senateParties = (senateDoc as any).parties.filter((p: any) => p.seats_projected > 0).sort((a: any, b: any) => b.seats_projected - a.seats_projected);
-const senateDem = (senateDoc as any).parties.find((p: any) => p.party === 'us_dem');
-const partyName = (p: any) => (locale === 'en' ? (p.label_en ?? p.label_fr) : (p.label_fr ?? p.label_en));
-const senateClose = ((senateDoc as any).ridings as any[])
-  .filter((r) => r.projection?.p_winner != null)
-  .sort((a, b) => Math.abs(a.projection.p_winner - 0.5) - Math.abs(b.projection.p_winner - 0.5))
-  .slice(0, 6)
-  .map((r) => ({ name: locale === 'en' ? (r.name_en ?? r.name_fr) : (r.name_fr ?? r.name_en), winner: r.projection.winner, p: r.projection.p_winner }));
-const senateColor = (code: string) => (senateDoc as any).parties.find((p: any) => p.party === code)?.color ?? '#888';
-const senateShort = (code: string) => ({ us_dem: 'D', us_rep: 'R' } as Record<string, string>)[code] ?? 'I';
+
+const dateFmt = (iso: string) => new Date(iso + 'T12:00:00Z').toLocaleDateString(
+  locale === 'en' ? 'en-CA' : locale === 'es' ? 'es-ES' : 'fr-CA', { day: 'numeric', month: 'long', timeZone: 'UTC' });
+
+// Aperçu réel : la répartition des sièges du point de départ de chaque simulateur.
+const preview = (doc: any, label: (p: any) => string) => {
+  const total = doc.meta.total_seats;
+  const majority = doc.meta.majority_threshold ?? Math.floor(total / 2) + 1;
+  const parties = [...doc.parties].filter((p: any) => p.seats_projected > 0).sort((a: any, b: any) => b.seats_projected - a.seats_projected);
+  const top = parties.slice(0, 2).map((p: any) => `${label(p)} ${Math.round(p.seats_projected)}`).join(' · ');
+  return { total, majority, parties, top, date: dateFmt(doc.meta.run_date) };
+};
+const simLabel = (p: any) => partyName({ ...p, party: p.code }, locale);
+const spainLabel = (p: any) => p.label ?? p.code;
+
+const sims = [
+  { href: paths.ca, name: L('Élections fédérales canadiennes', 'Canadian federal election', 'Elecciones federales de Canadá'),
+    what: L('Changez les intentions de vote province par province et voyez les 343 sièges de la Chambre des communes se redistribuer.', 'Change the vote by province and watch the 343 House of Commons seats move.', 'Cambie la intención de voto por provincia y vea moverse los 343 escaños de la Cámara de los Comunes.'),
+    cta: L('Ouvrir le simulateur fédéral', 'Open the federal simulator', 'Abrir el simulador federal'), p: preview(federalDoc, simLabel) },
+  { href: paths.house, name: L('Chambre des représentants des États-Unis', 'U.S. House of Representatives', 'Cámara de Representantes de EE. UU.'),
+    what: L('Déplacez le vote national et régional : combien de districts faut-il pour que la majorité de 218 sièges change de camp?', 'Shift the national and regional vote: how many districts does it take for the 218-seat majority to flip?', 'Mueva el voto nacional y regional: ¿cuántos distritos hacen falta para que la mayoría de 218 escaños cambie de manos?'),
+    cta: L('Ouvrir le simulateur de la Chambre', 'Open the House simulator', 'Abrir el simulador de la Cámara'), p: preview(usHouseDoc, simLabel) },
+  { href: paths.es, name: L('Congrès des députés d’Espagne', 'Spain’s Congress of Deputies', 'Congreso de los Diputados'),
+    what: L('Répartissez les voix et voyez la règle D’Hondt attribuer les 350 sièges, province par province.', 'Set the vote shares and watch the D’Hondt rule allocate the 350 seats, province by province.', 'Reparta los votos y vea cómo la regla D’Hondt asigna los 350 escaños, provincia por provincia.'),
+    cta: L('Ouvrir le simulateur espagnol', 'Open the Spain simulator', 'Abrir el simulador de España'), p: preview(spainDoc, spainLabel) },
+  { href: paths.on, name: L('Assemblée législative de l’Ontario', 'Ontario Legislative Assembly', 'Asamblea Legislativa de Ontario'),
+    what: L('Modifiez les intentions de vote ontariennes et voyez les 124 circonscriptions changer de couleur.', 'Change Ontario vote intentions and watch the 124 ridings change colour.', 'Cambie la intención de voto en Ontario y vea cambiar de color las 124 circunscripciones.'),
+    cta: L('Ouvrir le simulateur ontarien', 'Open the Ontario simulator', 'Abrir el simulador de Ontario'), p: preview(ontarioDoc, simLabel) },
+  { href: paths.qc, name: L('Assemblée nationale du Québec', 'Quebec National Assembly', 'Asamblea Nacional de Quebec'),
+    what: L('Rejouez l’élection du 5 octobre : partez de notre dernière projection et voyez ce qu’il aurait fallu pour changer le résultat.', 'Replay the October 5 election: start from our final forecast and see what it would have taken to change the outcome.', 'Vuelva a jugar la elección del 5 de octubre: parta de nuestra última proyección y vea qué habría hecho falta para cambiar el resultado.'),
+    cta: L('Ouvrir le simulateur québécois', 'Open the Quebec simulator', 'Abrir el simulador de Quebec'), p: preview(quebecDoc, simLabel) },
+];
+
+const T = {
+  title: L('Simulateurs et outils', 'Simulators and tools', 'Simuladores y herramientas'),
+  promise: L('Changez les intentions de vote et voyez les sièges bouger. Votre scénario reste le vôtre : il ne remplace pas notre projection.',
+             'Change the vote and watch the seats move. Your scenario is yours: it does not replace our forecast.',
+             'Cambie la intención de voto y vea moverse los escaños. Su escenario es suyo: no sustituye a nuestra proyección.'),
+  simsTitle: L('Simulateurs de sièges', 'Seat simulators', 'Simuladores de escaños'),
+  start: (d: string, total: number) => L(`Point de départ : notre projection du ${d}, sur ${total} sièges`, `Starting point: our ${d} forecast, out of ${total} seats`, `Punto de partida: nuestra proyección del ${d}, de ${total} escaños`),
+  majority: (m: number) => L(`majorité à ${m}`, `${m} for a majority`, `mayoría con ${m}`),
+  otherTitle: L('Autres outils', 'Other tools', 'Otras herramientas'),
+  matchName: L('Le Match', 'The Match', 'El Match'),
+  matchWhat: L('Quelle circonscription du Québec vous ressemble? Répondez à quelques questions sur l’économie, le logement ou l’environnement, et comparez vos réponses aux votes réels.',
+               'Which Quebec riding is most like you? Answer a few questions on the economy, housing or the environment and compare your answers with how places actually voted.',
+               '¿Qué circunscripción de Quebec se parece más a usted? Responda unas preguntas sobre economía, vivienda o medio ambiente y compare sus respuestas con el voto real.'),
+  matchCta: L('Faire le Match', 'Take the Match', 'Hacer el Match'),
+  labsName: L('Orbite, modèle expérimental', 'Orbit, an experimental model', 'Órbita, modelo experimental'),
+  labsWhat: L('Un second modèle, construit autrement, comparé à notre projection au Québec, en Colombie-Britannique et aux États-Unis. Utile pour voir où les deux s’accordent. C’est une expérience : ce n’est pas notre projection officielle.',
+              'A second model, built differently, compared with our forecast in Quebec, British Columbia and the United States. Useful to see where the two agree. It is an experiment, not our official forecast.',
+              'Un segundo modelo, construido de otra manera, comparado con nuestra proyección en Quebec, Columbia Británica y Estados Unidos. Sirve para ver dónde coinciden. Es un experimento, no nuestra proyección oficial.'),
+  labsCta: L('Voir la comparaison Orbite', 'See the Orbit comparison', 'Ver la comparación de Órbita'),
+};
 const canonical = `https://vote-scope.com${paths.hub}`;
-const alternates = { en:'https://vote-scope.com/en/tools', fr:'https://vote-scope.com/fr/outils', es:'https://vote-scope.com/es/herramientas' };
+const alternates = { en: 'https://vote-scope.com/en/tools', fr: 'https://vote-scope.com/fr/outils', es: 'https://vote-scope.com/es/herramientas' };
 ---
 
 <EditorialLayout
-  title={`${copy.title} — Vote-Scope`}
-  description={copy.description}
+  title={`${T.title} — Vote-Scope`}
+  description={T.promise}
   canonical={canonical}
   lang={locale}
   currentPage="match"
   alternates={alternates}
-  jsonLd={{ '@context':'https://schema.org', '@type':'CollectionPage', name:copy.title, description:copy.description, url:canonical, inLanguage:locale }}
+  jsonLd={{ '@context': 'https://schema.org', '@type': 'CollectionPage', name: T.title, description: T.promise, url: canonical, inLanguage: locale }}
 >
-  <header class="tools-hero vs-page-head">
-    <div class="container-wide">
-      <h1>{copy.title}</h1>
-      <p>{copy.description}</p>
-    </div>
-  </header>
+  <PageHeader title={T.title} promise={T.promise} />
 
-  <section class="tools-featured">
-    <div class="container-wide">
-      <p class="eyebrow">{copy.featured}</p>
-      <div class="tools-featured-frame">
-        <div class="tools-featured-copy">
-          <h2>{copy.senate}</h2>
-          <p>{copy.senateSub}</p>
-          <ul>
-            {senateParties.map((party: any) => (
-              <li><i style={{background:party.color}}></i><span>{partyName(party)}</span><strong>{Math.round(party.seats_projected)}</strong></li>
-            ))}
-          </ul>
-          <p class="tools-control">{copy.control} : <strong>{Math.round(100 * senateDem.p_majority)}{locale === 'en' ? '%' : ' %'}</strong></p>
-          <a class="tools-primary" href={paths.senate}>{copy.senateOpen}</a>
-        </div>
-        <a class="tools-featured-map tools-featured-races" href={paths.senate} aria-label={copy.senateOpen}>
-          <p class="eyebrow">{copy.close}</p>
-          <ol>
-            {senateClose.map((r) => (
-              <li><span>{r.name}</span><b style={{background: senateColor(r.winner)}}>{senateShort(r.winner)}</b><strong>{Math.round(100 * r.p)}{locale === 'en' ? '%' : ' %'}</strong></li>
-            ))}
-          </ol>
-        </a>
-      </div>
-    </div>
-  </section>
+  <section class="tools-list">
+    <div class="container">
+      <h2 class="tools-h2">{T.simsTitle}</h2>
+      <ul>
+        {sims.map((s) => (
+          <li class="tool-row">
+            <div class="tool-text">
+              <h3><a href={s.href}>{s.name}</a></h3>
+              <p>{s.what}</p>
+              <a class="vs-link" href={s.href}>{s.cta}</a>
+            </div>
+            <div class="tool-preview" aria-hidden="true">
+              <div class="tool-bar">
+                {s.p.parties.map((p: any) => <span style={`width:${(p.seats_projected / s.p.total) * 100}%;background:${p.color}`}></span>)}
+                <i style={`left:${(s.p.majority / s.p.total) * 100}%`}></i>
+              </div>
+              <p class="vs-meta">{s.p.top} · {T.majority(s.p.majority)}</p>
+              <p class="vs-meta">{T.start(s.p.date, s.p.total)}</p>
+            </div>
+          </li>
+        ))}
+      </ul>
 
-  <section class="tools-available">
-    <div class="container-wide">
-      <h2>{copy.available}</h2>
-      <div class="tools-rail">
-        <a href={paths.qc}>
-          <div><h3>{copy.qc}</h3><p>{quebecDoc.meta.total_seats} {copy.ridings}</p><strong>{copy.play}</strong></div>
-          <span><SimulatorSeatPreview doc={quebecDoc} label={copy.qc} /></span>
-        </a>
-        <a href={paths.ca}>
-          <div><h3>{copy.ca}</h3><p>{federalDoc.meta.total_seats} {copy.ridings}</p><strong>{copy.play}</strong></div>
-          <span><SimulatorSeatPreview doc={federalDoc} label={copy.ca} /></span>
-        </a>
-        <a href={paths.on}>
-          <div><h3>{copy.on}</h3><p>{ontarioDoc.meta.total_seats} {copy.ridings}</p><strong>{copy.play}</strong></div>
-          <span><SimulatorSeatPreview doc={ontarioDoc} label={copy.on} /></span>
-        </a>
-        <a href={paths.es}>
-          <div><h3>{copy.es}</h3><p>{copy.esSub}</p><strong>{copy.play}</strong></div>
-          <span class="tools-es-preview" aria-hidden="true">
-            {(spainDoc as any).parties.filter((p: any) => p.seats_projected > 0).sort((a: any, b: any) => b.seats_projected - a.seats_projected).map((p: any) => (
-              <i style={`flex:${p.seats_projected};background:${p.color}`}></i>
-            ))}
-          </span>
-        </a>
-        <a href={paths.house}>
-          <div><h3>{copy.house}</h3><p>{usHouseDoc.meta.total_seats} {copy.districts}</p><strong>{copy.play}</strong></div>
-          <span><SimulatorSeatPreview doc={usHouseDoc} label={copy.house} /></span>
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <section class="tools-match">
-    <div class="container-wide tools-match-inner">
-      <div><h2>{copy.match}</h2><p>{copy.matchBody}</p><a class="tools-primary" href={paths.match}>{copy.matchCta}</a></div>
-      <div class="tools-match-cards" aria-hidden="true"><span>Économie</span><span>Logement</span><span>Environnement</span><strong>→</strong></div>
-    </div>
-  </section>
-
-  <section class="tools-labs">
-    <div class="container-wide tools-labs-inner">
-      <h2>{copy.labs}</h2>
-      <p>{copy.labsBody}</p>
-      <a class="tools-primary" href={paths.labs}>{copy.labsCta}</a>
+      <h2 class="tools-h2">{T.otherTitle}</h2>
+      <ul>
+        <li class="tool-row is-text">
+          <div class="tool-text">
+            <h3><a href={paths.match}>{T.matchName}</a></h3>
+            <p>{T.matchWhat}</p>
+            <a class="vs-link" href={paths.match}>{T.matchCta}</a>
+          </div>
+        </li>
+        <li class="tool-row is-text">
+          <div class="tool-text">
+            <h3><a href={paths.labs}>{T.labsName}</a></h3>
+            <p>{T.labsWhat}</p>
+            <a class="vs-link" href={paths.labs}>{T.labsCta}</a>
+          </div>
+        </li>
+      </ul>
     </div>
   </section>
 </EditorialLayout>
 
 <style>
-  .tools-hero { padding:clamp(54px,9vw,110px) 0 48px; border-bottom:1px solid var(--rule); }
-  .tools-hero h1 { max-width:1000px; margin:0; font:430 clamp(54px,9vw,112px)/.88 var(--serif); letter-spacing:-.055em; }
-  .tools-hero p { max-width:790px; margin:24px 0 0; color:var(--ink-2); font-size:clamp(18px,2vw,24px); line-height:1.45; }
-  .tools-featured,.tools-available,.tools-match { padding:52px 0; border-bottom:1px solid var(--rule); }
-  .tools-featured-frame { display:grid; grid-template-columns:310px minmax(0,1fr); margin-top:15px; border:1px solid var(--rule); background:var(--card); }
-  .tools-featured-copy { padding:30px; border-right:1px solid var(--rule); }
-  .tools-featured-copy h2,.tools-match h2 { margin:0; font:430 clamp(36px,4vw,54px)/.95 var(--serif); }
-  .tools-featured-copy > p { margin:8px 0 20px; color:var(--ink-3); font:11px var(--mono); letter-spacing: 0; }
-  .tools-featured-copy ul { list-style:none; margin:0 0 24px; padding:16px 0; border-top:1px solid var(--rule); border-bottom:1px solid var(--rule); }
-  .tools-featured-copy li { display:grid; grid-template-columns:10px 1fr auto; align-items:center; gap:8px; padding:4px 0; }
-  .tools-featured-copy li i { width:9px; height:9px; }
-  .tools-featured-copy li strong { font:600 18px var(--mono); }
-  .tools-primary { display:inline-flex; padding:13px 17px; background:var(--ink); color:var(--paper-3); font:600 11px var(--mono); letter-spacing: 0; }
-  .tools-featured-map { display:block; min-height:560px; padding:16px; background: var(--paper-2); }
-  .tools-available h2 { margin:0 0 18px; font:600 11px var(--mono); letter-spacing: 0; }
-  .tools-rail { display:grid; grid-template-columns:1fr 1fr; border-top:1px solid var(--rule); border-left:1px solid var(--rule); }
-  .tools-rail > a { display:grid; grid-template-columns:190px 1fr; min-height:260px; border-right:1px solid var(--rule); border-bottom:1px solid var(--rule); background:var(--card); }
-  .tools-rail > a > div { padding:24px; }
-  .tools-rail h3 { margin:0; font:430 34px/1 var(--serif); }
-  .tools-rail p { margin:8px 0 26px; color:var(--ink-3); font-size:13px; }
-  .tools-rail strong { font:600 11px var(--mono); letter-spacing: 0; }
-  .tools-rail > a > span { min-width:0; padding:10px; background:var(--paper-2); }
-  .tools-es-preview { display:flex !important; align-items:center; gap:2px; padding:40px 14px !important; }
-  .tools-es-preview i { display:block; height:34px; border-radius:2px; }
-  .tools-match { background:var(--paper-2); }
-  .tools-labs { padding:52px 0; border-bottom:1px solid var(--rule); }
-  .tools-labs h2 { margin:0; font:430 clamp(36px,4vw,54px)/.95 var(--serif); }
-  .tools-labs p { max-width:640px; margin:16px 0 24px; color:var(--ink-2); font-size:18px; line-height:1.5; }
-  .tools-match-inner { display:grid; grid-template-columns:minmax(260px,420px) 1fr; align-items:center; gap:clamp(40px,8vw,120px); }
-  .tools-match p { max-width:380px; margin:16px 0 24px; color:var(--ink-2); font-size:18px; }
-  .tools-match-cards { position:relative; min-height:260px; }
-  .tools-match-cards span { position:absolute; top:35px; left:12%; width:210px; padding:24px 20px 150px; border: 0; border-top: 1px solid var(--rule); background: transparent;  font:600 12px var(--mono); transform:rotate(-6deg); }
-  .tools-match-cards span:nth-child(2) { left:34%; transform:rotate(1deg); }
-  .tools-match-cards span:nth-child(3) { left:56%; transform:rotate(7deg); }
-  .tools-match-cards strong { position:absolute; right:2%; top:45%; font:430 60px var(--serif); }
-  @media(max-width:850px){.tools-featured-frame{grid-template-columns:1fr}.tools-featured-copy{border-right:0;border-bottom:1px solid var(--rule)}.tools-featured-map{min-height:430px}.tools-rail{grid-template-columns:1fr}.tools-match-inner{grid-template-columns:1fr}.tools-match-cards{min-height:230px}}
-  @media(max-width:560px){.tools-featured-map{min-height:330px}.tools-rail>a{grid-template-columns:145px 1fr}.tools-rail h3{font-size:28px}.tools-match-cards span{width:155px;padding-bottom:110px}.tools-match-cards span:nth-child(2){left:28%}.tools-match-cards span:nth-child(3){left:49%}}
-  .tools-control { margin: 0 0 20px; font: 13px var(--mono); color: var(--ink-2); }
-  .tools-featured-races { padding: 26px 30px; color: inherit; text-decoration: none; }
-  .tools-featured-races ol { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 2px; }
-  .tools-featured-races li { display: grid; grid-template-columns: 1fr auto 56px; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--rule); font-size: 17px; }
-  .tools-featured-races b { display: inline-flex; width: 24px; height: 24px; align-items: center; justify-content: center; border-radius: 2px; color: #fff; font: 700 12px var(--mono); }
-  .tools-featured-races strong { font: 600 16px var(--mono); text-align: right; }
+  .tools-list { padding: 8px 0 56px; }
+  .tools-h2 { margin: 32px 0 0; padding-bottom: 8px; border-bottom: 3px solid var(--ink); font-size: 24px; font-weight: 700; }
+  ul { margin: 0; padding: 0; list-style: none; }
+  .tool-row { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 32px; padding: 20px 0; border-bottom: 1px solid var(--rule); }
+  .tool-row.is-text { grid-template-columns: minmax(0, 760px); }
+  .tool-text h3 { margin: 0 0 6px; font-size: 22px; font-weight: 700; line-height: 1.2; }
+  .tool-text h3 a { color: var(--ink); text-decoration: none; }
+  .tool-text h3 a:hover { text-decoration: underline; text-underline-offset: 3px; }
+  .tool-text p { margin: 0 0 10px; color: var(--ink-2); font-size: 16px; line-height: 1.5; max-width: 620px; }
+  .tool-preview { align-self: center; }
+  .tool-bar { position: relative; display: flex; height: 18px; background: var(--rule); }
+  .tool-bar span { height: 100%; }
+  .tool-bar i { position: absolute; top: -4px; bottom: -4px; width: 2px; margin-left: -1px; background: var(--ink); }
+  .tool-preview .vs-meta { margin: 6px 0 0; }
+  @media (max-width: 760px) { .tool-row { grid-template-columns: 1fr; gap: 12px; } }
 </style>

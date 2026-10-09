@@ -80,7 +80,7 @@ export default function HeroStats({
       <article>
         <p>{t.reading}</p>
         <strong>
-          {score.toFixed(1)}
+          {Math.round(score)}
           <span>/100</span>
         </strong>
         <em class={`is-${deltaTone}`}>{deltaText(delta7d, t.sevenDay)}</em>

@@ -162,7 +162,7 @@ function buildTicker(data: Partial<GooseData>, locale: 'en' | 'fr' | 'es' = 'en'
   const electoral = components.find((c) => c.id === 'electoral_strength');
   const approval = components.find((c) => c.id === 'government_approval');
   const econ = components.find((c) => c.id === 'economic_confidence');
-  const score = cgi?.score?.toFixed(1) ?? '—';
+  const score = cgi?.score != null ? String(Math.round(cgi.score)) : '—';
   const T = {
     en: {
       tags: ['CGI', 'POLLS', 'SEATS', 'APPROVAL', 'ECON'],

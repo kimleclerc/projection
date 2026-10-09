@@ -229,7 +229,7 @@ function buildTicker(data: Partial<LameDuckData>, locale: LameDuckLocale = 'en')
     {
       tag: 'LDI',
       tone: 'duck',
-      text: T.ldi(ldi?.score?.toFixed(1) ?? '—'),
+      text: T.ldi(ldi?.score != null ? String(Math.round(ldi.score)) : '—'),
       time: data.meta?.as_of_date ?? T.latest,
       href: `${pathPrefix}/indexes/lame-duck/`,
     },

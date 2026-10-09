@@ -130,7 +130,7 @@ function GaugeView({ value, zones, locale }: { value: number; zones: GooseZone[]
       </div>
       <div class="meter-readout" style="margin-top:-8px">
         <div class="eyebrow" style="color:var(--ink-3)">{T.current[locale]}</div>
-        <div class="score">{value}<span style="font-size:22px;color:var(--ink-3)">/100</span></div>
+        <div class="score">{Math.round(value)}<span style="font-size:22px;color:var(--ink-3)">/100</span></div>
         <div class="label" style={`color:${z.color}`}>{zoneLabel(z, locale)}</div>
       </div>
     </div>
@@ -187,7 +187,7 @@ function AltitudeView({ value, zones, locale }: { value: number; zones: GooseZon
       </div>
       <div class="meter-readout" style="margin-top:8px">
         <div class="eyebrow" style="color:var(--ink-3)">{T.current[locale]}</div>
-        <div class="score">{value}<span style="font-size:22px;color:var(--ink-3)">/100</span></div>
+        <div class="score">{Math.round(value)}<span style="font-size:22px;color:var(--ink-3)">/100</span></div>
         <div class="label" style={`color:${z.color}`}>{zoneLabel(z, locale)}</div>
       </div>
     </div>

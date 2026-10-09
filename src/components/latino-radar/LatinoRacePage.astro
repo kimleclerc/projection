@@ -43,7 +43,7 @@ const alternates = Object.fromEntries(Object.entries(race.urls).map(([key, value
       <p class="radar-dek">{race.reason_keys.map((key: string) => race.components.find((item: any) => item.key === key)?.labels[locale]).filter(Boolean).join(' · ')}</p>
 
       <section class="race-summary">
-        <div><span>{copy.score}</span><strong>{race.score.toFixed(1)}/100</strong></div>
+        <div><span>{copy.score}</span><strong>{Math.round(race.score)}/100</strong></div>
         <div><span>{copy.model}</span><strong class={winner === 'us_dem' ? 'party-dem' : 'party-rep'}>{partyLabel(winner, locale)} {Math.round(race.projection.p_winner * 100)}%</strong></div>
         <div><span>{copy.cvap}</span><strong>{latino.raw_value.toFixed(1)}%</strong></div>
         <div><span>{copy.movement}</span><strong>{race.movement_7d.delta_probability_points > 0 ? '+' : ''}{race.movement_7d.delta_probability_points.toFixed(1)}</strong></div>
@@ -58,7 +58,7 @@ const alternates = Object.fromEntries(Object.entries(race.urls).map(([key, value
               {race.components.map((component: any) => <article class="score-component">
                 <div><h3>{component.labels[locale]}</h3><small>{component.weight}{locale === 'en' ? '%' : '\u202f%'} · {confidenceLabel(component.source.confidence, locale)}</small></div>
                 <div class="score-track" aria-label={`${component.score} sur 100`}><div class="score-fill" style={`width:${component.score}%`}></div></div>
-                <div class="score-number">{component.score.toFixed(1)}</div>
+                <div class="score-number">{Math.round(component.score)}</div>
               </article>)}
             </div>
           </section>

@@ -273,7 +273,6 @@ const liveMarketLabel = marketConfig?.label[locale] ?? (locale === 'fr' ? 'Farag
 const marketHref = marketConfig
   ? `https://polymarket.com/${locale === 'en' ? '' : `${locale}/`}event/${marketConfig.slug}`
   : locale === 'fr' ? '/fr/uk/byelections/clacton/' : locale === 'es' ? '/es/uk/byelections/clacton/' : '/en/uk/byelections/clacton/';
-const snapshotKicker = locale === 'fr' ? `Tableau de la course · mis à jour le ${meta.run_date}` : locale === 'es' ? `Tablero de la contienda · actualizado el ${meta.run_date}` : `Race board · updated ${meta.run_date}`;
 const openSeatCount = (data.ridings ?? []).filter(
   (r: any) => r?.open_seat).length;
 const leadLabel = partyLabel(lead);
@@ -375,11 +374,10 @@ const t = {
     ? "Pronóstico Vote-Scope, actualizado cada día"
     : "Vote-Scope forecast, updated daily",
   modelBadge: modelBadge(locale),
-  runDate: isFr
-    ? `Mis à jour le ${meta.run_date}`
-    : isEs
-    ? `Actualizado el ${meta.run_date}`
-    : `Latest run: ${meta.run_date}`,
+  runDate: (() => {
+    const d = new Date(meta.run_date + 'T12:00:00Z').toLocaleDateString(isFr ? 'fr-CA' : isEs ? 'es-ES' : 'en-CA', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+    return isFr ? `Mis à jour le ${d}` : isEs ? `Actualizado el ${d}` : `Updated ${d}`;
+  })(),
   pollsCount: isFr
     ? `${meta.n_polls} sondages agrégés`
     : isEs
@@ -707,26 +705,12 @@ const pageNavItems = [
   <!-- HERO -->
   <header class="pe-hero container vs-page-head">
     <h1 class="pe-title" set:html={jurisdiction.heroTitle[locale]} />
-    <p class="pe-tagline">{t.heroTagline}</p>
-    <div class="pe-meta">
-      <span>{t.runDate}</span>
-      <span aria-hidden="true">·</span>
-      <span>{t.pollsCount}</span>
-      <span aria-hidden="true">·</span>
-      <span>{t.simulations}</span>
-      <span aria-hidden="true">·</span>
-      <span>{t.modelBadge}</span>
-    </div>
-    <GooglePreferredSource locale={locale} />
+    <p class="pe-answer">{snapshotHeadline}</p>
+    <p class="vs-meta pe-updated">{t.runDate}</p>
   </header>
 
-  <KimNote note={jurisdiction.dataPath} lang={locale} />
-
-  <OnThisPage locale={locale} items={pageNavItems} />
-
   <section id="forecast" class="pe-section container pe-snapshot" aria-labelledby="pe-snapshot-title">
-    <p class="pe-snapshot-kicker">{snapshotKicker}</p>
-    <h2 id="pe-snapshot-title">{snapshotHeadline}</h2>
+    <h2 id="pe-snapshot-title" class="sr-only">{locale === 'fr' ? 'Projection des sièges' : locale === 'es' ? 'Proyección de escaños' : 'Seat forecast'}</h2>
     <ResultsTable
       lang={locale}
       rows={resultRows}
@@ -734,7 +718,7 @@ const pageNavItems = [
       majority={majorityThreshold}
       chanceKind={resultChanceKind}
       market={liveMarketValue ? { label: liveMarketLabel, value: liveMarketValue, href: marketHref } : undefined}
-      meta={locale === 'fr' ? `${meta.n_polls} sondages, ${nSimsFr} simulations` : locale === 'es' ? `${meta.n_polls} encuestas, ${nSimsEs} simulaciones` : `${meta.n_polls} polls, ${nSimsEn} simulations`}
+      meta={locale === 'fr' ? `${meta.n_polls} sondages, ${nSimsFr} simulations, ${t.modelBadge}` : locale === 'es' ? `${meta.n_polls} encuestas, ${nSimsEs} simulaciones, ${t.modelBadge}` : `${meta.n_polls} polls, ${nSimsEn} simulations, ${t.modelBadge}`}
     />
     {(() => {
       const mL = medianOf(lead), mS = medianOf(second);
@@ -758,6 +742,12 @@ const pageNavItems = [
       client:load
     />
   </section>
+
+  <KimNote note={jurisdiction.dataPath} lang={locale} />
+
+  <div class="container pe-after-results"><GooglePreferredSource locale={locale} /></div>
+
+  <OnThisPage locale={locale} items={pageNavItems} />
 
   {closeRaces.length > 0 && (
     <section class="pe-section container">
@@ -1015,7 +1005,10 @@ const pageNavItems = [
   }
 
   /* HERO */
-  .pe-snapshot { padding-top: 4px; margin-top: 28px; }
+  .pe-section.pe-snapshot { padding-top: 0; margin-top: 8px; }
+  .pe-answer { max-width: 760px; margin: 0 0 6px; color: var(--ink); font-size: clamp(19px, 2.2vw, 24px); font-weight: 600; line-height: 1.35; }
+  .pe-updated { margin: 0; }
+  .pe-after-results { margin-top: 14px; }
   .pe-snapshot-kicker, .pe-snapshot-note {
     font-family: var(--mono);
     font-size: 13px;

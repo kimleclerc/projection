@@ -208,7 +208,7 @@ function buildTicker(data: Partial<BarrageData>, locale: BarrageLocale = 'en'): 
     {
       tag: 'BARRAGE',
       tone: 'blue',
-      text: T.index(bfi?.score != null ? num(bfi.score.toFixed(1)) : '—'),
+      text: T.index(bfi?.score != null ? String(Math.round(bfi.score)) : '—'),
       time: data.meta?.as_of_date ?? T.latest,
       href: `/${locale}/france/indexes/barrage/`,
     },

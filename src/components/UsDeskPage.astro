@@ -121,7 +121,7 @@ const COPY = {
     liveSpecials: 'Special elections under way', noLiveSpecials: 'No special election is currently pending.',
     indexEyebrow: 'Vote-Scope indexes',
     indexTitle: 'Our own instruments.',
-    ldiCta: 'Full index', delta7: '7-day delta',
+    ldiCta: 'Full index', delta7: 'Change over 7 days',
     radar: 'U.S. Latino Radar',
     radarBody: 'The House and Senate races where Latino electoral weight, competitiveness, and control of Congress intersect — ranked on a 100-point scale.',
     radarCta: 'Open the radar', radarHref: '/en/us/latino-radar/',
@@ -178,7 +178,7 @@ const COPY = {
     liveSpecials: 'Partielles en cours', noLiveSpecials: "Aucune partielle n'est en attente en ce moment.",
     indexEyebrow: 'Indices Vote-Scope',
     indexTitle: 'Nos propres indices.',
-    ldiCta: 'Index complet', delta7: 'Delta 7 jours',
+    ldiCta: 'Index complet', delta7: 'Variation sur 7 jours',
     radar: 'Radar Latino USA',
     radarBody: "Les courses Chambre et Sénat où l’électorat latino, la compétitivité et le contrôle du Congrès se rencontrent — classées sur 100.",
     radarCta: 'Ouvrir le radar', radarHref: '/fr/us/radar-latino/',
@@ -235,7 +235,7 @@ const COPY = {
     liveSpecials: 'Elecciones especiales en curso', noLiveSpecials: 'Ninguna elección especial está pendiente en este momento.',
     indexEyebrow: 'Índices Vote-Scope',
     indexTitle: 'Nuestros propios instrumentos.',
-    ldiCta: 'Índice completo', delta7: 'Delta 7 días',
+    ldiCta: 'Índice completo', delta7: 'Variación en 7 días',
     radar: 'Radar Latino USA',
     radarBody: 'Las contiendas de Cámara y Senado donde coinciden el peso electoral latino, la competitividad y el control del Congreso — clasificadas sobre 100.',
     radarCta: 'Abrir el radar', radarHref: '/es/us/radar-latino/',
@@ -404,7 +404,7 @@ const showdownLabel = lang === 'fr' ? showdownData.showdown.label_fr
         <article class="note-card us-chamber" style={`--accent:${ldi.zone_color};`}>
           <p class="eyebrow">Lame-Duck Index</p>
           <p class="us-score">
-            <AnimatedNumber client:visible value={ldi.score} decimals={1} /><span>/100</span>
+            <AnimatedNumber client:visible value={Math.round(ldi.score)} /><span>/100</span>
           </p>
           <p class="us-zone" style={`color:${ldi.zone_color};`}>{ldiLabel}</p>
           <p class="us-small">{t.delta7} : <strong>{deltaSign}{ldi.delta_7d}</strong></p>

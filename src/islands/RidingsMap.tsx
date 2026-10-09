@@ -712,10 +712,10 @@ export default function RidingsMap({
         .rm-district { cursor: pointer; transition: filter 120ms ease, stroke-width 120ms ease; outline: none; }
         .rm-district:hover, .rm-district:focus-visible, .rm-district.is-selected { filter: brightness(.88); stroke: var(--ink, #171714); stroke-width: 2.4; }
         .rm-district:focus-visible { filter: drop-shadow(0 0 2px rgba(0,0,0,.5)); }
-        .rm-inset-label { font-family: var(--mono, var(--mono); font-size: 13px; fill: var(--ink-3, #777); }
+        .rm-inset-label { font-family: var(--sans); font-size: 13px; fill: var(--ink-3, #777); }
         .rm-detail-card { position: absolute; left: 18px; right: 18px; bottom: 14px; z-index: 3; max-width: 560px; padding: 16px 44px 16px 18px; background: rgba(255,255,255,.97); border: 1px solid var(--rule, #d8d8d2); outline: 1px solid var(--ink-3); }
         .rm-detail-close { position: absolute; right: 10px; top: 8px; width: 32px; height: 32px; border: 0; background: transparent; color: var(--ink-2, #555); font: 24px/1 var(--sans, sans-serif); cursor: pointer; }
-        .rm-pop { font-family: var(--mono, var(--mono); font-size: 12px; line-height: 1.4; color: var(--ink, #1a1a1a); }
+        .rm-pop { font-family: var(--sans); font-size: 12px; line-height: 1.4; color: var(--ink, #1a1a1a); }
         .rm-pop-head { display: flex; align-items: baseline; gap: 8px; margin-bottom: 8px; }
         .rm-pop-title { font-family: var(--serif, Georgia, serif); font-size: 18px; font-weight: 600; margin: 0; flex: 1 1 auto; }
         .rm-pop-province { font-size: 10px; letter-spacing: 0; color: var(--ink-3, #888); }

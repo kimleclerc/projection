@@ -6,7 +6,6 @@ import DeskSections from '../../components/DeskSections.astro';
 import MethodologyNote from '../../components/MethodologyNote.astro';
 import SearchFastPath from '../../components/SearchFastPath.astro';
 import AuthorStrip from '../../components/AuthorStrip.astro';
-import LabsHomeBand from '../../components/LabsHomeBand.astro';
 import { editorialPhilosophy, instruments } from '../../data/editorial';
 
 const philosophy = editorialPhilosophy.en;
@@ -66,8 +65,6 @@ const indexItems = instruments.en.filter((i) => i.status === 'live').slice(0, 6)
       <StoryList heading="Indexes we track" items={indexItems} columns={2} />
     </div>
   </section>
-
-  <LabsHomeBand lang="en" />
 
   <MethodologyNote
     title="How the projections are built."

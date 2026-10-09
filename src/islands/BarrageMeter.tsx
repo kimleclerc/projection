@@ -65,7 +65,7 @@ function zoneLabel(z: BarrageZone, locale: 'en' | 'fr' | 'es'): string {
 }
 
 function fmtScore(value: number, locale: 'en' | 'fr' | 'es'): string {
-  return locale === 'en' ? String(value) : String(value).replace('.', ',');
+  return String(Math.round(value));
 }
 
 /* ─── Gauge view (shared dial geometry with the other instruments) ─────────── */

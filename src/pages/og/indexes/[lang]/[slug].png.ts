@@ -69,7 +69,7 @@ function activeZone(value: number, zones: AnyZone[]): AnyZone | undefined {
 }
 
 function fmtScore(value: number, lang: Lang): string {
-  const s = Number.isInteger(value) ? String(value) : value.toFixed(1);
+  const s = String(Math.round(value));
   return lang === 'en' ? s : s.replace('.', ',');
 }
 

@@ -25,7 +25,7 @@ export function injectStyles() {
   const s = document.createElement('style');
   s.id = 'cl-style';
   s.textContent = `
-.copy-link { display: inline-flex; align-items: center; gap: 6px; padding: 4px 11px; border: 1px solid var(--rule, #ddd); border-radius: 2px; background: transparent; font-family: var(--mono, var(--mono); font-size: 11px; letter-spacing: 0; color: var(--ink-3, #888); cursor: pointer; transition: color .12s, border-color .12s; }
+.copy-link { display: inline-flex; align-items: center; gap: 6px; padding: 4px 11px; border: 1px solid var(--rule, #ddd); border-radius: 2px; background: transparent; font-family: var(--sans); font-size: 11px; letter-spacing: 0; color: var(--ink-3, #888); cursor: pointer; transition: color .12s, border-color .12s; }
 .copy-link:hover { color: var(--ink, #1a1a1a); border-color: var(--ink-3, #888); }
 .copy-link.is-copied { color: var(--blue, #2b6cb0); border-color: currentColor; }
 .copy-link svg { flex: none; }
