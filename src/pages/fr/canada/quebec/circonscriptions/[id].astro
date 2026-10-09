@@ -15,8 +15,10 @@ const { data } = Astro.props;
 const canonical = `https://vote-scope.com/fr/canada/quebec/circonscriptions/${data.slug}/`;
 const alternateEn = `https://vote-scope.com/en/canada/quebec/ridings/${data.slug}/`;
 const alternateEs = `https://vote-scope.com/es/canada/quebec/distritos/${data.slug}/`;
-const title = `${data.name.fr} : élection 2026, résultats et projection | Vote-Scope`;
-const description = `Élection du 5 octobre 2026 dans ${data.name.fr} : résultats : qui a gagné, voix et bureaux, projection Vote-Scope, chances de victoire, candidats et député·e sortant·e.`;
+const title = `${data.name.fr} : résultats de l’élection 2026 | Vote-Scope`;
+const description = data.results
+  ? `Élection du 5 octobre 2026 dans ${data.name.fr} : ${data.results.winnerName} l’emporte avec ${data.results.candidates[0].pct.toLocaleString('fr-CA')} % des voix. Voix de chaque candidat, participation, comparaison avec notre projection et résultat de 2022.`
+  : `Élection du 5 octobre 2026 dans ${data.name.fr} : projection Vote-Scope, candidats et résultat de 2022.`;
 ---
 
 <EditorialLayout

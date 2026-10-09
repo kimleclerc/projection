@@ -1,0 +1,158 @@
+---
+/**
+ * État « résultats » d'une fiche (docs/DESIGN.md § 7) : le résultat officiel d'abord,
+ * puis notre projection d'avant-scrutin comparée au résultat, puis la prochaine élection.
+ * Commun à toutes les juridictions : il suffit que l'adaptateur remplisse `results`.
+ */
+import type { RidingData } from '../../../lib/riding-adapters/types';
+import { partyMeta, subjectFr } from '../../../lib/riding-adapters/parties';
+import { partyName } from '../../../lib/party-names';
+
+interface Props { data: RidingData; lang: 'en' | 'fr' | 'es' }
+const { data, lang } = Astro.props;
+const r = data.results!;
+const L = (fr: string, en: string, es: string) => ({ fr, en, es }[lang]);
+const locale = lang === 'en' ? 'en-CA' : lang === 'es' ? 'es-ES' : 'fr-CA';
+const dateLong = (iso: string) => new Date(iso.slice(0, 10) + 'T12:00:00Z').toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+const num = (v: number) => v.toLocaleString(locale);
+const pct = (v: number) => lang === 'en' ? `${v.toFixed(1)}%` : `${v.toFixed(1).replace('.', ',')} %`;
+const pts = (v: number) => (lang === 'en' ? v.toFixed(1) : v.toFixed(1).replace('.', ','));
+
+const meta = (code: string) => partyMeta(data.jurisdiction, code) as any;
+const fullName = (code: string) => {
+  const m = meta(code);
+  const full = lang === 'en' ? m.full_en : lang === 'es' ? (m.full_es ?? m.full_fr) : m.full_fr;
+  return full ?? partyName({ ...m, party: code }, lang);
+};
+// Nom du parti avec son article (« le PCQ », « the PQ », « el PQ »), pour les phrases.
+const subject = (code: string) => {
+  const m = meta(code);
+  if (lang === 'fr' && m.mention_fr) return subjectFr(m.mention_fr);
+  if (lang === 'en' && m.mention_en) return m.mention_en;
+  if (lang === 'es' && m.mention_es) return m.mention_es;
+  return fullName(code);
+};
+const shortName = (code: string) => partyName({ ...meta(code), party: code }, lang);
+const color = (code: string) => meta(code).color ?? '#999';
+
+const winner = r.candidates[0];
+const second = r.candidates[1];
+const turnout = r.registered && r.ballots ? (100 * r.ballots) / r.registered : undefined;
+
+// Comparaison avec notre projection d'avant-scrutin, parti par parti.
+const projected = Object.fromEntries((data.parties ?? []).map((p) => [p.code, p.vote_mean_pct]));
+const byParty: Record<string, number> = {};
+for (const c of r.candidates) byParty[c.party] = (byParty[c.party] ?? 0) + c.pct;
+const compare = Object.keys({ ...projected, ...byParty })
+  .filter((c) => (projected[c] ?? 0) >= 1 || (byParty[c] ?? 0) >= 1)
+  .map((c) => ({ code: c, proj: projected[c], actual: byParty[c] ?? 0 }))
+  .sort((a, b) => b.actual - a.actual);
+const fav = data.projection?.winner;
+const favP = data.projection?.p_winner;
+const hit = fav === r.winner;
+const projDate = data.runDate ? dateLong(data.runDate) : undefined;
+
+const fixEs = (t: string) => (lang === 'es' ? t.replace(/\ba el\b/g, 'al').replace(/\bde el\b/g, 'del') : t);
+const T = {
+  title: L(`Résultat du ${dateLong(r.date)}`, `${dateLong(r.date)} result`, `Resultado del ${dateLong(r.date)}`),
+  lead: L(
+    `${winner.name} (${fullName(winner.party)}) l’emporte avec ${pct(winner.pct)} des voix, ${pts(r.marginPct)} points devant ${second ? `${second.name} (${shortName(second.party)})` : 'le deuxième'}.`,
+    `${winner.name} (${fullName(winner.party)}) wins with ${pct(winner.pct)} of the vote, ${pts(r.marginPct)} points ahead of ${second ? `${second.name} (${shortName(second.party)})` : 'the runner-up'}.`,
+    `${winner.name} (${fullName(winner.party)}) gana con el ${pct(winner.pct)} de los votos, ${pts(r.marginPct)} puntos por delante de ${second ? `${second.name} (${shortName(second.party)})` : 'el segundo'}.`),
+  colCand: L('Candidat', 'Candidate', 'Candidato'), colParty: L('Parti', 'Party', 'Partido'), colVotes: L('Voix', 'Votes', 'Votos'), colPct: L('Part', 'Share', 'Porcentaje'),
+  status: r.status === 'validated'
+    ? L('Résultats validés', 'Validated results', 'Resultados validados')
+    : L('Résultats préliminaires', 'Preliminary results', 'Resultados preliminares'),
+  polls: r.pollsReported && r.pollsTotal ? L(`${r.pollsReported} bureaux sur ${r.pollsTotal}`, `${r.pollsReported} of ${r.pollsTotal} polls`, `${r.pollsReported} de ${r.pollsTotal} mesas`) : '',
+  fetched: r.fetchedAt ? L(`relevés le ${dateLong(r.fetchedAt)}`, `retrieved ${dateLong(r.fetchedAt)}`, `consultados el ${dateLong(r.fetchedAt)}`) : '',
+  turnout: turnout ? L(`Participation : ${pct(turnout)}`, `Turnout: ${pct(turnout)}`, `Participación: ${pct(turnout)}`) : '',
+  source: L('Source officielle', 'Official source', 'Fuente oficial'),
+  projTitle: L('Notre projection avant le scrutin', 'Our forecast before the vote', 'Nuestra proyección antes de la votación'),
+  projLead: fav
+    ? hit
+      ? L(`Nous donnions ${subject(fav)} favori${favP ? ` à ${Math.round(favP * 100)} %` : ''}${projDate ? ` (projection du ${projDate})` : ''} : la prévision s’est confirmée.`,
+          `We had ${subject(fav)} favoured${favP ? ` at ${Math.round(favP * 100)}%` : ''}${projDate ? ` (forecast of ${projDate})` : ''}: the call held.`,
+          `Dábamos como favorito a ${subject(fav)}${favP ? ` con un ${Math.round(favP * 100)} %` : ''}${projDate ? ` (proyección del ${projDate})` : ''}: el pronóstico se cumplió.`)
+      : L(`Nous donnions ${subject(fav)} favori${favP ? ` à ${Math.round(favP * 100)} %` : ''}${projDate ? ` (projection du ${projDate})` : ''} : c’est ${subject(r.winner)} qui l’a emporté.`,
+          `We had ${subject(fav)} favoured${favP ? ` at ${Math.round(favP * 100)}%` : ''}${projDate ? ` (forecast of ${projDate})` : ''}: ${subject(r.winner)} won instead.`,
+          `Dábamos como favorito a ${subject(fav)}${favP ? ` con un ${Math.round(favP * 100)} %` : ''}${projDate ? ` (proyección del ${projDate})` : ''}: ganó ${subject(r.winner)}.`)
+    : '',
+  market: r.marketEve
+    ? L(`La veille du vote, le marché Polymarket donnait ${r.marketEve.label} (${shortName(r.marketEve.party)}) gagnant à ${Math.round(r.marketEve.price * 100)} %${r.marketEve.party === r.winner ? ' : il avait vu juste.' : ' : il s’est trompé.'}`,
+        `On the eve of the vote, the Polymarket market had ${r.marketEve.label} (${shortName(r.marketEve.party)}) winning at ${Math.round(r.marketEve.price * 100)}%${r.marketEve.party === r.winner ? ': it got it right.' : ': it got it wrong.'}`,
+        `La víspera de la votación, el mercado de Polymarket daba como ganador a ${r.marketEve.label} (${shortName(r.marketEve.party)}) con un ${Math.round(r.marketEve.price * 100)} %${r.marketEve.party === r.winner ? ': acertó.' : ': se equivocó.'}`)
+    : '',
+  colProj: L('Projeté', 'Forecast', 'Proyectado'), colActual: L('Obtenu', 'Result', 'Obtenido'), colGap: L('Écart', 'Gap', 'Diferencia'),
+  next: r.nextElection ? L(`Prochaine élection générale prévue le ${dateLong(r.nextElection)}.`, `Next general election scheduled for ${dateLong(r.nextElection)}.`, `Próximas elecciones generales previstas el ${dateLong(r.nextElection)}.`) : '',
+};
+---
+<section class="er container" id="result" aria-labelledby="er-title">
+  <h2 id="er-title">{T.title}</h2>
+  <p class="er-lead">{T.lead}</p>
+
+  <div class="er-scroll">
+    <table class="er-table">
+      <thead><tr><th scope="col">{T.colCand}</th><th scope="col">{T.colParty}</th><th scope="col" class="num">{T.colVotes}</th><th scope="col" class="num">{T.colPct}</th></tr></thead>
+      <tbody>
+        {r.candidates.map((c, i) => (
+          <tr class={i === 0 ? 'is-winner' : undefined}>
+            <th scope="row">{c.name}</th>
+            <td><span class="sw" style={`background:${color(c.party)}`}></span>{shortName(c.party)}</td>
+            <td class="num">{num(c.votes)}</td>
+            <td class="num pct">{pct(c.pct)}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+  <p class="vs-meta er-meta">
+    {[T.status, T.polls, T.fetched].filter(Boolean).join(', ')}{T.turnout && ` · ${T.turnout}`} · <a href={r.sourceUrl} rel="noopener">{T.source}</a>
+  </p>
+
+  {compare.length > 0 && fav && (
+    <div class="er-proj">
+      <h3>{T.projTitle}</h3>
+      <p>{fixEs(T.projLead)}</p>
+      {T.market && r.marketEve && <p>{T.market} <a class="er-src" href={r.marketEve.url} rel="noopener">Polymarket</a></p>}
+      <div class="er-scroll">
+        <table class="er-table er-compare">
+          <thead><tr><th scope="col">{T.colParty}</th><th scope="col" class="num">{T.colProj}</th><th scope="col" class="num">{T.colActual}</th><th scope="col" class="num">{T.colGap}</th></tr></thead>
+          <tbody>
+            {compare.map((c) => (
+              <tr>
+                <th scope="row"><span class="sw" style={`background:${color(c.code)}`}></span>{shortName(c.code)}</th>
+                <td class="num">{c.proj !== undefined ? pct(c.proj) : '—'}</td>
+                <td class="num">{pct(c.actual)}</td>
+                <td class="num">{c.proj !== undefined ? `${c.actual - c.proj >= 0 ? '+' : '−'}${pts(Math.abs(c.actual - c.proj))}` : '—'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )}
+
+  {T.next && <p class="er-next">{T.next}</p>}
+</section>
+
+<style>
+  .er { margin-top: 28px; }
+  .er h2 { margin: 0 0 6px; font-size: clamp(24px, 3vw, 32px); font-weight: 700; }
+  .er-lead { max-width: 760px; margin: 0 0 14px; font-size: 19px; line-height: 1.45; color: var(--ink); }
+  .er-scroll { max-width: 100%; overflow-x: auto; }
+  .er-table { width: 100%; max-width: 760px; border-collapse: collapse; border-top: 4px solid var(--ink); }
+  .er-table th, .er-table td { padding: 9px 12px 9px 0; border-bottom: 1px solid var(--rule); text-align: left; font-size: 16px; }
+  .er-table thead th { color: var(--ink-3); font-size: 13px; font-weight: 600; border-bottom: 1px solid var(--ink); }
+  .er-table tbody th { font-weight: 600; }
+  .er-table .is-winner th, .er-table .is-winner .pct { font-weight: 700; }
+  .er-table .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .sw { display: inline-block; width: 10px; height: 10px; margin-right: 8px; border-radius: 50%; }
+  .er-meta { margin: 8px 0 0; max-width: 760px; }
+  .er-meta a { color: var(--ink-2); text-decoration: underline; text-underline-offset: 2px; }
+  .er-proj { margin-top: 28px; }
+  .er-proj h3 { margin: 0 0 6px; font-size: 20px; font-weight: 700; }
+  .er-proj p { max-width: 760px; margin: 0 0 12px; color: var(--ink-2); font-size: 16px; line-height: 1.5; }
+  .er-compare { border-top-width: 2px; }
+  .er-src { color: var(--ink-2); text-decoration: underline; text-underline-offset: 2px; }
+  .er-next { margin: 22px 0 0; padding-top: 10px; border-top: 1px solid var(--rule); color: var(--ink-2); font-size: 15px; max-width: 760px; }
+</style>

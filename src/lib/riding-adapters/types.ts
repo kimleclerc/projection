@@ -221,6 +221,12 @@ export interface RidingData {
   member?: RidingMember;     // current sitting member
   candidates?: RidingCandidate[];  // candidates from the most recent general election (baseline cycle)
   declaredCandidates?: DeclaredCandidate[];  // declared / on-ballot candidates for the UPCOMING election
+  /**
+   * Résultat du scrutin, une fois tenu. Sa présence fait passer la fiche à l'état
+   * « résultats » (docs/DESIGN.md § 7) : résultat d'abord, projection d'avant-scrutin
+   * ensuite, plus de biographies ni de « qui l'emportera? ».
+   */
+  results?: RidingResults;
   polls?: RidingPoll[];      // district-level polls → rows in the LocalPolls section (NYT model)
   neighbors?: RidingNeighbor[];
   regionalContext?: RegionalContext;
@@ -307,4 +313,24 @@ export interface RidingAdvanceVote {
   provincialChangeVs2022Pct?: number;
   dates: string[];
   preliminary: boolean;
+}
+
+export interface RidingResults {
+  cycle: string;
+  date: string;                       // AAAA-MM-JJ
+  status: 'preliminary' | 'validated';
+  sourceUrl: string;
+  fetchedAt?: string;
+  registered?: number;
+  ballots?: number;
+  pollsReported?: number;
+  pollsTotal?: number;
+  winner: string;                     // code du parti
+  winnerName: string;
+  marginPct: number;
+  candidates: Array<{ name: string; party: string; votes: number; pct: number }>;
+  /** Date de la prochaine élection générale prévue par la loi, si elle est fixe. */
+  nextElection?: string;
+  /** Cote du marché de prédiction la veille du vote (archive figée), pour le bilan. */
+  marketEve?: { party: string; label: string; price: number; date: string; url: string };
 }

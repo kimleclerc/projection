@@ -21,6 +21,8 @@ import ridingsSource from '../../../web_data/quebec/ridings.json';
 import membersSource from '../../../web_data/quebec/members.json';
 import candidatesSource from '../../../web_data/quebec/candidates_2022.json';
 import declared2026Source from '../../../web_data/quebec/candidates_2026.json';
+import results2026 from '../../data/qc-2026-ridings.json';
+import markets2026 from '../../data/qc-2026-markets.json';
 import originSource from '../../../web_data/quebec/origin.json';
 import shapesSource from '../../../web_data/quebec/shapes.json';
 import historyIndex from '../../../web_data/quebec/history/index.json';
@@ -195,6 +197,7 @@ function adaptOne(raw: RawRiding): RidingData {
     advanceVote: advanceById[raw.riding_id],
     member: members[raw.riding_id],
     candidates: candidatesByRiding[raw.riding_id],
+    results: buildResults(raw.riding_id),
     declaredCandidates: (declared2026ByRiding[raw.riding_id] ?? []).map((c): DeclaredCandidate => ({
       name: c.name,
       party_code: c.party_code,
@@ -222,6 +225,34 @@ function adaptOne(raw: RawRiding): RidingData {
     // registre décide lesquelles ; une circonscription sans entrée n'affiche
     // rien du tout (cf. prediction-markets.ts).
     predictionMarket: marketForRiding('qc', raw.riding_id),
+  };
+}
+
+/** Résultat du 5 octobre 2026 (archive src/data/qc-2026-ridings.json). La loi fixe la
+ *  prochaine élection générale au premier lundi d'octobre de la quatrième année. */
+function buildResults(rid: string) {
+  const doc = results2026 as any;
+  const r = doc.ridings[rid];
+  if (!r) return undefined;
+  return {
+    cycle: 'qc_2026',
+    date: doc.meta.election_date,
+    status: doc.meta.status,
+    sourceUrl: doc.meta.source_url,
+    fetchedAt: doc.meta.fetched_at,
+    registered: r.registered,
+    ballots: r.ballots,
+    pollsReported: r.polls_reported,
+    pollsTotal: r.polls_total,
+    winner: r.winner,
+    winnerName: r.winner_name,
+    marginPct: r.margin_pct,
+    candidates: r.candidates,
+    nextElection: '2030-10-07',
+    marketEve: (() => {
+      const m = (markets2026 as any).races[rid];
+      return m ? { party: m.eve_leader_party, label: m.eve_leader, price: m.eve_price, date: (markets2026 as any).meta.eve, url: `https://polymarket.com/event/${m.event_slug}` } : undefined;
+    })(),
   };
 }
 

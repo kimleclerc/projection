@@ -12,10 +12,11 @@ const { data, lang } = Astro.props;
 if (!data.candidates || data.candidates.length === 0) return null;
 
 const cycleLabel = data.baseline?.cycle?.replace('_', ' ').toUpperCase() ?? '';
+const year = (data.baseline?.cycle ?? '').match(/\d{4}/)?.[0] ?? '';
 const T = {
   en: {
     eyebrow: `Detailed result · ${cycleLabel}`,
-    title: 'Candidates and votes',
+    title: year ? `Candidates and votes in ${year}` : 'Candidates and votes',
     candidate: 'Candidate',
     party: 'Party',
     votes: 'Votes',
@@ -25,7 +26,7 @@ const T = {
   },
   fr: {
     eyebrow: `Résultat détaillé · ${cycleLabel}`,
-    title: 'Candidats et voix',
+    title: year ? `Candidats et voix en ${year}` : 'Candidats et voix',
     candidate: 'Candidat·e',
     party: 'Parti',
     votes: 'Voix',
@@ -35,7 +36,7 @@ const T = {
   },
   es: {
     eyebrow: `Resultado detallado · ${cycleLabel}`,
-    title: 'Candidatos y votos',
+    title: year ? `Candidatos y votos en ${year}` : 'Candidatos y votos',
     candidate: 'Candidato·a',
     party: 'Partido',
     votes: 'Votos',

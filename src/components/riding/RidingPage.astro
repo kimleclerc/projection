@@ -30,6 +30,7 @@ import RegionalContext from './sections/RegionalContext.astro';
 import NeighborRidings from './sections/NeighborRidings.astro';
 import CloseRaces from '../CloseRaces.astro';
 import LocalPolls from './sections/LocalPolls.astro';
+import ElectionResult from './sections/ElectionResult.astro';
 import PolymarketEmbed from '../PolymarketEmbed.astro';
 
 interface Props {
@@ -38,6 +39,9 @@ interface Props {
 }
 
 const { data, lang } = Astro.props;
+// État « résultats » : le scrutin est tenu, la fiche ouvre sur le résultat et retire
+// ce qui n'a de sens qu'avant le vote (question, biographies, député sortant, direct).
+const hasResults = !!data.results;
 const navWebKey = data.navWebKey ?? getNavEntryForRiding(data.jurisdiction)?.webKey;
 
 // Porte de mi-page. Mesuré en prod : entre le ruban du haut et le bloc des
@@ -93,14 +97,20 @@ const pageNavItems = [
 
 {navWebKey && <JurisdictionNav webKey={navWebKey} lang={lang} active="districts" />}
 <Hero data={data} lang={lang} />
-<RidingQuestion data={data} lang={lang} />
-<OnThisPage locale={lang} items={pageNavItems} />
-<slot name="local-feature" />
-{data.byelection && <ByelectionForecast data={data} lang={lang} />}
-<div id="projection" class="riding-anchor"><ProjectionPanel data={data} lang={lang} /></div>
-<div id="vote-share" class="riding-anchor"><VoteBars data={data} lang={lang} /></div>
+{hasResults ? (
+  <ElectionResult data={data} lang={lang} />
+) : (
+  <>
+    <RidingQuestion data={data} lang={lang} />
+    <OnThisPage locale={lang} items={pageNavItems} />
+    <slot name="local-feature" />
+    {data.byelection && <ByelectionForecast data={data} lang={lang} />}
+    <div id="projection" class="riding-anchor"><ProjectionPanel data={data} lang={lang} /></div>
+    <div id="vote-share" class="riding-anchor"><VoteBars data={data} lang={lang} /></div>
+  </>
+)}
 {data.advanceVote && <AdvanceVote data={data} lang={lang} />}
-{closeRacesHere.races.length > 0 && (
+{!hasResults && closeRacesHere.races.length > 0 && (
 <section class="container riding-close-races">
   <CloseRaces
     locale={lang}
@@ -116,12 +126,12 @@ const pageNavItems = [
 )}
 {data.regionalContext && <RegionalContext data={data} lang={lang} />}
 {data.hasProjectionHistory && <ProjectionHistory data={data} lang={lang} />}
-{data.polls && data.polls.length > 0 && <div id="local-polls" class="riding-anchor"><LocalPolls data={data} lang={lang} /></div>}
+{!hasResults && data.polls && data.polls.length > 0 && <div id="local-polls" class="riding-anchor"><LocalPolls data={data} lang={lang} /></div>}
 
-<EditorialBlurb data={data} lang={lang} />
-{data.member && <CurrentMember data={data} lang={lang} />}
+{!hasResults && <EditorialBlurb data={data} lang={lang} />}
+{!hasResults && data.member && <CurrentMember data={data} lang={lang} />}
 {data.primaries && <PrimaryStatus data={data} lang={lang} />}
-{data.declaredCandidates && data.declaredCandidates.length > 0 && <CandidateSlate data={data} lang={lang} />}
+{!hasResults && data.declaredCandidates && data.declaredCandidates.length > 0 && <CandidateSlate data={data} lang={lang} />}
 {data.baseline && <div id="history" class="riding-anchor"><HistoryTimeline data={data} lang={lang} /></div>}
 {data.candidates && data.candidates.length > 0 && <CandidatesTable data={data} lang={lang} />}
 {data.redistrictingImpact && data.redistrictingImpact.length > 0 && <RedistrictingImpact data={data} lang={lang} />}
@@ -136,7 +146,7 @@ const pageNavItems = [
     que des partielles. Polymarket cote désormais 21 circonscriptions de la
     générale québécoise : c'est la présence au registre qui décide, pas la
     nature du scrutin. */}
-{data.predictionMarket && (
+{!hasResults && data.predictionMarket && (
   <section class="slot-market"><div class="container">
     <PolymarketEmbed
       slug={data.predictionMarket.slug}
