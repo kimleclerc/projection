@@ -178,7 +178,7 @@ const lineupLabel = (sc: PollScenario) => {
       {poll.field_start && poll.field_end && (
         <div><dt>{copy.fieldwork}</dt><dd>{`${d(poll.field_start)} → ${d(poll.field_end)}`}</dd></div>
       )}
-      {poll.sample_size && (
+      {poll.sample_size > 1 && (
         <div><dt>{copy.sample}</dt><dd>{copy.respondents(poll.sample_size)}</dd></div>
       )}
       <div><dt>{copy.published}</dt><dd>{d(poll.release_date)}</dd></div>

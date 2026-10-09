@@ -37,7 +37,7 @@ const C = {
     lede1: 'Chaque sondage publié sur la présidentielle 2027, institut par institut. Les instituts testent plusieurs hypothèses de candidatures : un sondage mesure une configuration de candidatures précise, pas une liste figée.',
     lede2: 'Vote-Scope les agrège par scénario pour projeter le premier tour et les duels du second. Ci-dessous, la compilation brute — cliquez la source pour l’original.',
     firstTitle: 'Premier tour',
-    firstHelp: (n: number) => `${n} sondages agrégés depuis 2023. Les deux premiers de chaque hypothèse se qualifieraient.`,
+    firstHelp: (n: number, k: number) => `${n} scénarios de premier tour, tirés de ${k} enquêtes publiées depuis 2023 : une même enquête teste souvent plusieurs listes de candidats. Les deux premiers de chaque scénario se qualifieraient.`,
     runoffTitle: 'Second tour — duels',
     runoffHelp: (n: number) => `${n} duels testés en tête-à-tête.`,
     sample: 'éch.',
@@ -51,7 +51,7 @@ const C = {
     lede1: 'Every published poll on the 2027 French presidential race, pollster by pollster. The model tests lineups: a poll measures one specific candidate configuration, not a fixed list.',
     lede2: 'Vote-Scope aggregates them by scenario to project the first round and the runoff. Below, the raw compilation — click the source for the original.',
     firstTitle: 'First round',
-    firstHelp: (n: number) => `${n} polls aggregated since 2023. The top two in each lineup would advance.`,
+    firstHelp: (n: number, k: number) => `${n} first-round scenarios from ${k} surveys published since 2023: one survey often tests several candidate lineups. The top two in each scenario would advance.`,
     runoffTitle: 'Runoff — head-to-heads',
     runoffHelp: (n: number) => `${n} head-to-head matchups tested.`,
     sample: 'n',
@@ -65,7 +65,7 @@ const C = {
     lede1: 'Cada encuesta publicada sobre la presidencial francesa de 2027, encuestadora por encuestadora. El modelo prueba combinaciones: una encuesta mide una configuración de candidaturas concreta, no una lista fija.',
     lede2: 'Vote-Scope los agrega por escenario para proyectar la primera vuelta y la segunda. Abajo, la compilación en bruto — haz clic en la fuente para el original.',
     firstTitle: 'Primera vuelta',
-    firstHelp: (n: number) => `${n} encuestas agregadas desde 2023. Los dos primeros de cada combinación pasarían.`,
+    firstHelp: (n: number, k: number) => `${n} escenarios de primera vuelta, de ${k} encuestas publicadas desde 2023: una misma encuesta suele probar varias listas de candidatos. Los dos primeros de cada escenario pasarían.`,
     runoffTitle: 'Segunda vuelta — duelos',
     runoffHelp: (n: number) => `${n} duelos probados mano a mano.`,
     sample: 'm',
@@ -92,7 +92,7 @@ const bloc = (id: string) => cands[id]?.bloc ?? 'other';
   <!-- PREMIER TOUR -->
   <section class="frp-section container" aria-labelledby="frp-first">
     <h2 id="frp-first" class="frp-h2">{C.firstTitle}</h2>
-    <p class="frp-help">{C.firstHelp(firstRound.length)}</p>
+    <p class="frp-help">{C.firstHelp(firstRound.length, new Set(firstRound.map((p: any) => `${p.firm}|${p.release_date}`)).size)}</p>
     <ul class="frp-list">
       {firstRound.map((p) => {
         const max = Math.max(...p.entries.map((e: any) => e.share), 1);
@@ -101,7 +101,7 @@ const bloc = (id: string) => cands[id]?.bloc ?? 'other';
             <div class="frp-poll-head">
               <span class="frp-firm">{p.firm_name}</span>
               <span class="frp-date">{fmtDate(p.release_date)}</span>
-              {p.sample_size && <span class="frp-n">{C.sample} {p.sample_size.toLocaleString(dateLocale)}</span>}
+              {p.sample_size > 1 && <span class="frp-n">{C.sample} {p.sample_size.toLocaleString(dateLocale)}</span>}
               {p.source_url && <a class="frp-src" href={p.source_url} target="_blank" rel="noopener nofollow">{C.source} ↗</a>}
               <a class="frp-detail" href={`${pollBase}/${pollSlug(p.firm, p.release_date)}/`}>{C.detail}</a>
             </div>
@@ -137,7 +137,7 @@ const bloc = (id: string) => cands[id]?.bloc ?? 'other';
             <div class="frp-poll-head">
               <span class="frp-firm">{d.firm_name}</span>
               <span class="frp-date">{fmtDate(d.release_date)}</span>
-              {d.sample_size && <span class="frp-n">{C.sample} {d.sample_size.toLocaleString(dateLocale)}</span>}
+              {d.sample_size > 1 && <span class="frp-n">{C.sample} {d.sample_size.toLocaleString(dateLocale)}</span>}
               {d.source_url && <a class="frp-src" href={d.source_url} target="_blank" rel="noopener nofollow">{C.source} ↗</a>}
             </div>
             <p class="frp-duel-line">
