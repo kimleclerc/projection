@@ -71,6 +71,20 @@ const tracks = Object.entries(voteIndex.tracks)
   );
 
 /** Waves that carry a usable two-party share, newest first. */
+/** Date du dernier terrain de la piste de tête : run_date − ancienneté. Le
+ *  lecteur doit la voir à côté du chiffre, pas seulement dans la note. */
+const runDate = new Date(`${voteIndex.meta.run_date}T12:00:00Z`);
+const lastField = new Date(runDate.getTime() - idx.days_since_latest_field * 86400000);
+const longDate = (d: Date) => d.toLocaleDateString(locale === 'en' ? 'en-US' : locale === 'es' ? 'es-ES' : 'fr-CA', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+const [hSource, hPop, hBallot] = voteIndex.headline_track.split('_');
+const scope = [SOURCE_LABEL[hSource], POP_LABEL[hPop], BALLOT_LABEL[hBallot] && `${C.thBallot.toLowerCase()} ${BALLOT_LABEL[hBallot].toLowerCase()}`].filter(Boolean).join(' · ');
+const pct0 = (v: number) => `${Math.round(v)}${nbsp}%`;
+const FIELD_META = {
+  fr: (d: string, sc: string, r: string) => `Dernier terrain : ${d} · ${sc} · calcul du ${r}`,
+  en: (d: string, sc: string, r: string) => `Latest fieldwork: ${d} · ${sc} · computed ${r}`,
+  es: (d: string, sc: string, r: string) => `Último trabajo de campo: ${d} · ${sc} · cálculo del ${r}`,
+}[locale];
+
 const waves = [...voteIndex.waves].sort((a, b) =>
   (b.field_end ?? '').localeCompare(a.field_end ?? ''),
 );
@@ -87,10 +101,11 @@ const waves = [...voteIndex.waves].sort((a, b) =>
         <span class="lvi-label">{C.headline}</span>
         <strong>{pct(idx.two_party_dem)}</strong>
         <p class="lvi-ci">
-          {C.ci}{colon}{pct(idx.ci95[0])} – {pct(idx.ci95[1])}
+          {C.ci}{colon}{pct0(idx.ci95[0])} – {pct0(idx.ci95[1])}
           <span aria-hidden="true"> · </span>
           {C.marginLabel} D{signed(idx.two_party_margin_dem)}
         </p>
+        <p class="vs-meta lvi-fieldmeta">{FIELD_META(longDate(lastField), scope, longDate(runDate))}</p>
       </div>
 
       <div class="lvi-quality" role="note">
@@ -169,7 +184,7 @@ const waves = [...voteIndex.waves].sort((a, b) =>
           {waves.map((w) => (
             <tr class={w.two_party_dem === null ? 'is-excluded' : undefined}>
               <th scope="row">
-                {w.firm}
+                {w.source_url ? <a href={w.source_url} target="_blank" rel="noopener nofollow">{w.firm}</a> : w.firm}
                 {w.client && w.client !== w.firm && <span class="lvi-client">{w.client}</span>}
               </th>
               <td>{fieldRange(w.field_start, w.field_end)}</td>
@@ -195,6 +210,8 @@ const waves = [...voteIndex.waves].sort((a, b) =>
 </section>
 
 <style>
+  .lvi-fieldmeta { margin: 10px 0 0; }
+  .lvi-table th a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
   .lvi { padding: 52px 0 64px; border-bottom: 1px solid var(--rule); }
   .lvi h2 { margin: 14px 0 12px; font: 430 clamp(34px, 4vw, 54px)/1 var(--serif); letter-spacing: -.025em; }
   .lvi h3 { margin: 44px 0 6px; font: 430 26px/1.1 var(--serif); }

@@ -9,6 +9,7 @@ type L = { fr: string; es: string };
 const WHOLE: Record<string, L> = {
   'Vote-Scope model': { fr: 'Modèle Vote-Scope', es: 'Modelo Vote-Scope' },
   'U.S. Census CVAP 2020-2024 ACS': { fr: 'Bureau du recensement des États-Unis, CVAP 2020-2024 (ACS)', es: 'Oficina del Censo de EE. UU., CVAP 2020-2024 (ACS)' },
+  'Associated Press calls reported by Wikipedia — unofficial, pending state certification': { fr: 'Résultats annoncés par l’Associated Press, relevés sur Wikipédia — non officiels, en attente de la certification de l’État', es: 'Resultados anunciados por Associated Press, recogidos en Wikipedia — no oficiales, pendientes de la certificación estatal' },
   'U.S. Census CPS Voting Supplement 2024': { fr: 'Bureau du recensement des États-Unis, supplément électoral CPS 2024', es: 'Oficina del Censo de EE. UU., suplemento electoral CPS 2024' },
 };
 const DESC: Record<string, L> = {

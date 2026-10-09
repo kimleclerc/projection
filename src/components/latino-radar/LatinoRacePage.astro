@@ -1,7 +1,9 @@
 ---
 import { sourceLabel, confidenceLabel } from '../../lib/source-labels';
 import EditorialLayout from '../../layouts/EditorialLayout.astro';
-import { partyLabel, radarCopy, radarRoots, type RadarLocale } from '../../data/latinoRadar';
+import { partyLabel, radarCopy, radarRoots, raceProjectionUrl, type RadarLocale } from '../../data/latinoRadar';
+import { getAllUSHouseRidings } from '../../lib/riding-adapters/us-house';
+import { getAllUSSenateRaces } from '../../lib/riding-adapters/us-senate';
 import '../../styles/latino-radar.css';
 
 const { locale, race } = Astro.props as { locale: RadarLocale; race: any };
@@ -15,11 +17,21 @@ const points = history.map((item: any, index: number) => {
   return `${x},${y}`;
 }).join(' ');
 const canonical = `https://vote-scope.com${race.urls[locale]}`;
+// La fiche mène à la projection de SA course, pas à l'accueil de la Chambre.
+const pool = race.office === 'senate' ? getAllUSSenateRaces() : getAllUSHouseRidings();
+const projectionSlug = pool.find((r) => r.id === race.riding_id)?.slug;
+const projectionUrl = raceProjectionUrl(race, projectionSlug, locale);
+// Le bulletin d'abord ; les éliminés des primaires à part, jamais mêlés.
+const onBallot = race.candidates.filter((c: any) => c.ballot_status !== 'lost_primary');
+const eliminated = race.candidates.filter((c: any) => c.ballot_status === 'lost_primary');
+const statusNote = (c: any) => c.ballot_status === 'fec_filing' ? copy.filedOnly : c.ballot_status === 'active_primary' ? copy.inPrimary : null;
+const pct = (v: number, d = 0) => locale === 'en' ? `${v.toFixed(d)}%` : `${v.toFixed(d).replace('.', ',')}\u202f%`;
+const dateFmt = (iso: string) => new Date(iso + 'T12:00:00Z').toLocaleDateString(locale === 'en' ? 'en-US' : locale === 'es' ? 'es-ES' : 'fr-CA', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
 const alternates = Object.fromEntries(Object.entries(race.urls).map(([key, value]) => [key, `https://vote-scope.com${value}`])) as any;
 ---
 <EditorialLayout
   title={`${race.name} · ${copy.title} — Vote-Scope`}
-  description={`${race.name}: ${copy.breakdown}, ${copy.projection.toLowerCase()} et ${copy.history.toLowerCase()}.`}
+  description={`${race.name}: ${copy.breakdown.toLowerCase()}, ${copy.projection.toLowerCase()} ${copy.and} ${copy.candidatesTitle.toLowerCase()}.`}
   canonical={canonical}
   lang={locale}
   currentPage="usa-hub"
@@ -44,54 +56,59 @@ const alternates = Object.fromEntries(Object.entries(race.urls).map(([key, value
 
       <section class="race-summary">
         <div><span>{copy.score}</span><strong>{Math.round(race.score)}/100</strong></div>
-        <div><span>{copy.model}</span><strong class={winner === 'us_dem' ? 'party-dem' : 'party-rep'}>{partyLabel(winner, locale)} {Math.round(race.projection.p_winner * 100)}%</strong></div>
-        <div><span>{copy.cvap}</span><strong>{latino.raw_value.toFixed(1)}%</strong></div>
-        <div><span>{copy.movement}</span><strong>{race.movement_7d.delta_probability_points > 0 ? '+' : ''}{race.movement_7d.delta_probability_points.toFixed(1)}</strong></div>
+        <div><span>{copy.model}</span><strong class={winner === 'us_dem' ? 'party-dem' : 'party-rep'}>{partyLabel(winner, locale)} {pct(Math.round(race.projection.p_winner * 100))}</strong></div>
+        <div><span>{copy.cvap}</span><strong>{pct(latino.raw_value)}</strong></div>
+        <div><span>{copy.movement}</span><strong>{race.movement_7d.delta_probability_points > 0 ? '+' : ''}{locale === 'en' ? race.movement_7d.delta_probability_points.toFixed(1) : race.movement_7d.delta_probability_points.toFixed(1).replace('.', ',')}</strong></div>
       </section>
+      <p class="vs-meta race-notes">{copy.winProbNote} {copy.cvapNote}</p>
 
       <div class="race-layout">
         <div>
           <section>
-            <p class="radar-kicker">{copy.breakdown}</p>
             <h2>{copy.breakdown}</h2>
             <div class="score-components">
               {race.components.map((component: any) => <article class="score-component">
                 <div><h3>{component.labels[locale]}</h3><small>{component.weight}{locale === 'en' ? '%' : '\u202f%'} · {confidenceLabel(component.source.confidence, locale)}</small></div>
-                <div class="score-track" aria-label={`${component.score} sur 100`}><div class="score-fill" style={`width:${component.score}%`}></div></div>
+                <div class="score-track" aria-label={copy.outOf100(Math.round(component.score))}><div class="score-fill" style={`width:${component.score}%`}></div></div>
                 <div class="score-number">{Math.round(component.score)}</div>
               </article>)}
             </div>
           </section>
           <section class="history-block">
-            <p class="radar-kicker">{copy.history}</p>
             <h2>{copy.history}</h2>
             {history.length > 1 ? <svg class="history-chart" viewBox="0 -5 100 115" preserveAspectRatio="none" role="img" aria-label={copy.history}>
               <line class="grid" x1="0" y1="50" x2="100" y2="50" />
+              <text x="0" y="48">50 %</text>
               <polyline class="line" points={points} />
-              <text x="0" y="110">{history[0].date}</text>
-              <text x="100" y="110" text-anchor="end">{history.at(-1).date}</text>
+              <text x="0" y="110">{dateFmt(history[0].date)}</text>
+              <text x="100" y="110" text-anchor="end">{dateFmt(history.at(-1).date)}</text>
             </svg> : <p>{copy.noHistory}</p>}
           </section>
         </div>
 
         <aside class="race-aside">
           <section>
-            <p class="radar-kicker">{copy.candidatesTitle}</p>
             <h2>{copy.candidatesTitle}</h2>
-            {race.candidates.map((candidate: any) => <div class="candidate">
+            {onBallot.length === 0 && <p>{copy.noGeneral}</p>}
+            {onBallot.map((candidate: any) => <div class="candidate">
               <strong>{candidate.name}</strong>
-              <span>{candidate.party_labels[locale]} · FEC {candidate.fec_id}</span>
-              <small class={candidate.latino_verified ? 'verified-mark' : ''}>{candidate.latino_verified ? `✓ ${copy.verified}` : copy.unverified}</small>
+              <span>{candidate.party_labels[locale]}</span>
+              {statusNote(candidate) && <small>{statusNote(candidate)}</small>}
+              {candidate.latino_verified && <small class="verified-mark">{copy.verified}</small>}
             </div>)}
+            {eliminated.length > 0 && <details class="race-eliminated">
+              <summary>{copy.eliminated} ({eliminated.length})</summary>
+              <ul>{eliminated.map((c: any) => <li>{c.name} · {c.party_labels[locale]}</li>)}</ul>
+            </details>}
           </section>
           <section>
-            <p class="radar-kicker">{copy.sources}</p>
             <h2>{copy.sources}</h2>
             <ul class="source-list">
-              {race.sources.map((source: any) => <li><a href={source.url || undefined}>{sourceLabel(source.label, locale)}</a> · {source.as_of}</li>)}
+              {race.sources.filter((source: any, i: number, all: any[]) => all.findIndex((o: any) => o.label === source.label) === i).map((source: any) => <li><a href={source.url || undefined}>{sourceLabel(source.label, locale)}</a>{source.as_of && ` · ${dateFmt(source.as_of)}`}</li>)}
             </ul>
             <div class="race-actions">
-              <a href={race.projection_urls[locale]}>{copy.fullProjection}</a>
+              {projectionUrl && <a href={projectionUrl}>{copy.raceProjection(race.name)}</a>}
+              <a href={race.projection_urls[locale]}>{copy.nationalProjection}</a>
               <a href={race.social_cards[locale]} download>{copy.social} ↓</a>
             </div>
           </section>
@@ -100,3 +117,10 @@ const alternates = Object.fromEntries(Object.entries(race.urls).map(([key, value
     </div>
   </main>
 </EditorialLayout>
+
+<style>
+  .race-notes { margin: 8px 0 0; max-width: 72ch; }
+  .race-eliminated { margin-top: 16px; font-size: 14px; color: var(--ink-2); }
+  .race-eliminated summary { cursor: pointer; font-weight: 600; }
+  .race-eliminated ul { margin: 8px 0 0; padding-left: 18px; }
+</style>
