@@ -23,7 +23,7 @@ import type {
 } from './types';
 import { ridingSlug } from './types';
 import { partyMeta } from './parties';
-import { nomineesByParty } from './nominees';
+import { nomineesByParty, isQualifiedCandidate, isDeclaredCandidate } from './nominees';
 import { getLocalPollsByRiding, depad, type PollRow } from '../polls-adapter';
 import ridingsSource from '../../../web_data/us-house/ridings.json';
 import membersSource from '../../../web_data/us-house/members.json';
@@ -60,7 +60,7 @@ type RawRiding = {
 const ridings = (ridingsSource as { ridings: RawRiding[]; meta: { run_date: string } }).ridings;
 const META = (ridingsSource as { meta: { run_date: string } }).meta;
 const members = membersSource as Record<string, RidingMember | undefined>;
-type RawCandidate = { name: string; party_code: string; party_raw: string; ici_status: string; filing_status: string; fec_id: string; primary_outcome: string };
+type RawCandidate = { name: string; party_code: string; party_raw: string; ici_status: string; filing_status: string; fec_id: string; primary_outcome: string; ballot_status?: string; ballot_source_url?: string; nomination_source_url?: string };
 const candidatesByRiding = candidatesSource as Record<string, RawCandidate[]>;
 const primariesByRiding = primariesSource as Record<string, RidingData['primaries']>;
 const redistrictingByRiding = redistrictingSource as Record<string, RidingData['redistrictingImpact']>;
@@ -159,30 +159,15 @@ function adaptMember(rid: string): RidingMember | undefined {
 function adaptDeclared(rid: string): DeclaredCandidate[] | undefined {
   const list = candidatesByRiding[rid];
   if (!list || list.length === 0) return undefined;
-  const primary = primariesByRiding[rid];
-  const held = primary?.status === 'held';
-  const eligible = new Set(['won', 'advanced', 'runoff', 'no_primary']);
-  let filtered = list.filter((c) => held ? eligible.has(c.primary_outcome) : c.primary_outcome !== 'lost');
-
-  // Une primaire tenue dont le décompte officiel n'est pas encore importé laisse
-  // tous ses candidats en `results_pending`, qui n'est dans aucun des deux
-  // ensembles ci-dessus : la liste tombait à zéro et la section « Qui se
-  // présente » disparaissait en silence. Mesuré le 2026-08-22 : 149 districts
-  // et 5 sièges du Sénat n'affichaient aucun candidat pour cette seule raison.
-  // Repli : plutôt que de ne rien montrer, montrer le terrain déclaré, sans
-  // ceux qui ont perdu ou ne sont pas sur le bulletin. Ne s'active QUE si le
-  // filtre strict a tout vidé, donc aucune page déjà correcte ne change.
-  if (filtered.length === 0) {
-    filtered = list.filter(
-      (c) => c.primary_outcome !== 'lost' && c.primary_outcome !== 'not_on_ballot',
-    );
-  }
+  const filtered = list.filter(isDeclaredCandidate);
   if (filtered.length === 0) return undefined;
   return filtered.map((c) => ({
     name: c.name,
     party_code: c.party_code,
     party_raw: c.party_raw,
     status: c.ici_status === 'I' ? 'incumbent' : c.ici_status === 'O' ? 'open' : 'challenger',
+    qualification: isQualifiedCandidate(c) ? 'confirmed' : 'pending',
+    source_url: c.ballot_source_url || c.nomination_source_url || undefined,
   }));
 }
 

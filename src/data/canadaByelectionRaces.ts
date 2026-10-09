@@ -460,6 +460,70 @@ export const canadaByelectionRaces = {
       es: '/es/canada/byelections/scarborough-nord/',
     },
   },
+  "parry-sound-muskoka": {
+    "slug": "parry-sound-muskoka",
+    "ridingId": "35084",
+    "dataPath": "canada-byelection-parry-sound-muskoka",
+    "currentPage": "canada",
+    "status": "expected",
+    "electionDate": null,
+    "vacancyDate": null,
+    "province": "ON",
+    "ridingName": {
+        "en": "Parry Sound—Muskoka",
+        "fr": "Parry Sound—Muskoka",
+        "es": "Parry Sound—Muskoka"
+    },
+    "title": {
+        "en": "Parry Sound–Muskoka By-Election: Forecast and Updates — Vote-Scope",
+        "fr": "Partielle de Parry Sound–Muskoka : projection et nouvelles — Vote-Scope",
+        "es": "Elección parcial de Parry Sound–Muskoka: proyección — Vote-Scope"
+    },
+    "description": {
+        "en": "Scott Aitchison has announced his departure after the fall parliamentary session. Follow the expected federal by-election in Parry Sound–Muskoka; no polling date has been set.",
+        "fr": "Scott Aitchison a annoncé son départ à la fin de la session d’automne. Suivez la partielle fédérale attendue dans Parry Sound–Muskoka. Aucune date de scrutin n’est annoncée.",
+        "es": "Scott Aitchison anunció su salida al término de la sesión parlamentaria de otoño. Sigue la elección parcial federal prevista en Parry Sound–Muskoka, todavía sin fecha."
+    },
+    "kicker": {
+        "en": "Federal by-election · Ontario · departure announced",
+        "fr": "Partielle fédérale · Ontario · départ annoncé",
+        "es": "Elección parcial federal · Ontario · salida anunciada"
+    },
+    "headline": {
+        "en": "Parry Sound–Muskoka",
+        "fr": "Parry Sound–Muskoka",
+        "es": "Parry Sound–Muskoka"
+    },
+    "dek": {
+        "en": "Scott Aitchison remains the Conservative MP. His announced departure will lead to a by-election once the seat becomes vacant and a writ is issued.",
+        "fr": "Scott Aitchison demeure député conservateur. Son départ annoncé entraînera une partielle lorsque le siège sera vacant et qu’un bref sera émis.",
+        "es": "Scott Aitchison sigue siendo diputado conservador. Su salida anunciada dará lugar a una elección parcial cuando el escaño quede vacante y se convoque la votación."
+    },
+    "why": {
+        "en": [
+            "On September 30, 2026, Scott Aitchison announced that he would resign after the fall parliamentary session.",
+            "The seat is not yet vacant. No by-election date or new candidate has been confirmed."
+        ],
+        "fr": [
+            "Le 30 septembre 2026, Scott Aitchison a annoncé sa démission à la fin de la session parlementaire d’automne.",
+            "Le siège n’est pas encore vacant. Aucune date de partielle ni nouvelle candidature n’est confirmée."
+        ],
+        "es": [
+            "El 30 de septiembre de 2026, Scott Aitchison anunció su renuncia al término de la sesión parlamentaria de otoño.",
+            "El escaño aún no está vacante. No se han confirmado la fecha de la elección parcial ni nuevas candidaturas."
+        ]
+    },
+    "modelNote": {
+        "en": "The estimate uses the current federal riding projection and the model’s by-election turnout adjustment. It includes no local poll and no estimate of Aitchison’s personal vote. Candidate announcements and local polls may change the outlook.",
+        "fr": "L’estimation part de la projection fédérale du siège, avec l’ajustement de participation du modèle pour les partielles. Elle ne comprend aucun sondage local ni estimation du vote personnel d’Aitchison. Les candidatures et les sondages locaux pourront modifier la projection.",
+        "es": "La estimación parte de la proyección federal del distrito e incorpora el ajuste de participación del modelo para elecciones parciales. No incluye encuestas locales ni una estimación del voto personal de Aitchison. Las candidaturas y las encuestas locales podrán modificarla."
+    },
+    "paths": {
+        "en": "/en/canada/byelections/parry-sound-muskoka/",
+        "fr": "/fr/canada/byelections/parry-sound-muskoka/",
+        "es": "/es/canada/byelections/parry-sound-muskoka/"
+    }
+},
 } satisfies Record<string, ByelectionRaceConfig>;
 
 export type CanadaByelectionRaceKey = keyof typeof canadaByelectionRaces;
