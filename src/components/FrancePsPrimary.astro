@@ -122,10 +122,10 @@ const C = {
     inPolls: (v: string, n: number) => `${v} dans les sondages présidentiels · ${n} hypothèse${n > 1 ? 's' : ''} en 90 jours`,
     neverTested: 'Jamais testé dans un sondage présidentiel',
     opinionTitle: 'Ce qu’en pense l’électorat de gauche',
-    opinionLede: 'Aucun sondage n’interroge les inscrits à la primaire : on ne connaît pas d’intentions de vote. Ce que l’on sait, c’est l’image des candidats à gauche. Ce ne sont pas des votes : chacun peut apprécier plusieurs candidats, et les votants de la primaire, des inscrits qui paient 15 €, ne ressemblent pas forcément à l’électorat de gauche.',
+    opinionLede: 'Nous n’avons pas de sondage vérifié auprès des inscrits à la primaire. Ce que l’on sait, c’est l’image des candidats à gauche. Ce ne sont pas des votes : chacun peut apprécier plusieurs candidats, et les votants de la primaire, des inscrits qui paient 15 €, ne ressemblent pas forcément à l’électorat de gauche.',
     opinionAll: (v: string) => `Ensemble des Français : ${v}`,
     outside: 'pas candidat',
-    opinionRead: 'À gauche, la course paraît bien plus serrée que dans les sondages présidentiels : Royal et Faure y sont à moins de dix points de Glucksmann, alors qu’ils pèsent deux à trois fois moins que lui dans les intentions de vote présidentielles.',
+    opinionRead: 'Dans ces enquêtes d’image de septembre, Royal et Faure sont à moins de dix points de Glucksmann à gauche. Apprécier un candidat ne signifie pas voter pour lui : ces résultats ne permettent pas de prévoir le classement de la primaire.',
     interest: (a: string, l: string, p: string) => `Intérêt pour la campagne de la primaire : ${a} des Français, ${l} des sympathisants de gauche, ${p} des sympathisants PS et Place publique.`,
     source: 'Source',
     changeTitle: 'Ce que le résultat change pour la présidentielle',
@@ -161,10 +161,10 @@ const C = {
     inPolls: (v: string, n: number) => `${v} in presidential polls · ${n} lineup${n > 1 ? 's' : ''} in 90 days`,
     neverTested: 'Never tested in a presidential poll',
     opinionTitle: 'What left-wing voters think',
-    opinionLede: 'No poll surveys the people registered for the primary, so there are no voting intentions. What we do know is how the candidates are viewed on the left. These are not votes: people can like several candidates, and primary voters, who register and pay €15, may not look like the wider left-wing electorate.',
+    opinionLede: 'We have no verified poll of people registered for the primary. What we do know is how the candidates are viewed on the left. These are not votes: people can like several candidates, and primary voters, who register and pay €15, may not look like the wider left-wing electorate.',
     opinionAll: (v: string) => `All French adults: ${v}`,
     outside: 'not running',
-    opinionRead: 'On the left, the race looks much tighter than in presidential polls: Royal and Faure are within ten points of Glucksmann, while they score two to three times less than him in presidential voting intentions.',
+    opinionRead: 'In these September image surveys, Royal and Faure are within ten points of Glucksmann on the left. Liking a candidate does not mean voting for them: these results cannot predict the primary ranking.',
     interest: (a: string, l: string, p: string) => `Interest in the primary campaign: ${a} of French adults, ${l} of left-wing supporters, ${p} of PS and Place publique supporters.`,
     source: 'Source',
     changeTitle: 'What the result changes for the presidential race',
@@ -200,10 +200,10 @@ const C = {
     inPolls: (v: string, n: number) => `${v} en las encuestas presidenciales · ${n} combinaci${n > 1 ? 'ones' : 'ón'} en 90 días`,
     neverTested: 'Nunca incluido en una encuesta presidencial',
     opinionTitle: 'Lo que piensa el electorado de izquierda',
-    opinionLede: 'Ninguna encuesta pregunta a los inscritos en las primarias: no hay intención de voto. Lo que sí se sabe es la imagen de los candidatos en la izquierda. No son votos: se puede apreciar a varios candidatos, y los votantes de las primarias, inscritos que pagan 15 €, no se parecen necesariamente al electorado de izquierda.',
+    opinionLede: 'No tenemos una encuesta verificada entre los inscritos en las primarias. Lo que sí se sabe es la imagen de los candidatos en la izquierda. No son votos: se puede apreciar a varios candidatos, y los votantes de las primarias, inscritos que pagan 15 €, no se parecen necesariamente al electorado de izquierda.',
     opinionAll: (v: string) => `Conjunto de los franceses: ${v}`,
     outside: 'no es candidato',
-    opinionRead: 'En la izquierda, la carrera parece mucho más ajustada que en las encuestas presidenciales: Royal y Faure están a menos de diez puntos de Glucksmann, mientras que pesan dos o tres veces menos que él en la intención de voto presidencial.',
+    opinionRead: 'En estas encuestas de imagen de septiembre, Royal y Faure están a menos de diez puntos de Glucksmann entre la izquierda. Apreciar a un candidato no significa votarlo: estos resultados no permiten prever la clasificación de las primarias.',
     interest: (a: string, l: string, p: string) => `Interés por la campaña de las primarias: ${a} de los franceses, ${l} de los simpatizantes de izquierda, ${p} de los simpatizantes del PS y Place publique.`,
     source: 'Fuente',
     changeTitle: 'Lo que el resultado cambia para la presidencial',
@@ -299,6 +299,21 @@ const maxMove = Math.max(1, ...primaryRows.flatMap((r) => (r.swap?.movers ?? [])
         </li>
       ))}
     </ul>
+  </section>
+
+  <section class="fps-section container" aria-labelledby="fps-preference">
+    <h2 id="fps-preference">{PS_PRIMARY.winnerPreference.title[locale]}</h2>
+    <p class="fps-help">{PS_PRIMARY.winnerPreference.context[locale]}</p>
+    <table class="fps-preference">
+      <tbody>
+        {PS_PRIMARY.winnerPreference.rows.map((r) => (
+          <tr><th scope="row">{nameOf(r.id)}</th><td>{r.share}{locale === 'en' ? '%' : ' %'}</td></tr>
+        ))}
+        <tr><th scope="row">{PS_PRIMARY.winnerPreference.noneLabel[locale]}</th><td>{PS_PRIMARY.winnerPreference.none}{locale === 'en' ? '%' : ' %'}</td></tr>
+      </tbody>
+    </table>
+    <p class="fps-help">{PS_PRIMARY.winnerPreference.caveat[locale]}</p>
+    <p class="fps-small">{C.source} : <a href={PS_PRIMARY.winnerPreference.url} rel="noopener">{PS_PRIMARY.winnerPreference.firm}, {PS_PRIMARY.winnerPreference.client}</a> · {day(PS_PRIMARY.winnerPreference.published, true)} · p. 3, 12–13.</p>
   </section>
 
   <section class="fps-section container" aria-labelledby="fps-opinion">
@@ -412,6 +427,10 @@ const maxMove = Math.max(1, ...primaryRows.flatMap((r) => (r.swap?.movers ?? [])
   .fps-section { max-width: 1080px; margin-top: 48px; }
   .fps-section h2 { margin: 0 0 14px; font-family: var(--serif); font-size: clamp(24px, 3vw, 34px); font-weight: 430; }
   .fps-help { max-width: 700px; margin: 0 0 18px; font-family: var(--mono); font-size: 12px; line-height: 1.6; color: var(--ink-3); }
+  .fps-preference { width: 100%; max-width: 720px; border-collapse: collapse; margin: 16px 0; }
+  .fps-preference th, .fps-preference td { padding: 10px 0; border-bottom: 1px solid var(--rule); }
+  .fps-preference th { text-align: left; font-weight: 450; }
+  .fps-preference td { text-align: right; font-variant-numeric: tabular-nums; }
   .fps-small { font-family: var(--mono); font-size: 11px; color: var(--ink-3); }
   .fps-text { max-width: 720px; color: var(--ink-2); line-height: 1.7; padding-left: 18px; }
   p.fps-text { padding-left: 0; }

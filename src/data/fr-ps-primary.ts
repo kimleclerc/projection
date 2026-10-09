@@ -37,25 +37,25 @@ export const PS_PRIMARY = {
       'Vote en ligne, avec environ 1 000 points de vote physiques (tablette dans un isoloir).',
       'Ouvert aux adhérents à jour du PS, de Place publique et de la GRS, et aux non-adhérents qui versent 15 € (10 € pour les étudiants et les non-imposables).',
       'Inscription au plus tard trois jours avant le scrutin.',
-      'Les organisateurs attendent environ 50 000 votants, 100 000 au mieux. En 2017, près de 2 millions avaient voté à la primaire socialiste.',
+      'La commission organisatrice annonce 140 282 inscrits (RTL, 6 octobre). En 2017, près de 2 millions avaient voté à la primaire socialiste.',
     ],
     en: [
       'Online vote, with about 1,000 physical voting points (a tablet in a booth).',
       'Open to paid-up members of the PS, Place publique and the GRS, and to non-members who pay €15 (€10 for students and non-taxpayers).',
       'Registration at least three days before the vote.',
-      'Organizers expect about 50,000 voters, 100,000 at best. In 2017, nearly 2 million voted in the Socialist primary.',
+      'The organizing commission reports 140,282 registered voters (RTL, October 6). In 2017, nearly 2 million voted in the Socialist primary.',
     ],
     es: [
       'Voto en línea, con unos 1.000 puntos de votación físicos (tableta en una cabina).',
       'Abierto a los afiliados al día del PS, Place publique y la GRS, y a los no afiliados que paguen 15 € (10 € para estudiantes y no contribuyentes).',
       'Inscripción como mínimo tres días antes de la votación.',
-      'Los organizadores esperan unos 50.000 votantes, 100.000 como mucho. En 2017, casi 2 millones votaron en las primarias socialistas.',
+      'La comisión organizadora anuncia 140.282 inscritos (RTL, 6 de octubre). En 2017, casi 2 millones votaron en las primarias socialistas.',
     ],
   } as Record<Loc, string[]>,
   debates: [
     { date: '2026-09-23', where: 'LCI' },
     { date: '2026-10-01', where: 'France 2 · France Inter' },
-    { date: null, where: 'BFMTV', note: { fr: 'dans les jours précédant le premier tour', en: 'in the days before the first round', es: 'en los días previos a la primera vuelta' } as T },
+    { date: '2026-10-04', where: 'BFMTV' },
   ] as Array<{ date: string | null; where: string; note?: T }>,
   outOfRace: {
     fr: 'Philippe Brun, dont la candidature avait été validée, a été suspendu du PS le 16 septembre et ne participe pas. François Ruffin et Matthieu Pigasse n’ont pas obtenu l’accord nécessaire pour y entrer.',
@@ -98,6 +98,34 @@ export const PS_PRIMARY = {
     },
   ] as Array<{ firm: string; client: string; field: [string, string]; n: number; url: string; measure: T; group: T; note: T;
                rows: Array<{ id: string; left: number; all: number | null; outside?: boolean }> }>,
+  // Toluna Harris Interactive pour M6 / RTL, publié le 9 octobre 2026.
+  // Rapport p. 3 (méthode), p. 12–13 (souhait de victoire), dernière vague.
+  // 2 826 = échantillon national total, PAS la taille du sous-groupe de gauche.
+  // Ne pas intégrer aux sondages présidentiels ni renormaliser en votes exprimés.
+  winnerPreference: {
+    firm: 'Toluna Harris Interactive', client: 'M6 / RTL', published: '2026-10-09', n: 2826,
+    url: 'https://tolunacorporate.com/wp-content/uploads/2026/10/Rapport-Toluna-Les-Francais-et-les-debats-de-la-primaire-sociale-democrate-M6-RTL-Octobre-2026.pdf',
+    rows: [
+      { id: 'left_glucksmann', share: 33 },
+      { id: 'left_royal', share: 16 },
+      { id: 'left_faure', share: 9 },
+      { id: 'left_guedj', share: 5 },
+      { id: 'left_maurel', share: 5 },
+    ],
+    none: 30,
+    title: { fr: 'Qui les Français de gauche souhaitent-ils voir gagner ?', en: 'Who do French adults on the left want to win?', es: '¿Quién desean que gane los franceses de izquierda?' } as T,
+    context: {
+      fr: 'Toluna Harris Interactive pour M6 et RTL, publié le 9 octobre. Dernière vague réalisée après le débat du 4 octobre, auprès de 2 826 adultes au total. Les chiffres ci-dessous portent sur ceux qui se situent à gauche, au centre-gauche ou très à gauche; le rapport ne précise pas la taille de ce sous-groupe.',
+      en: 'Toluna Harris Interactive for M6 and RTL, published October 9. The latest wave followed the October 4 debate and surveyed 2,826 adults in total. The figures below are for those placing themselves on the left, centre-left or far left; the report does not give the size of this subgroup.',
+      es: 'Toluna Harris Interactive para M6 y RTL, publicado el 9 de octubre. La última ola se realizó después del debate del 4 de octubre, con 2.826 adultos en total. Las cifras siguientes corresponden a quienes se sitúan a la izquierda, centroizquierda o extrema izquierda; el informe no precisa el tamaño de este subgrupo.',
+    } as T,
+    caveat: {
+      fr: 'Il s’agit d’un souhait de victoire, pas d’une intention de vote des inscrits à la primaire. Ces pourcentages ne prédisent pas le résultat du scrutin.',
+      en: 'This measures a preferred winner, not the voting intentions of people registered for the primary. These percentages do not forecast the result.',
+      es: 'Se trata de un deseo de victoria, no de la intención de voto de los inscritos en las primarias. Estos porcentajes no predicen el resultado.',
+    } as T,
+    noneLabel: { fr: 'Aucun de ces candidats', en: 'None of these candidates', es: 'Ninguno de estos candidatos' } as T,
+  },
   // Elabe pour BFMTV et La Tribune Dimanche, 29 sept.–2 oct., n = 2005.
   interest: { firm: 'Elabe', client: 'BFMTV, La Tribune Dimanche', field: ['2026-09-29', '2026-10-02'], n: 2005,
               url: 'https://elabe.fr/primaire-gauche/', all: 25, left: 48, psPp: 56 },
