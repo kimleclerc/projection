@@ -68,7 +68,7 @@ const CALENDAR = [
     headline: L(`Chambre : ${house.seats_projected} sièges démocrates projetés`, `House: ${house.seats_projected} projected Democratic seats`, `Cámara: ${house.seats_projected} escaños demócratas proyectados`),
     detail: L(`Chances d'une Chambre démocrate : ${Math.round(100 * house.p_majority)} %`, `Chance of a Democratic House: ${Math.round(100 * house.p_majority)}%`, `Probabilidad de una Cámara demócrata: ${Math.round(100 * house.p_majority)} %`),
     href: L('/fr/us/', '/en/us/', '/es/us/'),
-    cta: L('Ouvrir la rubrique É.-U.', 'Open the U.S. desk', 'Abrir el desk EE. UU.') },
+    cta: L('Ouvrir la rubrique É.-U.', 'Open the U.S. section', 'Abrir la sección EE. UU.') },
   { id: 'es-2026', canada: false, date: '2026-11-29', place: L('Espagne', 'Spain', 'España'),
     headline: L(`${subject('spain', es.party)} en tête : ${es.seats_projected} sièges projetés sur 350`, `${subject('spain', es.party)} ahead: ${es.seats_projected} projected seats of 350`, `${subject('spain', es.party)} en cabeza: ${es.seats_projected} escaños proyectados de 350`),
     detail: L('Élections générales anticipées', 'Snap general election', 'Elecciones generales anticipadas'),
@@ -91,12 +91,29 @@ const when = (e: { d: number; date: string }) => e.d < 0
   ? L(`Résultats · ${dateFmt(e.date)}`, `Results · ${dateFmt(e.date)}`, `Resultados · ${dateFmt(e.date)}`)
   : e.d === 0 ? L('Aujourd’hui', 'Today', 'Hoy')
   : L(`${dateFmt(e.date)} · dans ${e.d} jours`, `${dateFmt(e.date)} · in ${e.d} days`, `${dateFmt(e.date)} · en ${e.d} días`);
+// « Ajouter à mon agenda » : un fichier .ics fabriqué dans le lien lui-même
+// (data:), journée entière, aucun fichier publié en plus.
+const icsDate = (iso: string) => iso.replaceAll('-', '');
+const nextDay = (iso: string) => new Date(Date.parse(iso + 'T12:00:00Z') + 86_400_000).toISOString().slice(0, 10);
+const ics = (e: { id: string; date: string; place: string; href: string }) => {
+  const body = [
+    'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Vote-Scope//Calendrier//FR', 'BEGIN:VEVENT',
+    `UID:${e.id}@vote-scope.com`, `DTSTAMP:${icsDate(new Date().toISOString().slice(0, 10))}T000000Z`,
+    `DTSTART;VALUE=DATE:${icsDate(e.date)}`, `DTEND;VALUE=DATE:${icsDate(nextDay(e.date))}`,
+    `SUMMARY:${L('Élection', 'Election', 'Elección')} — ${e.place}`,
+    `URL:https://vote-scope.com${e.href}`,
+    `DESCRIPTION:${L('Projection et résultats sur Vote-Scope', 'Forecast and results on Vote-Scope', 'Proyección y resultados en Vote-Scope')} : https://vote-scope.com${e.href}`,
+    'END:VEVENT', 'END:VCALENDAR',
+  ].join('\r\n');
+  return `data:text/calendar;charset=utf-8,${encodeURIComponent(body)}`;
+};
 const storyItems = ordered.map((e) => ({
   meta: `${e.place} · ${when(e)}`,
   title: e.headline,
   text: e.detail,
   href: e.href,
   strong: e.d < 0,
+  extra: e.d > 0 ? { href: ics(e), label: L('Ajouter à mon agenda', 'Add to my calendar', 'Añadir a mi calendario'), download: `vote-scope-${e.id}.ics` } : undefined,
 }));
 const title = scope === 'canada' ? L('Élections au Canada', 'Elections in Canada', 'Elecciones en Canadá')
   : L('Élections en cours', 'Elections now', 'Elecciones en curso');
