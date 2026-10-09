@@ -33,7 +33,7 @@ import type {
 import { ridingSlug } from './types';
 import { getLocalPollsByRiding, depad, type PollRow } from '../polls-adapter';
 import { partyMeta } from './parties';
-import { nomineesByParty } from './nominees';
+import { nomineesByParty, isQualifiedCandidate, isDeclaredCandidate } from './nominees';
 import latestSource from '../../../web_data/us-governor/latest.json';
 import membersSource from '../../../web_data/us-governor/members.json';
 import candidatesSource from '../../../web_data/us-governor/candidates_2026.json';
@@ -77,6 +77,7 @@ const members = membersSource as Record<string, RidingMember | undefined>;
 type RawCandidate = {
   name: string; party_code: string; party_raw: string;
   ici_status: string; filing_status: string; primary_outcome: string;
+  ballot_status?: string; ballot_source_url?: string; nomination_source_url?: string;
 };
 const candidatesByRace = candidatesSource as Record<string, RawCandidate[] | undefined>;
 const RACES_WITH_HISTORY = new Set(
@@ -171,14 +172,15 @@ function buildNeighbors(raceId: string): RidingNeighbor[] {
 function adaptDeclared(raceId: string): DeclaredCandidate[] | undefined {
   const list = candidatesByRace[raceId];
   if (!list || list.length === 0) return undefined;
-  // Aucune primaire gubernatoriale n'est importée : la liste EST celle des
-  // nommés de novembre, donc rien à filtrer. Le statut vient du siège —
-  // 'open' quand le sortant n'est pas sur le bulletin.
-  return list.map((c) => ({
+  const filtered = list.filter(isDeclaredCandidate);
+  if (filtered.length === 0) return undefined;
+  return filtered.map((c) => ({
     name: c.name,
     party_code: c.party_code,
     party_raw: c.party_raw,
     status: c.ici_status === 'I' ? 'incumbent' : c.ici_status === 'O' ? 'open' : 'challenger',
+    qualification: isQualifiedCandidate(c) ? 'confirmed' : 'pending',
+    source_url: c.ballot_source_url || c.nomination_source_url || undefined,
   }));
 }
 

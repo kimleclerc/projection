@@ -21,18 +21,18 @@ if (list.length === 0) return null;
 const T = {
   en: {
     eyebrow: 'Who\'s running', title: 'The candidates',
-    lede: 'Declared and on-ballot candidates for the upcoming election.',
-    incumbent: 'Incumbent', challenger: 'Challenger', open: 'Open seat', source: 'source',
+    lede: 'Candidates for the upcoming election.',
+    pending: 'General-election qualification remains to be verified.', incumbent: 'Incumbent', challenger: 'Challenger', open: 'Open seat', source: 'source',
   },
   fr: {
     eyebrow: 'Qui se présente', title: 'Les candidats',
-    lede: 'Candidats déclarés et confirmés sur les bulletins pour la prochaine élection.',
-    incumbent: 'Sortant·e', challenger: 'Aspirant·e', open: 'Siège ouvert', source: 'source',
+    lede: 'Candidatures pour la prochaine élection.',
+    pending: 'Qualification pour le scrutin général à vérifier.', incumbent: 'Sortant·e', challenger: 'Aspirant·e', open: 'Siège ouvert', source: 'source',
   },
   es: {
     eyebrow: 'Quién se presenta', title: 'Los candidatos',
-    lede: 'Candidatos declarados y confirmados en las papeletas para la próxima elección.',
-    incumbent: 'Titular', challenger: 'Aspirante', open: 'Escaño abierto', source: 'fuente',
+    lede: 'Candidaturas para la próxima elección.',
+    pending: 'La participación en las elecciones generales aún debe verificarse.', incumbent: 'Titular', challenger: 'Aspirante', open: 'Escaño abierto', source: 'fuente',
   },
 }[lang];
 
@@ -108,6 +108,7 @@ const localizedBio = (c: (typeof list)[number]): string | undefined => {
               <div class="cand-copy">
                 <p class="cand-name">{displayName(c.name)}</p>
                 {bio && <p class="cand-portrait">{bio}</p>}
+                {c.qualification === 'pending' && <p class="cand-portrait">{T.pending}</p>}
                 {c.source_url && (
                   <a class="cand-src" href={c.source_url} target="_blank" rel="noopener nofollow">{T.source} ↗</a>
                 )}

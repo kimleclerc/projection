@@ -30,7 +30,7 @@
 import type { RidingNominee } from './types';
 
 /** Issues de primaire qui mettent bel et bien la personne sur le bulletin. */
-const ON_THE_BALLOT = new Set(['won', 'advanced', 'no_primary']);
+const ON_THE_BALLOT = new Set(['won', 'advanced']);
 
 /** Titres de civilité que le FEC range dans le champ du prénom. */
 const HONORIFICS = new Set(['MR', 'MRS', 'MS', 'DR', 'MR.', 'MRS.', 'MS.', 'DR.']);
@@ -82,7 +82,24 @@ type CandidateLike = {
   /** Statut déjà normalisé, quand le slate de la juridiction le porte. */
   status?: string;
   primary_outcome?: string;
+  ballot_status?: string;
+  ballot_source_url?: string;
+  nomination_source_url?: string;
 };
+
+/** Source-backed general ballot takes precedence over historical primary status. */
+export function isQualifiedCandidate(c: CandidateLike): boolean {
+  if (c.ballot_status === 'withdrawn' || c.ballot_status === 'not_on_ballot') return false;
+  if (c.ballot_status === 'qualified_general' || c.ballot_status === 'listed_nominee') return true;
+  if (c.primary_outcome === undefined || c.primary_outcome === '') return true;
+  return ON_THE_BALLOT.has(c.primary_outcome);
+}
+
+export function isDeclaredCandidate(c: CandidateLike): boolean {
+  if (isQualifiedCandidate(c)) return true;
+  if (c.ballot_status === 'withdrawn' || c.ballot_status === 'not_on_ballot') return false;
+  return !['lost', 'not_on_ballot', 'withdrew', 'withdrawn'].includes(c.primary_outcome ?? '');
+}
 
 /** Les deux slates n'écrivent pas le statut de la même façon : le FEC en
  *  lettre, le Québec déjà en clair. Ne lire qu'`ici_status` ferait passer
@@ -111,8 +128,7 @@ export function nomineesByParty(
     // Champ présent = l'issue doit dire que la personne est au bulletin. Les
     // importeurs américains n'écrivent jamais de valeur vide (ils écrivent
     // « unknown » puis déduisent), la distinction est donc sans angle mort.
-    const outcome = c.primary_outcome;
-    if (outcome !== undefined && outcome !== '' && !ON_THE_BALLOT.has(String(outcome))) continue;
+    if (!isQualifiedCandidate(c)) continue;
     const code = String(c.party_code ?? '');
     if (!code) continue;
     const bucket = byParty.get(code);

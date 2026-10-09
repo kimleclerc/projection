@@ -89,6 +89,7 @@ export interface RidingCandidate {
  *  Rendered by CandidateSlate — the "who's running" electoral slate, distinct
  *  from RidingCandidate (past results shown by CandidatesTable). */
 export interface DeclaredCandidate {
+  qualification?: 'confirmed' | 'pending';
   name: string;
   party_code: string;
   party_raw?: string;

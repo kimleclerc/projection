@@ -57,7 +57,7 @@ const archives = Object.values(canadaByelections);
 // Tout ce qui dépend du calendrier se calcule donc à partir des données. Les
 // dates aussi : la journée de scrutin vient des courses convoquées, pas d'une
 // chaîne recopiée.
-const scheduledDates = [...new Set(scheduled.map((r: any) => r.election_date).filter(Boolean))].sort();
+const scheduledDates = [...new Set(scheduled.map((r: any) => r.electionDate).filter(Boolean))].sort();
 const nextPollingDay = scheduledDates[0] ?? null;
 const fmtDay = (iso: string | null, loc: string) => iso
   ? new Date(`${iso}T12:00:00Z`).toLocaleDateString(loc, { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })
@@ -68,9 +68,9 @@ const nTotal = scheduled.length + nWaiting + nAnnounced;
 
 const t = {
   en: {
-    title: 'Canada By-Elections — Nine Pending Races — Vote-Scope',
+    title: `Canada By-Elections — ${nTotal} Upcoming Races — Vote-Scope`,
     description:
-      'Nine federal by-elections are coming: four seats already vacant and five announced. Vote-Scope projects each one, measuring what each departing MP was personally worth.',
+      `${nTotal} upcoming federal by-elections: ${nWaiting} vacant seats and ${nAnnounced} announced departures. Dates, projections and updates for each riding.`,
     kicker: 'Canada Desk · By-elections',
     h1: scheduled.length > 0
       ? `${scheduled.length} seat${scheduled.length > 1 ? 's are' : ' is'} voting. ${nWaiting + nAnnounced} more are coming.`
@@ -92,9 +92,9 @@ const t = {
     track: 'Track record',
   },
   fr: {
-    title: 'Partielles fédérales — neuf courses en attente — Vote-Scope',
+    title: `Partielles fédérales — ${nTotal} courses à suivre — Vote-Scope`,
     description:
-      'Neuf partielles fédérales s’annoncent : quatre sièges déjà vacants et cinq départs annoncés. Vote-Scope projette chaque course en mesurant ce que valait personnellement chaque député sortant.',
+      `${nTotal} partielles fédérales à suivre : ${nWaiting} sièges vacants et ${nAnnounced} départ annoncé. Dates, projections et nouvelles par circonscription.`,
     kicker: 'Bureau Canada · Partielles',
     h1: scheduled.length > 0
       ? `${scheduled.length} siège${scheduled.length > 1 ? 's votent' : ' vote'}. ${nWaiting + nAnnounced} autres s’en viennent.`
@@ -116,9 +116,9 @@ const t = {
     track: 'Bilan des prévisions',
   },
   es: {
-    title: 'Parciales federales de Canadá — nueve carreras pendientes — Vote-Scope',
+    title: `Elecciones parciales federales de Canadá — ${nTotal} distritos — Vote-Scope`,
     description:
-      'Se avecinan nueve parciales federales: cuatro escaños ya vacantes y cinco salidas anunciadas. Vote-Scope proyecta cada carrera midiendo cuánto valía personalmente cada diputado saliente.',
+      `${nTotal} elecciones parciales federales previstas: ${nWaiting} escaños vacantes y ${nAnnounced} salida anunciada. Fechas, proyecciones y novedades por distrito.`,
     kicker: 'Oficina Canadá · Parciales',
     h1: scheduled.length > 0
       ? `${scheduled.length} escaño${scheduled.length > 1 ? 's votan' : ' vota'}. Faltan ${nWaiting + nAnnounced} más.`
