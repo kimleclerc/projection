@@ -56,3 +56,12 @@ export const US_STATES: Record<string, { en: string; frDe: string }> = {
   WI: { en: 'Wisconsin', frDe: 'du Wisconsin' }, WY: { en: 'Wyoming', frDe: 'du Wyoming' },
   DC: { en: 'District of Columbia', frDe: 'du district de Columbia' },
 };
+
+/** Nom d'un État américain à partir de son code (« TX » → Texas, Californie, Nueva York). */
+export function usStateName(code: string | undefined, lang: Lang): string | undefined {
+  const s = code ? US_STATES[code] : undefined;
+  if (!s) return undefined;
+  if (lang === 'en') return s.en;
+  if (lang === 'es') return placeNameEs(s.en);
+  return s.frDe.replace(/^(du |de la |de l’|d’|des )/, '').replace(/^État de /, 'État de ');
+}

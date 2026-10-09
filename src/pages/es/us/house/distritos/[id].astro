@@ -2,6 +2,7 @@
 import EditorialLayout from '../../../../../layouts/EditorialLayout.astro';
 import RidingPage from '../../../../../components/riding/RidingPage.astro';
 import { getAllUSHouseRidings } from '../../../../../lib/riding-adapters/us-house';
+import { usStateName } from '../../../../../lib/place-names';
 
 export function getStaticPaths() {
   return getAllUSHouseRidings().map((data) => ({
@@ -14,8 +15,8 @@ const { data } = Astro.props;
 const canonical = `https://vote-scope.com/es/us/house/distritos/${data.slug}/`;
 const alternateEn = `https://vote-scope.com/en/us/house/districts/${data.slug}/`;
 const alternateFr = `https://vote-scope.com/fr/us/chambre/districts/${data.slug}/`;
-const title = `${data.name.en || data.name.fr} — Proyección Cámara de Representantes — Vote-Scope`;
-const description = `Proyección Vote-Scope para ${data.name.en || data.name.fr} (${data.province || 'EE. UU.'}): cuota de voto por partido, representante en funciones, candidatos 2026, carrera primaria.`;
+const title = `${data.name.en || data.name.fr}, ${usStateName(data.province, 'es') ?? data.province}: proyección 2026 de la Cámara — Vote-Scope`;
+const description = `Proyección Vote-Scope para ${data.name.en || data.name.fr} (${usStateName(data.province, 'es') ?? 'EE. UU.'}): porcentaje de voto por partido, representante en funciones, candidatos 2026, carrera primaria.`;
 ---
 
 <EditorialLayout

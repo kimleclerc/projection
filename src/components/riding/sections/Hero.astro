@@ -1,4 +1,5 @@
 ---
+import { usStateName } from '../../../lib/place-names';
 import { regionLabel, UK_NATIONS } from '../../../lib/riding-adapters/regions';
 import type { RidingData } from '../../../lib/riding-adapters/types';
 import RidingShape from './RidingShape.astro';
@@ -28,8 +29,8 @@ const PROVINCE_PREFIX_FR: Record<string, string> = {
   'ontario':    'Circonscription provinciale —',
   'british-columbia': 'Circonscription provinciale —',
   'uk':         'Circonscription britannique —',
-  'us-house':   'District US (Chambre) —',
-  'us-senate':  'Siège US (Sénat) —',
+  'us-house':   'District de la Chambre des représentants —',
+  'us-senate':  'Siège au Sénat américain —',
   'us-governor': 'Course au gouvernorat —',
   'france':     'Circonscription française —',
 };
@@ -39,8 +40,8 @@ const PROVINCE_PREFIX_ES: Record<string, string> = {
   'ontario':    'Distrito provincial —',
   'british-columbia': 'Distrito provincial —',
   'uk':         'Circunscripción británica —',
-  'us-house':   'Distrito US (Cámara) —',
-  'us-senate':  'Escaño US (Senado) —',
+  'us-house':   'Distrito de la Cámara de EE. UU. —',
+  'us-senate':  'Escaño del Senado de EE. UU. —',
   'us-governor': 'Contienda por la gobernación —',
   'france':     'Circunscripción francesa —',
 };
@@ -79,10 +80,9 @@ const urbanLabel = urbanValue ? (T.urban[urbanValue] ?? urbanValue) : null;
 <section class="riding-hero vs-page-head">
   <div class="container hero-grid">
     <div>
-      <p class="eyebrow">{T.eyebrow}</p>
       <h1>{name}</h1>
       <p class="meta">
-        {T.province_prefix} <strong>{UK_NATIONS[data.province]?.[lang] ?? data.province}</strong>
+        {T.province_prefix} <strong>{UK_NATIONS[data.province]?.[lang] ?? usStateName(data.province, lang) ?? data.province}</strong>
         {urbanLabel && <> · {urbanLabel}</>}
         {regionName && <> · <span class="region">{regionName}</span></>}
       </p>

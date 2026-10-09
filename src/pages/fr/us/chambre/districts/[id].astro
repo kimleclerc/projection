@@ -3,6 +3,7 @@ import EditorialLayout from '../../../../../layouts/EditorialLayout.astro';
 import RidingPage from '../../../../../components/riding/RidingPage.astro';
 import FL20PrimaryPanel from '../../../../../components/FL20PrimaryPanel.astro';
 import { getAllUSHouseRidings } from '../../../../../lib/riding-adapters/us-house';
+import { usStateName } from '../../../../../lib/place-names';
 
 export function getStaticPaths() {
   return getAllUSHouseRidings().map((data) => ({
@@ -27,8 +28,8 @@ const pageData: typeof data = isFl20 ? {
 const canonical = `https://vote-scope.com/fr/us/chambre/districts/${data.slug}/`;
 const alternateEn = `https://vote-scope.com/en/us/house/districts/${data.slug}/`;
 const alternateEs = `https://vote-scope.com/es/us/house/distritos/${data.slug}/`;
-const title = isFl20 ? 'Sondages de la primaire démocrate FL‑20 et projection — Vote-Scope' : `${data.name.fr || data.name.en} — Projection Chambre des représentants — Vote-Scope`;
-const description = isFl20 ? 'Sondages, candidatures, contexte du redécoupage et projection générale Vote-Scope pour FL‑20, mis à jour le 22 juillet 2026.' : `Projection Vote-Scope pour ${data.name.fr || data.name.en} (${data.province || 'États-Unis'}) : parts de voix par parti, représentant·e en fonction, candidat·e·s 2026, course primaire.`;
+const title = isFl20 ? 'Sondages de la primaire démocrate FL‑20 et projection — Vote-Scope' : `${data.name.fr || data.name.en}, ${usStateName(data.province, 'fr') ?? data.province} : projection 2026 de la Chambre — Vote-Scope`;
+const description = isFl20 ? 'Sondages, candidatures, contexte du redécoupage et projection générale Vote-Scope pour FL‑20, mis à jour le 22 juillet 2026.' : `Projection Vote-Scope pour ${data.name.fr || data.name.en} (${usStateName(data.province, 'fr') ?? 'États-Unis'}) : parts de voix par parti, représentant·e en fonction, candidat·e·s 2026, course primaire.`;
 ---
 
 <EditorialLayout
