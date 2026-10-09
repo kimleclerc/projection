@@ -122,6 +122,7 @@ function buildNeighbors(rid: string): RidingNeighbor[] {
       name_fr: r.name_fr,
       href_en: `/en/canada/quebec/ridings/${slug}/`,
       href_fr: `/fr/canada/quebec/circonscriptions/${slug}/`,
+      href_es: `/es/canada/quebec/distritos/${slug}/`,
       tone: projectionTone(r.projection),
       tone_party: r.projection.winner,
     };

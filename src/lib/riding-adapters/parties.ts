@@ -8,6 +8,8 @@
  */
 
 export interface PartyMeta {
+  /** Code du parti (us_rep, caq…), ajouté par partyMeta() pour que partyName() trouve l'espagnol. */
+  code?: string;
   label_en: string;
   label_fr: string;
   color: string;
@@ -220,7 +222,8 @@ export function partyMark(meta: PartyMeta): string | undefined {
 
 export function partyMeta(jurisdiction: string, code: string): PartyMeta {
   const palette = PALETTES[jurisdiction] ?? CA_FEDERAL_PARTIES;
-  return palette[code] ?? { label_en: code.toUpperCase(), label_fr: code.toUpperCase(), color: '#999' };
+  const meta = palette[code];
+  return meta ? { code, ...meta } : { code, label_en: code.toUpperCase(), label_fr: code.toUpperCase(), color: '#999' };
 }
 
 /**

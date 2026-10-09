@@ -96,6 +96,7 @@ function buildNeighbors(rid: string): RidingNeighbor[] {
       name_fr: r.name_fr,
       href_en: `/en/canada/ontario/ridings/${slug}/`,
       href_fr: `/fr/canada/ontario/circonscriptions/${slug}/`,
+      href_es: `/es/canada/ontario/distritos/${slug}/`,
       tone: projectionTone(r.projection),
       tone_party: r.projection.winner,
     };

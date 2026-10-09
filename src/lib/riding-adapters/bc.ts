@@ -106,6 +106,7 @@ function buildNeighbors(rid: string): RidingNeighbor[] {
       name_fr: r.name_fr,
       href_en: `/en/canada/british-columbia/ridings/${slug}/`,
       href_fr: `/fr/canada/colombie-britannique/circonscriptions/${slug}/`,
+      href_es: `/es/canada/columbia-britanica/distritos/${slug}/`,
       tone: projectionTone(r.projection),
       tone_party: r.projection.winner,
     };

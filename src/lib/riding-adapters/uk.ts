@@ -102,6 +102,7 @@ function buildNeighbors(rid: string): RidingNeighbor[] {
       name_fr: r.name_fr,
       href_en: `/en/uk/constituencies/${slug}/`,
       href_fr: `/fr/uk/circonscriptions/${slug}/`,
+      href_es: `/es/uk/circunscripciones/${slug}/`,
       tone: projectionTone(r.projection),
       tone_party: r.projection.winner,
     };

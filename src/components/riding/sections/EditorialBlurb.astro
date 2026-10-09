@@ -1,4 +1,6 @@
 ---
+import { certainty } from '../../../lib/riding-certainty';
+import { US_STATES, placeNameEs } from '../../../lib/place-names';
 import type { RidingData } from '../../../lib/riding-adapters/types';
 import { partyMeta, subjectFr, aEs, deEs } from '../../../lib/riding-adapters/parties';
 
@@ -50,7 +52,8 @@ const provinceCode = data.province ?? '';
 const URBAN_LABEL_FR: Record<string, string> = { urban: 'urbaine', rural: 'rurale', mixed: 'mixte', suburban: 'de banlieue' };
 const URBAN_LABEL_EN: Record<string, string> = { urban: 'urban', rural: 'rural', mixed: 'mixed', suburban: 'suburban' };
 const URBAN_LABEL_ES: Record<string, string> = { urban: 'urbano', rural: 'rural', mixed: 'mixto', suburban: 'suburbano' };
-const urbanFR = URBAN_LABEL_FR[urban] ?? urban;
+const URBAN_LABEL_FR_M: Record<string, string> = { urban: 'urbain', rural: 'rural', mixed: 'mixte', suburban: 'de banlieue' };
+const urbanFR = (data.jurisdiction === 'us-house' ? URBAN_LABEL_FR_M : URBAN_LABEL_FR)[urban] ?? urban;
 const urbanEN = URBAN_LABEL_EN[urban] ?? urban;
 const urbanES = URBAN_LABEL_ES[urban] ?? urban;
 
@@ -81,9 +84,10 @@ const PROVINCE_ES: Record<string, string> = {
   // UK nations
   England: 'de Inglaterra', Scotland: 'de Escocia', Wales: 'del País de Gales', 'Northern Ireland': 'de Irlanda del Norte',
 };
-const provinceFR = PROVINCE_FR[provinceCode] ?? provinceCode;
-const provinceEN = PROVINCE_EN[provinceCode] ?? provinceCode;
-const provinceES = PROVINCE_ES[provinceCode] ?? provinceCode;
+const usState = US_STATES[provinceCode];
+const provinceFR = PROVINCE_FR[provinceCode] ?? usState?.frDe ?? provinceCode;
+const provinceEN = PROVINCE_EN[provinceCode] ?? usState?.en ?? provinceCode;
+const provinceES = PROVINCE_ES[provinceCode] ?? (usState ? `de ${placeNameEs(usState.en)}` : provinceCode);
 
 const isUK = data.jurisdiction === 'uk';
 // LA PHRASE D'OUVERTURE PORTAIT UN FAIT FAUX. Le gabarit générique écrivait
@@ -91,28 +95,27 @@ const isUK = data.jurisdiction === 'uk';
 // le Michigan a élu une GOUVERNEURE, et l'État n'est pas une circonscription
 // mixte. Sur un poste exécutif, la première phrase est donc reconstruite.
 const isGovernor = data.jurisdiction === 'us-governor';
-const ridingWordFR = isUK ? 'circonscription' : 'circonscription';
-const ridingWordEN = isUK ? 'constituency' : 'riding';
+const isUSHouse = data.jurisdiction === 'us-house';
+const ridingWordFR = isUSHouse ? 'district' : 'circonscription';
+const ridingWordEN = isUK ? 'constituency' : isUSHouse ? 'district' : 'riding';
 const ridingWordES = isUK ? 'circunscripción' : 'distrito';
 
-const competitivenessFR =
-  data.projection.p_close_race >= 0.35
-    ? 'la course pourrait basculer'
-    : data.projection.p_close_race >= 0.15
-    ? (isGovernor ? 'la course reste compétitive' : 'la circonscription reste compétitive')
-    : 'la probabilité de course serrée est nulle';
-const competitivenessEN =
-  data.projection.p_close_race >= 0.35
-    ? 'the race could swing'
-    : data.projection.p_close_race >= 0.15
-    ? 'the riding remains competitive'
-    : 'the probability of a close race is negligible';
-const competitivenessES =
-  data.projection.p_close_race >= 0.35
-    ? 'la carrera podría dar la vuelta'
-    : data.projection.p_close_race >= 0.15
-    ? 'el distrito sigue competitivo'
-    : 'la probabilidad de una carrera reñida es nula';
+const tier = certainty(data.projection);
+const competitivenessFR = {
+  tossup: 'la course pourrait basculer',
+  competitive: isGovernor ? 'la course reste compétitive' : isUSHouse ? 'le district reste compétitif' : 'la circonscription reste compétitive',
+  safe: 'son avance paraît solide',
+}[tier];
+const competitivenessEN = {
+  tossup: 'the race could swing',
+  competitive: isGovernor ? 'the race remains competitive' : `the ${ridingWordEN} remains competitive`,
+  safe: 'the lead looks solid',
+}[tier];
+const competitivenessES = {
+  tossup: 'la carrera podría dar la vuelta',
+  competitive: isGovernor ? 'la carrera sigue competitiva' : 'el distrito sigue competitivo',
+  safe: 'su ventaja parece sólida',
+}[tier];
 
 /** Redistricting tail: "Cette circonscription est composée des anciennes
  *  Granby (100 %) et Brome-Missisquoi (24 %)." Surfaced only when origin
@@ -145,7 +148,7 @@ function originSentence(l: 'en' | 'fr' | 'es'): string | null {
 
 const openingFR = isGovernor
   ? `${name} ${baselineMentionFr ? `a élu un·e gouverneur·e ${baselineMentionFr} lors de son scrutin précédent, avec une marge de ${data.baseline!.margin.toFixed(0)} points` : "n'a pas de scrutin de référence pour ce cycle"}.`
-  : `${name}, ${ridingWordFR} ${urbanFR} ${provinceFR}, ${baselineMentionFr ? `a élu un·e député·e ${baselineMentionFr} lors du scrutin précédent avec une marge de ${data.baseline!.margin.toFixed(0)} points` : 'arrive sans baseline directe pour le cycle courant'}.`;
+  : `${name}, ${ridingWordFR} ${urbanFR} ${provinceFR}, ${baselineMentionFr ? `a élu ${isUSHouse ? 'un·e représentant·e' : 'un·e député·e'} ${baselineMentionFr} lors du scrutin précédent avec une marge de ${data.baseline!.margin.toFixed(0)} points` : 'n’a pas de résultat comparable au scrutin précédent'}.`;
 
 const blurbFR = [
   openingFR,
@@ -158,7 +161,7 @@ const blurbFR = [
 
 const openingEN = isGovernor
   ? `${name} ${baselineMentionEn ? `elected a governor with ${baselineMentionEn} at its previous election, by ${data.baseline!.margin.toFixed(0)} points` : 'has no reference election for this cycle'}.`
-  : `${name}, ${'aeiou'.includes(urbanEN[0]) ? 'an' : 'a'} ${urbanEN} ${ridingWordEN} in ${provinceEN}, ${baselineMentionEn ? `elected a member with ${baselineMentionEn} in the previous cycle, with a ${data.baseline!.margin.toFixed(0)}-point margin` : 'has no direct baseline for the current cycle'}.`;
+  : `${name}, ${'aeiou'.includes(urbanEN[0]) ? 'an' : 'a'} ${urbanEN} ${ridingWordEN} in ${provinceEN}, ${baselineMentionEn ? `elected a member with ${baselineMentionEn} at the previous election, with a ${data.baseline!.margin.toFixed(0)}-point margin` : 'has no comparable result from the previous election'}.`;
 
 const blurbEN = [
   openingEN,
@@ -171,7 +174,7 @@ const blurbEN = [
 
 const openingES = isGovernor
   ? `${name} ${baselineMentionEs ? `eligió gobernador con ${baselineMentionEs} en su elección anterior, con un margen de ${data.baseline!.margin.toFixed(0)} puntos` : 'no tiene elección de referencia para este ciclo'}.`
-  : `${name}, ${ridingWordES} ${urbanES} ${provinceES}, ${baselineMentionEs ? `eligió a un representante con ${baselineMentionEs} en el ciclo anterior, con un margen de ${data.baseline!.margin.toFixed(0)} puntos` : 'no tiene una baseline directa para el ciclo actual'}.`;
+  : `${name}, ${ridingWordES} ${urbanES} ${provinceES}, ${baselineMentionEs ? `eligió a un representante con ${baselineMentionEs} en la elección anterior, con un margen de ${data.baseline!.margin.toFixed(0)} puntos` : 'no tiene un resultado comparable de la elección anterior'}.`;
 
 const blurbES = [
   openingES,
@@ -183,7 +186,7 @@ const blurbES = [
 ].filter(Boolean).join(' ');
 
 const blurb = { en: blurbEN, fr: blurbFR, es: blurbES }[lang];
-const eyebrow = { en: 'Editorial read', fr: 'Lecture éditoriale', es: 'Lectura editorial' }[lang];
+const eyebrow = { en: 'What the projection says', fr: 'Ce que dit la projection', es: 'Lo que dice la proyección' }[lang];
 ---
 
 <section class="blurb">

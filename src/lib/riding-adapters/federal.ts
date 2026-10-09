@@ -124,6 +124,7 @@ function buildNeighbors(rid: string): RidingNeighbor[] {
       name_fr: r.name_fr,
       href_en: `/en/canada/federal/ridings/${slug}/`,
       href_fr: `/fr/canada/federal/circonscriptions/${slug}/`,
+      href_es: `/es/canada/federal/distritos/${slug}/`,
       tone: projectionTone(r.projection),
       tone_party: r.projection.winner,
     };

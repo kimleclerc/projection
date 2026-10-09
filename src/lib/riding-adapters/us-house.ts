@@ -135,6 +135,7 @@ function buildNeighbors(rid: string, state: string): RidingNeighbor[] {
       name_fr: r.name_fr,
       href_en: `/en/us/house/districts/${slug}/`,
       href_fr: `/fr/us/chambre/districts/${slug}/`,
+      href_es: `/es/us/house/distritos/${slug}/`,
       tone: projectionTone(r.projection),
       tone_party: r.projection.winner,
     };

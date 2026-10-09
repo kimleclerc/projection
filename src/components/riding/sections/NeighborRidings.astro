@@ -14,6 +14,10 @@ if (!data.neighbors || data.neighbors.length === 0) return null;
 // Une course de gouverneur n'a pas de voisine : l'État EST l'unité. Ce bloc
 // montre donc les autres courses de la carte, et il faut le dire.
 const isExecutive = data.jurisdiction === 'us-governor';
+// La Chambre n'a pas encore de centroïdes : la liste est celle des autres
+// districts du même État, pas des voisins. Le Sénat liste sa région.
+const isSameState = data.jurisdiction === 'us-house';
+const isSameRegion = data.jurisdiction === 'us-senate';
 
 const TONE_LABEL = {
   en: { safe: 'Safe seat', leaning: 'Party favoured', competitive: 'Competitive', tossup: 'Toss-up', vacant: 'Vacant' },
@@ -24,28 +28,27 @@ const TONE_LABEL = {
 const T = {
   en: {
     eyebrow: isExecutive ? 'Elsewhere on the map' : 'Around the region',
-    title: isExecutive ? 'Other races to watch' : 'Nearby ridings',
+    title: isExecutive ? 'Other races to watch' : isSameState ? 'Other districts in this state' : isSameRegion ? 'Other races in the region' : 'Nearby ridings',
     cta: 'Open',
-    hint: isExecutive ? 'Tone only — open a race to see the numbers.' : "Tone only — pick a riding to see the numbers.",
+    hint: isExecutive ? 'Party ahead and race rating; each page has the full numbers.' : 'Party ahead and race rating; each riding page has the full numbers.',
   },
   fr: {
     eyebrow: isExecutive ? 'Ailleurs sur la carte' : 'Autour de la région',
-    title: isExecutive ? 'Autres courses à suivre' : 'Circonscriptions voisines',
+    title: isExecutive ? 'Autres courses à suivre' : isSameState ? 'Autres districts de l’État' : isSameRegion ? 'Autres courses de la région' : 'Circonscriptions voisines',
     cta: 'Ouvrir',
-    hint: isExecutive ? 'Ton éditorial seulement — ouvrez une course pour voir les chiffres.' : 'Ton éditorial seulement — choisissez une circonscription pour voir les chiffres.',
+    hint: isExecutive ? 'Parti en tête et niveau de certitude ; chaque page donne les chiffres complets.' : isSameState ? 'Parti en tête et niveau de certitude ; la page de chaque district donne les chiffres complets.' : 'Parti en tête et niveau de certitude ; la page de chaque circonscription donne les chiffres complets.',
   },
   es: {
     eyebrow: isExecutive ? 'En el resto del mapa' : 'En la región',
-    title: isExecutive ? 'Otras contiendas a seguir' : 'Distritos cercanos',
+    title: isExecutive ? 'Otras contiendas a seguir' : isSameState ? 'Otros distritos del estado' : isSameRegion ? 'Otras contiendas de la región' : 'Distritos cercanos',
     cta: 'Abrir',
-    hint: isExecutive ? 'Solo tono editorial — abre una contienda para ver los números.' : 'Solo tono editorial — abre un distrito para ver los números.',
+    hint: isExecutive ? 'Partido en cabeza y grado de certeza; cada página tiene las cifras completas.' : 'Partido en cabeza y grado de certeza; la página de cada distrito tiene las cifras completas.',
   },
 }[lang];
 ---
 
 <section class="neighbors">
   <div class="container">
-    <p class="eyebrow">{T.eyebrow}</p>
     <h2>{T.title}</h2>
     <p class="hint">{T.hint}</p>
 

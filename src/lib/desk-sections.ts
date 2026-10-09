@@ -120,7 +120,7 @@ export const DESKS: DeskGroup[] = [
       fromJurisdiction('us-house', l10n(
         'All 435 districts, redistricting included, through the 2026 midterms.',
         'Les 435 districts, redécoupage compris, jusqu’aux midterms de 2026.',
-        'Los 435 distritos, con la redistribución, hasta las midterms de 2026.',
+        'Los 435 distritos, con la redistribución, hasta las intermedias de 2026.',
       )),
       fromJurisdiction('us-senate', l10n(
         'The seats up in 2026 and the arithmetic of control.',

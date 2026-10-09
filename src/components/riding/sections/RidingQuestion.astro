@@ -1,4 +1,5 @@
 ---
+import { certainty } from '../../../lib/riding-certainty';
 /**
  * Editorial question framing the page — Vote-Scope's "one page, one question"
  * promise applied to riding pages. Sits between Hero and EditorialBlurb.
@@ -66,8 +67,9 @@ const incumbentLabel = incumbentMeta ? naked(incumbentMeta, lang) : null;
 const isVacant = data.member?.seat_status === 'vacant' || (!data.member && !!data.isByelection);
 const isByelection = !!data.isByelection;
 const isFlip = incumbentMeta && data.projection.winner !== incumbentParty;
-const isTossup = data.projection.p_close_race >= 0.35;
-const isSafe = data.projection.p_winner >= 0.85;
+const tier = certainty(data.projection);
+const isTossup = tier === 'tossup';
+const isSafe = tier === 'safe';
 
 let questionEn = '';
 let questionFr = '';

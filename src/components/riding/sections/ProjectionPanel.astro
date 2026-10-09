@@ -2,6 +2,7 @@
 import { partyName } from '../../../lib/party-names';
 import type { RidingData } from '../../../lib/riding-adapters/types';
 import { partyMeta, partyMark } from '../../../lib/riding-adapters/parties';
+import { certainty, CERTAINTY_LABEL } from '../../../lib/riding-certainty';
 
 interface Props {
   data: RidingData;
@@ -12,7 +13,7 @@ const { data, lang } = Astro.props;
 const winnerMeta = partyMeta(data.jurisdiction, data.projection.winner);
 const winnerLabel = partyName(winnerMeta, lang);
 const pWinnerPct = Math.round(data.projection.p_winner * 100);
-const margin = data.projection.mean_margin.toFixed(1);
+const margin = data.projection.mean_margin.toLocaleString(lang === 'en' ? 'en-CA' : lang === 'es' ? 'es-ES' : 'fr-CA', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 const closeRacePct = (data.projection.p_close_race * 100).toFixed(0);
 
 const T = {
@@ -21,39 +22,25 @@ const T = {
     leader_in: 'Projected winner',
     confidence: 'Probability',
     margin: 'Mean margin (pts)',
-    close: 'P(close race)',
-    safe: 'Safe',
-    competitive: 'Competitive',
-    toss_up: 'Toss-up',
+    close: 'Chance of a margin under 5 pts',
   },
   fr: {
     eyebrow: 'Prévision actuelle',
     leader_in: 'Vainqueur projeté',
     confidence: 'Probabilité',
     margin: 'Marge moyenne (pts)',
-    close: 'P(course serrée)',
-    safe: 'Sûr',
-    competitive: 'Compétitif',
-    toss_up: 'Course incertaine',
+    close: 'Chance d’un écart de moins de 5 pts',
   },
   es: {
     eyebrow: 'Pronóstico actual',
     leader_in: 'Ganador proyectado',
     confidence: 'Probabilidad',
     margin: 'Margen medio (pts)',
-    close: 'P(carrera reñida)',
-    safe: 'Seguro',
-    competitive: 'Competitivo',
-    toss_up: 'Indeciso',
+    close: 'Probabilidad de un margen inferior a 5 pts',
   },
 }[lang];
 
-const competitiveness =
-  data.projection.p_close_race >= 0.35
-    ? T.toss_up
-    : data.projection.p_close_race >= 0.15
-    ? T.competitive
-    : T.safe;
+const competitiveness = CERTAINTY_LABEL[lang][certainty(data.projection)];
 ---
 
 <section class="projection-panel">
@@ -71,7 +58,7 @@ const competitiveness =
     <dl class="stats">
       <div>
         <dt>{T.confidence}</dt>
-        <dd>{pWinnerPct}%</dd>
+        <dd>{pWinnerPct >= 100 ? (lang === 'en' ? '>99%' : '> 99 %') : lang === 'en' ? `${pWinnerPct}%` : `${pWinnerPct} %`}</dd>
       </div>
       <div>
         <dt>{T.margin}</dt>
@@ -79,7 +66,7 @@ const competitiveness =
       </div>
       <div>
         <dt>{T.close}</dt>
-        <dd>{closeRacePct}%</dd>
+        <dd>{closeRacePct === '0' ? (lang === 'en' ? '<1%' : '< 1 %') : lang === 'en' ? `${closeRacePct}%` : `${closeRacePct} %`}</dd>
       </div>
     </dl>
   </div>
@@ -125,7 +112,7 @@ const competitiveness =
   .competitiveness {
     margin-top: 8px;
     color: var(--ink-2);
-    font-family: var(--mono);
+    font-family: var(--sans);
     font-size: 13px;
     letter-spacing: 0;
   }
@@ -142,7 +129,7 @@ const competitiveness =
     border-bottom: 1px solid var(--rule);
   }
   dt {
-    font-family: var(--mono);
+    font-family: var(--sans);
     font-size: 13px;
     letter-spacing: 0;
     color: var(--ink-2);
