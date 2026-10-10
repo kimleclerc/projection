@@ -690,3 +690,15 @@
 .ptiles-sign { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; justify-content: flex-end; white-space: nowrap; margin: 0; padding: 8px 14px 10px; font-size: 13px; font-weight: 700; color: var(--ink-2); }
 .ptiles-date { font-weight: 600; color: var(--ink-3); }
 .ptiles-date::before { content: '·'; margin-right: 6px; }
+
+/* Vraie carte + médaillons (GeoMap) : même cadre que les tuiles. */
+.gmap-board { position: relative; width: 100%; max-width: 1100px; margin: 14px auto 0; }
+.gmap-svg { display: block; width: 100%; height: auto; }
+.gmap-riding path:first-child { stroke: var(--paper); stroke-width: .5px; vector-effect: non-scaling-stroke; cursor: pointer; transition: opacity .3s ease; }
+.gmap-riding.is-dim { opacity: .14; }
+.gmap-halo { fill: none; stroke: var(--ink); stroke-width: 2px; vector-effect: non-scaling-stroke; }
+.gmap-inset-bg { fill: var(--paper-2); }
+.gmap-inset-frame { fill: none; stroke: var(--rule-2); stroke-width: 1px; vector-effect: non-scaling-stroke; }
+.gmap-title { position: absolute; padding: 1px 4px; background: color-mix(in srgb, var(--paper) 85%, transparent); font-size: clamp(9px, 1.2cqw, 13px); font-weight: 700; color: var(--ink); pointer-events: none; }
+.gmap-board { container-type: inline-size; }
+.gmap-loading { padding: 40px 14px; }

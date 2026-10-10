@@ -5,6 +5,7 @@ import RidingsMap from './RidingsMap';
 import type { RidingFull, MapParty } from './RidingsMap';
 import { partyName } from '../lib/party-names';
 import MapSeatBar from './MapSeatBar';
+import GeoMap from './GeoMap';
 
 /** Les deux cartes d'une page de projection, et la bascule entre elles.
  *
@@ -29,19 +30,24 @@ interface Props {
   majority?: number;
   /** Date du calcul, écrite dans le cadre (la carte se partage avec elle). */
   asOf?: string;
+  /** Vraie carte + médaillons (geomap.json) : vue principale quand elle existe. */
+  geomapUrl?: string;
 }
 
 const COPY = {
-  fr: { tiles: 'Carte proportionnelle', map: 'Carte géographique', flip: 'gain sur', search: 'Chercher sur la carte', changes: (y: number) => `Change de camp depuis ${y}`, asOf: 'Projection du' },
-  en: { tiles: 'Proportional map', map: 'Geographic map', flip: 'gain from', search: 'Search the map', changes: (y: number) => `Changes hands since ${y}`, asOf: 'Forecast of' },
-  es: { tiles: 'Mapa proporcional', map: 'Mapa geográfico', flip: 'gana a', search: 'Buscar en el mapa', changes: (y: number) => `Cambia de manos desde ${y}`, asOf: 'Proyección del' },
+  fr: { carte: 'Carte', tiles: 'Carte proportionnelle', map: 'Carte géographique', flip: 'gain sur', search: 'Chercher sur la carte', changes: (y: number) => `Change de camp depuis ${y}`, asOf: 'Projection du' },
+  en: { carte: 'Map', tiles: 'Proportional map', map: 'Geographic map', flip: 'gain from', search: 'Search the map', changes: (y: number) => `Changes hands since ${y}`, asOf: 'Forecast of' },
+  es: { carte: 'Mapa', tiles: 'Mapa proporcional', map: 'Mapa geográfico', flip: 'gana a', search: 'Buscar en el mapa', changes: (y: number) => `Cambia de manos desde ${y}`, asOf: 'Proyección del' },
 } as const;
 
 export default function ProjectionTiles({
   blocs, canvas, ridings, parties, locale, geoUrl, center, zoom, idProp, baselineYear,
-  winnerThreshold = 0.5, majority, asOf,
+  winnerThreshold = 0.5, majority, asOf, geomapUrl,
 }: Props) {
-  const [vue, setVue] = useState<'tiles' | 'geo'>(blocs.length ? 'tiles' : 'geo');
+  // Vue principale : la vraie carte avec ses médaillons quand le moteur l'a
+  // produite (on la reconnaît d'un coup d'œil) ; sinon les tuiles ; sinon la
+  // carte zoomable.
+  const [vue, setVue] = useState<'carte' | 'tiles' | 'geo'>(geomapUrl ? 'carte' : blocs.length ? 'tiles' : 'geo');
   const [q, setQ] = useState('');
   const t = COPY[locale] ?? COPY.fr;
 
@@ -71,13 +77,14 @@ export default function ProjectionTiles({
 
   return (
     <div class="ptiles">
-      {blocs.length > 0 && (
+      {(blocs.length > 0 || geomapUrl) && (
         <div class="ptiles-bar">
           <div class="msim-mapview" role="group">
-            <button type="button" aria-pressed={vue === 'tiles'} onClick={() => setVue('tiles')}>{t.tiles}</button>
-            <button type="button" aria-pressed={vue === 'geo'} onClick={() => setVue('geo')}>{t.map}</button>
+            {geomapUrl && <button type="button" aria-pressed={vue === 'carte'} onClick={() => setVue('carte')}>{t.carte}</button>}
+            {blocs.length > 0 && <button type="button" aria-pressed={vue === 'tiles'} onClick={() => setVue('tiles')}>{t.tiles}</button>}
+            {!geomapUrl && <button type="button" aria-pressed={vue === 'geo'} onClick={() => setVue('geo')}>{t.map}</button>}
           </div>
-          {vue === 'tiles' && (
+          {vue !== 'geo' && (
             <input
               class="ptiles-search" type="search" value={q} aria-label={t.search}
               placeholder={t.search} onInput={(e) => setQ((e.target as HTMLInputElement).value)}
@@ -86,11 +93,13 @@ export default function ProjectionTiles({
         </div>
       )}
 
-      {vue === 'tiles' && blocs.length > 0 && majority && (
+      {vue !== 'geo' && majority && (
         <MapSeatBar ridings={tuiles} colors={colors} labels={labels} majority={majority} locale={locale} flipLabel={t.changes(baselineYear)} />
       )}
 
-      {vue === 'tiles' && blocs.length > 0 ? (
+      {vue === 'carte' && geomapUrl ? (
+        <GeoMap url={geomapUrl} ridings={tuiles} colors={colors} labels={labels} locale={locale} query={q} flipWord={`${t.flip} ${baselineYear}`} />
+      ) : vue === 'tiles' && blocs.length > 0 ? (
         <TileMap
           blocs={blocs} canvas={canvas} ridings={tuiles} locale={locale}
           colors={colors} labels={labels} query={q} flipWord={`${t.flip} ${baselineYear}`}

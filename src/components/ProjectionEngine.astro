@@ -5,7 +5,7 @@ import ResultsTable from './ResultsTable.astro';
 import KimNote from './KimNote.astro';
 import type { Jurisdiction, Locale, ProjectionData } from '../data/jurisdictions';
 import { modelBadge } from '../data/modelVersion';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import ScenariosChart from '../islands/ScenariosChart.tsx';
 import VoteTrendChart from '../islands/VoteTrendChart.tsx';
@@ -569,6 +569,9 @@ try {
   tileBlocs = tuiles?.blocs ?? [];
   tileCanvas = tuiles?.canvas;
 } catch { tileBlocs = []; }
+// Vraie carte + médaillons (moteur : geo_map.py) : vue principale quand elle existe.
+const geomapUrl = existsSync(resolve(process.cwd(), 'web_data', jurisdiction.dataPath, 'geomap.json'))
+  ? `/web_data/${jurisdiction.dataPath}/geomap.json` : undefined;
 
 // Top 5 mainstream parties (drop the catch-all "_oth" buckets).
 const trendOrder = jurisdiction.parties
@@ -961,6 +964,7 @@ const pageNavItems = [
         baselineYear={jurisdiction.baselineYear}
         majority={majorityThreshold}
         asOf={meta.run_date}
+        geomapUrl={geomapUrl}
         client:only="preact"
       />
     </article>
