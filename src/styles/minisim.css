@@ -570,7 +570,7 @@
 /* La toile porte les blocs à leur position géographique, en pourcentage : la
    carte se met donc à l'échelle de son conteneur sans rien recalculer, et
    garde la même forme du téléphone à l'écran large. */
-.tmap { container-type: inline-size; }
+.tmap-board { container-type: inline-size; }
 .tmap-board { position: relative; width: 100%; margin: 14px auto 0; }
 
 /* Les tuiles vivent dans UN SVG à viewBox : leurs coordonnées sont fixes, donc
@@ -605,8 +605,9 @@
 .tmap-code {
   position: absolute; transform: translate(-50%, -50%); pointer-events: none;
   font-size: clamp(7px, calc(100cqw / var(--tmap-cols, 60) * .42), 13px); font-weight: 700; line-height: 1;
-  color: #fff; text-shadow: 0 0 2px rgba(0,0,0,.85), 0 0 1px rgba(0,0,0,.9);
+  color: #fff; text-align: center; white-space: nowrap; text-shadow: 0 0 2px rgba(0,0,0,.85), 0 0 1px rgba(0,0,0,.9);
 }
+.tmap-code .tmap-ligne { display: block; }
 .tmap-tile rect:focus-visible { outline: 0; }
 .tmap-tile.is-dim { opacity: .14; }
 /* Le liseré de sélection est un rectangle dessiné en dernier, jamais un contour
@@ -686,6 +687,6 @@
 .mseat-majlabel { color: var(--ink-2); }
 
 /* Signature dans le cadre de la carte : symbole, nom, date. */
-.ptiles-sign { display: flex; align-items: center; gap: 6px; justify-content: flex-end; margin: 0; padding: 8px 14px 10px; font-size: 13px; font-weight: 700; color: var(--ink-2); }
+.ptiles-sign { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; justify-content: flex-end; white-space: nowrap; margin: 0; padding: 8px 14px 10px; font-size: 13px; font-weight: 700; color: var(--ink-2); }
 .ptiles-date { font-weight: 600; color: var(--ink-3); }
 .ptiles-date::before { content: '·'; margin-right: 6px; }

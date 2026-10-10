@@ -163,7 +163,9 @@ export default function TileMap({ blocs, canvas, ridings, locale, colors, labels
 
   return (
     <div class="tmap">
-      <div class="tmap-board" style={{ aspectRatio: `${toile.w} / ${toile.h}`, '--tmap-cols': String(toile.w) }}>
+      {/* Une tuile ne dépasse pas ~30 px : une petite carte (C.-B., 14 colonnes)
+          ne s'étire pas sur toute la largeur en carrés géants. */}
+      <div class="tmap-board" style={{ aspectRatio: `${toile.w} / ${toile.h}`, maxWidth: `${Math.round(toile.w * 30)}px`, '--tmap-cols': String(toile.w) }}>
         {/* Les tuiles : un seul SVG, des coordonnées fixes. Deux tuiles ne
             peuvent pas sortir de tailles différentes — elles ont le même
             attribut, pas le même calcul. */}
@@ -234,7 +236,7 @@ export default function TileMap({ blocs, canvas, ridings, locale, colors, labels
             class="tmap-code"
             key={`c-${b.id}`}
             style={{ left: `${((b.label_x ?? b.x) / toile.w) * 100}%`, top: `${((b.label_y ?? b.y) / toile.h) * 100}%` }}
-          >{lignes(b)[0]}</span>
+          >{lignes(b).map((l, i) => <span class="tmap-ligne" key={i}>{l}</span>)}</span>
         ))}
         {!cartogramme && blocs.map((b) => {
           const lw = Math.max(b.label_w ?? b.cols, b.cols);
