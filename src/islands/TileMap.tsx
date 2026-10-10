@@ -177,7 +177,7 @@ export default function TileMap({ blocs, canvas, ridings, locale, colors, labels
         >
           <defs>
             <pattern id={HACHURE} width=".26" height=".26" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-              <rect width=".13" height=".26" fill="rgba(0,0,0,.42)" />
+              <rect width=".13" height=".26" fill="rgba(0,0,0,.3)" />
             </pattern>
           </defs>
           {blocs.map((b) => (

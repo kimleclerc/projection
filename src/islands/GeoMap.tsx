@@ -69,7 +69,7 @@ export default function GeoMap({ url, ridings, colors, labels, locale, flipWord,
         <svg class="gmap-svg" viewBox={doc.viewBox.join(' ')} role="group">
           <defs>
             <pattern id={HACHURE} width="3" height="3" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-              <rect width="1.4" height="3" fill="rgba(0,0,0,.42)" />
+              <rect width="1.4" height="3" fill="rgba(0,0,0,.26)" />
             </pattern>
             {doc.panels.map((p) => (
               <clipPath id={`gmap-clip-${p.id}`} key={p.id}><rect x={p.x} y={p.y} width={p.w} height={p.h} /></clipPath>

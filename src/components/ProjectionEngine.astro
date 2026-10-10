@@ -16,6 +16,8 @@ import GooglePreferredSource from './GooglePreferredSource.astro';
 import RidingTable from '../islands/RidingTable.tsx';
 import ElectionCountdown from '../islands/ElectionCountdown.tsx';
 import ForecastShare from '../islands/lib/ForecastShare.tsx';
+import ShareModule from '../islands/lib/ShareModule.tsx';
+import { SHARE_ELECTIONS } from '../lib/share/elections';
 import KeepDigging from './KeepDigging.astro';
 import CloseRaces from './CloseRaces.astro';
 import { closeRacesFor } from '../lib/close-races';
@@ -569,6 +571,9 @@ try {
   tileBlocs = tuiles?.blocs ?? [];
   tileCanvas = tuiles?.canvas;
 } catch { tileBlocs = []; }
+// Partage par module (carte, projection, graphique) : images fabriquées à la volée.
+const shareKey = SHARE_ELECTIONS[jurisdiction.dataPath] ? jurisdiction.dataPath : null;
+const shareText = shareKey ? SHARE_ELECTIONS[shareKey].question[locale] : '';
 // Vraie carte + médaillons (moteur : geo_map.py) : vue principale quand elle existe.
 const geomapUrl = existsSync(resolve(process.cwd(), 'web_data', jurisdiction.dataPath, 'geomap.json'))
   ? `/web_data/${jurisdiction.dataPath}/geomap.json` : undefined;
@@ -737,13 +742,17 @@ const pageNavItems = [
         : `Median of the ${sims} simulations: ${leadLabel} ${mL} · ${secondLabel} ${mS}. The large figures count the seats where each party is favoured. The median also counts its chances where it is not; it is the figure most models show, including The Economist.${wave ? ' When a wave is building, it runs higher than the first.' : ''}`;
       return <p class="pe-median-note">{txt}</p>;
     })()}
-    <ForecastShare
-      locale={locale}
-      cardPath={jurisdiction.dataPath === 'us-senate' ? `/og/live/us-senate/${locale}.png` : `/og/projections/${jurisdiction.dataPath}/${locale}.png`}
-      title={jurisdiction.pageTitle[locale] ?? jurisdiction.pageTitle.en}
-      shareVersion={meta.run_date}
-      client:load
-    />
+    {shareKey ? (
+      <ShareModule lang={locale} kind="projection" election={shareKey} runDate={meta.run_date} text={shareText} client:idle />
+    ) : (
+      <ForecastShare
+        locale={locale}
+        cardPath={`/og/projections/${jurisdiction.dataPath}/${locale}.png`}
+        title={jurisdiction.pageTitle[locale] ?? jurisdiction.pageTitle.en}
+        shareVersion={meta.run_date}
+        client:load
+      />
+    )}
   </section>
 
   <KimNote note={jurisdiction.dataPath} lang={locale} />
@@ -931,6 +940,7 @@ const pageNavItems = [
           locale={locale}
           client:only="preact"
         />
+        {shareKey && <ShareModule lang={locale} kind="chart" election={shareKey} runDate={meta.run_date} text={shareText} client:idle />}
       </article>
       <article class="pe-chart-card">
         <header class="pe-chart-header">
@@ -967,6 +977,8 @@ const pageNavItems = [
         unit={['us-senate', 'us-governor'].includes(jurisdiction.dataPath) ? 'state' : jurisdiction.dataPath === 'us-house' ? 'district' : 'riding'}
         asOf={meta.run_date}
         geomapUrl={geomapUrl}
+        shareKey={geomapUrl ? shareKey ?? undefined : undefined}
+        shareText={shareText}
         client:only="preact"
       />
     </article>
