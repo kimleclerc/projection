@@ -963,6 +963,8 @@ const pageNavItems = [
         idProp={jurisdiction.idProp}
         baselineYear={jurisdiction.baselineYear}
         majority={majorityThreshold}
+        seatsTotal={totalSeats}
+        unit={['us-senate', 'us-governor'].includes(jurisdiction.dataPath) ? 'state' : jurisdiction.dataPath === 'us-house' ? 'district' : 'riding'}
         asOf={meta.run_date}
         geomapUrl={geomapUrl}
         client:only="preact"

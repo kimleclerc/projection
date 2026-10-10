@@ -20,6 +20,10 @@ interface Props {
   locale: Lang;
   /** « Change de camp depuis 2024 » ; absent = pas de légende de hachure. */
   flipLabel?: string;
+  /** false : la légende seule (Sénat, gouverneurs : la carte ne couvre pas la chambre). */
+  barre?: boolean;
+  /** Libellé des zones sans scrutin (« Pas d'élection »). */
+  emptyLabel?: string;
 }
 
 const T = {
@@ -31,7 +35,7 @@ const T = {
 type Tier = 'safe' | 'comp' | 'toss';
 const tierOf = (p?: number): Tier => (p === undefined || p >= 0.85 ? 'safe' : p >= 0.6 ? 'comp' : 'toss');
 
-export default function MapSeatBar({ ridings, colors, labels, majority, locale, flipLabel }: Props) {
+export default function MapSeatBar({ ridings, colors, labels, majority, locale, flipLabel, barre = true, emptyLabel }: Props) {
   const t = T[locale];
   const total = ridings.length;
   if (!total) return null;
@@ -72,29 +76,30 @@ export default function MapSeatBar({ ridings, colors, labels, majority, locale, 
 
   return (
     <div class="mseat">
-      <div class={`mseat-head${twoParty ? ' is-duel' : ''}`}>
+      {barre && <div class={`mseat-head${twoParty ? ' is-duel' : ''}`}>
         {head.map((k) => (
           <p class="mseat-party" style={{ color: colors[k] }}>
             <strong>{nf(seats(k))}</strong> <span>{labels[k] ?? k}</span>
           </p>
         ))}
-      </div>
-      <div class="mseat-bar" role="img" aria-label={head.map((k) => `${labels[k] ?? k} ${seats(k)}`).join(', ') + `, ${toss} ${t.tossups}`}>
+      </div>}
+      {barre && <div class="mseat-bar" role="img" aria-label={head.map((k) => `${labels[k] ?? k} ${seats(k)}`).join(', ') + `, ${toss} ${t.tossups}`}>
         {segs.filter((s) => s.n > 0).map((s) => (
           <span class="mseat-seg" style={{ flexGrow: s.n, background: s.fill }}>
             {s.n / total > 0.035 ? nf(s.n) : ''}
           </span>
         ))}
         <i class="mseat-maj" style={{ left: `${(majority / total) * 100}%` }} aria-hidden="true" />
-      </div>
+      </div>}
       <div class="mseat-foot">
         <span class="mseat-legend">
           <span><i style={{ background: colors[head[0]] }} /><i style={{ background: colors[head[1]] ?? colors[head[0]] }} />{t.legend[0]}</span>
           <span><i style={{ background: tileFill(colors[head[0]], 0.7) }} /><i style={{ background: tileFill(colors[head[1]] ?? colors[head[0]], 0.7) }} />{t.legend[1]}</span>
           <span><i style={{ background: SERRE }} />{t.legend[2]}</span>
           {flipLabel && <span><i class="is-hatch" />{flipLabel}</span>}
+          {emptyLabel && <span><i class="is-empty" />{emptyLabel}</span>}
         </span>
-        <span class="mseat-majlabel">{t.majority(majority)}</span>
+        {barre && <span class="mseat-majlabel">{t.majority(majority)}</span>}
       </div>
     </div>
   );

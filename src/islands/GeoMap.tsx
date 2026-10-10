@@ -28,16 +28,17 @@ interface Props {
   locale: 'fr' | 'en' | 'es';
   flipWord?: string;
   query?: string;
+  unit?: 'state' | 'district' | 'riding';
 }
 
 const COPY = {
-  fr: { pick: 'Touchez une circonscription pour la détailler.', margin: 'marge', pt: 'pt', tossup: 'Indécis', open: 'Voir la circonscription', loading: 'Chargement de la carte…', close: 'Fermer les détails' },
-  en: { pick: 'Select a riding to see its detail.', margin: 'margin', pt: 'pt', tossup: 'Tossup', open: 'Open riding page', loading: 'Loading the map…', close: 'Close details' },
-  es: { pick: 'Toca un distrito para ver el detalle.', margin: 'margen', pt: 'pt', tossup: 'Indeciso', open: 'Ver el distrito', loading: 'Cargando el mapa…', close: 'Cerrar detalles' },
+  fr: { pick: { riding: 'Touchez une circonscription pour la détailler.', district: 'Touchez un district pour le détailler.', state: 'Touchez un État pour le détailler.' }, margin: 'marge', pt: 'pt', tossup: 'Indécis', open: 'Voir la fiche', loading: 'Chargement de la carte…', close: 'Fermer les détails' },
+  en: { pick: { riding: 'Select a riding to see its detail.', district: 'Select a district to see its detail.', state: 'Select a state to see its detail.' }, margin: 'margin', pt: 'pt', tossup: 'Tossup', open: 'Open the page', loading: 'Loading the map…', close: 'Close details' },
+  es: { pick: { riding: 'Toca un distrito para ver el detalle.', district: 'Toca un distrito para ver el detalle.', state: 'Toca un estado para ver el detalle.' }, margin: 'margen', pt: 'pt', tossup: 'Indeciso', open: 'Ver la ficha', loading: 'Cargando el mapa…', close: 'Cerrar detalles' },
 } as const;
 const HACHURE = 'gmap-hachure';
 
-export default function GeoMap({ url, ridings, colors, labels, locale, flipWord, query = '' }: Props) {
+export default function GeoMap({ url, ridings, colors, labels, locale, flipWord, query = '', unit = 'riding' }: Props) {
   const t = COPY[locale] ?? COPY.fr;
   const [doc, setDoc] = useState<GeoDoc | null>(null);
   const [sel, setSel] = useState<string | null>(null);
@@ -84,7 +85,7 @@ export default function GeoMap({ url, ridings, colors, labels, locale, flipWord,
                   <g key={id} class={`gmap-riding${dim ? ' is-dim' : ''}`}>
                     <path
                       d={d}
-                      style={{ fill: tileFill(r?.winner ? colors[r.winner] : undefined, r?.p) }}
+                      style={{ fill: r ? tileFill(r.winner ? colors[r.winner] : undefined, r.p) : '#d9d9d9' }}
                       role="button"
                       tabIndex={p.main ? 0 : -1}
                       aria-label={r ? `${r.name} — ${nom(r.winner)}` : id}
@@ -118,7 +119,7 @@ export default function GeoMap({ url, ridings, colors, labels, locale, flipWord,
             <span class="tmap-marge">{t.margin} {nf(cur.margin)} {t.pt}</span>
             {cur.href && <a class="tmap-lien" href={cur.href}>{t.open}</a>}
           </>
-        ) : <span class="tmap-vide">{t.pick}</span>}
+        ) : <span class="tmap-vide">{t.pick[unit]}</span>}
       </p>
     </div>
   );

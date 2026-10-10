@@ -32,17 +32,22 @@ interface Props {
   asOf?: string;
   /** Vraie carte + médaillons (geomap.json) : vue principale quand elle existe. */
   geomapUrl?: string;
+  /** Sièges de la chambre. La barre n'apparaît que si la carte couvre toute la
+   *  chambre (pas au Sénat, où 35 courses ne font pas 100 sièges). */
+  seatsTotal?: number;
+  /** Ce qu'on touche sur la carte : un État, un district, une circonscription. */
+  unit?: 'state' | 'district' | 'riding';
 }
 
 const COPY = {
-  fr: { carte: 'Carte', tiles: 'Carte proportionnelle', map: 'Carte géographique', flip: 'gain sur', search: 'Chercher sur la carte', changes: (y: number) => `Change de camp depuis ${y}`, asOf: 'Projection du' },
-  en: { carte: 'Map', tiles: 'Proportional map', map: 'Geographic map', flip: 'gain from', search: 'Search the map', changes: (y: number) => `Changes hands since ${y}`, asOf: 'Forecast of' },
-  es: { carte: 'Mapa', tiles: 'Mapa proporcional', map: 'Mapa geográfico', flip: 'gana a', search: 'Buscar en el mapa', changes: (y: number) => `Cambia de manos desde ${y}`, asOf: 'Proyección del' },
+  fr: { carte: 'Carte', tiles: 'Carte proportionnelle', map: 'Carte géographique', flip: 'gain sur', search: 'Chercher sur la carte', changes: (y: number) => `Change de camp depuis ${y}`, asOf: 'Projection du', noRace: 'Pas d’élection' },
+  en: { carte: 'Map', tiles: 'Proportional map', map: 'Geographic map', flip: 'gain from', search: 'Search the map', changes: (y: number) => `Changes hands since ${y}`, asOf: 'Forecast of', noRace: 'No race' },
+  es: { carte: 'Mapa', tiles: 'Mapa proporcional', map: 'Mapa geográfico', flip: 'gana a', search: 'Buscar en el mapa', changes: (y: number) => `Cambia de manos desde ${y}`, asOf: 'Proyección del', noRace: 'Sin elección' },
 } as const;
 
 export default function ProjectionTiles({
   blocs, canvas, ridings, parties, locale, geoUrl, center, zoom, idProp, baselineYear,
-  winnerThreshold = 0.5, majority, asOf, geomapUrl,
+  winnerThreshold = 0.5, majority, asOf, geomapUrl, seatsTotal, unit = 'riding',
 }: Props) {
   // Vue principale : la vraie carte avec ses médaillons quand le moteur l'a
   // produite (on la reconnaît d'un coup d'œil) ; sinon les tuiles ; sinon la
@@ -79,11 +84,11 @@ export default function ProjectionTiles({
     <div class="ptiles">
       {(blocs.length > 0 || geomapUrl) && (
         <div class="ptiles-bar">
-          <div class="msim-mapview" role="group">
+          {[geomapUrl, blocs.length > 0, !geomapUrl].filter(Boolean).length > 1 && <div class="msim-mapview" role="group">
             {geomapUrl && <button type="button" aria-pressed={vue === 'carte'} onClick={() => setVue('carte')}>{t.carte}</button>}
             {blocs.length > 0 && <button type="button" aria-pressed={vue === 'tiles'} onClick={() => setVue('tiles')}>{t.tiles}</button>}
             {!geomapUrl && <button type="button" aria-pressed={vue === 'geo'} onClick={() => setVue('geo')}>{t.map}</button>}
-          </div>
+          </div>}
           {vue !== 'geo' && (
             <input
               class="ptiles-search" type="search" value={q} aria-label={t.search}
@@ -94,11 +99,16 @@ export default function ProjectionTiles({
       )}
 
       {vue !== 'geo' && majority && (
-        <MapSeatBar ridings={tuiles} colors={colors} labels={labels} majority={majority} locale={locale} flipLabel={t.changes(baselineYear)} />
+        <MapSeatBar
+          ridings={tuiles} colors={colors} labels={labels} majority={majority} locale={locale}
+          flipLabel={t.changes(baselineYear)}
+          barre={!seatsTotal || tuiles.length === seatsTotal}
+          emptyLabel={unit === 'state' ? t.noRace : undefined}
+        />
       )}
 
       {vue === 'carte' && geomapUrl ? (
-        <GeoMap url={geomapUrl} ridings={tuiles} colors={colors} labels={labels} locale={locale} query={q} flipWord={`${t.flip} ${baselineYear}`} />
+        <GeoMap url={geomapUrl} ridings={tuiles} colors={colors} labels={labels} locale={locale} query={q} flipWord={`${t.flip} ${baselineYear}`} unit={unit} />
       ) : vue === 'tiles' && blocs.length > 0 ? (
         <TileMap
           blocs={blocs} canvas={canvas} ridings={tuiles} locale={locale}
