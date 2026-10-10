@@ -25,7 +25,7 @@ import JurisdictionNav from './JurisdictionNav.astro';
 import OnThisPage from './OnThisPage.astro';
 import { getNavEntry, sectionUrl, type NavLang } from '../lib/jurisdiction-nav';
 import { byelectionFor } from '../lib/canada-byelection-overlay';
-import { partyMeta, partyMark } from '../lib/riding-adapters/parties';
+import { partyMeta, partyMark, subjectFr, aEs } from '../lib/riding-adapters/parties';
 import { ridingSlug, type JurisdictionKey } from '../lib/riding-adapters/types';
 import polymarketData from '../../web_data/polymarket/latest.json';
 import clactonData from '../../web_data/uk-clacton-special/latest.json';
@@ -280,43 +280,41 @@ const openSeatCount = (data.ridings ?? []).filter(
 const leadLabel = partyLabel(lead);
 const secondLabel = partyLabel(second);
 // Titres US : sujet au pluriel (« Democrats have… », « Les démocrates ont… », « Los demócratas tienen… »).
-const usSubject = ({
-  en: { us_dem: 'Democrats', us_rep: 'Republicans' },
-  fr: { us_dem: 'Les démocrates', us_rep: 'Les républicains' },
-  es: { us_dem: 'Los demócratas', us_rep: 'Los republicanos' },
-} as Record<string, Record<string, string>>)[locale]?.[lead?.party] ?? leadLabel;
-const headlineById: Record<string, Record<Locale, string>> = {
-  'us-house': {
-    en: `${usSubject} lead by ${Math.abs(projectedSeatsFor(lead) - projectedSeatsFor(second))} seats. The market is more bullish.`,
-    fr: `${usSubject} mènent par ${Math.abs(projectedSeatsFor(lead) - projectedSeatsFor(second))} sièges. Le marché est plus tranché.`,
-    es: `${usSubject} aventajan por ${Math.abs(projectedSeatsFor(lead) - projectedSeatsFor(second))} escaños. El mercado es más contundente.`,
-  },
-  'us-senate': {
-    en: `${usSubject} have the map. The market sees a much tighter chamber.`,
-    fr: `${usSubject} ont la carte. Le marché voit une chambre beaucoup plus serrée.`,
-    es: `${usSubject} tienen el mapa. El mercado ve una cámara mucho más cerrada.`,
-  },
-  // Le compte de sièges ouverts est LU dans les données, pas écrit dans la
-  // phrase : un gouverneur qui annonce son retrait en octobre changerait le
-  // titre le soir même, sans qu'on ait à y revenir.
-  'us-governor': {
-    en: `${openSeatCount} governors are leaving. Their states decide the fifty.`,
-    fr: `${openSeatCount} gouverneurs s’en vont. Leurs États décident des cinquante.`,
-    es: `${openSeatCount} gobernadores se van. Sus estados deciden las cincuenta.`,
-  },
-  quebec: {
-    en: `${leadLabel} lead the seat count. A majority is another election.`,
-    fr: `${leadLabel} mène au nombre de sièges. La majorité, c’est une autre élection.`,
-    es: `${leadLabel} lidera en escaños. La mayoría es otra elección.`,
-  },
-  uk: {
-    en: `Reform leads the old race. Burnham just started a new one.`,
-    fr: `Reform mène l’ancienne course. Burnham vient d’en ouvrir une nouvelle.`,
-    es: `Reform lidera la vieja carrera. Burnham acaba de abrir otra.`,
-  },
+// Le scrutin est passé (ex. Québec, 5 octobre) : la page devient « ce que nous avions prévu ».
+const votePast = !!jurisdiction.electionDate && jurisdiction.electionDate <= new Date().toISOString().slice(0, 10);
+// Le parti avec son article (« le PQ », « al PQ »), tiré des aides grammaticales communes.
+const leadMeta = partyMeta(({ federal: 'federal-ca' } as Record<string, string>)[jurisdiction.dataPath] ?? jurisdiction.dataPath, lead.party) as any;
+const leadSubjectFr = leadMeta?.mention_fr ? subjectFr(leadMeta.mention_fr) : leadLabel;
+const leadObjEs = leadMeta?.mention_es ? aEs(leadMeta.mention_es) : `a ${leadLabel}`;
+// Sous le titre : UNE phrase factuelle, tirée des données (pas de formule en deux temps).
+const headPct = (p: number) => {
+  const v = Math.round(p);
+  const s = v >= 100 ? (locale === 'en' ? '>99' : '> 99') : v <= 0 ? (locale === 'en' ? '<1' : '< 1') : String(v);
+  return locale === 'en' ? `${s}%` : `${s} %`;
 };
-const snapshotHeadline = headlineById[jurisdiction.id]?.[locale]
-  ?? `${leadLabel}: ${projectedSeatsFor(lead)} ${locale === 'fr' ? 'sièges' : locale === 'es' ? 'escaños' : 'seats'}.`;
+const leadSeats = projectedSeatsFor(lead);
+const secondLabel2 = second ? (locale === 'fr' ? (second as any).label_fr : locale === 'es' ? partyName(second as any, 'es') : (second as any).label_en) : '';
+const govLeads = (() => {
+  const c: Record<string, number> = {};
+  for (const r of ((data as any).ridings ?? [])) { const w = r.projection?.winner; if (w) c[w] = (c[w] ?? 0) + 1; }
+  return c;
+})();
+const nRacesAll = ((data as any).ridings ?? []).length;
+const snapshotHeadline = jurisdiction.id === 'us-senate'
+  ? (locale === 'fr' ? `Chances de majorité au Sénat : ${leadLabel} ${headPct(Number(lead.p_majority ?? 0) * 100)}, ${secondLabel2} ${headPct(Number((second as any)?.p_majority ?? 0) * 100)}.`
+    : locale === 'es' ? `Probabilidad de mayoría en el Senado: ${leadLabel} ${headPct(Number(lead.p_majority ?? 0) * 100)}, ${secondLabel2} ${headPct(Number((second as any)?.p_majority ?? 0) * 100)}.`
+    : `Chance of a Senate majority: ${leadLabel} ${headPct(Number(lead.p_majority ?? 0) * 100)}, ${secondLabel2} ${headPct(Number((second as any)?.p_majority ?? 0) * 100)}.`)
+  : jurisdiction.id === 'us-governor'
+  ? (locale === 'fr' ? `${leadLabel} en tête dans ${govLeads[lead.party] ?? 0} des ${nRacesAll} courses de gouverneur ; ${openSeatCount} postes sans titulaire candidat.`
+    : locale === 'es' ? `${leadLabel} en cabeza en ${govLeads[lead.party] ?? 0} de las ${nRacesAll} contiendas a gobernador; ${openSeatCount} cargos sin titular en la boleta.`
+    : `${leadLabel} leads in ${govLeads[lead.party] ?? 0} of ${nRacesAll} governor races; ${openSeatCount} have no incumbent running.`)
+  : votePast
+  ? (locale === 'fr' ? `La veille du vote, notre projection plaçait ${leadSubjectFr} en tête avec ${leadSeats} sièges sur ${totalSeats}.`
+    : locale === 'es' ? `La víspera de la votación, nuestra proyección situaba en cabeza ${leadObjEs}, con ${leadSeats} de ${totalSeats} escaños.`
+    : `On the eve of the vote, our forecast gave ${leadLabel} ${leadSeats} of ${totalSeats} seats.`)
+  : (locale === 'fr' ? `En tête : ${leadLabel}, avec ${leadSeats} sièges projetés sur ${totalSeats} et ${headPct(pMaj)} de chances de majorité.`
+    : locale === 'es' ? `En cabeza: ${leadLabel}, con ${leadSeats} de ${totalSeats} escaños proyectados y un ${headPct(pMaj)} de probabilidad de mayoría.`
+    : `Leading: ${leadLabel}, with ${leadSeats} of ${totalSeats} projected seats and a ${headPct(pMaj)} chance of a majority.`);
 const majorityPhrase =
   locale === 'fr'
     ? pMaj >= 99
@@ -410,6 +408,10 @@ const t = {
     ? `${majorityThreshold} escaños para la mayoría`
     : `${majorityThreshold} seats for a majority`,
   seatProjection: isFr ? "Projection des sièges" : isEs ? "Proyección de escaños" : "Seat projection",
+  voteTableTitle: isFr ? "Part des voix projetée" : isEs ? "Porcentaje de voto proyectado" : "Projected vote share",
+  voteColParty: isFr ? "Parti" : isEs ? "Partido" : "Party",
+  voteColShare: isFr ? "Voix" : isEs ? "Voto" : "Vote",
+  voteColTrend: isFr ? "Sur 7 jours" : isEs ? "En 7 días" : "7-day change",
   pMajority: isFr ? "Chances de majorité" : isEs ? "Probabilidad de mayoría" : "Chance of a majority",
   pLargest: isFr ? "Chances de finir premier" : isEs ? "Probabilidad de quedar primero" : "Chance of finishing first",
   voteShare: "Vote",
@@ -439,16 +441,8 @@ const t = {
     ? "El color indica el partido en cabeza; el tono, cuán decidida está la contienda."
     : "Colour shows the leading party; the shade, how settled the race is.",
   keepDiggingEyebrow: isFr ? "Pour aller plus loin" : isEs ? "Seguir explorando" : "Keep digging",
-  keepDiggingTitle: isFr
-    ? "La projection continue ailleurs."
-    : isEs
-    ? "La proyección continúa."
-    : "The projection keeps going.",
-  keepDiggingBody: isFr
-    ? "Passez d’un modèle à l’autre pour comparer les chambres, les provinces et les indices qui alimentent le reste du site."
-    : isEs
-    ? "Navega de un modelo al siguiente para comparar cámaras, estados y los índices que alimentan el resto del sitio."
-    : "Move from one model to the next to compare chambers, provinces, and the instruments feeding the rest of the site.",
+  keepDiggingTitle: isFr ? "Voir aussi" : isEs ? "Ver también" : "See also",
+  keepDiggingBody: "",
 };
 
 // Trim party data passed to the islands (Plotly does not need every CI field).
@@ -579,8 +573,6 @@ try {
   tileBlocs = tuiles?.blocs ?? [];
   tileCanvas = tuiles?.canvas;
 } catch { tileBlocs = []; }
-// Le scrutin est passé (ex. Québec, 5 octobre) : la page devient « ce que nous avions prévu ».
-const votePast = !!jurisdiction.electionDate && jurisdiction.electionDate <= new Date().toISOString().slice(0, 10);
 // Partage par module (carte, projection, graphique) : images fabriquées à la volée.
 const shareKey = SHARE_ELECTIONS[jurisdiction.dataPath] ? jurisdiction.dataPath : null;
 // Vraie carte + médaillons (moteur : geo_map.py) : vue principale quand elle existe.
@@ -599,9 +591,12 @@ const pollsHistory = ((data.polls_history ?? []) as any[]).map((poll) => ({
   weight: poll.weight ?? poll.weight_firm ?? poll.time_weight,
 }));
 
-const fmtPct = (v: number) => `${(v * 100).toFixed(0)}%`;
-const fmtSign = (v: number) =>
-  v > 0 ? `+${v.toFixed(1)}` : v.toFixed(1);
+const fmtPct = (v: number) => { const r = Math.round(v * 100); const x = r >= 100 ? (locale === 'en' ? '>99' : '> 99') : r <= 0 ? (locale === 'en' ? '<1' : '< 1') : String(r); return locale === 'en' ? `${x}%` : `${x} %`; };
+const fmtNum1 = (v: number) => `${v.toLocaleString(locale === 'fr' ? 'fr-CA' : locale === 'es' ? 'es-ES' : 'en-CA', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}${locale === 'en' ? '%' : ' %'}`;
+const fmtSign = (v: number) => {
+  const a = Math.abs(v).toLocaleString(locale === 'fr' ? 'fr-CA' : locale === 'es' ? 'es-ES' : 'en-CA', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  return `${v > 0 ? '+' : v < 0 ? '−' : ''}${a} ${locale === 'en' ? 'pts' : 'pts'}`;
+};
 const trendArrow = (dir: 'up' | 'down' | 'flat') =>
   dir === 'up' ? '▲' : dir === 'down' ? '▼' : '▬';
 const trendLabel = (dir: 'up' | 'down' | 'flat') => {
@@ -872,64 +867,28 @@ const pageNavItems = [
   </section>
   )}
 
-  <!-- SEAT PROJECTION -->
-  <section id="seat-projection" class="pe-section container" aria-labelledby="pe-projection-title">
-    <h2 id="pe-projection-title" class="pe-section-title">{t.seatProjection}</h2>
-    <div class="pe-bar" role="img" aria-label={t.seatProjection}>
-      {projectionSegments.map((s) => (
-        <div
-          class="pe-bar-segment"
-          style={`width:${s.pct}%; background:${s.color};`}
-          title={`${partyName(s, locale)} — ${s.seats}`}
-        >
-          <span class="pe-bar-segment-label">{s.seats}</span>
-        </div>
-      ))}
+  <!-- VOIX PROJETÉES : ce que le tableau du haut ne dit pas (voix, variation, rang).
+       Absente quand il n'y a pas de vote national (Sénat, gouverneurs). -->
+  {projectionCards.some((s) => typeof s.vote_mean === 'number') && <section id="seat-projection" class="pe-section container" aria-labelledby="pe-projection-title">
+    <h2 id="pe-projection-title" class="pe-section-title">{t.voteTableTitle}</h2>
+    <div class="pe-votes-scroll">
+      <table class="pe-votes">
+        <thead>
+          <tr><th scope="col">{t.voteColParty}</th><th scope="col" class="num">{t.voteColShare}</th><th scope="col" class="num">{t.voteColTrend}</th><th scope="col" class="num">{t.pLargest}</th></tr>
+        </thead>
+        <tbody>
+          {projectionCards.map((s) => (
+            <tr>
+              <th scope="row"><span class="pe-votes-sw" style={`background:${s.color}`}></span>{partyName(s, locale)}</th>
+              <td class="num">{typeof s.vote_mean === 'number' ? fmtNum1(Math.max(0, Math.min(100, s.vote_mean))) : '—'}</td>
+              <td class="num">{typeof s.trend_7d === 'number' ? fmtSign(s.trend_7d) : '—'}</td>
+              <td class="num">{fmtPct(s.p_largest)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
-    <div class="pe-bar-majority">
-      <div class="pe-bar-majority-marker" style={`left:${majorityMarkerPct}%`} />
-      <span class="pe-bar-majority-label">{t.majorityNeeded}</span>
-    </div>
-    <div class="pe-projection-grid">
-      {projectionCards.map((s) => (
-        <div class="pe-projection-card">
-          <header>
-            {s.logo
-              ? <img class="pe-projection-logo" src={`/party-logos/${s.logo}`} alt="" width="34" height="34" loading="lazy" decoding="async" />
-              : <span class="pe-projection-swatch" style={`background:${s.color}`} />}
-            <span class="pe-projection-name">
-              {partyName(s, locale)}
-            </span>
-            {typeof s.trend_7d === 'number' && (
-              <span
-                class={`pe-projection-trend pe-projection-trend--${s.trend_direction}`}
-                aria-label={`${trendLabel(s.trend_direction)} ${Math.abs(s.trend_7d)}`}
-              >
-                {trendArrow(s.trend_direction)}{' '}
-                {fmtSign(s.trend_7d)}
-              </span>
-            )}
-          </header>
-          <div class="pe-projection-seats">{s.seats}</div>
-          <dl class="pe-projection-stats">
-            <div>
-              <dt>{t.voteShare}</dt>
-              {/* Defensive clamp: upstream pipeline can occasionally produce >100% values for uncontested races; cap at 100 for display. */}
-              <dd>{typeof s.vote_mean === 'number' ? `${Math.max(0, Math.min(100, s.vote_mean)).toFixed(1)}%` : '—'}</dd>
-            </div>
-            <div>
-              <dt>{t.pMajority}</dt>
-              <dd>{fmtPct(s.p_majority)}</dd>
-            </div>
-            <div>
-              <dt>{t.pLargest}</dt>
-              <dd>{fmtPct(s.p_largest)}</dd>
-            </div>
-          </dl>
-        </div>
-      ))}
-    </div>
-  </section>
+  </section>}
 
   <!-- MARCHÉS ET AUTRES PRÉVISIONS — juste sous la projection des sièges
        (les pages US y placent Kalshi et les liens vers le comparateur) -->
@@ -1437,6 +1396,13 @@ const pageNavItems = [
   }
 
   /* PROJECTION CARDS */
+  .pe-votes-scroll { max-width: 100%; overflow-x: auto; }
+  .pe-votes { width: 100%; max-width: 760px; border-collapse: collapse; border-top: 2px solid var(--ink); }
+  .pe-votes th, .pe-votes td { padding: 10px 12px 10px 0; border-bottom: 1px solid var(--rule); text-align: left; font-size: 16px; }
+  .pe-votes thead th { color: var(--ink-3); font-size: 13px; font-weight: 600; }
+  .pe-votes tbody th { font-weight: 600; }
+  .pe-votes .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .pe-votes-sw { display: inline-block; width: 9px; height: 18px; margin-right: 10px; vertical-align: -3px; }
   .pe-projection-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));

@@ -117,7 +117,8 @@ dans `system.css`, sinon le build échoue.
 - grille de 3 blocs égaux ou plus quand une liste ou un tableau ferait l'affaire ;
 - rangée de « stats » en boîtes ;
 - étiquette au-dessus du H1 ; étiquette de prestige (« vedette », « phare », « à la une »)
-  qui ne dit rien du contenu ;
+  qui ne dit rien du contenu ; petite accroche au-dessus d'un titre de section (masquée
+  d'office par `system.css` quand elle précède un titre) ;
 - succession de sections promotionnelles (présentation → appel → répertoire → appel) :
   une page a une fonction, pas un tunnel de vente ;
 - teaser vide (cartes sans contenu, grande flèche) : on montre une vraie question ou un

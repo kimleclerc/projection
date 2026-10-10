@@ -42,7 +42,7 @@ export const raceEditorial: Record<string, Record<'en' | 'fr' | 'es', RaceEditor
   usGovernor: {
     en: {
       question: 'Half of these seats have no incumbent. Does the state\u2019s partisan lean take over?',
-      verdict: 'Eighteen of the thirty-six governors on the ballot are term-limited or retiring, and that changes what predicts the race. Where a governor is running, their last result explains almost everything and the state\u2019s presidential lean adds nothing. Where the seat is open, the reverse is true \u2014 and abruptly.',
+      verdict: 'About half of the 36 governor races have no incumbent running. Where a governor is running, their last result predicts the race well; where the seat is open, the state’s presidential lean matters much more.',
       history: ['Governors outrun their state\u2019s partisan lean routinely: Phil Scott took 73% of a state that votes Democratic by 17 points, Mark Gordon 74% of Wyoming. Those margins belong to the person, not the party, and they do not transfer to a successor.', 'Vote-Scope measured that split on the 2022 cycle rather than assuming it. Races with an incumbent on the ballot are anchored on the previous result; open seats are anchored on the Cook PVI. Cross-validated, each anchor beats the other by roughly two to one in its own regime.'],
       sinceRun: [],
       turningPoints: ['Whether nominees in open seats consolidate their party\u2019s usual coalition or underperform it.', 'A sustained move in the national generic ballot, which governor races absorb at roughly 72%.', 'Independent candidacies that stay on the ballot through November rather than fading after the primaries.'],
@@ -50,7 +50,7 @@ export const raceEditorial: Record<string, Record<'en' | 'fr' | 'es', RaceEditor
     },
     fr: {
       question: 'La moiti\u00e9 de ces postes n\u2019a plus de sortant. La couleur de l\u2019\u00c9tat reprend-elle la main?',
-      verdict: 'Dix-huit des trente-six gouverneurs en jeu sont limit\u00e9s par les mandats ou se retirent, et cela change ce qui pr\u00e9dit la course. L\u00e0 o\u00f9 le sortant se repr\u00e9sente, son dernier r\u00e9sultat explique presque tout et la couleur pr\u00e9sidentielle de l\u2019\u00c9tat n\u2019ajoute rien. L\u00e0 o\u00f9 le si\u00e8ge est ouvert, c\u2019est l\u2019inverse \u2014 et brutalement.',
+      verdict: 'Près de la moitié des 36 courses de gouverneur n’ont pas de titulaire candidat. Là où le gouverneur se représente, son dernier résultat prédit bien la course ; là où le poste est libre, l’orientation présidentielle de l’État compte beaucoup plus.',
       history: ['Un gouverneur d\u00e9passe couramment la couleur de son \u00c9tat : Phil Scott a pris 73 % d\u2019un Vermont qui vote d\u00e9mocrate de 17 points, Mark Gordon 74 % du Wyoming. Ces marges appartiennent \u00e0 la personne, pas au parti, et elles ne se transmettent pas \u00e0 un successeur.', 'Vote-Scope a mesur\u00e9 cette coupure sur le cycle 2022 plut\u00f4t que de la supposer. Les courses \u00e0 sortant s\u2019ancrent sur le r\u00e9sultat pr\u00e9c\u00e9dent, les si\u00e8ges ouverts sur le PVI de Cook. En validation crois\u00e9e, chaque ancre bat l\u2019autre d\u2019environ deux \u00e0 un dans son propre r\u00e9gime.'],
       sinceRun: [],
       turningPoints: ['La capacit\u00e9 des nomm\u00e9s sur si\u00e8ge ouvert \u00e0 rassembler la coalition habituelle de leur parti.', 'Un mouvement durable du vote g\u00e9n\u00e9rique national, que les courses gubernatoriales absorbent \u00e0 hauteur de 72 %.', 'Les candidatures ind\u00e9pendantes qui tiennent jusqu\u2019en novembre plut\u00f4t que de s\u2019effacer apr\u00e8s les primaires.'],
@@ -58,7 +58,7 @@ export const raceEditorial: Record<string, Record<'en' | 'fr' | 'es', RaceEditor
     },
     es: {
       question: 'La mitad de estos puestos no tiene titular. \u00bfRetoma el mando la inclinaci\u00f3n del estado?',
-      verdict: 'Dieciocho de los treinta y seis gobernadores en juego no pueden repetir o se retiran, y eso cambia qu\u00e9 predice la contienda. Donde el titular compite, su resultado anterior lo explica casi todo. Donde el puesto queda abierto, manda la inclinaci\u00f3n presidencial del estado.',
+      verdict: 'Casi la mitad de las 36 contiendas a gobernador no tienen titular en la boleta. Donde el gobernador se presenta, su último resultado predice bien la contienda; donde el cargo está libre, la inclinación presidencial del estado pesa mucho más.',
       history: ['Un gobernador supera con frecuencia el color de su estado: Phil Scott obtuvo 73% en un Vermont que vota dem\u00f3crata por 17 puntos. Esos m\u00e1rgenes son de la persona, no del partido, y no se heredan.', 'Vote-Scope midi\u00f3 esa divisi\u00f3n en el ciclo 2022 en lugar de suponerla: contiendas con titular se anclan en el resultado previo; los puestos abiertos, en el PVI de Cook.'],
       sinceRun: [],
       turningPoints: ['Si las candidaturas en puestos abiertos consolidan la coalici\u00f3n habitual de su partido.', 'Un cambio sostenido en la boleta gen\u00e9rica nacional, que estas contiendas absorben cerca de 72%.', 'Candidaturas independientes que lleguen a noviembre y no se diluyan tras las primarias.'],

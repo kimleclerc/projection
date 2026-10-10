@@ -19,7 +19,7 @@ const { eyebrow, title, body, links } = Astro.props;
   <div class="keep-digging-copy">
     <p class="eyebrow">{eyebrow}</p>
     <h2 id="keep-digging-title">{title}</h2>
-    <p>{body}</p>
+    {body && <p>{body}</p>}
   </div>
   <nav class="keep-digging-links" aria-label={eyebrow}>
     {links.map((link) => (

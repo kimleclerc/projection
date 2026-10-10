@@ -167,3 +167,9 @@
 .share-module .share-item { background: none; border: 0; padding: 0; font: inherit; font-size: 14px; color: var(--ink-2); cursor: pointer; }
 .share-module .share-item:hover { color: var(--ink); }
 .share-module .share-native { margin-left: 4px; font-size: 14px; }
+
+/* Petites accroches au-dessus des titres (« À surveiller », « Pour aller plus loin »,
+   « La question »…) : interdites par le contrat (docs/DESIGN.md §6 et §8). Le titre
+   suffit. Une seule règle pour tout le site ; une étiquette isolée (pas suivie d'un
+   titre) reste affichée. */
+:is([class*="eyebrow"], [class*="kicker"]):has(+ :is(h1, h2, h3, h4, .vs-page-title)) { display: none; }
