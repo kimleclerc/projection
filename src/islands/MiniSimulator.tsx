@@ -13,6 +13,8 @@ import {
 } from '../lib/mini-sim';
 import { readUrlParam, setUrlParam } from './lib/urlState';
 import CopyLink from './lib/CopyLink';
+import ShareModule from './lib/ShareModule';
+import { electionOfCycle, SHARE_ELECTIONS } from '../lib/share/elections';
 import SavedScenarios from './lib/SavedScenarios';
 import RidingsMap, { type MapParty, type RidingFull } from './RidingsMap';
 
@@ -200,6 +202,7 @@ export default function MiniSimulator({ doc, locale, map }: Props) {
       },
     };
   }), [doc.ridings, ridingStates]);
+  const shareKey = (() => { const k = electionOfCycle(doc.meta.election_cycle); return k && SHARE_ELECTIONS[k]?.simulator ? k : null; })();
   const touched =
     Object.values(nat).some((v) => Math.abs(v) > 0.05) ||
     Object.values(reg).some((p) => Object.values(p).some((v) => Math.abs(v) > 0.05));
@@ -411,8 +414,12 @@ export default function MiniSimulator({ doc, locale, map }: Props) {
         <button type="button" class="msim-reset" onClick={reset} disabled={!touched}>
           {t.reset}
         </button>
-        {touched && <CopyLink locale={locale} />}
+        {touched && !shareKey && <CopyLink locale={locale} />}
       </div>
+      {/* « Fais ta carte » : le scénario a son image et son lien, qui rouvre le simulateur. */}
+      {touched && shareKey && (
+        <ShareModule lang={locale} kind="scenario" election={shareKey} runDate={doc.meta.run_date} text={SHARE_ELECTIONS[shareKey].question[locale]} sim={encodeState(nat, reg)} />
+      )}
 
       <SavedScenarios
         locale={locale}

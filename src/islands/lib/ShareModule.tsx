@@ -11,19 +11,20 @@ import { useEffect, useState } from 'preact/hooks';
 type Lang = 'fr' | 'en' | 'es';
 interface Props {
   lang: Lang;
-  kind: 'map' | 'projection' | 'chart';
+  kind: 'map' | 'projection' | 'chart' | 'scenario';
   election: string;   // clé de SHARE_ELECTIONS (us-house, federal…)
   runDate: string;    // date du calcul : l'image change avec lui
   text: string;       // texte du message (la question du scrutin)
+  sim?: string;       // état du scénario (?sim=) pour le partage d'un simulateur
 }
 
 const T = {
-  fr: { share: 'Partager', copy: 'Copier le lien', copied: 'Lien copié', wide: 'Image paysage', square: 'Image carrée', x: 'Publier sur X', native: 'Partager…', what: { map: 'cette carte', projection: 'cette projection', chart: 'ce graphique' } },
-  en: { share: 'Share', copy: 'Copy link', copied: 'Link copied', wide: 'Landscape image', square: 'Square image', x: 'Post on X', native: 'Share…', what: { map: 'this map', projection: 'this forecast', chart: 'this chart' } },
-  es: { share: 'Compartir', copy: 'Copiar el enlace', copied: 'Enlace copiado', wide: 'Imagen horizontal', square: 'Imagen cuadrada', x: 'Publicar en X', native: 'Compartir…', what: { map: 'este mapa', projection: 'esta proyección', chart: 'este gráfico' } },
+  fr: { share: 'Partager', copy: 'Copier le lien', copied: 'Lien copié', wide: 'Image paysage', square: 'Image carrée', x: 'Publier sur X', native: 'Partager…', what: { map: 'cette carte', projection: 'cette projection', chart: 'ce graphique', scenario: 'mon scénario' } },
+  en: { share: 'Share', copy: 'Copy link', copied: 'Link copied', wide: 'Landscape image', square: 'Square image', x: 'Post on X', native: 'Share…', what: { map: 'this map', projection: 'this forecast', chart: 'this chart', scenario: 'my scenario' } },
+  es: { share: 'Compartir', copy: 'Copiar el enlace', copied: 'Enlace copiado', wide: 'Imagen horizontal', square: 'Imagen cuadrada', x: 'Publicar en X', native: 'Compartir…', what: { map: 'este mapa', projection: 'esta proyección', chart: 'este gráfico', scenario: 'mi escenario' } },
 };
 
-export default function ShareModule({ lang, kind, election, runDate, text }: Props) {
+export default function ShareModule({ lang, kind, election, runDate, text, sim }: Props) {
   const t = T[lang];
   const [origin, setOrigin] = useState('https://vote-scope.com');
   const [canNative, setCanNative] = useState(false);
@@ -34,8 +35,9 @@ export default function ShareModule({ lang, kind, election, runDate, text }: Pro
   }, []);
 
   const v = runDate.replace(/[^0-9-]/g, '');
-  const link = `${origin}/s/${kind}/${election}/${lang}?v=${v}`;
-  const image = (f: 'wide' | 'square') => `/og/live/${kind}/${election}/${lang}.png?v=${v}${f === 'square' ? '&f=square' : ''}`;
+  const q = sim ? `sim=${encodeURIComponent(sim)}` : `v=${v}`;
+  const link = `${origin}/s/${kind}/${election}/${lang}?${q}`;
+  const image = (f: 'wide' | 'square') => `/og/live/${kind}/${election}/${lang}.png?${q}${f === 'square' ? '&f=square' : ''}`;
   const file = (f: string) => `vote-scope-${election}-${kind}-${lang}${f === 'square' ? '-carre' : ''}.png`;
   const track = { 'data-analytics-event': 'share_click', 'data-analytics-kind': kind, 'data-analytics-election': election };
 

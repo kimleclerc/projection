@@ -8,7 +8,7 @@
  * déploiement : la réponse est fabriquée ici. La destination est tirée d'une
  * table fixe (pas d'un paramètre), donc pas de redirection ouverte.
  */
-import { SHARE_ELECTIONS, SHARE_KINDS, type Lang, type ShareKind } from '../../src/lib/share/elections';
+import { SHARE_ELECTIONS, SHARE_KINDS, SIM_RE, type Lang, type ShareKind } from '../../src/lib/share/elections';
 
 type Ctx = { request: Request; params: { path?: string[] } };
 const LANGS = new Set(['fr', 'en', 'es']);
@@ -28,8 +28,15 @@ export const onRequestGet = async ({ request, params }: Ctx) => {
   const url = new URL(request.url);
   const v = (url.searchParams.get('v') ?? '').replace(/[^0-9-]/g, '').slice(0, 10);
   const origin = url.origin;
-  const page = `${origin}${el.page[lang]}#${SHARE_KINDS[kind].anchor}`;
-  const image = `${origin}/og/live/${kind}/${key}/${lang}.png${v ? `?v=${v}` : ''}`;
+  // Un scénario rouvre le simulateur sur les mêmes curseurs ; le reste, la page à l'ancre du module.
+  const sim = url.searchParams.get('sim') ?? '';
+  if (kind === 'scenario' && (!el.simulator || !SIM_RE.test(sim))) return new Response('Not found', { status: 404 });
+  const page = kind === 'scenario'
+    ? `${origin}${el.simulator![lang]}?sim=${encodeURIComponent(sim)}`
+    : `${origin}${el.page[lang]}#${SHARE_KINDS[kind].anchor}`;
+  const image = kind === 'scenario'
+    ? `${origin}/og/live/scenario/${key}/${lang}.png?sim=${encodeURIComponent(sim)}`
+    : `${origin}/og/live/${kind}/${key}/${lang}.png${v ? `?v=${v}` : ''}`;
   const title = `${el.question[lang]} — Vote-Scope`;
   const what = SHARE_KINDS[kind].label[lang];
   const desc = DESC[lang](what.charAt(0).toUpperCase() + what.slice(1), el.name[lang]);

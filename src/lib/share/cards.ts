@@ -10,6 +10,7 @@
  */
 import { PARTY_ES } from '../party-names';
 import { SHARE_ELECTIONS, type Lang } from './elections';
+import { simulateRidings, decodeState, partyLabel as simPartyLabel, regionLabel, type SimDoc } from '../mini-sim';
 
 export type Format = 'wide' | 'square';
 export type Node = { type: string; props: Record<string, unknown> };
@@ -95,7 +96,7 @@ function frame(fmt: Format, lang: Lang, title: string, sub: string, body: Node, 
 interface Seat { key: string; label: string; color: string; n: number }
 
 /** Décompte par certitude, ligne de majorité — la grammaire de 270toWin. */
-function seatBar(lang: Lang, width: number, ridings: { winner: string | null; p?: number }[], parties: any[], majority: number, flipYear: number | null, big: boolean): Node {
+function seatBar(lang: Lang, width: number, ridings: { winner: string | null; p?: number }[], parties: any[], majority: number, flipYear: number | string | null, big: boolean, tiers?: [string, string, string]): Node {
   const t = T[lang];
   const total = ridings.length;
   const color: Record<string, string> = Object.fromEntries(parties.map((p) => [p.party, p.color]));
@@ -133,19 +134,20 @@ function seatBar(lang: Lang, width: number, ridings: { winner: string | null; p?
       }, (s.n / total) * width > 34 ? String(s.n) : '')),
       h('div', { position: 'absolute', left: x - 1, top: -6, width: 2, height: 42, backgroundColor: INK })),
     h('div', { justifyContent: 'space-between', marginTop: 10, fontSize: 15, fontWeight: 600, color: INK_3 },
-      legend(lang, head.map((k) => color[k]), flipYear, false),
+      legend(lang, head.map((k) => color[k]), flipYear, false, tiers),
       h('div', { color: INK_2 }, t.majority(majority))));
 }
 
-function legend(lang: Lang, colors: string[], flipYear: number | null, empty: boolean): Node {
+function legend(lang: Lang, colors: string[], flipYear: number | string | null, empty: boolean, tiers?: [string, string, string]): Node {
   const t = T[lang];
+  const [l1, l2, l3] = tiers ?? [t.safe, t.comp, t.toss];
   const sw = (fills: string[], text: string, hatch = false) => h('div', { alignItems: 'center', marginRight: 16 },
     ...fills.map((f) => h('div', { width: 13, height: 13, backgroundColor: f, marginRight: 3, ...(hatch ? { backgroundImage: 'repeating-linear-gradient(45deg, rgba(0,0,0,.5) 0 2px, transparent 2px 5px)' } : {}) })),
     h('div', { marginLeft: 3 }, text));
   const two = colors.slice(0, 2);
   return h('div', { alignItems: 'center', flexWrap: 'wrap' },
-    sw(two, t.safe), sw(two.map((c) => tint(c, 0.52)), t.comp), sw([SERRE], t.toss),
-    ...(flipYear ? [sw([PAPER_2], t.flip(flipYear), true)] : []),
+    sw(two, l1), sw(two.map((c) => tint(c, 0.52)), l2), sw([SERRE], l3),
+    ...(flipYear ? [sw([PAPER_2], typeof flipYear === 'string' ? flipYear : t.flip(flipYear), true)] : []),
     ...(empty ? [sw([VIDE], t.empty)] : []));
 }
 
@@ -275,8 +277,8 @@ export function projectionCard(fmt: Format, { key, lang, latest }: { key: string
   const bar = h('div', { position: 'relative', width: inner, height: 26, marginTop: 18, backgroundColor: RULE },
     ...parties.map((p: any) => h('div', { width: (seatsOf(p) / total) * inner, height: 26, backgroundColor: p.color })),
     h('div', { position: 'absolute', left: (majority / total) * inner - 1, top: -6, width: 2, height: 38, backgroundColor: INK }));
-  const body = h('div', { flexDirection: 'column', flexGrow: 1, justifyContent: 'center' },
-    h('div', { fontSize: big ? 46 : 38, fontWeight: 700, lineHeight: 1.05, marginBottom: big ? 26 : 14 }, el.question[lang]),
+  const body = h('div', { flexDirection: 'column', flexGrow: 1, justifyContent: 'flex-start', paddingTop: big ? 40 : 18 },
+    h('div', { fontSize: big ? 52 : 40, fontWeight: 700, lineHeight: 1.05, marginBottom: big ? 34 : 16 }, el.question[lang]),
     head, ...parties.map(row), bar,
     h('div', { marginTop: 8, fontSize: 15, fontWeight: 600, color: INK_2 }, t.majority(majority)));
   return frame(fmt, lang, el.name[lang], el.when[lang], body, asOfLine(key, lang, latest));
@@ -350,4 +352,68 @@ export function chartCard(fmt: Format, { key, lang, latest }: { key: string; lan
       ...months.map((n) => ({ ...n, props: { ...n.props, style: { ...(n.props.style as object), left: ((n.props.style as any).left as number) + 40 } } }))));
   const foot = `${t.polls(nf(recent.length, lang))} · ${t.asOf} ${longDate(latest.meta.run_date, lang)}`;
   return frame(fmt, lang, el.name[lang], el.when[lang], body, foot);
+}
+
+// ------------------------------------------------------------------ scénario du lecteur (« fais ta carte »)
+
+
+const SCEN = {
+  fr: { title: 'Mon scénario', everywhere: 'partout', flip: 'Bascule par rapport à la projection', base: 'Curseurs du simulateur Vote-Scope', clear: 'Avance nette', thin: 'Avance mince', toss: 'Serré' },
+  en: { title: 'My scenario', everywhere: 'nationwide', flip: 'Flips from the forecast', base: 'Vote-Scope simulator sliders', clear: 'Clear lead', thin: 'Narrow lead', toss: 'Toss-up' },
+  es: { title: 'Mi escenario', everywhere: 'en todo el país', flip: 'Cambia respecto a la proyección', base: 'Controles del simulador de Vote-Scope', clear: 'Ventaja clara', thin: 'Ventaja estrecha', toss: 'Reñido' },
+};
+
+/** Une ligne lisible : « Libéral −3,0 · Conservateur +2,0 partout ; Québec : Bloc +4,0 ». */
+function scenarioLine(doc: SimDoc, sim: string, lang: Lang): string {
+  const [nat, reg] = decodeState(sim, doc);
+  const lbl = new Map(doc.parties.map((p) => [p.code, simPartyLabel(p, lang)]));
+  const num = (v: number) => `${v > 0 ? '+' : '−'}${Math.abs(v).toFixed(1).replace('.', lang === 'en' ? '.' : ',')}`;
+  const part = (d: Record<string, number>) => Object.entries(d).filter(([, v]) => Math.abs(v) > 0.05).map(([k, v]) => `${lbl.get(k) ?? k} ${num(v)}`).join(' · ');
+  const out: string[] = [];
+  if (part(nat)) out.push(`${part(nat)} ${SCEN[lang].everywhere}`);
+  for (const [rid, d] of Object.entries(reg)) {
+    const r = doc.regions.find((x) => x.id === rid);
+    if (part(d)) out.push(`${r ? regionLabel(r, lang) : rid} : ${part(d)}`.replace(' : ', lang === 'fr' ? ' : ' : ': '));
+  }
+  return out.join(' ; ');
+}
+
+export function scenarioCard(fmt: Format, { key, lang, doc, geo, sim }: { key: string; lang: Lang; doc: SimDoc; geo: GeoDoc; sim: string }): Node {
+  const el = SHARE_ELECTIONS[key];
+  const s = SCEN[lang];
+  const { w, h: H } = SIZE[fmt];
+  const pad = fmt === 'wide' ? 34 : 44;
+  const inner = w - pad * 2;
+  const [nat, reg] = decodeState(sim, doc);
+  const states = simulateRidings(doc, nat, reg, lang);
+  const color: Record<string, string> = Object.fromEntries(doc.parties.map((p) => [p.code, p.color]));
+  const byId = new Map(states.map((r) => [String(r.id).padStart(5, '0'), r]));
+  // Pas de probabilité dans un scénario : la nuance dit l'écart (≥ 8 pts net, ≥ 3 mince, sinon serré).
+  const tier = (m: number) => (m >= 8 ? 1 : m >= 3 ? 0.7 : 0.5);
+  const fill = (id: string) => { const r = byId.get(id); return r ? fillFor(color[r.winner], tier(r.margin)) : VIDE; };
+  const changed = (id: string) => !!byId.get(id)?.changed;
+  const parties = doc.parties.map((p) => ({ party: p.code, label_fr: p.label_fr, label_en: p.label_en, color: p.color }));
+  const ridings = states.map((r) => ({ winner: r.winner, p: tier(r.margin) }));
+  const top = seatBar(lang, inner, ridings, parties, doc.meta.majority_threshold, s.flip, fmt === 'square', [s.clear, s.thin, s.toss]);
+  const line = scenarioLine(doc, sim, lang);
+  const [, , GW, GH] = geo.viewBox;
+  const boxH = H - pad * 2 - 60 - (fmt === 'square' ? 150 : 128) - 100;
+  const k = Math.min(inner / GW, boxH / GH);
+  const mw = Math.round(GW * k);
+  const mh = Math.round(GH * k);
+  const titres = geo.panels.filter((p: any) => !p.main).map((p: any) => h('div', {
+    position: 'absolute', left: p.x * k + 3, top: p.y * k + 2, padding: '1px 4px', backgroundColor: 'rgba(255,255,255,.88)',
+    fontSize: fmt === 'wide' ? 12 : 14, fontWeight: 700, color: INK,
+  }, lang === 'en' ? p.title_en : lang === 'es' ? p.title_es : p.title_fr));
+  // La légende du scénario parle d'écart, pas de probabilité.
+  const legendTop = h('div', { flexDirection: 'column' },
+    top,
+    h('div', { marginTop: 8, fontSize: 17, fontWeight: 700, color: INK_2 }, line));
+  const body = h('div', { flexDirection: 'column', flexGrow: 1 },
+    legendTop,
+    h('div', { flexGrow: 1, justifyContent: 'center', alignItems: 'center', marginTop: 10 },
+      h('div', { position: 'relative', width: mw, height: mh },
+        img(svgUri(mapSvg(geo, fill, changed)), mw, mh, { position: 'absolute', left: 0, top: 0 }),
+        ...titres)));
+  return frame(fmt, lang, `${el.name[lang]} — ${s.title}`, el.when[lang], body, s.base);
 }

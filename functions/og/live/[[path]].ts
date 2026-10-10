@@ -4,6 +4,7 @@
  *   /og/live/map/<scrutin>/<langue>.png         la carte (barre des sièges, vraie carte, médaillons)
  *   /og/live/projection/<scrutin>/<langue>.png  le tableau de projection
  *   /og/live/chart/<scrutin>/<langue>.png       la moyenne des sondages
+ *   /og/live/scenario/<scrutin>/<langue>.png?sim=…  le scénario d'un lecteur (simulateur)
  *   ?f=square                                   format carré 1080 x 1080 (sinon 1200 x 630)
  *   ?v=<date du calcul>                         change à chaque calcul : l'image suit
  *
@@ -12,14 +13,14 @@
  * L'ancienne adresse /og/live/us-senate/<langue>.png sert la carte du Sénat.
  */
 import { ImageResponse } from '@cf-wasm/og/workerd';
-import { mapCard, projectionCard, chartCard, SIZE, type Format } from '../../../src/lib/share/cards';
-import { SHARE_ELECTIONS, type Lang } from '../../../src/lib/share/elections';
+import { mapCard, projectionCard, chartCard, scenarioCard, SIZE, type Format } from '../../../src/lib/share/cards';
+import { SHARE_ELECTIONS, SIM_RE, type Lang } from '../../../src/lib/share/elections';
 
 type Env = { ASSETS: { fetch: (req: Request | string) => Promise<Response> } };
 type Ctx = { request: Request; env: Env; params: { path?: string[] }; waitUntil: (p: Promise<unknown>) => void };
 
 const LANGS = new Set(['fr', 'en', 'es']);
-const KINDS = new Set(['map', 'projection', 'chart']);
+const KINDS = new Set(['map', 'projection', 'chart', 'scenario']);
 
 let fontCache: Promise<{ name: string; data: ArrayBuffer; weight: 500 | 600 | 700; style: 'normal' }[]> | null = null;
 const loadFonts = (env: Env, origin: string) => {
@@ -56,7 +57,13 @@ export const onRequestGet = async ({ request, env, params, waitUntil }: Ctx) => 
   const latest = await get('latest.json');
   if (!latest) return new Response('Data unavailable', { status: 502 });
   let tree;
-  if (kind === 'map') {
+  if (kind === 'scenario') {
+    const sim = url.searchParams.get('sim') ?? '';
+    if (!SIM_RE.test(sim)) return new Response('Bad scenario', { status: 400 });
+    const [doc, geo] = await Promise.all([get('simulator.json'), get('geomap.json')]);
+    if (!doc || !geo) return new Response('Map unavailable', { status: 404 });
+    tree = scenarioCard(fmt, { key, lang, doc, geo, sim });
+  } else if (kind === 'map') {
     const geo = await get('geomap.json');
     if (!geo) return new Response('Map unavailable', { status: 404 });
     tree = mapCard(fmt, { key, lang, latest, geo });
