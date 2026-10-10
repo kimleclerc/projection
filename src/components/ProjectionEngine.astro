@@ -573,7 +573,6 @@ try {
 } catch { tileBlocs = []; }
 // Partage par module (carte, projection, graphique) : images fabriquées à la volée.
 const shareKey = SHARE_ELECTIONS[jurisdiction.dataPath] ? jurisdiction.dataPath : null;
-const shareText = shareKey ? SHARE_ELECTIONS[shareKey].question[locale] : '';
 // Vraie carte + médaillons (moteur : geo_map.py) : vue principale quand elle existe.
 const geomapUrl = existsSync(resolve(process.cwd(), 'web_data', jurisdiction.dataPath, 'geomap.json'))
   ? `/web_data/${jurisdiction.dataPath}/geomap.json` : undefined;
@@ -743,7 +742,7 @@ const pageNavItems = [
       return <p class="pe-median-note">{txt}</p>;
     })()}
     {shareKey ? (
-      <ShareModule lang={locale} kind="projection" election={shareKey} runDate={meta.run_date} text={shareText} client:idle />
+      <ShareModule lang={locale} kind="projection" election={shareKey} runDate={meta.run_date} client:idle />
     ) : (
       <ForecastShare
         locale={locale}
@@ -940,7 +939,7 @@ const pageNavItems = [
           locale={locale}
           client:only="preact"
         />
-        {shareKey && <ShareModule lang={locale} kind="chart" election={shareKey} runDate={meta.run_date} text={shareText} client:idle />}
+        {shareKey && <ShareModule lang={locale} kind="chart" election={shareKey} runDate={meta.run_date} client:idle />}
       </article>
       <article class="pe-chart-card">
         <header class="pe-chart-header">
@@ -978,7 +977,6 @@ const pageNavItems = [
         asOf={meta.run_date}
         geomapUrl={geomapUrl}
         shareKey={geomapUrl ? shareKey ?? undefined : undefined}
-        shareText={shareText}
         client:only="preact"
       />
     </article>

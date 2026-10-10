@@ -418,7 +418,7 @@ export default function MiniSimulator({ doc, locale, map }: Props) {
       </div>
       {/* « Fais ta carte » : le scénario a son image et son lien, qui rouvre le simulateur. */}
       {touched && shareKey && (
-        <ShareModule lang={locale} kind="scenario" election={shareKey} runDate={doc.meta.run_date} text={SHARE_ELECTIONS[shareKey].question[locale]} sim={encodeState(nat, reg)} />
+        <ShareModule lang={locale} kind="scenario" election={shareKey} runDate={doc.meta.run_date} sim={encodeState(nat, reg)} />
       )}
 
       <SavedScenarios

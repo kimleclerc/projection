@@ -40,7 +40,6 @@ interface Props {
   unit?: 'state' | 'district' | 'riding';
   /** Clé de partage (SHARE_ELECTIONS) : bouton « Partager cette carte » dans le cadre. */
   shareKey?: string;
-  shareText?: string;
 }
 
 const COPY = {
@@ -51,7 +50,7 @@ const COPY = {
 
 export default function ProjectionTiles({
   blocs, canvas, ridings, parties, locale, geoUrl, center, zoom, idProp, baselineYear,
-  winnerThreshold = 0.5, majority, asOf, geomapUrl, seatsTotal, unit = 'riding', shareKey, shareText = '',
+  winnerThreshold = 0.5, majority, asOf, geomapUrl, seatsTotal, unit = 'riding', shareKey,
 }: Props) {
   // Vue principale : la vraie carte avec ses médaillons quand le moteur l'a
   // produite (on la reconnaît d'un coup d'œil) ; sinon les tuiles ; sinon la
@@ -128,7 +127,7 @@ export default function ProjectionTiles({
 
       {/* Signature dans le cadre : la carte se partage avec sa source et sa date. */}
       <div class="ptiles-foot">
-      {shareKey && asOf && <ShareModule lang={locale} kind="map" election={shareKey} runDate={asOf} text={shareText} />}
+      {shareKey && asOf && <ShareModule lang={locale} kind="map" election={shareKey} runDate={asOf} />}
       <p class="ptiles-sign">
         <svg width="16" height="16" viewBox="0 0 44 44" aria-hidden="true"><path d="M22 2 A20 20 0 0 0 22 42 Z" fill="#1f77d0" /><path d="M22 2 A20 20 0 0 1 22 42 Z" fill="#c62828" /><path d="M13 13 L31 31 M31 13 L13 31" stroke="#fff" stroke-width="4.5" stroke-linecap="round" /></svg>
         <span>Vote-Scope</span>

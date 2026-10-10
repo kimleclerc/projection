@@ -45,7 +45,8 @@ export const onRequestGet = async ({ request, env, params, waitUntil }: Ctx) => 
   if (!KINDS.has(kind) || !SHARE_ELECTIONS[key] || !LANGS.has(lang)) return new Response('Not found', { status: 404 });
 
   const url = new URL(request.url);
-  const fmt: Format = url.searchParams.get('f') === 'square' ? 'square' : 'wide';
+  const f = url.searchParams.get('f');
+  const fmt: Format = f === 'square' ? 'square' : f === 'story' ? 'story' : 'wide';
   const cache = (caches as unknown as { default: Cache }).default;
   const cached = await cache.match(request);
   if (cached) return cached;

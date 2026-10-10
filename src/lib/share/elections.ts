@@ -98,3 +98,27 @@ export function electionOfCycle(cycle: string): string | null {
 }
 /** Un état de scénario (?sim=) n'est fait que de codes, de chiffres et de séparateurs. */
 export const SIM_RE = /^[a-z0-9_.:,|\-]{1,400}$/;
+
+/**
+ * Images à la volée (functions/og/live) ou fabriquées au build (/og/share/…).
+ * Le forfait gratuit de Cloudflare (10 ms de calcul par requête) ne suffit pas à
+ * dessiner une carte : on sert donc les images fixes du build, et le scénario
+ * d'un lecteur est dessiné dans son navigateur. Passer à true avec le forfait
+ * payant de Workers : tout repasse à la volée, sans autre changement.
+ */
+export const LIVE_IMAGES = false;
+
+export type ShareFormat = 'wide' | 'square' | 'story';
+/** Adresse de l'image d'un module (chemin relatif au site). */
+export function shareImage(kind: ShareKind, key: string, lang: Lang, fmt: ShareFormat = 'wide', opts: { v?: string; sim?: string } = {}): string {
+  if (LIVE_IMAGES) {
+    const q = new URLSearchParams();
+    if (opts.sim) q.set('sim', opts.sim); else if (opts.v) q.set('v', opts.v);
+    if (fmt !== 'wide') q.set('f', fmt);
+    return `/og/live/${kind}/${key}/${lang}.png?${q.toString()}`;
+  }
+  // Sans le calcul à la volée, l'aperçu d'un scénario montre la carte du scrutin.
+  const k = kind === 'scenario' ? 'map' : kind;
+  const suffix = fmt === 'square' ? '-carre' : fmt === 'story' ? '-story' : '';
+  return `/og/share/${k}/${key}/${lang}${suffix}.png${opts.v ? `?v=${opts.v}` : ''}`;
+}

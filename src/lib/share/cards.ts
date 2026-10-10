@@ -12,9 +12,9 @@ import { PARTY_ES } from '../party-names';
 import { SHARE_ELECTIONS, type Lang } from './elections';
 import { simulateRidings, decodeState, partyLabel as simPartyLabel, regionLabel, type SimDoc } from '../mini-sim';
 
-export type Format = 'wide' | 'square';
+export type Format = 'wide' | 'square' | 'story';
 export type Node = { type: string; props: Record<string, unknown> };
-export const SIZE: Record<Format, { w: number; h: number }> = { wide: { w: 1200, h: 630 }, square: { w: 1080, h: 1080 } };
+export const SIZE: Record<Format, { w: number; h: number }> = { wide: { w: 1200, h: 630 }, square: { w: 1080, h: 1080 }, story: { w: 1080, h: 1920 } };
 
 const INK = '#111111';
 const INK_2 = '#3b3b3b';
@@ -175,6 +175,50 @@ function mapSvg(geo: GeoDoc, fill: (id: string) => string, changed: (id: string)
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}">${parts.join('')}</svg>`;
 }
 
+/** Un seul panneau (carte principale ou médaillon) en SVG, recadré sur lui-même. */
+function panelSvg(geo: GeoDoc, p: any, fill: (id: string) => string, changed: (id: string) => boolean): string {
+  const parts: string[] = [`<defs><pattern id="hh" width="3" height="3" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="1.4" height="3" fill="rgba(0,0,0,.26)"/></pattern></defs>`];
+  if (!p.main) parts.push(`<rect x="${p.x}" y="${p.y}" width="${p.w}" height="${p.h}" fill="${PAPER_2}"/>`);
+  for (const [id, d] of Object.entries(geo.paths[p.id] ?? {})) {
+    parts.push(`<path d="${d}" fill="${fill(id)}" stroke="#fff" stroke-width="0.45"/>`);
+    if (changed(id)) parts.push(`<path d="${d}" fill="url(#hh)"/>`);
+  }
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${p.x} ${p.y} ${p.w} ${p.h}">${parts.join('')}</svg>`;
+}
+
+/** Carte au format story (vertical) : la carte principale sur toute la largeur,
+ *  les médaillons en grille dessous, chacun avec son titre. */
+function storyMap(geo: GeoDoc, fill: (id: string) => string, changed: (id: string) => boolean, width: number, height: number, lang: Lang): Node {
+  const main = geo.panels.find((p: any) => p.main);
+  // Les encarts (Alaska, Hawaï) restent posés DANS la carte principale.
+  const encarts = geo.panels.filter((p: any) => !p.main && p.encart);
+  const meds = geo.panels.filter((p: any) => !p.main && !p.encart);
+  const cols = 2;
+  const rows = Math.ceil(meds.length / cols);
+  const gap = 10;
+  const km = width / main.w;
+  const mainH = Math.min(main.h * km, height * (meds.length ? 0.52 : 0.9));
+  const k = mainH / main.h;
+  const mw = main.w * k;
+  const cellW = (width - gap) / cols;
+  const cellH = rows ? Math.min((height - mainH - gap * (rows + 1)) / rows, cellW * 0.75) : 0;
+  const titre = (p: any) => (lang === 'en' ? p.title_en : lang === 'es' ? p.title_es : p.title_fr);
+  const label = (p: any, left: number, top: number) => h('div', { position: 'absolute', left: left + 3, top: top + 2, padding: '1px 5px', backgroundColor: 'rgba(255,255,255,.9)', fontSize: 18, fontWeight: 700, color: INK }, titre(p));
+  return h('div', { position: 'relative', width, height: mainH + (rows ? gap + rows * (cellH + gap) : 0) },
+    img(svgUri(panelSvg(geo, main, fill, changed)), Math.round(mw), Math.round(mainH), { position: 'absolute', left: (width - mw) / 2, top: 0 }),
+    ...encarts.map((p: any) => img(svgUri(panelSvg(geo, p, fill, changed)), Math.round(p.w * k), Math.round(p.h * k), { position: 'absolute', left: (width - mw) / 2 + p.x * k, top: p.y * k })),
+    ...meds.flatMap((p: any, i: number) => {
+      const left = (i % cols) * (cellW + gap);
+      const top = mainH + gap + Math.floor(i / cols) * (cellH + gap);
+      // le médaillon garde ses proportions dans sa case
+      const s2 = Math.min(cellW / p.w, cellH / p.h);
+      return [
+        img(svgUri(panelSvg(geo, p, fill, changed)), Math.round(p.w * s2), Math.round(p.h * s2), { position: 'absolute', left, top }),
+        label(p, left, top),
+      ];
+    }));
+}
+
 export interface MapCardInput {
   key: string;
   lang: Lang;
@@ -219,7 +263,7 @@ export function mapCard(fmt: Format, { key, lang, latest, geo }: MapCardInput): 
 
   // Au-dessus de la carte : la barre des sièges (chambre complète) ou une ligne de chances.
   const top = el.fullChamber
-    ? seatBar(lang, inner, ridings, parties, latest.meta.majority_threshold ?? Math.floor(ridings.length / 2) + 1, baselineYear, fmt === 'square')
+    ? seatBar(lang, inner, ridings, parties, latest.meta.majority_threshold ?? Math.floor(ridings.length / 2) + 1, baselineYear, fmt !== 'wide')
     : h('div', { flexDirection: 'column' },
       h('div', { alignItems: 'baseline', fontSize: 22, fontWeight: 700 },
         ...(key === 'us-governor'
@@ -230,7 +274,7 @@ export function mapCard(fmt: Format, { key, lang, latest, geo }: MapCardInput): 
       h('div', { marginTop: 6, fontSize: 15, fontWeight: 600, color: INK_3 }, legend(lang, parties.slice(0, 2).map((p: any) => p.color), baselineYear, true)));
 
   const [, , GW, GH] = geo.viewBox;
-  const topH = el.fullChamber ? (fmt === 'square' ? 150 : 128) : 96;
+  const topH = el.fullChamber ? (fmt !== 'wide' ? 150 : 128) : 96;
   const boxH = H - pad * 2 - 60 - topH - 70;
   const k = Math.min(inner / GW, boxH / GH);
   const mw = Math.round(GW * k);
@@ -242,10 +286,12 @@ export function mapCard(fmt: Format, { key, lang, latest, geo }: MapCardInput): 
 
   const body = h('div', { flexDirection: 'column', flexGrow: 1 },
     top,
-    h('div', { flexGrow: 1, justifyContent: 'center', alignItems: 'center', marginTop: 12 },
-      h('div', { position: 'relative', width: mw, height: mh },
-        img(svgUri(mapSvg(geo, fill, changed)), mw, mh, { position: 'absolute', left: 0, top: 0 }),
-        ...titres)));
+    h('div', { flexGrow: 1, justifyContent: 'center', alignItems: fmt === 'story' ? 'flex-start' : 'center', marginTop: 12 },
+      fmt === 'story'
+        ? storyMap(geo, fill, changed, inner, H - pad * 2 - 60 - topH - 90, lang)
+        : h('div', { position: 'relative', width: mw, height: mh },
+          img(svgUri(mapSvg(geo, fill, changed)), mw, mh, { position: 'absolute', left: 0, top: 0 }),
+          ...titres)));
   return frame(fmt, lang, `${el.name[lang]}`, el.when[lang], body, asOfLine(key, lang, latest));
 }
 
@@ -260,7 +306,7 @@ export function projectionCard(fmt: Format, { key, lang, latest }: { key: string
   const parties = [...latest.parties].sort((a: any, b: any) => seatsOf(b) - seatsOf(a)).filter((p: any) => seatsOf(p) > 0 || (p.p_majority ?? 0) > 0.01).slice(0, fmt === 'wide' ? 4 : 6);
   const total = latest.meta.total_seats ?? parties.reduce((s: number, p: any) => s + seatsOf(p), 0);
   const majority = latest.meta.majority_threshold ?? Math.floor(total / 2) + 1;
-  const big = fmt === 'square';
+  const big = fmt !== 'wide';
   const row = (p: any) => h('div', { alignItems: 'center', borderBottom: `1px solid ${RULE}`, padding: big ? '14px 0' : '9px 0' },
     h('div', { width: 8, height: big ? 40 : 32, backgroundColor: p.color, marginRight: 14 }),
     h('div', { flexGrow: 1, fontSize: big ? 30 : 26, fontWeight: 700 }, partyLabel(p, lang)),
@@ -277,7 +323,7 @@ export function projectionCard(fmt: Format, { key, lang, latest }: { key: string
   const bar = h('div', { position: 'relative', width: inner, height: 26, marginTop: 18, backgroundColor: RULE },
     ...parties.map((p: any) => h('div', { width: (seatsOf(p) / total) * inner, height: 26, backgroundColor: p.color })),
     h('div', { position: 'absolute', left: (majority / total) * inner - 1, top: -6, width: 2, height: 38, backgroundColor: INK }));
-  const body = h('div', { flexDirection: 'column', flexGrow: 1, justifyContent: 'flex-start', paddingTop: big ? 40 : 18 },
+  const body = h('div', { flexDirection: 'column', flexGrow: 1, justifyContent: fmt === 'story' ? 'center' : 'flex-start', paddingTop: big ? 40 : 18 },
     h('div', { fontSize: big ? 52 : 40, fontWeight: 700, lineHeight: 1.05, marginBottom: big ? 34 : 16 }, el.question[lang]),
     head, ...parties.map(row), bar,
     h('div', { marginTop: 8, fontSize: 15, fontWeight: 600, color: INK_2 }, t.majority(majority)));
@@ -394,10 +440,10 @@ export function scenarioCard(fmt: Format, { key, lang, doc, geo, sim }: { key: s
   const changed = (id: string) => !!byId.get(id)?.changed;
   const parties = doc.parties.map((p) => ({ party: p.code, label_fr: p.label_fr, label_en: p.label_en, color: p.color }));
   const ridings = states.map((r) => ({ winner: r.winner, p: tier(r.margin) }));
-  const top = seatBar(lang, inner, ridings, parties, doc.meta.majority_threshold, s.flip, fmt === 'square', [s.clear, s.thin, s.toss]);
+  const top = seatBar(lang, inner, ridings, parties, doc.meta.majority_threshold, s.flip, fmt !== 'wide', [s.clear, s.thin, s.toss]);
   const line = scenarioLine(doc, sim, lang);
   const [, , GW, GH] = geo.viewBox;
-  const boxH = H - pad * 2 - 60 - (fmt === 'square' ? 150 : 128) - 100;
+  const boxH = H - pad * 2 - 60 - (fmt !== 'wide' ? 150 : 128) - 100;
   const k = Math.min(inner / GW, boxH / GH);
   const mw = Math.round(GW * k);
   const mh = Math.round(GH * k);
@@ -411,9 +457,11 @@ export function scenarioCard(fmt: Format, { key, lang, doc, geo, sim }: { key: s
     h('div', { marginTop: 8, fontSize: 17, fontWeight: 700, color: INK_2 }, line));
   const body = h('div', { flexDirection: 'column', flexGrow: 1 },
     legendTop,
-    h('div', { flexGrow: 1, justifyContent: 'center', alignItems: 'center', marginTop: 10 },
-      h('div', { position: 'relative', width: mw, height: mh },
-        img(svgUri(mapSvg(geo, fill, changed)), mw, mh, { position: 'absolute', left: 0, top: 0 }),
-        ...titres)));
+    h('div', { flexGrow: 1, justifyContent: 'center', alignItems: fmt === 'story' ? 'flex-start' : 'center', marginTop: 10 },
+      fmt === 'story'
+        ? storyMap(geo, fill, changed, inner, H - pad * 2 - 60 - 150 - 120, lang)
+        : h('div', { position: 'relative', width: mw, height: mh },
+          img(svgUri(mapSvg(geo, fill, changed)), mw, mh, { position: 'absolute', left: 0, top: 0 }),
+          ...titres)));
   return frame(fmt, lang, `${el.name[lang]} — ${s.title}`, el.when[lang], body, s.base);
 }
