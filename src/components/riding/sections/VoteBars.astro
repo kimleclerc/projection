@@ -30,19 +30,19 @@ const T = {
   en: {
     eyebrow: 'Projected vote share',
     title: 'Projection by party',
-    baseline_label: (cycle: string) => `${cycle.replace('_', ' ')} result`,
+    baseline_label: (cycle: string) => `${/(\d{4})/.exec(cycle)?.[1] ?? ''} result`.trim(),
     incumbent: 'incumbent',
   },
   fr: {
     eyebrow: 'Part de voix projetée',
     title: 'Projection par parti',
-    baseline_label: (cycle: string) => `Résultat ${cycle.replace('_', ' ')}`,
-    incumbent: 'sortant·e',
+    baseline_label: (cycle: string) => `Résultat ${/(\d{4})/.exec(cycle)?.[1] ?? ''}`.trim(),
+    incumbent: 'titulaire',
   },
   es: {
     eyebrow: 'Cuota de voto proyectada',
     title: 'Proyección por partido',
-    baseline_label: (cycle: string) => `Resultado ${cycle.replace('_', ' ')}`,
+    baseline_label: (cycle: string) => `Resultado ${/(\d{4})/.exec(cycle)?.[1] ?? ''}`.trim(),
     incumbent: 'titular',
   },
 }[lang];

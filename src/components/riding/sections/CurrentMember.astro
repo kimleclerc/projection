@@ -24,8 +24,8 @@ const isExecutive = data.jurisdiction === 'us-governor';
 
 const T = {
   en: {
-    eyebrow: isExecutive ? 'Sitting governor' : 'Sitting member',
-    sits_with: isExecutive ? 'Party' : 'Sits with',
+    eyebrow: isExecutive ? 'Current governor' : 'Current member',
+    sits_with: 'Party',
     elected_as: 'Elected as',
     crossed: 'Floor-crossed',
     on_date: 'on',
@@ -36,9 +36,9 @@ const T = {
     change_floor_cross: 'Floor crossing',
   },
   fr: {
-    eyebrow: isExecutive ? 'Gouverneur·e en poste' : 'Député·e en exercice',
-    sits_with: isExecutive ? 'Parti' : 'Siège avec',
-    elected_as: 'Élu·e sous',
+    eyebrow: isExecutive ? 'Titulaire du poste' : 'Titulaire du siège',
+    sits_with: 'Parti',
+    elected_as: 'Parti à l’élection',
     crossed: 'Traversée de plancher',
     on_date: 'le',
     since: 'Depuis',
@@ -48,9 +48,9 @@ const T = {
     change_floor_cross: 'Traversée de plancher',
   },
   es: {
-    eyebrow: isExecutive ? 'Gobernador·a en funciones' : 'Representante en funciones',
-    sits_with: isExecutive ? 'Partido' : 'Vota con',
-    elected_as: 'Electo bajo',
+    eyebrow: isExecutive ? 'Titular del cargo' : 'Titular del escaño',
+    sits_with: 'Partido',
+    elected_as: 'Partido en la elección',
     crossed: 'Cambio de partido',
     on_date: 'el',
     since: 'Desde',

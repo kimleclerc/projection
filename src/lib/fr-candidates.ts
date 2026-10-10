@@ -93,7 +93,7 @@ function buildProfiles(): CandidateProfile[] {
     add(d.duel_right_id, d.right_share_expressed_mean, d.duel_left_id, d.left_share_expressed_mean);
   }
 
-  // « primary » : candidat·e à la primaire sociale-démocrate d'octobre 2026
+  // « primary » : candidature à la primaire sociale-démocrate d'octobre 2026
   // (Glucksmann, Faure, Royal…) — sa fiche reste publiée.
   return cands
     .filter((c) => ['declared', 'primary', 'probable'].includes(c.status))
@@ -136,17 +136,17 @@ export function getCandidateBySlug(slug: string): CandidateProfile | undefined {
 // Prose SEO data-driven (change à chaque run). Faits vérifiables : parti,
 // bloc, statut, fourchette de sondage, nombre de scénarios, meilleur duel.
 const STATUS_PHRASE: Record<string, { fr: string; en: string; es: string }> = {
-  declared: { fr: 'officiellement candidat·e', en: 'an officially declared candidate', es: 'candidato·a oficialmente declarado·a' },
-  probable: { fr: 'candidat·e probable', en: 'a probable candidate', es: 'candidato·a probable' },
-  primary: { fr: 'candidat·e à la primaire sociale-démocrate d’octobre 2026', en: 'a candidate in the October 2026 social-democratic primary', es: 'candidato·a en las primarias socialdemócratas de octubre de 2026' },
-  testing: { fr: 'testé·e dans les sondages', en: 'a candidate tested in polls', es: 'candidato·a en encuestas' },
+  declared: { fr: 'candidature officielle', en: 'an officially declared candidate', es: 'candidatura oficialmente declarada' },
+  probable: { fr: 'candidature probable', en: 'a probable candidate', es: 'candidatura probable' },
+  primary: { fr: 'candidature à la primaire sociale-démocrate d’octobre 2026', en: 'a candidate in the October 2026 social-democratic primary', es: 'candidatura en las primarias socialdemócratas de octubre de 2026' },
+  testing: { fr: 'testée dans les sondages', en: 'a candidate tested in polls', es: 'candidatura en encuestas' },
 };
 
 export function candidateProse(c: CandidateProfile, locale: Locale): string[] {
   const party = blocLabel(c.bloc, locale, c.partyFamily);
   const phrase =
     STATUS_PHRASE[c.status]?.[locale] ??
-    (locale === 'fr' ? 'candidat·e' : locale === 'es' ? 'candidato·a' : 'a candidate');
+    (locale === 'fr' ? 'candidature' : locale === 'es' ? 'candidatura' : 'a candidate');
   const range =
     locale === 'fr'
       ? `entre ${c.floor.toFixed(0)} et ${c.ceiling.toFixed(0)} %`
@@ -156,9 +156,9 @@ export function candidateProse(c: CandidateProfile, locale: Locale): string[] {
   const bestDuel = c.duels.find((d) => d.wins) ?? c.duels[0];
 
   if (locale === 'es') {
-    const p1 = `${c.name} (${party}) es ${phrase} en la elección presidencial francesa de 2027. Nuestras agregaciones lo/la prueban en ${c.activeScenarios} configuraciones de candidaturas, con una intención de voto en primera vuelta ${range} según la combinación.`;
+    const p1 = `${c.name} (${party}) es ${phrase} en la elección presidencial francesa de 2027. Nuestras agregaciones prueban su candidatura en ${c.activeScenarios} configuraciones de candidaturas, con una intención de voto en primera vuelta ${range} según la combinación.`;
     const p2 = bestDuel
-      ? `En segunda vuelta, en la combinación «${bestDuel.scenarioLabel}», nuestro pronóstico lo/la da ${bestDuel.wins ? 'ganador·a' : 'perdedor·a'} frente a ${bestDuel.opponentName} (${bestDuel.ownShare.toFixed(1).replace('.', ',')} % contra ${bestDuel.opponentShare.toFixed(1).replace('.', ',')} %). Es nuestra mejor estimación central para este escenario, dentro de un abanico de resultados plausibles.`
+      ? `En segunda vuelta, en la combinación «${bestDuel.scenarioLabel}», nuestro pronóstico ${bestDuel.wins ? 'da la victoria a su candidatura' : 'da la derrota a su candidatura'} frente a ${bestDuel.opponentName} (${bestDuel.ownShare.toFixed(1).replace('.', ',')} % contra ${bestDuel.opponentShare.toFixed(1).replace('.', ',')} %). Es nuestra mejor estimación central para este escenario, dentro de un abanico de resultados plausibles.`
       : '';
     return [p1, p2].filter(Boolean);
   }
@@ -166,7 +166,7 @@ export function candidateProse(c: CandidateProfile, locale: Locale): string[] {
   if (locale === 'fr') {
     const p1 = `${c.name} (${party}) est ${phrase} à l'élection présidentielle française de 2027. Nos agrégations le/la testent dans ${c.activeScenarios} configurations de candidatures, avec une intention de vote au premier tour ${range} selon le casting.`;
     const p2 = bestDuel
-      ? `Au second tour, dans l’hypothèse « ${bestDuel.scenarioLabel} », notre projection ${bestDuel.wins ? 'le/la donne vainqueur' : 'le/la donne battu·e'} face à ${bestDuel.opponentName} (${bestDuel.ownShare.toFixed(1).replace('.', ',')} % contre ${bestDuel.opponentShare.toFixed(1).replace('.', ',')} %). C’est notre meilleure estimation centrale pour ce scénario, au sein d’une plage d’issues plausibles.`
+      ? `Au second tour, dans l’hypothèse « ${bestDuel.scenarioLabel} », notre projection ${bestDuel.wins ? 'le/la donne vainqueur' : 'le/la donne défaite'} face à ${bestDuel.opponentName} (${bestDuel.ownShare.toFixed(1).replace('.', ',')} % contre ${bestDuel.opponentShare.toFixed(1).replace('.', ',')} %). C’est notre meilleure estimation centrale pour ce scénario, au sein d’une plage d’issues plausibles.`
       : '';
     return [p1, p2].filter(Boolean);
   }

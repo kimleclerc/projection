@@ -119,7 +119,7 @@ export function outcomeOf(call: Call | null, info?: RidingInfo): Outcome | null 
 }
 
 const OUTCOME_LABELS: Record<Locale, Record<Outcome['kind'], [string, string, string]>> = {
-  fr: { reelected: ['Réélu', 'Réélue', 'Réélu·e'], elected: ['Élu', 'Élue', 'Élu·e'], gain: ['Gain', 'Gain', 'Gain'] },
+  fr: { reelected: ['Réélu', 'Réélue', 'Réélu·e'], elected: ['Élu', 'Élue', 'Élu'], gain: ['Gain', 'Gain', 'Gain'] },
   en: { reelected: ['Re-elected', 'Re-elected', 'Re-elected'], elected: ['Elected', 'Elected', 'Elected'], gain: ['Gain', 'Gain', 'Gain'] },
   es: { reelected: ['Reelecto', 'Reelecta', 'Reelecto/a'], elected: ['Electo', 'Electa', 'Electo/a'], gain: ['Ganancia', 'Ganancia', 'Ganancia'] },
 };

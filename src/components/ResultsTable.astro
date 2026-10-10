@@ -72,7 +72,7 @@ const others = Math.max(0, totalSeats - shown.reduce((a, r) => a + r.seats, 0));
     <tbody>
       {tableRows.map((r) => (
         <tr>
-          <th scope="row"><span class="sw" style={`background:${r.color}`}></span>{r.label}</th>
+          <th scope="row"><span class="sw" style={`background:${r.color}`}></span>{r.label.split(/(C\.-B\.)/).map((part) => part === 'C.-B.' ? <span class="nobr">{part}</span> : part)}</th>
           <td class="num big" style={`color:${r.color}`}>{r.seats}</td>
           {showRange && <td class="num range">{r.low !== undefined ? `${r.low}–${r.high}` : ''}</td>}
           <td class="num big">{pct(r.chance)}</td>
@@ -97,7 +97,8 @@ const others = Math.max(0, totalSeats - shown.reduce((a, r) => a + r.seats, 0));
   th, td { padding: 8px 0; border-bottom: 1px solid var(--rule); text-align: left; vertical-align: middle; }
   thead th { padding-top: 0; color: var(--ink-3); font-size: 13px; font-weight: 600; border-bottom: 1px solid var(--ink); }
   tbody th { font-size: 19px; font-weight: 600; color: var(--ink); }
-  .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .nobr { white-space: nowrap; }
+  .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; padding-left: 14px; }
   .big { font-family: var(--numeric); font-size: 34px; font-weight: 700; line-height: 1; color: var(--ink); }
   .range { width: 110px; color: var(--ink-3); font-size: 15px; }
   .sw { display: inline-block; width: 10px; height: 26px; margin-right: 12px; vertical-align: middle; }
@@ -111,7 +112,9 @@ const others = Math.max(0, totalSeats - shown.reduce((a, r) => a + r.seats, 0));
   @media (max-width: 560px) {
     .range { display: none; }
     .big { font-size: 28px; }
-    tbody th { font-size: 16px; white-space: nowrap; }
+    /* Le nom du parti passe à la ligne ; les chiffres gardent leur place (sinon « 5799 % »). */
+    tbody th { font-size: 16px; line-height: 1.2; white-space: normal; }
+    .num { padding-left: 10px; min-width: 3.2em; }
     thead th { font-size: 12px; }
     .sw { width: 8px; height: 20px; margin-right: 8px; }
     .vs-results { padding: 14px 14px 12px; }

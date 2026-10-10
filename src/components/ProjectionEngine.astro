@@ -369,6 +369,14 @@ const introParagraphs: string[] =
 // Localized strings
 const isFr = locale === "fr";
 const isEs = locale === "es";
+// Ce que contient une ligne de la carte et du tableau : un État, un district, une circonscription.
+const unitKind = ['us-senate', 'us-governor'].includes(jurisdiction.dataPath) ? 'state'
+  : jurisdiction.dataPath === 'us-house' ? 'district' : jurisdiction.dataPath === 'uk' ? 'constituency' : 'riding';
+const nRaces = ((data as any).ridings ?? []).length;
+const unitPluralFr = ({ state: 'courses', district: 'districts', riding: 'circonscriptions', constituency: 'circonscriptions' } as Record<string, string>)[unitKind];
+const unitPluralEs = ({ state: 'contiendas', district: 'distritos', riding: 'distritos', constituency: 'circunscripciones' } as Record<string, string>)[unitKind];
+const unitPluralEn = ({ state: 'races', district: 'districts', riding: 'ridings', constituency: 'constituencies' } as Record<string, string>)[unitKind];
+
 const t = {
   heroTagline: isFr
     ? "Projection Vote-Scope, mise à jour chaque jour"
@@ -402,34 +410,34 @@ const t = {
     ? `${majorityThreshold} escaños para la mayoría`
     : `${majorityThreshold} seats for a majority`,
   seatProjection: isFr ? "Projection des sièges" : isEs ? "Proyección de escaños" : "Seat projection",
-  pMajority: isFr ? "P(majorité)" : isEs ? "P(mayoría)" : "P(majority)",
-  pLargest: isFr ? "P(plus grand)" : isEs ? "P(más grande)" : "P(largest)",
+  pMajority: isFr ? "Chances de majorité" : isEs ? "Probabilidad de mayoría" : "Chance of a majority",
+  pLargest: isFr ? "Chances de finir premier" : isEs ? "Probabilidad de quedar primero" : "Chance of finishing first",
   voteShare: "Vote",
   analysis: isFr ? "Analyse" : isEs ? "Análisis" : "Analysis",
   scenarioChartTitle: isFr ? "Probabilités de scénarios" : isEs ? "Probabilidades de escenarios" : "Scenario probabilities",
   scenarioChartHelp: isFr
-    ? `Probabilité de remporter une majorité ou de finir au premier rang seul, selon les ${nSimsFr} simulations Monte Carlo de l'élection${usesBsts ? ', tirées de la distribution BSTS' : ''}.`
+    ? `Selon ${nSimsFr} simulations de l'élection.`
     : isEs
-    ? `Probabilidad de obtener mayoría o quedar estrictamente en primer lugar, según las ${nSimsEs} simulaciones Monte Carlo de la elección${usesBsts ? ', extraídas de la distribución BSTS' : ''}.`
-    : `Probability of winning a majority or finishing strictly first, across the ${nSimsEn} Monte Carlo simulations of the election${usesBsts ? ', drawn from the BSTS distribution' : ''}.`,
+    ? `Según ${nSimsEs} simulaciones de la elección.`
+    : `Across ${nSimsEn} simulations of the election.`,
   voteTrendTitle: isFr ? "Intentions de vote" : isEs ? "Intención de voto" : "Vote intention",
   voteTrendHelp: isFr
     ? "Sondages bruts (points) et estimation du modèle (losanges) avec intervalle de confiance à 95 %."
     : isEs
     ? "Encuestas brutas (puntos) y estimación del modelo (diamantes) con intervalo de confianza al 95 %."
     : "Raw polls (dots) and model estimate (diamonds) with 95% confidence interval.",
-  tableTitle: isFr ? "Toutes les circonscriptions" : isEs ? "Todos los distritos" : "All ridings",
+  tableTitle: ({ state: isFr ? "Toutes les courses" : isEs ? "Todas las contiendas" : "All races", district: isFr ? "Tous les districts" : isEs ? "Todos los distritos" : "All districts", riding: isFr ? "Toutes les circonscriptions" : isEs ? "Todos los distritos" : "All ridings", constituency: isFr ? "Toutes les circonscriptions" : isEs ? "Todas las circunscripciones" : "All constituencies" } as Record<string, string>)[unitKind],
   tableHelp: isFr
-    ? `Triez et filtrez les ${totalSeats.toLocaleString("fr-CA")} circonscriptions par parti gagnant projeté, marge et probabilité.`
+    ? `Les ${nRaces.toLocaleString("fr-CA")} ${unitPluralFr}, triables par parti en tête, écart et chances.`
     : isEs
-    ? `Ordena y filtra los ${totalSeats.toLocaleString("en-CA")} distritos por partido proyectado ganador, margen y probabilidad.`
-    : `Sort and filter the ${totalSeats.toLocaleString("en-CA")} ridings by projected winning party, margin and probability.`,
-  mapTitle: isFr ? "Carte des circonscriptions" : isEs ? "Mapa de distritos" : "Riding map",
+    ? `Los ${nRaces.toLocaleString("es-ES")} ${unitPluralEs}, ordenables por partido en cabeza, margen y probabilidad.`
+    : `All ${nRaces.toLocaleString("en-CA")} ${unitPluralEn}, sortable by leading party, margin and chance.`,
+  mapTitle: ({ state: isFr ? "Carte des États" : isEs ? "Mapa de los estados" : "State map", district: isFr ? "Carte des districts" : isEs ? "Mapa de los distritos" : "District map", riding: isFr ? "Carte des circonscriptions" : isEs ? "Mapa de los distritos" : "Riding map", constituency: isFr ? "Carte des circonscriptions" : isEs ? "Mapa de las circunscripciones" : "Constituency map" } as Record<string, string>)[unitKind],
   mapHelp: isFr
-    ? "Couleur = parti projeté en tête. Survolez une circonscription pour voir les détails."
+    ? "La couleur indique le parti en tête ; la nuance, à quel point la course est jouée."
     : isEs
-    ? "Color = partido proyectado en primer lugar. Pasa el cursor sobre un distrito para ver los detalles."
-    : "Color = projected leading party. Hover a riding for details.",
+    ? "El color indica el partido en cabeza; el tono, cuán decidida está la contienda."
+    : "Colour shows the leading party; the shade, how settled the race is.",
   keepDiggingEyebrow: isFr ? "Pour aller plus loin" : isEs ? "Seguir explorando" : "Keep digging",
   keepDiggingTitle: isFr
     ? "La projection continue ailleurs."
@@ -571,6 +579,8 @@ try {
   tileBlocs = tuiles?.blocs ?? [];
   tileCanvas = tuiles?.canvas;
 } catch { tileBlocs = []; }
+// Le scrutin est passé (ex. Québec, 5 octobre) : la page devient « ce que nous avions prévu ».
+const votePast = !!jurisdiction.electionDate && jurisdiction.electionDate <= new Date().toISOString().slice(0, 10);
 // Partage par module (carte, projection, graphique) : images fabriquées à la volée.
 const shareKey = SHARE_ELECTIONS[jurisdiction.dataPath] ? jurisdiction.dataPath : null;
 // Vraie carte + médaillons (moteur : geo_map.py) : vue principale quand elle existe.
@@ -725,7 +735,7 @@ const pageNavItems = [
       majority={majorityThreshold}
       chanceKind={resultChanceKind}
       market={liveMarketValue ? { label: liveMarketLabel, value: liveMarketValue, href: marketHref } : undefined}
-      meta={locale === 'fr' ? `${meta.n_polls} sondages, ${nSimsFr} simulations, ${t.modelBadge}` : locale === 'es' ? `${meta.n_polls} encuestas, ${nSimsEs} simulaciones, ${t.modelBadge}` : `${meta.n_polls} polls, ${nSimsEn} simulations, ${t.modelBadge}`}
+      meta={locale === 'fr' ? `${meta.n_polls} sondages, ${nSimsFr} simulations` : locale === 'es' ? `${meta.n_polls} encuestas, ${nSimsEs} simulaciones` : `${meta.n_polls} polls, ${nSimsEn} simulations`}
     />
     {(() => {
       const mL = medianOf(lead), mS = medianOf(second);
@@ -789,7 +799,8 @@ const pageNavItems = [
     </section>
   )}
 
-  <!-- CURRENT COMPOSITION -->
+  <!-- CURRENT COMPOSITION (masquée après le vote : elle montrerait l'Assemblée d'avant le scrutin) -->
+  {!votePast && (
   <section id="composition" class="pe-section container" aria-labelledby="pe-composition-title">
     <h2 id="pe-composition-title" class="pe-section-title">{t.composition}</h2>
     <p class="pe-section-label">{t.seatsLabel}</p>
@@ -859,6 +870,7 @@ const pageNavItems = [
       </div>
     )}
   </section>
+  )}
 
   <!-- SEAT PROJECTION -->
   <section id="seat-projection" class="pe-section container" aria-labelledby="pe-projection-title">
@@ -973,7 +985,7 @@ const pageNavItems = [
         baselineYear={jurisdiction.baselineYear}
         majority={majorityThreshold}
         seatsTotal={totalSeats}
-        unit={['us-senate', 'us-governor'].includes(jurisdiction.dataPath) ? 'state' : jurisdiction.dataPath === 'us-house' ? 'district' : 'riding'}
+        unit={unitKind === 'constituency' ? 'riding' : unitKind}
         asOf={meta.run_date}
         geomapUrl={geomapUrl}
         shareKey={geomapUrl ? shareKey ?? undefined : undefined}
@@ -992,6 +1004,7 @@ const pageNavItems = [
         parties={mapParties}
         locale={locale}
         baselineYear={jurisdiction.baselineYear}
+        unit={unitKind}
         client:visible
       />
     </article>

@@ -11,6 +11,8 @@ interface Props {
   parties: MapParty[];
   locale: 'en' | 'fr' | 'es' | 'es';
   baselineYear?: number;
+  /** Ce que contient une ligne : un État (Sénat, gouverneurs), un district, une circonscription. */
+  unit?: 'state' | 'district' | 'riding' | 'constituency';
 }
 
 type SortKey =
@@ -82,8 +84,7 @@ export default function RidingTable({
   ridings,
   parties,
   locale,
-  baselineYear = 2025,
-}: Props) {
+  baselineYear = 2025, unit = 'riding' }: Props) {
   const [search, setSearch] = useState('');
   const [provFilter, setProvFilter] = useState<Set<string>>(new Set());
   const [partyFilter, setPartyFilter] = useState<Set<string>>(new Set());
@@ -259,36 +260,38 @@ export default function RidingTable({
     setPageLimit(PAGE_SIZE);
   };
 
+  // Le vocabulaire suit ce que la table contient (un État, un district, une circonscription).
+  const U = {
+    fr: { state: ['un État', 'courses', 'Course', 'État'], district: ['un district', 'districts', 'District', 'État'], riding: ['une circonscription', 'circonscriptions', 'Circonscription', 'Province'], constituency: ['une circonscription', 'circonscriptions', 'Circonscription', 'Nation'] },
+    en: { state: ['a state', 'races', 'Race', 'State'], district: ['a district', 'districts', 'District', 'State'], riding: ['a riding', 'ridings', 'Riding', 'Province'], constituency: ['a constituency', 'constituencies', 'Constituency', 'Nation'] },
+    es: { state: ['un estado', 'contiendas', 'Contienda', 'Estado'], district: ['un distrito', 'distritos', 'Distrito', 'Estado'], riding: ['un distrito', 'distritos', 'Distrito', 'Provincia'], constituency: ['una circunscripción', 'circunscripciones', 'Circunscripción', 'Nación'] },
+  }[locale === 'fr' ? 'fr' : locale === 'es' ? 'es' : 'en'][unit];
+  const loc = locale === 'fr' ? 'fr-CA' : locale === 'es' ? 'es-ES' : 'en-CA';
   const t = {
-    search: locale === 'fr' ? 'Rechercher une circo…' : locale === 'es' ? 'Buscar una circunscripción…' : 'Search a riding…',
-    province: locale === 'fr' ? 'Province' : locale === 'es' ? 'Provincia' : 'Province',
-    party: locale === 'fr' ? 'Parti gagnant' : locale === 'es' ? 'Partido ganador' : 'Winning party',
+    search: locale === 'fr' ? `Rechercher ${U[0]}…` : locale === 'es' ? `Buscar ${U[0]}…` : `Search ${U[0]}…`,
+    province: U[3],
+    party: locale === 'fr' ? 'Parti en tête' : locale === 'es' ? 'Partido en cabeza' : 'Leading party',
     closeOnly:
-      locale === 'fr' ? 'Course serrée seulement' : locale === 'es' ? 'Solo contiendas reñidas' : 'Close races only',
+      locale === 'fr' ? 'Courses serrées seulement' : locale === 'es' ? 'Solo contiendas reñidas' : 'Close races only',
     clear: locale === 'fr' ? 'Effacer' : locale === 'es' ? 'Borrar' : 'Clear',
-    showing:
-      locale === 'fr'
-        ? (n: number, tot: number) =>
-            `${n.toLocaleString('fr-CA')} / ${tot.toLocaleString('fr-CA')} circos`
-        : locale === 'es'
-        ? (n: number, tot: number) =>
-            `${n.toLocaleString('es-ES')} / ${tot.toLocaleString('es-ES')} circunscripciones`
-        : (n: number, tot: number) =>
-            `${n.toLocaleString('en-CA')} / ${tot.toLocaleString('en-CA')} ridings`,
-    empty:
-      locale === 'fr' ? 'Aucune circo ne correspond.' : locale === 'es' ? 'Ninguna circunscripción coincide.' : 'No riding matches.',
+    showing: (n: number, tot: number) => `${n.toLocaleString(loc)} / ${tot.toLocaleString(loc)} ${U[1]}`,
+    empty: locale === 'fr' ? 'Aucun résultat.' : locale === 'es' ? 'Ningún resultado.' : 'No match.',
     loadMore:
       locale === 'fr' ? 'Voir plus' : locale === 'es' ? 'Ver más' : 'Show more',
     cols: {
-      name: locale === 'fr' ? 'Circonscription' : locale === 'es' ? 'Circunscripción' : 'Riding',
-      province: locale === 'fr' ? 'Prov.' : locale === 'es' ? 'Prov.' : 'Prov.',
-      winner: locale === 'fr' ? 'Projection' : locale === 'es' ? 'Proyección' : 'Projection',
-      vote: locale === 'fr' ? '% des voix' : locale === 'es' ? '% voto' : 'Vote%',
-      margin: locale === 'fr' ? 'Marge' : locale === 'es' ? 'Margen' : 'Margin',
-      p_winner: locale === 'fr' ? 'P(victoire)' : locale === 'es' ? 'P(victoria)' : 'P(win)',
-      baseline_shift: `vs ${baselineYear}`,
+      name: U[2],
+      province: U[3],
+      winner: locale === 'fr' ? 'En tête' : locale === 'es' ? 'En cabeza' : 'Leading',
+      vote: locale === 'fr' ? 'Voix' : locale === 'es' ? 'Voto' : 'Vote',
+      margin: locale === 'fr' ? 'Écart' : locale === 'es' ? 'Margen' : 'Margin',
+      p_winner: locale === 'fr' ? 'Chances' : locale === 'es' ? 'Probabilidad' : 'Chance',
+      baseline_shift: locale === 'fr' ? `Par rapport à ${baselineYear}` : locale === 'es' ? `Frente a ${baselineYear}` : `vs ${baselineYear}`,
     },
   };
+  // Nombres dans la typographie de la langue : « 49,8 % » en français.
+  const pct1 = (v: number) => `${v.toLocaleString(loc, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}${locale === 'en' ? '%' : '\u00a0%'}`;
+  const pts1 = (v: number) => `${v.toLocaleString(loc, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}\u00a0pts`;
+  const pct0 = (v: number) => { const r = Math.round(v); const s2 = r >= 100 ? '>99' : r <= 0 ? '<1' : String(r); return `${s2}${locale === 'en' ? '%' : '\u00a0%'}`; };
 
   const ariaSort = (k: SortKey) =>
     sortKey === k
@@ -512,12 +515,12 @@ export default function RidingTable({
                         {partyLabel}
                       </span>
                     </td>
-                    <td class="rt-num">{clampPct(winnerVote).toFixed(1)}%</td>
+                    <td class="rt-num">{pct1(clampPct(winnerVote))}</td>
                     <td class="rt-num">
-                      {clampPct(r.projection.mean_margin).toFixed(1)}%
+                      {pts1(clampPct(r.projection.mean_margin))}
                     </td>
                     <td class="rt-num">
-                      {(r.projection.p_winner * 100).toFixed(0)}%
+                      {pct0(r.projection.p_winner * 100)}
                     </td>
                     <td
                       class={

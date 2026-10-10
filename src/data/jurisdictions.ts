@@ -204,9 +204,9 @@ export const jurisdictions: Record<string, Jurisdiction> = {
     dataPath: 'quebec',
     geoPath: 'quebec',
     heroTitle: {
-      fr: 'Projection <em>d’avant-scrutin</em>',
-      en: 'Pre-election <em>forecast</em>',
-      es: 'Proyección <em>previa</em>',
+      fr: 'Ce que nous avions prévu',
+      en: 'What we forecast',
+      es: 'Lo que habíamos previsto',
     },
     institution: {
       fr: "Composition actuelle de l'Assemblée nationale",

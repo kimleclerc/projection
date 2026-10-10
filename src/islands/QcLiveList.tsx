@@ -10,7 +10,7 @@ const PAGE = 25;
 const copy = {
   fr: { title: 'Toutes les circonscriptions', search: 'Chercher une circonscription', all: 'Toutes', close: 'Serrées', gains: 'Gains', elected: 'Élues',
         riding: 'Circonscription', leader: 'En tête', pct: '%', margin: 'Écart', polls: 'Bureaux', status: 'Statut',
-        calledBadge: 'Élu·e', leadingBadge: 'En tête', gainBadge: 'Gain', more: (n: number) => `Voir les ${n} circonscriptions`, less: 'Réduire la liste', none: '—' },
+        calledBadge: 'Élu', leadingBadge: 'En tête', gainBadge: 'Gain', more: (n: number) => `Voir les ${n} circonscriptions`, less: 'Réduire la liste', none: '—' },
   en: { title: 'All ridings', search: 'Find a riding', all: 'All', close: 'Close', gains: 'Gains', elected: 'Elected',
         riding: 'Riding', leader: 'Leading', pct: '%', margin: 'Margin', polls: 'Polls', status: 'Status',
         calledBadge: 'Elected', leadingBadge: 'Leading', gainBadge: 'Gain', more: (n: number) => `Show all ${n} ridings`, less: 'Show fewer', none: '—' },

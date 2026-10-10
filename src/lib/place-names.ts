@@ -22,7 +22,7 @@ export function placeNameEs(en: string): string {
 }
 
 export function placeName(p: Named, lang: Lang): string {
-  if (lang === 'fr') return p.name_fr ?? p.name_en ?? '';
+  if (lang === 'fr') return placeNameFr(p.name_fr ?? p.name_en ?? '');
   if (lang === 'es') return p.name_es ?? placeNameEs(p.name_en ?? p.name_fr ?? '');
   return p.name_en ?? p.name_fr ?? '';
 }
@@ -64,4 +64,17 @@ export function usStateName(code: string | undefined, lang: Lang): string | unde
   if (lang === 'en') return s.en;
   if (lang === 'es') return placeNameEs(s.en);
   return s.frDe.replace(/^(du |de la |de l’|d’|des )/, '').replace(/^État de /, 'État de ');
+}
+
+/** Les données portent souvent le nom ANGLAIS d'un État jusque dans name_fr
+ *  (« South Carolina ») : on le traduit, en gardant un suffixe (« Ohio (special) »). */
+const US_FR_BY_EN: Record<string, string> = Object.fromEntries(
+  Object.values(US_STATES).map((s) => [s.en, s.frDe.replace(/^(du |de la |de l’|d’|des )/, '')]),
+);
+export function placeNameFr(name: string): string {
+  if (US_FR_BY_EN[name]) return US_FR_BY_EN[name];
+  for (const [en, fr] of Object.entries(US_FR_BY_EN)) {
+    if (name.startsWith(en + ' ')) return fr + name.slice(en.length).replace('(special)', '(partielle)');
+  }
+  return name;
 }

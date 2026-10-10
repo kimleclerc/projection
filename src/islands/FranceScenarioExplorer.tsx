@@ -28,7 +28,7 @@ const COPY = {
       'Intention de vote moyenne ± incertitude du modèle. Les deux premiers se qualifient pour le second tour.',
     secondRound: 'Second tour projeté',
     duelHelp: 'Report des voix estimé à partir des sondages de duel et des reports historiques.',
-    qualifies: 'Qualifié·e',
+    qualifies: 'Qualification',
     winner: 'l’emporte',
     pDuel: 'Probabilité de ce duel',
     noDuel: 'Pas de duel projeté pour ce casting.',

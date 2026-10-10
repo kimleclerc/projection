@@ -26,10 +26,10 @@ export function partyHex(party: string): string {
 // Couloirs intra-parti (lanes) — étiquettes trilingues.
 export const LANE_LABEL: Record<string, Record<Locale, string>> = {
   establishment: { fr: 'Establishment', en: 'Establishment', es: 'Establishment' },
-  moderate: { fr: 'Modéré·e', en: 'Moderate', es: 'Moderado·a' },
+  moderate: { fr: 'Modéré', en: 'Moderate', es: 'Moderado' },
   progressive: { fr: 'Progressiste', en: 'Progressive', es: 'Progresista' },
   maga: { fr: 'MAGA', en: 'MAGA', es: 'MAGA' },
-  unaligned: { fr: 'Non aligné·e', en: 'Unaligned', es: 'No alineado·a' },
+  unaligned: { fr: 'Non aligné', en: 'Unaligned', es: 'No alineado' },
 };
 export function laneLabel(lane: string, locale: Locale): string {
   return LANE_LABEL[lane]?.[locale] ?? lane;
@@ -39,8 +39,8 @@ export function laneLabel(lane: string, locale: Locale): string {
 export const STATUS_LABEL: Record<string, Record<Locale, string>> = {
   declared: { fr: 'Candidature déclarée', en: 'Declared', es: 'Candidatura declarada' },
   probable: { fr: 'Probable', en: 'Probable', es: 'Probable' },
-  testing: { fr: 'Testé·e', en: 'Tested', es: 'En encuestas' },
-  withdrawn: { fr: 'Retiré·e', en: 'Withdrawn', es: 'Retirado·a' },
+  testing: { fr: 'Testé', en: 'Tested', es: 'En encuestas' },
+  withdrawn: { fr: 'Retiré', en: 'Withdrawn', es: 'Retirado' },
   ineligible: { fr: 'Inéligible', en: 'Ineligible', es: 'Inelegible' },
 };
 export function statusLabel(status: string, locale: Locale): string {

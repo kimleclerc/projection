@@ -31,7 +31,7 @@ const COPY: Record<Locale, {
     round2: '2d tour',
     viewWinner: 'Bloc en tête',
     viewCandidate: 'Par candidat',
-    candidateLabel: 'Candidat·e',
+    candidateLabel: 'Candidature',
   },
   en: {
     round1: 'Round 1',
@@ -44,8 +44,8 @@ const COPY: Record<Locale, {
     round1: '1.ª vuelta',
     round2: '2.ª vuelta',
     viewWinner: 'Bloque en cabeza',
-    viewCandidate: 'Por candidato·a',
-    candidateLabel: 'Candidato·a',
+    viewCandidate: 'Por candidatura',
+    candidateLabel: 'Candidatura',
   },
 };
 

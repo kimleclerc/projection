@@ -147,8 +147,9 @@ function originSentence(l: 'en' | 'fr' | 'es'): string | null {
 }
 
 const openingFR = isGovernor
-  ? `${name} ${baselineMentionFr ? `a élu un·e gouverneur·e ${baselineMentionFr} lors de son scrutin précédent, avec une marge de ${data.baseline!.margin.toFixed(0)} points` : "n'a pas de scrutin de référence pour ce cycle"}.`
-  : `${name}, ${ridingWordFR} ${urbanFR} ${provinceFR}, ${baselineMentionFr ? `a élu ${isUSHouse ? 'un·e représentant·e' : 'un·e député·e'} ${baselineMentionFr} lors du scrutin précédent avec une marge de ${data.baseline!.margin.toFixed(0)} points` : 'n’a pas de résultat comparable au scrutin précédent'}.`;
+  // Formulation sans genre ni écriture inclusive : on parle de la victoire, pas de la personne.
+  ? `${name} : ${baselineMentionFr ? `à la dernière élection du gouverneur, victoire ${baselineMentionFr} par ${data.baseline!.margin.toFixed(0)} points` : "pas d'élection comparable à la dernière course"}.`
+  : `${name}, ${ridingWordFR} ${urbanFR} ${provinceFR} : ${baselineMentionFr ? `au scrutin précédent, victoire ${baselineMentionFr} par ${data.baseline!.margin.toFixed(0)} points` : 'pas de résultat comparable au scrutin précédent'}.`;
 
 const blurbFR = [
   openingFR,
@@ -160,8 +161,8 @@ const blurbFR = [
 ].filter(Boolean).join(' ');
 
 const openingEN = isGovernor
-  ? `${name} ${baselineMentionEn ? `elected a governor with ${baselineMentionEn} at its previous election, by ${data.baseline!.margin.toFixed(0)} points` : 'has no reference election for this cycle'}.`
-  : `${name}, ${'aeiou'.includes(urbanEN[0]) ? 'an' : 'a'} ${urbanEN} ${ridingWordEN} in ${provinceEN}, ${baselineMentionEn ? `elected a member with ${baselineMentionEn} at the previous election, with a ${data.baseline!.margin.toFixed(0)}-point margin` : 'has no comparable result from the previous election'}.`;
+  ? `${name}: ${baselineMentionEn ? `${baselineMentionEn} won the last governor's race by ${data.baseline!.margin.toFixed(0)} points` : 'no comparable previous race'}.`
+  : `${name}, ${'aeiou'.includes(urbanEN[0]) ? 'an' : 'a'} ${urbanEN} ${ridingWordEN} in ${provinceEN}: ${baselineMentionEn ? `${baselineMentionEn} won it by ${data.baseline!.margin.toFixed(0)} points at the previous election` : 'no comparable result from the previous election'}.`;
 
 const blurbEN = [
   openingEN,
@@ -173,8 +174,8 @@ const blurbEN = [
 ].filter(Boolean).join(' ');
 
 const openingES = isGovernor
-  ? `${name} ${baselineMentionEs ? `eligió gobernador con ${baselineMentionEs} en su elección anterior, con un margen de ${data.baseline!.margin.toFixed(0)} puntos` : 'no tiene elección de referencia para este ciclo'}.`
-  : `${name}, ${ridingWordES} ${urbanES} ${provinceES}, ${baselineMentionEs ? `eligió a un representante con ${baselineMentionEs} en la elección anterior, con un margen de ${data.baseline!.margin.toFixed(0)} puntos` : 'no tiene un resultado comparable de la elección anterior'}.`;
+  ? `${name}: ${baselineMentionEs ? `en la última elección a gobernador, victoria ${deEs(baselineMentionEs)} por ${data.baseline!.margin.toFixed(0)} puntos` : 'sin elección comparable'}.`
+  : `${name}, ${ridingWordES} ${urbanES} ${provinceES}: ${baselineMentionEs ? `en la elección anterior, victoria ${deEs(baselineMentionEs)} por ${data.baseline!.margin.toFixed(0)} puntos` : 'sin resultado comparable de la elección anterior'}.`;
 
 const blurbES = [
   openingES,
@@ -186,12 +187,11 @@ const blurbES = [
 ].filter(Boolean).join(' ');
 
 const blurb = { en: blurbEN, fr: blurbFR, es: blurbES }[lang];
-const eyebrow = { en: 'What the projection says', fr: 'Ce que dit la projection', es: 'Lo que dice la proyección' }[lang];
+const eyebrow = '';
 ---
 
 <section class="blurb">
   <div class="container">
-    <p class="eyebrow">{eyebrow}</p>
     <p class="prose">{blurb}</p>
   </div>
 </section>

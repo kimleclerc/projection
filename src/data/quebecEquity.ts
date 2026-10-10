@@ -156,7 +156,7 @@ export const EQUITY_STRINGS = {
     target: 'Cible',
     placementTitle: 'Écart de placement',
     placementLede:
-      "Rang moyen des comtés confiés aux nouvelles candidates, moins celui des hommes, sur l'échelle des 127 circonscriptions ordonnées par force projetée du parti (0 = plus faible, 100 = bastion). Négatif = femmes dans de moins bons comtés. Sortant·e·s exclu·e·s. IC à 95 % par ré-échantillonnage ; p par test de permutation.",
+      "Rang moyen des comtés confiés aux nouvelles candidates, moins celui des hommes, sur l'échelle des 127 circonscriptions ordonnées par force projetée du parti (0 = plus faible, 100 = bastion). Négatif = femmes dans de moins bons comtés. Les sortants et sortantes sont exclus. IC à 95 % par ré-échantillonnage ; p par test de permutation.",
     placementGap: 'Écart',
     placementCI: 'IC 95 %',
     placementP: 'p',
@@ -170,7 +170,7 @@ export const EQUITY_STRINGS = {
       "2022 — Aucun écart significatif dans aucun parti : les cinq ont placé leurs candidates de façon équitable. La CAQ a même rempli 79 % de ses nouvelles ouvertures avec des femmes.",
     methoTitle: 'Méthode et sources',
     methoBody:
-      "Le genre est sourcé (titre officiel de député·e, communiqués de parti en français genré, presse locale), jamais déduit du seul prénom ; une femme trans compte comme femme, un homme trans comme homme, les personnes non binaires sont affichées à part. La cible démographique vient des estimations de population de l'ISQ (2025). L'écart de placement mesure une distribution observable d'occasions électorales, pas une intention. Les candidatures retirées (ex. Gouin) sortent du calcul.",
+      "Le genre est sourcé (titre officiel de député ou de députée, communiqués de parti en français genré, presse locale), jamais déduit du seul prénom ; une femme trans compte comme femme, un homme trans comme homme, les personnes non binaires sont affichées à part. La cible démographique vient des estimations de population de l'ISQ (2025). L'écart de placement mesure une distribution observable d'occasions électorales, pas une intention. Les candidatures retirées (ex. Gouin) sortent du calcul.",
     academicTitle: 'Fondement scientifique',
     academicBody:
       "Le phénomène des « candidates poteaux » (sacrificial lambs) et du « précipice de verre » (glass cliff) est documenté au Canada et ailleurs : les partis nomment parfois davantage de femmes dans les sièges perdus d'avance, gonflant la parité de façade sans partager l'accès au pouvoir.",

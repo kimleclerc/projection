@@ -9,7 +9,7 @@ import { deriveRows, numFmt, outcomeLabel, outcomeOf, timeFmt, useLive, type Loc
  */
 const copy = {
   fr: { title: 'Résultats en direct', before: (n: string) => `Les résultats de ${n} s’afficheront ici dès la fermeture des bureaux, à 20 h le 5 octobre.`,
-        waiting: 'En attente des premiers bureaux de cette circonscription.', elected: 'Élu·e', leading: 'En tête', polls: 'bureaux dépouillés',
+        waiting: 'En attente des premiers bureaux de cette circonscription.', elected: 'Élu', leading: 'En tête', polls: 'bureaux dépouillés',
         updated: 'Données de', at: 'appel à', all: 'Tous les résultats du Québec' },
   en: { title: 'Live results', before: (n: string) => `Results for ${n} will appear here when polls close at 8 p.m. on October 5.`,
         waiting: 'Waiting for the first polls in this riding.', elected: 'Elected', leading: 'Leading', polls: 'polls counted',

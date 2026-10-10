@@ -119,8 +119,8 @@ export const STATUS_LABELS: Record<string, { fr: string; en: string; es: string 
   declared: { fr: 'Candidature déclarée', en: 'Declared', es: 'Candidatura declarada' },
   probable: { fr: 'Probable', en: 'Probable', es: 'Probable' },
   primary: { fr: 'Primaire PS', en: 'PS primary', es: 'Primarias PS' },
-  testing: { fr: 'Testé·e', en: 'Tested', es: 'En encuestas' },
-  withdrawn: { fr: 'Retiré·e', en: 'Withdrawn', es: 'Retirado·a' },
+  testing: { fr: 'Testé', en: 'Tested', es: 'En encuestas' },
+  withdrawn: { fr: 'Retiré', en: 'Withdrawn', es: 'Retirado' },
 };
 
 export function statusLabel(status: string, locale: Locale): string {

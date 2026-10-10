@@ -16,9 +16,9 @@ const formatted = new Intl.DateTimeFormat(
 ).format(new Date(data.runDate));
 
 const T = {
-  en: { label: 'Last model run', cycle: 'Cycle' },
-  fr: { label: 'Dernière exécution du modèle', cycle: 'Cycle' },
-  es: { label: 'Última actualización del modelo', cycle: 'Ciclo' },
+  en: { label: 'Forecast updated' },
+  fr: { label: 'Projection mise à jour le' },
+  es: { label: 'Proyección actualizada el' },
 }[lang];
 ---
 
@@ -28,10 +28,6 @@ const T = {
       <div>
         <dt>{T.label}</dt>
         <dd><time datetime={data.runDate}>{formatted}</time></dd>
-      </div>
-      <div>
-        <dt>{T.cycle}</dt>
-        <dd><code>{data.cycle}</code></dd>
       </div>
     </dl>
   </div>

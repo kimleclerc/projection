@@ -10,7 +10,7 @@ import tiles from '../data/qc-tiles.json';
  */
 const copy = {
   fr: { title: 'La carte des 127 circonscriptions', before: 'Projection d’avant-scrutin. La carte passe au dépouillement à 20 h.',
-        live: 'Pâle : en tête. Plein : élu. Coin blanc : la circonscription change de parti.', leading: 'en tête', elected: 'élu·e', projected: 'projeté',
+        live: 'Pâle : en tête. Plein : élu. Coin blanc : la circonscription change de parti.', leading: 'en tête', elected: 'élu', projected: 'projeté',
         noResult: 'aucun résultat', gain: 'gain', polls: 'bureaux', open: 'Voir la circonscription', tap: 'Touchez une case pour le détail.' },
   en: { title: 'Map of all 127 ridings', before: 'Pre-election projection. The map switches to the live count at 8 p.m.',
         live: 'Light: leading. Solid: elected. White corner: the seat changes hands.', leading: 'leading', elected: 'elected', projected: 'projected',
