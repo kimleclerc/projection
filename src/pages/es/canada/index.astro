@@ -99,14 +99,14 @@ const qcWinSeats = qcResults.parties[0].seats;
       <div class="content-grid-2" style="gap:1.5rem;align-items:start;">
         <div class="note-card" style={`border-top: 4px solid ${gooseData.cgi.zone_color};`}>
           <p class="eyebrow">Canada Goose Index · {gooseData.meta.pm}</p>
-          <h2 style="font-size:3rem;margin:0.25rem 0;color:var(--text);"><AnimatedNumber client:visible value={gooseData.cgi.score} decimals={1} /><span style="font-size:1.1rem;font-weight:400;">/100</span></h2>
+          <h2 style="font-size:3rem;margin:0.25rem 0;color:var(--text);"><AnimatedNumber client:visible value={Math.round(gooseData.cgi.score)} /><span style="font-size:1.1rem;font-weight:400;">/100</span></h2>
           <p style={`font-weight:700;color:${gooseData.cgi.zone_color};`}>{gooseData.cgi.label_es}</p>
           <p style="margin-top:0.5rem;">La fuerza política interna de Carney en Canadá — la mano detrás de la revisión del T-MEC.</p>
           <p style="margin-top:0.75rem;"><a href="/es/canada/indexes/canada-goose/" class="cta-link">Abrir el Canada Goose Index</a></p>
         </div>
         <div class="note-card" style={`border-top: 4px solid ${showdownData.showdown.zone_color};`}>
           <p class="eyebrow">Guerra comercial · T-MEC</p>
-          <h2 style="font-size:3rem;margin:0.25rem 0;color:var(--text);">{showdownData.showdown.gap > 0 ? '+' : ''}{showdownData.showdown.gap}</h2>
+          <h2 style="font-size:3rem;margin:0.25rem 0;color:var(--text);">{Math.round(showdownData.showdown.gap) > 0 ? '+' : ''}{Math.round(showdownData.showdown.gap)}</h2>
           <p style={`font-weight:700;color:${showdownData.showdown.zone_color};`}>{showdownData.showdown.label_es}</p>
           {(showdownData as any).war_status && (<p style="font-size:0.9rem;color:var(--text-muted);margin-top:0.4rem;">{(showdownData as any).war_status.headline_es}</p>)}
           <p style="margin-top:0.5rem;">Brecha de ventaja frente al Lame-Duck Index de Trump.</p>
@@ -230,8 +230,8 @@ const qcWinSeats = qcResults.parties[0].seats;
   <DeskSections lang="es" desk="canada" />
 
   <MethodologyNote
-    title="Tres jurisdicciones. Un solo estándar de proyección."
-    body="Las proyecciones federal, de Quebec y de Ontario comparten un pipeline BSTS bayesiano común: los sondeos se agregan con sesgos de encuestadora medidos y corregidos y exactitud calibrada sobre elecciones pasadas; la simulación solo traduce todo en distribuciones de escaños y probabilidades por distrito."
+    title="Un solo método para el federal, Quebec y Ontario"
+    body="Las tres proyecciones siguen el mismo método: un promedio de las encuestas públicas, corregido por los desvíos habituales de cada encuestadora, y luego una simulación de la elección distrito por distrito."
     bullets={[
       "Los sondeos provienen de firmas registradas ante Elecciones Canadá y se ponderan por reciencia, tamaño de muestra y trayectoria de cada firma.",
       "Las probabilidades por distrito están condicionadas a movimientos nacionales y regionales, y luego se reagregan en distribuciones totales de escaños.",

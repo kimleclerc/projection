@@ -131,9 +131,9 @@ export const DESKS: DeskGroup[] = [
         id: 'us-primaries',
         label: l10n('Primaries', 'Primaires', 'Primarias'),
         blurb: l10n(
-          'Live calls and county results across the 2026 primary calendar.',
-          'Appels en direct et résultats par comté du calendrier primaire 2026.',
-          'Proyecciones en vivo y resultados por condado del calendario primario 2026.',
+          'Primary results, county by county, called as they come in.',
+          'Les résultats des primaires de 2026, comté par comté, annoncés en direct.',
+          'Los resultados de las primarias de 2026, condado por condado, anunciados en directo.',
         ),
         href: perLang('/us/primaries/', '/us/primaires/', '/us/primarias/'),
       },
@@ -165,9 +165,9 @@ export const DESKS: DeskGroup[] = [
     hub: samePath('/canada/'),
     items: [
       fromJurisdiction('federal', l10n(
-        '343 ridings, seat pressure, and the 45th Parliament as it stands.',
-        '343 circonscriptions, pression en sièges, et la 45e législature telle qu’elle est.',
-        '343 distritos, presión de escaños y la 45.ª legislatura tal como está.',
+        'All 343 ridings, and how many seats each party can expect.',
+        'Les 343 circonscriptions, et combien de sièges chaque parti peut espérer.',
+        'Los 343 distritos, y cuántos escaños puede esperar cada partido.',
       )),
       fromJurisdiction('quebec', l10n(
         'The October 2026 general election on the new 127-seat map.',
@@ -183,9 +183,9 @@ export const DESKS: DeskGroup[] = [
         id: 'ca-byelections',
         label: l10n('Federal by-elections', 'Partielles fédérales', 'Elecciones parciales federales'),
         blurb: l10n(
-          'Every pending seat: personal vote stripped, turnout residual applied.',
-          'Chaque siège en attente : vote personnel retiré, résidu de participation appliqué.',
-          'Cada escaño pendiente: voto personal retirado, residuo de participación aplicado.',
+          'Upcoming by-elections, seat by seat.',
+          'Les élections partielles à venir, siège par siège.',
+          'Las elecciones parciales por venir, escaño por escaño.',
         ),
         href: samePath('/canada/byelections/'),
       },
@@ -203,9 +203,9 @@ export const DESKS: DeskGroup[] = [
         id: 'qc-barometer',
         label: l10n('Quebec candidate barometer', 'Baromètre des candidatures QC', 'Barómetro de candidaturas QC'),
         blurb: l10n(
-          'Who is running where, and what the declared field says about access.',
-          'Qui se présente où, et ce que le champ déclaré dit de l’accès.',
-          'Quién se presenta dónde y qué dice el campo declarado sobre el acceso.',
+          'Who is running where.',
+          'Qui se présente où, circonscription par circonscription.',
+          'Quién se presenta dónde, distrito por distrito.',
         ),
         href: perLang(
           '/canada/quebec/candidate-barometer/',
@@ -231,17 +231,17 @@ export const DESKS: DeskGroup[] = [
     hub: samePath('/uk/'),
     items: [
       fromJurisdiction('uk', l10n(
-        '650 constituencies calibrated against the published MRPs.',
-        '650 circonscriptions calibrées sur les MRP publiés.',
-        '650 circunscripciones calibradas con los MRP publicados.',
+        'All 650 constituencies, checked against the large published constituency polls.',
+        'Les 650 circonscriptions, comparées aux grands sondages par circonscription publiés.',
+        'Las 650 circunscripciones, comparadas con las grandes encuestas por circunscripción publicadas.',
       ), { label: l10n('General election', 'Élection générale', 'Elecciones generales') }),
       {
         id: 'uk-clacton',
         label: l10n('Clacton by-election', 'Partielle de Clacton', 'Parcial de Clacton'),
         blurb: l10n(
-          'Farage against a record 34-candidate field — 13 August.',
-          'Farage face à un champ record de 34 candidats — le 13 août.',
-          'Farage ante un campo récord de 34 candidatos — el 13 de agosto.',
+          'Nigel Farage held Clacton in the 13 August by-election.',
+          'Nigel Farage a conservé Clacton à la partielle du 13 août.',
+          'Nigel Farage conservó Clacton en la elección parcial del 13 de agosto.',
         ),
         href: samePath('/uk/byelections/clacton/'),
       },
@@ -258,9 +258,9 @@ export const DESKS: DeskGroup[] = [
         'Quién llega a la segunda vuelta en 2027 y quién la gana.',
       )),
       fromJurisdiction('france-legislative', l10n(
-        '577 constituencies, calibrated withdrawals, and the presidential bridge.',
-        '577 circonscriptions, désistements calibrés, et le pont présidentiel.',
-        '577 circunscripciones, retiradas calibradas y el puente presidencial.',
+        'All 577 constituencies, with the second-round withdrawals.',
+        'Les 577 circonscriptions, avec les désistements du second tour.',
+        'Las 577 circunscripciones, con las retiradas de la segunda vuelta.',
       )),
       {
         id: 'fr-candidates',
@@ -373,8 +373,8 @@ export const DESKS: DeskGroup[] = [
         id: 'sp-mlb',
         label: l10n('MLB 2026', 'MLB 2026', 'MLB 2026'),
         blurb: l10n(
-          'The World Series race, rerun nightly.',
-          'La course à la Série mondiale, relancée chaque nuit.',
+          'The race to the World Series, updated every night.',
+          'La course à la Série mondiale, mise à jour chaque nuit.',
           'La carrera por la Serie Mundial, recalculada cada noche.',
         ),
         href: samePath('/sports/mlb/'),
@@ -404,7 +404,7 @@ export const DESKS: DeskGroup[] = [
         label: l10n('Sports track record', 'Bilan sportif', 'Historial deportivo'),
         blurb: l10n(
           'Every sports call the model made, scored after the fact.',
-          'Chaque appel sportif du modèle, noté après coup.',
+          'Chaque prévision sportive, comparée au résultat.',
           'Cada pronóstico deportivo del modelo, evaluado a posteriori.',
         ),
         href: samePath('/sports/track-record/'),

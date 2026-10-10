@@ -143,7 +143,7 @@ const keepDiggingCopy = {
   es: {
     eyebrow: 'Seguir explorando',
     title: 'Más del desk de EE. UU.',
-    body: 'Explora las proyecciones de la Cámara y el Senado, el Lame-Duck Index y otras elecciones especiales.',
+    body: 'Explora las proyecciones de la Cámara y el Senado, el índice Pato Cojo y otras elecciones especiales.',
   },
 };
 const kd = keepDiggingCopy[lang] ?? keepDiggingCopy.en;
@@ -285,12 +285,12 @@ const jsonLd = [
         links={[
           {
             href: usHubPath,
-            label: lang === 'fr' ? 'Bureau américain' : lang === 'es' ? 'Bureau de EE. UU.' : 'U.S. Desk',
+            label: lang === 'fr' ? 'États-Unis' : lang === 'es' ? 'Estados Unidos' : 'United States',
             detail: lang === 'fr' ? 'Chambre · Sénat · index' : lang === 'es' ? 'Cámara · Senado · índices' : 'House · Senate · indexes',
           },
           {
             href: lameDuckPath,
-            label: 'Lame-Duck Index',
+            label: lang === 'fr' ? 'Indice Canard boiteux' : lang === 'es' ? 'Índice Pato Cojo' : 'Lame-Duck Index',
             detail: lang === 'fr' ? 'Indice de pression pré-électorale' : lang === 'es' ? 'Índice de presión preelectoral' : 'Pre-election pressure index',
           },
           ...otherSpecials,

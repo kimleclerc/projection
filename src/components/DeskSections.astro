@@ -35,6 +35,7 @@ const T = {
     titleDesk: 'In this section',
     titleAll: 'Forecasts by country',
     hub: 'Open the desk',
+    hubOf: (name: string) => `All ${name} pages`,
   },
   fr: {
     eyebrowDesk: 'Dans cette rubrique',
@@ -42,6 +43,7 @@ const T = {
     titleDesk: 'Dans cette rubrique',
     titleAll: 'Les prévisions, pays par pays',
     hub: 'Ouvrir la rubrique',
+    hubOf: (name: string) => `Toutes les pages ${name}`,
   },
   es: {
     eyebrowDesk: 'En esta mesa',
@@ -49,6 +51,7 @@ const T = {
     titleDesk: 'En esta sección',
     titleAll: 'Los pronósticos, país por país',
     hub: 'Abrir la mesa',
+    hubOf: (name: string) => `Todas las páginas de ${name}`,
   },
 }[lang];
 
@@ -70,7 +73,7 @@ const bandTitle = title ?? (isDirectory ? T.titleAll : T.titleDesk);
         {isDirectory && (
           <div class="ds-group-head">
             <h3>{group.label[lang]}</h3>
-            <a href={group.hub[lang]}>{T.hub}</a>
+            <a href={group.hub[lang]}>{T.hubOf(group.label[lang])}</a>
           </div>
         )}
 
@@ -97,7 +100,7 @@ const bandTitle = title ?? (isDirectory ? T.titleAll : T.titleDesk);
 
     {showHubLink && single && (
       <p class="ds-hub-link">
-        <a href={single.hub[lang]}>{T.hub}</a>
+        <a href={single.hub[lang]}>{T.hubOf(single.label[lang])}</a>
       </p>
     )}
   </div>

@@ -45,19 +45,19 @@ const legHref = { fr: '/fr/france/legislatives/', en: '/en/france/legislative-el
 const legCopy = {
   fr: {
     eyebrow: 'Législatives — en cas de dissolution',
-    title: `p(majorité absolue RN) : ${legPMaj} % si front républicain au niveau 2024`,
+    title: `Le RN a ${legPMaj} % de chances d’obtenir la majorité absolue si le front républicain tient comme en 2024`,
     body: 'Les sondages législatifs français sont événementiels — il n’y en a presque jamais hors crise. Le modèle ancre donc sa projection au dernier sondage direct (oct. 2025) et lui applique le mouvement des intentions présidentielles, mesurées en continu : c’est le pont différentiel. Les 577 circonscriptions sont ensuite simulées avec des reports et désistements calibrés sur les 1 646 seconds tours de 2017-2024, en trois scénarios de front républicain.',
     cta: 'Voir la projection des législatives',
   },
   en: {
     eyebrow: 'Legislative — if dissolved today',
-    title: `p(absolute RN majority): ${legPMaj}% under a 2024-level republican front`,
+    title: `The RN has a ${legPMaj}% chance of an absolute majority if the republican front holds as in 2024`,
     body: 'French legislative polling is event-driven — it all but disappears outside crises. The model therefore anchors its projection to the last direct poll (Oct. 2025) and applies the movement of continuously-measured presidential intentions: the differential bridge. The 577 constituencies are then simulated with transfers and withdrawals calibrated on the 1,646 runoffs of 2017-2024, across three republican-front scenarios.',
     cta: 'See the legislative forecast',
   },
   es: {
     eyebrow: 'Legislativas — si se disolviera hoy',
-    title: `p(mayoría absoluta RN): ${legPMaj}% con frente republicano al nivel de 2024`,
+    title: `El RN tiene un ${legPMaj} % de probabilidad de mayoría absoluta si el frente republicano resiste como en 2024`,
     body: 'Las encuestas legislativas francesas son episódicas — casi desaparecen fuera de las crisis. El modelo ancla su proyección a la última encuesta directa (oct. 2025) y le aplica el movimiento de las intenciones presidenciales, medidas en continuo: el puente diferencial. Las 577 circunscripciones se simulan luego con transferencias y retiradas calibradas sobre las 1.646 segundas vueltas de 2017-2024, en tres escenarios de frente republicano.',
     cta: 'Ver la proyección legislativa',
   },
@@ -578,14 +578,14 @@ const C = COPY[locale];
 
   <!-- CE QU'ON AJOUTE AUX SONDAGES + COMMENT LIRE LA PAGE -->
   <section class="fr-section container fr-explain" aria-labelledby="fr-explain-title">
-    <h2 id="fr-explain-title" class="fr-section-title">{C.addTitle}</h2>
-    <ol class="fr-add">
-      {C.addItems.map((it, i) => (
-        <li><span class="fr-add-n">{i + 1}</span><h3>{it.h}</h3><p>{it.p}</p></li>
-      ))}
-    </ol>
+    <h2 id="fr-explain-title" class="fr-section-title">{C.howTitle}</h2>
+    {/* Une phrase, pas trois colonnes numérotées (motif « 1-2-3 » typique des pages générées). */}
+    <p class="fr-add-note">{locale === 'fr'
+      ? 'Notre moyenne réunit toutes les enquêtes déposées à la Commission des sondages, pondérées selon leur date, leur taille et les écarts habituels de leur institut ; le second tour est simulé avec les reports de voix observés depuis 2017.'
+      : locale === 'es'
+      ? 'Nuestro promedio reúne todas las encuestas registradas ante la Comisión de Sondeos, ponderadas según su fecha, su tamaño y los desvíos habituales de su instituto; la segunda vuelta se simula con los traspasos de voto observados desde 2017.'
+      : 'Our average includes every poll filed with France’s polling commission, weighted by date, sample size and each pollster’s usual lean; the runoff is simulated with the vote transfers observed since 2017.'}</p>
     <div class="fr-how">
-      <h3>{C.howTitle}</h3>
       <ul>{C.howItems.map((t) => <li>{t}</li>)}</ul>
       <a class="fr-cta" href={C.methodHref}>{C.ctaMethod}</a>
     </div>
@@ -923,6 +923,7 @@ const C = COPY[locale];
   @media (max-width: 640px) {
     .fr-latest-list a { grid-template-columns: 1fr; }
   }
+  .fr-add-note { max-width: 72ch; margin: 0 0 16px; font-size: 17px; color: var(--ink-2); }
   .fr-add { list-style: none; margin: 8px 0 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
   .fr-add li { border: 0; border-top: 1px solid var(--rule); border-radius: 0; background: transparent; padding: 18px; }
   .fr-add-n { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: var(--ink); color: var(--paper-3); font-family: var(--mono); font-size: 13px; }

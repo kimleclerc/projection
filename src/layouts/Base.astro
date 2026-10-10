@@ -208,7 +208,7 @@ const localeCopy: Record<Locale, {
     unitedStatesLabel: 'États-Unis',
     houseLabel: 'Chambre',
     senateLabel: 'Sénat',
-    otherMarketsLabel: 'Autres marchés',
+    otherMarketsLabel: 'Autres pays',
     allRegionsLabel: 'Toutes les régions',
     aboutLabel: 'À propos',
     methodologyLabel: 'Méthodologie',
@@ -285,7 +285,7 @@ const copy = localeCopy[lang as Locale] ?? localeCopy.en;
 const footerPartner = affiliates.proton.url.trim() !== '' ? affiliates.proton : null;
 const footerPartnerLabel: Record<string, string> = {
   en: 'Partner: Proton — encrypted email & VPN',
-  fr: 'Partenaire : Proton — courriel chiffré & VPN',
+  fr: 'Partenaire : Proton — courriel chiffré et VPN',
   es: 'Socio: Proton — correo cifrado y VPN',
 };
 
@@ -750,9 +750,7 @@ const myRacesLabel = lang === 'fr' ? 'Mes courses' : lang === 'es' ? 'Mis contie
         <a href={copy.us}>{lang === 'fr' ? 'Vue d’ensemble' : lang === 'es' ? 'Panorama' : 'Overview'}</a>
         <a href={`${copy.us}#house`}>{copy.houseLabel}</a>
         <a href={`${copy.us}#senate`}>{copy.senateLabel}</a>
-        <a href={copy.lameDuck}>
-          Lame-Duck Index
-        </a>
+        <a href={copy.lameDuck}>{lang === 'fr' ? 'Indice Canard boiteux' : lang === 'es' ? 'Índice Pato Cojo' : 'Lame-Duck Index'}</a>
       </div>
       <div class="footer-col">
         <h4>{copy.otherMarketsLabel}</h4>
@@ -760,7 +758,7 @@ const myRacesLabel = lang === 'fr' ? 'Mes courses' : lang === 'es' ? 'Mis contie
         <a href={copy.uk}>{copy.ukLabel}</a>
         <a href={copy.france}>{copy.franceLabel}</a>
         <a href={copy.spain}>{copy.spainLabel}</a>
-        <a href={copy.sports}>Sports Scope</a>
+        <a href={copy.sports}>{lang === 'es' ? 'Deportes' : 'Sports'}</a>
         <a href={copy.indexes}>{lang === 'fr' ? 'Indices' : lang === 'es' ? 'Índices' : 'Indexes'}</a>
         <a href={copy.match}>{copy.matchLabel}</a>
         <a href={MY_RACES_URL[lang as 'fr' | 'en' | 'es'] ?? MY_RACES_URL.en}>{myRacesLabel}</a>

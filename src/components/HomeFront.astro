@@ -44,8 +44,9 @@ const rows = parties.map((p) => ({
   chance: p.p_majority,
 }));
 
+const longRun = new Date(`${meta.run_date}T12:00:00Z`).toLocaleDateString(lang === 'en' ? 'en-US' : lang === 'es' ? 'es-ES' : 'fr-CA', { day: 'numeric', month: 'long', timeZone: 'UTC' });
 const T = {
-  h1: L('Toutes les élections, en projection.', 'Every election, forecast.', 'Todas las elecciones, en proyección.'),
+  h1: L('Projections électorales indépendantes : États-Unis, Canada, Royaume-Uni, France, Espagne.', 'Independent election forecasts: United States, Canada, United Kingdom, France, Spain.', 'Proyecciones electorales independientes: Estados Unidos, Canadá, Reino Unido, Francia, España.'),
   promise: L(
     'Les midterms américains, le Canada, le Royaume-Uni, la France et l’Espagne, mis à jour chaque jour. Par Kim Leclerc, vingt ans de campagnes électorales.',
     'U.S. midterms, Canada, the U.K., France and Spain, updated daily. By Kim Leclerc, twenty years of election campaigns.',
@@ -61,7 +62,7 @@ const T = {
   senate: L('Projection du Sénat', 'Senate forecast', 'Pronóstico del Senado'),
   house: L('Projection de la Chambre', 'House forecast', 'Pronóstico de la Cámara'),
   gov: L('Gouverneurs', 'Governors', 'Gobernadores'),
-  meta: L(`${meta.n_polls} sondages · mis à jour le ${meta.run_date}`, `${meta.n_polls} polls · updated ${meta.run_date}`, `${meta.n_polls} encuestas · actualizado el ${meta.run_date}`),
+  meta: L(`${meta.n_polls} sondages · mis à jour le ${longRun}`, `${meta.n_polls} polls · updated ${longRun}`, `${meta.n_polls} encuestas · actualizado el ${longRun}`),
   href: {
     senate: L('/fr/us/senat/', '/en/us/senate/', '/es/us/senate/'),
     house: L('/fr/us/chambre/', '/en/us/house/', '/es/us/house/'),

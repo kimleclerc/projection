@@ -81,7 +81,7 @@ const qcWinSeats = qcResults.parties[0].seats;
   <EditorialHero
     eyebrow="Canada"
     title={`Le ${qcWinLabel} formera un gouvernement minoritaire au Québec : ${qcWinSeats} sièges sur 127.`}
-    promise="Fédéral, Québec, Ontario, Colombie-Britannique et partielles — lus course par course, des sondages publics jusqu'au siège."
+    promise="Fédéral, Québec, Ontario, Colombie-Britannique et partielles : projections, sondages et résultats."
     question="La Colombie-Britannique vote le 24 octobre : qui va gagner?"
     primaryHref="/fr/indexes/"
     primaryLabel="Voir les indices"
@@ -98,14 +98,14 @@ const qcWinSeats = qcResults.parties[0].seats;
       <div class="content-grid-2" style="gap:1.5rem;align-items:start;">
         <div class="note-card" style={`border-top: 4px solid ${gooseData.cgi.zone_color};`}>
           <p class="eyebrow">Indice Bernache · {gooseData.meta.pm}</p>
-          <h2 style="font-size:3rem;margin:0.25rem 0;color:var(--text);"><AnimatedNumber client:visible value={gooseData.cgi.score} decimals={1} /><span style="font-size:1.1rem;font-weight:400;">/100</span></h2>
+          <h2 style="font-size:3rem;margin:0.25rem 0;color:var(--text);"><AnimatedNumber client:visible value={Math.round(gooseData.cgi.score)} /><span style="font-size:1.1rem;font-weight:400;">/100</span></h2>
           <p style={`font-weight:700;color:${gooseData.cgi.zone_color};`}>{gooseData.cgi.label_fr}</p>
           <p style="margin-top:0.5rem;">La force politique de Carney au pays — la main derrière la révision de l'ACEUM.</p>
           <p style="margin-top:0.75rem;"><a href="/fr/canada/indexes/canada-goose/" class="cta-link">Ouvrir l'indice Bernache</a></p>
         </div>
         <div class="note-card" style={`border-top: 4px solid ${showdownData.showdown.zone_color};`}>
           <p class="eyebrow">Guerre commerciale · ACEUM</p>
-          <h2 style="font-size:3rem;margin:0.25rem 0;color:var(--text);">{showdownData.showdown.gap > 0 ? '+' : ''}{showdownData.showdown.gap}</h2>
+          <h2 style="font-size:3rem;margin:0.25rem 0;color:var(--text);">{Math.round(showdownData.showdown.gap) > 0 ? '+' : ''}{Math.round(showdownData.showdown.gap)}</h2>
           <p style={`font-weight:700;color:${showdownData.showdown.zone_color};`}>{showdownData.showdown.label_fr}</p>
           {(showdownData as any).war_status && (<p style="font-size:0.9rem;color:var(--text-muted);margin-top:0.4rem;">{(showdownData as any).war_status.headline_fr}</p>)}
           <p style="margin-top:0.5rem;">Écart de levier face à l'Indice canard boiteux de Trump.</p>
@@ -230,8 +230,8 @@ const qcWinSeats = qcResults.parties[0].seats;
   <DeskSections lang="fr" desk="canada" />
 
   <MethodologyNote
-    title="Trois juridictions. Un seul standard de projection."
-    body="Les projections f&#xe9;d&#xe9;rale, qu&#xe9;b&#xe9;coise et ontarienne partagent un pipeline BSTS bay&#xe9;sien commun&#xa0;: les sondages y sont agr&#xe9;g&#xe9;s avec biais d&#x2019;institut mesur&#xe9;s et corrig&#xe9;s et exactitude calibr&#xe9;e sur les &#xe9;lections pass&#xe9;es&#xa0;; la simulation ne fait que traduire le tout en distributions de si&#xe8;ges et probabilit&#xe9;s par circonscription."
+    title="Une seule méthode pour le fédéral, le Québec et l’Ontario"
+    body="Les trois projections suivent la même méthode : une moyenne des sondages publics, corrigée des écarts habituels de chaque institut, puis une simulation de l’élection circonscription par circonscription."
     bullets={[
       "Les sondages proviennent de firmes enregistr&#xe9;es aupr&#xe8;s d&#x27;&#xc9;lections Canada et sont pond&#xe9;r&#xe9;s selon la r&#xe9;cence, la taille de l&#x27;&#xe9;chantillon et le bilan de chaque firme.",
       "Les probabilit&#xe9;s par circonscription sont conditionn&#xe9;es aux mouvements nationaux et r&#xe9;gionaux, puis r&#xe9;agr&#xe9;g&#xe9;es en distributions totales de si&#xe8;ges.",
