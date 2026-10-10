@@ -38,6 +38,10 @@ export interface TileRiding {
   from?: string | null;
   changed?: boolean;
   margin: number;
+  /** Probabilité du parti en tête (projection) : la tuile prend une nuance selon
+   *  la certitude — sûr, compétitif, serré — comme chez 270toWin. Absente =
+   *  couleur pleine (résultat, scénario). */
+  p?: number;
   href?: string;
 }
 
@@ -57,6 +61,10 @@ export interface TileBloc {
   x: number; y: number;
   n: number; cols: number; rows: number;
   ids: string[];
+  /** Cartogramme : une case par circonscription (parallèle à ids), posée
+   *  librement. L'État garde alors sa forme ; l'étiquette va au milieu. */
+  cells?: [number, number][];
+  label_x?: number; label_y?: number;
 }
 
 interface Props {
@@ -83,6 +91,17 @@ const COPY = {
 } as const;
 
 const GRIS = '#b9b6ae';
+/** Course serrée (< 60 %) : un sable neutre, quel que soit le parti en tête. */
+export const SERRE = '#cdb98a';
+
+/** Remplissage d'une tuile selon le parti en tête et la certitude. Mêmes seuils
+ *  que lib/riding-certainty.ts : ≥ 85 % sûr, ≥ 60 % compétitif, sinon serré. */
+export function tileFill(color: string | undefined, p?: number): string {
+  if (!color) return GRIS;
+  if (p === undefined || p >= 0.85) return color;
+  if (p >= 0.6) return `color-mix(in srgb, ${color} 52%, var(--paper, #fff))`;
+  return SERRE;
+}
 /** Écart entre tuiles, en fraction d'une tuile. Le pas d'une tuile vaut 1 unité
  *  de toile — c'est exactement l'unité dans laquelle le moteur a placé les
  *  blocs, donc rien ne se recalcule ici. */
@@ -118,14 +137,33 @@ export default function TileMap({ blocs, canvas, ridings, locale, colors, labels
   };
 
   /** Position d'une tuile dans la toile, en unités de tuile. */
-  const place = (b: TileBloc, rang: number) => ({
-    x: b.x + (rang % b.cols) + GAP / 2,
-    y: b.y + hauteurEtiq(b) + Math.floor(rang / b.cols) + GAP / 2,
-  });
+  const place = (b: TileBloc, rang: number) => b.cells
+    ? { x: b.cells[rang][0] + GAP / 2, y: b.cells[rang][1] + GAP / 2 }
+    : {
+      x: b.x + (rang % b.cols) + GAP / 2,
+      y: b.y + hauteurEtiq(b) + Math.floor(rang / b.cols) + GAP / 2,
+    };
+  const cartogramme = blocs.some((b) => b.cells);
+  /** Frontières entre blocs (cartogramme) : les arêtes de case dont la voisine
+   *  appartient à un autre bloc, ou à personne. Un seul tracé. */
+  // Calcul direct (pas de hook) : on est après le retour anticipé de la carte vide.
+  const frontieres = (() => {
+    if (!cartogramme) return '';
+    const owner = new Map<string, string>();
+    for (const b of blocs) for (const [x, y] of b.cells ?? []) owner.set(`${x},${y}`, b.id);
+    let d = '';
+    for (const b of blocs) for (const [x, y] of b.cells ?? []) {
+      if (owner.get(`${x + 1},${y}`) !== b.id) d += `M${x + 1} ${y}v1`;
+      if (owner.get(`${x - 1},${y}`) !== b.id) d += `M${x} ${y}v1`;
+      if (owner.get(`${x},${y + 1}`) !== b.id) d += `M${x} ${y + 1}h1`;
+      if (owner.get(`${x},${y - 1}`) !== b.id) d += `M${x} ${y}h1`;
+    }
+    return d;
+  })();
 
   return (
     <div class="tmap">
-      <div class="tmap-board" style={{ aspectRatio: `${toile.w} / ${toile.h}` }}>
+      <div class="tmap-board" style={{ aspectRatio: `${toile.w} / ${toile.h}`, '--tmap-cols': String(toile.w) }}>
         {/* Les tuiles : un seul SVG, des coordonnées fixes. Deux tuiles ne
             peuvent pas sortir de tailles différentes — elles ont le même
             attribut, pas le même calcul. */}
@@ -152,7 +190,7 @@ export default function TileMap({ blocs, canvas, ridings, locale, colors, labels
                   <g key={id} class={`tmap-tile${dim ? ' is-dim' : ''}${choisi ? ' is-sel' : ''}`}>
                     <rect
                       x={p.x} y={p.y} width={1 - GAP} height={1 - GAP} rx=".1"
-                      fill={(r.winner && colors[r.winner]) || GRIS}
+                      style={{ fill: tileFill(r.winner ? colors[r.winner] : undefined, r.p) }}
                       role="button"
                       tabIndex={0}
                       aria-pressed={choisi}
@@ -175,6 +213,7 @@ export default function TileMap({ blocs, canvas, ridings, locale, colors, labels
               })}
             </g>
           ))}
+          {frontieres && <path class="tmap-border" d={frontieres} pointer-events="none" />}
           {/* Le liseré de la tuile choisie se dessine en dernier, sinon les
               tuiles voisines le rognent. */}
           {sel && blocs.map((b) => {
@@ -190,7 +229,14 @@ export default function TileMap({ blocs, canvas, ridings, locale, colors, labels
 
         {/* Les étiquettes : du HTML, pour que leur corps ne suive pas la taille
             des tuiles. La boîte est celle que le moteur a réservée. */}
-        {blocs.map((b) => {
+        {cartogramme && blocs.map((b) => (
+          <span
+            class="tmap-code"
+            key={`c-${b.id}`}
+            style={{ left: `${((b.label_x ?? b.x) / toile.w) * 100}%`, top: `${((b.label_y ?? b.y) / toile.h) * 100}%` }}
+          >{lignes(b)[0]}</span>
+        ))}
+        {!cartogramme && blocs.map((b) => {
           const lw = Math.max(b.label_w ?? b.cols, b.cols);
           const fin = b.label_anchor === 'end';
           return (

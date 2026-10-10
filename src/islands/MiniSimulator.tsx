@@ -8,6 +8,8 @@ import {
   type SimDoc,
   type NationalDelta,
   type RegionalDelta,
+  encodeState,
+  decodeState,
 } from '../lib/mini-sim';
 import { readUrlParam, setUrlParam } from './lib/urlState';
 import CopyLink from './lib/CopyLink';
@@ -128,46 +130,6 @@ const COPY = {
 } as const;
 
 /** État `?sim=caq:3.0,pq:-1.5|rest.caq:4.0` (vide = paramètre retiré). */
-function encodeState(nat: NationalDelta, reg: RegionalDelta): string {
-  const n = Object.entries(nat)
-    .filter(([, v]) => Math.abs(v) > 0.05)
-    .map(([k, v]) => `${k}:${v.toFixed(1)}`)
-    .join(',');
-  const r = Object.entries(reg)
-    .flatMap(([rid, parties]) =>
-      Object.entries(parties)
-        .filter(([, v]) => Math.abs(v) > 0.05)
-        .map(([k, v]) => `${rid}.${k}:${v.toFixed(1)}`),
-    )
-    .join(',');
-  return [n, r].filter(Boolean).join('|');
-}
-
-function decodeState(raw: string | null, doc: SimDoc): [NationalDelta, RegionalDelta] {
-  const nat: NationalDelta = {};
-  const reg: RegionalDelta = {};
-  if (!raw) return [nat, reg];
-
-  const codes = new Set(doc.parties.map((p) => p.code));
-  const regions = new Set(doc.regions.map((r) => r.id));
-  const travel = new Map(doc.parties.map((p) => [p.code, p.travel]));
-
-  for (const chunk of raw.split(/[|,]/)) {
-    const [key, value] = chunk.split(':');
-    const v = Number.parseFloat(value);
-    if (!key || !Number.isFinite(v)) continue;
-    const [a, b] = key.split('.');
-    // Une valeur forgée est bornée à la course du curseur, jamais rejetée en
-    // silence au point de casser le partage d'un lien.
-    if (b === undefined && codes.has(a)) {
-      nat[a] = Math.max(-travel.get(a)!, Math.min(travel.get(a)!, v));
-    } else if (regions.has(a) && codes.has(b)) {
-      const t = travel.get(b)!;
-      (reg[a] ||= {})[b] = Math.max(-t, Math.min(t, v));
-    }
-  }
-  return [nat, reg];
-}
 
 export default function MiniSimulator({ doc, locale, map }: Props) {
   const t = COPY[locale] ?? COPY.fr;

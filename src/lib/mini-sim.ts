@@ -250,3 +250,45 @@ export function regionLabel(r: SimRegion, locale: string): string {
 export function isMajority(seats: number, doc: SimDoc): boolean {
   return seats >= doc.meta.majority_threshold;
 }
+
+/** État d’un scénario dans l’URL (?sim=) : partagé par le simulateur et les images. */
+export function encodeState(nat: NationalDelta, reg: RegionalDelta): string {
+  const n = Object.entries(nat)
+    .filter(([, v]) => Math.abs(v) > 0.05)
+    .map(([k, v]) => `${k}:${v.toFixed(1)}`)
+    .join(',');
+  const r = Object.entries(reg)
+    .flatMap(([rid, parties]) =>
+      Object.entries(parties)
+        .filter(([, v]) => Math.abs(v) > 0.05)
+        .map(([k, v]) => `${rid}.${k}:${v.toFixed(1)}`),
+    )
+    .join(',');
+  return [n, r].filter(Boolean).join('|');
+}
+
+export function decodeState(raw: string | null, doc: SimDoc): [NationalDelta, RegionalDelta] {
+  const nat: NationalDelta = {};
+  const reg: RegionalDelta = {};
+  if (!raw) return [nat, reg];
+
+  const codes = new Set(doc.parties.map((p) => p.code));
+  const regions = new Set(doc.regions.map((r) => r.id));
+  const travel = new Map(doc.parties.map((p) => [p.code, p.travel]));
+
+  for (const chunk of raw.split(/[|,]/)) {
+    const [key, value] = chunk.split(':');
+    const v = Number.parseFloat(value);
+    if (!key || !Number.isFinite(v)) continue;
+    const [a, b] = key.split('.');
+    // Une valeur forgée est bornée à la course du curseur, jamais rejetée en
+    // silence au point de casser le partage d'un lien.
+    if (b === undefined && codes.has(a)) {
+      nat[a] = Math.max(-travel.get(a)!, Math.min(travel.get(a)!, v));
+    } else if (regions.has(a) && codes.has(b)) {
+      const t = travel.get(b)!;
+      (reg[a] ||= {})[b] = Math.max(-t, Math.min(t, v));
+    }
+  }
+  return [nat, reg];
+}

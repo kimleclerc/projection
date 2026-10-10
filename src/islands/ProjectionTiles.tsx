@@ -4,6 +4,7 @@ import type { TileBloc } from './TileMap';
 import RidingsMap from './RidingsMap';
 import type { RidingFull, MapParty } from './RidingsMap';
 import { partyName } from '../lib/party-names';
+import MapSeatBar from './MapSeatBar';
 
 /** Les deux cartes d'une page de projection, et la bascule entre elles.
  *
@@ -24,17 +25,21 @@ interface Props {
   idProp?: string;
   baselineYear: number;
   winnerThreshold?: number;
+  /** Sièges pour la majorité : la barre au-dessus de la carte la marque. */
+  majority?: number;
+  /** Date du calcul, écrite dans le cadre (la carte se partage avec elle). */
+  asOf?: string;
 }
 
 const COPY = {
-  fr: { tiles: 'Carte proportionnelle', map: 'Carte des circonscriptions', flip: 'gain sur', search: 'Chercher une circonscription' },
-  en: { tiles: 'Proportional map', map: 'District map', flip: 'gain from', search: 'Search a riding' },
-  es: { tiles: 'Mapa proporcional', map: 'Mapa de distritos', flip: 'gana a', search: 'Buscar un distrito' },
+  fr: { tiles: 'Carte proportionnelle', map: 'Carte géographique', flip: 'gain sur', search: 'Chercher sur la carte', changes: (y: number) => `Change de camp depuis ${y}`, asOf: 'Projection du' },
+  en: { tiles: 'Proportional map', map: 'Geographic map', flip: 'gain from', search: 'Search the map', changes: (y: number) => `Changes hands since ${y}`, asOf: 'Forecast of' },
+  es: { tiles: 'Mapa proporcional', map: 'Mapa geográfico', flip: 'gana a', search: 'Buscar en el mapa', changes: (y: number) => `Cambia de manos desde ${y}`, asOf: 'Proyección del' },
 } as const;
 
 export default function ProjectionTiles({
   blocs, canvas, ridings, parties, locale, geoUrl, center, zoom, idProp, baselineYear,
-  winnerThreshold = 0.5,
+  winnerThreshold = 0.5, majority, asOf,
 }: Props) {
   const [vue, setVue] = useState<'tiles' | 'geo'>(blocs.length ? 'tiles' : 'geo');
   const [q, setQ] = useState('');
@@ -53,6 +58,7 @@ export default function ProjectionTiles({
       // dernier scrutin. C'est l'information que le lecteur cherche.
       changed: !!(gagnant && socle && gagnant !== socle),
       margin: r.projection.mean_margin ?? 0,
+      p: r.projection.p_winner,
       href: r.href,
     };
   }), [ridings, locale, winnerThreshold]);
@@ -80,6 +86,10 @@ export default function ProjectionTiles({
         </div>
       )}
 
+      {vue === 'tiles' && blocs.length > 0 && majority && (
+        <MapSeatBar ridings={tuiles} colors={colors} labels={labels} majority={majority} locale={locale} flipLabel={t.changes(baselineYear)} />
+      )}
+
       {vue === 'tiles' && blocs.length > 0 ? (
         <TileMap
           blocs={blocs} canvas={canvas} ridings={tuiles} locale={locale}
@@ -92,6 +102,13 @@ export default function ProjectionTiles({
           center={center} zoom={zoom} idProp={idProp} baselineYear={baselineYear}
         />
       )}
+
+      {/* Signature dans le cadre : la carte se partage avec sa source et sa date. */}
+      <p class="ptiles-sign">
+        <svg width="16" height="16" viewBox="0 0 44 44" aria-hidden="true"><path d="M22 2 A20 20 0 0 0 22 42 Z" fill="#1f77d0" /><path d="M22 2 A20 20 0 0 1 22 42 Z" fill="#c62828" /><path d="M13 13 L31 31 M31 13 L13 31" stroke="#fff" stroke-width="4.5" stroke-linecap="round" /></svg>
+        <span>Vote-Scope</span>
+        {asOf && <span class="ptiles-date">{t.asOf} {new Date(`${asOf}T12:00:00Z`).toLocaleDateString(locale === 'en' ? 'en-CA' : locale === 'es' ? 'es-ES' : 'fr-CA', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })}</span>}
+      </p>
     </div>
   );
 }
