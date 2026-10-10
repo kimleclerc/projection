@@ -142,7 +142,7 @@ function legend(lang: Lang, colors: string[], flipYear: number | string | null, 
   const t = T[lang];
   const [l1, l2, l3] = tiers ?? [t.safe, t.comp, t.toss];
   const sw = (fills: string[], text: string, hatch = false) => h('div', { alignItems: 'center', marginRight: 16 },
-    ...fills.map((f) => h('div', { width: 13, height: 13, backgroundColor: f, marginRight: 3, ...(hatch ? { backgroundImage: 'repeating-linear-gradient(45deg, rgba(0,0,0,.5) 0 2px, transparent 2px 5px)' } : {}) })),
+    ...fills.map((f) => h('div', { width: 13, height: 13, backgroundColor: f, marginRight: 3, ...(hatch ? { backgroundImage: 'repeating-linear-gradient(45deg, rgba(0,0,0,.5) 0 2px, transparent 2px 5px)' } : {}) })), // design-ok : hachure de légende (bascule), pas un dégradé
     h('div', { marginLeft: 3 }, text));
   const two = colors.slice(0, 2);
   return h('div', { alignItems: 'center', flexWrap: 'wrap' },
