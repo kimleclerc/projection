@@ -5,6 +5,8 @@
 import WcBreadcrumb from './WcBreadcrumb.astro';
 import WcDisclaimer from './WcDisclaimer.astro';
 import WcLiveScores from '../islands/WcLiveScores';
+import { pct as fmtPctWc } from '../lib/format';
+const wcPct = (v: number) => fmtPctWc(v, lang as 'fr' | 'en' | 'es', v > 0 && v < 1 ? 1 : v === Math.round(v) ? 0 : 1);
 import {
   groups, groupFixtures, label, getTeam, teamLabel, PATH_SEG, wcBase,
   type Lang,
@@ -26,6 +28,7 @@ const locales: Record<Lang, string> = { en: 'en-US', fr: 'fr-CA', es: 'es-ES' };
 const fmtDate = (iso?: string) => iso ? new Date(iso + 'T12:00:00Z').toLocaleDateString(locales[lang], { month: 'short', day: 'numeric', timeZone: 'UTC' }) : '';
 // Filtre live : libellés anglais des équipes du groupe (l'API ESPN renvoie des noms EN).
 const liveFilter = standings.map((s) => label(s.labels, 'en', s.team));
+
 ---
 
 <section class="content-band">
@@ -61,8 +64,8 @@ const liveFilter = standings.map((s) => label(s.labels, 'en', s.team));
                 </td>
                 <td style="text-align:right;">{s.p_1st != null ? `${s.p_1st}%` : '—'}</td>
                 <td style="text-align:right;">{s.p_2nd != null ? `${s.p_2nd}%` : '—'}</td>
-                <td style="text-align:right;">{s.p_advance != null ? `${s.p_advance}%` : '—'}</td>
-                <td style="text-align:right;">{s.p_champion != null ? `${s.p_champion}%` : '—'}</td>
+                <td style="text-align:right;">{s.p_advance != null ? `${wcPct(s.p_advance)}` : '—'}</td>
+                <td style="text-align:right;">{s.p_champion != null ? wcPct(s.p_champion) : '—'}</td>
               </tr>
             );
           })}

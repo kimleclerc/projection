@@ -5,6 +5,8 @@ import { flagFor } from '../lib/wc-flags';
 import WcBreadcrumb from './WcBreadcrumb.astro';
 import WcDisclaimer from './WcDisclaimer.astro';
 import { getTeam, label, PATH_SEG, wcBase, type Lang } from '../lib/wc';
+import { longDate, pct as fmtPctWc } from '../lib/format';
+const wcPct = (v: number) => fmtPctWc(v, lang as 'fr' | 'en' | 'es', v > 0 && v < 1 ? 1 : v === Math.round(v) ? 0 : 1);
 
 interface Props { lang: Lang; team: string; }
 const { lang, team: code } = Astro.props;
@@ -64,7 +66,7 @@ const T = {
     eyebrow: 'World Cup 2026 · the story so far', back: 'All teams', record: 'Group record', goals: 'Goals', path: 'Tournament journey',
     title: finalist ? `${name} has one match left.` : `${name}'s World Cup story.`,
     intro: finalist
-      ? `${name} survived a field of 48 and reached the final against ${finalOpponent}. The model now gives them a ${team.p_champion}% chance to finish the job.`
+      ? `${name} survived a field of 48 and reached the final against ${finalOpponent}. The model now gives them a ${wcPct(team.p_champion)} chance to finish the job.`
       : `${name} began in Group ${team.group} and finished its 2026 run in the ${roundLabel.en[reached].toLowerCase()}. This is the route, match by match.`,
     group: `In the group stage, ${name} went ${groupStats.w}-${groupStats.d}-${groupStats.l}, scoring ${groupStats.gf} and conceding ${groupStats.ga}.`,
     next: 'Next', won: 'Win', lost: 'Loss', draw: 'Draw', pens: 'penalties', model: 'Current title chance',
@@ -91,6 +93,7 @@ const T = {
     narrative: 'La historia', decisive: 'El punto de inflexión', protagonist: 'Figura destacada', notebook: 'Del cuaderno del torneo', sources: 'Fuentes', asOf: 'Información hasta el',
   },
 }[lang];
+
 ---
 
 <article class="team-journey" data-content-area>
@@ -103,7 +106,7 @@ const T = {
       <div class="team-facts">
         <div><strong>{groupStats.w}-{groupStats.d}-{groupStats.l}</strong><span>{T.record}</span></div>
         <div><strong>{groupStats.gf}–{groupStats.ga}</strong><span>{T.goals}</span></div>
-        <div><strong>{team.p_champion}%</strong><span>{T.model}</span></div>
+        <div><strong>{wcPct(team.p_champion)}</strong><span>{T.model}</span></div>
       </div>
     </div>
   </header>
@@ -130,10 +133,10 @@ const T = {
             <blockquote>
               <span>{T.notebook}</span>
               <p>{anecdoteText}</p>
-              {anecdote.source_url && <cite><a href={anecdote.source_url} rel="noreferrer">{T.sources} ↗</a></cite>}
+              {anecdote.source_url && <cite><a href={anecdote.source_url} rel="noreferrer">{T.sources}</a></cite>}
             </blockquote>
           )}
-          <p class="story-date">{T.asOf} {storyMeta.cutoff_date}</p>
+          <p class="story-date">{T.asOf} {longDate(storyMeta.cutoff_date, lang)}</p>
         </div>
       ) : <p>{T.group}</p>}
       <h2>{T.path}</h2>

@@ -15,6 +15,9 @@ interface Props {
 }
 
 const { lang, config: rawConfig } = Astro.props;
+
+const PCT = lang === 'en' ? '%' : '\u00a0%';
+const pctL = (v: number) => `${v.toLocaleString(lang === 'en' ? 'en-US' : lang === 'es' ? 'es-ES' : 'fr-CA', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}${PCT}`;
 // Titre, chapeau et accroche dans la langue de la page (repli sur l'anglais).
 const pick = (k: 'title' | 'description' | 'kicker' | 'headline' | 'dek') =>
   (lang === 'en' ? undefined : (rawConfig as any)[`${k}_${lang}`]) ?? rawConfig[k];
@@ -163,7 +166,7 @@ if (result && result.candidates.length >= 2) {
                 ? ` · ${winnerCandidate.name}`
                 : ''}
             </strong>
-            <span class="byelection-winner-pct">{winnerCandidate.pct.toFixed(1)}%</span>
+            <span class="byelection-winner-pct">{pctL(winnerCandidate.pct)}</span>
           </div>
         )}
 
@@ -173,7 +176,7 @@ if (result && result.candidates.length >= 2) {
             <div
               class="byelection-breakdown-segment"
               style={`width: ${c.pct}%; background: ${c.color};`}
-              title={`${lang === 'fr' ? c.party_label_fr : c.party_label_en}: ${c.pct.toFixed(1)}%`}
+              title={`${lang === 'fr' ? c.party_label_fr : c.party_label_en}: ${pctL(c.pct)}`}
             />
           ))}
         </div>
@@ -189,7 +192,7 @@ if (result && result.candidates.length >= 2) {
                   ? ` — ${c.name}`
                   : ''}
               </span>
-              <strong class="byelection-vote-pct">{c.pct.toFixed(1)}%</strong>
+              <strong class="byelection-vote-pct">{pctL(c.pct)}</strong>
               {c.is_winner && <span class="byelection-checkmark">✓</span>}
             </div>
           ))}
@@ -200,7 +203,7 @@ if (result && result.candidates.length >= 2) {
           {result.turnout_pct != null && (
             <div class="byelection-stat">
               <span>{t.turnout}</span>
-              <strong>{result.turnout_pct.toFixed(1)}%</strong>
+              <strong>{pctL(result.turnout_pct)}</strong>
             </div>
           )}
           <div class="byelection-stat">

@@ -320,7 +320,7 @@ export const instruments: Record<'en' | 'fr' | 'es', Instrument[]> = {
   fr: [
     {
       id: 'lame-duck',
-      name: 'Lame-Duck Index',
+      name: 'Indice Canard boiteux',
       family: 'Power',
       question: 'À quel point la présidence est-elle contrainte politiquement?',
       description:
@@ -368,7 +368,7 @@ export const instruments: Record<'en' | 'fr' | 'es', Instrument[]> = {
     },
     {
       id: 'barrage',
-      name: 'Barrage Index',
+      name: 'Indice Barrage',
       family: 'Power',
       question: 'Le barrage républicain tient-il face au RN à l’approche de 2027?',
       description:
@@ -394,7 +394,7 @@ export const instruments: Record<'en' | 'fr' | 'es', Instrument[]> = {
   es: [
     {
       id: 'lame-duck',
-      name: 'Lame-Duck Index',
+      name: 'Índice Pato Cojo',
       family: 'Power',
       question: '¿Qué tan políticamente limitada está la presidencia ahora mismo?',
       description:
@@ -430,7 +430,7 @@ export const instruments: Record<'en' | 'fr' | 'es', Instrument[]> = {
     },
     {
       id: 'barrage',
-      name: 'Barrage Index',
+      name: 'Índice Barrage',
       family: 'Power',
       question: '¿Aguanta el frente republicano francés ante el RN de cara a 2027?',
       description:

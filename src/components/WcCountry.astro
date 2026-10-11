@@ -8,6 +8,8 @@ import WcDisclaimer from './WcDisclaimer.astro';
 import WcPathProb from './WcPathProb.astro';
 import WcLiveScores from '../islands/WcLiveScores';
 import AnimatedNumber from '../islands/AnimatedNumber';
+import { pct as fmtPctWc } from '../lib/format';
+const wcPct = (v: number) => fmtPctWc(v, lang as 'fr' | 'en' | 'es', v > 0 && v < 1 ? 1 : v === Math.round(v) ? 0 : 1);
 import {
   groups, teamFixtures, label, teamLabel, PATH_SEG, wcBase,
   type BoardTeam, type Lang,
@@ -28,6 +30,7 @@ const fixtures = teamFixtures(team.team);
 const groupHref = `${wcBase(lang)}/${PATH_SEG[lang].groups}/${team.group.toLowerCase()}/`;
 const locales: Record<Lang, string> = { en: 'en-US', fr: 'fr-CA', es: 'es-ES' };
 const fmtDate = (iso?: string) => iso ? new Date(iso + 'T12:00:00Z').toLocaleDateString(locales[lang], { month: 'short', day: 'numeric', timeZone: 'UTC' }) : '';
+
 ---
 
 <section class="content-band">
@@ -38,7 +41,7 @@ const fmtDate = (iso?: string) => iso ? new Date(iso + 'T12:00:00Z').toLocaleDat
     </p>
     <h1 class="vs-page-title" style="margin:0.25rem 0;">{flagFor(team.team)} {name}</h1>
     <p style="font-size:2.5rem;font-weight:700;color:var(--accent);margin:0.5rem 0;">
-      <AnimatedNumber client:visible value={team.p_champion} decimals={2} suffix="%" />
+      {wcPct(team.p_champion)}
     </p>
     <p style="font-size:0.95rem;color:var(--ink-3);">{t.champ}</p>
   </div>
@@ -76,7 +79,7 @@ const fmtDate = (iso?: string) => iso ? new Date(iso + 'T12:00:00Z').toLocaleDat
             <tr style={s.team === team.team ? 'font-weight:700;background:rgba(204,0,0,0.05);' : ''}>
               <td>{label(s.labels, lang, s.team)}{s.is_host ? ' ★' : ''}</td>
               <td style="text-align:right;">{s.p_1st != null ? `${s.p_1st}%` : '—'}</td>
-              <td style="text-align:right;">{s.p_advance != null ? `${s.p_advance}%` : '—'}</td>
+              <td style="text-align:right;">{s.p_advance != null ? `${wcPct(s.p_advance)}` : '—'}</td>
             </tr>
           ))}
         </tbody>

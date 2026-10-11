@@ -316,7 +316,7 @@ export function scenarioProvenance(
 }
 
 export const fmtPct1 = (v: number, locale: Locale) =>
-  `${v.toFixed(1).replace('.', locale === 'en' ? '.' : ',')}%`;
+  locale === 'en' ? `${v.toFixed(1)}%` : `${v.toFixed(1).replace('.', ',')}\u00a0%`;
 
 // ── Chemins d'URL par langue (slugs traduits comme le reste du site :
 // « distritos », « encuestas » côté es) ────────────────────────────────────────

@@ -1,0 +1,135 @@
+---
+/**
+ * Accueil des sports, commun aux trois langues : ce qui se joue maintenant
+ * (MLB), puis la LNH et l'archive du tournoi mondial de football, en liste.
+ * Langage générique pour le tournoi (pas de marque déposée dans les titres).
+ */
+import EditorialLayout from '../layouts/EditorialLayout.astro';
+import PageHeader from './PageHeader.astro';
+import StoryList from './StoryList.astro';
+import MethodologyNote from './MethodologyNote.astro';
+import PolymarketEmbed from './PolymarketEmbed.astro';
+import sportsData from '../../web_data/sports/latest.json';
+import mlbData from '../../web_data/sports/mlb2026_latest.json';
+import { teamLabel, type MlbData } from '../lib/mlb';
+
+type Lang = 'fr' | 'en' | 'es';
+const { lang } = Astro.props as { lang: Lang };
+const L = <T,>(fr: T, en: T, es: T): T => (lang === 'fr' ? fr : lang === 'es' ? es : en);
+const root = `/${lang}`;
+
+const mlb = mlbData as unknown as MlbData;
+const byCode = new Map(mlb.board.map((t) => [t.code, t]));
+const fav = byCode.get(mlb.hero.favorite.code)!;
+const jays = byCode.get(mlb.hero.canadian_focus.code);
+const pFav = Math.round(mlb.hero.favorite.p_ws * 100);
+const pct = (n: number) => (lang === 'en' ? `${n}%` : `${n} %`);
+const hero = sportsData.hero as { favorite_label_fr: string; favorite_label_en: string; runner_up_label_fr: string; runner_up_label_en: string };
+const nhlChamp = lang === 'fr' ? hero.favorite_label_fr : hero.favorite_label_en;
+const nhlRunner = lang === 'fr' ? hero.runner_up_label_fr : hero.runner_up_label_en;
+
+const favName = teamLabel(fav, lang === 'fr' ? 'fr' : 'en');
+const answer = L(
+  `Séries de la MLB : les ${favName} sont favoris pour la Série mondiale, avec ${pct(pFav)} de chances.`,
+  `MLB postseason: the ${favName} are the World Series favourite, at ${pct(pFav)}.`,
+  `Postemporada de la MLB: los ${favName} son favoritos para la Serie Mundial, con un ${pct(pFav)} de probabilidades.`,
+);
+const jaysLine = jays && mlb.hero.canadian_focus.p_series === 0
+  ? L(` Les ${teamLabel(jays, 'fr')} ne sont pas qualifiés.`, ` The ${teamLabel(jays, 'en')} did not qualify.`, ` Los ${teamLabel(jays, 'en')} no se clasificaron.`)
+  : '';
+
+const items = [
+  {
+    meta: L('MLB · séries en cours', 'MLB · postseason under way', 'MLB · postemporada en curso'),
+    title: L('Baseball majeur', 'Major League Baseball', 'Grandes Ligas de béisbol'),
+    text: L(
+      `Les chances de chaque équipe, recalculées chaque nuit à partir de ${mlb.board_meta.sims.toLocaleString('fr-CA')} simulations.${jaysLine}`,
+      `Every team’s chances, recalculated each night from ${mlb.board_meta.sims.toLocaleString('en-US')} simulations.${jaysLine}`,
+      `Las probabilidades de cada equipo, recalculadas cada noche con ${mlb.board_meta.sims.toLocaleString('es-ES')} simulaciones.${jaysLine}`,
+    ),
+    href: `${root}/sports/mlb/`,
+  },
+  {
+    meta: L('LNH · saison 2025-2026 terminée', 'NHL · 2025-26 season over', 'NHL · temporada 2025-2026 terminada'),
+    title: L(`Coupe Stanley 2026 : ${nhlChamp}`, `2026 Stanley Cup: ${nhlChamp}`, `Copa Stanley 2026: ${nhlChamp}`),
+    text: L(`Finaliste : ${nhlRunner}. Les projections reprendront avec la nouvelle saison.`, `Runner-up: ${nhlRunner}. Forecasts resume with the new season.`, `Finalista: ${nhlRunner}. Las proyecciones volverán con la nueva temporada.`),
+    href: `${root}/sports/nhl/`,
+  },
+  {
+    meta: L('Football · terminé le 19 juillet 2026', 'Soccer · ended July 19, 2026', 'Fútbol · terminado el 19 de julio de 2026'),
+    title: L('Tournoi mondial 2026 : l’Espagne championne', '2026 world tournament: Spain wins', 'Torneo mundial 2026: España campeona'),
+    text: L(
+      'L’Espagne a battu l’Argentine 1-0 après prolongation. L’archive garde ce que le modèle voyait, de l’ouverture à la finale.',
+      'Spain beat Argentina 1–0 after extra time. The archive keeps what the model saw, from kickoff to the final.',
+      'España venció a Argentina 1-0 en la prórroga. El archivo conserva lo que veía el modelo, de la inauguración a la final.',
+    ),
+    href: `${root}/sports/wc2026/`,
+  },
+  {
+    title: L('Notre bilan en sports', 'Our sports track record', 'Nuestro historial deportivo'),
+    text: L('Chaque prévision sportive publiée, comparée au résultat.', 'Every published sports forecast, compared with the result.', 'Cada previsión deportiva publicada, comparada con el resultado.'),
+    href: `${root}/sports/track-record/`,
+  },
+];
+const canonical = `https://vote-scope.com${root}/sports/`;
+---
+
+<EditorialLayout
+  title={L('Projections sportives — MLB, LNH — Vote-Scope', 'Sports forecasts — MLB, NHL — Vote-Scope', 'Proyecciones deportivas — MLB, NHL — Vote-Scope')}
+  description={L('Les chances de chaque équipe de la MLB et de la LNH, recalculées chaque nuit, et notre bilan sportif.', 'Every MLB and NHL team’s chances, recalculated nightly, plus our sports track record.', 'Las probabilidades de cada equipo de la MLB y la NHL, recalculadas cada noche, y nuestro historial deportivo.')}
+  canonical={canonical}
+  lang={lang}
+  currentPage="sports"
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={{ en: 'https://vote-scope.com/en/sports/', fr: 'https://vote-scope.com/fr/sports/', es: 'https://vote-scope.com/es/sports/' }}
+  jsonLd={[
+    { '@context': 'https://schema.org', '@type': 'CollectionPage', name: L('Projections sportives', 'Sports forecasts', 'Proyecciones deportivas'), url: canonical, inLanguage: lang },
+  ]}
+>
+  <PageHeader
+    title={L('Projections sportives', 'Sports forecasts', 'Proyecciones deportivas')}
+    promise={L('Baseball, hockey et l’archive du tournoi mondial de football.', 'Baseball, hockey and the archive of the world soccer tournament.', 'Béisbol, hockey y el archivo del torneo mundial de fútbol.')}
+    question={answer}
+  />
+
+  <section class="container sp-block">
+    <StoryList items={items} />
+  </section>
+
+  <section class="container sp-block">
+    <h2>{L('Marché de prédiction', 'Prediction market', 'Mercado de predicción')}</h2>
+    <PolymarketEmbed slug="nhl-2027-champion-20260612185656162" kind="event" lang={lang} title={L('Champion de la LNH 2027', '2027 NHL champion', 'Campeón de la NHL 2027')} eventUrl="https://polymarket.com/event/nhl-2027-champion-20260612185656162" />
+  </section>
+
+
+  <MethodologyNote
+    title={L('Comment nous faisons les projections sportives', 'How we make sports forecasts', 'Cómo hacemos las proyecciones deportivas')}
+    body={L(
+      'Chaque saison est simulée des milliers de fois à partir de la force de chaque équipe, puis recalculée après chaque résultat.',
+      'Each season is simulated thousands of times from each team’s strength, then recalculated after every result.',
+      'Cada temporada se simula miles de veces a partir de la fuerza de cada equipo y se recalcula tras cada resultado.',
+    )}
+    bullets={L(
+      [
+        'MLB : la force de chaque équipe vient de ses points marqués et accordés ; chaque match restant est simulé à partir de la force des deux équipes. Données officielles de la MLB.',
+        'LNH : chaque série éliminatoire est simulée en tenant compte de la forme récente des gardiens et des blessures.',
+        'Chaque prévision publiée est archivée et comparée au résultat dans notre bilan.',
+      ],
+      [
+        'MLB: each team’s strength comes from runs scored and allowed; every remaining game is simulated from the two teams’ strength. Official MLB data.',
+        'NHL: each playoff series is simulated, taking goaltenders’ recent form and injuries into account.',
+        'Every published forecast is archived and compared with the result in our track record.',
+      ],
+      [
+        'MLB: la fuerza de cada equipo sale de las carreras anotadas y permitidas; cada partido restante se simula a partir de la fuerza de ambos equipos. Datos oficiales de la MLB.',
+        'NHL: cada serie de playoffs se simula teniendo en cuenta la forma reciente de los porteros y las lesiones.',
+        'Cada previsión publicada se archiva y se compara con el resultado en nuestro historial.',
+      ],
+    )}
+  />
+</EditorialLayout>
+
+<style>
+  .sp-block { padding-block: 32px; }
+  .sp-block h2 { margin: 0 0 12px; font-size: clamp(24px, 3vw, 30px); font-weight: 700; }
+</style>

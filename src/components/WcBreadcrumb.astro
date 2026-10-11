@@ -7,9 +7,9 @@ interface Props { lang: Lang; trail: Crumb[]; }
 const { lang, trail } = Astro.props;
 
 const T: Record<Lang, { sports: string; wc: string }> = {
-  en: { sports: 'Sports', wc: 'WC2026' },
-  fr: { sports: 'Sports', wc: 'WC2026' },
-  es: { sports: 'Sports', wc: 'WC2026' },
+  en: { sports: 'Sports', wc: '2026 world tournament' },
+  fr: { sports: 'Sports', wc: 'Tournoi mondial 2026' },
+  es: { sports: 'Deportes', wc: 'Torneo mundial 2026' },
 };
 const t = T[lang];
 const crumbs: Crumb[] = [

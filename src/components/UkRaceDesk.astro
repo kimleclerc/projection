@@ -19,6 +19,9 @@ interface Props {
 }
 const { lang, config } = Astro.props;
 
+const PCT = lang === 'en' ? '%' : '\u00a0%';
+const pctL = (v: number) => `${v.toLocaleString(lang === 'en' ? 'en-US' : lang === 'es' ? 'es-ES' : 'fr-CA', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}${PCT}`;
+
 const sp = holbornSpecial as any;
 const model = sp.model;
 const meta = sp.meta;
@@ -223,7 +226,7 @@ const jsonLd = [
     <section class="container" aria-labelledby="ukrace-model">
       <p class="ukrace-label" id="ukrace-model">{t.modelLabel}</p>
       <div class="ukrace-headline-figure">
-        <strong>{pctProb(unconditional)}%</strong>
+        <strong>{pctProb(unconditional)}{PCT}</strong>
         <span>{t.holdLabel}</span>
         <em>{t.holdSub}</em>
       </div>
@@ -243,7 +246,7 @@ const jsonLd = [
                 <div class="ukrace-range-median" style={`left:${pc(c.share.q50)};background:${color}`}></div>
               </div>
               <div class="ukrace-range-nums">
-                <strong>{fmt(c.share.q50)}%</strong>
+                <strong>{fmt(c.share.q50)}{PCT}</strong>
                 <small>[{fmt(c.share.q10, 0)}–{fmt(c.share.q90, 0)}]</small>
               </div>
             </div>
@@ -264,9 +267,9 @@ const jsonLd = [
             {scenarios.map((sc) => (
               <tr class={sc.p_lab_hold < unconditional - 0.15 ? 'is-pivotal' : ''}>
                 <td>{sc[noteKey]}</td>
-                <td>{fmt(sc.share_of_draws * 100, 0)}%</td>
-                <td><strong>{pctProb(sc.p_lab_hold)}%</strong></td>
-                <td>{pctProb(sc.p_grn_win)}%</td>
+                <td>{fmt(sc.share_of_draws * 100, 0)}{PCT}</td>
+                <td><strong>{pctProb(sc.p_lab_hold)}{PCT}</strong></td>
+                <td>{pctProb(sc.p_grn_win)}{PCT}</td>
               </tr>
             ))}
           </tbody>
@@ -286,8 +289,8 @@ const jsonLd = [
             {Object.keys(anchor.national_2024).map((k) => (
               <tr>
                 <td>{model.candidates[k]?.labels?.[lang] ?? k.toUpperCase()}</td>
-                <td>{fmt(anchor.national_2024[k])}%</td>
-                <td>{fmt(anchor.national_now[k])}%</td>
+                <td>{fmt(anchor.national_2024[k])}{PCT}</td>
+                <td>{fmt(anchor.national_now[k])}{PCT}</td>
                 <td class={anchor.swing_pts[k] >= 0 ? 'is-up' : 'is-down'}>
                   {anchor.swing_pts[k] >= 0 ? '+' : '−'}{fmt(Math.abs(anchor.swing_pts[k]))}
                 </td>
@@ -327,7 +330,7 @@ const jsonLd = [
               {c.name ? (lang === 'fr' ? c.party_label_fr : lang === 'es' ? c.party_label_es : c.party_label_en) : ''}
             </span>
             <span class="ukrace-past-votes">{nfmt(c.votes)}</span>
-            <strong class="ukrace-past-pct">{fmt(c.pct)}%</strong>
+            <strong class="ukrace-past-pct">{fmt(c.pct)}{PCT}</strong>
           </li>
         ))}
       </ol>

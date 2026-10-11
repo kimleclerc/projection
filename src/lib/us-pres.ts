@@ -48,7 +48,7 @@ export function statusLabel(status: string, locale: Locale): string {
 }
 
 export const fmtPct1 = (v: number, locale: Locale) =>
-  `${v.toFixed(1).replace('.', locale === 'en' ? '.' : ',')}%`;
+  locale === 'en' ? `${v.toFixed(1)}%` : `${v.toFixed(1).replace('.', ',')}\u00a0%`;
 
 // ── Types du web_data (us-president/latest.json) ─────────────────────────────
 

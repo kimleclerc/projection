@@ -2,6 +2,8 @@
 import EditorialLayout from '../../../../layouts/EditorialLayout.astro';
 import WcTeamJourney from '../../../../components/WcTeamJourney.astro';
 import { teamSlugs, getTeam, teamLabel, wcAlternates } from '../../../../lib/wc';
+import { pct as fmtPctWc } from '../../../../lib/format';
+const wcPct = (v: number) => fmtPctWc(v, 'fr' as 'fr' | 'en' | 'es', v > 0 && v < 1 ? 1 : v === Math.round(v) ? 0 : 1);
 
 export function getStaticPaths() {
   return teamSlugs.map((slug) => ({ params: { country: slug } }));
@@ -12,11 +14,12 @@ const team = getTeam(country!)!;
 const lang = 'fr' as const;
 const name = teamLabel(country!, lang);
 const alts = wcAlternates(`/${country}`);
+
 ---
 
 <EditorialLayout
   title={`${name} — pronostic tournoi 2026 — Vote-Scope`}
-  description={`Le parcours projeté de ${name} au tournoi international de football 2026 : ${team.p_champion}% de remporter le titre, avec les probabilités de la phase de groupes à la finale. Modèle Vote-Scope.`}
+  description={`Le parcours projeté de ${name} au tournoi international de football 2026 : ${wcPct(team.p_champion)} de remporter le titre, avec les probabilités de la phase de groupes à la finale. Modèle Vote-Scope.`}
   canonical={alts.fr}
   lang="fr"
   currentPage="sports"
@@ -38,7 +41,7 @@ const alts = wcAlternates(`/${country}`);
       '@type': 'BreadcrumbList',
       itemListElement: [
         { '@type': 'ListItem', position: 1, name: 'Sports Scope', item: 'https://vote-scope.com/fr/sports/' },
-        { '@type': 'ListItem', position: 2, name: 'WC2026', item: 'https://vote-scope.com/fr/sports/wc2026/' },
+        { '@type': 'ListItem', position: 2, name: 'Tournoi mondial 2026', item: 'https://vote-scope.com/fr/sports/wc2026/' },
         { '@type': 'ListItem', position: 3, name, item: alts.fr },
       ],
     },

@@ -21,6 +21,9 @@ type Locale = 'en' | 'fr' | 'es';
 interface Props { locale: Locale }
 const { locale } = Astro.props;
 
+const PCT = locale === 'en' ? '%' : '\u00a0%';
+const pctL = (v: number) => `${v.toLocaleString(locale === 'en' ? 'en-US' : locale === 'es' ? 'es-ES' : 'fr-CA', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}${PCT}`;
+
 const d = recall as any;
 const race = d.race;
 const chain = d.chain;
@@ -58,7 +61,7 @@ const GATE_LABELS: Record<string, Record<Locale, string>> = {
 const copy = {
   en: {
     title: 'Will There Be a Second Clacton By-Election? Farage, the Recall Chain and 24 Race Scenarios — Vote-Scope',
-    description: `After the Channel 4 / Verbatim undercover investigation, Vote-Scope models whether Clacton falls vacant again — ${pct(horizons['2027-06-30'].p_byelection_held)}% by mid-2027 — and who would win it, across 24 selectable field scenarios.`,
+    description: `After the Channel 4 / Verbatim undercover investigation, Vote-Scope models whether Clacton falls vacant again — ${pct(horizons['2027-06-30'].p_byelection_held)}{PCT} by mid-2027 — and who would win it, across 24 selectable field scenarios.`,
     kicker: 'U.K. by-election watch · Clacton · what happens next',
     headline: 'Would there be a second Clacton by-election — and who would win it?',
     dek: 'Channel 4 News and Verbatim published a year-long undercover investigation on 3 September. Reform UK, Nigel Farage, James Orr and Dan Jukes deny the allegations in full, and nothing has been charged or tried. This page does not ask whether anyone broke the law. It asks a narrower question we can actually model: does the seat fall vacant again, and if it does, what would the race look like?',
@@ -78,7 +81,7 @@ const copy = {
     gatesLabel: 'Which door it comes through',
     gatesIntro: 'Share of the probability mass by 2029. Three doors are written into statute; the fourth needs no condition at all.',
     counterLabel: 'Where the criminal exposure actually bites',
-    counterBody: `Not through the sentence — through the charge. Recall needs a custodial sentence, and party-funding offences are normally punished with fines; a verdict is a median ${nf(chain.criminal.median_months_to_resolution, 0)} months away. But a charge lands around ${nf(chain.criminal.median_months_to_charge)} months, and it does not have to succeed to empty the seat: it can trigger exactly the move Farage already made in July. On this model the “resigns when charged” channel is worth ${pct(chain.criminal.p_vacancy_via_charge_resignation)}% against ${pct(chain.criminal.p_recall_trigger)}% for the custodial one. The same logic runs through the standards door: MPs facing recall usually go before the petition — Wakefield, Tiverton, Somerton, Tamworth. All three statutory doors converge on the same gesture, which is why resignation still carries ${pct(d.gate_shares.resignation, 0)}% of the mass.`,
+    counterBody: `Not through the sentence — through the charge. Recall needs a custodial sentence, and party-funding offences are normally punished with fines; a verdict is a median ${nf(chain.criminal.median_months_to_resolution, 0)} months away. But a charge lands around ${nf(chain.criminal.median_months_to_charge)} months, and it does not have to succeed to empty the seat: it can trigger exactly the move Farage already made in July. On this model the “resigns when charged” channel is worth ${pct(chain.criminal.p_vacancy_via_charge_resignation)}{PCT} against ${pct(chain.criminal.p_recall_trigger)}{PCT} for the custodial one. The same logic runs through the standards door: MPs facing recall usually go before the petition — Wakefield, Tiverton, Somerton, Tamworth. All three statutory doors converge on the same gesture, which is why resignation still carries ${pct(d.gate_shares.resignation, 0)}{PCT} of the mass.`,
     sensLabel: 'Push any single link and see',
     sensIntro: 'A conditional chain is not defended by asserting its links but by showing which ones matter. Each row replays the model with one parameter pushed to an aggressive value.',
     thVariant: 'Aggressive assumption', thBy2027: 'By-election by mid-2027', thBy2029: 'By mid-2029',
@@ -87,7 +90,7 @@ const copy = {
     q2Label: 'Question two — if it happens, who wins?',
     q2Intro: 'August will not repeat itself mechanically. Five major parties boycotted that ballot; a by-election he did not choose has no reason to reproduce that field, and Farage might not stand in it. So the engine computes the whole grid and lets you pick.',
     validationLabel: 'What we published before the last one, and what happened',
-    validationIntro: `Vote-Scope’s final Clacton run went out on ${dayLabel(published?.run_date ?? '2026-08-12')} and put Farage at a ${nf(published?.rows?.[0]?.published_q50 ?? 0)}% median with a ${pct(published?.p_winner ?? 0)}% win probability. The count gave him 63.34% — ${nf(Math.abs(published?.winner_error_pts ?? 0), 2)} points of error on the winner’s share. Where it missed was below the fold: Binface was under-read by six points and the 31 micro-candidates over-read by four and a half.`,
+    validationIntro: `Vote-Scope’s final Clacton run went out on ${dayLabel(published?.run_date ?? '2026-08-12')} and put Farage at a ${nf(published?.rows?.[0]?.published_q50 ?? 0)}{PCT} median with a ${pct(published?.p_winner ?? 0)}{PCT} win probability. The count gave him 63.34% — ${nf(Math.abs(published?.winner_error_pts ?? 0), 2)} points of error on the winner’s share. Where it missed was below the fold: Binface was under-read by six points and the 31 micro-candidates over-read by four and a half.`,
     thBucket: 'Bloc', thModel: 'Published forecast', thActual: 'Actual', thError: 'Error',
     inSampleLabel: 'And a technical note, so nobody mistakes one for the other',
     inSampleBody: `The scenario grid above uses orphan-transfer priors recalibrated on that same count, so replaying August through it lands within ${nf(1.3)} points on every bloc. That is not a forecast and it is not offered as one — it is fitted to the answer. It shows the field mechanics are coherent, nothing more. The number that counts as a forecast is the one that was published the day before the vote.`,
@@ -355,8 +358,8 @@ const jsonLd = [
             {HORIZON_ORDER.map((k) => (
               <tr class={k === '2027-06-30' ? 'is-highlight' : ''}>
                 <td>{horizonLabel(k)}</td>
-                <td>{pct(horizons[k].p_seat_vacant)}%</td>
-                <td><strong>{pct(horizons[k].p_byelection_held)}%</strong></td>
+                <td>{pct(horizons[k].p_seat_vacant)}{PCT}</td>
+                <td><strong>{pct(horizons[k].p_byelection_held)}{PCT}</strong></td>
               </tr>
             ))}
           </tbody>
@@ -370,7 +373,7 @@ const jsonLd = [
           <li>
             <div class="ukrecall-gate-bar"><div style={`width:${share * 100}%`}></div></div>
             <span class="ukrecall-gate-name">{GATE_LABELS[gate][locale]}</span>
-            <strong class="ukrecall-gate-pct">{pct(share, 0)}%</strong>
+            <strong class="ukrecall-gate-pct">{pct(share, 0)}{PCT}</strong>
           </li>
         ))}
       </ul>
@@ -391,8 +394,8 @@ const jsonLd = [
             {(d.sensitivity as any[]).map((s) => (
               <tr>
                 <td>{SENS_LABELS[s.id]?.[locale] ?? s.id}</td>
-                <td>{pct(s.p_byelection_2027_06)}%</td>
-                <td>{pct(s.p_byelection_2029_06)}%</td>
+                <td>{pct(s.p_byelection_2027_06)}{PCT}</td>
+                <td>{pct(s.p_byelection_2029_06)}{PCT}</td>
               </tr>
             ))}
           </tbody>
@@ -427,8 +430,8 @@ const jsonLd = [
             {(published?.rows ?? []).map((r: any) => (
               <tr>
                 <td>{PUBLISHED_LABELS[r.bucket]?.[locale] ?? r.bucket}</td>
-                <td>{nf(r.published_q50)}% <small>[{nf(r.published_q10, 0)}–{nf(r.published_q90, 0)}]</small></td>
-                <td>{nf(r.actual_pct, 2)}%</td>
+                <td>{nf(r.published_q50)}{PCT} <small>[{nf(r.published_q10, 0)}–{nf(r.published_q90, 0)}]</small></td>
+                <td>{nf(r.actual_pct, 2)}{PCT}</td>
                 <td class={Math.abs(r.error_pts) < 2 ? 'is-good' : ''}>{r.error_pts >= 0 ? '+' : '−'}{nf(Math.abs(r.error_pts), 2)}</td>
               </tr>
             ))}

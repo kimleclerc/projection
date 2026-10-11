@@ -132,7 +132,7 @@ const C = COPY[locale];
         )}
       </div>
       <div class="frc-range-scale">
-        <span>0%</span><span>15%</span><span>30%</span><span>45%</span>
+        {[0, 15, 30, 45].map((v) => <span>{locale === 'en' ? `${v}%` : `${v}\u00a0%`}</span>)}
       </div>
     </div>
     <dl class="frc-stats">
@@ -142,7 +142,7 @@ const C = COPY[locale];
         <div><dt>{C.best}</dt><dd>{fmtPct1(c.bestMean, locale)}</dd></div>
       )}
       {typeof c.bestPTop2 === 'number' && (
-        <div><dt>{C.top2}</dt><dd>{Math.round(c.bestPTop2 * 100)}%</dd></div>
+        <div><dt>{C.top2}</dt><dd>{locale === 'en' ? `${Math.round(c.bestPTop2 * 100)}%` : `${Math.round(c.bestPTop2 * 100)}\u00a0%`}</dd></div>
       )}
     </dl>
   </section>

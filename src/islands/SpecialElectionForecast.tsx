@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'preact/hooks';
+import { pct as fmtPct, longDate, points } from '../lib/format';
 import { specialNote, specialParty } from '../data/special-notes';
 
 type Locale = 'en' | 'fr' | 'es';
@@ -174,8 +175,10 @@ const copy = {
   },
 };
 
-const pct = (v: number, digits = 1) => `${(v * 100).toFixed(digits)}%`;
-const pctPoint = (v: number, digits = 1) => `${v.toFixed(digits)}%`;
+// Chiffres et dates selon la langue de la page (lib/format) : « 98,5 % », « 4 août 2026 ».
+let LOC: 'fr' | 'en' | 'es' = 'en';
+const pct = (v: number, digits = 1) => fmtPct(v * 100, LOC, digits);
+const pctPoint = (v: number, digits = 1) => fmtPct(v, LOC, digits);
 
 function pairName(pair: string[], candidates: Candidate[]) {
   return pair
@@ -192,6 +195,7 @@ export default function SpecialElectionForecast({
   const [data, setData] = useState(initialData);
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('ready');
   const t = copy[locale] ?? copy.en;
+  LOC = locale;
 
   useEffect(() => {
     let cancelled = false;
@@ -247,12 +251,12 @@ export default function SpecialElectionForecast({
           <>
             <article class="special-panel">
               <p class="special-label">{locale === 'fr' ? 'Marge projetée' : locale === 'es' ? 'Margen proyectado' : 'Projected margin'}</p>
-              <strong>{(data.summary.projected_margin_mean ?? 0).toFixed(1)} pts</strong>
+              <strong>{points(data.summary.projected_margin_mean ?? 0, locale)}</strong>
               <span>{favorite}</span>
             </article>
             <article class="special-panel">
               <p class="special-label">{locale === 'fr' ? 'Date du vote' : locale === 'es' ? 'Fecha de votación' : 'Election date'}</p>
-              <strong class="special-pair">{data.meta.election_date ?? (locale === 'fr' ? 'À déterminer' : locale === 'es' ? 'Por definir' : 'TBD')}</strong>
+              <strong class="special-pair">{data.meta.election_date ? longDate(data.meta.election_date, locale) : (locale === 'fr' ? 'À déterminer' : locale === 'es' ? 'Por definir' : 'TBD')}</strong>
               <span>{partyControl ? (locale === 'fr' ? 'bref en attente' : locale === 'es' ? 'convocatoria pendiente' : 'writ pending') : expectedPair}</span>
             </article>
             <article class="special-panel">
@@ -266,17 +270,17 @@ export default function SpecialElectionForecast({
             <article class="special-panel">
               <p class="special-label">{t.runoff}</p>
               <strong>{pct(data.summary.runoff_probability)}</strong>
-              <span>{data.meta.possible_runoff_date ?? '2026-08-04'}</span>
+              <span>{longDate(data.meta.possible_runoff_date ?? '2026-08-04', locale)}</span>
             </article>
             <article class="special-panel">
               <p class="special-label">{t.outright}</p>
               <strong>{pct(data.summary.majority_outright_probability)}</strong>
-              <span>50% + 1</span>
+              <span>{locale === 'en' ? '50% + 1' : '50\u00a0% + 1'}</span>
             </article>
             <article class="special-panel">
               <p class="special-label">{t.pair}</p>
               <strong class="special-pair">{expectedPair}</strong>
-              <span>{pct(data.summary.likely_runoff_probability)} top-two path</span>
+              <span>{pct(data.summary.likely_runoff_probability)} {locale === 'fr' ? 'de chances de finir dans les deux premiers' : locale === 'es' ? 'de probabilidades de quedar entre los dos primeros' : 'chance of a top-two finish'}</span>
             </article>
           </>
         )}
@@ -286,7 +290,7 @@ export default function SpecialElectionForecast({
         {status === 'loading' && t.loading}
         {status === 'error' && t.error}
         {status === 'ready' &&
-          `${t.updated} ${data.meta.run_date} · ${data.meta.n_simulations.toLocaleString(locale === 'en' ? 'en-US' : locale === 'es' ? 'es-ES' : 'fr-FR')} ${t.simulations}`}
+          `${t.updated} ${longDate(data.meta.run_date, locale)} · ${data.meta.n_simulations.toLocaleString(locale === 'en' ? 'en-US' : locale === 'es' ? 'es-ES' : 'fr-FR')} ${t.simulations}`}
       </p>
 
       <section class="special-section" aria-labelledby="special-candidates-title">
@@ -372,8 +376,8 @@ export default function SpecialElectionForecast({
           <p>{specialNote(data.district.vacancy_reason, locale)}</p>
           {districtContext && (
             <div class="special-baseline">
-              <span>R {districtContext.house_2024_republican_share?.toFixed(1)}%</span>
-              <span>D {districtContext.house_2024_democratic_share?.toFixed(1)}%</span>
+              <span>R {pctPoint(districtContext.house_2024_republican_share ?? 0)}</span>
+              <span>D {pctPoint(districtContext.house_2024_democratic_share ?? 0)}</span>
             </div>
           )}
           {districtContext?.note && <p>{specialNote(districtContext.note, locale)}</p>}

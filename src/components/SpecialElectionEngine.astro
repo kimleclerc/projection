@@ -1,4 +1,5 @@
 ---
+import { longDate } from '../lib/format';
 import { specialBadge } from '../data/special-notes';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
@@ -239,7 +240,7 @@ const jsonLd = [
         {hero.dek}
       </p>
       <div class="special-meta">
-        <span>{mc.updated} {initialData.meta.run_date}</span>
+        <span>{mc.updated} {longDate(initialData.meta.run_date, lang)}</span>
         <span aria-hidden="true">·</span>
         <span>{initialData.meta.n_simulations.toLocaleString(lang === 'en' ? 'en-CA' : lang === 'es' ? 'es-ES' : 'fr-FR')} {mc.simulations}</span>
         <span aria-hidden="true">·</span>

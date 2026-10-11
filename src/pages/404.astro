@@ -1,35 +1,38 @@
 ---
 import Base from '../layouts/Base.astro';
+
+// Trois langues sur la même page : on ne sait pas d'où vient le lecteur.
+const LINKS = [
+  { en: ['U.S. midterms, November 3', '/en/us/'], fr: ['Mi-mandat américain, 3 novembre', '/fr/us/'], es: ['Intermedias de EE. UU., 3 de noviembre', '/es/us/'] },
+  { en: ['British Columbia, October 24', '/en/canada/british-columbia/'], fr: ['Colombie-Britannique, 24 octobre', '/fr/canada/colombie-britannique/'], es: ['Columbia Británica, 24 de octubre', '/es/canada/columbia-britanica/'] },
+  { en: ['Spain, November 29', '/en/spain/'], fr: ['Espagne, 29 novembre', '/fr/spain/'], es: ['España, 29 de noviembre', '/es/spain/'] },
+  { en: ['Quebec results, October 5', '/en/canada/quebec/results/'], fr: ['Résultats du Québec, 5 octobre', '/fr/canada/quebec/resultats/'], es: ['Resultados de Quebec, 5 de octubre', '/es/canada/quebec/resultados/'] },
+] as const;
 ---
 
-<Base
-  title="404 — Vote-Scope"
-  description="Page not found — Vote-Scope."
-  lang="en"
-  currentPage=""
->
-  <section class="content-band" style="min-height:50vh;display:flex;align-items:center;">
-    <div class="container" style="max-width:680px;">
-      <p class="eyebrow">404 · Page not found</p>
-      <h1 class="vs-page-title" style="margin:0.5rem 0 1rem;">This page polls at zero.</h1>
-      <p style="line-height:1.7;margin-bottom:0.75rem;">
-        The page you asked for doesn't exist — it may have moved when we reorganized a desk.
-        <a href="/en/">Go to the English home</a> or jump straight to a projection below.
-      </p>
-      <p style="line-height:1.7;margin-bottom:0.75rem;" lang="fr">
-        Cette page n'existe pas — elle a peut-être déménagé lors d'une réorganisation.
-        <a href="/fr/">Aller à l'accueil français</a> ou directement à une projection ci-dessous.
-      </p>
-      <p style="line-height:1.7;margin-bottom:1.5rem;" lang="es">
-        Esta página no existe — quizá se movió en una reorganización.
-        <a href="/es/">Ir al inicio en español</a> o directamente a una proyección abajo.
-      </p>
-      <ul style="line-height:2;list-style:none;padding:0;">
-        <li><a href="/en/canada/">Canada — federal projection</a> · <a href="/fr/canada/">fédéral</a></li>
-        <li><a href="/en/canada/quebec/">Quebec 2026</a> · <a href="/fr/canada/quebec/">Québec 2026</a></li>
-        <li><a href="/en/sports/wc2026/">World Cup 2026</a> · <a href="/fr/sports/wc2026/">Coupe du monde 2026</a></li>
-        <li><a href="/en/indexes/">Indexes</a> · <a href="/fr/indexes/">Index</a> · <a href="/es/indexes/">Índices</a></li>
-      </ul>
-    </div>
+<Base title="Page introuvable — Vote-Scope" description="Page not found — Vote-Scope." lang="en" currentPage="">
+  <section class="container nf">
+    <h1 class="vs-page-title">Page introuvable · Page not found · Página no encontrada</h1>
+    <p lang="fr">Cette page n’existe pas ou a changé d’adresse. <a class="vs-link" href="/fr/">Accueil en français</a></p>
+    <p>This page does not exist or has moved. <a class="vs-link" href="/en/">English home page</a></p>
+    <p lang="es">Esta página no existe o cambió de dirección. <a class="vs-link" href="/es/">Inicio en español</a></p>
+    <h2>Les scrutins en cours · Current elections · Elecciones en curso</h2>
+    <ul>
+      {LINKS.map((l) => (
+        <li>
+          <a lang="fr" href={l.fr[1]}>{l.fr[0]}</a> · <a href={l.en[1]}>{l.en[0]}</a> · <a lang="es" href={l.es[1]}>{l.es[0]}</a>
+        </li>
+      ))}
+    </ul>
   </section>
 </Base>
+
+<style>
+  .nf { padding-block: 48px 64px; max-width: 760px; }
+  .nf h1 { margin: 0 0 20px; }
+  .nf p { margin: 0 0 8px; font-size: 17px; }
+  .nf h2 { margin: 32px 0 10px; font-size: 22px; font-weight: 700; }
+  .nf ul { list-style: none; padding: 0; margin: 0; border-top: 2px solid var(--ink); }
+  .nf li { padding: 10px 0; border-bottom: 1px solid var(--rule); line-height: 1.6; }
+  .nf li a { color: var(--ink); text-decoration: underline; text-decoration-color: var(--rule); text-underline-offset: 3px; }
+</style>

@@ -14,6 +14,8 @@ import AffiliateCard from '../../../components/AffiliateCard.astro';
 import { flagFor } from '../../../lib/wc-flags';
 import wcData from '../../../../web_data/sports/worldcup2026_latest.json';
 import { raceEditorial } from '../../../data/raceEditorial';
+import { pct as fmtPctWc } from '../../../lib/format';
+const wcPct = (v: number) => fmtPctWc(v, 'es' as 'fr' | 'en' | 'es', v > 0 && v < 1 ? 1 : v === Math.round(v) ? 0 : 1);
 
 const board = wcData.board as Array<{
   team: string;
@@ -56,6 +58,7 @@ const winnerEmbed = marketEmbeds.find((m) => m.type === 'winner');
 const winnerSlug = winnerEmbed ? new URL(winnerEmbed.embed_url).searchParams.get('market') : null;
 const winnerUrl = winnerEmbed?.url ?? undefined;
 const dLong = (iso: string) => new Date(`${iso}T12:00:00Z`).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+
 ---
 
 <EditorialLayout
@@ -70,7 +73,7 @@ const dLong = (iso: string) => new Date(`${iso}T12:00:00Z`).toLocaleDateString('
     {
       '@context': 'https://schema.org',
       '@type': 'Dataset',
-      name: 'Pronóstico WC2026',
+      name: 'Pronóstico del torneo mundial 2026',
       description: 'Pronóstico para 48 selecciones en el torneo internacional de fútbol 2026. 50.000 simulaciones con mezcla de fortaleza por confederación.',
       url: 'https://vote-scope.com/es/sports/wc2026/',
       dateModified: meta.run_date ?? '',
@@ -86,7 +89,7 @@ const dLong = (iso: string) => new Date(`${iso}T12:00:00Z`).toLocaleDateString('
       itemListElement: [
         { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: 'https://vote-scope.com/es/' },
         { '@type': 'ListItem', position: 2, name: 'Sports Scope', item: 'https://vote-scope.com/es/sports/' },
-        { '@type': 'ListItem', position: 3, name: 'WC2026', item: 'https://vote-scope.com/es/sports/wc2026/' },
+        { '@type': 'ListItem', position: 3, name: 'Torneo mundial 2026', item: 'https://vote-scope.com/es/sports/wc2026/' },
       ],
     },
   ]}
@@ -116,15 +119,15 @@ const dLong = (iso: string) => new Date(`${iso}T12:00:00Z`).toLocaleDateString('
             </p>
             <h3 style="font-size:1.75rem;margin:0.25rem 0;"><a href={`/es/sports/wc2026/${team.team}/`}>{flagFor(team.team)} {team.labels.es}</a></h3>
             <p style="font-size:2rem;font-weight:700;color:var(--accent);">
-              <AnimatedNumber client:visible value={team.p_champion} decimals={2} suffix="%" />
+              {wcPct(team.p_champion)}
             </p>
             <p style="font-size:0.9rem;">
-              Final: <strong>{team.p_final}%</strong> ·
-              Semi: <strong>{team.p_semifinal}%</strong> ·
-              CF: <strong>{team.p_quarterfinal}%</strong>
+              Final: <strong>{wcPct(team.p_final)}</strong> ·
+              Semi: <strong>{wcPct(team.p_semifinal)}</strong> ·
+              CF: <strong>{wcPct(team.p_quarterfinal)}</strong>
             </p>
             <p style="font-size:0.85rem;margin-top:0.25rem;color:var(--text-muted);">
-              Octavos: {team.p_round16}% · Fase final: {team.p_knockout_stage}%
+              Octavos: {team.p_round16}% · Fase final: {wcPct(team.p_knockout_stage)}
             </p>
           </div>
         ))}
@@ -180,10 +183,10 @@ const dLong = (iso: string) => new Date(`${iso}T12:00:00Z`).toLocaleDateString('
                 </td>
                 <td style="padding:8px 12px;font-size:0.85rem;color:var(--ink-3);">{team.confederation}</td>
                 <td style="padding:8px 12px;font-size:0.85rem;">{team.group}</td>
-                <td style="padding:8px 12px;text-align:right;font-weight:700;">{team.p_champion}%</td>
-                <td style="padding:8px 12px;text-align:right;">{team.p_final}%</td>
-                <td style="padding:8px 12px;text-align:right;">{team.p_semifinal}%</td>
-                <td style="padding:8px 12px;text-align:right;">{team.p_quarterfinal}%</td>
+                <td style="padding:8px 12px;text-align:right;font-weight:700;">{wcPct(team.p_champion)}</td>
+                <td style="padding:8px 12px;text-align:right;">{wcPct(team.p_final)}</td>
+                <td style="padding:8px 12px;text-align:right;">{wcPct(team.p_semifinal)}</td>
+                <td style="padding:8px 12px;text-align:right;">{wcPct(team.p_quarterfinal)}</td>
                 <td style="padding:8px 12px;text-align:right;">{team.p_round16}%</td>
               </tr>
             ))}
@@ -206,7 +209,7 @@ const dLong = (iso: string) => new Date(`${iso}T12:00:00Z`).toLocaleDateString('
               <p style="margin:0.25rem 0;">
                 <strong>{flagFor(t.team)} {t.labels.es}</strong>
                 {t.is_host ? ' (sede)' : ''} —
-                {t.p_champion}% campeón · {t.p_knockout_stage}% fase final
+                {wcPct(t.p_champion)} campeón · {wcPct(t.p_knockout_stage)} fase final
               </p>
             ))}
           </div>
@@ -226,8 +229,8 @@ const dLong = (iso: string) => new Date(`${iso}T12:00:00Z`).toLocaleDateString('
             <div class="note-card" style="border-top: 3px solid var(--ink);">
               <p class="eyebrow">Sede · {team.confederation} · Grupo {team.group}</p>
               <h3 style="margin:0.25rem 0;">{flagFor(team.team)} {team.labels.es}</h3>
-              <p>Campeón: <strong>{team.p_champion}%</strong> · Fase final: <strong>{team.p_knockout_stage}%</strong></p>
-              <p style="font-size:0.85rem;margin-top:0.25rem;">Final: {team.p_final}% · Semi: {team.p_semifinal}%</p>
+              <p>Campeón: <strong>{wcPct(team.p_champion)}</strong> · Fase final: <strong>{wcPct(team.p_knockout_stage)}</strong></p>
+              <p style="font-size:0.85rem;margin-top:0.25rem;">Final: {wcPct(team.p_final)} · Semi: {wcPct(team.p_semifinal)}</p>
             </div>
           ))}
         </div>

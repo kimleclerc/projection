@@ -5,6 +5,8 @@ import { flagFor } from '../lib/wc-flags';
 // Langage générique, aucune marque officielle. Disclaimer obligatoire.
 import WcBreadcrumb from './WcBreadcrumb.astro';
 import WcDisclaimer from './WcDisclaimer.astro';
+import { pct as fmtPctWc } from '../lib/format';
+const wcPct = (v: number) => fmtPctWc(v, lang as 'fr' | 'en' | 'es', v > 0 && v < 1 ? 1 : v === Math.round(v) ? 0 : 1);
 import {
   teamsByConfederation, CONF_ORDER, label, wcBase,
   type Lang,
@@ -21,6 +23,7 @@ const T: Record<Lang, Record<string, string>> = {
 const t = T[lang];
 const byConf = teamsByConfederation();
 const teamHref = (code: string) => `${wcBase(lang)}/${code}/`;
+
 ---
 
 <section class="content-band">
@@ -41,7 +44,7 @@ const teamHref = (code: string) => `${wcBase(lang)}/${code}/`;
             <li>
               <a href={teamHref(team.team)}>
                 <span class="wc-team-name">{flagFor(team.team)} {label(team.labels, lang, team.team)}{team.is_host ? ' ★' : ''}</span>
-                <span class="wc-team-pct">{team.p_champion}% {t.champ}</span>
+                <span class="wc-team-pct">{wcPct(team.p_champion)} {t.champ}</span>
               </a>
             </li>
           ))}

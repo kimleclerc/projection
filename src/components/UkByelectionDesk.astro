@@ -25,6 +25,9 @@ interface Props {
 }
 
 const { lang, config } = Astro.props;
+
+const PCT = lang === 'en' ? '%' : '\u00a0%';
+const pctL = (v: number) => `${v.toLocaleString(lang === 'en' ? 'en-US' : lang === 'es' ? 'es-ES' : 'fr-CA', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}${PCT}`;
 const srcLabel = (l: string | Record<string, string>) => (typeof l === 'string' ? l : l[lang] ?? l.en);
 const canonical = `https://vote-scope.com${config.paths[lang]}`;
 const alternates = ukByelectionAlternates(config);
@@ -190,7 +193,7 @@ const copy = {
     turnoutLabel: 'Turnout, postal votes & the Reform slide',
     turnoutIntro: 'What the model can use — and what it deliberately leaves out.',
     curveNote: "Turnout is the one number the returning officer announces before the result. Our forecast assumes turnout in the range a by-election normally produces — the shaded band. The model also says which way an unusually heavy turnout would cut: towards Count Binface, because Farage's own 2024 voters are the bloc least likely to be moved by a bigger crowd, while everyone else in the constituency has to be mobilised to appear at all. How heavy is heavy enough to change the outcome is precisely what the model cannot pin down, so the chart carries no figures.",
-    reformNote: `Reform UK is at ${fmtPct(reformCoupling.national_reform_now, 1)}% nationally versus the model’s ${fmtPct(reformCoupling.national_reform_anchor, 1)}% anchor. That trims Farage’s expected retention of his 2024 bloc from ${fmtPct(reformCoupling.farage_retention_mean_base * 100, 1)}% to ${fmtPct(reformCoupling.farage_retention_mean_effective * 100, 1)}%. Transfers and turnout are simulated voter bloc by voter bloc, including a shared mobilisation shock.`,
+    reformNote: `Reform UK is at ${fmtPct(reformCoupling.national_reform_now, 1)}{PCT} nationally versus the model’s ${fmtPct(reformCoupling.national_reform_anchor, 1)}{PCT} anchor. That trims Farage’s expected retention of his 2024 bloc from ${fmtPct(reformCoupling.farage_retention_mean_base * 100, 1)}{PCT} to ${fmtPct(reformCoupling.farage_retention_mean_effective * 100, 1)}{PCT}. Transfers and turnout are simulated voter bloc by voter bloc, including a shared mobilisation shock.`,
     pathLabel: 'Path to victory — how could the bin actually win?',
     pathIntro: `Baseline: Vote-Scope gives Count Binface ${fmtProbBounded(model.p_binface_win)}% — the markets say ${pmBinface != null ? fmtProb(pmBinface) : '—'}%. For the upset, several things must break at once. Conditional win probabilities, from the same simulations:`,
     pathOutro: 'Verdict: very unlikely — but this is the one election where the improbable is the most fun to watch. If Binface clears 25% while Farage sinks toward 40%, election night gets interesting.',
@@ -482,7 +485,7 @@ const pc = (v: number) => `${Math.min(100, (v / SCALE_MAX) * 100)}%`;
         <div class="ukbye-result-card">
           <div class="ukbye-result-bar" role="img" aria-label={t.resultLabel}>
             {result.candidates.map((c) => (
-              <div style={`width:${c.pct}%;background:${c.color};`} title={`${c.name}: ${fmtPct(c.pct)}%`} />
+              <div style={`width:${c.pct}%;background:${c.color};`} title={`${c.name}: ${fmtPct(c.pct)}{PCT}`} />
             ))}
           </div>
           <ol class="ukbye-result-rows">
@@ -496,13 +499,13 @@ const pc = (v: number) => `${Math.min(100, (v / SCALE_MAX) * 100)}%`;
                   {c.name ? (lang === 'fr' ? c.party_label_fr : lang === 'es' ? c.party_label_es : c.party_label_en) : ''}
                 </span>
                 <span class="ukbye-result-votes">{c.votes.toLocaleString(lang === 'en' ? 'en-GB' : lang === 'es' ? 'es-ES' : 'fr-FR')}</span>
-                <strong class="ukbye-result-pct">{fmtPct(c.pct)}%</strong>
+                <strong class="ukbye-result-pct">{fmtPct(c.pct)}{PCT}</strong>
               </li>
             ))}
           </ol>
           <dl class="ukbye-result-meta">
             <div><dt>{t.resultMargin}</dt><dd>{resultMargin != null ? `${fmtPct(resultMargin)} pts` : '—'}</dd></div>
-            <div><dt>{t.resultTurnout}</dt><dd>{fmtPct(result.turnout_pct)}%</dd></div>
+            <div><dt>{t.resultTurnout}</dt><dd>{fmtPct(result.turnout_pct)}{PCT}</dd></div>
             {result.registered_voters != null && (
               <div>
                 <dt>{t.resultRegistered}</dt>
@@ -545,7 +548,7 @@ const pc = (v: number) => `${Math.min(100, (v / SCALE_MAX) * 100)}%`;
             <span>{t.snapPmFarage}</span>
           </div>
           <div class="ukbye-snap" style="--accent:#c8a030">
-            <strong>{fmtPct(model.candidates.binface.share.q50)}%</strong>
+            <strong>{fmtPct(model.candidates.binface.share.q50)}{PCT}</strong>
             <span>{t.snapBinfaceShare}</span>
           </div>
           <div class="ukbye-snap ukbye-snap-wide" style="--accent:#b0442f">
@@ -577,7 +580,7 @@ const pc = (v: number) => `${Math.min(100, (v / SCALE_MAX) * 100)}%`;
                 <div class="ukbye-range-median" style={`left:${pc(c.share.q50)};background:${m.color}`}></div>
               </div>
               <div class="ukbye-range-nums">
-                <strong>{fmtPct(c.share.q50)}%</strong>
+                <strong>{fmtPct(c.share.q50)}{PCT}</strong>
                 <small>[{fmtPct(c.share.q10, 0)}–{fmtPct(c.share.q90, 0)}]</small>
               </div>
             </div>
@@ -750,7 +753,7 @@ const pc = (v: number) => `${Math.min(100, (v / SCALE_MAX) * 100)}%`;
       <p class="ukbye-label" id="ukbye-2024">{t.baseLabel}</p>
       <div class="ukbye-breakdown-bar">
         {config.last2024.candidates.map((c) => (
-          <div style={`width:${c.pct}%;background:${c.color};`} title={`${c.name}: ${c.pct.toFixed(1)}%`} />
+          <div style={`width:${c.pct}%;background:${c.color};`} title={`${c.name}: ${pctL(c.pct)}`} />
         ))}
       </div>
       <div class="ukbye-vote-grid">
@@ -760,7 +763,7 @@ const pc = (v: number) => `${Math.min(100, (v / SCALE_MAX) * 100)}%`;
             <span class="ukbye-vote-party">
               {lang === 'fr' ? c.party_label_fr : lang === 'es' ? c.party_label_es : c.party_label_en} — {c.name}
             </span>
-            <strong>{fmtPct(c.pct)}%</strong>
+            <strong>{fmtPct(c.pct)}{PCT}</strong>
             {c.is_winner && <span class="ukbye-check">✓</span>}
           </div>
         ))}
