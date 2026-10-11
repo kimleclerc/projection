@@ -17,6 +17,7 @@ import ShareModule from './lib/ShareModule';
 import { electionOfCycle, SHARE_ELECTIONS } from '../lib/share/elections';
 import SavedScenarios from './lib/SavedScenarios';
 import RidingsMap, { type MapParty, type RidingFull } from './RidingsMap';
+import GeoMap from './GeoMap';
 
 export interface SimulatorMapConfig {
   geoUrl: string;
@@ -147,7 +148,10 @@ export default function MiniSimulator({ doc, locale, map }: Props) {
   // La carte en tuiles est la vue par défaut quand la juridiction a un
   // découpage connu : c'est la seule où toutes les circonscriptions sont
   // visibles à la fois, sans zoom. La géographique reste d'un clic.
-  const [mapView, setMapView] = useState(doc.tiles ? 'tiles' : 'geo');
+  // La vraie carte avec médaillons (geomap.json) d'abord, comme sur les pages de projection.
+  const geoKey = electionOfCycle(doc.meta.election_cycle);
+  const geomapUrl = geoKey ? `/web_data/${geoKey}/geomap.json` : null;
+  const [mapView, setMapView] = useState(geomapUrl || !doc.tiles ? 'geo' : 'tiles');
 
   // Lecture unique au mount : l'îlot est ensuite la source de vérité.
   useEffect(() => {
@@ -454,8 +458,8 @@ export default function MiniSimulator({ doc, locale, map }: Props) {
             <h2 id="msim-map-title">{t.map}</h2>
             {doc.tiles && (
               <div class="msim-mapview" role="group" aria-label={t.map}>
-                <button type="button" aria-pressed={mapView === 'tiles'} onClick={() => setMapView('tiles')}>{t.viewTiles}</button>
                 <button type="button" aria-pressed={mapView === 'geo'} onClick={() => setMapView('geo')}>{t.viewGeo}</button>
+                <button type="button" aria-pressed={mapView === 'tiles'} onClick={() => setMapView('tiles')}>{t.viewTiles}</button>
               </div>
             )}
             <div class="msim-legend" aria-label="Légende">
@@ -481,6 +485,20 @@ export default function MiniSimulator({ doc, locale, map }: Props) {
               labels={Object.fromEntries(doc.parties.map((p) => [p.code, partyLabel(p, locale)]))}
               query={ridingQuery}
               flipWord={t.gainOn}
+            />
+          ) : geomapUrl ? (
+            <GeoMap
+              url={geomapUrl}
+              ridings={ridingStates.map((r) => ({
+                id: r.id, name: r.name, winner: r.winner,
+                from: r.baselineWinner, changed: r.changed, margin: r.margin,
+              }))}
+              locale={locale}
+              colors={Object.fromEntries(doc.parties.map((p) => [p.code, p.color]))}
+              labels={Object.fromEntries(doc.parties.map((p) => [p.code, partyLabel(p, locale)]))}
+              query={ridingQuery}
+              flipWord={t.gainOn}
+              unit={doc.meta.election_cycle.startsWith('us_') ? 'district' : 'riding'}
             />
           ) : (
           <div class="msim-map-stage">

@@ -249,6 +249,8 @@
   border-bottom: 1px solid var(--rule);
 }
 
+.msim-map-head { flex-wrap: wrap; }
+.msim-map-head .msim-legend { flex-basis: 100%; justify-content: flex-start; }
 .msim-map-head h2,
 .msim-moves-head h3 {
   margin: 0;
@@ -559,8 +561,9 @@
  * rien ne se replie. */
 .tmap { --tmap-cell: clamp(12px, 2.4vw, 30px); position: relative; }
 
-.msim-mapview { display: inline-flex; margin-left: auto; border: 1px solid var(--rule); border-radius: 2px; overflow: hidden; }
+.msim-mapview { display: inline-flex; flex: none; margin-left: auto; border: 1px solid var(--rule); border-radius: 2px; overflow: hidden; }
 .msim-mapview button {
+  white-space: nowrap;
   appearance: none; border: 0; background: var(--card); color: var(--ink-2); cursor: pointer;
   padding: 5px 10px; font-family: var(--mono); font-size: 13px; letter-spacing: 0;
 }
