@@ -55,6 +55,7 @@ const marketEmbeds = (wcData.market_embeds ?? []) as Array<{ type: string; embed
 const winnerEmbed = marketEmbeds.find((m) => m.type === 'winner');
 const winnerSlug = winnerEmbed ? new URL(winnerEmbed.embed_url).searchParams.get('market') : null;
 const winnerUrl = winnerEmbed?.url ?? undefined;
+const dLong = (iso: string) => new Date(`${iso}T12:00:00Z`).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
 ---
 
 <EditorialLayout
@@ -104,7 +105,7 @@ const winnerUrl = winnerEmbed?.url ?? undefined;
   <!-- Hero stats -->
   <section class="content-band">
     <div class="container">
-      <p class="eyebrow">Final pre-match snapshot — model run {meta.run_date}</p>
+      <p class="eyebrow">Final pre-match snapshot — model run {dLong(meta.run_date)}</p>
       <div class="content-grid-2" style="gap:1.5rem;margin-top:1rem;">
         {topThree.map((team, i) => (
           <div class="note-card" style="border-top: 3px solid var(--ink);">

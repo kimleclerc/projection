@@ -114,6 +114,22 @@ if (isVacant && isByelection && data.byelectionDate) {
 }
 
 const question = { en: questionEn, fr: questionFr, es: questionEs }[lang];
+
+// La réponse, au premier écran (DESIGN §10.3) : chance du favori et avance moyenne.
+// Pour une partielle, c'est la prévision de la partielle qui répond, pas celle des générales.
+const by = data.byelection;
+const ansMeta = by ? partyMeta(data.jurisdiction, by.favorite) : winnerMeta;
+const ansP = by ? by.favoriteProbability : data.projection.p_winner;
+const ansLead = by ? by.meanMargin : data.projection.mean_margin;
+const pW = Math.round(ansP * 100);
+const pTxt = pW >= 100 ? { en: 'more than 99%', fr: 'plus de 99 %', es: 'más del 99 %' }[lang] : lang === 'en' ? `${pW}%` : `${pW}\u00a0%`;
+const leadPts = (ansLead ?? 0).toLocaleString(lang === 'en' ? 'en-CA' : lang === 'es' ? 'es-ES' : 'fr-CA', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+const hasLead = ansLead != null && ansLead >= 0.1;
+const answer = {
+  en: `Our projection gives ${mention(ansMeta, 'en')} a ${pTxt} chance of winning${hasLead ? `, with an average lead of ${leadPts} points` : ''}.`,
+  fr: `Notre projection donne ${pTxt} de chances ${datifFr(mention(ansMeta, 'fr'))}${hasLead ? `, avec une avance moyenne de ${leadPts} points` : ''}.`,
+  es: `Nuestra proyección da ${pTxt} de probabilidades ${aEs(mention(ansMeta, 'es'))}${hasLead ? `, con una ventaja media de ${leadPts} puntos` : ''}.`,
+}[lang];
 const eyebrow = { en: 'The question', fr: 'La question', es: 'La pregunta' }[lang];
 ---
 
@@ -121,6 +137,7 @@ const eyebrow = { en: 'The question', fr: 'La question', es: 'La pregunta' }[lan
   <div class="container">
     <p class="eyebrow">{eyebrow}</p>
     <h2>{question}</h2>
+    <p class="riding-answer">{answer}</p>
   </div>
 </section>
 
@@ -129,6 +146,13 @@ const eyebrow = { en: 'The question', fr: 'La question', es: 'La pregunta' }[lan
     padding: 32px 0 16px;
     border-bottom: 1px solid var(--rule);
     background: var(--paper);
+  }
+  .riding-answer {
+    margin: 10px 0 0;
+    max-width: 760px;
+    font-size: 18px;
+    line-height: 1.45;
+    color: var(--ink);
   }
   h2 {
     margin: 6px 0 0;

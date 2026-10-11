@@ -51,6 +51,7 @@ const qcLeaderLabel = qcLeader?.label_en ?? qcLeader?.label_en ?? '';
 const qcLeaderSeats = Math.round(qcLeader?.seats_projected ?? qcLeader?.seats_mean ?? 0);
 const qcWinLabel = (partyMeta('quebec', qcResults.winner) as any).label_en;
 const qcWinSeats = qcResults.parties[0].seats;
+const dLong = (iso: string) => new Date(`${iso}T12:00:00Z`).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
 ---
 
 <EditorialLayout
@@ -119,7 +120,7 @@ const qcWinSeats = qcResults.parties[0].seats;
   <section class="content-band">
     <div class="container">
       <p class="eyebrow">Latest from the Canada desk</p>
-      <h2>Federal projection — as of {meta.run_date}</h2>
+      <h2>Federal projection — as of {dLong(meta.run_date)}</h2>
       <p style="margin-bottom:1.5rem;">Based on {meta.n_polls} polls · {meta.n_simulations.toLocaleString()} simulations</p>
       <div class="content-grid-2" style="gap:1.5rem;margin-bottom:2rem;">
         <div class="note-card" style={`border-top: 4px solid ${lib.color};`}>

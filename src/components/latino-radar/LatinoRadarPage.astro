@@ -9,6 +9,8 @@ import radarData from '../../../web_data/us-latino-radar/latest.json';
 const { locale } = Astro.props as { locale: RadarLocale };
 const copy = radarCopy[locale];
 const weights = radarData.meta.weights;
+const longDate = (iso: string) => new Date(`${iso}T12:00:00Z`).toLocaleDateString(locale === 'en' ? 'en-US' : locale === 'es' ? 'es-ES' : 'fr-CA', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+const pctW = (n: number) => locale === 'en' ? `${n}%` : `${n}\u00a0%`;
 const title = `${copy.title} — Vote-Scope`;
 const canonical = `https://vote-scope.com${radarRoots[locale]}`;
 const alternates = {
@@ -43,15 +45,10 @@ const alternates = {
         <h1>{copy.title}</h1>
         <p class="radar-dek">{copy.dek}</p>
         <p class="radar-explainer">{copy.explainer}</p>
-        <p class="radar-updated">{copy.updated} · {radarData.meta.run_date} · {radarData.meta.cvap_vintage}</p>
+        <p class="radar-explainer">{copy.signals(radarData.national_signals.house.eligible_races, radarData.national_signals.senate.eligible_races)}</p>
+        <p class="radar-updated">{copy.updated} · {longDate(radarData.meta.run_date)} · {copy.vintage}</p>
       </div>
     </header>
-
-    <section class="radar-signal-grid" aria-label={locale === 'fr' ? 'Signaux nationaux' : locale === 'es' ? 'Señales nacionales' : 'National signals'}>
-      <div class="radar-signal"><span>{copy.house}</span><strong>{radarData.national_signals.house.eligible_races}</strong><p>{copy.racesWord} · {copy.averageIndex} {radarData.national_signals.house.average_index}</p></div>
-      <div class="radar-signal"><span>{copy.senate}</span><strong>{radarData.national_signals.senate.eligible_races}</strong><p>{copy.racesWord} · {copy.averageIndex} {radarData.national_signals.senate.average_index}</p></div>
-      <div class="radar-signal"><span>{copy.president}</span><strong>2028</strong><p>{copy.preliminary}</p></div>
-    </section>
 
     <LatinoVoteIndex locale={locale} />
 
@@ -75,12 +72,12 @@ const alternates = {
         <h2>{copy.methodology}</h2>
         <div>
           <p>{copy.methodologyBody}</p>
-          <div class="radar-weights">
+          <ul class="radar-weights">
             {Object.entries(weights).map(([key, weight]) => {
               const component = radarData.races[0]?.components.find((item) => item.key === key);
-              return <div class="radar-weight"><strong>{weight}%</strong><span>{component?.labels[locale] ?? key}</span></div>;
+              return <li>{component?.labels[locale] ?? key}{locale === 'fr' ? '\u00a0: ' : ': '}{pctW(weight as number)}</li>;
             })}
-          </div>
+          </ul>
         </div>
       </div>
     </section>

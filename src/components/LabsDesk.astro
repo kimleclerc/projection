@@ -83,7 +83,6 @@ const btRows = (pastCycles[labsKey] ?? []).map((c) => {
       <span class="lb-orbit-mark" aria-hidden="true"><span></span></span>
       <span class="lb-engine">{t.engine}</span>
       <span class="lb-live"><span class="lb-pulse" aria-hidden="true"></span>{t.live}</span>
-      {t.tags.map((g) => <span class="lb-tag">{g}</span>)}
     </div>
     <h1>{name}</h1>
     <p class="lb-dek">{t.deskDek}</p>
@@ -378,7 +377,6 @@ const btRows = (pastCycles[labsKey] ?? []).map((c) => {
   .lb-live { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 2px; font-family: var(--mono); font-size: 13px;
              letter-spacing: 0; color: var(--red); background: var(--red-tint); }
   .lb-pulse { width: 7px; height: 7px; border-radius: 50%; background: var(--red); }
-  .lb-tag { padding: 3px 10px; border-radius: 2px; border: 1px solid var(--rule); font-family: var(--mono); font-size: 13px; letter-spacing: 0; color: var(--ink-2); }
   .lb-hero h1 { margin: 0 0 16px; font-family: var(--serif); font-size: clamp(40px, 6vw, 72px); font-weight: 700; letter-spacing: -0.01em; line-height: 1; }
   .lb-dek { max-width: 700px; margin: 0; color: var(--ink-2); font-size: 18px; line-height: 1.6; }
   .lb-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 16px; margin-top: 32px; }

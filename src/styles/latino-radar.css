@@ -11,13 +11,6 @@
 .radar-dek { max-width: 790px; font: 430 clamp(21px, 2.4vw, 31px)/1.17 var(--serif); }
 .radar-explainer { max-width: 720px; margin-top: 22px; color: var(--ink-2); line-height: 1.6; }
 .radar-updated { margin-top: 20px; font: 11px/1.4 var(--mono); color: var(--ink-3); letter-spacing: 0; }
-.radar-signal-grid { display: grid; grid-template-columns: repeat(3,1fr); border-bottom: 1px solid var(--rule); }
-.radar-signal { padding: 28px 32px; border-right: 1px solid var(--rule); }
-.radar-signal:first-child { padding-left: max(20px, calc((100vw - 1180px)/2)); }
-.radar-signal:last-child { border-right: 0; padding-right: max(20px, calc((100vw - 1180px)/2)); }
-.radar-signal span { display: block; font: 10px var(--mono); letter-spacing: 0; color: var(--ink-3); }
-.radar-signal strong { display: block; margin-top: 8px; font: 430 32px var(--serif); }
-.radar-signal p { margin-top: 5px; color: var(--ink-2); font-size: 13px; }
 .radar-ranking { padding: 46px 0 70px; }
 .radar-section-head { display:flex; justify-content:space-between; gap:24px; align-items:end; margin-bottom:22px; }
 .radar-section-head h2, .radar-detail h2 { font: 430 clamp(34px,4vw,54px)/1 var(--serif); letter-spacing:-.025em; }
@@ -50,9 +43,7 @@
 .radar-method-grid { display:grid; grid-template-columns:1fr 2fr; gap:60px; }
 .radar-method h2 { font:430 42px var(--serif); }
 .radar-method p { color:var(--ink-2); line-height:1.65; }
-.radar-weights { display:grid; grid-template-columns:repeat(4,1fr); margin-top:24px; border-top:1px solid var(--rule); }
-.radar-weight { padding:15px 12px 15px 0; border-bottom:1px solid var(--rule); }
-.radar-weight strong { display:block; font:430 23px var(--serif); }.radar-weight span { font-size:12px; color:var(--ink-2); }
+.radar-weights { margin:18px 0 0; padding-left:18px; columns:2; column-gap:32px; font-size:14px; color:var(--ink-2); line-height:1.7; }
 
 .radar-detail { padding:54px 0 80px; }
 .radar-breadcrumb { font:11px var(--mono); letter-spacing: 0; color:var(--ink-3); }
@@ -81,7 +72,7 @@
 @media (max-width: 760px) {
   .radar-container { width:min(100% - 24px,1180px); }
   .radar-hero { padding:50px 0 34px; }.radar-hero h1 { font-size:54px; }
-  .radar-signal-grid { grid-template-columns:1fr; }.radar-signal,.radar-signal:first-child,.radar-signal:last-child { padding:20px 12px; border-right:0; border-bottom:1px solid var(--rule); }
+
   .radar-section-head,.radar-controls { align-items:flex-start; flex-direction:column; }
   .radar-sort { width:100%; justify-content:space-between; }
   .radar-head { display:none; }
@@ -89,7 +80,7 @@
   .radar-row.radar-data-row { grid-template-columns:42px 1fr auto; gap:8px 12px; padding:17px 0; min-height:0; }
   .radar-rank { grid-row:1/3; font-size:21px; }.radar-race { grid-column:2; }.radar-score { grid-column:3; grid-row:1; }
   .radar-why { grid-column:2/4; font-size:13px; }.radar-projection { grid-column:2; }.radar-movement { grid-column:3; text-align:right; }
-  .radar-method-grid,.race-layout { grid-template-columns:1fr; gap:34px; }.radar-weights { grid-template-columns:repeat(2,1fr); }
+  .radar-method-grid,.race-layout { grid-template-columns:1fr; gap:34px; }
   .radar-nojs { columns:2; }
   .race-summary { grid-template-columns:repeat(2,1fr); }.race-summary div:nth-child(2){border-right:0}.race-summary div:nth-child(-n+2){border-bottom:1px solid var(--rule)}
   .score-component { grid-template-columns:1fr 58px; }.score-track { grid-column:1/3; grid-row:2; }

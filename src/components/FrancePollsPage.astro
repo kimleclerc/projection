@@ -33,7 +33,7 @@ const C = {
   fr: {
     detail: 'Voir ce sondage',
     eyebrow: 'Sondages · France · Présidentielle 2027',
-    h1: 'Sondages de la présidentielle.',
+    h1: 'Sondages de la présidentielle 2027',
     lede1: 'Chaque sondage publié sur la présidentielle 2027, institut par institut. Les instituts testent plusieurs hypothèses de candidatures : un sondage mesure une configuration de candidatures précise, pas une liste figée.',
     lede2: 'Vote-Scope les agrège par scénario pour projeter le premier tour et les duels du second. Ci-dessous, la compilation brute — cliquez la source pour l’original.',
     firstTitle: 'Premier tour',
@@ -47,7 +47,7 @@ const C = {
   en: {
     detail: 'See this poll',
     eyebrow: 'Polls · France · 2027 Presidential',
-    h1: 'Presidential polling.',
+    h1: 'French presidential polls',
     lede1: 'Every published poll on the 2027 French presidential race, pollster by pollster. The model tests lineups: a poll measures one specific candidate configuration, not a fixed list.',
     lede2: 'Vote-Scope aggregates them by scenario to project the first round and the runoff. Below, the raw compilation — click the source for the original.',
     firstTitle: 'First round',
@@ -61,7 +61,7 @@ const C = {
   es: {
     detail: 'Ver este sondeo',
     eyebrow: 'Encuestas · Francia · Presidencial 2027',
-    h1: 'Encuestas presidenciales.',
+    h1: 'Encuestas de la presidencial francesa',
     lede1: 'Cada encuesta publicada sobre la presidencial francesa de 2027, encuestadora por encuestadora. El modelo prueba combinaciones: una encuesta mide una configuración de candidaturas concreta, no una lista fija.',
     lede2: 'Vote-Scope los agrega por escenario para proyectar la primera vuelta y la segunda. Abajo, la compilación en bruto — haz clic en la fuente para el original.',
     firstTitle: 'Primera vuelta',
@@ -101,7 +101,7 @@ const bloc = (id: string) => cands[id]?.bloc ?? 'other';
             <div class="frp-poll-head">
               <span class="frp-firm">{p.firm_name}</span>
               <span class="frp-date">{fmtDate(p.release_date)}</span>
-              {p.sample_size > 1 && <span class="frp-n">{C.sample} {p.sample_size.toLocaleString(dateLocale)}</span>}
+              {p.sample_size >= 100 && <span class="frp-n">{C.sample} {p.sample_size.toLocaleString(dateLocale)}</span>}
               {p.source_url && <a class="frp-src" href={p.source_url} target="_blank" rel="noopener nofollow">{C.source} ↗</a>}
               <a class="frp-detail" href={`${pollBase}/${pollSlug(p.firm, p.release_date)}/`}>{C.detail}</a>
             </div>
@@ -137,7 +137,7 @@ const bloc = (id: string) => cands[id]?.bloc ?? 'other';
             <div class="frp-poll-head">
               <span class="frp-firm">{d.firm_name}</span>
               <span class="frp-date">{fmtDate(d.release_date)}</span>
-              {d.sample_size > 1 && <span class="frp-n">{C.sample} {d.sample_size.toLocaleString(dateLocale)}</span>}
+              {d.sample_size >= 100 && <span class="frp-n">{C.sample} {d.sample_size.toLocaleString(dateLocale)}</span>}
               {d.source_url && <a class="frp-src" href={d.source_url} target="_blank" rel="noopener nofollow">{C.source} ↗</a>}
             </div>
             <p class="frp-duel-line">

@@ -552,7 +552,7 @@ const C = COPY[locale];
           <li>
             <a href={`${pollsBase}${x.slug}/`}>
               <span class="fr-latest-firm">{x.firm_name}</span>
-              <span class="fr-latest-date">{fieldLabel(x)}{x.sample_size ? ` · ${C.sample(x.sample_size)}` : ''}</span>
+              <span class="fr-latest-date">{fieldLabel(x)}{x.sample_size >= 100 ? ` · ${C.sample(x.sample_size)}` : ''}</span>
               <span class="fr-latest-top">
                 {pollTop(x).map((e) => <span>{e.name} <b>{fmtPct1(e.share, locale)}</b></span>)}
               </span>

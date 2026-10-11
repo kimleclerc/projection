@@ -100,6 +100,8 @@ export function regionLabel(jurisdiction: string, region: string | undefined,
   if (!region) return '';
   // Aux États-Unis, la « région » est l'État lui-même, déjà affiché : rien à ajouter.
   if (/^us_/.test(region)) return '';
+  // « Reste du Québec » est un découpage interne du modèle, pas un lieu : on ne l'affiche pas.
+  if (jurisdiction === 'quebec' && region === 'rest') return '';
   const label = BY_JURISDICTION[jurisdiction]?.[region];
   if (label) return label[lang];
   return region

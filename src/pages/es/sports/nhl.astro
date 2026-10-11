@@ -42,6 +42,7 @@ const gaps = aliveBoard
   .slice(0, 3);
 
 const trendUp = aliveBoard.filter((t) => t.trend_direction === 'up').slice(0, 3);
+const dLong = (iso: string) => new Date(`${iso}T12:00:00Z`).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
 ---
 
 <EditorialLayout
@@ -91,7 +92,7 @@ const trendUp = aliveBoard.filter((t) => t.trend_direction === 'up').slice(0, 3)
   <!-- Favoritos actuales -->
   <section class="content-band">
     <div class="container">
-      <p class="eyebrow">Favoritos actuales — al {boardMeta.run_date}</p>
+      <p class="eyebrow">Favoritos actuales — al {dLong(boardMeta.run_date)}</p>
       <div class="content-grid-2" style="gap:1.5rem;margin-top:1rem;">
         {topThree.map((team, i) => (
           <div class="note-card" style={`border-top: 4px solid ${team.color};`}>

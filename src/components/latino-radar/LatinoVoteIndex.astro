@@ -19,7 +19,6 @@ import { radarCopy, type RadarLocale } from '../../data/latinoRadar';
 const { locale } = Astro.props as { locale: RadarLocale };
 const C = radarCopy[locale].voteIndex;
 const idx = voteIndex.index;
-const spread = idx.house_spread;
 
 const nf = new Intl.NumberFormat(locale === 'en' ? 'en-CA' : locale === 'es' ? 'es-US' : 'fr-CA');
 /** French sets a narrow no-break space before % and before a colon; English
@@ -111,8 +110,6 @@ const waves = [...voteIndex.waves].sort((a, b) =>
       <div class="lvi-quality" role="note">
         <span class="lvi-label">{C.cautionTitle}</span>
         <p>{C.thin(idx.effective_sample, idx.distinct_houses, idx.days_since_latest_field)}</p>
-        {spread.spread !== null && <p>{C.spread(spread.spread)}</p>}
-        <p class="lvi-nochart">{C.noChart}</p>
       </div>
     </div>
 
@@ -226,7 +223,6 @@ const waves = [...voteIndex.waves].sort((a, b) =>
      the number it qualifies, at the same visual weight as the figure's label. */
   .lvi-quality { padding-left: 30px; border-left: 1px solid var(--rule); }
   .lvi-quality p { margin-top: 10px; color: var(--ink-2); line-height: 1.55; font-size: 14px; }
-  .lvi-nochart { font-style: italic; }
 
   .lvi-rule { margin: 14px 0 4px; padding: 18px 22px; background: color-mix(in srgb, var(--ink) 4%, transparent); border-top: 4px solid var(--radar-accent); }
   .lvi-rule p { margin-top: 8px; max-width: 860px; line-height: 1.55; font-size: 14px; }

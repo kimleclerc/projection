@@ -38,7 +38,6 @@ const explainerUrl = `${labsUrl(locale)}${EXPLAINER_SLUG[locale]}/`;
       <span class="lh-orbit" aria-hidden="true"><span></span></span>
       <span class="lh-engine">{t.engine}</span>
       <span class="lh-live"><span class="lh-pulse" aria-hidden="true"></span>{t.live}</span>
-      {t.tags.map((g) => <span class="lh-tag">{g}</span>)}
     </div>
     <h1>{t.hubTitle}</h1>
     <p class="lh-dek">{t.hubDek}</p>
@@ -69,14 +68,6 @@ const explainerUrl = `${labsUrl(locale)}${EXPLAINER_SLUG[locale]}/`;
     </div>
   </section>
 
-  <aside class="lh-why">
-    <span class="lh-orbit lh-orbit--big" aria-hidden="true"><span></span></span>
-    <div>
-      <h2>{t.whyTitle}</h2>
-      <p>{t.whyBody}</p>
-    </div>
-  </aside>
-
   {btRows.length > 0 && (
     <section class="lh-section" aria-labelledby="lh-bt">
       <h2 id="lh-bt">{t.backtests}</h2>
@@ -102,7 +93,7 @@ const explainerUrl = `${labsUrl(locale)}${EXPLAINER_SLUG[locale]}/`;
   <section class="lh-section" aria-labelledby="lh-how">
     <h2 id="lh-how">{t.howTitle}</h2>
     <div class="lh-how">
-      {t.how.map(([h, p], i) => (<div><span class="lh-num">{i + 1}</span><h3>{h}</h3><p>{p}</p></div>))}
+      {t.how.map(([h, p]) => (<div><h3>{h}</h3><p>{p}</p></div>))}
     </div>
     <p class="lh-cta"><a href={explainerUrl}>{EXPLAINER[locale].linkLabel}</a></p>
   </section>
@@ -128,13 +119,12 @@ const explainerUrl = `${labsUrl(locale)}${EXPLAINER_SLUG[locale]}/`;
   .lh-live { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 2px; font-family: var(--mono); font-size: 13px;
              letter-spacing: 0; color: var(--red); background: var(--red-tint); }
   .lh-pulse { width: 7px; height: 7px; border-radius: 50%; background: var(--red); }
-  .lh-tag { padding: 3px 10px; border-radius: 2px; border: 1px solid var(--rule); font-family: var(--mono); font-size: 13px; letter-spacing: 0; color: var(--ink-2); }
   .lh-hero h1 { max-width: 860px; margin: 0 0 18px; font-family: var(--serif); font-size: clamp(38px, 6vw, 70px); font-weight: 700; letter-spacing: -0.01em; line-height: 1.02; }
   .lh-dek { max-width: 760px; margin: 0; color: var(--ink-2); font-size: 18px; line-height: 1.6; }
   .lh-cta { margin: 18px 0 0; font-weight: 600; }
   .lh-cta a { color: var(--ink); }
   .lh-section { margin-top: 56px; }
-  .lh-section h2, .lh-why h2 { font-family: var(--serif); font-size: clamp(26px, 3.4vw, 34px); font-weight: 700; margin: 0 0 12px; }
+  .lh-section h2 { font-family: var(--serif); font-size: clamp(26px, 3.4vw, 34px); font-weight: 700; margin: 0 0 12px; }
   .lh-muted { color: var(--ink-3); font-size: 14px; line-height: 1.55; max-width: 760px; }
   .lh-score { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 22px; }
   .lh-score span { padding: 4px 12px; border-radius: 2px; font-family: var(--mono); font-size: 13px; letter-spacing: 0; }
@@ -149,12 +139,7 @@ const explainerUrl = `${labsUrl(locale)}${EXPLAINER_SLUG[locale]}/`;
   .lh-p { font-family: var(--mono); font-size: 13px; color: var(--ink-3); }
   .lh-p strong { color: var(--ink); }
   .lh-open { display: inline-block; margin-top: 26px; font-size: 14px; font-weight: 600; }
-  .lh-why { display: flex; align-items: center; gap: 26px; margin-top: 56px; padding: 26px 28px; border-radius: 2px;
-            background: color-mix(in oklab, var(--blue) 7%, var(--card)); border: 1px solid var(--rule); }
-  .lh-why p { margin: 0; color: var(--ink-2); font-size: 17px; line-height: 1.65; }
   .lh-how { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; }
-  .lh-num { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%;
-            background: var(--ink); color: var(--paper-3); font-family: var(--mono); font-size: 13px; margin-bottom: 10px; }
   .lh-how h3 { font-family: var(--serif); font-size: 20px; font-weight: 700; margin: 0 0 8px; }
   .lh-how p { color: var(--ink-2); line-height: 1.6; margin: 0; }
   .lh-scroll { overflow-x: auto; }
@@ -164,5 +149,4 @@ const explainerUrl = `${labsUrl(locale)}${EXPLAINER_SLUG[locale]}/`;
   .lh-experiment { margin-top: 56px; padding: 22px 24px; border-top: 3px solid var(--ink); background: color-mix(in oklab, var(--duck) 10%, var(--card)); border-radius: 0 6px 6px 0; }
   .lh-experiment p { margin: 0; color: var(--ink-2); line-height: 1.6; }
   .lh-experiment .lh-label { margin-bottom: 8px; }
-  @media (max-width: 560px) { .lh-why { flex-direction: column; align-items: flex-start; } }
 </style>

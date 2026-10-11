@@ -1,7 +1,7 @@
 ---
 import { partyName } from '../../../lib/party-names';
 import type { RidingData } from '../../../lib/riding-adapters/types';
-import { partyMeta, partyMark } from '../../../lib/riding-adapters/parties';
+import { partyMeta } from '../../../lib/riding-adapters/parties';
 import { certainty, CERTAINTY_LABEL } from '../../../lib/riding-certainty';
 
 interface Props {
@@ -12,31 +12,20 @@ interface Props {
 const { data, lang } = Astro.props;
 const winnerMeta = partyMeta(data.jurisdiction, data.projection.winner);
 const winnerLabel = partyName(winnerMeta, lang);
-const pWinnerPct = Math.round(data.projection.p_winner * 100);
-const margin = data.projection.mean_margin.toLocaleString(lang === 'en' ? 'en-CA' : lang === 'es' ? 'es-ES' : 'fr-CA', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 const closeRacePct = (data.projection.p_close_race * 100).toFixed(0);
 
 const T = {
   en: {
     eyebrow: 'Current forecast',
-    leader_in: 'Projected winner',
-    confidence: 'Probability',
-    margin: 'Mean margin (pts)',
-    close: 'Chance of a margin under 5 pts',
+    close: 'Chance of a finish within 5 points',
   },
   fr: {
     eyebrow: 'Prévision actuelle',
-    leader_in: 'Vainqueur projeté',
-    confidence: 'Probabilité',
-    margin: 'Marge moyenne (pts)',
-    close: 'Chance d’un écart de moins de 5 pts',
+    close: 'Chance d’un écart final de moins de 5 points',
   },
   es: {
     eyebrow: 'Pronóstico actual',
-    leader_in: 'Ganador proyectado',
-    confidence: 'Probabilidad',
-    margin: 'Margen medio (pts)',
-    close: 'Probabilidad de un margen inferior a 5 pts',
+    close: 'Probabilidad de un margen final inferior a 5 puntos',
   },
 }[lang];
 
@@ -48,27 +37,12 @@ const competitiveness = CERTAINTY_LABEL[lang][certainty(data.projection)];
     <div>
       <p class="eyebrow">{T.eyebrow}</p>
       <h2 style={`--accent:${winnerMeta.color}`}>
-        {partyMark(winnerMeta)
-          ? <img class="winner-logo" src={`/party-logos/${partyMark(winnerMeta)}`} alt="" width="54" height="54" decoding="async" />
-          : <span class="dot" aria-hidden="true"></span>}
+        <span class="dot" aria-hidden="true"></span>
         {winnerLabel}
       </h2>
       <p class="competitiveness">{competitiveness}</p>
     </div>
-    <dl class="stats">
-      <div>
-        <dt>{T.confidence}</dt>
-        <dd>{pWinnerPct >= 100 ? (lang === 'en' ? '>99%' : '> 99 %') : lang === 'en' ? `${pWinnerPct}%` : `${pWinnerPct} %`}</dd>
-      </div>
-      <div>
-        <dt>{T.margin}</dt>
-        <dd>{margin}</dd>
-      </div>
-      <div>
-        <dt>{T.close}</dt>
-        <dd>{closeRacePct === '0' ? (lang === 'en' ? '<1%' : '< 1 %') : lang === 'en' ? `${closeRacePct}%` : `${closeRacePct} %`}</dd>
-      </div>
-    </dl>
+    <p class="panel-close">{T.close}{lang === 'fr' ? '\u00a0: ' : ': '}<strong>{closeRacePct === '0' ? (lang === 'en' ? 'under 1%' : lang === 'es' ? 'menos del 1 %' : 'moins de 1 %') : lang === 'en' ? `${closeRacePct}%` : `${closeRacePct}\u00a0%`}</strong></p>
   </div>
 </section>
 
@@ -103,12 +77,6 @@ const competitiveness = CERTAINTY_LABEL[lang][certainty(data.projection)];
     display: inline-block;
     flex-shrink: 0;
   }
-  .winner-logo {
-    width: 54px;
-    height: 54px;
-    object-fit: contain;
-    flex: none;
-  }
   .competitiveness {
     margin-top: 8px;
     color: var(--ink-2);
@@ -116,31 +84,11 @@ const competitiveness = CERTAINTY_LABEL[lang][certainty(data.projection)];
     font-size: 13px;
     letter-spacing: 0;
   }
-  .stats {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 0;
-    border-top: 1px solid var(--rule);
-    border-left: 1px solid var(--rule);
-  }
-  .stats > div {
-    padding: 20px;
-    border-right: 1px solid var(--rule);
-    border-bottom: 1px solid var(--rule);
-  }
-  dt {
-    font-family: var(--sans);
-    font-size: 13px;
-    letter-spacing: 0;
+  .panel-close {
+    font-size: 16px;
     color: var(--ink-2);
-    margin-bottom: 8px;
   }
-  dd {
-    margin: 0;
-    font-family: var(--serif);
-    font-size: 32px;
-    font-weight: 700;
-  }
+  .panel-close strong { color: var(--ink); font-variant-numeric: tabular-nums; }
   @media (max-width: 820px) {
     .panel-inner { grid-template-columns: 1fr; }
   }

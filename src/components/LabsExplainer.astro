@@ -46,7 +46,6 @@ const dmax = Math.max(...dist);
       <span class="lx-orbit" aria-hidden="true"><span></span></span>
       <span class="lx-engine">{t.engine}</span>
       <span class="lx-live">{t.live}</span>
-      {t.tags.map((g) => <span class="lx-tag">{g}</span>)}
     </div>
   </header>
 
@@ -168,9 +167,8 @@ const dmax = Math.max(...dist);
   .lx-orbit span { position: absolute; top: -4px; left: 9px; width: 7px; height: 7px; border-radius: 50%; background: var(--duck-deep); transform-origin: 3.5px 16px; }
   @media (prefers-reduced-motion: reduce) { .lx-orbit span { animation: none; } }
   .lx-engine { font-family: var(--serif); font-size: 24px; font-weight: 700; margin-right: 4px; }
-  .lx-live, .lx-tag { padding: 3px 10px; border-radius: 2px; font-family: var(--mono); font-size: 13px; letter-spacing: 0; }
+  .lx-live { padding: 3px 10px; border-radius: 2px; font-family: var(--mono); font-size: 13px; letter-spacing: 0; }
   .lx-live { color: var(--red); background: var(--red-tint); }
-  .lx-tag { border: 1px solid var(--rule); color: var(--ink-2); }
   .lx-why { margin-top: 40px; padding: 22px 24px; border-radius: 2px; border: 1px solid var(--rule); background: color-mix(in oklab, var(--blue) 7%, var(--card)); }
   .lx-why h2 { margin: 0 0 8px; font-family: var(--serif); font-size: 26px; font-weight: 700; }
   .lx-why p { margin: 0; font-size: 17px; line-height: 1.65; color: var(--ink-2); }

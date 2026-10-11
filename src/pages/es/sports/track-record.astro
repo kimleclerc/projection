@@ -10,6 +10,7 @@ import sportsData from '../../../../web_data/sports/latest.json';
 const meta = sportsData.board_meta;
 const board = sportsData.board as Array<{ p_cup_win: number; label_en: string }>;
 const nTeams = board.length;
+const dLong = (iso: string) => new Date(`${iso}T12:00:00Z`).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
 ---
 
 <EditorialLayout
@@ -71,7 +72,7 @@ const nTeams = board.length;
         <div class="note-card note-card--stat">
           <p class="eyebrow">Versión del modelo</p>
           <strong class="stat-value stat-value--mono">{meta.version}</strong>
-          <p>Actualizado el {meta.run_date}</p>
+          <p>Actualizado el {dLong(meta.run_date)}</p>
         </div>
       </div>
     </div>

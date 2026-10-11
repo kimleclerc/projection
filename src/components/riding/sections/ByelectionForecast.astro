@@ -29,6 +29,8 @@ const by = data.byelection!;
 const favMeta = partyMeta(data.jurisdiction, by.favorite);
 const favLabel = partyName(favMeta, lang);
 const favPct = Math.round(by.favoriteProbability * 100);
+const num1 = (v: number) => v.toLocaleString(lang === 'en' ? 'en-CA' : lang === 'es' ? 'es-ES' : 'fr-CA', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+const pctTxt = (v: number | string) => lang === 'en' ? `${v}%` : `${v}\u00a0%`;
 
 const generalWinner = data.projection.winner;
 const flips = generalWinner !== by.favorite;
@@ -120,12 +122,12 @@ const maxShare = Math.max(1, ...topParties.map((p) => p.voteMean));
       <div>
         <p class="bf-label">{T.favorite}</p>
         <p class="bf-fav" style={`color:${favMeta.color};`}>{favLabel}</p>
-        <p class="bf-prob">{favPct}% · {T.probability}</p>
+        <p class="bf-prob">{pctTxt(favPct)} · {T.probability}</p>
       </div>
       <ul class="bf-meta">
         <li>{statusLabel}</li>
         {by.departingMember && <li>{T.departing(by.departingMember)}</li>}
-        {by.meanMargin !== null && <li>{T.margin} : {by.meanMargin.toFixed(1)}</li>}
+        {by.meanMargin !== null && <li>{T.margin}{lang === 'fr' ? '\u00a0: ' : ': '}{num1(by.meanMargin)}</li>}
         {by.hasLocalPoll && <li class="bf-poll">{T.localPoll}</li>}
       </ul>
     </div>
@@ -142,7 +144,7 @@ const maxShare = Math.max(1, ...topParties.map((p) => p.voteMean));
               <span class="bf-bar">
                 <span style={`width:${(p.voteMean / maxShare) * 100}%;background:${meta.color};`} />
               </span>
-              <span class="bf-val">{p.voteMean.toFixed(1)}%</span>
+              <span class="bf-val">{pctTxt(num1(p.voteMean))}</span>
             </div>
           );
         })}
