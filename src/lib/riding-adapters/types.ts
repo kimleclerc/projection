@@ -164,6 +164,7 @@ export interface RidingPoll {
   client?: string | null;       // sponsor, when disclosed
   source_url?: string | null;   // raw; the section's cleanSource() guards aggregator links
   topline: Record<string, number>;
+  candidates?: Array<{ name: string; party: string; pct: number }>;
 }
 
 export interface RegionalContext {

@@ -90,6 +90,7 @@ function adaptPoll(p: PollRow): RidingPoll {
     client: p.client,
     source_url: p.source_url,
     topline: p.topline,
+    candidates: p.candidates,
   };
 }
 

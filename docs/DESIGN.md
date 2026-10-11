@@ -7,7 +7,7 @@ remplace pas la relecture de la silhouette, de la hiérarchie et du texte (§ 11
 
 ## 0. Signature : « Le bulletin »
 
-Choisie par Kim Leclerc le 9 octobre 2026 (référence : B de `/essai-signature`).
+Choisie par Kim Leclerc le 9 octobre 2026 (variante B de la page d’essai, retirée au lancement).
 Vote-Scope se présente comme un **quotidien électoral**, pas comme une application.
 
 - **Symbole** : le cercle du bulletin de vote canadien, mi-bleu mi-rouge, coché d'une

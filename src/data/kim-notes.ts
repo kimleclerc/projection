@@ -2,7 +2,7 @@
  * « Le mot de Kim » : une note courte, datée et signée, en tête des grandes pages.
  * C'est la voix de Kim Leclerc — jamais un texte généré publié tel quel.
  * Une note ne s'affiche que si `published` est vrai ET qu'elle existe dans la langue
- * de la page. Les brouillons (published: false) ne sont visibles que sur /essai-signature.
+ * de la page. Les brouillons (published: false) ne sont publiés nulle part.
  */
 export interface KimNote {
   date: string; // AAAA-MM-JJ

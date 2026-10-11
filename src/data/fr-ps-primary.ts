@@ -22,7 +22,8 @@ export interface PrimaryResult {
 }
 
 export const PS_PRIMARY = {
-  firstRound: { start: '2026-10-09', end: '2026-10-10' },
+  // Vote prolongé jusqu'au dimanche 11 octobre, 18 h, après une cyberattaque.
+  firstRound: { start: '2026-10-09', end: '2026-10-11' },
   secondRound: { start: '2026-10-16', end: '2026-10-17' },
   parties: { fr: 'PS, Place publique et Gauche républicaine et socialiste', en: 'PS, Place publique and the Republican and Socialist Left', es: 'PS, Place publique y la Izquierda Republicana y Socialista' } as T,
   candidates: [
@@ -129,9 +130,28 @@ export const PS_PRIMARY = {
   // Elabe pour BFMTV et La Tribune Dimanche, 29 sept.–2 oct., n = 2005.
   interest: { firm: 'Elabe', client: 'BFMTV, La Tribune Dimanche', field: ['2026-09-29', '2026-10-02'], n: 2005,
               url: 'https://elabe.fr/primaire-gauche/', all: 25, left: 48, psPp: 56 },
-  // À saisir le soir des résultats (parts des suffrages exprimés).
+  // Résultats du 11 octobre 2026, annoncés par Patrick Mennucci (commission
+  // d'organisation). Parts des suffrages exprimés ; ce jeu (Public Sénat) totalise
+  // 100 % et concorde avec 79 613 voix sur 120 307 exprimés (Toute l'Europe).
+  // Vainqueur dès le premier tour : pas de second tour le 17 octobre.
   results: {
-    firstRound: null as PrimaryResult[] | null,
+    firstRound: [
+      { id: 'left_glucksmann', share: 66.17 },
+      { id: 'left_faure', share: 14.46 },
+      { id: 'left_royal', share: 7.62 },
+      { id: 'left_maurel', share: 5.92 },
+      { id: 'left_guedj', share: 5.83 },
+    ] as PrimaryResult[] | null,
     secondRound: null as PrimaryResult[] | null,
+    winner: 'left_glucksmann',
+    decidedOn: '2026-10-11',
+    registered: 134467,
+    voters: 120787,
+    valid: 120307,
+    winnerVotes: 79613,
+    sources: [
+      { label: 'Public Sénat', url: 'https://www.publicsenat.fr/actualites/politique/primaire-de-la-gauche-raphael-glucksmann-plie-le-match-et-remporte-le-scrutin-des-le-premier-tour-avec-66' },
+      { label: 'Toute l’Europe', url: 'https://www.touteleurope.eu/vie-politique-des-etats-membres/presidentielle-2027-l-eurodepute-raphael-glucksmann-remporte-largement-la-primaire-de-la-gauche-sociale-democrate/' },
+    ],
   },
 };

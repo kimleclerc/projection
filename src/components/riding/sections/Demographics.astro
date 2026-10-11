@@ -60,7 +60,7 @@ const langRows = hasLinguistic ? [
 ] : [];
 const langTitle = d.source === 'qc125_canada_2021_census' ? T.langHome : T.langGeneric;
 
-/** Provenance réelle : l'organisme statistique ET l'intermédiaire qui l'a compilé. */
+/** Source affichée : l'organisme statistique (choix de Kim : pas d'agrégateur concurrent nommé). */
 const SOURCE_LABELS: Record<string, { en: string; fr: string; es: string }> = {
   statistics_canada_2021_census: {
     en: 'Statistics Canada, 2021 Census',
@@ -73,14 +73,14 @@ const SOURCE_LABELS: Record<string, { en: string; fr: string; es: string }> = {
     es: 'Statistics Canada, censo de 2021, proyectado sobre los límites actuales',
   },
   qc125_canada_2021_census: {
-    en: 'Statistics Canada, 2021 Census (single responses), compiled by Qc125',
-    fr: 'Statistique Canada, Recensement de 2021 (réponses uniques), compilé par Qc125',
-    es: 'Statistics Canada, censo de 2021 (respuestas únicas), recopilado por Qc125',
+    en: 'Statistics Canada, 2021 Census (single responses)',
+    fr: 'Statistique Canada, Recensement de 2021 (réponses uniques)',
+    es: 'Statistics Canada, censo de 2021 (respuestas únicas)',
   },
   qc125_2021_census_projected_from_qc2022: {
-    en: 'Statistics Canada, 2021 Census, compiled by Qc125 and projected to the 2026 map',
-    fr: 'Statistique Canada, Recensement de 2021, compilé par Qc125 et projeté sur la carte de 2026',
-    es: 'Statistics Canada, censo de 2021, recopilado por Qc125 y proyectado sobre el mapa de 2026',
+    en: 'Statistics Canada, 2021 Census, projected to the 2026 map',
+    fr: 'Statistique Canada, Recensement de 2021, projeté sur la carte de 2026',
+    es: 'Statistics Canada, censo de 2021, proyectado sobre el mapa de 2026',
   },
   'ONS mid-2022 population + Jan 2026 labour market': {
     en: 'Office for National Statistics: mid-2022 population, January 2026 labour market',

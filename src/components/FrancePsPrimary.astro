@@ -103,6 +103,28 @@ const gap = refQ && second && refQ.id !== second.id ? second.mean - refQ.mean : 
 
 const res = PS_PRIMARY.results;
 const hasResults = Boolean(res.firstRound || res.secondRound);
+const winnerShare = res.firstRound?.find((x) => x.id === res.winner)?.share ?? 0;
+const nfi = new Intl.NumberFormat(L);
+const R = {
+  fr: {
+    h1: `${nameOf(res.winner)} remporte la primaire sociale-démocrate`,
+    lede: `${nameOf(res.winner)} l’emporte dès le premier tour, le ${day(res.decidedOn, true)}, avec ${pct(winnerShare)} des suffrages exprimés. Il n’y aura pas de second tour : il sera le candidat du ${PS_PRIMARY.parties.fr} à la présidentielle de 2027.`,
+    turnout: `${nfi.format(res.voters)} votants sur ${nfi.format(res.registered)} inscrits (${pct(res.voters / res.registered * 100)}), ${nfi.format(res.valid)} suffrages exprimés. Le vote en ligne a été prolongé jusqu’au dimanche 11 octobre, 18 h, après une cyberattaque.`,
+    sources: 'Sources',
+  },
+  en: {
+    h1: `${nameOf(res.winner)} wins the social-democratic primary`,
+    lede: `${nameOf(res.winner)} won outright in the first round on ${day(res.decidedOn, true)}, with ${pct(winnerShare)} of valid votes. There will be no second round: he will be the candidate of the ${PS_PRIMARY.parties.en} in the 2027 presidential election.`,
+    turnout: `${nfi.format(res.voters)} voters out of ${nfi.format(res.registered)} registered (${pct(res.voters / res.registered * 100)}), ${nfi.format(res.valid)} valid votes. Online voting was extended to Sunday, October 11, 6 p.m., after a cyberattack.`,
+    sources: 'Sources',
+  },
+  es: {
+    h1: `${nameOf(res.winner)} gana las primarias socialdemócratas`,
+    lede: `${nameOf(res.winner)} gana en la primera vuelta, el ${day(res.decidedOn, true)}, con el ${pct(winnerShare)} de los votos válidos. No habrá segunda vuelta: será el candidato del ${PS_PRIMARY.parties.es} a la presidencial de 2027.`,
+    turnout: `${nfi.format(res.voters)} votantes de ${nfi.format(res.registered)} inscritos (${pct(res.voters / res.registered * 100)}), ${nfi.format(res.valid)} votos válidos. El voto en línea se prolongó hasta el domingo 11 de octubre a las 18 h, tras un ciberataque.`,
+    sources: 'Fuentes',
+  },
+}[locale];
 
 const C = {
   fr: {
@@ -235,8 +257,9 @@ const maxMove = Math.max(1, ...primaryRows.flatMap((r) => (r.swap?.movers ?? [])
 <article class="fps" data-content-area>
   <header class="fps-head container vs-page-head">
     <p class="fps-kicker">{C.kicker}</p>
-    <h1>{C.h1}</h1>
-    <p class="fps-lede">{C.lede}</p>
+    <h1>{hasResults ? R.h1 : C.h1}</h1>
+    <p class="fps-lede">{hasResults ? R.lede : C.lede}</p>
+    {!hasResults && (<>
     <div class="fps-cards">
       {favorite?.weight && (
         <div class="fps-card">
@@ -263,6 +286,7 @@ const maxMove = Math.max(1, ...primaryRows.flatMap((r) => (r.swap?.movers ?? [])
     <div class="fps-countdown">
       <ElectionCountdown targetDate={PS_PRIMARY.firstRound.start} locale={locale} title={C.countdown} client:load />
     </div>
+    </>)}
   </header>
 
   {hasResults && (
@@ -282,6 +306,8 @@ const maxMove = Math.max(1, ...primaryRows.flatMap((r) => (r.swap?.movers ?? [])
           </ul>
         </div>
       ))}
+      <p class="vs-meta">{R.turnout}</p>
+      <p class="vs-meta">{R.sources}{locale === 'fr' ? '\u00a0: ' : ': '}{res.sources.map((x, k) => <>{k > 0 && ', '}<a class="vs-link" href={x.url} rel="noopener">{x.label}</a></>)}</p>
     </section>
   )}
 

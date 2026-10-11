@@ -148,6 +148,23 @@ for (const p of polls) groups.set(surveyKey(p), (groups.get(surveyKey(p)) ?? 0) 
 const seen = new Map<string, number>();
 const scenarioOf = (p: RidingPoll) => { const k = surveyKey(p); const i = (seen.get(k) ?? 0) + 1; seen.set(k, i); return (groups.get(k) ?? 1) > 1 ? i : 0; };
 
+/** Candidats nommés (quand l'importateur les fournit) : nom + parti, couleur du parti. */
+const NYT_PARTY: Record<string, { code?: string; short: Record<'en' | 'fr' | 'es', string> }> = {
+  REP: { code: 'us_rep', short: { en: 'R', fr: 'R', es: 'R' } },
+  DEM: { code: 'us_dem', short: { en: 'D', fr: 'D', es: 'D' } },
+  IND: { short: { en: 'Ind.', fr: 'ind.', es: 'ind.' } },
+  LIB: { short: { en: 'Lib.', fr: 'libertarien', es: 'libertario' } },
+  GRN: { short: { en: 'Green', fr: 'vert', es: 'verde' } },
+};
+const colorOfParty = (party: string) => {
+  const code = NYT_PARTY[party]?.code;
+  return (code && colorByCode[code]) || data.parties.find((x) => x.code === code)?.color || 'var(--ink-3)';
+};
+const candidateEntries = (p: RidingPoll): Array<{ label: string; v: number; color: string }> =>
+  (p.candidates ?? []).filter((c) => c.pct > 0).map((c) => ({
+    label: `${c.name} (${NYT_PARTY[c.party]?.short[lang] ?? c.party})`, v: c.pct, color: colorOfParty(c.party),
+  }));
+
 /** Topline entries (desc), restricted to displayed parties, value > 0. */
 function toplineEntries(p: RidingPoll): Array<[string, number]> {
   return Object.entries(p.topline)
@@ -175,7 +192,12 @@ function toplineEntries(p: RidingPoll): Array<[string, number]> {
         </thead>
         <tbody>
           {polls.map((p) => {
-            const entries = toplineEntries(p);
+            const named = candidateEntries(p);
+            const entries = named.length
+              ? named.map((c) => [c.label, c.v] as [string, number])
+              : toplineEntries(p);
+            const colorOf = (code: string) => named.find((c) => c.label === code)?.color ?? colorByCode[code] ?? 'var(--ink-2)';
+            const labelOf = (code: string) => named.length ? code : (labelByCode[code] || code);
             const sc = scenarioOf(p);
             const max = Math.max(1, ...entries.map(([, v]) => v));
             return (
@@ -192,11 +214,11 @@ function toplineEntries(p: RidingPoll): Array<[string, number]> {
                   <div class="bars">
                     {entries.map(([code, v]) => (
                       <span class="bar-row">
-                        <span class="bar-label" style={`--c:${colorByCode[code] || 'var(--ink-2)'}`}>
-                          {labelByCode[code] || code}
+                        <span class="bar-label" style={`--c:${colorOf(code)}`}>
+                          {labelOf(code)}
                         </span>
                         <span class="bar-track">
-                          <span class="bar-fill" style={`width:${(v / max) * 100}%;--c:${colorByCode[code] || 'var(--ink-2)'}`}></span>
+                          <span class="bar-fill" style={`width:${(v / max) * 100}%;--c:${colorOf(code)}`}></span>
                         </span>
                         <span class="bar-val">{v.toFixed(0)}</span>
                       </span>

@@ -57,6 +57,8 @@ export interface PollRow {
   published_topline?: PollTopline;
   source_url?: string | null;
   topline: PollTopline;
+  /** Candidats nommés (sondages de district NYT) : nom, parti NYT (REP, DEM, IND…), % publié. */
+  candidates?: Array<{ name: string; party: string; pct: number }>;
   /** Present when `topline` is a display-only subgroup result, not the
    * jurisdiction-wide topline used by the trend/model. */
   topline_scope?: PollToplineScope | null;
