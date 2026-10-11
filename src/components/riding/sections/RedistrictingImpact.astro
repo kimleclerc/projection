@@ -22,30 +22,32 @@ const T = {
   en: {
     eyebrow: 'Redistricting impact',
     title: 'Where these voters came from',
-    intro: 'This district was redrawn under the 2025-2026 mid-decade redistricting. Composition by inherited old-district share:',
+    intro: 'This district was redrawn in the 2025-2026 redistricting. Share of its voters from each former district:',
   },
   fr: {
     eyebrow: 'Impact du redécoupage',
     title: "D'où vient cet électorat",
-    intro: 'Ce district a été redécoupé dans la vague 2025-2026. Composition par ancien district contributeur :',
+    intro: 'Ce district a été redessiné lors du redécoupage de 2025-2026. Part de ses électeurs venant de chaque ancien district :',
   },
   es: {
     eyebrow: 'Impacto del redistritado',
     title: 'De dónde provienen estos votantes',
-    intro: 'Este distrito fue redibujado en la ola de redistritado 2025-2026. Composición por antiguo distrito contribuyente:',
+    intro: 'Este distrito se redibujó en la redistribución de 2025-2026. Parte de sus votantes procedente de cada antiguo distrito:',
   },
 }[lang];
 ---
 
 <section class="redistricting-impact">
   <div class="container">
-    <p class="eyebrow">{T.eyebrow}</p>
     <h2>{T.title}</h2>
     <p class="intro">{T.intro}</p>
 
     <ul class="frag-list">
       {impact.map((frag) => {
-        const oldName = lang === 'fr' ? (frag.old_name_fr || frag.old_name_en) : frag.old_name_en;
+        const raw = lang === 'fr' ? (frag.old_name_fr || frag.old_name_en) : frag.old_name_en;
+        // « Congressional District 24 » : nom anglais du registre ; on dit « ancien district 24 ».
+        const cd = /^Congressional District (\d+)$/i.exec(raw ?? '');
+        const oldName = cd ? { en: `Former district ${cd[1]}`, fr: `Ancien district ${cd[1]}`, es: `Antiguo distrito ${cd[1]}` }[lang] : raw;
         const pct = Math.round(frag.overlap_pct * 100);
         return (
           <li>
@@ -53,8 +55,8 @@ const T = {
               <span class="frag-fill" aria-hidden="true"></span>
             </div>
             <div class="frag-text">
-              <span class="frag-name">{oldName} <code>({frag.old_riding_id})</code></span>
-              <span class="frag-pct">{pct}%</span>
+              <span class="frag-name">{oldName}</span>
+              <span class="frag-pct">{lang === 'en' ? `${pct}%` : `${pct}\u00a0%`}</span>
             </div>
           </li>
         );

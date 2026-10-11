@@ -2,6 +2,7 @@
 import { partyName } from '../../../lib/party-names';
 import type { RidingData } from '../../../lib/riding-adapters/types';
 import { partyMeta } from '../../../lib/riding-adapters/parties';
+import { pct, num, ridingName as cleanName } from '../../../lib/format';
 
 interface Props {
   data: RidingData;
@@ -58,12 +59,12 @@ const provLabel = PROVINCE_BY_LANG[data.province ?? ''] ?? data.province;
 
 // Take top 4 parties by riding vote_mean to keep the comparison legible.
 const topParties = data.parties.slice(0, 4);
-const ridingName = lang === 'fr' ? data.name.fr : data.name.en;
+const ridingName = cleanName(lang === 'fr' ? data.name.fr : data.name.en);
 
 const T = {
-  en: { eyebrow: 'In context', title: isExecutive ? 'How this race stacks up' : 'How this riding stacks up', here: 'Here', province: provLabel, national: NATIONAL_BY_LANG[data.jurisdiction] ?? 'Canada', prov_avg: 'Provincial average', nat_avg: 'National average' },
-  fr: { eyebrow: 'En contexte', title: isExecutive ? 'Cette course dans le tableau' : 'Cette circonscription dans le tableau', here: 'Ici', province: provLabel, national: NATIONAL_BY_LANG[data.jurisdiction] ?? 'Canada', prov_avg: 'Moyenne provinciale', nat_avg: 'Moyenne nationale' },
-  es: { eyebrow: 'En contexto', title: isExecutive ? 'Cómo se sitúa esta contienda' : 'Cómo se sitúa este distrito', here: 'Aquí', province: provLabel, national: NATIONAL_BY_LANG[data.jurisdiction] ?? 'Canadá', prov_avg: 'Media provincial', nat_avg: 'Media nacional' },
+  en: { eyebrow: '', title: 'Compared with the average', here: '', province: provLabel, national: NATIONAL_BY_LANG[data.jurisdiction] ?? 'Canada', prov_avg: 'Provincial average', nat_avg: 'National average' },
+  fr: { eyebrow: '', title: 'Par rapport à la moyenne', here: '', province: provLabel, national: NATIONAL_BY_LANG[data.jurisdiction] ?? 'Canada', prov_avg: 'Moyenne provinciale', nat_avg: 'Moyenne nationale' },
+  es: { eyebrow: '', title: 'Frente al promedio', here: '', province: provLabel, national: NATIONAL_BY_LANG[data.jurisdiction] ?? 'Canadá', prov_avg: 'Media provincial', nat_avg: 'Media nacional' },
 }[lang];
 
 function delta(here: number, ref: number): { sign: string; val: number; cls: string } {
@@ -78,7 +79,6 @@ function delta(here: number, ref: number): { sign: string; val: number; cls: str
 
 <section class="regional-ctx">
   <div class="container">
-    <p class="eyebrow">{T.eyebrow}</p>
     <h2>{T.title}</h2>
 
     <div class="table-scroll" tabindex="0" role="region" aria-label={T.title}>
@@ -100,8 +100,8 @@ function delta(here: number, ref: number): { sign: string; val: number; cls: str
       </thead>
       <tbody>
         <tr class="here">
-          <th scope="row"><span class="loc">{T.here}</span><span class="riding-name">{ridingName}</span></th>
-          {topParties.map((p) => (<td class="num">{p.vote_mean_pct.toFixed(1)}%</td>))}
+          <th scope="row"><span class="riding-name">{ridingName}</span></th>
+          {topParties.map((p) => (<td class="num">{pct(p.vote_mean_pct, lang)}</td>))}
         </tr>
         {showProvince && (
           <tr>
@@ -111,7 +111,7 @@ function delta(here: number, ref: number): { sign: string; val: number; cls: str
               const d = v != null ? delta(p.vote_mean_pct, v) : null;
               return (
                 <td class="num">
-                  {v != null ? <>{v.toFixed(1)}% {d && d.sign && <em class={d.cls}>{d.sign}{d.val.toFixed(1)}</em>}</> : '—'}
+                  {v != null ? <>{pct(v, lang)} {d && d.sign && <em class={d.cls}>{d.sign}{num(d.val, lang, 1)}</em>}</> : '—'}
                 </td>
               );
             })}
@@ -125,7 +125,7 @@ function delta(here: number, ref: number): { sign: string; val: number; cls: str
               const d = v != null ? delta(p.vote_mean_pct, v) : null;
               return (
                 <td class="num">
-                  {v != null ? <>{v.toFixed(1)}% {d && d.sign && <em class={d.cls}>{d.sign}{d.val.toFixed(1)}</em>}</> : '—'}
+                  {v != null ? <>{pct(v, lang)} {d && d.sign && <em class={d.cls}>{d.sign}{num(d.val, lang, 1)}</em>}</> : '—'}
                 </td>
               );
             })}
@@ -135,16 +135,15 @@ function delta(here: number, ref: number): { sign: string; val: number; cls: str
     </table>
     </div>
     <p class="note">{(() => {
+      const unit = isExecutive
+        ? { en: 'state races', fr: 'courses d’État', es: 'contiendas estatales' }[lang]
+        : data.jurisdiction.startsWith('us-')
+          ? { en: 'districts', fr: 'districts', es: 'distritos' }[lang]
+          : { en: 'ridings', fr: 'circonscriptions', es: 'distritos' }[lang];
       const NOTE = {
-        en: showProvince
-          ? `Provincial averages computed across the ${totalSeats} riding-level projections (unweighted mean).`
-          : `Nationwide averages computed across the ${totalSeats} ${isExecutive ? 'state races' : 'riding-level projections'} (unweighted mean).`,
-        fr: showProvince
-          ? `Moyennes provinciales calculées à partir des ${totalSeats} circonscriptions (moyenne brute, non pondérée).`
-          : `Moyennes nationales calculées à partir des ${totalSeats} ${isExecutive ? "courses d'État" : 'circonscriptions'} (moyenne brute, non pondérée).`,
-        es: showProvince
-          ? `Medias provinciales calculadas a partir de los ${totalSeats} distritos (media bruta, no ponderada).`
-          : `Medias nacionales calculadas a partir de las ${totalSeats} ${isExecutive ? 'contiendas estatales' : 'distritos'} (media bruta, no ponderada).`,
+        en: `Simple average of the ${totalSeats} ${unit}, not weighted by population.`,
+        fr: `Moyenne simple des ${totalSeats} ${unit}, sans pondération par la population.`,
+        es: `Promedio simple de los ${totalSeats} ${unit}, sin ponderar por población.`,
       };
       return NOTE[lang];
     })()}</p>

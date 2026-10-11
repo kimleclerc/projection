@@ -1,0 +1,256 @@
+---
+/**
+ * Accueil du Canada, commun aux trois langues (docs/DESIGN.md § 7, « Une »).
+ * 1. Titre et réponse : le prochain scrutin. 2. Les scrutins par date (ElectionsBand).
+ * 3. Les projections en un tableau, une ligne par élection. 4. Les indices en liste.
+ * 5. Marchés de prédiction. 6. Répertoire. 7. Méthode.
+ */
+import EditorialLayout from '../layouts/EditorialLayout.astro';
+import PageHeader from './PageHeader.astro';
+import ElectionsBand from './ElectionsBand.astro';
+import StoryList from './StoryList.astro';
+import DeskSections from './DeskSections.astro';
+import MethodologyNote from './MethodologyNote.astro';
+import PolymarketEmbed from './PolymarketEmbed.astro';
+import federalData from '../../web_data/federal/latest.json';
+import ontarioData from '../../web_data/ontario/latest.json';
+import bcData from '../../web_data/british-columbia/latest.json';
+import fraserData from '../../web_data/on-fraser-interim/latest.json';
+import gooseData from '../../web_data/ca-canada-goose/latest.json';
+import showdownData from '../../web_data/cusma-showdown/latest.json';
+import qcResults from '../data/qc-results-2026.json';
+import { partyMeta, subjectFr } from '../lib/riding-adapters/parties';
+import { partyName } from '../lib/party-names';
+import { longDate, num } from '../lib/format';
+
+type Lang = 'fr' | 'en' | 'es';
+const { lang } = Astro.props as { lang: Lang };
+const L = <T,>(fr: T, en: T, es: T): T => (lang === 'fr' ? fr : lang === 'es' ? es : en);
+const root = { fr: '/fr', en: '/en', es: '/es' }[lang];
+
+type P = { party: string; seats_projected: number; p_majority: number };
+const top = (d: { parties: unknown[] }) => [...(d.parties as P[])].sort((a, b) => b.seats_projected - a.seats_projected)[0];
+const pctChance = (p: number) => {
+  const v = p * 100;
+  const s = v > 99 ? (lang === 'en' ? '>99' : '> 99') : v < 1 ? (lang === 'en' ? '<1' : '< 1') : String(Math.round(v));
+  return lang === 'en' ? `${s}%` : `${s} %`;
+};
+const name = (jur: string, code: string) => partyName(partyMeta(jur, code), lang);
+/** « les conservateurs » / « the Conservatives » / « los conservadores ». */
+const subject = (jur: string, code: string) => {
+  const m = partyMeta(jur, code) as { mention_fr?: string; mention_en?: string; mention_es?: string };
+  if (lang === 'fr' && m.mention_fr) return subjectFr(m.mention_fr);
+  if (lang === 'es' && m.mention_es) return m.mention_es;
+  if (lang === 'en' && m.mention_en) return m.mention_en;
+  return name(jur, code);
+};
+
+const fed = top(federalData);
+const on = top(ontarioData);
+const bc = top(bcData);
+const qc = qcResults.parties[0];
+
+const PATHS = {
+  federal: L('/canada/federal/', '/canada/federal/', '/canada/federal/'),
+  federalRidings: L('/canada/federal/circonscriptions/', '/canada/federal/ridings/', '/canada/federal/distritos/'),
+  quebec: L('/canada/quebec/resultats/', '/canada/quebec/results/', '/canada/quebec/resultados/'),
+  quebecRidings: L('/canada/quebec/circonscriptions/', '/canada/quebec/ridings/', '/canada/quebec/distritos/'),
+  ontario: L('/canada/ontario/', '/canada/ontario/', '/canada/ontario/'),
+  ontarioRidings: L('/canada/ontario/circonscriptions/', '/canada/ontario/ridings/', '/canada/ontario/distritos/'),
+  bc: L('/canada/colombie-britannique/', '/canada/british-columbia/', '/canada/columbia-britanica/'),
+  bcRidings: L('/canada/colombie-britannique/circonscriptions/', '/canada/british-columbia/ridings/', '/canada/columbia-britanica/distritos/'),
+};
+
+const rows = [
+  {
+    election: L('Colombie-Britannique', 'British Columbia', 'Columbia Británica'),
+    when: L('Vote le 24 octobre 2026', 'Votes October 24, 2026', 'Vota el 24 de octubre de 2026'),
+    jur: 'british-columbia', party: bc.party,
+    seats: `${bc.seats_projected} / ${bcData.meta.total_seats}`,
+    chance: pctChance(bc.p_majority),
+    href: root + PATHS.bc, ridings: root + PATHS.bcRidings, n: bcData.meta.total_seats,
+  },
+  {
+    election: L('Québec', 'Quebec', 'Quebec'),
+    when: L('Résultats du 5 octobre 2026', 'Results, October 5, 2026', 'Resultados del 5 de octubre de 2026'),
+    jur: 'quebec', party: qcResults.winner,
+    seats: `${qc.seats} / ${qcResults.total_seats}`,
+    chance: L('Minoritaire', 'Minority', 'Minoría'),
+    href: root + PATHS.quebec, ridings: root + PATHS.quebecRidings, n: qcResults.total_seats,
+  },
+  {
+    election: L('Canada (fédéral)', 'Canada (federal)', 'Canadá (federal)'),
+    when: L('Date non fixée', 'No date set', 'Sin fecha fijada'),
+    jur: 'federal-ca', party: fed.party,
+    seats: `${fed.seats_projected} / ${federalData.meta.total_seats}`,
+    chance: pctChance(fed.p_majority),
+    href: root + PATHS.federal, ridings: root + PATHS.federalRidings, n: federalData.meta.total_seats,
+  },
+  {
+    election: 'Ontario',
+    when: L('Date non fixée', 'No date set', 'Sin fecha fijada'),
+    jur: 'ontario', party: on.party,
+    seats: `${on.seats_projected} / ${ontarioData.meta.total_seats}`,
+    chance: pctChance(on.p_majority),
+    href: root + PATHS.ontario, ridings: root + PATHS.ontarioRidings, n: ontarioData.meta.total_seats,
+  },
+];
+
+const cap = (t: string) => t.charAt(0).toUpperCase() + t.slice(1);
+const answer = L(
+  `La Colombie-Britannique vote le 24 octobre : ${subject('british-columbia', bc.party)} sont projetés à ${bc.seats_projected} sièges sur ${bcData.meta.total_seats}, avec ${pctChance(bc.p_majority)} de chances de majorité.`,
+  `British Columbia votes on October 24: ${subject('british-columbia', bc.party)} are projected to win ${bc.seats_projected} of ${bcData.meta.total_seats} seats, with a ${pctChance(bc.p_majority)} chance of a majority.`,
+  `Columbia Británica vota el 24 de octubre: ${subject('british-columbia', bc.party)} obtendrían ${bc.seats_projected} de ${bcData.meta.total_seats} escaños, con un ${pctChance(bc.p_majority)} de probabilidades de mayoría.`,
+);
+
+const indexes = [
+  {
+    meta: L(`${Math.round(gooseData.cgi.score)} sur 100 · ${gooseData.cgi.label_fr}`, `${Math.round(gooseData.cgi.score)} out of 100 · ${gooseData.cgi.label_en}`, `${Math.round(gooseData.cgi.score)} sobre 100 · ${gooseData.cgi.label_es}`),
+    title: L('Indice Bernache', 'Canada Goose Index', 'Índice Canada Goose'),
+    text: L(`La force politique de ${gooseData.meta.pm} au pays, au moment de la révision de l’ACEUM.`, `${gooseData.meta.pm}’s political strength at home as CUSMA is reviewed.`, `La fuerza política de ${gooseData.meta.pm} en su país, durante la revisión del T-MEC.`),
+    href: L('/fr/canada/indexes/canada-goose/', '/en/canada/indexes/canada-goose/', '/es/canada/indexes/canada-goose/'),
+  },
+  {
+    meta: L(`Écart de ${Math.round(showdownData.showdown.gap)} points · ${showdownData.showdown.label_fr}`, `${Math.round(showdownData.showdown.gap)}-point gap · ${showdownData.showdown.label_en}`, `Diferencia de ${Math.round(showdownData.showdown.gap)} puntos · ${showdownData.showdown.label_es}`),
+    title: L('Guerre commerciale Canada–États-Unis', 'Canada–U.S. trade war', 'Guerra comercial Canadá–EE. UU.'),
+    text: L('Le rapport de force entre Ottawa et Washington dans la guerre commerciale.', 'The balance of power between Ottawa and Washington in the trade war.', 'La relación de fuerzas entre Ottawa y Washington en la guerra comercial.'),
+    href: L('/fr/indexes/cusma-showdown/', '/en/indexes/cusma-showdown/', '/es/indexes/cusma-showdown/'),
+  },
+  {
+    meta: L(`${Math.round(fraserData.index.score)} sur 100 · ${fraserData.index.label_fr}`, `${Math.round(fraserData.index.score)} out of 100 · ${fraserData.index.label_en}`, `${Math.round(fraserData.index.score)} sobre 100 · señal Fraser ${fraserData.index.score >= 50 ? 'positiva' : 'negativa'}`),
+    title: L('Indice Fraser (Ontario)', 'Fraser Index (Ontario)', 'Índice Fraser (Ontario)'),
+    text: L('Le climat politique de la direction intérimaire libérale en Ontario.', 'The political climate around Ontario’s interim Liberal leadership.', 'El clima político de la dirección liberal interina en Ontario.'),
+    href: L('/fr/indexes/fraser-interim/', '/en/indexes/fraser-interim/', '/es/indexes/fraser-interim/'),
+  },
+];
+
+// La page Fraser n'existe pas en espagnol : pas de lien vers une page absente.
+if (lang === 'es') indexes.pop();
+
+const title = L('Projections électorales au Canada', 'Canada election forecasts', 'Proyecciones electorales en Canadá');
+const seoTitle = L(
+  'Projections électorales au Canada — fédéral, Québec, Ontario, C.-B. — Vote-Scope',
+  'Canada election forecasts — federal, Quebec, Ontario, B.C. — Vote-Scope',
+  'Proyecciones electorales en Canadá — federal, Quebec, Ontario, C. B. — Vote-Scope',
+);
+const description = L(
+  'Projections électorales au Canada : fédéral, Québec, Ontario, Colombie-Britannique et partielles, avec sondages, sièges et circonscriptions.',
+  'Canadian election forecasts: federal, Quebec, Ontario, British Columbia and by-elections, with polls, seats and ridings.',
+  'Proyecciones electorales en Canadá: federal, Quebec, Ontario, Columbia Británica y elecciones parciales, con encuestas, escaños y distritos.',
+);
+const canonical = `https://vote-scope.com${root}/canada/`;
+const T = {
+  projections: L('Les projections', 'The forecasts', 'Las proyecciones'),
+  election: L('Élection', 'Election', 'Elección'),
+  lead: L('En tête', 'Leading', 'En cabeza'),
+  seats: L('Sièges', 'Seats', 'Escaños'),
+  chance: L('Chances de majorité', 'Chance of a majority', 'Probabilidad de mayoría'),
+  ridings: (n: number) => L(`Les ${n} circonscriptions`, `All ${n} ridings`, `Los ${n} distritos`),
+  updated: L(`Projections mises à jour le ${longDate(federalData.meta.run_date, lang)}. Québec : résultats préliminaires d’Élections Québec.`, `Forecasts updated ${longDate(federalData.meta.run_date, lang)}. Quebec: Élections Québec preliminary results.`, `Proyecciones actualizadas el ${longDate(federalData.meta.run_date, lang)}. Quebec: resultados preliminares de Élections Québec.`),
+  indexes: L('Les indices', 'The indexes', 'Los índices'),
+  markets: L('Marchés de prédiction', 'Prediction markets', 'Mercados de predicción'),
+  marketsNote: L('Les cotes des parieurs, à côté de nos projections. Elles n’entrent pas dans nos calculs.', 'Traders’ prices, shown next to our forecasts. They do not enter our calculations.', 'Las cuotas de los apostadores, junto a nuestras proyecciones. No entran en nuestros cálculos.'),
+};
+---
+
+<EditorialLayout
+  title={seoTitle}
+  description={description}
+  canonical={canonical}
+  lang={lang}
+  currentPage="canada"
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={{ en: 'https://vote-scope.com/en/canada/', fr: 'https://vote-scope.com/fr/canada/', es: 'https://vote-scope.com/es/canada/' }}
+  jsonLd={[
+    { '@context': 'https://schema.org', '@type': 'CollectionPage', name: `${title} — Vote-Scope`, url: canonical, inLanguage: lang },
+    { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: `https://vote-scope.com${root}/` },
+      { '@type': 'ListItem', position: 2, name: 'Canada', item: canonical },
+    ] },
+  ]}
+>
+  <PageHeader title={title} promise={L('Fédéral, Québec, Ontario, Colombie-Britannique et partielles.', 'Federal, Quebec, Ontario, British Columbia and by-elections.', 'Federal, Quebec, Ontario, Columbia Británica y elecciones parciales.')} question={answer} preferredSourceLocale={lang} />
+
+  <ElectionsBand lang={lang} scope="canada" />
+
+  <section class="container ca-block" aria-labelledby="ca-proj">
+    <h2 id="ca-proj">{T.projections}</h2>
+    <div class="table-scroll">
+      <table class="ca-table">
+        <thead>
+          <tr><th>{T.election}</th><th>{T.lead}</th><th class="num">{T.seats}</th><th class="num">{T.chance}</th></tr>
+        </thead>
+        <tbody>
+          {rows.map((r) => (
+            <tr>
+              <th scope="row">
+                <a class="vs-link" href={r.href}>{r.election}</a>
+                <span class="ca-when">{r.when} · <a href={r.ridings}>{T.ridings(r.n)}</a></span>
+              </th>
+              <td><span class="dot" style={`background:${partyMeta(r.jur, r.party).color}`} aria-hidden="true"></span>{name(r.jur, r.party)}</td>
+              <td class="num">{r.seats}</td>
+              <td class="num">{r.chance}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <p class="vs-meta">{T.updated}</p>
+  </section>
+
+  <section class="container ca-block">
+    <StoryList heading={T.indexes} items={indexes} size="sm" />
+  </section>
+
+  <section class="container ca-block" aria-labelledby="ca-markets">
+    <h2 id="ca-markets">{T.markets}</h2>
+    <p class="ca-note">{T.marketsNote}</p>
+    <PolymarketEmbed lang={lang} slug="doug-ford-out-as-pc-party-leader-by-december-31" title={L('Doug Ford quittera-t-il la tête du PC d’ici le 31 décembre ?', 'Will Doug Ford be out as PC leader by December 31?', '¿Dejará Doug Ford el liderazgo del PC antes del 31 de diciembre?')} subtitle={L('Peu d’échanges sur ce marché : à lire avec prudence.', 'Thin trading on this market: read with care.', 'Poca negociación en este mercado: léase con cautela.')} />
+    <PolymarketEmbed lang={lang} slug="will-alberta-vote-for-independence-in-2026" title={L('L’Alberta votera-t-elle pour l’indépendance en 2026 ?', 'Will Alberta vote for independence in 2026?', '¿Votará Alberta por la independencia en 2026?')} />
+  </section>
+
+  <DeskSections lang={lang} desk="canada" />
+
+  <MethodologyNote
+    title={L('Une seule méthode pour le fédéral et les provinces', 'One method for federal and provincial forecasts', 'Un solo método para lo federal y las provincias')}
+    body={L(
+      'Chaque projection part d’une moyenne des sondages publics, corrigée des écarts habituels de chaque institut, puis simule l’élection circonscription par circonscription.',
+      'Each forecast starts from an average of public polls, corrected for each pollster’s usual lean, then simulates the election riding by riding.',
+      'Cada proyección parte de un promedio de encuestas públicas, corregido según el sesgo habitual de cada encuestadora, y simula la elección distrito por distrito.',
+    )}
+    bullets={L(
+      [
+        'Un sondage récent, à gros échantillon, d’un institut qui a souvent vu juste, pèse davantage.',
+        'Les résultats des circonscriptions bougent ensemble quand l’opinion bouge dans la province ou au pays ; c’est ce qui donne les fourchettes de sièges.',
+        `Majorité : ${federalData.meta.majority_threshold} sièges sur ${federalData.meta.total_seats} au fédéral, ${ontarioData.meta.majority_threshold} sur ${ontarioData.meta.total_seats} en Ontario, ${bcData.meta.majority_threshold} sur ${bcData.meta.total_seats} en Colombie-Britannique.`,
+        'Pour une partielle, le modèle tient aussi compte du résultat précédent, du député sortant et du profil de la circonscription.',
+      ],
+      [
+        'A recent poll with a large sample, from a pollster with a good record, counts for more.',
+        'Ridings move together when opinion shifts in the province or the country; that is what produces the seat ranges.',
+        `Majority: ${federalData.meta.majority_threshold} of ${federalData.meta.total_seats} seats federally, ${ontarioData.meta.majority_threshold} of ${ontarioData.meta.total_seats} in Ontario, ${bcData.meta.majority_threshold} of ${bcData.meta.total_seats} in British Columbia.`,
+        'For a by-election, the model also weighs the previous result, the outgoing member and the riding’s profile.',
+      ],
+      [
+        'Una encuesta reciente, con muestra grande, de una encuestadora que suele acertar, pesa más.',
+        'Los distritos se mueven juntos cuando la opinión cambia en la provincia o en el país; de ahí salen las horquillas de escaños.',
+        `Mayoría: ${federalData.meta.majority_threshold} de ${federalData.meta.total_seats} escaños a nivel federal, ${ontarioData.meta.majority_threshold} de ${ontarioData.meta.total_seats} en Ontario, ${bcData.meta.majority_threshold} de ${bcData.meta.total_seats} en Columbia Británica.`,
+        'En una elección parcial, el modelo también tiene en cuenta el resultado anterior, el diputado saliente y el perfil del distrito.',
+      ],
+    )}
+  />
+</EditorialLayout>
+
+<style>
+  .ca-block { padding-block: 32px; }
+  .ca-block h2 { margin: 0 0 12px; font-size: clamp(24px, 3vw, 30px); font-weight: 700; }
+  .ca-note { margin: 0 0 16px; color: var(--ink-2); max-width: 72ch; }
+  .ca-table { width: 100%; border-collapse: collapse; border-top: 4px solid var(--ink); font-size: 17px; }
+  .ca-table th, .ca-table td { padding: 12px 12px 12px 0; border-bottom: 1px solid var(--rule); text-align: left; vertical-align: top; }
+  .ca-table thead th { font-size: 14px; font-weight: 600; color: var(--ink-3); }
+  .ca-table tbody th { font-weight: 700; }
+  .ca-table .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .ca-when { display: block; margin-top: 2px; font-size: 14px; font-weight: 400; color: var(--ink-3); }
+  .ca-when a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+  .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; }
+</style>

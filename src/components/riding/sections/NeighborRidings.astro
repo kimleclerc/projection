@@ -1,4 +1,5 @@
 ---
+import { ridingName } from '../../../lib/format';
 import { placeName } from '../../../lib/place-names';
 import { partyName } from '../../../lib/party-names';
 import type { RidingData } from '../../../lib/riding-adapters/types';
@@ -28,21 +29,21 @@ const TONE_LABEL = {
 const T = {
   en: {
     eyebrow: isExecutive ? 'Elsewhere on the map' : 'Around the region',
-    title: isExecutive ? 'Other races to watch' : isSameState ? 'Other districts in this state' : isSameRegion ? 'Other races in the region' : 'Nearby ridings',
+    title: isExecutive ? 'Other races to watch' : isSameState ? 'Nearby districts' : isSameRegion ? 'Other races in the region' : 'Nearby ridings',
     cta: 'Open',
-    hint: isExecutive ? 'Party ahead and race rating; each page has the full numbers.' : 'Party ahead and race rating; each riding page has the full numbers.',
+    hint: 'Party ahead and how sure the projection is.',
   },
   fr: {
     eyebrow: isExecutive ? 'Ailleurs sur la carte' : 'Autour de la région',
-    title: isExecutive ? 'Autres courses à suivre' : isSameState ? 'Autres districts de l’État' : isSameRegion ? 'Autres courses de la région' : 'Circonscriptions voisines',
+    title: isExecutive ? 'Autres courses à suivre' : isSameState ? 'Districts voisins' : isSameRegion ? 'Autres courses de la région' : 'Circonscriptions voisines',
     cta: 'Ouvrir',
-    hint: isExecutive ? 'Parti en tête et niveau de certitude ; chaque page donne les chiffres complets.' : isSameState ? 'Parti en tête et niveau de certitude ; la page de chaque district donne les chiffres complets.' : 'Parti en tête et niveau de certitude ; la page de chaque circonscription donne les chiffres complets.',
+    hint: 'Parti en tête et degré de certitude de la projection.',
   },
   es: {
     eyebrow: isExecutive ? 'En el resto del mapa' : 'En la región',
-    title: isExecutive ? 'Otras contiendas a seguir' : isSameState ? 'Otros distritos del estado' : isSameRegion ? 'Otras contiendas de la región' : 'Distritos cercanos',
+    title: isExecutive ? 'Otras contiendas a seguir' : isSameState ? 'Distritos cercanos' : isSameRegion ? 'Otras contiendas de la región' : 'Distritos cercanos',
     cta: 'Abrir',
-    hint: isExecutive ? 'Partido en cabeza y grado de certeza; cada página tiene las cifras completas.' : 'Partido en cabeza y grado de certeza; la página de cada distrito tiene las cifras completas.',
+    hint: 'Partido en cabeza y grado de certeza de la proyección.',
   },
 }[lang];
 ---
@@ -52,30 +53,19 @@ const T = {
     <h2>{T.title}</h2>
     <p class="hint">{T.hint}</p>
 
-    <ul class="cards">
+    <ul class="nb-list">
       {data.neighbors.map((n) => {
         const meta = n.tone_party ? partyMeta(data.jurisdiction, n.tone_party) : null;
         const partyLabel = meta ? (partyName(meta, lang)) : null;
         const toneLabel = n.tone ? TONE_LABEL[n.tone] : null;
-        const name = placeName(n, lang);
-        // For ES we use the Spanish href when adapters populate it; otherwise
-        // fall back to EN. Defaults aim to keep clicks inside the same locale.
+        const name = ridingName(placeName(n, lang));
         const href = lang === 'fr' ? n.href_fr
                    : (lang === 'es' && n.href_es) ? n.href_es
                    : n.href_en;
         return (
-          <li>
-            <a href={href} class="card" style={meta ? `--accent:${meta.color}` : ''}>
-              <div class="top">
-                <span class="dot" aria-hidden="true"></span>
-                <span class="name">{name}</span>
-              </div>
-              <div class="bottom">
-                {partyLabel && <span class="party-tone">{partyLabel}</span>}
-                {toneLabel && <span class="tone">{toneLabel}</span>}
-              </div>
-              <span class="cta">{T.cta}</span>
-            </a>
+          <li style={meta ? `--accent:${meta.color}` : ''}>
+            <a href={href} class="nb-name">{name}</a>
+            <span class="nb-lead"><span class="dot" aria-hidden="true"></span>{[partyLabel, toneLabel && toneLabel.toLowerCase()].filter(Boolean).join(', ')}</span>
           </li>
         );
       })}
@@ -85,75 +75,26 @@ const T = {
 
 <style>
   .neighbors {
-    padding: 56px 0;
+    padding: 40px 0;
     border-bottom: 1px solid var(--rule);
   }
   h2 {
-    margin: 8px 0 6px;
-    font-family: var(--serif);
-    font-size: clamp(28px, 3.4vw, 40px);
+    margin: 0 0 6px;
+    font-size: clamp(24px, 3vw, 30px);
     font-weight: 700;
-    letter-spacing: -0.01em;
   }
-  .hint {
-    margin-bottom: 24px;
-    color: var(--ink-2);
-    font-family: var(--mono);
-    font-size: 13px;
-    font-style: italic;
-  }
-  .cards {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 16px;
-  }
-  .card {
+  .hint { margin: 0 0 16px; color: var(--ink-2); font-size: 15px; }
+  .nb-list { list-style: none; padding: 0; margin: 0; border-top: 2px solid var(--ink); }
+  .nb-list li {
     display: flex;
-    flex-direction: column;
-    gap: 8px;
-    padding: 18px 20px;
-    background: transparent;
-    border: 0; border-top: 1px solid var(--rule);
-    border-radius: 0;
-    text-decoration: none;
-    color: inherit;
-    transition: transform .15s ease, border-color .15s ease;
-    position: relative;
-    min-height: 120px;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 4px 16px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--rule);
   }
-  .card:hover {
-    border-color: var(--accent, var(--ink));
-  }
-  .top { display: flex; align-items: center; gap: 10px; }
-  .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent, var(--ink-2)); }
-  .name { font-family: var(--serif); font-size: 18px; font-weight: 460; }
-  .bottom {
-    margin-top: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
-  .party-tone {
-    font-family: var(--mono);
-    font-size: 13px;
-    letter-spacing: 0;
-    color: var(--accent, var(--ink-2));
-  }
-  .tone {
-    font-family: var(--serif);
-    font-size: 14px;
-    color: var(--ink-2);
-    font-style: italic;
-  }
-  .cta {
-    align-self: flex-end;
-    font-family: var(--mono);
-    font-size: 13px;
-    letter-spacing: 0;
-    color: var(--ink-2);
-  }
-  .card:hover .cta { color: var(--ink); }
+  .nb-name { font-weight: 600; color: var(--ink); text-decoration: underline; text-decoration-color: var(--rule); text-underline-offset: 3px; }
+  .nb-name:hover { text-decoration-color: var(--ink); }
+  .nb-lead { display: inline-flex; align-items: center; gap: 8px; color: var(--ink-2); font-size: 15px; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent, var(--ink-3)); flex: none; }
 </style>

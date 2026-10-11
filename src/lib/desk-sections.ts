@@ -119,7 +119,7 @@ export const DESKS: DeskGroup[] = [
       )),
       fromJurisdiction('us-house', l10n(
         'All 435 districts, redistricting included, through the 2026 midterms.',
-        'Les 435 districts, redécoupage compris, jusqu’aux midterms de 2026.',
+        'Les 435 districts, redécoupage compris, jusqu’aux élections de mi-mandat de 2026.',
         'Los 435 distritos, con la redistribución, hasta las intermedias de 2026.',
       )),
       fromJurisdiction('us-senate', l10n(
@@ -131,9 +131,9 @@ export const DESKS: DeskGroup[] = [
         id: 'us-primaries',
         label: l10n('Primaries', 'Primaires', 'Primarias'),
         blurb: l10n(
-          'Primary results, county by county, called as they come in.',
-          'Les résultats des primaires de 2026, comté par comté, annoncés en direct.',
-          'Los resultados de las primarias de 2026, condado por condado, anunciados en directo.',
+          'The 2026 primary results, county by county.',
+          'Les résultats des primaires de 2026, comté par comté.',
+          'Los resultados de las primarias de 2026, condado por condado.',
         ),
         href: perLang('/us/primaries/', '/us/primaires/', '/us/primarias/'),
       },
@@ -149,11 +149,11 @@ export const DESKS: DeskGroup[] = [
       },
       {
         id: 'us-lame-duck',
-        label: l10n('Lame-Duck Index', 'Indice Lame-Duck', 'Índice Lame-Duck'),
+        label: l10n('Lame-Duck Index', 'Indice Canard boiteux', 'Índice Pato Cojo'),
         blurb: l10n(
           'How much presidential weight is left before the midterms.',
-          'Ce qu’il reste de poids présidentiel avant les midterms.',
-          'Cuánto peso presidencial queda antes de las midterms.',
+          'Ce qu’il reste de poids au président avant les élections de mi-mandat.',
+          'Cuánto peso le queda al presidente antes de las intermedias.',
         ),
         href: samePath('/us/indexes/lame-duck/'),
       },
@@ -337,7 +337,7 @@ export const DESKS: DeskGroup[] = [
         blurb: l10n(
           'Canada Goose against Lame-Duck: who blinks first on trade.',
           'Bernache contre Canard boiteux : qui cède le premier sur le commerce.',
-          'Barnacla contra Lame-Duck: quién cede primero en comercio.',
+          'Barnacla contra Pato Cojo: quién cede primero en el comercio.',
         ),
         href: samePath('/indexes/cusma-showdown/'),
       },

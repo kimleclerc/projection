@@ -5,7 +5,10 @@ import { partyName } from '../lib/party-names';
 // topline live du modèle, la composition réelle de la Chambre et les
 // partielles, au lieu d'être une étape vide avant la projection.
 import EditorialLayout from '../layouts/EditorialLayout.astro';
-import EditorialHero from './EditorialHero.astro';
+import PageHeader from './PageHeader.astro';
+import StoryList from './StoryList.astro';
+import ResultsTable from './ResultsTable.astro';
+import { longDate } from '../lib/format';
 import MethodologyNote from './MethodologyNote.astro';
 import DeskSections from './DeskSections.astro';
 import ukMeta from '../../web_data/uk/latest.json';
@@ -38,7 +41,7 @@ const seatLeader = [...parties].sort((a, b) => (b.seats_mean ?? 0) - (a.seats_me
 // une légende, bancals en sujet de phrase. Deux formes, donc — une pour le
 // titre, une plus courte pour la ligne de chiffres.
 const SUBJECT: Record<string, Record<Locale, string>> = {
-  uk_lab: { fr: 'Le Labour', en: 'Labour', es: 'El laborismo' },
+  uk_lab: { fr: 'Le Parti travailliste', en: 'Labour', es: 'El Partido Laborista' },
   uk_ref: { fr: 'Reform UK', en: 'Reform UK', es: 'Reform UK' },
   uk_con: { fr: 'Les conservateurs', en: 'The Conservatives', es: 'Los conservadores' },
   uk_ld: { fr: 'Les libéraux-démocrates', en: 'The Liberal Democrats', es: 'Los liberal-demócratas' },
@@ -46,7 +49,7 @@ const SUBJECT: Record<string, Record<Locale, string>> = {
   uk_snp: { fr: 'Le SNP', en: 'The SNP', es: 'El SNP' },
 };
 const SHORT: Record<string, Record<Locale, string>> = {
-  uk_lab: { fr: 'Labour', en: 'Labour', es: 'Labour' },
+  uk_lab: { fr: 'Travaillistes', en: 'Labour', es: 'Laboristas' },
   uk_ref: { fr: 'Reform UK', en: 'Reform UK', es: 'Reform UK' },
   uk_con: { fr: 'Conservateurs', en: 'Conservatives', es: 'Conservadores' },
   uk_ld: { fr: 'Lib-Dem', en: 'Lib Dems', es: 'Lib-Dem' },
@@ -84,159 +87,153 @@ const fmt1 = (v: number) =>
 
 const copy = {
   en: {
-    title: `U.K. General Election Poll Tracker & Seat Projection — ${shortName(leader)} ${fmt1(leader.vote_mean)}%, ${shortName(seatLeader)} ${Math.round(seatLeader.seats_mean)} Seats — Vote-Scope`,
+    title: `U.K. General Election Poll Tracker & Seat Projection — ${shortName(leader)} ${fmt1(leader.vote_mean)}%${seatLeader.party === leader.party ? ' and' : `, ${shortName(seatLeader)}`} ${Math.round(seatLeader.seats_mean)} Seats — Vote-Scope`,
     description: splitWinner
       ? `${subj(leader)} leads the polls on ${fmt1(leader.vote_mean)}% and still finishes ${seatGap} seats behind ${shortName(seatLeader)}. Vote-Scope projects all 650 Westminster constituencies, tracks every U.K. poll, and covers the Holborn and St Pancras by-election and the Clacton recall question.`
       : `${partyLabel(leader)} leads on ${fmt1(leader.vote_mean)}% and ${Math.round(seatLeader.seats_mean)} seats. Vote-Scope projects all 650 Westminster constituencies, tracks every U.K. poll, and covers the live by-elections.`,
     eyebrow: 'U.K. Desk',
     heroTitle: splitWinner
-      ? `${subj(leader)} is winning the polls. ${subj(seatLeader)} is winning ${seatGap} more seats.`
-      : `${subj(leader)} leads on votes and on seats. How solid is it?`,
-    promise: 'Vote-Scope projects all 650 Westminster constituencies one by one, from polls corrected for house effects and calibrated on past elections. The gap between votes and seats is the whole story, and you can only see it seat by seat.',
+      ? `${subj(leader)} wins the polls. ${subj(seatLeader)} wins ${seatGap} more seats.`
+      : `${subj(leader)} leads in votes and in seats.`,
+    promise: 'We project all 650 Westminster constituencies one by one, from polls corrected for each pollster’s usual lean.',
     question: seatLeader.party === leader.party
       ? `Today: ${shortName(leader)} leads with ${fmt1(leader.vote_mean)}% of the vote and ${Math.round(leader.seats_mean)} projected seats.`
       : `Today: ${shortName(seatLeader)} wins the most seats (${Math.round(seatLeader.seats_mean)}) on ${fmt1(seatLeader.vote_mean)}% of the vote; ${shortName(leader)} leads the vote on ${fmt1(leader.vote_mean)}% but gets ${Math.round(leader.seats_mean)}.`,
     openProjection: 'Open projection',
     allIndexes: 'All indexes',
-    toplineLabel: `Model topline · run ${meta.run_date} · ${meta.n_polls} polls`,
+    toplineLabel: `Forecast of ${longDate(meta.run_date, 'en')} · ${meta.n_polls} polls`,
     votes: 'vote',
     seats: 'seats',
     compositionLabel: `Commons today — ${compTotal} of ${meta.total_seats} GB seats tracked`,
-    transitionKicker: '1 SEP 2026 · WESTMINSTER',
+    transitionKicker: '1 September 2026 · Westminster',
     transitionTitle: 'Starmer has left the Commons — six weeks after leaving Downing Street.',
     transitionBody: 'Keir Starmer stood down as MP for Holborn and St Pancras on 1 September, saying it was time to step aside for international work. Andy Burnham had already replaced him as prime minister on 20 July, with Healey at the Treasury, Streeting at Defence and Rayner back at Housing. Two things follow: the Commons has a vacancy again, and the model now reads Labour through a leader it has only a few months of polling on.',
     transitionCta: 'The by-election, seat by seat',
     byeLabel: 'By-elections',
-    raceKicker: 'Open race · writ not moved, no date set',
+    raceKicker: 'Seat vacant · polling day not yet set',
     raceTitle: 'Labour has to defend Starmer’s seat without Starmer.',
-    raceBody:
-      `Fundamentals only — no constituency poll exists yet, so this is a range, not a number. Labour projects at ${fmt1(labShare.q50)}% (${fmt1(labShare.q10)}–${fmt1(labShare.q90)}) and holds in ${fmt1(pHold)}% of simulations; the Greens sit at ${fmt1(grnShare.q50)}% with a ${fmt1(pGreen)}% chance of the gain. The 2024 runner-up here was not a Conservative — it was an independent on 18.9%.`,
-    raceLever: `If Green leader Zack Polanski stands, Labour’s hold probability falls to ${fmt1(pHoldIfPolanski)}%. That single unknown moves this race more than anything else on the board.`,
-    raceCta: 'Open the race desk',
-    resolvedLabel: '2026 by-elections — called and settled',
+    raceBody: `No local poll exists yet, so we give a range rather than a single number. Labour is projected at ${fmt1(labShare.q50)}% (between ${fmt1(labShare.q10)}% and ${fmt1(labShare.q90)}%) and holds the seat in ${fmt1(pHold)}% of simulations; the Greens are at ${fmt1(grnShare.q50)}% with a ${fmt1(pGreen)}% chance of winning it. In 2024 the runner-up here was not a Conservative but an independent, on 18.9%.`,
+    raceLever: `If Green leader Zack Polanski stands, Labour’s chance of holding the seat falls to ${pHoldIfPolanski < 1 ? 'under 1' : fmt1(pHoldIfPolanski)}%. No other unknown moves this race as much.`,
+    raceCta: 'Full by-election forecast',
+    resolvedLabel: '2026 by-elections already decided',
     resolvedNote: 'Clacton settled on 13 August: Reform hold, and the Commons vacancy that had been showing here is gone.',
-    leadKicker: '3 SEP 2026 · CLACTON',
+    leadKicker: '3 September 2026 · Clacton',
     leadTitle: 'Farage is filmed celebrating a secret foreign-funded polling scheme. Could Clacton vote again?',
-    leadBody: 'According to Channel 4 News and the investigative group Verbatim, senior Reform UK figures had three polls paid for by a US company and published as independent. Reform UK and Mr Farage deny the allegations in full; nothing has been charged. We are not waiting for that to resolve — the recall chain is modelled, and so is every field the race could take.',
+    leadBody: 'According to Channel 4 News and the investigative group Verbatim, senior Reform UK figures had three polls paid for by a US company and published as independent. Reform UK and Mr Farage deny all the allegations, and no charge has been laid. We have modelled the steps of a possible recall and the candidacies the race could see.',
     leadStat: 'a second by-election by mid-2029',
     leadCta: 'The recall chain and 24 race scenarios',
     cards: [
-      { href: '/en/uk/general-election/', eyebrow: 'General election projection', title: 'U.K. General Election', body: `650-seat projection. Bayesian poll aggregation, ${meta.n_simulations.toLocaleString('en-GB')} Monte Carlo simulations, seat-level probabilities.`, cta: 'Open projection' },
-      { href: '/en/uk/constituencies/', eyebrow: 'Constituency profiles', title: '650 Westminster constituencies', body: 'A page for every seat: projection, sitting MP, 2024 result, ONS demographics and neighbouring seats.', cta: 'Explore all 650' },
-      { href: '/en/uk/polls/', eyebrow: 'Polling hub', title: 'Every poll, weighted', body: 'The full U.K. polling series that feeds the model — firm, dates, sample and weight, poll by poll.', cta: 'Open the polls hub' },
+      { href: '/en/uk/general-election/', title: 'U.K. general election', body: 'Projection of all 650 seats, with each party’s chance of winning every one.' },
+      { href: '/en/uk/constituencies/', title: 'The 650 Westminster constituencies', body: 'A page for every seat: projection, sitting MP, 2024 result, demographics and nearby seats.' },
+      { href: '/en/uk/polls/', title: 'U.K. polls', body: 'Every poll that feeds the model: pollster, dates, sample and weight.' },
     ],
-    methodTitle: 'Built for depth, down to the marginal seat.',
-    methodBody:
-      "The British electoral map rewards granularity: tactical voting, regional swings and third-party dynamics shift individual seats in ways national polls can't predict. Vote-Scope projects every seat, so you can see exactly where the contest lives.",
+    methodTitle: 'How we forecast the United Kingdom',
+    methodBody: 'Each seat is projected separately: tactical voting, regional swings and the rise of smaller parties move individual seats in ways national polls do not show.',
     methodBullets: [
-      'Polling aggregation uses a Bayesian BSTS model, estimated by MCMC (Markov chain Monte Carlo), with region-level adjustments.',
-      `${meta.n_simulations.toLocaleString('en-GB')} Monte Carlo simulations of the election then turn it into seat distributions and win probabilities.`,
-      'Commons composition reflects resolved by-elections and current vacancies — not just the 2024 result.',
-      'By-elections get their own engine. Holborn and St Pancras runs on a dedicated Monte Carlo model with no constituency poll yet, so it publishes ranges and field scenarios rather than a point estimate.',
+      "Polls are combined in a model that follows each party over time, with regional adjustments.",
+      "We then simulate the election thousands of times to get seat ranges and each seat’s chances.",
+      "The Commons composition includes by-elections already decided and current vacancies, not only the 2024 result.",
+      "By-elections have their own model. With no local poll in Holborn and St Pancras yet, it gives ranges and candidacy scenarios rather than a single number.",
     ],
   },
   fr: {
-    title: `Sondages et projection de sièges au Royaume-Uni — ${shortName(leader)} ${fmt1(leader.vote_mean)} %, ${shortName(seatLeader)} ${Math.round(seatLeader.seats_mean)} sièges — Vote-Scope`,
+    title: `Sondages et projection de sièges au Royaume-Uni — ${shortName(leader)} ${fmt1(leader.vote_mean)} %${seatLeader.party === leader.party ? ' et' : `, ${shortName(seatLeader)}`} ${Math.round(seatLeader.seats_mean)} sièges — Vote-Scope`,
     description: splitWinner
       ? `${subj(leader)} mène les sondages à ${fmt1(leader.vote_mean)} % et finit quand même ${seatGap} sièges derrière ${shortName(seatLeader)}. Vote-Scope projette les 650 circonscriptions de Westminster, suit chaque sondage britannique et couvre la partielle de Holborn and St Pancras ainsi que la question du rappel à Clacton.`
       : `${partyLabel(leader)} mène à ${fmt1(leader.vote_mean)} % et ${Math.round(seatLeader.seats_mean)} sièges. Vote-Scope projette les 650 circonscriptions de Westminster et suit chaque sondage britannique.`,
     eyebrow: 'Bureau UK',
     heroTitle: splitWinner
       ? `${subj(leader)} gagne les sondages. ${subj(seatLeader)} gagne ${seatGap} sièges de plus.`
-      : `${subj(leader)} mène aux voix comme aux sièges. Est-ce solide ?`,
-    promise: 'Vote-Scope projette les 650 circonscriptions de Westminster une par une, à partir des sondages corrigés des biais d’institut et calibrés sur les scrutins passés. L’écart entre les voix et les sièges est toute l’histoire, et il ne se voit que siège par siège.',
+      : `${subj(leader)} mène aux voix comme aux sièges.`,
+    promise: 'Nous projetons les 650 circonscriptions de Westminster une par une, à partir des sondages corrigés des écarts habituels de chaque institut.',
     question: seatLeader.party === leader.party
-      ? `Aujourd’hui : ${shortName(leader)} mène avec ${fmt1(leader.vote_mean)} % des voix et ${Math.round(leader.seats_mean)} sièges projetés.`
-      : `Aujourd’hui : ${shortName(seatLeader)} remporte le plus de sièges (${Math.round(seatLeader.seats_mean)}) avec ${fmt1(seatLeader.vote_mean)} % des voix ; ${shortName(leader)} mène en voix à ${fmt1(leader.vote_mean)} % mais n’obtient que ${Math.round(leader.seats_mean)} sièges.`,
+      ? `Aujourd’hui, ${subj(leader).charAt(0).toLowerCase() + subj(leader).slice(1)} mène avec ${fmt1(leader.vote_mean)} % des voix et ${Math.round(leader.seats_mean)} sièges projetés.`
+      : `Aujourd’hui, ${subj(seatLeader).charAt(0).toLowerCase() + subj(seatLeader).slice(1)} remporte le plus de sièges (${Math.round(seatLeader.seats_mean)}) avec ${fmt1(seatLeader.vote_mean)} % des voix ; ${subj(leader).charAt(0).toLowerCase() + subj(leader).slice(1)} mène en voix à ${fmt1(leader.vote_mean)} % mais n’obtient que ${Math.round(leader.seats_mean)} sièges.`,
     openProjection: 'Ouvrir la projection',
     allIndexes: 'Tous les indices',
-    toplineLabel: `Le modèle · mis à jour le ${meta.run_date} · ${meta.n_polls} sondages`,
+    toplineLabel: `Projection du ${longDate(meta.run_date, 'fr')} · ${meta.n_polls} sondages`,
     votes: 'voix',
     seats: 'sièges',
-    compositionLabel: `Les Communes aujourd'hui — ${compTotal} des ${meta.total_seats} sièges GB suivis`,
-    transitionKicker: '1ER SEPT. 2026 · WESTMINSTER',
+    compositionLabel: `Les Communes aujourd’hui : ${compTotal} des ${meta.total_seats} sièges de Grande-Bretagne`,
+    transitionKicker: '1er septembre 2026 · Westminster',
     transitionTitle: 'Starmer quitte les Communes — six semaines après avoir quitté Downing Street.',
-    transitionBody: 'Keir Starmer a démissionné de son siège de Holborn and St Pancras le 1er septembre, disant qu’il était temps de « s’effacer » pour se consacrer aux dossiers internationaux. Andy Burnham l’avait déjà remplacé comme premier ministre le 20 juillet, avec Healey aux Finances, Streeting à la Défense et Rayner de retour au Logement. Deux conséquences : les Communes ont de nouveau une vacance, et le modèle lit désormais le Labour à travers un chef sur lequel il n’a que quelques mois de sondages.',
+    transitionBody: 'Keir Starmer a démissionné de son siège de Holborn and St Pancras le 1er septembre, disant qu’il était temps de « s’effacer » pour se consacrer aux dossiers internationaux. Andy Burnham l’avait déjà remplacé comme premier ministre le 20 juillet, avec Healey aux Finances, Streeting à la Défense et Rayner de retour au Logement. Deux conséquences : les Communes ont de nouveau un siège vacant, et le modèle lit désormais le Parti travailliste à travers un chef sur lequel il n’a que quelques mois de sondages.',
     transitionCta: 'La partielle, siège par siège',
     byeLabel: 'Partielles',
-    raceKicker: 'Course ouverte · writ non déposé, date non fixée',
-    raceTitle: 'Le Labour doit défendre le siège de Starmer sans Starmer.',
-    raceBody:
-      `Fondamentaux seulement — aucun sondage de circonscription n’existe encore, donc une fourchette, pas un nombre. Le Labour se projette à ${fmt1(labShare.q50)} % (${fmt1(labShare.q10)}–${fmt1(labShare.q90)}) et conserve le siège dans ${fmt1(pHold)} % des simulations ; les Verts sont à ${fmt1(grnShare.q50)} % avec ${fmt1(pGreen)} % de chances de gain. Le deuxième de 2024 ici n’était pas un conservateur, mais un indépendant à 18,9 %.`,
-    raceLever: `Si Zack Polanski, chef des Verts, se présente, la probabilité de maintien travailliste tombe à ${fmt1(pHoldIfPolanski)} %. Cette seule inconnue déplace la course plus que tout le reste.`,
-    raceCta: 'Ouvrir la rubrique de course',
-    resolvedLabel: 'Partielles 2026 — jugées et réglées',
+    raceKicker: 'Siège vacant · date du scrutin pas encore fixée',
+    raceTitle: 'Le Parti travailliste doit défendre le siège de Starmer sans lui.',
+    raceBody: `Aucun sondage local n’existe encore : nous donnons une fourchette plutôt qu’un chiffre. Le Parti travailliste est projeté à ${fmt1(labShare.q50)} % (entre ${fmt1(labShare.q10)} et ${fmt1(labShare.q90)} %) et garde le siège dans ${fmt1(pHold)} % des simulations ; les Verts sont à ${fmt1(grnShare.q50)} % avec ${fmt1(pGreen)} % de chances de l’emporter. En 2024, le deuxième ici n’était pas un conservateur mais un candidat indépendant, à 18,9 %.`,
+    raceLever: `Si Zack Polanski, chef des Verts, se présente, les chances des travaillistes de garder le siège tombent à ${pHoldIfPolanski < 1 ? 'moins de 1' : fmt1(pHoldIfPolanski)} %. Aucune autre inconnue ne pèse autant sur cette course.`,
+    raceCta: 'Toute la projection de cette partielle',
+    resolvedLabel: 'Partielles de 2026 déjà tranchées',
     resolvedNote: 'Clacton a été tranchée le 13 août : maintien Reform, et la vacance qui s’affichait ici a disparu.',
-    leadKicker: '3 SEPT. 2026 · CLACTON',
+    leadKicker: '3 septembre 2026 · Clacton',
     leadTitle: 'Farage filmé en train de se féliciter d’un montage de sondages payés de l’étranger. Clacton peut-elle revoter ?',
-    leadBody: 'Selon Channel 4 News et le groupe d’investigation Verbatim, des figures senior de Reform UK ont fait payer trois sondages par une société américaine, publiés comme indépendants. Reform UK et M. Farage nient l’ensemble des allégations ; rien n’est accusé. On n’attend pas que ça se dénoue — la chaîne de rappel est modélisée, et tous les champs que la course pourrait prendre aussi.',
+    leadBody: 'Selon Channel 4 News et le groupe d’enquête Verbatim, des dirigeants de Reform UK auraient fait payer trois sondages par une société américaine, publiés comme indépendants. Reform UK et M. Farage nient l’ensemble des allégations, et aucune accusation n’a été portée. Nous avons modélisé les étapes d’un éventuel rappel et les candidatures possibles.',
     leadStat: 'une seconde partielle d’ici mi-2029',
-    leadCta: 'La chaîne de rappel et 24 scénarios de course',
+    leadCta: 'Les étapes du rappel et 24 scénarios de candidatures',
     cards: [
-      { href: '/fr/uk/general-election/', eyebrow: 'Projection de la générale', title: 'Générale britannique', body: `Projection des 650 sièges. Agrégation bayésienne des sondages, ${meta.n_simulations.toLocaleString('fr-FR')} simulations Monte Carlo, probabilités par siège.`, cta: 'Ouvrir la projection' },
-      { href: '/fr/uk/circonscriptions/', eyebrow: 'Fiches de circonscription', title: '650 circonscriptions de Westminster', body: 'Une page par siège : projection, député en poste, résultat 2024, démographie ONS et sièges voisins.', cta: 'Explorer les 650' },
-      { href: '/fr/uk/sondages/', eyebrow: 'Sondages', title: 'Chaque sondage, pondéré', body: 'La série complète des sondages UK qui alimente le modèle — firme, dates, échantillon et poids, sondage par sondage.', cta: 'Ouvrir le hub' },
+      { href: '/fr/uk/general-election/', title: 'Élection générale britannique', body: 'Projection des 650 sièges, avec les chances de chaque parti dans chacun.' },
+      { href: '/fr/uk/circonscriptions/', title: 'Les 650 circonscriptions de Westminster', body: 'Une page par siège : projection, député en poste, résultat de 2024, démographie et sièges voisins.' },
+      { href: '/fr/uk/sondages/', title: 'Sondages britanniques', body: 'Tous les sondages qui alimentent le modèle : institut, dates, échantillon et poids.' },
     ],
-    methodTitle: 'Conçu pour la profondeur, jusqu’au siège marginal.',
-    methodBody:
-      'La carte électorale britannique récompense la granularité : vote tactique, swings régionaux et dynamiques de tiers partis déplacent des sièges individuels que les sondages nationaux ne voient pas. Vote-Scope projette chaque siège.',
+    methodTitle: 'Comment nous projetons le Royaume-Uni',
+    methodBody: 'Chaque siège est projeté à part : le vote tactique, les écarts entre régions et la montée des petits partis déplacent des sièges que les sondages nationaux ne montrent pas.',
     methodBullets: [
-      'Agrégation des sondages par modèle bayésien BSTS, estimé par MCMC (chaîne de Markov Monte Carlo), avec ajustements régionaux.',
-      `${meta.n_simulations.toLocaleString('fr-FR')} simulations Monte Carlo de l'élection en tirent ensuite les distributions de sièges et probabilités de victoire.`,
-      'La composition des Communes reflète les partielles résolues et les vacances en cours — pas seulement le résultat 2024.',
-      'Les partielles ont leur propre moteur. Holborn and St Pancras tourne sur un modèle Monte Carlo dédié, sans sondage de circonscription : il publie des fourchettes et des scénarios de champ, pas un point.',
+      "Les sondages sont combinés dans un modèle qui suit chaque parti dans le temps, avec des ajustements par région.",
+      "Nous simulons ensuite l’élection des milliers de fois pour obtenir les fourchettes de sièges et les chances dans chaque siège.",
+      "La composition des Communes tient compte des partielles déjà tranchées et des sièges vacants, pas seulement du résultat de 2024.",
+      "Les partielles ont leur propre modèle. Sans sondage local à Holborn and St Pancras, il donne des fourchettes et des scénarios de candidatures plutôt qu’un chiffre unique.",
     ],
   },
   es: {
-    title: `Encuestas y proyección de escaños en el Reino Unido — ${shortName(leader)} ${fmt1(leader.vote_mean)} %, ${shortName(seatLeader)} ${Math.round(seatLeader.seats_mean)} escaños — Vote-Scope`,
+    title: `Encuestas y proyección de escaños en el Reino Unido — ${shortName(leader)} ${fmt1(leader.vote_mean)} %${seatLeader.party === leader.party ? ' y' : `, ${shortName(seatLeader)}`} ${Math.round(seatLeader.seats_mean)} escaños — Vote-Scope`,
     description: splitWinner
       ? `${subj(leader)} lidera las encuestas con ${fmt1(leader.vote_mean)} % y aun así termina ${seatGap} escaños por detrás de ${shortName(seatLeader)}. Vote-Scope proyecta las 650 circunscripciones de Westminster, sigue cada encuesta británica y cubre la parcial de Holborn and St Pancras y la cuestión del recall en Clacton.`
       : `${partyLabel(leader)} lidera con ${fmt1(leader.vote_mean)} % y ${Math.round(seatLeader.seats_mean)} escaños. Vote-Scope proyecta las 650 circunscripciones de Westminster.`,
-    eyebrow: 'del Reino Unido',
+    eyebrow: 'Reino Unido',
     heroTitle: splitWinner
       ? `${subj(leader)} gana las encuestas. ${subj(seatLeader)} gana ${seatGap} escaños más.`
-      : `${subj(leader)} lidera en votos y en escaños. ¿Es sólido?`,
-    promise: 'Vote-Scope proyecta las 650 circunscripciones de Westminster una por una, con encuestas corregidas por sesgo de encuestadora y calibradas sobre elecciones pasadas. La brecha entre votos y escaños es toda la historia, y solo se ve escaño por escaño.',
+      : `${subj(leader)} lidera en votos y en escaños.`,
+    promise: 'Proyectamos las 650 circunscripciones de Westminster una por una, con encuestas corregidas según el sesgo habitual de cada encuestadora.',
     question: seatLeader.party === leader.party
-      ? `Hoy: ${shortName(leader)} lidera con el ${fmt1(leader.vote_mean)} % de los votos y ${Math.round(leader.seats_mean)} escaños proyectados.`
-      : `Hoy: ${shortName(seatLeader)} logra más escaños (${Math.round(seatLeader.seats_mean)}) con el ${fmt1(seatLeader.vote_mean)} % de los votos; ${shortName(leader)} lidera en votos con el ${fmt1(leader.vote_mean)} % pero obtiene ${Math.round(leader.seats_mean)}.`,
+      ? `Hoy, ${subj(leader).charAt(0).toLowerCase() + subj(leader).slice(1)} lidera con el ${fmt1(leader.vote_mean)} % de los votos y ${Math.round(leader.seats_mean)} escaños proyectados.`
+      : `Hoy, ${subj(seatLeader).charAt(0).toLowerCase() + subj(seatLeader).slice(1)} logra más escaños (${Math.round(seatLeader.seats_mean)}) con el ${fmt1(seatLeader.vote_mean)} % de los votos; ${subj(leader).charAt(0).toLowerCase() + subj(leader).slice(1)} lidera en votos con el ${fmt1(leader.vote_mean)} % pero obtiene ${Math.round(leader.seats_mean)}.`,
     openProjection: 'Abrir la proyección',
     allIndexes: 'Todos los índices',
-    toplineLabel: `Topline del modelo · ejecución ${meta.run_date} · ${meta.n_polls} encuestas`,
+    toplineLabel: `Proyección del ${longDate(meta.run_date, 'es')} · ${meta.n_polls} encuestas`,
     votes: 'voto',
     seats: 'escaños',
-    compositionLabel: `Los Comunes hoy — ${compTotal} de los ${meta.total_seats} escaños GB seguidos`,
-    transitionKicker: '1 SEP 2026 · WESTMINSTER',
+    compositionLabel: `Los Comunes hoy: ${compTotal} de los ${meta.total_seats} escaños de Gran Bretaña`,
+    transitionKicker: '1 de septiembre de 2026 · Westminster',
     transitionTitle: 'Starmer deja los Comunes — seis semanas después de dejar Downing Street.',
     transitionBody: 'Keir Starmer renunció a su escaño de Holborn and St Pancras el 1 de septiembre, diciendo que era hora de apartarse para dedicarse a asuntos internacionales. Andy Burnham ya lo había sustituido como primer ministro el 20 de julio, con Healey en el Tesoro, Streeting en Defensa y Rayner de vuelta en Vivienda. Dos consecuencias: los Comunes vuelven a tener una vacante, y el modelo lee ahora al laborismo a través de un líder del que solo tiene unos meses de encuestas.',
     transitionCta: 'La parcial, escaño por escaño',
     byeLabel: 'Parciales',
-    raceKicker: 'Contienda abierta · sin writ y sin fecha',
-    raceTitle: 'El laborismo debe defender el escaño de Starmer sin Starmer.',
-    raceBody:
-      `Solo fundamentos — todavía no existe ninguna encuesta de circunscripción, así que es un rango, no un número. El laborismo se proyecta en ${fmt1(labShare.q50)} % (${fmt1(labShare.q10)}–${fmt1(labShare.q90)}) y retiene el escaño en ${fmt1(pHold)} % de las simulaciones; los Verdes están en ${fmt1(grnShare.q50)} % con ${fmt1(pGreen)} % de probabilidad de ganarlo. El segundo lugar de 2024 aquí no fue un conservador, sino un independiente con 18,9 %.`,
-    raceLever: `Si se presenta Zack Polanski, líder de los Verdes, la probabilidad de retención laborista cae a ${fmt1(pHoldIfPolanski)} %. Esa sola incógnita mueve la contienda más que cualquier otra cosa.`,
-    raceCta: 'Abrir la contienda',
-    resolvedLabel: 'Parciales de 2026 — resueltas',
+    raceKicker: 'Escaño vacante · fecha de votación aún sin fijar',
+    raceTitle: 'El Partido Laborista debe defender el escaño de Starmer sin él.',
+    raceBody: `Todavía no hay ninguna encuesta local: damos un rango en lugar de una cifra. El Partido Laborista se proyecta en ${fmt1(labShare.q50)} % (entre ${fmt1(labShare.q10)} y ${fmt1(labShare.q90)} %) y retiene el escaño en el ${fmt1(pHold)} % de las simulaciones; los Verdes están en ${fmt1(grnShare.q50)} % con un ${fmt1(pGreen)} % de probabilidades de ganarlo. En 2024, el segundo aquí no fue un conservador sino un independiente, con el 18,9 %.`,
+    raceLever: `Si se presenta Zack Polanski, líder de los Verdes, la probabilidad de que los laboristas retengan el escaño cae a ${pHoldIfPolanski < 1 ? 'menos del 1' : fmt1(pHoldIfPolanski)} %. Ninguna otra incógnita pesa tanto en esta contienda.`,
+    raceCta: 'Toda la proyección de esta parcial',
+    resolvedLabel: 'Parciales de 2026 ya decididas',
     resolvedNote: 'Clacton se resolvió el 13 de agosto: retención de Reform, y la vacante que aparecía aquí ya no existe.',
-    leadKicker: '3 SEP 2026 · CLACTON',
+    leadKicker: '3 de septiembre de 2026 · Clacton',
     leadTitle: 'Farage, filmado celebrando un montaje de encuestas pagadas desde el extranjero. ¿Puede Clacton volver a votar?',
-    leadBody: 'Según Channel 4 News y el grupo de investigación Verbatim, figuras senior de Reform UK hicieron pagar tres encuestas a una empresa estadounidense, publicadas como independientes. Reform UK y el señor Farage niegan todas las alegaciones; nada ha sido imputado. No esperamos a que se resuelva: la cadena de recall está modelada, y también cada campo que la contienda podría tomar.',
+    leadBody: 'Según Channel 4 News y el grupo de investigación Verbatim, dirigentes de Reform UK habrían hecho pagar tres encuestas a una empresa estadounidense, publicadas como independientes. Reform UK y el señor Farage niegan todas las acusaciones, y no se ha presentado ningún cargo. Hemos modelado los pasos de un posible recall y las candidaturas posibles.',
     leadStat: 'una segunda parcial antes de mediados de 2029',
     leadCta: 'La cadena de recall y 24 escenarios',
     cards: [
-      { href: '/es/uk/general-election/', eyebrow: 'Proyección de las generales', title: 'Generales británicas', body: `Proyección de 650 escaños. Agregación bayesiana de encuestas, ${meta.n_simulations.toLocaleString('es-ES')} simulaciones Monte Carlo, probabilidades por escaño.`, cta: 'Abrir la proyección' },
-      { href: '/es/uk/circunscripciones/', eyebrow: 'Fichas de circunscripción', title: '650 circunscripciones de Westminster', body: 'Una página por escaño: proyección, diputado en ejercicio, resultado 2024, demografía ONS y escaños vecinos.', cta: 'Explorar las 650' },
-      { href: '/es/uk/sondeos/', eyebrow: 'Encuestas', title: 'Cada encuesta, ponderada', body: 'La serie completa de encuestas del Reino Unido que alimenta el modelo — casa, fechas, muestra y peso.', cta: 'Abrir' },
+      { href: '/es/uk/general-election/', title: 'Elecciones generales británicas', body: 'Proyección de los 650 escaños, con las probabilidades de cada partido en cada uno.' },
+      { href: '/es/uk/circunscripciones/', title: 'Las 650 circunscripciones de Westminster', body: 'Una página por escaño: proyección, diputado en ejercicio, resultado de 2024, demografía y escaños vecinos.' },
+      { href: '/es/uk/sondeos/', title: 'Encuestas británicas', body: 'Todas las encuestas que alimentan el modelo: encuestadora, fechas, muestra y peso.' },
     ],
-    methodTitle: 'Construido para la profundidad, hasta el escaño marginal.',
-    methodBody:
-      'El mapa electoral británico premia la granularidad: voto táctico, swings regionales y terceras fuerzas mueven escaños que las encuestas nacionales no ven. Vote-Scope proyecta cada escaño.',
+    methodTitle: 'Cómo proyectamos el Reino Unido',
+    methodBody: 'Cada escaño se proyecta por separado: el voto táctico, las diferencias entre regiones y el ascenso de los partidos pequeños mueven escaños que las encuestas nacionales no muestran.',
     methodBullets: [
-      'Agregación de encuestas con un modelo bayesiano BSTS, estimado por MCMC (cadena de Markov Monte Carlo), y ajustes regionales.',
-      `${meta.n_simulations.toLocaleString('es-ES')} simulaciones Monte Carlo de la elección producen luego las distribuciones de escaños y probabilidades.`,
-      'La composición de los Comunes refleja parciales resueltas y vacantes actuales — no solo el resultado de 2024.',
-      'Las parciales tienen su propio motor. Holborn and St Pancras corre en un modelo Monte Carlo dedicado, sin encuesta de circunscripción: publica rangos y escenarios de campo, no un punto.',
+      "Las encuestas se combinan en un modelo que sigue a cada partido en el tiempo, con ajustes por región.",
+      "Después simulamos la elección miles de veces para obtener las horquillas de escaños y las probabilidades en cada escaño.",
+      "La composición de los Comunes incluye las parciales ya decididas y los escaños vacantes, no solo el resultado de 2024.",
+      "Las parciales tienen su propio modelo. Sin encuesta local en Holborn and St Pancras, da rangos y escenarios de candidaturas en lugar de una cifra única.",
     ],
   },
 }[locale];
@@ -287,116 +284,61 @@ const dateLabel = (iso: string) => {
   alternates={alternates}
   jsonLd={jsonLd}
 >
-  <EditorialHero
-    eyebrow={t.eyebrow}
-    title={t.heroTitle}
-    promise={t.promise}
-    question={t.question}
-    primaryHref={`/${locale}/uk/general-election/`}
-    primaryLabel={t.openProjection}
-    secondaryHref={`/${locale}/indexes/`}
-    secondaryLabel={t.allIndexes}
-    preferredSourceLocale={locale}
-  />
+  <PageHeader title={t.heroTitle} promise={t.promise} question={t.question} preferredSourceLocale={locale} />
 
-  <section class="content-band">
-    <div class="container">
-      <a class="ukdesk-lead" href={`/${locale}/uk/byelections/clacton-next/`}>
-        <p class="eyebrow">{t.leadKicker}</p>
-        <h2>{t.leadTitle}</h2>
-        <p class="ukdesk-lead-body">{t.leadBody}</p>
-        <p class="ukdesk-lead-figure">
-          <strong>{fmt1(recallHeld * 100)}%</strong>
-          <span>{t.leadStat}</span>
-        </p>
-        <footer><span class="cta-link">{t.leadCta}</span></footer>
-      </a>
-    </div>
-  </section>
-
-  <section class="content-band">
-    <div class="container">
-      <article class="note-card" style="max-width:900px;border-top: 3px solid var(--ink);">
-        <p class="eyebrow">{t.transitionKicker}</p>
-        <h2 style="font-family:var(--serif);font-size:clamp(1.7rem,3vw,2.5rem);margin:.4rem 0 1rem;">{t.transitionTitle}</h2>
-        <p>{t.transitionBody}</p>
-        <p style="margin-top:1rem;"><a class="cta-link" href={racePath}>{t.transitionCta}</a></p>
-      </article>
-    </div>
-  </section>
-
-  <section class="content-band ukdesk-topline-band">
-    <div class="container">
-      <p class="ukdesk-label">{t.toplineLabel}</p>
-      <div class="ukdesk-topline">
-        {topParties.map((p) => (
-          <div class="ukdesk-tile" style={`--party-color:${p.color}`}>
-            <span class="ukdesk-tile-party">{partyLabel(p)}</span>
-            <strong class="ukdesk-tile-vote">{fmt1(p.vote_mean)}%</strong>
-            <span class="ukdesk-tile-seats">{Math.round(p.seats_mean)} {t.seats}</span>
-          </div>
-        ))}
-      </div>
-
-      <p class="ukdesk-label" style="margin-top:34px;">{t.compositionLabel}</p>
-      <div class="ukdesk-comp-bar" role="img" aria-label={t.compositionLabel}>
-        {composition.filter((c) => c.seats > 0).map((c) => (
-          <div
-            style={`width:${(c.seats / compTotal) * 100}%;background:${c.color};`}
-            title={`${partyLabel(c)}: ${c.seats}`}
-          />
-        ))}
-      </div>
-      <div class="ukdesk-comp-legend">
-        {composition.filter((c) => c.seats > 0).map((c) => (
-          <span><i style={`background:${c.color}`}></i>{partyLabel(c)} {c.seats}</span>
-        ))}
-      </div>
-    </div>
-  </section>
-
-  <section class="content-band">
-    <div class="container">
-      <p class="ukdesk-label">{t.byeLabel}</p>
-      <div class="content-grid-2" style="margin-top:14px;">
-        <a class="note-card ukdesk-race" href={racePath} style="text-decoration:none;color:inherit;">
-          <p class="eyebrow">{t.raceKicker}</p>
-          <h3>{t.raceTitle}</h3>
-          <p>{t.raceBody}</p>
-          <p class="ukdesk-race-lever">{t.raceLever}</p>
-          <footer style="margin-top:1rem;"><span class="cta-link">{t.raceCta}</span></footer>
-        </a>
-        <div class="ukdesk-resolved">
-          <p class="eyebrow">{t.resolvedLabel}</p>
-          {ukResolvedByelections2026.map((b) => (
-            <div class="ukdesk-resolved-row">
-              <i style={`background:${b.color}`}></i>
-              <span class="ukdesk-resolved-name">
-                {b.paths ? <a href={b.paths[locale]}>{b.name}</a> : b.name}
-              </span>
-              <span class="ukdesk-resolved-outcome">
-                {locale === 'fr' ? b.outcome_fr : locale === 'es' ? b.outcome_es : b.outcome_en}
-              </span>
-              <span class="ukdesk-resolved-date">{dateLabel(b.date)}</span>
-            </div>
-          ))}
-          <p class="ukdesk-resolved-note">{t.resolvedNote}</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="content-band">
-    <div class="container ukdesk-cards">
-      {t.cards.map((card) => (
-        <a class="note-card" href={card.href} style="text-decoration:none;color:inherit;">
-          <p class="eyebrow">{card.eyebrow}</p>
-          <h3>{card.title}</h3>
-          <p>{card.body}</p>
-          <footer style="margin-top:1rem;"><span class="cta-link">{card.cta}</span></footer>
-        </a>
+  <section class="container ukdesk-block">
+    <ResultsTable
+      lang={locale}
+      rows={topParties.map((p) => ({ label: partyLabel(p), color: p.color, seats: Math.round(p.seats_mean), chance: p.vote_mean / 100 }))}
+      totalSeats={meta.total_seats}
+      majority={Math.floor(meta.total_seats / 2) + 1}
+      chanceKind="vote"
+      meta={t.toplineLabel}
+    />
+    <p class="ukdesk-label" style="margin-top:28px;">{t.compositionLabel}</p>
+    <div class="ukdesk-comp-bar" role="img" aria-label={t.compositionLabel}>
+      {composition.filter((c) => c.seats > 0).map((c) => (
+        <div style={`width:${(c.seats / compTotal) * 100}%;background:${c.color};`} title={`${partyLabel(c)} : ${c.seats}`} />
       ))}
     </div>
+    <div class="ukdesk-comp-legend">
+      {composition.filter((c) => c.seats > 0).map((c) => (
+        <span><i style={`background:${c.color}`}></i>{partyLabel(c)} {c.seats}</span>
+      ))}
+    </div>
+  </section>
+
+  <section class="container ukdesk-block">
+    <StoryList heading={t.byeLabel} items={[{ meta: t.raceKicker, title: t.raceTitle, text: `${t.raceBody} ${t.raceLever}`, href: racePath }]} />
+    <div class="ukdesk-resolved">
+      <h3 class="ukdesk-sub">{t.resolvedLabel}</h3>
+      {ukResolvedByelections2026.map((b) => (
+        <div class="ukdesk-resolved-row">
+          <i style={`background:${b.color}`}></i>
+          <span class="ukdesk-resolved-name">
+            {b.paths ? <a href={b.paths[locale]}>{b.name}</a> : b.name}
+          </span>
+          <span class="ukdesk-resolved-outcome">
+            {locale === 'fr' ? b.outcome_fr : locale === 'es' ? b.outcome_es : b.outcome_en}
+          </span>
+          <span class="ukdesk-resolved-date">{dateLabel(b.date)}</span>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section class="container ukdesk-block">
+    <StoryList
+      heading={locale === 'fr' ? 'L’actualité' : locale === 'es' ? 'La actualidad' : 'In the news'}
+      items={[
+        { meta: `${t.transitionKicker}`, title: t.transitionTitle, text: t.transitionBody, href: racePath },
+        { meta: `${t.leadKicker} · ${locale === 'en' ? `${fmt1(recallHeld * 100)}%` : `${fmt1(recallHeld * 100)}\u00a0%`} : ${t.leadStat}`, title: t.leadTitle, text: t.leadBody, href: `/${locale}/uk/byelections/clacton-next/` },
+      ]}
+    />
+  </section>
+
+  <section class="container ukdesk-block">
+    <StoryList items={t.cards} size="sm" />
   </section>
 
   <DeskSections lang={locale} desk="uk" />
@@ -409,6 +351,8 @@ const dateLabel = (iso: string) => {
 </EditorialLayout>
 
 <style>
+  .ukdesk-block { padding-block: 32px; }
+  .ukdesk-sub { margin: 24px 0 8px; font-size: 19px; font-weight: 700; }
   .ukdesk-lead {
     display: block;
     max-width: 900px;

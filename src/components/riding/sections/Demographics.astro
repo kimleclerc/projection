@@ -1,4 +1,5 @@
 ---
+import { pct as fmtPct } from '../../../lib/format';
 import type { RidingData } from '../../../lib/riding-adapters/types';
 
 interface Props {
@@ -83,6 +84,11 @@ const SOURCE_LABELS: Record<string, { en: string; fr: string; es: string }> = {
     fr: 'Statistique Canada — Recensement de 2021 (projeté sur les limites actuelles)',
     es: 'Statistics Canada — Censo 2021 (proyectado sobre los límites actuales)',
   },
+  'ONS mid-2022 population + Jan 2026 labour market': {
+    en: 'Office for National Statistics — mid-2022 population, January 2026 labour market',
+    fr: 'Office for National Statistics (Royaume-Uni) — population mi-2022, marché du travail de janvier 2026',
+    es: 'Office for National Statistics (Reino Unido) — población a mediados de 2022, mercado laboral de enero de 2026',
+  },
   ons_mid_2022_pcon2025: {
     en: 'Office for National Statistics — mid-2022 estimates',
     fr: 'Office for National Statistics — estimations mi-2022',
@@ -104,19 +110,19 @@ const sourceLabel = d.source
         <h3>{T.linguistic}</h3>
         <div class="ling-bar" role="img" aria-label={T.linguistic}>
           {d.francophone_pct !== undefined && (
-            <div class="seg franco" style={`width:${d.francophone_pct}%`} title={`${T.franco} — ${d.francophone_pct.toFixed(1)}%`}></div>
+            <div class="seg franco" style={`width:${d.francophone_pct}%`} title={`${T.franco} — ${fmtPct(d.francophone_pct, lang)}`}></div>
           )}
           {d.anglophone_pct !== undefined && (
-            <div class="seg anglo" style={`width:${d.anglophone_pct}%`} title={`${T.anglo} — ${d.anglophone_pct.toFixed(1)}%`}></div>
+            <div class="seg anglo" style={`width:${d.anglophone_pct}%`} title={`${T.anglo} — ${fmtPct(d.anglophone_pct, lang)}`}></div>
           )}
           {d.nonfrancophone_pct !== undefined && (
-            <div class="seg other" style={`width:${d.nonfrancophone_pct}%`} title={`${T.other} — ${d.nonfrancophone_pct.toFixed(1)}%`}></div>
+            <div class="seg other" style={`width:${d.nonfrancophone_pct}%`} title={`${T.other} — ${fmtPct(d.nonfrancophone_pct, lang)}`}></div>
           )}
         </div>
         <ul class="ling-legend">
-          {d.francophone_pct !== undefined && <li><span class="key franco"></span>{T.franco} <strong>{d.francophone_pct.toFixed(1)}%</strong></li>}
-          {d.anglophone_pct !== undefined && <li><span class="key anglo"></span>{T.anglo} <strong>{d.anglophone_pct.toFixed(1)}%</strong></li>}
-          {d.nonfrancophone_pct !== undefined && <li><span class="key other"></span>{T.other} <strong>{d.nonfrancophone_pct.toFixed(1)}%</strong></li>}
+          {d.francophone_pct !== undefined && <li><span class="key franco"></span>{T.franco} <strong>{fmtPct(d.francophone_pct, lang)}</strong></li>}
+          {d.anglophone_pct !== undefined && <li><span class="key anglo"></span>{T.anglo} <strong>{fmtPct(d.anglophone_pct, lang)}</strong></li>}
+          {d.nonfrancophone_pct !== undefined && <li><span class="key other"></span>{T.other} <strong>{fmtPct(d.nonfrancophone_pct, lang)}</strong></li>}
         </ul>
       </div>
     )}
@@ -130,10 +136,10 @@ const sourceLabel = d.source
           <div><dt>{T.median_age}</dt><dd>{d.median_age}</dd></div>
         )}
         {d.employment_rate !== undefined && (
-          <div><dt>{T.employment}</dt><dd>{d.employment_rate.toFixed(1)}%</dd></div>
+          <div><dt>{T.employment}</dt><dd>{fmtPct(d.employment_rate, lang)}</dd></div>
         )}
         {d.unemployment_rate !== undefined && (
-          <div><dt>{T.unemployment}</dt><dd>{d.unemployment_rate.toFixed(1)}%</dd></div>
+          <div><dt>{T.unemployment}</dt><dd>{fmtPct(d.unemployment_rate, lang)}</dd></div>
         )}
       </div>
     )}

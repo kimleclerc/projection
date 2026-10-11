@@ -35,9 +35,12 @@ interface Props {
 }
 
 const {
-  slug, title, subtitle, theme = 'light', height = 500, lang = 'en', eventUrl,
+  slug, title, subtitle, theme = 'light', height = 500, eventUrl,
   kind = 'market',
 } = Astro.props;
+// Sans langue explicite, celle de l'adresse (/fr/…, /es/…) : jamais d'anglais sur une page FR.
+const urlLang = Astro.url.pathname.split('/')[1];
+const lang = Astro.props.lang ?? (urlLang === 'fr' || urlLang === 'es' ? urlLang : 'en');
 
 const slugParam = kind === 'event' ? 'event' : 'market';
 

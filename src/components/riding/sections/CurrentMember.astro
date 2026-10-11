@@ -2,6 +2,7 @@
 import { partyName } from '../../../lib/party-names';
 import type { RidingData } from '../../../lib/riding-adapters/types';
 import { partyMeta } from '../../../lib/riding-adapters/parties';
+import { longDate, properName } from '../../../lib/format';
 
 interface Props {
   data: RidingData;
@@ -24,172 +25,75 @@ const isExecutive = data.jurisdiction === 'us-governor';
 
 const T = {
   en: {
-    eyebrow: isExecutive ? 'Current governor' : 'Current member',
-    sits_with: 'Party',
-    elected_as: 'Elected as',
-    crossed: 'Floor-crossed',
-    on_date: 'on',
-    since: 'Since',
-    vacant: 'Vacant seat',
-    parliament_label: 'Parliament',
-    change_byelection_win: 'Byelection win',
-    change_floor_cross: 'Floor crossing',
+    title: isExecutive ? 'Current governor' : 'Current member',
+    since: (d: string) => `In office since ${d}.`,
+    parliament: (n: number) => ` ${n}${n % 10 === 1 && n % 100 !== 11 ? 'st' : n % 10 === 2 && n % 100 !== 12 ? 'nd' : n % 10 === 3 && n % 100 !== 13 ? 'rd' : 'th'} Parliament.`,
+    crossed: (from: string, d: string) => `Elected as ${from}; changed party${d ? ` on ${d}` : ''}.`,
+    byelection: (d: string) => `Won the seat in a by-election${d ? ` on ${d}` : ''}.`,
   },
   fr: {
-    eyebrow: isExecutive ? 'Titulaire du poste' : 'Titulaire du siège',
-    sits_with: 'Parti',
-    elected_as: 'Parti à l’élection',
-    crossed: 'Traversée de plancher',
-    on_date: 'le',
-    since: 'Depuis',
-    vacant: 'Siège vacant',
-    parliament_label: 'Parlement',
-    change_byelection_win: 'Élection partielle',
-    change_floor_cross: 'Traversée de plancher',
+    title: isExecutive ? 'Titulaire du poste' : 'Titulaire du siège',
+    since: (d: string) => `En poste depuis le ${d}.`,
+    parliament: (n: number) => ` ${n}${n === 1 ? 're' : 'e'} législature.`,
+    crossed: (from: string, d: string) => `Parti à l’élection : ${from} ; changement de parti${d ? ` le ${d}` : ''}.`,
+    byelection: (d: string) => `Siège gagné lors d’une élection partielle${d ? ` le ${d}` : ''}.`,
   },
   es: {
-    eyebrow: isExecutive ? 'Titular del cargo' : 'Titular del escaño',
-    sits_with: 'Partido',
-    elected_as: 'Partido en la elección',
-    crossed: 'Cambio de partido',
-    on_date: 'el',
-    since: 'Desde',
-    vacant: 'Escaño vacante',
-    parliament_label: 'Congreso',
-    change_byelection_win: 'Elección extraordinaria',
-    change_floor_cross: 'Cambio de partido',
+    title: isExecutive ? 'Titular del cargo' : 'Titular del escaño',
+    since: (d: string) => `En el cargo desde el ${d}.`,
+    parliament: (n: number) => ` ${n}.ª legislatura.`,
+    crossed: (from: string, d: string) => `Partido en la elección: ${from}; cambio de partido${d ? ` el ${d}` : ''}.`,
+    byelection: (d: string) => `Escaño ganado en una elección parcial${d ? ` el ${d}` : ''}.`,
   },
 }[lang];
 
-const changeLabel =
-  m.change_type === 'floor_cross' ? T.change_floor_cross
-  : m.change_type === 'byelection_win' ? T.change_byelection_win
-  : m.change_type;
+const changeDate = longDate(m.change_date, lang);
+const changeNote = hasCrossed && electedLabel
+  ? T.crossed(electedLabel, changeDate)
+  : m.change_type === 'byelection_win' ? T.byelection(changeDate) : '';
+const tenure = [
+  m.member_start_date ? T.since(longDate(m.member_start_date, lang)) : '',
+  m.parliament !== undefined && m.parliament !== null && !data.jurisdiction.startsWith('us-') ? T.parliament(Number(m.parliament)).trim() : '',
+].filter(Boolean).join(' ');
 ---
 
 <section class="current-member">
   <div class="container">
-    <p class="eyebrow">{T.eyebrow}</p>
-    <div class="row">
-      <div class="name-block">
-        <h2>{m.mp_name}</h2>
-        <p class="party" style={`--accent:${currentMeta.color}`}>
-          <span class="dot" aria-hidden="true"></span>
-          <span class="label">{T.sits_with}</span> <strong>{currentLabel}</strong>
-        </p>
-        {hasCrossed && electedLabel && (
-          <p class="crossed">
-            <span class="badge" style={`--accent:${electedMeta!.color}`}>
-              <span class="dot-sm" aria-hidden="true"></span>{T.elected_as} {electedLabel}
-            </span>
-            {m.change_date && <> · {changeLabel} {T.on_date} {m.change_date}</>}
-          </p>
-        )}
-      </div>
-      <dl class="meta">
-        {m.member_start_date && (
-          <div><dt>{T.since}</dt><dd>{m.member_start_date}</dd></div>
-        )}
-        {m.parliament !== undefined && (
-          <div><dt>{T.parliament_label}</dt><dd>{m.parliament}<sup>{lang === 'en' ? 'th' : (lang === 'es' ? '°' : 'e')}</sup></dd></div>
-        )}
-      </dl>
-    </div>
+    <h2>{T.title}</h2>
+    <p class="member-line" style={`--accent:${currentMeta.color}`}>
+      <span class="dot" aria-hidden="true"></span>
+      <strong>{properName(m.mp_name)}</strong> · {currentLabel}
+    </p>
+    {(tenure || changeNote) && <p class="vs-meta member-meta">{[changeNote, tenure].filter(Boolean).join(' ')}</p>}
   </div>
 </section>
 
 <style>
   .current-member {
-    padding: 48px 0;
+    padding: 40px 0;
     border-bottom: 1px solid var(--rule);
     background: var(--paper);
   }
-  .row {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 40px;
-    align-items: start;
-    margin-top: 8px;
-  }
   h2 {
-    margin: 4px 0 12px;
-    font-family: var(--serif);
-    font-size: clamp(32px, 4.5vw, 48px);
+    margin: 0 0 12px;
+    font-size: clamp(24px, 3vw, 30px);
     font-weight: 700;
-    letter-spacing: -0.01em;
-    line-height: 1.05;
   }
-  .party {
+  .member-line {
     margin: 0;
     display: flex;
     align-items: center;
     gap: 10px;
-    font-family: var(--mono);
-    font-size: 13px;
-    letter-spacing: 0;
+    font-size: 19px;
   }
-  .party .label {
-    color: var(--ink-2);
-    font-size: 11px;
-    letter-spacing: 0;
-  }
-  .party strong {
-    font-family: var(--serif);
-    font-weight: 460;
-    font-size: 18px;
-    letter-spacing: 0;
-    text-transform: none;
-  }
+  .member-line strong { font-weight: 700; }
   .dot {
-    width: 14px;
-    height: 14px;
+    width: 12px;
+    height: 12px;
     border-radius: 50%;
     background: var(--accent);
     display: inline-block;
+    flex: none;
   }
-  .crossed {
-    margin-top: 10px;
-    font-family: var(--mono);
-    font-size: 13px;
-    color: var(--ink-2);
-  }
-  .badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 4px 10px;
-    border: 1px solid var(--rule);
-    border-radius: 2px;
-    background: var(--card);
-  }
-  .dot-sm {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--accent);
-  }
-  .meta {
-    display: grid;
-    gap: 12px;
-    margin: 0;
-  }
-  .meta > div {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
-  .meta dt {
-    font-family: var(--mono);
-    font-size: 13px;
-    letter-spacing: 0;
-    color: var(--ink-2);
-  }
-  .meta dd {
-    margin: 0;
-    font-family: var(--mono);
-    font-size: 14px;
-  }
-  @media (max-width: 820px) {
-    .row { grid-template-columns: 1fr; }
-  }
+  .member-meta { margin: 8px 0 0; }
 </style>

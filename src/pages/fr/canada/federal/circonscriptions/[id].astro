@@ -1,5 +1,6 @@
 ---
 import EditorialLayout from '../../../../../layouts/EditorialLayout.astro';
+import { ridingName } from '../../../../../lib/format';
 import RidingPage from '../../../../../components/riding/RidingPage.astro';
 import { getAllFederalRidings, FEDERAL_MVP_IDS } from '../../../../../lib/riding-adapters/federal';
 
@@ -16,8 +17,8 @@ const { data } = Astro.props;
 const canonical = `https://vote-scope.com/fr/canada/federal/circonscriptions/${data.slug}/`;
 const alternateEn = `https://vote-scope.com/en/canada/federal/ridings/${data.slug}/`;
 const alternateEs = `https://vote-scope.com/es/canada/federal/distritos/${data.slug}/`;
-const title = `${data.name.fr} — Projection fédérale — Vote-Scope`;
-const description = `Projection Vote-Scope pour ${data.name.fr} (${data.province}) : parts de voix, probabilité de victoire, baseline vs modèle actuel, démographie.`;
+const title = `${ridingName(data.name.fr)} — Projection fédérale — Vote-Scope`;
+const description = `Projection Vote-Scope pour ${ridingName(data.name.fr)} (${data.province}) : parts de voix, probabilité de victoire, résultat précédent, démographie.`;
 ---
 
 <EditorialLayout
@@ -33,7 +34,7 @@ const description = `Projection Vote-Scope pour ${data.name.fr} (${data.province
     {
       '@context': 'https://schema.org',
       '@type': 'Place',
-      name: data.name.fr,
+      name: ridingName(data.name.fr),
       ...(data.alternateNames?.length ? { alternateName: data.alternateNames } : {}),
       containedInPlace: { '@type': 'AdministrativeArea', name: data.province },
       url: canonical,
@@ -45,7 +46,7 @@ const description = `Projection Vote-Scope pour ${data.name.fr} (${data.province
         { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: 'https://vote-scope.com/fr/' },
         { '@type': 'ListItem', position: 2, name: 'Canada',     item: 'https://vote-scope.com/fr/canada/' },
         { '@type': 'ListItem', position: 3, name: 'Fédéral',    item: 'https://vote-scope.com/fr/canada/federal/' },
-        { '@type': 'ListItem', position: 4, name: data.name.fr, item: canonical },
+        { '@type': 'ListItem', position: 4, name: ridingName(data.name.fr), item: canonical },
       ],
     },
   ]}

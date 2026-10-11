@@ -15,9 +15,10 @@ import { partyName } from '../lib/party-names';
  * objets sans rapport dans une seule grille « Instrument live ».
  */
 import EditorialLayout from '../layouts/EditorialLayout.astro';
-import EditorialHero from './EditorialHero.astro';
+import PageHeader from './PageHeader.astro';
+import StoryList from './StoryList.astro';
+import { longDate, num } from '../lib/format';
 import MethodologyNote from './MethodologyNote.astro';
-import AnimatedNumber from '../islands/AnimatedNumber';
 import PolymarketEmbed from './PolymarketEmbed.astro';
 import AffiliateCard from './AffiliateCard.astro';
 import DeskSections from './DeskSections.astro';
@@ -35,8 +36,6 @@ type Lang = 'en' | 'fr' | 'es';
 interface Props { lang: Lang; }
 const { lang } = Astro.props as Props;
 
-/** Jour du mi-mandat — la seule date autour de laquelle cette page s'organise. */
-const MIDTERM = '2026-11-03';
 
 type SeatParty = { party: string; seats_projected?: number; seats_mean?: number; p_majority: number; color: string };
 const pick = (rows: SeatParty[], party: string) => rows.find((p) => p.party === party)!;
@@ -55,7 +54,6 @@ const govRep = pick(govParties, 'us_rep');
 // des courses n'a pas de sortant. Compté sur les données, jamais écrit en dur.
 const govOpenSeats = (governorData.ridings as Array<{ open_seat?: boolean }>).filter((r) => r.open_seat).length;
 
-const deltaSign = ldi.delta_7d >= 0 ? '+' : '';
 const primaryMeta = (primaryDesk as any).meta;
 const nextPrimary = (primaryDesk as any).upcoming?.[0];
 const nextPrimaryStates = [...new Set(((primaryDesk as any).upcoming ?? [])
@@ -103,7 +101,7 @@ const COPY = {
     breadcrumb: 'U.S.',
     heroEyebrow: 'United States Desk',
     heroTitle: `Democrats are favoured for the House at ${pHouse}%, and for the Senate at ${pSenate}%.`,
-    heroPromise: `Our model gives Democrats a ${pHouse}% chance of taking the House and ${pSenate}% of the Senate. House, Senate and governors projected from public polls, updated as new numbers land.`,
+    heroPromise: "House, Senate and governors, all decided on November 3, 2026, projected from public polls.",
     heroQuestion: 'Who will control Congress after the 2026 midterm elections?',
     heroPrimary: 'Senate forecast', heroSecondary: 'House forecast',
     midtermEyebrow: 'Midterms · November 3, 2026',
@@ -140,14 +138,24 @@ const COPY = {
     mcBody: 'Control odds, race-level confidence, and the moments traders panic — set right next to our projection, so the gaps are easy to spot.',
     mcModel: 'Vote-Scope model', mcMarket: 'Polymarket / odds',
     mcNote: 'Polymarket benchmarks, refreshed daily next to every projection.',
-    methodTitle: 'How the U.S. projections are built.',
-    methodBody: 'House and Senate control, seat fragility, and market disagreement — each built from public polls in a bias-corrected Bayesian model, calibrated on past results, with the simulation only translating votes into seats. All open on the page.',
+    methodTitle: "How the U.S. forecasts are built",
+    methodBody: "Each forecast starts from public polls, corrected for each pollster’s usual lean, then simulates the election district by district and state by state.",
+    projTitle: "The forecasts",
+    colRace: "Race",
+    colD: "Democrats",
+    colR: "Republicans",
+    colChance: "Chance of a Democratic majority",
+    untilTitle: "Before November 3",
+    indexTitle2: "The indexes",
+    presTitle: "Beyond 2026",
+    updated: "Updated",
+    ldiTitle: "Lame-Duck Index",
     methodBullets: [
-      'House polls (NYT tracker) feed a Bayesian BSTS model estimated by MCMC; the Senate and governors use a race-by-race model built on state polls and the national environment. Everything then runs through 50,000 Monte Carlo simulations by district and by state, with a shared national shock.',
-      'District and statewide polls anchor their own seat: a race with recent local polling is pulled toward it, and polls older than 180 days are dropped rather than faded.',
-      'The Lame-Duck Index (LDI) combines presidential approval, economic indicators, congressional district margins, and prediction-market odds into a single 0–100 drag score.',
-      'Special elections use a fundamentals model: incumbency, prior margin, candidate profile, and any available local polling.',
-      'Prediction-market benchmarks (Polymarket) are shown alongside model output as an independent disagreement signal, updated daily.',
+      "House polls feed a model that follows the national vote over time; the Senate and governors are modelled race by race, from state polls and the national climate.",
+      "All races move together when the national mood shifts; that is what produces the seat ranges.",
+      "A recent local poll pulls its own race toward it; polls more than 180 days old are left out.",
+      "The Lame-Duck Index combines presidential approval, the economy, district margins and prediction markets into a score out of 100.",
+      "Polymarket prices are shown next to our forecasts. They do not enter our calculations.",
     ],
     houseHref: '/en/us/house/', senateHref: '/en/us/senate/', govHref: '/en/us/governors/',
     primariesHref: '/en/us/primaries/', presHref: '/en/us/president/',
@@ -160,7 +168,7 @@ const COPY = {
     breadcrumb: 'États-Unis',
     heroEyebrow: 'États-Unis',
     heroTitle: `Les démocrates sont favoris pour la Chambre à ${pHouse} %, et pour le Sénat à ${pSenate} %.`,
-    heroPromise: `Notre modèle donne aux démocrates ${pHouse} % de chances de prendre la Chambre et ${pSenate} % le Sénat. Chambre, Sénat et gouverneurs projetés à partir des sondages publics, mis à jour à mesure que les chiffres tombent.`,
+    heroPromise: "Chambre, Sénat et gouverneurs, tous décidés le 3 novembre 2026, projetés à partir des sondages publics.",
     heroQuestion: 'Qui contrôlera le Congrès après les élections de mi-mandat 2026?',
     heroPrimary: 'Projection du Sénat', heroSecondary: 'Projection de la Chambre',
     midtermEyebrow: 'Mi-mandat · 3 novembre 2026',
@@ -197,14 +205,24 @@ const COPY = {
     mcBody: "Contrôle des chambres, confiance par course et les moments où les traders paniquent — placés juste à côté de notre projection, pour que les écarts sautent aux yeux.",
     mcModel: 'Modèle', mcMarket: 'Marché',
     mcNote: 'Repères Polymarket, actualisés chaque jour à côté de chaque projection.',
-    methodTitle: 'Comment les projections américaines sont bâties.',
-    methodBody: "Contrôle de la Chambre et du Sénat, fragilité des sièges et désaccord avec le marché — chacun bâti à partir de sondages publics dans un modèle bayésien aux biais corrigés, calibré sur les résultats passés, la simulation ne faisant que traduire les votes en sièges. Le tout ouvert sur la page.",
+    methodTitle: "Comment nous faisons les projections américaines",
+    methodBody: "Chaque projection part des sondages publics, corrigés des écarts habituels de chaque institut, puis simule l’élection district par district et État par État.",
+    projTitle: "Les projections",
+    colRace: "Course",
+    colD: "Démocrates",
+    colR: "Républicains",
+    colChance: "Chances de majorité démocrate",
+    untilTitle: "D’ici le 3 novembre",
+    indexTitle2: "Les indices",
+    presTitle: "Après 2026",
+    updated: "Mis à jour",
+    ldiTitle: "Indice Canard boiteux",
     methodBullets: [
-      "Les sondages de la Chambre (suivi du NYT) alimentent un modèle bayésien BSTS estimé par MCMC ; le Sénat et les gouverneurs passent par un modèle course par course, bâti sur les sondages d'État et l'environnement national. Le tout est ensuite rejoué en 50 000 simulations Monte Carlo par district et par État, avec un choc national commun.",
-      "Les sondages de circonscription et d'État ancrent leur propre siège : une course récemment sondée est tirée vers son sondage, et un sondage de plus de 180 jours est écarté plutôt qu'atténué.",
-      "L’indice Canard boiteux combine approbation présidentielle, indicateurs économiques, marges de district et cotes de marchés de prédiction en un score de 0 à 100.",
-      "Les élections partielles utilisent un modèle de fondamentaux : titularité, marge historique, profil des candidats, et sondages locaux disponibles.",
-      "Les repères de marchés de prédiction (Polymarket) sont affichés aux côtés du modèle comme signal de désaccord indépendant, mis à jour quotidiennement.",
+      "Les sondages sur la Chambre alimentent un modèle qui suit le vote national dans le temps ; le Sénat et les gouverneurs sont projetés course par course, à partir des sondages d’État et du climat national.",
+      "Toutes les courses bougent ensemble quand l’humeur nationale change ; c’est ce qui donne les fourchettes de sièges.",
+      "Un sondage local récent tire sa course vers lui ; un sondage de plus de 180 jours est écarté.",
+      "L’indice Canard boiteux combine l’approbation du président, l’économie, les marges des districts et les marchés de prédiction en un score sur 100.",
+      "Les cotes de Polymarket sont affichées à côté de nos projections. Elles n’entrent pas dans nos calculs.",
     ],
     houseHref: '/fr/us/chambre/', senateHref: '/fr/us/senat/', govHref: '/fr/us/gouverneurs/',
     primariesHref: '/fr/us/primaires/', presHref: '/fr/us/presidentielle/',
@@ -217,7 +235,7 @@ const COPY = {
     breadcrumb: 'EE. UU.',
     heroEyebrow: 'Estados Unidos',
     heroTitle: `Los demócratas son favoritos para la Cámara con un ${pHouse} % y para el Senado con un ${pSenate} %.`,
-    heroPromise: `Nuestro modelo da a los demócratas un ${pHouse} % de probabilidades de ganar la Cámara y un ${pSenate} % el Senado. Cámara, Senado y gobernadores proyectados a partir de encuestas públicas, actualizados a medida que llegan los números.`,
+    heroPromise: "Cámara, Senado y gobernadores, todos decididos el 3 de noviembre de 2026, proyectados a partir de encuestas públicas.",
     heroQuestion: '¿Quién controlará el Congreso tras las elecciones intermedias de 2026?',
     heroPrimary: 'Pronóstico del Senado', heroSecondary: 'Pronóstico de la Cámara',
     midtermEyebrow: 'Intermedias · 3 de noviembre de 2026',
@@ -254,14 +272,24 @@ const COPY = {
     mcBody: 'Probabilidades de control, confianza por carrera y los momentos en que los traders entran en pánico — junto a nuestra proyección, para que las brechas se vean de inmediato.',
     mcModel: 'Modelo Vote-Scope', mcMarket: 'Polymarket / cuotas',
     mcNote: 'Referencias de Polymarket, actualizadas a diario junto a cada proyección.',
-    methodTitle: 'Cómo se construyen las proyecciones de EE. UU.',
-    methodBody: 'Control de la Cámara y el Senado, fragilidad de escaños y desacuerdo con el mercado — cada uno construido a partir de encuestas públicos en un modelo bayesiano con sesgos corregidos, calibrado sobre resultados pasados; la simulación solo traduce votos en escaños. Todo abierto en la página.',
+    methodTitle: "Cómo hacemos las proyecciones de EE. UU.",
+    methodBody: "Cada proyección parte de encuestas públicas, corregidas según el sesgo habitual de cada encuestadora, y simula la elección distrito por distrito y estado por estado.",
+    projTitle: "Las proyecciones",
+    colRace: "Contienda",
+    colD: "Demócratas",
+    colR: "Republicanos",
+    colChance: "Probabilidad de mayoría demócrata",
+    untilTitle: "Hasta el 3 de noviembre",
+    indexTitle2: "Los índices",
+    presTitle: "Después de 2026",
+    updated: "Actualizado",
+    ldiTitle: "Índice Pato Cojo",
     methodBullets: [
-      'Las encuestas de la Cámara (seguimiento del NYT) alimentan un modelo bayesiano BSTS estimado por MCMC; el Senado y los gobernadores usan un modelo carrera por carrera, basado en encuestas estatales y el entorno nacional. Todo se juega luego en 50.000 simulaciones Monte Carlo por distrito y por estado, con un choque nacional común.',
-      'Las encuestas de distrito y estatales anclan su propio escaño: una contienda con encuesta local reciente se acerca a él, y una encuesta de más de 180 días se descarta en lugar de atenuarse.',
-      'El índice Pato Cojo combina aprobación presidencial, indicadores económicos, márgenes de distrito y cuotas de mercados de predicción en un puntaje de 0 a 100.',
-      'Las elecciones especiales usan un modelo de fundamentos: incumbencia, margen histórico, perfil de candidatos y encuestas locales disponibles.',
-      'Los benchmarks de mercados de predicción (Polymarket) se muestran junto al modelo como señal de desacuerdo independiente, actualizada a diario.',
+      "Las encuestas de la Cámara alimentan un modelo que sigue el voto nacional en el tiempo; el Senado y los gobernadores se proyectan contienda por contienda, con encuestas estatales y el clima nacional.",
+      "Todas las contiendas se mueven juntas cuando cambia el ánimo nacional; de ahí salen las horquillas de escaños.",
+      "Una encuesta local reciente acerca su contienda hacia ella; las encuestas de más de 180 días se descartan.",
+      "El índice Pato Cojo combina la aprobación presidencial, la economía, los márgenes de distrito y los mercados de predicción en una puntuación sobre 100.",
+      "Las cuotas de Polymarket se muestran junto a nuestras proyecciones. No entran en nuestros cálculos.",
     ],
     houseHref: '/es/us/house/', senateHref: '/es/us/senate/', govHref: '/es/us/gobernadores/',
     primariesHref: '/es/us/primarias/', presHref: '/es/us/presidencial/',
@@ -275,6 +303,41 @@ const canonical = `https://vote-scope.com/${lang}/us/`;
 const ldiLabel = partyName(ldi, lang);
 const showdownLabel = lang === 'fr' ? showdownData.showdown.label_fr
   : lang === 'es' ? showdownData.showdown.label_es : showdownData.showdown.label_en;
+
+const pctTxt = (p: number) => {
+  const v = p * 100;
+  const n = v > 99 ? (lang === 'en' ? '>99' : '> 99') : v < 1 ? (lang === 'en' ? '<1' : '< 1') : String(Math.round(v));
+  return lang === 'en' ? `${n}%` : `${n}\u00a0%`;
+};
+const chambers = [
+  { label: lang === 'fr' ? 'Chambre des représentants' : lang === 'es' ? 'Cámara de Representantes' : 'House of Representatives', href: t.houseHref,
+    d: houseDem.seats_projected!, r: houseRep.seats_projected!, chance: pctTxt(houseDem.p_majority), note: lang === 'fr' ? '435 sièges' : lang === 'es' ? '435 escaños' : '435 seats' },
+  { label: lang === 'fr' ? 'Sénat' : lang === 'es' ? 'Senado' : 'Senate', href: t.senateHref,
+    d: Math.round(senateDem.seats_mean!), r: Math.round(senateRep.seats_mean!), chance: pctTxt(senateDem.p_majority), note: lang === 'fr' ? '100 sièges' : lang === 'es' ? '100 escaños' : '100 seats' },
+  { label: lang === 'fr' ? 'Gouverneurs' : lang === 'es' ? 'Gobernadores' : 'Governors', href: t.govHref,
+    d: Math.round(govDem.seats_mean!), r: Math.round(govRep.seats_mean!), chance: '—', note: t.govRaces(govOpenSeats).replace(' · ', ', ') },
+];
+
+const firstSentence = (txt: string) => { const m = /^(.+?[.!?])(\s|$)/.exec(txt.trim()); return m ? m[1] : txt; };
+const untilItems = [
+  { meta: nextPrimary ? `${t.primariesNext} ${nextPrimaryStates}` : undefined, title: t.primaries, text: t.primariesCount(primaryMeta.n_races_decided, primaryMeta.n_races_awaiting), href: t.primariesHref },
+  ...liveSpecials.map((sp) => ({ meta: specialKicker(sp), title: specialHeadline(sp).replace(/\n/g, ' '), text: firstSentence(specialDek(sp)), href: specialHref(sp) })),
+];
+const ldiDelta = `${ldi.delta_7d >= 0 ? '+' : '−'}${num(Math.abs(ldi.delta_7d), lang, 1)}`;
+const indexItems = [
+  { meta: lang === 'fr' ? `${Math.round(ldi.score)} sur 100 · ${ldiLabel} · ${ldiDelta} en 7 jours` : lang === 'es' ? `${Math.round(ldi.score)} sobre 100 · ${ldiLabel} · ${ldiDelta} en 7 días` : `${Math.round(ldi.score)} out of 100 · ${ldiLabel} · ${ldiDelta} over 7 days`,
+    color: ldi.zone_color, title: t.ldiTitle, text: lang === 'fr' ? 'Ce qu’il reste de poids au président avant les élections de mi-mandat.' : lang === 'es' ? 'El peso que le queda al presidente antes de las intermedias.' : 'How much weight the president has left before the midterms.', href: t.ldiHref },
+  { title: t.radar, text: t.radarBody, href: t.radarHref },
+  { meta: lang === 'fr' ? `Écart de ${Math.round(showdownData.showdown.gap)} points · ${showdownLabel}` : lang === 'es' ? `Diferencia de ${Math.round(showdownData.showdown.gap)} puntos · ${showdownLabel}` : `${Math.round(showdownData.showdown.gap)}-point gap · ${showdownLabel}`,
+    title: lang === 'fr' ? 'Guerre commerciale Canada–États-Unis' : lang === 'es' ? 'Guerra comercial Canadá–EE. UU.' : 'Canada–U.S. trade war', text: lang === 'fr' ? 'Le rapport de force entre Ottawa et Washington.' : lang === 'es' ? 'La relación de fuerzas entre Ottawa y Washington.' : 'The balance of power between Ottawa and Washington.', href: t.cusmaHref },
+];
+const presItems = [
+  { meta: lang === 'fr' ? `Primaires : ${presRepLead.short_label} ${Math.round(presRepLead.share)} % chez les républicains, ${presDemLead.short_label} ${Math.round(presDemLead.share)} % chez les démocrates`
+      : lang === 'es' ? `Primarias: ${presRepLead.short_label} ${Math.round(presRepLead.share)} % entre los republicanos, ${presDemLead.short_label} ${Math.round(presDemLead.share)} % entre los demócratas`
+      : `Primaries: ${presRepLead.short_label} ${Math.round(presRepLead.share)}% among Republicans, ${presDemLead.short_label} ${Math.round(presDemLead.share)}% among Democrats`,
+    title: lang === 'fr' ? 'Présidentielle de 2028' : lang === 'es' ? 'Presidencial de 2028' : 'The 2028 presidential race',
+    text: lang === 'fr' ? 'Les candidatures dans les deux partis et la carte du collège électoral.' : lang === 'es' ? 'Las candidaturas en ambos partidos y el mapa del colegio electoral.' : 'The candidates in both parties and the electoral-college map.', href: t.presHref },
+];
 ---
 
 <EditorialLayout
@@ -303,172 +366,59 @@ const showdownLabel = lang === 'fr' ? showdownData.showdown.label_fr
     },
   ]}
 >
-  <EditorialHero
-    eyebrow={t.heroEyebrow}
-    title={t.heroTitle}
-    promise={t.heroPromise}
-    question={t.heroQuestion}
-    primaryHref={lang === 'fr' ? '/fr/us/senat/' : `/${lang}/us/senate/`}
-    primaryLabel={t.heroPrimary}
-    secondaryHref={lang === 'fr' ? '/fr/us/chambre/' : `/${lang}/us/house/`}
-    secondaryLabel={t.heroSecondary}
-    preferredSourceLocale={lang}
-  />
+  <PageHeader title={t.heroTitle} promise={t.heroPromise} preferredSourceLocale={lang} />
 
-  <section class="content-band us-midterm">
-    <div class="container">
-      <p class="eyebrow">{t.midtermEyebrow}</p>
-      <h2>{t.midtermTitle}</h2>
-      <p class="us-lede">{t.midtermLede}</p>
-      <p class="us-countdown">
-        <strong data-midterm-days data-midterm={MIDTERM}>—</strong>
-        <span
-          data-midterm-label
-          data-day={t.dayLabel}
-          data-days={t.daysLabel}
-          data-today={t.todayLabel}
-        >{t.daysLabel}</span>
-      </p>
-
-      <div class="us-chambers">
-        <article class="note-card us-chamber" style={`--accent:${houseDem.color};`}>
-          <p class="eyebrow">{t.house}</p>
-          <p class="us-seats">
-            <span class="us-seat-d"><AnimatedNumber client:visible value={houseDem.seats_projected!} /></span>
-            <span class="us-seat-sep">·</span>
-            <span class="us-seat-r"><AnimatedNumber client:visible value={houseRep.seats_projected!} /></span>
-            <span class="us-seat-total">{t.seatsOf} 435</span>
-          </p>
-          <p class="us-majority">{t.majorityD} : <strong>{Math.round(houseDem.p_majority * 100)} %</strong></p>
-          <a href={t.houseHref} class="cta-link">{t.houseCta}</a>
-        </article>
-
-        <article class="note-card us-chamber" style={`--accent:${senateDem.color};`}>
-          <p class="eyebrow">{t.senate}</p>
-          <p class="us-seats">
-            <span class="us-seat-d"><AnimatedNumber client:visible value={Math.round(senateDem.seats_mean!)} /></span>
-            <span class="us-seat-sep">·</span>
-            <span class="us-seat-r"><AnimatedNumber client:visible value={Math.round(senateRep.seats_mean!)} /></span>
-            <span class="us-seat-total">{t.seatsOf} 100</span>
-          </p>
-          <p class="us-majority">{t.majorityD} : <strong>{Math.round(senateDem.p_majority * 100)} %</strong></p>
-          <a href={t.senateHref} class="cta-link">{t.senateCta}</a>
-        </article>
-
-        <article class="note-card us-chamber" style={`--accent:${govDem.color};`}>
-          <p class="eyebrow">{t.governors}</p>
-          <p class="us-seats">
-            <span class="us-seat-d"><AnimatedNumber client:visible value={Math.round(govDem.seats_mean!)} /></span>
-            <span class="us-seat-sep">·</span>
-            <span class="us-seat-r"><AnimatedNumber client:visible value={Math.round(govRep.seats_mean!)} /></span>
-            <span class="us-seat-total">{t.seatsOf} 50</span>
-          </p>
-          <p class="us-majority">{t.govRaces(govOpenSeats)}</p>
-          <a href={t.govHref} class="cta-link">{t.govCta}</a>
-        </article>
-      </div>
-    </div>
-  </section>
-
-  <section class="content-band">
-    <div class="container">
-      <p class="eyebrow">{t.roadEyebrow}</p>
-      <h2>{t.roadTitle}</h2>
-      <div class="content-grid-2">
-        <article class="note-card">
-          <p class="eyebrow">{t.primaries}</p>
-          {nextPrimary && <p><strong>{t.primariesNext} {nextPrimaryStates}</strong></p>}
-          <p class="us-small">{t.primariesCount(primaryMeta.n_races_decided, primaryMeta.n_races_awaiting)}</p>
-          <a href={t.primariesHref} class="cta-link">{t.primariesCta}</a>
-        </article>
-        <div class="us-stack">
-          <p class="eyebrow">{t.liveSpecials}</p>
-          {liveSpecials.length === 0 && <p class="us-small">{t.noLiveSpecials}</p>}
-          {liveSpecials.map((s) => (
-            <a class="note-card us-special" href={specialHref(s)}>
-              <p class="eyebrow">{specialKicker(s)}</p>
-              <h3>{specialHeadline(s).replace(/\n/g, ' ')}</h3>
-              <p class="us-small">{specialDek(s).slice(0, 160)}…</p>
-            </a>
+  <section class="container us-block" aria-labelledby="us-proj">
+    <h2 id="us-proj">{t.projTitle}</h2>
+    <div class="table-scroll">
+      <table class="us-table">
+        <thead>
+          <tr><th>{t.colRace}</th><th class="num">{t.colD}</th><th class="num">{t.colR}</th><th class="num">{t.colChance}</th></tr>
+        </thead>
+        <tbody>
+          {chambers.map((c) => (
+            <tr>
+              <th scope="row"><a class="vs-link" href={c.href}>{c.label}</a>{c.note && <span class="us-note">{c.note}</span>}</th>
+              <td class="num"><span class="dot" style={`background:${houseDem.color}`} aria-hidden="true"></span>{c.d}</td>
+              <td class="num"><span class="dot" style={`background:${houseRep.color}`} aria-hidden="true"></span>{c.r}</td>
+              <td class="num">{c.chance}</td>
+            </tr>
           ))}
-        </div>
-      </div>
+        </tbody>
+      </table>
     </div>
+    <p class="vs-meta">{t.updated} : {longDate(houseData.meta.run_date, lang)}</p>
   </section>
 
-  <section class="content-band">
-    <div class="container">
-      <p class="eyebrow">{t.indexEyebrow}</p>
-      <h2>{t.indexTitle}</h2>
-      <div class="us-indexes">
-        <article class="note-card us-chamber" style={`--accent:${ldi.zone_color};`}>
-          <p class="eyebrow">{lang === 'fr' ? 'Indice Canard boiteux' : lang === 'es' ? 'Índice Pato Cojo' : 'Lame-Duck Index'}</p>
-          <p class="us-score">
-            <AnimatedNumber client:visible value={Math.round(ldi.score)} /><span>/100</span>
-          </p>
-          <p class="us-zone" style={`color:${ldi.zone_color};`}>{ldiLabel}</p>
-          <p class="us-small">{t.delta7} : <strong>{deltaSign}{ldi.delta_7d}</strong></p>
-          <a href={t.ldiHref} class="cta-link">{t.ldiCta}</a>
-        </article>
-        <article class="note-card us-chamber" style="--accent:#c64d2d;">
-          <p class="eyebrow">{t.radar}</p>
-          <p class="us-small">{t.radarBody}</p>
-          <a href={t.radarHref} class="cta-link">{t.radarCta}</a>
-        </article>
-        <article class="note-card us-chamber" style={`--accent:${showdownData.showdown.zone_color};`}>
-          <p class="eyebrow">{t.cusma}</p>
-          <p class="us-score" style={`color:${showdownData.showdown.zone_color};font-size:2.2rem;`}>
-            {showdownData.showdown.gap > 0 ? '+' : ''}{showdownData.showdown.gap}
-          </p>
-          <p class="us-small">{t.cusmaGap} — {showdownLabel}</p>
-          <a href={t.cusmaHref} class="cta-link">{t.cusmaCta}</a>
-        </article>
-      </div>
-    </div>
+  <section class="container us-block">
+    <StoryList heading={t.untilTitle} items={untilItems} size="sm" />
+    {pastSpecials.length > 0 && (
+      <details class="us-archive">
+        <summary>{t.archiveTitle} ({pastSpecials.length})</summary>
+        <ul>
+          {pastSpecials.map((s) => (
+            <li>
+              <a href={specialHref(s)}>{specialHeadline(s).replace(/\n/g, ' ')}</a>
+              <span class="us-small"> · {longDate(s.electionDate, lang)}</span>
+            </li>
+          ))}
+        </ul>
+      </details>
+    )}
   </section>
 
-  <section class="content-band">
-    <div class="container">
-      <p class="eyebrow">{t.beyondEyebrow}</p>
-      <article class="note-card us-chamber" style={`--accent:${presRep.color};`}>
-        <p class="eyebrow">{t.pres}</p>
-        <p>
-          REP <strong>{presRepLead.short_label} {presRepLead.share.toFixed(0)} %</strong> ·
-          DEM <strong>{presDemLead.short_label} {presDemLead.share.toFixed(0)} %</strong>
-        </p>
-        <p class="us-small">{t.presBody}</p>
-        <a href={t.presHref} class="cta-link">{t.presCta}</a>
-      </article>
-    </div>
+  <section class="container us-block">
+    <StoryList heading={t.indexTitle2} items={indexItems} size="sm" />
   </section>
 
-  {pastSpecials.length > 0 && (
-    <section class="content-band">
-      <div class="container">
-        <p class="eyebrow">{t.archiveEyebrow}</p>
-        <details class="us-archive">
-          <summary>{t.archiveTitle} ({pastSpecials.length})</summary>
-          <p class="us-small">{t.archiveHint}</p>
-          <ul>
-            {pastSpecials.map((s) => (
-              <li>
-                <a href={specialHref(s)}>{specialHeadline(s).replace(/\n/g, ' ')}</a>
-                <span class="us-small"> — {s.electionDate}</span>
-              </li>
-            ))}
-          </ul>
-        </details>
-      </div>
-    </section>
-  )}
+  <section class="container us-block">
+    <StoryList heading={t.presTitle} items={presItems} size="sm" />
+  </section>
 
-  <section class="content-band">
-    <div class="container">
-      <p class="eyebrow">{t.marketEyebrow}</p>
-      <h2>{t.marketTitle}</h2>
-      <PolymarketEmbed slug="2026-balance-of-power-d-senate-d-house-949" title={t.marketBalance} />
-      <PolymarketEmbed slug="will-gavin-newsom-win-the-2028-us-presidential-election" title={t.marketPres} />
-    </div>
+  <section class="container us-block" aria-labelledby="us-markets">
+    <h2 id="us-markets">{t.marketEyebrow}</h2>
+    <PolymarketEmbed lang={lang} slug="2026-balance-of-power-d-senate-d-house-949" title={t.marketBalance} />
+    <PolymarketEmbed lang={lang} slug="will-gavin-newsom-win-the-2028-us-presidential-election" title={t.marketPres} />
   </section>
 
   <section class="content-band">
@@ -487,100 +437,18 @@ const showdownLabel = lang === 'fr' ? showdownData.showdown.label_fr
 </EditorialLayout>
 
 <style>
-  .us-lede { max-width: 62ch; }
-
-  /* Le compte à rebours se calcule chez le lecteur : un nombre de jours figé au
-     build serait faux dès le lendemain d'une publication sans nouveau run. */
-  .us-countdown {
-    display: flex;
-    align-items: baseline;
-    gap: 0.5rem;
-    margin: 1.25rem 0 0;
-  }
-  .us-countdown strong {
-    font-size: 3.4rem;
-    line-height: 1;
-    font-variant-numeric: tabular-nums;
-  }
-  .us-countdown span {
-    font-family: var(--mono);
-    font-size: 13px;
-    letter-spacing: 0;
-    color: var(--ink-3);
-  }
-
-  .us-chambers,
-  .us-indexes {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 24px;
-    margin-top: 30px;
-  }
-  .us-chamber { border-top: 4px solid var(--accent, var(--rule)); }
-
-  .us-seats {
-    display: flex;
-    align-items: baseline;
-    gap: 0.4rem;
-    margin: 0.4rem 0 0.6rem;
-    font-size: 2.4rem;
-    font-weight: 600;
-    font-variant-numeric: tabular-nums;
-  }
-  .us-seat-d { color: var(--accent); }
-  .us-seat-sep { color: var(--ink-3); font-weight: 300; }
-  .us-seat-total {
-    font-size: 0.8rem;
-    font-weight: 400;
-    color: var(--ink-3);
-    margin-left: 0.25rem;
-  }
-  .us-majority { margin: 0 0 0.9rem; }
-
-  .us-score {
-    font-size: 3rem;
-    font-weight: 600;
-    margin: 0.25rem 0;
-    line-height: 1;
-  }
-  .us-score span { font-size: 1.1rem; font-weight: 400; color: var(--ink-3); }
-  .us-zone { font-weight: 700; font-size: 1.05rem; margin: 0 0 0.4rem; }
-
-  .us-small { font-size: 0.88rem; }
-  .us-stack { display: flex; flex-direction: column; gap: 1rem; }
-  .us-special { text-decoration: none; color: inherit; display: block; }
-  .us-special h3 { margin: 0.25rem 0; }
-
-  .us-archive summary {
-    cursor: pointer;
-    font-family: var(--mono);
-    font-size: 13px;
-    letter-spacing: 0;
-  }
+  .us-block { padding-block: 32px; }
+  .us-block h2 { margin: 0 0 12px; font-size: clamp(24px, 3vw, 30px); font-weight: 700; }
+  .us-table { width: 100%; border-collapse: collapse; border-top: 4px solid var(--ink); font-size: 17px; }
+  .us-table th, .us-table td { padding: 12px 12px 12px 0; border-bottom: 1px solid var(--rule); text-align: left; vertical-align: top; }
+  .us-table thead th { font-size: 14px; font-weight: 600; color: var(--ink-3); }
+  .us-table tbody th { font-weight: 700; }
+  .us-table .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .us-note { display: block; margin-top: 2px; font-size: 14px; font-weight: 400; color: var(--ink-3); }
+  .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; }
+  .us-small { font-size: 14px; color: var(--ink-3); }
+  .us-archive { margin-top: 16px; }
+  .us-archive summary { cursor: pointer; font-weight: 600; }
   .us-archive ul { margin: 0.75rem 0 0; padding-left: 1.1rem; }
   .us-archive li { margin-bottom: 0.35rem; }
-
-  @media (max-width: 920px) {
-    .us-chambers,
-    .us-indexes { grid-template-columns: 1fr; }
-    .us-countdown strong { font-size: 2.6rem; }
-  }
 </style>
-
-<script>
-  // Jours restants avant le mi-mandat, calculés dans le navigateur du lecteur.
-  const node = document.querySelector<HTMLElement>('[data-midterm-days]');
-  const label = document.querySelector<HTMLElement>('[data-midterm-label]');
-  if (node && label) {
-    const target = new Date(`${node.dataset.midterm}T00:00:00`);
-    const now = new Date();
-    const days = Math.ceil((target.getTime() - new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime()) / 86_400_000);
-    if (days > 0) {
-      node.textContent = String(days);
-      label.textContent = days === 1 ? (label.dataset.day ?? '') : (label.dataset.days ?? '');
-    } else {
-      node.textContent = days === 0 ? '0' : '';
-      label.textContent = label.dataset.today ?? '';
-    }
-  }
-</script>

@@ -2,6 +2,7 @@
 import { partyName } from '../../../lib/party-names';
 import type { RidingData } from '../../../lib/riding-adapters/types';
 import { partyMeta } from '../../../lib/riding-adapters/parties';
+import { num, properName } from '../../../lib/format';
 
 interface Props {
   data: RidingData;
@@ -11,11 +12,9 @@ interface Props {
 const { data, lang } = Astro.props;
 if (!data.candidates || data.candidates.length === 0) return null;
 
-const cycleLabel = data.baseline?.cycle?.replace('_', ' ').toUpperCase() ?? '';
 const year = (data.baseline?.cycle ?? '').match(/\d{4}/)?.[0] ?? '';
 const T = {
   en: {
-    eyebrow: `Detailed result · ${cycleLabel}`,
     title: year ? `Candidates and votes in ${year}` : 'Candidates and votes',
     candidate: 'Candidate',
     party: 'Party',
@@ -25,7 +24,6 @@ const T = {
     elected: 'Elected',
   },
   fr: {
-    eyebrow: `Résultat détaillé · ${cycleLabel}`,
     title: year ? `Candidats et voix en ${year}` : 'Candidats et voix',
     candidate: 'Candidature',
     party: 'Parti',
@@ -35,7 +33,6 @@ const T = {
     elected: 'Siège remporté',
   },
   es: {
-    eyebrow: `Resultado detallado · ${cycleLabel}`,
     title: year ? `Candidatos y votos en ${year}` : 'Candidatos y votos',
     candidate: 'Candidatura',
     party: 'Partido',
@@ -48,11 +45,12 @@ const T = {
 
 const LOCALE = { en: 'en-CA', fr: 'fr-CA', es: 'es-ES' }[lang];
 const numberFmt = new Intl.NumberFormat(LOCALE);
+// Une colonne vide partout (le Royaume-Uni ne publie pas les professions) n'apporte rien.
+const hasRole = data.candidates.some((c) => c.occupation && c.occupation.trim() && c.occupation !== '—');
 ---
 
 <section class="candidates">
   <div class="container">
-    <p class="eyebrow">{T.eyebrow}</p>
     <h2>{T.title}</h2>
 
     <div class="table-scroll" tabindex="0" role="region" aria-label={T.title}>
@@ -63,7 +61,7 @@ const numberFmt = new Intl.NumberFormat(LOCALE);
           <th>{T.party}</th>
           <th class="num">{T.votes}</th>
           <th class="num">{T.pct}</th>
-          <th>{T.role}</th>
+          {hasRole && <th>{T.role}</th>}
         </tr>
       </thead>
       <tbody>
@@ -73,7 +71,7 @@ const numberFmt = new Intl.NumberFormat(LOCALE);
           return (
             <tr class={c.is_elected ? 'elected' : ''}>
               <td>
-                <span class="name">{c.name}</span>
+                <span class="name">{properName(c.name)}</span>
                 {c.is_elected && <span class="badge">{T.elected}</span>}
               </td>
               <td>
@@ -82,8 +80,8 @@ const numberFmt = new Intl.NumberFormat(LOCALE);
                 </span>
               </td>
               <td class="num">{c.votes !== undefined ? numberFmt.format(c.votes) : '—'}</td>
-              <td class="num">{c.vote_pct != null ? c.vote_pct.toFixed(1) : '—'}</td>
-              <td class="role">{c.occupation ?? '—'}</td>
+              <td class="num">{c.vote_pct != null ? num(c.vote_pct, lang, 1) : '—'}</td>
+              {hasRole && <td class="role">{c.occupation ?? '—'}</td>}
             </tr>
           );
         })}
@@ -134,16 +132,10 @@ const numberFmt = new Intl.NumberFormat(LOCALE);
   tr.elected td { background: color-mix(in oklab, var(--ink) 4%, transparent); }
   .name { font-family: var(--serif); font-size: 16px; }
   .badge {
-    display: inline-block;
     margin-left: 8px;
-    padding: 2px 8px;
-    border-radius: 2px;
-    background: var(--ink);
-    color: var(--paper);
-    font-family: var(--mono);
-    font-size: 13px;
-    letter-spacing: 0;
-    vertical-align: middle;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink-2);
   }
   .party {
     display: inline-flex;

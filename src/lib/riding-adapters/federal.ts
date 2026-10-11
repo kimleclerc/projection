@@ -6,6 +6,7 @@ import type {
   RidingData, RidingDemographics, RidingMember, RidingCandidate,
   RidingNeighbor, RegionalContext,
 } from './types';
+import centroidsFederal from '../../data/centroids-federal.json';
 import { ridingSlug } from './types';
 import { partyMeta } from './parties';
 import ridingsSource from '../../../web_data/federal/ridings.json';
@@ -105,16 +106,22 @@ function projectionTone(p: { p_winner: number; p_close_race: number }): RidingNe
 
 /** Build neighbor list for a riding — same subregion preferred, fall back to
  *  same region. Capped at 6. Excludes self. */
+/** Vraies voisines : les six centres les plus proches (longitude corrigée par la
+ *  latitude). Repli sur la même région quand une géométrie manque. */
+const FED_CENTROIDS = centroidsFederal as Record<string, { lon: number; lat: number } | undefined>;
 function buildNeighbors(rid: string): RidingNeighbor[] {
   const self = ridings.find((r) => r.riding_id === rid);
   if (!self) return [];
-  const sameSub = ridings.filter(
-    (r) => r.riding_id !== rid && r.region === self.region && (self as any).subregion && (r as any).subregion === (self as any).subregion,
-  );
-  const sameRegion = ridings.filter(
-    (r) => r.riding_id !== rid && r.region === self.region && !sameSub.includes(r),
-  );
-  const pool = [...sameSub, ...sameRegion].slice(0, 6);
+  const c0 = FED_CENTROIDS[rid];
+  const k = c0 ? Math.cos((c0.lat * Math.PI) / 180) : 1;
+  const pool = c0
+    ? ridings
+        .filter((r) => r.riding_id !== rid && FED_CENTROIDS[r.riding_id])
+        .map((r) => { const c = FED_CENTROIDS[r.riding_id]!; const dx = (c.lon - c0.lon) * k; const dy = c.lat - c0.lat; return { r, d: dx * dx + dy * dy }; })
+        .sort((a, b) => a.d - b.d)
+        .slice(0, 6)
+        .map((x) => x.r)
+    : ridings.filter((r) => r.riding_id !== rid && r.region === self.region).slice(0, 6);
   return pool.map((r) => {
     const slug = ridingSlug(r.riding_id, r.name_en);
     return {

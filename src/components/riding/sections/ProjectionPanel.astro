@@ -16,15 +16,15 @@ const closeRacePct = (data.projection.p_close_race * 100).toFixed(0);
 
 const T = {
   en: {
-    eyebrow: 'Current forecast',
+    eyebrow: data.byelection ? 'At a general election' : 'Projected favourite',
     close: 'Chance of a finish within 5 points',
   },
   fr: {
-    eyebrow: 'Prévision actuelle',
+    eyebrow: data.byelection ? 'À une élection générale' : 'Favori de notre projection',
     close: 'Chance d’un écart final de moins de 5 points',
   },
   es: {
-    eyebrow: 'Pronóstico actual',
+    eyebrow: data.byelection ? 'En unas elecciones generales' : 'Favorito de nuestra proyección',
     close: 'Probabilidad de un margen final inferior a 5 puntos',
   },
 }[lang];
@@ -35,7 +35,7 @@ const competitiveness = CERTAINTY_LABEL[lang][certainty(data.projection)];
 <section class="projection-panel">
   <div class="container panel-inner">
     <div>
-      <p class="eyebrow">{T.eyebrow}</p>
+      <p class="panel-label">{T.eyebrow}</p>
       <h2 style={`--accent:${winnerMeta.color}`}>
         <span class="dot" aria-hidden="true"></span>
         {winnerLabel}
@@ -84,6 +84,7 @@ const competitiveness = CERTAINTY_LABEL[lang][certainty(data.projection)];
     font-size: 13px;
     letter-spacing: 0;
   }
+  .panel-label { margin: 0; font-size: 15px; font-weight: 600; color: var(--ink-2); }
   .panel-close {
     font-size: 16px;
     color: var(--ink-2);

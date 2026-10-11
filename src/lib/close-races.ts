@@ -158,6 +158,14 @@ export function closeRacesFor(options: {
     races,
     dicePool,
     allHref: indexUrl ?? undefined,
-    allLabel: entry ? sectionLabel(entry, 'districts', lang) : undefined,
+    allLabel: entry ? allOf(sectionLabel(entry, 'districts', lang), lang) : undefined,
   };
+}
+
+/** « Circonscriptions » → « Toutes les circonscriptions » ; un lien dit où il mène. */
+function allOf(label: string, lang: string): string {
+  const low = label.charAt(0).toLowerCase() + label.slice(1);
+  if (lang === 'fr') return /^(districts|sièges|états)/i.test(label) ? `Tous les ${low}` : `Toutes les ${low}`;
+  if (lang === 'es') return /^(circunscripciones|contiendas)/i.test(label) ? `Todas las ${low}` : `Todos los ${low}`;
+  return `All ${low}`;
 }

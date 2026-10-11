@@ -1,4 +1,5 @@
 ---
+import { ridingName as ridingNameFmt } from '../../../lib/format';
 import type { RidingData } from '../../../lib/riding-adapters/types';
 import { partyMeta } from '../../../lib/riding-adapters/parties';
 
@@ -11,7 +12,7 @@ const { data, lang } = Astro.props;
 if (!data.shapePath) return null;
 
 const winnerMeta = partyMeta(data.jurisdiction, data.projection.winner);
-const ridingName = lang === 'fr' ? data.name.fr : data.name.en;
+const ridingName = ridingNameFmt(lang === 'fr' ? data.name.fr : data.name.en);
 const label = {
   en: `Silhouette of ${ridingName}`,
   fr: `Silhouette de ${ridingName}`,

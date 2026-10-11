@@ -104,7 +104,7 @@ export function regionLabel(jurisdiction: string, region: string | undefined,
   if (jurisdiction === 'quebec' && region === 'rest') return '';
   const label = BY_JURISDICTION[jurisdiction]?.[region];
   if (label) return label[lang];
-  return region
-    .replace(/_/g, ' ')
-    .replace(/\b\w/g, (c) => c.toUpperCase());
+  // Un code sans nom déclaré (« fed_qc ») ne s'affiche jamais tel quel.
+  if (/_/.test(region) || region === region.toLowerCase()) return '';
+  return region;
 }

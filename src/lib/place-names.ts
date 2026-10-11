@@ -78,3 +78,23 @@ export function placeNameFr(name: string): string {
   }
   return name;
 }
+
+/** Provinces et territoires du Canada, par code postal (QC → Québec). */
+const CA_PROVINCES: Record<string, { en: string; fr: string; es: string }> = {
+  NL: { en: 'Newfoundland and Labrador', fr: 'Terre-Neuve-et-Labrador', es: 'Terranova y Labrador' },
+  PE: { en: 'Prince Edward Island', fr: 'Île-du-Prince-Édouard', es: 'Isla del Príncipe Eduardo' },
+  NS: { en: 'Nova Scotia', fr: 'Nouvelle-Écosse', es: 'Nueva Escocia' },
+  NB: { en: 'New Brunswick', fr: 'Nouveau-Brunswick', es: 'Nuevo Brunswick' },
+  QC: { en: 'Quebec', fr: 'Québec', es: 'Quebec' },
+  ON: { en: 'Ontario', fr: 'Ontario', es: 'Ontario' },
+  MB: { en: 'Manitoba', fr: 'Manitoba', es: 'Manitoba' },
+  SK: { en: 'Saskatchewan', fr: 'Saskatchewan', es: 'Saskatchewan' },
+  AB: { en: 'Alberta', fr: 'Alberta', es: 'Alberta' },
+  BC: { en: 'British Columbia', fr: 'Colombie-Britannique', es: 'Columbia Británica' },
+  YT: { en: 'Yukon', fr: 'Yukon', es: 'Yukón' },
+  NT: { en: 'Northwest Territories', fr: 'Territoires du Nord-Ouest', es: 'Territorios del Noroeste' },
+  NU: { en: 'Nunavut', fr: 'Nunavut', es: 'Nunavut' },
+};
+export function caProvinceName(code: string | undefined, lang: Lang): string | undefined {
+  return code ? CA_PROVINCES[code]?.[lang] : undefined;
+}

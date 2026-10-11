@@ -21,6 +21,7 @@
 import type {
   RidingData, RidingMember, DeclaredCandidate, RidingNeighbor, RidingPoll,
 } from './types';
+import centroidsHouse from '../../data/centroids-us-house.json';
 import { ridingSlug } from './types';
 import { partyMeta } from './parties';
 import { nomineesByParty, isQualifiedCandidate, isDeclaredCandidate } from './nominees';
@@ -122,10 +123,21 @@ function projectionTone(p: { p_winner: number; p_close_race: number }): RidingNe
 }
 
 /** US House doesn't ship centroids yet; neighbors degrade to same-state list. */
+/** Les six districts les plus proches dans le même État (centres géographiques). */
+const HOUSE_CENTROIDS = centroidsHouse as Record<string, { lon: number; lat: number } | undefined>;
+const centOf = (id: string) => HOUSE_CENTROIDS[String(id).padStart(5, '0')];
 function buildNeighbors(rid: string, state: string): RidingNeighbor[] {
-  const sameState = ridings
-    .filter((r) => r.riding_id !== rid && r.province === state)
-    .slice(0, 6);
+  const c0 = centOf(rid);
+  const k = c0 ? Math.cos((c0.lat * Math.PI) / 180) : 1;
+  const inState = ridings.filter((r) => r.riding_id !== rid && r.province === state);
+  const sameState = c0
+    ? inState
+        .filter((r) => centOf(r.riding_id))
+        .map((r) => { const c = centOf(r.riding_id)!; const dx = (c.lon - c0.lon) * k; const dy = c.lat - c0.lat; return { r, d: dx * dx + dy * dy }; })
+        .sort((a, b) => a.d - b.d)
+        .slice(0, 6)
+        .map((x) => x.r)
+    : inState.slice(0, 6);
   return sameState.map((r) => {
     const slug = ridingSlug(r.riding_id, r.name_en || r.name_fr);
     return {

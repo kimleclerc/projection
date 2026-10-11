@@ -1,5 +1,6 @@
 ---
 import EditorialLayout from '../../../../../layouts/EditorialLayout.astro';
+import { ridingName } from '../../../../../lib/format';
 import RidingPage from '../../../../../components/riding/RidingPage.astro';
 import { getAllFederalRidings } from '../../../../../lib/riding-adapters/federal';
 
@@ -14,8 +15,8 @@ const { data } = Astro.props;
 const canonical = `https://vote-scope.com/es/canada/federal/distritos/${data.slug}/`;
 const alternateEn = `https://vote-scope.com/en/canada/federal/ridings/${data.slug}/`;
 const alternateFr = `https://vote-scope.com/fr/canada/federal/circonscriptions/${data.slug}/`;
-const title = `${data.name.en || data.name.fr} — Proyección federal — Vote-Scope`;
-const description = `Proyección Vote-Scope para ${data.name.en || data.name.fr} (${data.province || 'Canadá'}): cuota de voto por partido, titular del escaño y candidatos del último ciclo.`;
+const title = `${ridingName(data.name.en || data.name.fr)} — Proyección federal — Vote-Scope`;
+const description = `Proyección Vote-Scope para ${ridingName(data.name.en || data.name.fr)} (${data.province || 'Canadá'}): cuota de voto por partido, titular del escaño y candidatos del último ciclo.`;
 ---
 
 <EditorialLayout

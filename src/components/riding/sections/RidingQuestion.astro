@@ -1,4 +1,5 @@
 ---
+import { ridingName as ridingNameFmt } from '../../../lib/format';
 import { certainty } from '../../../lib/riding-certainty';
 /**
  * Editorial question framing the page — Vote-Scope's "one page, one question"
@@ -28,7 +29,7 @@ interface Props {
 }
 
 const { data, lang } = Astro.props;
-const name = lang === 'fr' ? data.name.fr : data.name.en;
+const name = ridingNameFmt(lang === 'fr' ? data.name.fr : data.name.en);
 
 const winnerMeta = partyMeta(data.jurisdiction, data.projection.winner);
 const baselineMeta = data.baseline ? partyMeta(data.jurisdiction, data.baseline.winner) : null;
@@ -79,7 +80,12 @@ let questionEs = '';
 // needs a grammatical article ("le Nunavut", "la Géorgie") — the question body
 // uses a generic "ce siège" / "este escaño" / "this seat". Works for any name
 // in any language, no per-riding metadata. FR keeps its " : " and " ?" spacing.
-if (isVacant && isByelection && data.byelectionDate) {
+if (data.byelection) {
+  // Une partielle prévue : c'est elle que la page doit trancher, pas la générale.
+  questionEn = `${name}: who wins the by-election?`;
+  questionFr = `${name} : qui remportera la partielle ?`;
+  questionEs = `${name}: ¿quién ganará la elección parcial?`;
+} else if (isVacant && isByelection && data.byelectionDate) {
   // Byelection with a known date — lean on baseline as the most reliable label.
   if (baselineLabel) {
     questionEn = `${name}: who succeeds ${mention(baselineMeta!, 'en')}?`;

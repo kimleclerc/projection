@@ -16,7 +16,7 @@ import { partyName } from '../../../lib/party-names';
  * seats bear it now.
  */
 import type { RidingData } from '../../../lib/riding-adapters/types';
-import { partyMeta } from '../../../lib/riding-adapters/parties';
+import { partyMeta, subjectFr } from '../../../lib/riding-adapters/parties';
 
 interface Props {
   data: RidingData;
@@ -36,7 +36,6 @@ const generalWinner = data.projection.winner;
 const flips = generalWinner !== by.favorite;
 
 const genMeta = partyMeta(data.jurisdiction, generalWinner);
-const genLabel = partyName(genMeta, lang);
 
 const dateFmt = by.electionDate
   ? new Date(`${by.electionDate}T12:00:00Z`).toLocaleDateString(
@@ -45,63 +44,70 @@ const dateFmt = by.electionDate
     )
   : null;
 
+// Le parti en position de sujet : « le Parti libéral », « the Liberal Party », « el Partido Liberal ».
+const subj = (meta: ReturnType<typeof partyMeta>) =>
+  lang === 'fr' ? (meta.mention_fr ? subjectFr(meta.mention_fr) : partyName(meta, 'fr'))
+  : lang === 'es' ? (meta.mention_es ?? partyName(meta, 'es'))
+  : (meta.mention_en ?? partyName(meta, 'en'));
+const cap = (t: string) => t.charAt(0).toUpperCase() + t.slice(1);
+
 const T = {
   en: {
-    eyebrow: 'By-election — the next vote in this seat',
-    favorite: 'By-election favourite',
-    probability: 'Probability',
-    margin: 'Mean margin (pts)',
-    shares: 'Projected shares',
-    scheduled: dateFmt ? `Polling day ${dateFmt}` : 'Polling day to be set',
-    vacant: 'Seat vacant — writ pending',
-    expected: 'Departure announced — seat not yet vacant',
-    localPoll: 'Constituency poll anchored',
+    eyebrow: 'The by-election',
+    favorite: 'Favourite',
+    probability: 'chance of winning',
+    margin: 'Average lead',
+    unit: 'points',
+    shares: 'Projected vote share',
+    scheduled: dateFmt ? `Polling day: ${dateFmt}` : 'Polling day not yet set',
+    vacant: 'Seat vacant, polling day not yet set',
+    expected: 'Departure announced, seat not yet vacant',
+    localPoll: 'Includes a local poll',
     departing: (m: string) => `${m} is leaving`,
-    why: 'Why this differs from the map above',
+    why: 'Why the by-election and the general election differ',
     whyBody:
-      'The projection below answers a general election: every seat voting at once. This one answers the by-election actually coming. By-election turnout is differential — it costs whichever side is demobilised, which is why the two can name different winners.',
-    flip: (a: string, b: string) =>
-      `The general-election map still shows ${a}. In the by-election the model favours ${b}.`,
-    hold: (a: string) => `Both readings favour ${a}.`,
-    open: 'Full by-election desk',
+      'Further down, the projection assumes a general election, with every seat voting on the same day. Fewer people vote in a by-election, and the least motivated supporters are the ones who stay home, so the favourite can change.',
+    flip: `In a general election, ${subj(genMeta)} would lead; in the by-election, ${subj(favMeta)}.`,
+    hold: `${cap(subj(favMeta))} leads in both cases.`,
+    open: 'Full by-election forecast',
   },
   fr: {
-    eyebrow: 'Partielle — le prochain scrutin dans ce siège',
-    favorite: 'Favori de la partielle',
-    probability: 'Probabilité',
-    margin: 'Marge moyenne (pts)',
-    shares: 'Parts projetées',
-    scheduled: dateFmt ? `Scrutin le ${dateFmt}` : 'Date de scrutin à fixer',
-    vacant: 'Siège vacant — bref en attente',
-    expected: 'Départ annoncé — siège pas encore vacant',
-    localPoll: 'Sondage de circonscription ancré',
-    departing: (m: string) => `${m} s’en va`,
-    why: 'Pourquoi ce chiffre diffère de la carte ci-dessous',
+    eyebrow: 'La partielle',
+    favorite: 'Favori',
+    probability: 'de chances de l’emporter',
+    margin: 'Avance moyenne',
+    unit: 'points',
+    shares: 'Intentions de vote projetées',
+    scheduled: dateFmt ? `Scrutin le ${dateFmt}` : 'Date du scrutin pas encore fixée',
+    vacant: 'Siège vacant, date du scrutin pas encore fixée',
+    expected: 'Départ annoncé, siège pas encore vacant',
+    localPoll: 'Tient compte d’un sondage local',
+    departing: (m: string) => `Départ de ${m}`,
+    why: 'Pourquoi la partielle et la générale diffèrent',
     whyBody:
-      'La projection ci-dessous répond à une générale : tous les sièges votant en même temps. Celle-ci répond à la partielle qui s’en vient. La participation d’une partielle est différentielle — elle coûte au camp démobilisé, et c’est pourquoi les deux lectures peuvent désigner des vainqueurs différents.',
-    flip: (a: string, b: string) =>
-      `La carte générale donne encore ${a}. À la partielle, le modèle favorise ${b}.`,
-    hold: (a: string) => `Les deux lectures favorisent ${a}.`,
-    open: 'Ouvrir la rubrique de la partielle',
+      'Plus bas, la projection suppose une élection générale, où tous les sièges votent le même jour. Une partielle attire moins d’électeurs, et ce sont les partisans les moins motivés qui restent chez eux : le favori peut donc changer.',
+    flip: `À une élection générale, ${subj(genMeta)} serait en tête ; à la partielle, ${subj(favMeta)}.`,
+    hold: `${cap(subj(favMeta))} est en tête dans les deux cas.`,
+    open: 'Toute la projection de cette partielle',
   },
   es: {
-    eyebrow: 'Parcial — la próxima votación en este escaño',
-    favorite: 'Favorito de la parcial',
-    probability: 'Probabilidad',
-    margin: 'Margen medio (pts)',
-    shares: 'Cuotas proyectadas',
-    scheduled: dateFmt ? `Votación el ${dateFmt}` : 'Fecha de votación por fijar',
-    vacant: 'Escaño vacante — decreto pendiente',
-    expected: 'Salida anunciada — escaño aún no vacante',
-    localPoll: 'Encuesta de circunscripción anclada',
-    departing: (m: string) => `${m} se va`,
-    why: 'Por qué difiere del mapa de abajo',
+    eyebrow: 'La elección parcial',
+    favorite: 'Favorito',
+    probability: 'de probabilidades de ganar',
+    margin: 'Ventaja media',
+    unit: 'puntos',
+    shares: 'Intención de voto proyectada',
+    scheduled: dateFmt ? `Votación el ${dateFmt}` : 'Fecha de votación aún sin fijar',
+    vacant: 'Escaño vacante, fecha de votación aún sin fijar',
+    expected: 'Salida anunciada, escaño aún no vacante',
+    localPoll: 'Incluye una encuesta local',
+    departing: (m: string) => `Salida de ${m}`,
+    why: 'Por qué difieren la parcial y las generales',
     whyBody:
-      'La proyección de abajo responde a unas generales: todos los escaños votando a la vez. Esta responde a la parcial que viene. La participación en una parcial es diferencial — le cuesta al bando desmovilizado, y por eso ambas lecturas pueden nombrar ganadores distintos.',
-    flip: (a: string, b: string) =>
-      `El mapa general todavía muestra ${a}. En la parcial el modelo favorece ${b}.`,
-    hold: (a: string) => `Ambas lecturas favorecen ${a}.`,
-    open: 'Abrir la mesa de la parcial',
+      'Más abajo, la proyección supone unas elecciones generales, en las que todos los escaños votan el mismo día. En una parcial vota menos gente, y son los simpatizantes menos motivados los que se quedan en casa: el favorito puede cambiar.',
+    flip: `En unas generales, ${subj(genMeta)} iría en cabeza; en la parcial, ${subj(favMeta)}.`,
+    hold: `${cap(subj(favMeta))} va en cabeza en ambos casos.`,
+    open: 'Toda la proyección de esta parcial',
   },
 }[lang];
 
@@ -116,18 +122,18 @@ const maxShare = Math.max(1, ...topParties.map((p) => p.voteMean));
 
 <section class="by-forecast">
   <div class="container">
-    <p class="eyebrow">{T.eyebrow}</p>
+    <h2 class="bf-title">{T.eyebrow}</h2>
 
     <div class="bf-head">
       <div>
         <p class="bf-label">{T.favorite}</p>
         <p class="bf-fav" style={`color:${favMeta.color};`}>{favLabel}</p>
-        <p class="bf-prob">{pctTxt(favPct)} · {T.probability}</p>
+        <p class="bf-prob">{pctTxt(favPct)} {T.probability}</p>
       </div>
       <ul class="bf-meta">
         <li>{statusLabel}</li>
         {by.departingMember && <li>{T.departing(by.departingMember)}</li>}
-        {by.meanMargin !== null && <li>{T.margin}{lang === 'fr' ? '\u00a0: ' : ': '}{num1(by.meanMargin)}</li>}
+        {by.meanMargin !== null && <li>{T.margin}{lang === 'fr' ? '\u00a0: ' : ': '}{num1(by.meanMargin)} {T.unit}</li>}
         {by.hasLocalPoll && <li class="bf-poll">{T.localPoll}</li>}
       </ul>
     </div>
@@ -154,7 +160,7 @@ const maxShare = Math.max(1, ...topParties.map((p) => p.voteMean));
     <div class="bf-why">
       <p class="bf-label">{T.why}</p>
       <p class="bf-verdict">
-        {flips ? T.flip(genLabel, favLabel) : T.hold(favLabel)}
+        {flips ? T.flip : T.hold}
       </p>
       <p class="bf-body">{T.whyBody}</p>
       <p class="bf-open"><a href={by.href[lang]}>{T.open}</a></p>
@@ -170,6 +176,7 @@ const maxShare = Math.max(1, ...topParties.map((p) => p.voteMean));
     background: var(--paper-2);
   }
 
+  .bf-title { margin: 0 0 16px; font-size: clamp(24px, 3vw, 30px); font-weight: 700; }
   .bf-head {
     display: flex;
     gap: 32px;

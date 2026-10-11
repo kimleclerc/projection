@@ -1,4 +1,5 @@
 ---
+import { longDate } from '../lib/format';
 // Desk Espagne — élections générales (Congreso, 350 sièges, D'Hondt par
 // province). Même patron que UkDesk/FranceDesk : un composant, locale en prop.
 // Les chiffres clés tiennent dans le premier enfant de [data-content-area]
@@ -167,7 +168,7 @@ const labsHref = `/${locale}/labs/${locale === 'es' ? 'como-funciona' : locale =
 const others = (data.comparisons ?? []) as any[];
 const cmpRows = [
   { name: `Vote-Scope · ${CURRENT_RELEASE.name}`, href: null, date: meta.run_date, pp: nat.pp.seats_median, psoe: nat.psoe.seats_median, vox: nat.vox.seats_median, pp_vox: blocs.pp_vox.median, p: blocs.pp_vox.p_majority, own: true },
-  { name: 'Orbite (beta)', href: labsHref, date: meta.run_date, pp: orbit.national.pp.seats_median, psoe: orbit.national.psoe.seats_median, vox: orbit.national.vox.seats_median, pp_vox: orbit.blocs.pp_vox.median, p: orbit.blocs.pp_vox.p_majority, own: true },
+  { name: locale === 'fr' ? 'Orbite (bêta)' : locale === 'es' ? 'Órbita (beta)' : 'Orbit (beta)', href: labsHref, date: meta.run_date, pp: orbit.national.pp.seats_median, psoe: orbit.national.psoe.seats_median, vox: orbit.national.vox.seats_median, pp_vox: orbit.blocs.pp_vox.median, p: orbit.blocs.pp_vox.p_majority, own: true },
   ...others.map((o) => ({ name: o.name, href: o.url, date: o.date, pp: o.pp, psoe: o.psoe, vox: o.vox, pp_vox: o.pp_vox, p: o.p_majority, own: false })),
 ];
 const shortDate = (iso: string) =>
@@ -201,7 +202,7 @@ const copy = {
     vote: 'del voto',
     range: 'rango probable',
     majority: 'Mayoría absoluta: 176',
-    updated: `Actualizado el ${runDate} · última encuesta del ${meta.last_poll_field_end.split('-').reverse().join('/')}`,
+    updated: `Actualizado el ${runDate} · última encuesta del ${longDate(meta.last_poll_field_end, 'es')}`,
     since2023: (k: string) => k === 'sumar' ? '31 en 2023 con Podemos' : `${nat[k].seats_2023 ? `${nat[k].seats_2023} en 2023` : 'nuevo'}`,
     adelantoKicker: 'Un adelanto con las encuestas en contra',
     adelantoTitle: 'Sánchez convoca cuando los números le son desfavorables.',
@@ -229,14 +230,14 @@ const copy = {
     vivYear: 'Año',
     vivAvg: 'Media',
     vivSource: 'Fuente: CIS, barómetros mensuales (pregunta de respuesta múltiple: hasta tres problemas).',
-    orbKicker: 'Segundo modelo · Orbite (beta)',
+    orbKicker: 'Segundo modelo · Órbita (beta)',
     orbTitle: orbitAgrees
       ? `Orbite, nuestro modelo experimental, llega a la misma conclusión: PP y Vox suman mayoría en ${pctW(orbit.blocs.pp_vox.p_majority)} de cada 100 simulaciones.`
       : `Orbite, nuestro modelo experimental, no llega a la misma conclusión: PP y Vox suman mayoría en ${pctW(orbit.blocs.pp_vox.p_majority)} de cada 100 simulaciones.`,
     orbBody: `Orbite usa las mismas encuestas con otra matemática: trata la opinión como una posición que se mueve sobre una esfera, en lugar de una media. Sigue en fase beta: lo publicamos para comparar, y la mezcla al 50 % con nuestro modelo principal, ${CURRENT_RELEASE.name}, es la tercera lectura. Con las encuestas de la víspera, Orbite habría colocado mal ${orbitBt.es_2023.seats_misplaced} escaños en 2023 y ${orbitBt.es_2019n.seats_misplaced} en noviembre de 2019.`,
     orbParty: 'Partido',
     orbMain: CURRENT_RELEASE.name,
-    orbOrbit: 'Orbite (beta)',
+    orbOrbit: 'Órbita (beta)',
     orbBlend: 'Mezcla 50/50',
     orbMajority: 'Mayoría PP + Vox',
     orbHow: 'Cómo funciona Orbite',
@@ -291,7 +292,7 @@ const copy = {
     vote: 'des voix',
     range: 'fourchette probable',
     majority: 'Majorité absolue : 176',
-    updated: `Mis à jour le ${runDate} · dernier sondage du ${meta.last_poll_field_end.split('-').reverse().join('/')}`,
+    updated: `Mis à jour le ${runDate} · dernier sondage du ${longDate(meta.last_poll_field_end, 'fr')}`,
     since2023: (k: string) => k === 'sumar' ? '31 en 2023 avec Podemos' : `${nat[k].seats_2023 ? `${nat[k].seats_2023} en 2023` : 'nouveau'}`,
     adelantoKicker: 'Une élection anticipée avec les sondages contre lui',
     adelantoTitle: 'Sánchez dissout quand les chiffres lui sont défavorables.',
@@ -313,7 +314,7 @@ const copy = {
     vivTopicsTitle: `Ce qui inquiète le plus (CIS, ${monthYear(viv.latest.field_end)})`,
     vivTrustTitle: 'Quel parti gérerait le mieux le logement ?',
     vivTrustFirm: `40dB pour El País et la SER`,
-    vivTrustBody: `Personne ne convainc : « aucun » est la réponse la plus fréquente (${dec(trustLast.options.ninguno)} %). Le PSOE reste en tête (${dec(trustLast.options.psoe)} %) mais perd ${vivPoints(delta('psoe') ?? 0)} points depuis janvier 2025 ; le PP en perd ${vivPoints(delta('pp') ?? 0)} et Vox se maintient (${dec(trustLast.options.vox)} %). La crise ne désigne pas, pour l'instant, de gagnant clair.`,
+    vivTrustBody: `Personne ne convainc : « aucun » est la réponse la plus fréquente (${dec(trustLast.options.ninguno)} %). Le PSOE reste en tête (${dec(trustLast.options.psoe)} %) mais perd ${vivPoints(delta('psoe') ?? 0)} ${Math.abs(delta('psoe') ?? 0) < 2 ? 'point' : 'points'} depuis janvier 2025 ; le PP en perd ${vivPoints(delta('pp') ?? 0)} et Vox se maintient (${dec(trustLast.options.vox)} %). La crise ne désigne pas, pour l'instant, de gagnant clair.`,
     vivNotPublished: 'non publié',
     vivTable: 'Voir les données par année',
     vivYear: 'Année',

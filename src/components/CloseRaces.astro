@@ -77,15 +77,16 @@ const T = {
     : isEs
       ? 'Otra contienda reñida'
       : 'Another close race',
-  margin: isFr ? 'pt de marge' : isEs ? 'pt de margen' : 'pt margin',
+  margin: isFr ? 'd’écart' : isEs ? 'de diferencia' : 'gap',
 };
 
-const pct = (p: number) => `${Math.round(p * 100)} %`;
-const margin = (m: number) =>
-  `${m.toLocaleString(isFr ? 'fr-CA' : isEs ? 'es-ES' : 'en-CA', {
-    minimumFractionDigits: 1,
-    maximumFractionDigits: 1,
-  })} ${T.margin}`;
+const pct = (p: number) => (isFr || isEs ? `${Math.round(p * 100)}\u00a0%` : `${Math.round(p * 100)}%`);
+// En français, « point » reste au singulier sous 2 (1,1 point).
+const margin = (m: number) => {
+  const n = m.toLocaleString(isFr ? 'fr-CA' : isEs ? 'es-ES' : 'en-CA', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  const word = isEs ? 'puntos' : isFr && m < 2 ? 'point' : 'points';
+  return isFr || isEs ? `${n}\u00a0${word} ${T.margin}` : `${n}-point ${T.margin}`;
+};
 
 // Le dé n'est pas un bouton mort sans JavaScript : le lien pointe déjà sur une
 // course serrée, et le script ne fait que le retirer au hasard à chaque clic.

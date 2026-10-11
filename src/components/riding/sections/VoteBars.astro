@@ -1,6 +1,7 @@
 ---
 import { partyName } from '../../../lib/party-names';
 import type { RidingData } from '../../../lib/riding-adapters/types';
+import { pct } from '../../../lib/format';
 
 interface Props {
   data: RidingData;
@@ -32,18 +33,21 @@ const T = {
     title: 'Projection by party',
     baseline_label: (cycle: string) => `${/(\d{4})/.exec(cycle)?.[1] ?? ''} result`.trim(),
     incumbent: 'incumbent',
+    tick: (r: string) => `Thin vertical mark: ${r.charAt(0).toLowerCase() + r.slice(1)}.`,
   },
   fr: {
     eyebrow: 'Part de voix projetée',
     title: 'Projection par parti',
     baseline_label: (cycle: string) => `Résultat ${/(\d{4})/.exec(cycle)?.[1] ?? ''}`.trim(),
     incumbent: 'titulaire',
+    tick: (r: string) => `Trait vertical : ${r.charAt(0).toLowerCase() + r.slice(1)}.`,
   },
   es: {
     eyebrow: 'Cuota de voto proyectada',
     title: 'Proyección por partido',
     baseline_label: (cycle: string) => `Resultado ${/(\d{4})/.exec(cycle)?.[1] ?? ''}`.trim(),
     incumbent: 'titular',
+    tick: (r: string) => `Marca vertical: ${r.charAt(0).toLowerCase() + r.slice(1)}.`,
   },
 }[lang];
 
@@ -87,16 +91,13 @@ function rawPartyLabel(raw: string | undefined): string | undefined {
               <span class="party-label" style={`--accent:${p.color}`}>
                 <span class="swatch" aria-hidden="true"></span>{label}
               </span>
-              <span class="pct">{p.vote_mean_pct.toFixed(1)}%</span>
+              <span class="pct">{pct(p.vote_mean_pct, lang)}</span>
             </div>
             {p.nominee && (
               <p class="nominee">
-                {p.nominee.name}
+                <span>{p.nominee.name}{p.nominee.status === 'incumbent' && `, ${T.incumbent}`}</span>
                 {showsRawParty(p.code) && rawPartyLabel(p.nominee.party_raw) && (
                   <span class="raw-party">{rawPartyLabel(p.nominee.party_raw)}</span>
-                )}
-                {p.nominee.status === 'incumbent' && (
-                  <span class="tag">{T.incumbent}</span>
                 )}
               </p>
             )}
@@ -106,7 +107,7 @@ function rawPartyLabel(raw: string | undefined): string | undefined {
                 <div
                   class="baseline-tick"
                   style={`left:${(baseline / maxPct) * 100}%`}
-                  title={T.baseline_label(data.baseline!.cycle) + ` — ${baseline.toFixed(1)}%`}
+                  title={T.baseline_label(data.baseline!.cycle) + ` : ${pct(baseline, lang)}`}
                 ></div>
               )}
             </div>
@@ -114,8 +115,7 @@ function rawPartyLabel(raw: string | undefined): string | undefined {
         );
       })}
     </ul>
-    {/* Baseline cycle is communicated in EditorialBlurb prose and via the
-        tick mark's title hover; the bottom legend was redundant noise. */}
+    {data.baseline && <p class="vs-meta bars-legend">{T.tick(T.baseline_label(data.baseline.cycle))}</p>}
   </div>
 </section>
 
@@ -170,8 +170,7 @@ function rawPartyLabel(raw: string | undefined): string | undefined {
     align-items: baseline;
     gap: 8px;
   }
-  .nominee .raw-party,
-  .nominee .tag {
+  .nominee .raw-party {
     font-family: var(--mono);
     font-size: 13px;
     letter-spacing: 0;
@@ -180,10 +179,7 @@ function rawPartyLabel(raw: string | undefined): string | undefined {
     border-radius: 2px;
     padding: 1px 5px;
   }
-  /* « sortant·e » est un mot, pas un sigle : la capitale lui va. Le nom d'un
-     parti québécois fait jusqu'à 38 caractères — en capitales il écraserait
-     le nom du candidat, qui est l'information principale de la ligne. */
-  .nominee .tag { }
+  .bars-legend { margin: 14px 0 0; }
   .track {
     position: relative;
     height: 10px;
