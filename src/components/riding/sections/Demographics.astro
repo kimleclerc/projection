@@ -11,227 +11,145 @@ const { data, lang } = Astro.props;
 if (!data.demographics) return null;
 const d = data.demographics;
 
+const isUS = data.jurisdiction.startsWith('us-');
 const T = {
   en: {
-    eyebrow: 'Demographics',
-    title: 'Who lives here',
-    linguistic: 'Linguistic profile',
-    franco: 'Francophone',
-    anglo: 'Anglophone',
-    other: 'Non-francophone (other)',
-    population: 'Population',
-    median_age: 'Median age',
-    employment: 'Employment rate',
-    unemployment: 'Unemployment rate',
-    source: 'Data source',
-    official_note: 'Official census profile (Statistics Canada) to be linked in next pass.',
+    title: 'Local profile',
+    langHome: 'Language spoken most often at home',
+    langGeneric: 'Language',
+    franco: 'French', anglo: 'English', other: 'Other languages', otherInclFr: 'Other languages (French included)',
+    population: 'Population', median_age: 'Median age', employment: 'Employment rate', unemployment: 'Unemployment rate',
+    latino: 'Latino citizens aged 18 and over',
+    latinoNote: 'Share of all citizens aged 18 and over (ACS 2020–2024 estimate). Not a share of registered or actual voters.',
+    source: 'Source',
   },
   fr: {
-    eyebrow: 'Démographie',
-    title: 'Qui habite ici',
-    linguistic: 'Profil linguistique',
-    franco: 'Francophones',
-    anglo: 'Anglophones',
-    other: 'Non-francophones (autres)',
-    population: 'Population',
-    median_age: 'Âge médian',
-    employment: 'Taux d\'emploi',
-    unemployment: 'Taux de chômage',
-    source: 'Source des données',
-    official_note: 'Profil officiel du recensement (Statistique Canada) à brancher au prochain passage.',
+    title: 'Portrait du territoire',
+    langHome: 'Langue parlée le plus souvent à la maison',
+    langGeneric: 'Langue',
+    franco: 'Français', anglo: 'Anglais', other: 'Autres langues', otherInclFr: 'Autres langues (français compris)',
+    population: 'Population', median_age: 'Âge médian', employment: 'Taux d’emploi', unemployment: 'Taux de chômage',
+    latino: 'Citoyens latinos de 18 ans et plus',
+    latinoNote: 'Part de l’ensemble des citoyens de 18 ans et plus (estimation ACS 2020-2024). Ce n’est ni une part des inscrits ni une part des votants.',
+    source: 'Source',
   },
   es: {
-    eyebrow: 'Demografía',
-    title: 'Quién vive aquí',
-    linguistic: 'Perfil lingüístico',
-    franco: 'Francófonos',
-    anglo: 'Anglófonos',
-    other: 'No-francófonos (otros)',
-    population: 'Población',
-    median_age: 'Edad mediana',
-    employment: 'Tasa de empleo',
-    unemployment: 'Tasa de desempleo',
-    source: 'Fuente de datos',
-    official_note: 'Perfil oficial del censo (Statistics Canada) por enlazar.',
+    title: 'Retrato del territorio',
+    langHome: 'Idioma hablado con más frecuencia en casa',
+    langGeneric: 'Idioma',
+    franco: 'Francés', anglo: 'Inglés', other: 'Otros idiomas', otherInclFr: 'Otros idiomas (francés incluido)',
+    population: 'Población', median_age: 'Edad mediana', employment: 'Tasa de empleo', unemployment: 'Tasa de desempleo',
+    latino: 'Ciudadanos latinos de 18 años o más',
+    latinoNote: 'Proporción del total de ciudadanos de 18 años o más (estimación ACS 2020-2024). No es una proporción de inscritos ni de votantes.',
+    source: 'Fuente',
   },
 }[lang];
 
-const hasLinguistic =
-  d.francophone_pct !== undefined ||
-  d.anglophone_pct !== undefined ||
-  d.nonfrancophone_pct !== undefined;
+// Langue : on recalcule « autres » à partir du français et de l'anglais. Le champ
+// importé n'a pas le même sens partout (Québec : 100 − français ; fédéral : 100 −
+// français − anglais) et une valeur absente ne doit pas devenir un zéro.
+const fr = d.francophone_pct;
+const en = d.anglophone_pct;
+const hasLinguistic = fr !== undefined || en !== undefined;
+const other = hasLinguistic ? Math.max(0, 100 - (fr ?? 0) - (en ?? 0)) : undefined;
+const otherLabel = fr === undefined ? T.otherInclFr : T.other;
+const langRows = hasLinguistic ? [
+  ...(fr !== undefined ? [{ k: 'franco', label: T.franco, v: fr }] : []),
+  ...(en !== undefined ? [{ k: 'anglo', label: T.anglo, v: en }] : []),
+  ...(other !== undefined && other >= 0.05 ? [{ k: 'other', label: otherLabel, v: other }] : []),
+] : [];
+const langTitle = d.source === 'qc125_canada_2021_census' ? T.langHome : T.langGeneric;
 
-/** Public-facing labels for internal data-source codes. Keep all third-party
- *  vendor names out of the UI — only official agencies are surfaced. */
+/** Provenance réelle : l'organisme statistique ET l'intermédiaire qui l'a compilé. */
 const SOURCE_LABELS: Record<string, { en: string; fr: string; es: string }> = {
   statistics_canada_2021_census: {
-    en: 'Statistics Canada — 2021 Census',
-    fr: 'Statistique Canada — Recensement de 2021',
-    es: 'Statistics Canada — Censo 2021',
+    en: 'Statistics Canada, 2021 Census',
+    fr: 'Statistique Canada, Recensement de 2021',
+    es: 'Statistics Canada, censo de 2021',
   },
   statistics_canada_2021_census_projected_current_boundaries: {
-    en: 'Statistics Canada — 2021 Census (projected to current boundaries)',
-    fr: 'Statistique Canada — Recensement de 2021 (projeté sur les limites actuelles)',
-    es: 'Statistics Canada — Censo 2021 (proyectado sobre los límites actuales)',
+    en: 'Statistics Canada, 2021 Census, projected to current boundaries',
+    fr: 'Statistique Canada, Recensement de 2021, projeté sur les limites actuelles',
+    es: 'Statistics Canada, censo de 2021, proyectado sobre los límites actuales',
   },
   qc125_canada_2021_census: {
-    en: 'Statistics Canada — 2021 Census',
-    fr: 'Statistique Canada — Recensement de 2021',
-    es: 'Statistics Canada — Censo 2021',
+    en: 'Statistics Canada, 2021 Census (single responses), compiled by Qc125',
+    fr: 'Statistique Canada, Recensement de 2021 (réponses uniques), compilé par Qc125',
+    es: 'Statistics Canada, censo de 2021 (respuestas únicas), recopilado por Qc125',
   },
   qc125_2021_census_projected_from_qc2022: {
-    en: 'Statistics Canada — 2021 Census (projected to current boundaries)',
-    fr: 'Statistique Canada — Recensement de 2021 (projeté sur les limites actuelles)',
-    es: 'Statistics Canada — Censo 2021 (proyectado sobre los límites actuales)',
+    en: 'Statistics Canada, 2021 Census, compiled by Qc125 and projected to the 2026 map',
+    fr: 'Statistique Canada, Recensement de 2021, compilé par Qc125 et projeté sur la carte de 2026',
+    es: 'Statistics Canada, censo de 2021, recopilado por Qc125 y proyectado sobre el mapa de 2026',
   },
   'ONS mid-2022 population + Jan 2026 labour market': {
-    en: 'Office for National Statistics — mid-2022 population, January 2026 labour market',
-    fr: 'Office for National Statistics (Royaume-Uni) — population mi-2022, marché du travail de janvier 2026',
-    es: 'Office for National Statistics (Reino Unido) — población a mediados de 2022, mercado laboral de enero de 2026',
+    en: 'Office for National Statistics: mid-2022 population, January 2026 labour market',
+    fr: 'Office for National Statistics (Royaume-Uni) : population mi-2022, marché du travail de janvier 2026',
+    es: 'Office for National Statistics (Reino Unido): población a mediados de 2022, mercado laboral de enero de 2026',
   },
   ons_mid_2022_pcon2025: {
-    en: 'Office for National Statistics — mid-2022 estimates',
-    fr: 'Office for National Statistics — estimations mi-2022',
-    es: 'Office for National Statistics — estimaciones mediados de 2022',
+    en: 'Office for National Statistics, mid-2022 estimates',
+    fr: 'Office for National Statistics (Royaume-Uni), estimations mi-2022',
+    es: 'Office for National Statistics (Reino Unido), estimaciones de mediados de 2022',
+  },
+  census_cvap_acs_2020_2024: {
+    en: 'U.S. Census Bureau, citizen voting-age population by race and ethnicity, ACS 2020–2024, 119th Congress districts',
+    fr: 'U.S. Census Bureau, citoyens en âge de voter selon l’origine, ACS 2020-2024, districts du 119e Congrès',
+    es: 'U.S. Census Bureau, ciudadanos en edad de votar según origen, ACS 2020-2024, distritos del 119.º Congreso',
   },
 };
-const sourceLabel = d.source
-  ? (SOURCE_LABELS[d.source]?.[lang] ?? d.source.replace(/_/g, ' '))
-  : null;
+const sourceLabel = d.source ? (SOURCE_LABELS[d.source]?.[lang] ?? null) : null;
+const loc = lang === 'fr' ? 'fr-CA' : lang === 'es' ? 'es-ES' : 'en-CA';
+
+const rows: Array<{ label: string; value: string }> = [];
+if (d.population_total !== undefined) rows.push({ label: T.population, value: d.population_total.toLocaleString(loc) });
+if (d.median_age !== undefined) rows.push({ label: T.median_age, value: String(d.median_age) });
+if (d.employment_rate !== undefined) rows.push({ label: T.employment, value: fmtPct(d.employment_rate, lang) });
+if (d.unemployment_rate !== undefined) rows.push({ label: T.unemployment, value: fmtPct(d.unemployment_rate, lang) });
+if (d.latino_cvap_pct !== undefined) rows.push({ label: T.latino, value: `${fmtPct(d.latino_cvap_pct, lang)}${d.latino_cvap_moe ? ` (± ${fmtPct(d.latino_cvap_moe, lang).replace(/\s?%$/, '')})` : ''}` });
+if (!hasLinguistic && rows.length === 0) return null;
 ---
 
 <section class="demographics">
   <div class="container">
-    <p class="eyebrow">{T.eyebrow}</p>
     <h2>{T.title}</h2>
-
-    {hasLinguistic && (
-      <div class="block">
-        <h3>{T.linguistic}</h3>
-        <div class="ling-bar" role="img" aria-label={T.linguistic}>
-          {d.francophone_pct !== undefined && (
-            <div class="seg franco" style={`width:${d.francophone_pct}%`} title={`${T.franco} — ${fmtPct(d.francophone_pct, lang)}`}></div>
-          )}
-          {d.anglophone_pct !== undefined && (
-            <div class="seg anglo" style={`width:${d.anglophone_pct}%`} title={`${T.anglo} — ${fmtPct(d.anglophone_pct, lang)}`}></div>
-          )}
-          {d.nonfrancophone_pct !== undefined && (
-            <div class="seg other" style={`width:${d.nonfrancophone_pct}%`} title={`${T.other} — ${fmtPct(d.nonfrancophone_pct, lang)}`}></div>
-          )}
-        </div>
-        <ul class="ling-legend">
-          {d.francophone_pct !== undefined && <li><span class="key franco"></span>{T.franco} <strong>{fmtPct(d.francophone_pct, lang)}</strong></li>}
-          {d.anglophone_pct !== undefined && <li><span class="key anglo"></span>{T.anglo} <strong>{fmtPct(d.anglophone_pct, lang)}</strong></li>}
-          {d.nonfrancophone_pct !== undefined && <li><span class="key other"></span>{T.other} <strong>{fmtPct(d.nonfrancophone_pct, lang)}</strong></li>}
-        </ul>
-      </div>
-    )}
-
-    {(d.population_total || d.median_age || d.employment_rate || d.unemployment_rate) && (
-      <div class="block stats-grid">
-        {d.population_total !== undefined && (
-          <div><dt>{T.population}</dt><dd>{d.population_total.toLocaleString(lang === 'fr' ? 'fr-CA' : lang === 'es' ? 'es-ES' : 'en-CA')}</dd></div>
+    <table class="portrait">
+      <tbody>
+        {rows.map((r) => <tr><th scope="row">{r.label}</th><td>{r.value}</td></tr>)}
+        {langRows.length > 0 && (
+          <tr>
+            <th scope="row">{langTitle}</th>
+            <td>
+              <div class="ling-bar" role="img" aria-label={langTitle}>
+                {langRows.map((r) => <div class={`seg ${r.k}`} style={`width:${r.v}%`} title={`${r.label} : ${fmtPct(r.v, lang)}`}></div>)}
+              </div>
+              <ul class="ling-legend">
+                {langRows.map((r) => <li><span class={`key ${r.k}`}></span>{r.label} <strong>{fmtPct(r.v, lang)}</strong></li>)}
+              </ul>
+            </td>
+          </tr>
         )}
-        {d.median_age !== undefined && (
-          <div><dt>{T.median_age}</dt><dd>{d.median_age}</dd></div>
-        )}
-        {d.employment_rate !== undefined && (
-          <div><dt>{T.employment}</dt><dd>{fmtPct(d.employment_rate, lang)}</dd></div>
-        )}
-        {d.unemployment_rate !== undefined && (
-          <div><dt>{T.unemployment}</dt><dd>{fmtPct(d.unemployment_rate, lang)}</dd></div>
-        )}
-      </div>
-    )}
-
-    <p class="meta">
-      {sourceLabel && <>{T.source} : {sourceLabel}</>}
-    </p>
+      </tbody>
+    </table>
+    {d.latino_cvap_pct !== undefined && <p class="vs-meta">{T.latinoNote}</p>}
+    {sourceLabel && <p class="vs-meta">{T.source}{lang === 'fr' ? '\u00a0: ' : ': '}{sourceLabel}</p>}
   </div>
 </section>
 
 <style>
-  .demographics {
-    padding: 56px 0;
-    border-bottom: 1px solid var(--rule);
-  }
-  h2 {
-    margin: 8px 0 24px;
-    font-family: var(--serif);
-    font-size: clamp(28px, 3.4vw, 40px);
-    font-weight: 700;
-    letter-spacing: -0.01em;
-  }
-  h3 {
-    margin: 0 0 12px;
-    font-family: var(--mono);
-    font-size: 13px;
-    letter-spacing: 0;
-    color: var(--ink-2);
-  }
-  .block { margin-bottom: 32px; }
-  .ling-bar {
-    display: flex;
-    height: 24px;
-    border-radius: 2px;
-    overflow: hidden;
-    border: 1px solid var(--rule);
-  }
+  .demographics { padding: 40px 0; border-bottom: 1px solid var(--rule); }
+  h2 { margin: 0 0 14px; font-size: clamp(24px, 3vw, 30px); font-weight: 700; }
+  .portrait { width: 100%; max-width: 760px; border-collapse: collapse; border-top: 2px solid var(--ink); font-size: 16px; }
+  .portrait th, .portrait td { padding: 12px 12px 12px 0; border-bottom: 1px solid var(--rule); text-align: left; vertical-align: top; }
+  .portrait th { width: 42%; font-weight: 600; color: var(--ink-2); }
+  .portrait td { font-variant-numeric: tabular-nums; font-weight: 600; }
+  /* Couleurs neutres : la couleur est réservée aux partis (DESIGN § 1.3). */
+  .ling-bar { display: flex; height: 16px; border: 1px solid var(--rule); }
   .seg { height: 100%; }
-  .seg.franco { background: oklch(0.55 0.18 30); }
-  .seg.anglo  { background: oklch(0.45 0.12 250); }
-  .seg.other  { background: oklch(0.62 0.08 90); }
-  .ling-legend {
-    list-style: none;
-    padding: 0;
-    margin: 14px 0 0;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    font-family: var(--mono);
-    font-size: 13px;
-  }
-  .key {
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    border-radius: 2px;
-    margin-right: 6px;
-    vertical-align: middle;
-  }
-  .key.franco { background: oklch(0.55 0.18 30); }
-  .key.anglo  { background: oklch(0.45 0.12 250); }
-  .key.other  { background: oklch(0.62 0.08 90); }
-  .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-    gap: 0;
-    border-top: 1px solid var(--rule);
-    border-left: 1px solid var(--rule);
-  }
-  .stats-grid > div {
-    padding: 16px 20px;
-    border-right: 1px solid var(--rule);
-    border-bottom: 1px solid var(--rule);
-  }
-  dt {
-    font-family: var(--mono);
-    font-size: 13px;
-    letter-spacing: 0;
-    color: var(--ink-2);
-    margin-bottom: 6px;
-  }
-  dd {
-    margin: 0;
-    font-family: var(--serif);
-    font-size: 24px;
-  }
-  .meta {
-    margin-top: 16px;
-    font-family: var(--mono);
-    font-size: 13px;
-    color: var(--ink-2);
-  }
-  .meta a { color: var(--ink); text-decoration: underline; }
-  code { font-size: 11px; }
+  .seg.franco, .key.franco { background: var(--ink); }
+  .seg.anglo, .key.anglo { background: var(--ink-3); }
+  .seg.other, .key.other { background: var(--rule); }
+  .ling-legend { list-style: none; padding: 0; margin: 10px 0 0; display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 15px; font-weight: 400; }
+  .key { display: inline-block; width: 10px; height: 10px; margin-right: 6px; vertical-align: middle; }
+  .vs-meta { max-width: 760px; margin: 10px 0 0; }
 </style>

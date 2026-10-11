@@ -68,6 +68,9 @@ export interface RidingDemographics {
   median_age?: number;
   employment_rate?: number;
   unemployment_rate?: number;
+  // États-Unis : citoyens latinos de 18 ans et plus (ACS), en % des citoyens de 18 ans et plus
+  latino_cvap_pct?: number;
+  latino_cvap_moe?: number;
   // Source + external link
   source?: string;
   external_profile_url?: string;

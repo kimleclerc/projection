@@ -58,7 +58,10 @@ const NATIONAL_VOTE_MEAN: Record<string, number> = (() => {
     }
   }
   const out: Record<string, number> = {};
-  for (const [code, { sum, n }] of Object.entries(buckets)) out[code] = sum / n;
+  // Univers commun : un parti absent d'une circonscription y compte pour 0 % ; sinon
+  // chaque parti serait moyenné sur ses seules courses et le total dépasserait 100 %.
+  const N = RIDINGS.length || 1;
+  for (const [code, { sum }] of Object.entries(buckets)) out[code] = sum / N;
   return out;
 })();
 
@@ -76,7 +79,8 @@ const PROVINCE_VOTE_MEAN: Record<string, Record<string, number>> = (() => {
   const out: Record<string, Record<string, number>> = {};
   for (const [prov, buckets] of Object.entries(byProv)) {
     out[prov] = {};
-    for (const [code, { sum, n }] of Object.entries(buckets)) out[prov][code] = sum / n;
+    const N = RIDINGS.filter((r) => r.province === prov).length || 1;
+    for (const [code, { sum }] of Object.entries(buckets)) out[prov][code] = sum / N;
   }
   return out;
 })();

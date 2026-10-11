@@ -16,25 +16,25 @@ const FONTS = [
 ] as const;
 let yogaPret: Promise<unknown> | null = null;
 
-export async function renderScenarioPng(fmt: 'wide' | 'square' | 'story', key: string, lang: Lang, sim: string): Promise<Blob> {
-  // Variante navigateur de satori : on charge nous-mêmes son moteur de mise en page.
-  const [{ default: satori, init }, { scenarioCard, SIZE }, { default: yogaUrl }] = await Promise.all([
-    import('satori/standalone'), import('./cards'), import('satori/yoga.wasm?url'),
+/** Prépare satori une seule fois (moteur de mise en page + polices). */
+async function engine() {
+  const [{ default: satori, init }, { default: yogaUrl }] = await Promise.all([
+    import('satori/standalone'), import('satori/yoga.wasm?url'),
   ]);
   if (!yogaPret) yogaPret = init(await (await fetch(yogaUrl)).arrayBuffer());
   await yogaPret;
-  const get = (f: string) => fetch(`/web_data/${key}/${f}`).then((r) => r.json());
-  const [doc, geo, ...fonts] = await Promise.all([
-    get('simulator.json'),
-    get('geomap.json'),
-    ...FONTS.map(([file]) => fetch(`/og-fonts/${file}`).then((r) => r.arrayBuffer())),
-  ]);
-  const { w, h } = SIZE[fmt];
-  const svg = await satori(scenarioCard(fmt, { key, lang, doc, geo, sim }) as never, {
-    width: w,
-    height: h,
-    fonts: FONTS.map(([, name, weight], i) => ({ name, data: fonts[i] as ArrayBuffer, weight, style: 'normal' as const })),
-  });
+  if (!fontsPret) {
+    fontsPret = Promise.all(FONTS.map(([file]) => fetch(`/og-fonts/${file}`).then((r) => r.arrayBuffer())));
+  }
+  const fonts = await fontsPret;
+  return { satori, fonts: FONTS.map(([, name, weight], i) => ({ name, data: fonts[i], weight, style: 'normal' as const })) };
+}
+let fontsPret: Promise<ArrayBuffer[]> | null = null;
+
+/** Arbre satori → SVG → canevas → PNG. */
+async function toPng(tree: unknown, w: number, h: number): Promise<Blob> {
+  const { satori, fonts } = await engine();
+  const svg = await satori(tree as never, { width: w, height: h, fonts });
   const img = new Image();
   img.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
   await img.decode();
@@ -46,4 +46,19 @@ export async function renderScenarioPng(fmt: 'wide' | 'square' | 'story', key: s
   ctx.fillRect(0, 0, w, h);
   ctx.drawImage(img, 0, 0, w, h);
   return new Promise((ok, ko) => canvas.toBlob((b) => (b ? ok(b) : ko(new Error('canvas'))), 'image/png'));
+}
+
+export async function renderScenarioPng(fmt: 'wide' | 'square' | 'story', key: string, lang: Lang, sim: string): Promise<Blob> {
+  const { scenarioCard, SIZE } = await import('./cards');
+  const get = (f: string) => fetch(`/web_data/${key}/${f}`).then((r) => r.json());
+  const [doc, geo] = await Promise.all([get('simulator.json'), get('geomap.json')]);
+  const { w, h } = SIZE[fmt];
+  return toPng(scenarioCard(fmt, { key, lang, doc, geo, sim }), w, h);
+}
+
+/** Image d'une fiche de circonscription ou de district, à partir des chiffres de la page. */
+export async function renderRidingPng(fmt: 'wide' | 'square' | 'story', lang: Lang, payload: import('./cards').RidingCardInput): Promise<Blob> {
+  const { ridingCard, SIZE } = await import('./cards');
+  const { w, h } = SIZE[fmt];
+  return toPng(ridingCard(fmt, lang, payload), w, h);
 }

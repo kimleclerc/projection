@@ -51,9 +51,9 @@ export const fillFor = (color: string | undefined, p: number | undefined) =>
   !color ? VIDE : p === undefined || p >= 0.85 ? color : p >= 0.6 ? tint(color, 0.52) : SERRE;
 
 const T = {
-  fr: { safe: 'Sûr', comp: 'Compétitif', toss: 'Serré', flip: (y: number) => `Change de camp depuis ${y}`, empty: 'Pas d’élection', majority: (n: number) => `${n} pour la majorité`, chances: 'Chances de majorité', seats: 'Sièges projetés', range: 'Fourchette', party: 'Parti', asOf: 'Projection du', polls: (n: number | string) => `${n} sondages`, govs: 'Postes de gouverneur projetés', avg: 'Moyenne des sondages', by: 'Par Kim Leclerc', since: 'depuis' },
-  en: { safe: 'Safe', comp: 'Competitive', toss: 'Toss-up', flip: (y: number) => `Changes hands since ${y}`, empty: 'No race', majority: (n: number) => `${n} for a majority`, chances: 'Chance of a majority', seats: 'Projected seats', range: 'Range', party: 'Party', asOf: 'Forecast of', polls: (n: number | string) => `${n} polls`, govs: 'Projected governorships', avg: 'Polling average', by: 'By Kim Leclerc', since: 'since' },
-  es: { safe: 'Seguro', comp: 'Competitivo', toss: 'Reñido', flip: (y: number) => `Cambia de manos desde ${y}`, empty: 'Sin elección', majority: (n: number) => `${n} para la mayoría`, chances: 'Probabilidad de mayoría', seats: 'Escaños proyectados', range: 'Horquilla', party: 'Partido', asOf: 'Proyección del', polls: (n: number | string) => `${n} encuestas`, govs: 'Gobernaciones proyectadas', avg: 'Promedio de encuestas', by: 'Por Kim Leclerc', since: 'desde' },
+  fr: { safe: 'Sûr', comp: 'Compétitif', toss: 'Serré', flip: (y: number) => `Change de camp depuis ${y}`, empty: 'Pas d’élection', majority: (n: number) => `${n} pour la majorité`, chances: 'Chances de majorité', seats: 'Sièges projetés', range: 'Fourchette à 80 %', party: 'Parti', asOf: 'Projection du', polls: (n: number | string) => `${n} sondages`, govs: 'Postes de gouverneur projetés', avg: 'Moyenne des sondages', by: 'Par Kim Leclerc', since: 'depuis' },
+  en: { safe: 'Safe', comp: 'Competitive', toss: 'Toss-up', flip: (y: number) => `Changes hands since ${y}`, empty: 'No race', majority: (n: number) => `${n} for a majority`, chances: 'Chance of a majority', seats: 'Projected seats', range: '80% range', party: 'Party', asOf: 'Forecast of', polls: (n: number | string) => `${n} polls`, govs: 'Projected governorships', avg: 'Polling average', by: 'By Kim Leclerc', since: 'since' },
+  es: { safe: 'Seguro', comp: 'Competitivo', toss: 'Reñido', flip: (y: number) => `Cambia de manos desde ${y}`, empty: 'Sin elección', majority: (n: number) => `${n} para la mayoría`, chances: 'Probabilidad de mayoría', seats: 'Escaños proyectados', range: 'Horquilla al 80 %', party: 'Partido', asOf: 'Proyección del', polls: (n: number | string) => `${n} encuestas`, govs: 'Gobernaciones proyectadas', avg: 'Promedio de encuestas', by: 'Por Kim Leclerc', since: 'desde' },
 };
 
 const nf = (n: number, lang: Lang) => n.toLocaleString(lang === 'en' ? 'en-US' : lang === 'es' ? 'es-ES' : 'fr-CA');
@@ -77,18 +77,28 @@ const seatsOf = (p: any) => Math.round(p.seats_projected ?? p.seats_median ?? p.
 function frame(fmt: Format, lang: Lang, title: string, sub: string, body: Node, foot: string): Node {
   const { w, h: H } = SIZE[fmt];
   const pad = fmt === 'wide' ? 34 : 44;
+  const mark = fmt === 'wide' ? 34 : 46;
   return h('div', { flexDirection: 'column', width: w, height: H, backgroundColor: PAPER, padding: `${pad - 6}px ${pad}px ${pad - 10}px`, fontFamily: 'Barlow', color: INK },
     h('div', { flexDirection: 'column', borderTop: `6px solid ${INK}`, paddingTop: 12 },
       h('div', { justifyContent: 'space-between', alignItems: 'baseline' },
         h('div', { fontSize: fmt === 'wide' ? 30 : 38, fontWeight: 700, lineHeight: 1.05 }, title),
-        h('div', { fontSize: 17, fontWeight: 600, color: INK_3 }, sub))),
+        h('div', { fontSize: fmt === 'wide' ? 17 : 20, fontWeight: 600, color: INK_3 }, whenLine(sub, lang)))),
     h('div', { flexGrow: 1, flexDirection: 'column', marginTop: 10 }, body),
-    h('div', { justifyContent: 'space-between', alignItems: 'center', borderTop: `1px solid ${RULE}`, paddingTop: 10, fontSize: 16, fontWeight: 600, color: INK_3 },
-      h('div', {}, foot),
-      h('div', { alignItems: 'center', color: INK_2 },
-        img(BRAND, 22, 22),
-        h('div', { marginLeft: 7, fontWeight: 700, color: INK }, 'Vote-Scope'),
-        h('div', { marginLeft: 10 }, `· ${T[lang].by} · vote-scope.com`))));
+    h('div', { justifyContent: 'space-between', alignItems: 'center', borderTop: `1px solid ${RULE}`, paddingTop: 10, fontSize: fmt === 'wide' ? 16 : 19, fontWeight: 600, color: INK_3 },
+      h('div', { flexShrink: 1, marginRight: 16 }, foot),
+      h('div', { alignItems: 'center', color: INK_2, flexShrink: 0 },
+        img(BRAND, mark, mark),
+        h('div', { flexDirection: 'column', marginLeft: 10 },
+          h('div', { fontSize: fmt === 'wide' ? 28 : 36, fontWeight: 700, color: INK, lineHeight: 1 }, 'Vote-Scope'),
+          h('div', { fontSize: fmt === 'wide' ? 14 : 17, marginTop: 3 }, `${T[lang].by} · vote-scope.com`)))));
+}
+
+/** Date du scrutin, étiquetée pour ne pas la confondre avec la date de projection. */
+function whenLine(when: string, lang: Lang): string {
+  if (!when) return '';
+  if (/prochaine|next|próxima/i.test(when)) return ({ fr: 'Prochaine élection : date non fixée', en: 'Next election: date not set', es: 'Próxima elección: sin fecha' } as const)[lang];
+  if (/^(Scrutin|Election|Elección)/.test(when)) return when;
+  return ({ fr: `Scrutin : ${when}`, en: `Election: ${when}`, es: `Elección: ${when}` } as const)[lang];
 }
 
 // ------------------------------------------------------------------ barre des sièges
@@ -287,7 +297,7 @@ export function mapCard(fmt: Format, { key, lang, latest, geo }: MapCardInput): 
   const body = h('div', { flexDirection: 'column', flexGrow: 1 },
     top,
     h('div', { flexGrow: 1, justifyContent: 'center', alignItems: fmt === 'story' ? 'flex-start' : 'center', marginTop: 12 },
-      fmt === 'story'
+      fmt !== 'wide'
         ? storyMap(geo, fill, changed, inner, H - pad * 2 - 60 - topH - 90, lang)
         : h('div', { position: 'relative', width: mw, height: mh },
           img(svgUri(mapSvg(geo, fill, changed)), mw, mh, { position: 'absolute', left: 0, top: 0 }),
@@ -307,7 +317,7 @@ export function projectionCard(fmt: Format, { key, lang, latest }: { key: string
   const total = latest.meta.total_seats ?? parties.reduce((s: number, p: any) => s + seatsOf(p), 0);
   const majority = latest.meta.majority_threshold ?? Math.floor(total / 2) + 1;
   const big = fmt !== 'wide';
-  const row = (p: any) => h('div', { alignItems: 'center', borderBottom: `1px solid ${RULE}`, padding: big ? '14px 0' : '9px 0' },
+  const row = (p: any) => h('div', { alignItems: 'center', borderBottom: `1px solid ${RULE}`, padding: fmt === 'story' ? '22px 0' : big ? '16px 0' : '9px 0' },
     h('div', { width: 8, height: big ? 40 : 32, backgroundColor: p.color, marginRight: 14 }),
     h('div', { flexGrow: 1, fontSize: big ? 30 : 26, fontWeight: 700 }, partyLabel(p, lang)),
     h('div', { width: 170, justifyContent: 'flex-end', fontFamily: 'Barlow Condensed', fontWeight: 700, fontSize: big ? 60 : 50, lineHeight: 1, color: p.color }, String(seatsOf(p))),
@@ -323,7 +333,7 @@ export function projectionCard(fmt: Format, { key, lang, latest }: { key: string
   const bar = h('div', { position: 'relative', width: inner, height: 26, marginTop: 18, backgroundColor: RULE },
     ...parties.map((p: any) => h('div', { width: (seatsOf(p) / total) * inner, height: 26, backgroundColor: p.color })),
     h('div', { position: 'absolute', left: (majority / total) * inner - 1, top: -6, width: 2, height: 38, backgroundColor: INK }));
-  const body = h('div', { flexDirection: 'column', flexGrow: 1, justifyContent: fmt === 'story' ? 'center' : 'flex-start', paddingTop: big ? 40 : 18 },
+  const body = h('div', { flexDirection: 'column', flexGrow: 1, justifyContent: fmt === 'wide' ? 'flex-start' : 'center', paddingTop: big ? 10 : 18 },
     h('div', { fontSize: big ? 52 : 40, fontWeight: 700, lineHeight: 1.05, marginBottom: big ? 34 : 16 }, el.question[lang]),
     head, ...parties.map(row), bar,
     h('div', { marginTop: 8, fontSize: 15, fontWeight: 600, color: INK_2 }, t.majority(majority)));
@@ -464,4 +474,63 @@ export function scenarioCard(fmt: Format, { key, lang, doc, geo, sim }: { key: s
           img(svgUri(mapSvg(geo, fill, changed)), mw, mh, { position: 'absolute', left: 0, top: 0 }),
           ...titres)));
   return frame(fmt, lang, `${el.name[lang]} — ${s.title}`, el.when[lang], body, s.base);
+}
+
+// ------------------------------------------------------------------ fiche de circonscription / district
+
+export interface RidingCardInput {
+  title: string;
+  where: string;
+  answer: string;
+  parties: { label: string; color: string; v: number }[];
+  date: string;      // date de projection (ISO)
+  voteDay: string;   // date du scrutin (ISO), peut être vide
+  /** Contour du territoire (chemin SVG), à la couleur du favori. */
+  shape?: { d: string; vb: string; color: string };
+}
+
+/** Image d'une fiche : le nom, où, la réponse en une phrase, les intentions de vote
+ *  en barres (même grammaire que la page), la date de projection. Dessinée dans le
+ *  navigateur du lecteur : aucune image stockée par fiche. */
+export function ridingCard(fmt: Format, lang: Lang, d: RidingCardInput): Node {
+  const t = T[lang];
+  const { w } = SIZE[fmt];
+  const pad = fmt === 'wide' ? 34 : 44;
+  const inner = w - pad * 2;
+  const big = fmt !== 'wide';
+  const story = fmt === 'story';
+  const max = Math.max(1, ...d.parties.map((p) => p.v));
+  const pctTxt = (v: number) => {
+    const n = v.toLocaleString(lang === 'en' ? 'en-US' : lang === 'es' ? 'es-ES' : 'fr-CA', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+    return lang === 'en' ? `${n}%` : `${n} %`;
+  };
+  const n = Math.min(d.parties.length, story ? 6 : big ? 5 : 4);
+  // Peu de partis : plus grand, pour remplir le format sans laisser de blanc.
+  const roomy = big && n <= 4;
+  const labelW = big ? 320 : 250;
+  const valW = big ? 190 : 130;
+  const barW = inner - labelW - valW - 20;
+  const barH = roomy ? 34 : big ? 24 : 16;
+  const rows = d.parties.slice(0, n).map((p) => h('div', { alignItems: 'center', borderBottom: `1px solid ${RULE}`, padding: story ? '30px 0' : roomy ? '28px 0' : big ? '14px 0' : '8px 0' },
+    h('div', { width: labelW, alignItems: 'center', fontSize: roomy ? 36 : big ? 30 : 24, fontWeight: 700 },
+      h('div', { width: 10, height: roomy ? 44 : big ? 34 : 26, backgroundColor: p.color, marginRight: 14 }), p.label),
+    h('div', { width: barW, height: barH, backgroundColor: PAPER_2, marginRight: 20 },
+      h('div', { width: Math.max(4, (p.v / max) * barW), height: barH, backgroundColor: p.color })),
+    h('div', { width: valW, justifyContent: 'flex-end', fontFamily: 'Barlow Condensed', fontWeight: 700, fontSize: story ? 70 : roomy ? 66 : big ? 54 : 42, lineHeight: 1 }, pctTxt(p.v))));
+  const head = h('div', { borderBottom: `1px solid ${INK}`, paddingBottom: 6, fontSize: big ? 18 : 15, fontWeight: 600, color: INK_3 },
+    ({ fr: 'Intentions de vote projetées', en: 'Projected vote share', es: 'Intención de voto proyectada' } as const)[lang]);
+  const shapeSize = story ? 300 : big ? 230 : 150;
+  const shape = d.shape
+    ? img(svgUri(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="${d.shape.vb}"><path d="${d.shape.d}" fill="${d.shape.color}" fill-opacity="0.35" stroke="${d.shape.color}" stroke-width="5" stroke-linejoin="round"/></svg>`), shapeSize, shapeSize, { marginLeft: 24, flexShrink: 0 })
+    : null;
+  const intro = h('div', { alignItems: 'center', marginBottom: story ? 60 : big ? 40 : 14 },
+    h('div', { flexDirection: 'column', flexGrow: 1, flexShrink: 1 },
+      h('div', { fontSize: big ? 26 : 19, fontWeight: 600, color: INK_3, marginBottom: 10 }, d.where),
+      h('div', { fontSize: story ? 60 : big ? 54 : 32, fontWeight: 700, lineHeight: 1.1 }, d.answer)),
+    ...(shape ? [shape] : []));
+  const body = h('div', { flexDirection: 'column', flexGrow: 1, justifyContent: big ? 'center' : 'flex-start', paddingTop: big ? 0 : 6 },
+    intro, head, ...rows);
+  const when = d.voteDay ? longDate(d.voteDay, lang) : '';
+  const foot = d.date ? `${t.asOf} ${longDate(d.date, lang)}` : '';
+  return frame(fmt, lang, d.title, when, body, foot);
 }

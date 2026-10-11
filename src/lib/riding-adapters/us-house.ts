@@ -22,6 +22,7 @@ import type {
   RidingData, RidingMember, DeclaredCandidate, RidingNeighbor, RidingPoll,
 } from './types';
 import centroidsHouse from '../../data/centroids-us-house.json';
+import latinoCvap from '../../data/us-latino-cvap-house.json';
 import { ridingSlug } from './types';
 import { partyMeta } from './parties';
 import { nomineesByParty, isQualifiedCandidate, isDeclaredCandidate } from './nominees';
@@ -111,7 +112,10 @@ const NATIONAL_VOTE_MEAN: Record<string, number> = (() => {
     }
   }
   const out: Record<string, number> = {};
-  for (const [code, { sum, n }] of Object.entries(buckets)) out[code] = sum / n;
+  // Univers commun : un parti absent d'une circonscription y compte pour 0 % ; sinon
+  // chaque parti serait moyenné sur ses seules courses et le total dépasserait 100 %.
+  const N = ridings.length || 1;
+  for (const [code, { sum }] of Object.entries(buckets)) out[code] = sum / N;
   return out;
 })();
 
@@ -248,12 +252,25 @@ function adaptOne(raw: RawRiding): RidingData {
     runDate: META.run_date,
     hasProjectionHistory: RIDINGS_WITH_HISTORY.has(raw.riding_id),
     neighbors: buildNeighbors(raw.riding_id, raw.province),
+    demographics: latinoDemographics(raw.riding_id),
     regionalContext: {
       province: {},   // state-level rollup TBD
       national: NATIONAL_VOTE_MEAN,
       totalSeats: 435,
     },
   };
+}
+
+/** Part latino des citoyens de 18 ans et plus (ACS 2020-2024, limites du 119e Congrès).
+ *  Un district redessiné pour 2026 n'a plus ces limites : on n'affiche rien plutôt
+ *  qu'un chiffre qui décrirait un autre territoire. */
+const CVAP = (latinoCvap as { districts: Record<string, { share: number; moe: number }> }).districts;
+function latinoDemographics(rid: string): RidingData['demographics'] {
+  const id = String(rid).padStart(5, '0');
+  if (redistrictingByRiding[rid] || redistrictingByRiding[id]) return undefined;
+  const c = CVAP[id];
+  if (!c) return undefined;
+  return { latino_cvap_pct: c.share, latino_cvap_moe: c.moe, source: 'census_cvap_acs_2020_2024' };
 }
 
 export function getAllUSHouseRidings(): RidingData[] {

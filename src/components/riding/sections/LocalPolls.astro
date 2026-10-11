@@ -38,37 +38,39 @@ function dayNum(iso: string): number {
 }
 function fmtShort(iso: string): string {
   const d = new Date(`${iso}T00:00:00Z`);
-  return d.toLocaleDateString(LOCALE, { day: 'numeric', month: 'short', timeZone: 'UTC' });
+  return d.toLocaleDateString(LOCALE, { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
 }
 
 const T = {
   en: {
     eyebrow: 'District polls',
-    title: 'Polls in this district',
+    title: data.jurisdiction.startsWith('us-') ? 'Polls in this district' : 'Polls in this riding',
     firm: 'Pollster',
     dates: 'Field dates',
     sample: 'Sample',
-    pop: 'Pop.',
+    pop: 'Population',
     result: 'Topline',
     source: 'Source',
-    src: 'link',
-    pop_lv: 'LV', pop_rv: 'RV', pop_a: 'Adults',
+    src: 'See the poll',
+    pop_lv: 'likely voters', pop_rv: 'registered voters', pop_a: 'adults',
     nPolls: (n: number) => `${n} poll${n === 1 ? '' : 's'}`,
-    note: 'District-level polls, topline only. Vote-Scope reports each published poll as the pollster released it; figures are not the Vote-Scope projection.',
+    note: 'Each poll as the pollster published it; these are not the Vote-Scope projection. When a pollster tests several ballots (with or without a given candidate), each one is shown as a scenario.',
+    oth: 'Independent and others', scenario: (i: number) => `Scenario ${i}`, nSurveys: (n: number, rows: number) => `${n} poll${n === 1 ? '' : 's'}${rows > n ? `, ${rows} scenarios` : ''}`,
   },
   fr: {
     eyebrow: 'Sondages de circonscription',
-    title: 'Sondages dans cette circonscription',
-    firm: 'Maison',
+    title: data.jurisdiction.startsWith('us-') ? 'Sondages dans ce district' : 'Sondages dans cette circonscription',
+    firm: 'Institut',
     dates: 'Terrain',
     sample: 'Échantillon',
-    pop: 'Pop.',
+    pop: 'Population',
     result: 'Intentions',
     source: 'Source',
-    src: 'lien',
-    pop_lv: 'él. prob.', pop_rv: 'él. ins.', pop_a: 'adultes',
+    src: 'Voir le sondage',
+    pop_lv: 'électeurs probables', pop_rv: 'électeurs inscrits', pop_a: 'adultes',
     nPolls: (n: number) => `${n} sondage${n > 1 ? 's' : ''}`,
-    note: 'Sondages de circonscription, intentions globales seulement. Vote-Scope rapporte chaque sondage publié tel que diffusé par la maison ; ces chiffres ne sont pas la prévision Vote-Scope.',
+    note: 'Chaque sondage tel que l’institut l’a publié ; ces chiffres ne sont pas la projection de Vote-Scope. Quand un institut teste plusieurs affiches (avec ou sans tel candidat), chacune est présentée comme un scénario.',
+    oth: 'Indépendant et autres', scenario: (i: number) => `Scénario ${i}`, nSurveys: (n: number, rows: number) => `${n} sondage${n > 1 ? 's' : ''}${rows > n ? `, ${rows} scénarios` : ''}`,
   },
   es: {
     eyebrow: 'Encuestas del distrito',
@@ -76,13 +78,14 @@ const T = {
     firm: 'Encuestadora',
     dates: 'Trabajo de campo',
     sample: 'Muestra',
-    pop: 'Pob.',
+    pop: 'Población',
     result: 'Intención',
     source: 'Fuente',
-    src: 'enlace',
-    pop_lv: 'vot. prob.', pop_rv: 'vot. reg.', pop_a: 'adultos',
+    src: 'Ver la encuesta',
+    pop_lv: 'votantes probables', pop_rv: 'votantes registrados', pop_a: 'adultos',
     nPolls: (n: number) => `${n} encuesta${n === 1 ? '' : 's'}`,
-    note: 'Encuestas por distrito, solo intención global. Vote-Scope reporta cada encuesta publicada tal como lo difundió la encuestadora; estas cifras no son la proyección de Vote-Scope.',
+    note: 'Cada encuesta tal como la publicó la encuestadora; estas cifras no son la proyección de Vote-Scope. Cuando una encuestadora prueba varias papeletas (con o sin cierto candidato), cada una aparece como un escenario.',
+    oth: 'Independiente y otros', scenario: (i: number) => `Escenario ${i}`, nSurveys: (n: number, rows: number) => `${n} encuesta${n === 1 ? '' : 's'}${rows > n ? `, ${rows} escenarios` : ''}`,
   },
 }[lang];
 
@@ -128,12 +131,22 @@ const OTH_RE = /_oth$|^(oth|other|autre|others|autres)$/i;
 const colorByCode: Record<string, string> = {};
 const labelByCode: Record<string, string> = {};
 const allowed = new Set<string>();
+// Le seau « autre » s'affiche quand il pèse (Alaska : un indépendant à 35-47 %).
+const othCode = data.parties.find((p) => OTH_RE.test(p.code))?.code;
+const othMatters = !!othCode && polls.some((p) => (p.topline[othCode] ?? 0) >= 10);
 for (const p of data.parties) {
-  if (OTH_RE.test(p.code)) continue;
+  if (OTH_RE.test(p.code) && !othMatters) continue;
   allowed.add(p.code);
   colorByCode[p.code] = p.color;
-  labelByCode[p.code] = partyName(p, lang);
+  labelByCode[p.code] = OTH_RE.test(p.code) ? T.oth : partyName(p, lang);
 }
+
+// Une même enquête (institut + dates + échantillon) peut porter plusieurs scénarios.
+const surveyKey = (p: RidingPoll) => `${p.firm_name}|${p.field_start}|${p.field_end}`;
+const groups = new Map<string, number>();
+for (const p of polls) groups.set(surveyKey(p), (groups.get(surveyKey(p)) ?? 0) + 1);
+const seen = new Map<string, number>();
+const scenarioOf = (p: RidingPoll) => { const k = surveyKey(p); const i = (seen.get(k) ?? 0) + 1; seen.set(k, i); return (groups.get(k) ?? 1) > 1 ? i : 0; };
 
 /** Topline entries (desc), restricted to displayed parties, value > 0. */
 function toplineEntries(p: RidingPoll): Array<[string, number]> {
@@ -145,9 +158,8 @@ function toplineEntries(p: RidingPoll): Array<[string, number]> {
 
 <section class="local-polls">
   <div class="container">
-    <p class="eyebrow">{T.eyebrow}</p>
     <h2>{T.title}</h2>
-    <p class="count">{T.nPolls(polls.length)}</p>
+    <p class="count">{T.nSurveys(groups.size, polls.length)}</p>
 
     <div class="poll-table-wrap">
       <table class="poll-table">
@@ -164,12 +176,14 @@ function toplineEntries(p: RidingPoll): Array<[string, number]> {
         <tbody>
           {polls.map((p) => {
             const entries = toplineEntries(p);
+            const sc = scenarioOf(p);
             const max = Math.max(1, ...entries.map(([, v]) => v));
             return (
               <tr>
                 <td class="c-firm">
                   <span>{p.firm_name}</span>
                   {p.client && <span class="client">{p.client}</span>}
+                  {sc > 0 && <span class="client">{T.scenario(sc)}</span>}
                 </td>
                 <td class="c-dates">{fmtDates(p)}</td>
                 <td class="c-sample">{fmtSample(p.sample_size)}</td>

@@ -46,7 +46,8 @@ export function properName(name: string): string {
   if (!name || name !== name.toUpperCase()) return name;
   return name
     .toLowerCase()
-    .replace(/(^|[\s\-'’.(])(\p{L})/gu, (_, sep, ch) => sep + ch.toUpperCase());
+    .replace(/(^|[\s\-'’.(])(\p{L})/gu, (_, sep, ch) => sep + ch.toUpperCase())
+    .replace(/\b(Ii|Iii|Iv)\b/g, (r) => r.toUpperCase());
 }
 
 /** Nom officiel : Élections Canada écrit « -- » pour le tiret long. */

@@ -88,8 +88,10 @@ const PROVINCE_VOTE_MEAN: Record<string, Record<string, number>> = (() => {
   const out: Record<string, Record<string, number>> = {};
   for (const [prov, b] of Object.entries(buckets)) {
     out[prov] = {};
-    for (const [code, { sum, n }] of Object.entries(b)) {
-      out[prov][code] = sum / n;
+    // Univers commun : un parti absent d'une circonscription y compte pour 0 %.
+    const N = ridings.filter((r) => r.province === prov).length || 1;
+    for (const [code, { sum }] of Object.entries(b)) {
+      out[prov][code] = sum / N;
     }
   }
   return out;
@@ -154,7 +156,10 @@ function buildDemographics(rid: string): RidingDemographics | undefined {
     francophone_pct: g.francophone_pct ?? undefined,
     anglophone_pct: g.anglophone_pct ?? undefined,
     nonfrancophone_pct: g.nonfrancophone_pct ?? undefined,
-    source: g.demographics_source ?? undefined,
+    // Le fichier web écrit « statistics_canada_2021_census », mais le fichier moteur
+    // (data/geo/geo_fed_2025.csv) montre que les 342 valeurs viennent de Qc125, qui
+    // compile le recensement : on affiche la vraie filiation.
+    source: g.demographics_source === 'statistics_canada_2021_census' ? 'qc125_canada_2021_census' : g.demographics_source ?? undefined,
   };
 }
 

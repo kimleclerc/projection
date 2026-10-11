@@ -309,13 +309,21 @@ const pctTxt = (p: number) => {
   const n = v > 99 ? (lang === 'en' ? '>99' : '> 99') : v < 1 ? (lang === 'en' ? '<1' : '< 1') : String(Math.round(v));
   return lang === 'en' ? `${n}%` : `${n}\u00a0%`;
 };
+const othOf = (rows: SeatParty[]) => rows.find((p) => p.party === 'us_oth')?.seats_projected ?? 0;
+const senateOth = othOf(senateParties);
+const houseOth = othOf(houseParties);
+const seatNote = (n: number, oth: number) => {
+  const base = lang === 'fr' ? `${n} sièges` : lang === 'es' ? `${n} escaños` : `${n} seats`;
+  if (!oth) return base;
+  return base + (lang === 'fr' ? `, dont ${oth} indépendant${oth > 1 ? 's' : ''} ou autre${oth > 1 ? 's' : ''}` : lang === 'es' ? `, incluido${oth > 1 ? 's' : ''} ${oth} independiente${oth > 1 ? 's' : ''} u otro${oth > 1 ? 's' : ''}` : `, including ${oth} independent or other`);
+};
 const chambers = [
   { label: lang === 'fr' ? 'Chambre des représentants' : lang === 'es' ? 'Cámara de Representantes' : 'House of Representatives', href: t.houseHref,
-    d: houseDem.seats_projected!, r: houseRep.seats_projected!, chance: pctTxt(houseDem.p_majority), note: lang === 'fr' ? '435 sièges' : lang === 'es' ? '435 escaños' : '435 seats' },
+    d: houseDem.seats_projected!, r: houseRep.seats_projected!, chance: pctTxt(houseDem.p_majority), note: seatNote(435, houseOth) },
   { label: lang === 'fr' ? 'Sénat' : lang === 'es' ? 'Senado' : 'Senate', href: t.senateHref,
-    d: Math.round(senateDem.seats_mean!), r: Math.round(senateRep.seats_mean!), chance: pctTxt(senateDem.p_majority), note: lang === 'fr' ? '100 sièges' : lang === 'es' ? '100 escaños' : '100 seats' },
+    d: senateDem.seats_projected ?? Math.round(senateDem.seats_mean!), r: senateRep.seats_projected ?? Math.round(senateRep.seats_mean!), chance: pctTxt(senateDem.p_majority), note: seatNote(100, senateOth) },
   { label: lang === 'fr' ? 'Gouverneurs' : lang === 'es' ? 'Gobernadores' : 'Governors', href: t.govHref,
-    d: Math.round(govDem.seats_mean!), r: Math.round(govRep.seats_mean!), chance: '—', note: t.govRaces(govOpenSeats).replace(' · ', ', ') },
+    d: govDem.seats_projected ?? Math.round(govDem.seats_mean!), r: govRep.seats_projected ?? Math.round(govRep.seats_mean!), chance: '—', note: `${lang === 'fr' ? 'Les 50 États' : lang === 'es' ? 'Los 50 estados' : 'All 50 states'}${lang === 'fr' ? ' ; ' : '; '}${t.govRaces(govOpenSeats).replace(' · ', ', ').replace(/^./, (c) => c.toLowerCase())}` },
 ];
 
 const firstSentence = (txt: string) => { const m = /^(.+?[.!?])(\s|$)/.exec(txt.trim()); return m ? m[1] : txt; };

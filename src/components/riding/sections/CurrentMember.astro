@@ -17,6 +17,14 @@ const currentMeta = partyMeta(data.jurisdiction, m.party_current);
 const electedMeta = m.party_elected ? partyMeta(data.jurisdiction, m.party_elected) : null;
 const currentLabel = partyName(currentMeta, lang);
 const electedLabel = electedMeta ? (partyName(electedMeta, lang)) : null;
+// Le registre donne la forme officielle (« Nicholas J. Begich III ») ; le bulletin, le nom
+// d'usage (« Nick Begich »). On garde le nom d'usage quand le sortant se représente.
+const lastWord = (n: string) => n.replace(/,?\s+(jr\.?|sr\.?|ii|iii|iv)$/i, '').trim().split(/\s+/).pop()?.toLowerCase() ?? '';
+const ballotName = [
+  ...data.parties.map((p) => p.nominee).filter((n) => n?.status === 'incumbent').map((n) => n!.name),
+  ...(data.declaredCandidates ?? []).filter((c: { status?: string }) => c.status === 'incumbent').map((c: { name: string }) => c.name),
+].find((n) => n && lastWord(n) === lastWord(m.mp_name));
+const displayName = properName(ballotName ?? m.mp_name);
 const hasCrossed = !!(m.party_elected && m.party_current !== m.party_elected);
 // UN GOUVERNEUR N'EST PAS UN·E DÉPUTÉ·E, ET NE « SIÈGE » AVEC PERSONNE : il
 // dirige l'exécutif d'un État. Les libellés parlementaires seraient faux mot
@@ -62,7 +70,7 @@ const tenure = [
     <h2>{T.title}</h2>
     <p class="member-line" style={`--accent:${currentMeta.color}`}>
       <span class="dot" aria-hidden="true"></span>
-      <strong>{properName(m.mp_name)}</strong> · {currentLabel}
+      <strong>{displayName}</strong> · {currentLabel}
     </p>
     {(tenure || changeNote) && <p class="vs-meta member-meta">{[changeNote, tenure].filter(Boolean).join(' ')}</p>}
   </div>
