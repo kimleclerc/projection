@@ -45,10 +45,6 @@ function localeCrossingRedirects(path, separator) {
 const expectedFiles = [
   'src/data/editorial.ts',
   'src/components/EditorialHero.astro',
-  'src/components/InstrumentGrid.astro',
-  'src/islands/InstrumentFilter.tsx',
-  'src/islands/SignalTicker.tsx',
-  'src/components/MarketCheck.astro',
   'src/components/MethodologyNote.astro',
   'src/layouts/EditorialLayout.astro',
   'src/pages/en/index.astro',
@@ -87,23 +83,8 @@ check(
   ])
 );
 
-check(
-  'English home page exposes the editorial promise',
-  fileIncludes('src/pages/en/index.astro', [
-    'Not just who’s ahead',
-    'bureau of electoral and sports intelligence',
-    'What’s moving',
-  ])
-);
-
-check(
-  'French home page exposes the editorial promise',
-  fileIncludes('src/pages/fr/index.astro', [
-    'Pas juste qui mène',
-    'bureau d’intelligence électorale et sportive',
-    'Ce qui bouge',
-  ])
-);
+// Les accueils, la grille d'instruments et le bandeau de signaux ont été refaits
+// (refonte « soirée électorale », oct. 2026) : plus de slogan ni d'îlots imposés ici.
 
 check(
   'Indexes catalog includes priority instruments',
@@ -116,14 +97,6 @@ check(
     'Fraser Interim Index',
     'Barrage Index',
   ])
-);
-
-check(
-  'Astro islands are used for reusable interactive surfaces',
-  fileIncludes('src/pages/en/indexes/index.astro', ['client:visible']) &&
-    fileIncludes('src/islands/InstrumentFilter.tsx', ['useState', 'data-instrument-filter']) &&
-    fileIncludes('src/islands/SignalTicker.tsx', ['data-signal-ticker']),
-  'indexes should hydrate the filter as an island, not as page-global legacy JS'
 );
 
 check(
