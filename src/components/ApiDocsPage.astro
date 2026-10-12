@@ -2,6 +2,7 @@
 import EditorialLayout from '../layouts/EditorialLayout.astro';
 import manifest from '../../web_data/public-api/latest.json';
 import { apiTitle, apiKind } from '../data/api-titles';
+import { longDate } from '../lib/format';
 
 type Locale = 'en' | 'fr' | 'es';
 interface Props { locale: Locale }
@@ -120,7 +121,7 @@ const examples = [
     </section>
 
     <section aria-labelledby="datasets-title">
-      <div class="section-head"><div><p class="eyebrow">{t.current}</p><h2 id="datasets-title">{datasets.length} {t.datasets}</h2></div><p>{t.asOf} {String(manifest.meta.data_through).slice(0, 10)}</p></div>
+      <div class="section-head"><div><p class="eyebrow">{t.current}</p><h2 id="datasets-title">{datasets.length} {t.datasets}</h2></div><p>{t.asOf} {longDate(String(manifest.meta.data_through).slice(0, 10), locale)}</p></div>
       <div class="dataset-grid">{datasets.map((dataset) => (
         <article class="dataset-card">
           <p class="dataset-kind">{apiKind(dataset.kind, locale)}</p><h3>{apiTitle(dataset.id, dataset.title, locale)}</h3>

@@ -1,4 +1,5 @@
 ---
+import { longDate } from '../lib/format';
 // Desk « Clacton 2.0 » — deux questions, tenues séparées.
 //
 //   1. Le siège retombe-t-il vacant, et quand ? (chaîne institutionnelle)
@@ -455,7 +456,7 @@ const jsonLd = [
       title={t.methodTitle}
       body={t.methodBody}
       bullets={[
-        `${locale === 'en' ? 'Updated' : locale === 'es' ? 'Actualizado el' : 'Mis à jour le'} ${d.run_date} · ${d.n_sims.toLocaleString(locale === 'en' ? 'en-GB' : locale === 'es' ? 'es-ES' : 'fr-FR')} ${locale === 'es' ? 'simulaciones' : 'simulations'} · ${Object.keys(race.grid).length} ${locale === 'en' ? 'race scenarios' : locale === 'es' ? 'escenarios de carrera' : 'scénarios de course'}`,
+        `${locale === 'en' ? 'Updated' : locale === 'es' ? 'Actualizado el' : 'Mis à jour le'} ${longDate(d.run_date, locale)} · ${d.n_sims.toLocaleString(locale === 'en' ? 'en-GB' : locale === 'es' ? 'es-ES' : 'fr-FR')} ${locale === 'es' ? 'simulaciones' : 'simulations'} · ${Object.keys(race.grid).length} ${locale === 'en' ? 'race scenarios' : locale === 'es' ? 'escenarios de carrera' : 'scénarios de course'}`,
         `${locale === 'en' ? 'Recall of MPs Act 2015' : locale === 'es' ? 'Ley de revocación de diputados de 2015 (Recall of MPs Act)' : 'Loi de 2015 sur la révocation des députés (Recall of MPs Act)'} · ${d.signatures_needed.toLocaleString(locale === 'en' ? 'en-GB' : locale === 'es' ? 'es-ES' : 'fr-FR')} ${locale === 'es' ? 'firmas' : 'signatures'} = 10 %`,
       ]}
     />

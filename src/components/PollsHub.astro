@@ -13,6 +13,9 @@
  */
 import type { PollRow, PollsMeta, PollFirm, TrendBundle } from '../lib/polls-adapter';
 import VoteTrendChart from '../islands/VoteTrendChart.tsx';
+import PollShare from './PollShare.astro';
+import { pollShareRow, packRow } from '../lib/share/poll-payload';
+import { usStateName } from '../lib/place-names';
 
 interface PartyChip {
   code: string;
@@ -30,17 +33,15 @@ interface Props {
   pollsBase: string;
   /** Optional poll trend (model estimate + history) for the chart. */
   trend?: TrendBundle;
-  /** Base URL for a poll's pre-rendered share card, e.g. '/og/us-house/poll/es'. */
-  cardBase?: string;
-  /** poll_ids that have a pre-rendered share PNG (recent polls only). */
-  cardIds?: string[];
+  /** Image par sondage, dessinée au clic : titre de l'image et jour du scrutin.
+   *  Absent = pas de colonne « Image ». */
+  share?: { title: string; voteDay?: string };
   /** True only when per-poll detail PAGES exist (else firm stays plain text,
    *  no dead link). No jurisdiction ships detail pages yet. */
   detailPages?: boolean;
 }
 
-const { lang, meta, polls, firms, parties, pollsBase, trend, cardBase, cardIds, detailPages = false } = Astro.props as Props;
-const cardSet = new Set(cardIds ?? []);
+const { lang, meta, polls, firms, parties, pollsBase, trend, share, detailPages = false } = Astro.props as Props;
 
 const LOCALE = lang === 'fr' ? 'fr-CA' : lang === 'es' ? 'es-ES' : 'en-US';
 
@@ -71,7 +72,8 @@ const T = {
     pop: 'Pop.',
     result: 'Topline',
     source: 'Source',
-    share: 'Share',
+    share: 'Image',
+    image: 'Image',
     detail: 'Breakdowns',
     nPolls: (n: number) => `${n} poll${n === 1 ? '' : 's'}`,
     latest: 'Most recent fieldwork',
@@ -80,6 +82,7 @@ const T = {
     pop_lv: 'LV',
     pop_rv: 'RV',
     pop_a: 'Adults',
+    pop_dl: 'Decided and leaning',
     src: 'link',
     note:
       'National and big-regional polls only. District-level polls appear on each district’s forecast page.',
@@ -99,7 +102,8 @@ const T = {
     pop: 'Pop.',
     result: 'Intentions',
     source: 'Source',
-    share: 'Partager',
+    share: 'Image',
+    image: 'Image',
     detail: 'Ventilations',
     nPolls: (n: number) => `${n} sondage${n > 1 ? 's' : ''}`,
     latest: 'Terrain le plus récent',
@@ -108,6 +112,7 @@ const T = {
     pop_lv: 'él. prob.',
     pop_rv: 'él. ins.',
     pop_a: 'adultes',
+    pop_dl: 'décidés et ceux qui penchent',
     src: 'lien',
     note:
       'Sondages nationaux et grands régionaux seulement. Les sondages de circonscription apparaissent sur la page de prévision de chaque circonscription.',
@@ -127,7 +132,8 @@ const T = {
     pop: 'Pob.',
     result: 'Intención',
     source: 'Fuente',
-    share: 'Compartir',
+    share: 'Imagen',
+    image: 'Imagen',
     detail: 'Desgloses',
     nPolls: (n: number) => `${n} encuesta${n === 1 ? '' : 's'}`,
     latest: 'Campo más reciente',
@@ -136,9 +142,10 @@ const T = {
     pop_lv: 'vot. prob.',
     pop_rv: 'vot. reg.',
     pop_a: 'adultos',
+    pop_dl: 'decididos e inclinados',
     src: 'enlace',
     note:
-      'Solo encuestas nacionales y grandes regionales. Los encuestas por distrito aparecen en la página de proyección de cada distrito.',
+      'Solo encuestas nacionales y grandes regionales. Las encuestas por distrito aparecen en la página de proyección de cada distrito.',
     quarantine:
       '* Bajo revisión: la encuesta sigue visible, pero toda o parte de su señal queda temporalmente excluida del modelo hasta que sea corroborada.',
     nonfrOnly: 'Solo anglófonos + alófonos',
@@ -166,7 +173,8 @@ function fmtPop(pop?: string | null): string {
   if (k === 'rv') return T.pop_rv;
   if (k === 'a' || k === 'adults') return T.pop_a;
   if (k === 'anglophone_allophone_eligible_voters') return T.nonfrOnly;
-  return pop.toUpperCase();
+  if (k === 'decided_and_leaning') return T.pop_dl;
+  return /^[a-z]{1,3}$/.test(k) ? pop.toUpperCase() : '—';
 }
 
 function scopedNote(p: PollRow): { title: string; detail: string } | null {
@@ -222,6 +230,11 @@ function toplineEntries(p: PollRow): Array<[string, number]> {
     .sort((a, b) => b[1] - a[1]);
 }
 
+/** Sénat, gouverneurs : chaque sondage porte sur un État ; on le nomme. */
+function stateOf(p: PollRow): string | undefined {
+  return /^us_(sen|gov)_/.test(p.geography?.region ?? '') ? usStateName(p.geography?.province ?? undefined, lang) : undefined;
+}
+
 const totalSample = polls.reduce((s, p) => s + (p.sample_size || 0), 0);
 const nFirms = firms.length || new Set(polls.map((p) => p.firm)).size;
 ---
@@ -235,7 +248,7 @@ const nFirms = firms.length || new Set(polls.map((p) => p.firm)).size;
       {meta.latest_field_end && (
         <>
           <span class="sep" aria-hidden="true">·</span>
-          <span class="stat">{T.latest}: <strong>{fmtLong(meta.latest_field_end)}</strong></span>
+          <span class="stat">{T.latest}{lang === 'fr' ? ' : ' : ': '}<strong>{fmtLong(meta.latest_field_end)}</strong></span>
         </>
       )}
     </div>
@@ -264,6 +277,7 @@ const nFirms = firms.length || new Set(polls.map((p) => p.firm)).size;
       ))}
     </div>
 
+    <PollShare lang={lang} title={share?.title ?? ''} voteDay={share?.voteDay} chips={parties}>
     <div class="poll-table-wrap">
       <table class="poll-table">
         <thead>
@@ -274,7 +288,7 @@ const nFirms = firms.length || new Set(polls.map((p) => p.firm)).size;
             <th class="c-pop">{T.pop}</th>
             <th class="c-result">{T.result}</th>
             <th class="c-src">{T.source}</th>
-            {cardBase && <th class="c-share">{T.share}</th>}
+            {share && <th class="c-share">{T.share}</th>}
           </tr>
         </thead>
         <tbody>
@@ -295,6 +309,7 @@ const nFirms = firms.length || new Set(polls.map((p) => p.firm)).size;
                   {p.quarantine && (
                     <sup class="quarantine-mark" title={p.quarantine.reason} aria-label={p.quarantine.reason}>*</sup>
                   )}
+                  {stateOf(p) && <span class="client">{stateOf(p)}</span>}
                   {p.client && <span class="client">{p.client}</span>}
                   {p.partisan_poll && <span class="client">{T.partisan}</span>}
                   {scope && (
@@ -334,18 +349,9 @@ const nFirms = firms.length || new Set(polls.map((p) => p.firm)).size;
                     <span class="muted">—</span>
                   )}
                 </td>
-                {cardBase && (
+                {share && (
                   <td class="c-share">
-                    {cardSet.has(p.poll_id) ? (
-                      <a
-                        class="share-link"
-                        href={`${cardBase}/${p.poll_id}.png`}
-                        download={`votescope-${p.poll_id}.png`}
-                        title={T.share}
-                      >⤓ PNG</a>
-                    ) : (
-                      <span class="muted">—</span>
-                    )}
+                    <button type="button" class="poll-share-btn" aria-haspopup="menu" data-poll={packRow(pollShareRow(p, lang, stateOf(p), allowedCodes))}>{T.image}</button>
                   </td>
                 )}
               </tr>
@@ -354,11 +360,13 @@ const nFirms = firms.length || new Set(polls.map((p) => p.firm)).size;
         </tbody>
       </table>
     </div>
+    </PollShare>
 
     <p class="hub-note">{T.note}</p>
     {polls.some((p) => p.quarantine) && <p class="quarantine-note">{T.quarantine}</p>}
   </div>
 </section>
+
 
 <style>
   .polls-hub { padding: 32px 0 56px; background: var(--paper-2); }
@@ -401,8 +409,6 @@ const nFirms = firms.length || new Set(polls.map((p) => p.firm)).size;
   .c-src a { color: var(--ink-2); text-decoration: none; border-bottom: 1px dotted var(--rule); }
   .c-src a:hover { color: var(--ink); }
   .c-share { white-space: nowrap; }
-  .share-link { display: inline-block; padding: 3px 8px; border: 1px solid var(--rule); border-radius: 2px; color: var(--ink); text-decoration: none; font-size: 11px; letter-spacing: 0; transition: background .15s ease, border-color .15s ease; }
-  .share-link:hover { background: color-mix(in oklab, var(--accent, var(--ink)) 10%, var(--card)); border-color: var(--ink-3); }
   .muted { color: var(--rule); }
 
   .bars { display: flex; flex-direction: column; gap: 4px; }

@@ -50,7 +50,7 @@ export default function ClactonLiveDesk({ initial, lang }: { initial: LiveData; 
     <ol>
       {data.updates.map((update) => <li key={update.at}>
         <time>{new Date(update.at).toLocaleTimeString(lang, { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/London' })}</time>
-        <span>{update.text[lang]} {update.source_url && <a href={update.source_url} rel="noopener">{t.source} ↗</a>}</span>
+        <span>{update.text[lang]} {update.source_url && <a href={update.source_url} rel="noopener">{t.source}</a>}</span>
       </li>)}
     </ol>
     <p className="clive-note">{data.method_note[lang]}</p>

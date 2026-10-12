@@ -6,6 +6,7 @@
 // Locale-prop fr/en/es. Filtre `domain` optionnel (une page sport ne montre que
 // le sport ; sans filtre, chaque domaine a son propre compteur).
 import resolved from '../../web_data/resolved-calls.json';
+import { longDate } from '../lib/format';
 
 type Locale = 'en' | 'fr' | 'es';
 interface Props {
@@ -52,22 +53,22 @@ const domains = [...new Set(all.map((c) => c.domain))];
 const t = {
   en: {
     resolved: 'resolved calls', accuracy: 'accuracy', model: 'Model', market: 'Market',
-    edge: 'edge', notFrozen: 'market not frozen at the snapshot', public: 'Public',
-    verify: 'commit', result: 'Result', domainLabel: { sport: 'Sports Scope', election: 'Elections' } as Record<string, string>,
+    edge: 'edge', notFrozen: 'market not frozen at the snapshot', public: 'Published',
+    verify: 'proof:', page: 'See the page', result: 'Result', domainLabel: { sport: 'Sports Scope', election: 'Elections' } as Record<string, string>,
     confidence: 'Confidence', reach: 'market reach',
     fmtPct: (v: number) => `${v}%`,
   },
   fr: {
     resolved: 'appels résolus', accuracy: 'exactitude', model: 'Modèle', market: 'Marché',
-    edge: 'écart', notFrozen: 'marché non figé à l’instant', public: 'Public le',
-    verify: 'commit', result: 'Résultat', domainLabel: { sport: 'Sports', election: 'Élections' } as Record<string, string>,
+    edge: 'écart', notFrozen: 'marché non figé à l’instant', public: 'Publiée le',
+    verify: 'preuve :', page: 'Voir la page', result: 'Résultat', domainLabel: { sport: 'Sports', election: 'Élections' } as Record<string, string>,
     confidence: 'Confiance', reach: 'portée marché',
     fmtPct: (v: number) => `${String(v).replace('.', ',')} %`,
   },
   es: {
     resolved: 'llamadas resueltas', accuracy: 'exactitud', model: 'Modelo', market: 'Mercado',
-    edge: 'ventaja', notFrozen: 'mercado no congelado en el instante', public: 'Público el',
-    verify: 'commit', result: 'Resultado', domainLabel: { sport: 'Deportes', election: 'Elecciones' } as Record<string, string>,
+    edge: 'ventaja', notFrozen: 'mercado no congelado en el instante', public: 'Publicada el',
+    verify: 'prueba:', page: 'Ver la página', result: 'Resultado', domainLabel: { sport: 'Deportes', election: 'Elecciones' } as Record<string, string>,
     confidence: 'Confianza', reach: 'alcance de mercado',
     fmtPct: (v: number) => `${String(v).replace('.', ',')} %`,
   },
@@ -142,9 +143,9 @@ const groups = domains.map((d) => {
 
               <footer class="rc-card-foot">
                 <span class="rc-proof">{c.proof.commit
-                  ? `${t.public} ${c.proof.commit_date} · ${t.verify} ${c.proof.commit}`
+                  ? `${t.public} ${longDate(c.proof.commit_date, locale)} · ${t.verify} ${c.proof.commit}`
                   : c.proof.note[locale]}</span>
-                {page && <a class="rc-link" href={page}>↗</a>}
+                {page && <a class="rc-link" href={page}>{t.page}</a>}
               </footer>
             </article>
           );

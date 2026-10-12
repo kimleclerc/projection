@@ -15,6 +15,9 @@ import { partyName } from '../../../lib/party-names';
  * cleanSource() mirrors PollsHub: never link to aggregators (338Canada/QC125).
  */
 import type { RidingData, RidingPoll } from '../../../lib/riding-adapters/types';
+import PollShare from '../../PollShare.astro';
+import { pollShareRow, packRow, voteDayFor, type Chip } from '../../../lib/share/poll-payload';
+import { ridingTitle } from '../../../lib/riding-title';
 
 interface Props {
   data: RidingData;
@@ -51,6 +54,7 @@ const T = {
     pop: 'Population',
     result: 'Topline',
     source: 'Source',
+    image: 'Image',
     src: 'See the poll',
     pop_lv: 'likely voters', pop_rv: 'registered voters', pop_a: 'adults',
     nPolls: (n: number) => `${n} poll${n === 1 ? '' : 's'}`,
@@ -66,6 +70,7 @@ const T = {
     pop: 'Population',
     result: 'Intentions',
     source: 'Source',
+    image: 'Image',
     src: 'Voir le sondage',
     pop_lv: 'électeurs probables', pop_rv: 'électeurs inscrits', pop_a: 'adultes',
     nPolls: (n: number) => `${n} sondage${n > 1 ? 's' : ''}`,
@@ -81,6 +86,7 @@ const T = {
     pop: 'Población',
     result: 'Intención',
     source: 'Fuente',
+    image: 'Imagen',
     src: 'Ver la encuesta',
     pop_lv: 'votantes probables', pop_rv: 'votantes registrados', pop_a: 'adultos',
     nPolls: (n: number) => `${n} encuesta${n === 1 ? '' : 's'}`,
@@ -95,7 +101,7 @@ function fmtPop(pop?: string | null): string {
   if (k === 'lv') return T.pop_lv;
   if (k === 'rv') return T.pop_rv;
   if (k === 'a' || k === 'adults') return T.pop_a;
-  return pop.toUpperCase();
+  return /^[a-z]{1,3}$/.test(k) ? pop.toUpperCase() : '—';
 }
 
 function fmtDates(p: RidingPoll): string {
@@ -171,6 +177,15 @@ function toplineEntries(p: RidingPoll): Array<[string, number]> {
     .filter(([code, v]) => typeof v === 'number' && v > 0 && allowed.has(code))
     .sort((a, b) => b[1] - a[1]);
 }
+
+// Image de chaque sondage : même dessin que les tableaux nationaux (PollShare).
+// Les candidats nommés passent comme « partis » de l'image, à la couleur de leur parti.
+const shareChips: Chip[] = [...allowed].map((code) => ({ code, label: labelByCode[code], color: colorByCode[code] }));
+for (const p of polls) for (const c of candidateEntries(p)) {
+  if (!shareChips.some((x) => x.code === c.label)) shareChips.push({ code: c.label, label: c.label, color: c.color.startsWith('var(') ? '#666666' : c.color });
+}
+const shareTitle = ridingTitle(data, lang).title;
+const shareVoteDay = data.byelection?.electionDate ?? voteDayFor(data.jurisdiction, data.runDate ?? '');
 ---
 
 <section class="local-polls">
@@ -178,6 +193,7 @@ function toplineEntries(p: RidingPoll): Array<[string, number]> {
     <h2>{T.title}</h2>
     <p class="count">{T.nSurveys(groups.size, polls.length)}</p>
 
+    <PollShare lang={lang} title={shareTitle} chips={shareChips} voteDay={shareVoteDay}>
     <div class="poll-table-wrap">
       <table class="poll-table">
         <thead>
@@ -188,6 +204,7 @@ function toplineEntries(p: RidingPoll): Array<[string, number]> {
             <th class="c-pop">{T.pop}</th>
             <th class="c-result">{T.result}</th>
             <th class="c-src">{T.source}</th>
+            <th class="c-share">{T.image}</th>
           </tr>
         </thead>
         <tbody>
@@ -232,12 +249,17 @@ function toplineEntries(p: RidingPoll): Array<[string, number]> {
                     <span class="muted">—</span>
                   )}
                 </td>
+                <td class="c-share">
+                  <button type="button" class="poll-share-btn" aria-haspopup="menu"
+                    data-poll={packRow({ ...pollShareRow(p, lang, sc > 0 ? T.scenario(sc) : undefined), p: entries })}>{T.image}</button>
+                </td>
               </tr>
             );
           })}
         </tbody>
       </table>
     </div>
+    </PollShare>
 
     <p class="note">{T.note}</p>
   </div>
@@ -263,6 +285,7 @@ function toplineEntries(p: RidingPoll): Array<[string, number]> {
   .c-src a { color: var(--ink-2); text-decoration: none; border-bottom: 1px dotted var(--rule); }
   .c-src a:hover { color: var(--ink); }
   .muted { color: var(--rule); }
+  .c-share { white-space: nowrap; }
 
   .bars { display: flex; flex-direction: column; gap: 4px; }
   .bar-row { display: grid; grid-template-columns: 54px 1fr 28px; align-items: center; gap: 8px; }

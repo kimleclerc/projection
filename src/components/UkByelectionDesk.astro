@@ -1,4 +1,6 @@
 ---
+import { longDate } from '../lib/format';
+import { fieldRange } from '../lib/share/poll-payload';
 // Desk spécial — partielle de Clacton 2026 (Farage vs Count Binface).
 // Page étendue : compte à rebours, snapshot modèle vs marchés, projection
 // Monte Carlo (moteur run_clacton_special_projection.py), Path to Victory,
@@ -447,6 +449,8 @@ const jsonLd = [
 
 // Bornes des barres de fourchette (échelle commune 0–75 %).
 const SCALE_MAX = 75;
+/** Date de la chronologie : ISO → date lisible ; un texte libre passe tel quel. */
+const tlDate = (d: string) => (/^\d{4}-\d{2}-\d{2}$/.test(d) ? longDate(d, lang) : d);
 const pc = (v: number) => `${Math.min(100, (v / SCALE_MAX) * 100)}%`;
 ---
 
@@ -644,7 +648,7 @@ const pc = (v: number) => `${Math.min(100, (v / SCALE_MAX) * 100)}%`;
         </div>
         <p class="ukbye-body-text ukbye-poll-source">
           <a href={localPoll.source_url}>{localPoll.firm === 'survation' ? 'Survation' : localPoll.firm}</a>
-          {` / ${localPoll.client} · ${localPoll.field_start} → ${localPoll.field_end} · n = ${localPoll.sample_size_published}`}
+          {` / ${localPoll.client} · ${fieldRange(localPoll.field_start, localPoll.field_end, lang)} · ${localPoll.sample_size_published} ${lang === 'en' ? 'respondents' : lang === 'es' ? 'encuestados' : 'répondants'}`}
         </p>
         <p class="ukbye-label ukbye-poll-weight-label">{t.pollWeightLabel}</p>
         <p class="ukbye-body-text">{localPollNote}</p>
@@ -778,7 +782,7 @@ const pc = (v: number) => `${Math.min(100, (v / SCALE_MAX) * 100)}%`;
       <ol class="ukbye-timeline">
         {t.timeline.map((e) => (
           <li>
-            <span class="ukbye-tl-date">{e.date}</span>
+            <span class="ukbye-tl-date">{tlDate(e.date)}</span>
             <span class="ukbye-tl-text">{e.text}</span>
           </li>
         ))}

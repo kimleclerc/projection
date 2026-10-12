@@ -1,4 +1,5 @@
 import { useMemo, useState, useEffect } from 'preact/hooks';
+import { longDate } from '../lib/format';
 import TileMap from './TileMap';
 import {
   simulate,
@@ -444,7 +445,7 @@ export default function MiniSimulator({ doc, locale, map }: Props) {
       <p class="msim-anchor">
         {!touched && (
           <>
-            <strong>{t.untouched}</strong> {doc.meta.run_date}.{' '}
+            <strong>{t.untouched}</strong> {longDate(doc.meta.run_date, locale)}.{' '}
           </>
         )}
         {t.travelNote}

@@ -63,8 +63,11 @@ const pct = (p: number, lang: Lang) => {
   // Espace simple : l'espace fine insécable manque à Barlow Condensed (case vide).
   return lang === 'en' ? `${s}%` : `${s} %`;
 };
-const longDate = (iso: string, lang: Lang) => new Date(`${iso}T12:00:00Z`).toLocaleDateString(
-  lang === 'en' ? 'en-US' : lang === 'es' ? 'es-ES' : 'fr-CA', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+const longDate = (iso: string, lang: Lang) => {
+  const out = new Date(`${iso}T12:00:00Z`).toLocaleDateString(
+    lang === 'en' ? 'en-US' : lang === 'es' ? 'es-ES' : 'fr-CA', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+  return lang === 'fr' ? out.replace(/^1 /, '1er ') : out;
+};
 
 export const partyLabel = (p: { party: string; label_en?: string; label_fr?: string }, lang: Lang) =>
   lang === 'fr' ? (p.label_fr ?? p.label_en ?? p.party) : lang === 'es' ? (PARTY_ES[p.party] ?? p.label_fr ?? p.party) : (p.label_en ?? p.party);
@@ -476,6 +479,49 @@ export function scenarioCard(fmt: Format, { key, lang, doc, geo, sim }: { key: s
   return frame(fmt, lang, `${el.name[lang]} — ${s.title}`, el.when[lang], body, s.base);
 }
 
+// ------------------------------------------------------------------ barres d'intentions de vote
+
+/** Barres d'intentions de vote, même grammaire que les pages : pastille, barre, chiffre.
+ *  Peu de partis : lignes plus hautes, pour remplir le format sans laisser de blanc. */
+function voteRows(fmt: Format, lang: Lang, parties: { label: string; color: string; v: number }[], digits: 0 | 1 | 'auto', cap: [number, number, number]): { rows: Node[]; roomy: boolean } {
+  const { w } = SIZE[fmt];
+  const pad = fmt === 'wide' ? 34 : 44;
+  const inner = w - pad * 2;
+  const big = fmt !== 'wide';
+  const story = fmt === 'story';
+  const max = Math.max(1, ...parties.map((p) => p.v));
+  const loc = lang === 'en' ? 'en-US' : lang === 'es' ? 'es-ES' : 'fr-CA';
+  const pctTxt = (v: number) => {
+    // 'auto' : chaque chiffre tel que publié (35 %, 1,5 %).
+    const n = digits === 'auto'
+      ? v.toLocaleString(loc, { maximumFractionDigits: 1 })
+      : v.toLocaleString(loc, { minimumFractionDigits: digits, maximumFractionDigits: digits });
+    // Espace simple : l'espace fine insécable manque à Barlow.
+    return lang === 'en' ? `${n}%` : `${n.replace(/[\u202f\u00a0]/g, ' ')} %`;
+  };
+  const n = Math.min(parties.length, story ? cap[2] : big ? cap[1] : cap[0]);
+  // Taille des lignes selon leur nombre : peu de partis, plus grand ; beaucoup, plus serré.
+  const roomy = big && n <= 4;
+  const airy = !big && n <= 3;
+  const tight = big ? n > 7 : n > 6;
+  const decimals = digits === 1 || (digits === 'auto' && parties.some((p) => !Number.isInteger(p.v)));
+  const labelW = big ? 320 : 250;
+  const valW = big ? (decimals ? 230 : 190) : (decimals ? 170 : 130);
+  const barW = inner - labelW - valW - 20;
+  const barH = story ? (roomy ? 44 : tight ? 24 : 32) : roomy ? 34 : big ? (tight ? 18 : 24) : airy ? 22 : tight ? 10 : 16;
+  const padY = story ? (roomy ? 44 : tight ? 22 : 36) : roomy ? (n <= 3 ? 40 : 28) : big ? (tight ? 8 : 14) : airy ? 16 : tight ? 2 : n > 4 ? 5 : 8;
+  const labelF = roomy || (story && !tight) ? 36 : big ? (tight ? 26 : 30) : airy ? 28 : tight ? 19 : 24;
+  const swatchH = roomy ? 44 : big ? (tight ? 28 : 34) : airy ? 32 : tight ? 20 : 26;
+  const valF = story ? (roomy ? 84 : tight ? 60 : 76) : roomy ? 66 : big ? (tight ? 44 : 54) : airy ? 52 : tight ? 27 : n > 4 ? 36 : 42;
+  const rows = parties.slice(0, n).map((p) => h('div', { alignItems: 'center', borderBottom: `1px solid ${RULE}`, padding: `${padY}px 0` },
+    h('div', { width: labelW, alignItems: 'center', fontSize: labelF, fontWeight: 700 },
+      h('div', { width: 10, height: swatchH, backgroundColor: p.color, marginRight: 14 }), p.label),
+    h('div', { width: barW, height: barH, backgroundColor: PAPER_2, marginRight: 20 },
+      h('div', { width: Math.max(4, (p.v / max) * barW), height: barH, backgroundColor: p.color })),
+    h('div', { width: valW, justifyContent: 'flex-end', fontFamily: 'Barlow Condensed', fontWeight: 700, fontSize: valF, lineHeight: 1 }, pctTxt(p.v))));
+  return { rows, roomy };
+}
+
 // ------------------------------------------------------------------ fiche de circonscription / district
 
 export interface RidingCardInput {
@@ -494,29 +540,9 @@ export interface RidingCardInput {
  *  navigateur du lecteur : aucune image stockée par fiche. */
 export function ridingCard(fmt: Format, lang: Lang, d: RidingCardInput): Node {
   const t = T[lang];
-  const { w } = SIZE[fmt];
-  const pad = fmt === 'wide' ? 34 : 44;
-  const inner = w - pad * 2;
   const big = fmt !== 'wide';
   const story = fmt === 'story';
-  const max = Math.max(1, ...d.parties.map((p) => p.v));
-  const pctTxt = (v: number) => {
-    const n = v.toLocaleString(lang === 'en' ? 'en-US' : lang === 'es' ? 'es-ES' : 'fr-CA', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
-    return lang === 'en' ? `${n}%` : `${n} %`;
-  };
-  const n = Math.min(d.parties.length, story ? 6 : big ? 5 : 4);
-  // Peu de partis : plus grand, pour remplir le format sans laisser de blanc.
-  const roomy = big && n <= 4;
-  const labelW = big ? 320 : 250;
-  const valW = big ? 190 : 130;
-  const barW = inner - labelW - valW - 20;
-  const barH = roomy ? 34 : big ? 24 : 16;
-  const rows = d.parties.slice(0, n).map((p) => h('div', { alignItems: 'center', borderBottom: `1px solid ${RULE}`, padding: story ? '30px 0' : roomy ? '28px 0' : big ? '14px 0' : '8px 0' },
-    h('div', { width: labelW, alignItems: 'center', fontSize: roomy ? 36 : big ? 30 : 24, fontWeight: 700 },
-      h('div', { width: 10, height: roomy ? 44 : big ? 34 : 26, backgroundColor: p.color, marginRight: 14 }), p.label),
-    h('div', { width: barW, height: barH, backgroundColor: PAPER_2, marginRight: 20 },
-      h('div', { width: Math.max(4, (p.v / max) * barW), height: barH, backgroundColor: p.color })),
-    h('div', { width: valW, justifyContent: 'flex-end', fontFamily: 'Barlow Condensed', fontWeight: 700, fontSize: story ? 70 : roomy ? 66 : big ? 54 : 42, lineHeight: 1 }, pctTxt(p.v))));
+  const { rows } = voteRows(fmt, lang, d.parties, 1, [4, 5, 6]);
   const head = h('div', { borderBottom: `1px solid ${INK}`, paddingBottom: 6, fontSize: big ? 18 : 15, fontWeight: 600, color: INK_3 },
     ({ fr: 'Intentions de vote projetées', en: 'Projected vote share', es: 'Intención de voto proyectada' } as const)[lang]);
   const shapeSize = story ? 300 : big ? 230 : 150;
@@ -533,4 +559,35 @@ export function ridingCard(fmt: Format, lang: Lang, d: RidingCardInput): Node {
   const when = d.voteDay ? longDate(d.voteDay, lang) : '';
   const foot = d.date ? `${t.asOf} ${longDate(d.date, lang)}` : '';
   return frame(fmt, lang, d.title, when, body, foot);
+}
+
+// ------------------------------------------------------------------ sondage
+
+export interface PollCardInput {
+  title: string;     // « Intentions de vote en Colombie-Britannique »
+  firm: string;      // maison de sondage, ou « Moyenne de 15 sondages »
+  field: string;     // « Terrain : du 7 au 8 octobre 2026 »
+  meta: string;      // « 882 répondants · décidés et ceux qui penchent »
+  parties: { label: string; color: string; v: number }[];
+  foot: string;      // « Publié le 9 octobre 2026 »
+  voteDay?: string;  // date du scrutin (ISO)
+  digits?: 0 | 1 | 'auto';
+}
+
+/** Image d'un sondage (ou de la moyenne d'un tableau de sondages) : la maison, le
+ *  terrain, l'échantillon, puis les intentions de vote en barres, comme sur la page.
+ *  Dessinée dans le navigateur au clic : aucune image stockée par sondage. */
+export function pollCard(fmt: Format, lang: Lang, d: PollCardInput): Node {
+  const big = fmt !== 'wide';
+  const story = fmt === 'story';
+  const { rows } = voteRows(fmt, lang, d.parties, d.digits ?? 'auto', [10, 10, 12]);
+  const intro = h('div', { flexDirection: 'column', marginBottom: story ? 60 : big ? 36 : 12 },
+    h('div', { fontSize: story ? 76 : big ? 64 : 40, fontWeight: 700, lineHeight: 1.05 }, d.firm),
+    h('div', { fontSize: big ? 30 : 22, fontWeight: 600, color: INK_2, marginTop: big ? 12 : 6 }, d.field),
+    ...(d.meta ? [h('div', { fontSize: big ? 24 : 18, fontWeight: 500, color: INK_3, marginTop: big ? 8 : 4 }, d.meta)] : []));
+  const head = h('div', { borderBottom: `1px solid ${INK}`, paddingBottom: 6, fontSize: big ? 18 : 15, fontWeight: 600, color: INK_3 },
+    ({ fr: 'Intentions de vote', en: 'Voting intention', es: 'Intención de voto' } as const)[lang]);
+  const body = h('div', { flexDirection: 'column', flexGrow: 1, justifyContent: big ? 'center' : 'flex-start', paddingTop: big ? 0 : 4 },
+    intro, head, ...rows);
+  return frame(fmt, lang, d.title, d.voteDay ? longDate(d.voteDay, lang) : '', body, d.foot);
 }

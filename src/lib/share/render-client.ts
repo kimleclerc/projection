@@ -62,3 +62,10 @@ export async function renderRidingPng(fmt: 'wide' | 'square' | 'story', lang: La
   const { w, h } = SIZE[fmt];
   return toPng(ridingCard(fmt, lang, payload), w, h);
 }
+
+/** Image d'un sondage, à partir des chiffres de la ligne du tableau. */
+export async function renderPollPng(fmt: 'wide' | 'square' | 'story', lang: Lang, payload: import('./cards').PollCardInput): Promise<Blob> {
+  const { pollCard, SIZE } = await import('./cards');
+  const { w, h } = SIZE[fmt];
+  return toPng(pollCard(fmt, lang, payload), w, h);
+}

@@ -7,7 +7,9 @@
 import JurisdictionNav from './JurisdictionNav.astro';
 import GooglePreferredSource from './GooglePreferredSource.astro';
 import pollsData from '../../web_data/france-presidential/polls.json';
-import { blocVar, blocLabel, fmtPct1, type Locale } from '../lib/fr-pres';
+import { blocVar, blocHex, blocLabel, fmtPct1, type Locale } from '../lib/fr-pres';
+import PollShare from './PollShare.astro';
+import { pollShareRow, packRow } from '../lib/share/poll-payload';
 
 interface Props { locale: Locale; }
 const { locale } = Astro.props;
@@ -76,6 +78,19 @@ const C = {
 
 const nm = (id: string) => cands[id]?.short_label ?? cands[id]?.name ?? id;
 const bloc = (id: string) => cands[id]?.bloc ?? 'other';
+
+// Image de chaque sondage (premier tour, duel) : même dessin que les autres
+// tableaux de sondages, dessinée au clic (PollShare).
+const shareChips = Object.keys(cands).map((id) => ({ code: id, label: nm(id), color: blocHex(bloc(id)) }));
+const SHARE = {
+  fr: { first: 'Présidentielle 2027 · premier tour', runoff: 'Présidentielle 2027 · second tour', image: 'Image' },
+  en: { first: '2027 presidential · first round', runoff: '2027 presidential · runoff', image: 'Image' },
+  es: { first: 'Presidencial 2027 · primera vuelta', runoff: 'Presidencial 2027 · segunda vuelta', image: 'Imagen' },
+}[locale];
+const shareRow = (p: any, entries: Array<[string, number]>) => packRow(pollShareRow({
+  firm_name: p.firm_name, field_start: p.field_start, field_end: p.field_end, release_date: p.release_date,
+  sample_size: p.sample_size, topline: Object.fromEntries(entries),
+}, locale));
 ---
 
 <JurisdictionNav webKey="france" lang={locale} active="polls" />
@@ -93,6 +108,7 @@ const bloc = (id: string) => cands[id]?.bloc ?? 'other';
   <section class="frp-section container" aria-labelledby="frp-first">
     <h2 id="frp-first" class="frp-h2">{C.firstTitle}</h2>
     <p class="frp-help">{C.firstHelp(firstRound.length, new Set(firstRound.map((p: any) => `${p.firm}|${p.release_date}`)).size)}</p>
+    <PollShare lang={locale} title={SHARE.first} chips={shareChips} voteDay="2027-04-18">
     <ul class="frp-list">
       {firstRound.map((p) => {
         const max = Math.max(...p.entries.map((e: any) => e.share), 1);
@@ -102,8 +118,10 @@ const bloc = (id: string) => cands[id]?.bloc ?? 'other';
               <span class="frp-firm">{p.firm_name}</span>
               <span class="frp-date">{fmtDate(p.release_date)}</span>
               {p.sample_size >= 100 && <span class="frp-n">{C.sample} {p.sample_size.toLocaleString(dateLocale)}</span>}
-              {p.source_url && <a class="frp-src" href={p.source_url} target="_blank" rel="noopener nofollow">{C.source} ↗</a>}
+              {p.source_url && <a class="frp-src" href={p.source_url} target="_blank" rel="noopener nofollow">{C.source}</a>}
               <a class="frp-detail" href={`${pollBase}/${pollSlug(p.firm, p.release_date)}/`}>{C.detail}</a>
+              <button type="button" class="poll-share-btn" aria-haspopup="menu"
+                data-poll={shareRow(p, p.entries.filter((e: any) => e.share > 0).map((e: any) => [e.id, e.share]))}>{SHARE.image}</button>
             </div>
             <ul class="frp-bars">
               {p.entries.map((e: any, i: number) => (
@@ -123,12 +141,14 @@ const bloc = (id: string) => cands[id]?.bloc ?? 'other';
         );
       })}
     </ul>
+    </PollShare>
   </section>
 
   <!-- SECOND TOUR -->
   <section class="frp-section container" aria-labelledby="frp-runoff">
     <h2 id="frp-runoff" class="frp-h2">{C.runoffTitle}</h2>
     <p class="frp-help">{C.runoffHelp(runoff.length)}</p>
+    <PollShare lang={locale} title={SHARE.runoff} chips={shareChips} voteDay="2027-05-02">
     <ul class="frp-duels">
       {runoff.map((d) => {
         const leftWins = (d.left_share ?? 0) >= (d.right_share ?? 0);
@@ -138,7 +158,11 @@ const bloc = (id: string) => cands[id]?.bloc ?? 'other';
               <span class="frp-firm">{d.firm_name}</span>
               <span class="frp-date">{fmtDate(d.release_date)}</span>
               {d.sample_size >= 100 && <span class="frp-n">{C.sample} {d.sample_size.toLocaleString(dateLocale)}</span>}
-              {d.source_url && <a class="frp-src" href={d.source_url} target="_blank" rel="noopener nofollow">{C.source} ↗</a>}
+              {d.source_url && <a class="frp-src" href={d.source_url} target="_blank" rel="noopener nofollow">{C.source}</a>}
+              {d.left_share != null && d.right_share != null && (
+                <button type="button" class="poll-share-btn" aria-haspopup="menu"
+                  data-poll={shareRow(d, [[d.left_id, d.left_share], [d.right_id, d.right_share]])}>{SHARE.image}</button>
+              )}
             </div>
             <p class="frp-duel-line">
               <span class={leftWins ? 'is-win' : ''}>
@@ -155,6 +179,7 @@ const bloc = (id: string) => cands[id]?.bloc ?? 'other';
         );
       })}
     </ul>
+    </PollShare>
   </section>
 
 </article>

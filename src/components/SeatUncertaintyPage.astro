@@ -1,5 +1,6 @@
 ---
 import { partyName } from '../lib/party-names';
+import { longDate } from '../lib/format';
 /**
  * SeatUncertaintyPage — second niveau des juridictions à sièges.
  *
@@ -112,7 +113,7 @@ const T = {
     kicker: 'Second niveau',
     title: 'Incertitude',
     tagline: 'Ce que le modèle ne sait pas encore : fourchettes de sièges, probabilités de rang et trajectoire des projections.',
-    meta: `Mis à jour le ${meta.run_date} · ${meta.n_polls} sondages · ${meta.n_simulations.toLocaleString('fr-CA')} simulations`,
+    meta: `Mis à jour le ${longDate(meta.run_date, 'fr')} · ${meta.n_polls} sondages · ${meta.n_simulations.toLocaleString('fr-CA')} simulations`,
     navRanges: 'Fourchettes',
     navRanks: 'Rangs',
     navTrajectory: 'Trajectoire',
@@ -143,7 +144,7 @@ const T = {
     kicker: 'Second level',
     title: 'Uncertainty',
     tagline: 'What the model does not yet know: seat ranges, rank probabilities and the trajectory of the projections.',
-    meta: `Run of ${meta.run_date} · ${meta.n_polls} polls · ${meta.n_simulations.toLocaleString('en-CA')} simulations`,
+    meta: `Updated ${longDate(meta.run_date, 'en')} · ${meta.n_polls} polls · ${meta.n_simulations.toLocaleString('en-CA')} simulations`,
     navRanges: 'Ranges',
     navRanks: 'Ranks',
     navTrajectory: 'Trajectory',
@@ -174,7 +175,7 @@ const T = {
     kicker: 'Segundo nivel',
     title: 'Incertidumbre',
     tagline: 'Lo que el modelo aún no sabe: rangos de escaños, probabilidades de puesto y trayectoria de las proyecciones.',
-    meta: `Corrida del ${meta.run_date} · ${meta.n_polls} encuestas · ${meta.n_simulations.toLocaleString('es-ES')} simulaciones`,
+    meta: `Actualizado el ${longDate(meta.run_date, 'es')} · ${meta.n_polls} encuestas · ${meta.n_simulations.toLocaleString('es-ES')} simulaciones`,
     navRanges: 'Rangos',
     navRanks: 'Puestos',
     navTrajectory: 'Trayectoria',
@@ -319,7 +320,7 @@ const pageNavItems = [
           <tbody>
             {historyRunsDesc.map((r) => (
               <tr>
-                <th scope="row">{r.run_date}</th>
+                <th scope="row">{longDate(r.run_date, locale)}</th>
                 {historyKeys.map((k) => (
                   <td class="num">{num(r.seats?.[k] ?? 0, 1)}</td>
                 ))}

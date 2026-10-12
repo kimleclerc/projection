@@ -32,7 +32,6 @@ export interface PollsHubConfig {
   base: Record<HubLang, string>;  // path prefix per language
   seg: Record<HubLang, string>;   // localized "polls" segment
   copy: Record<HubLang, HubCopy>;
-  hasCards?: boolean;             // emit per-poll share PNGs for this hub (us-house, federal, uk, quebec, british-columbia)
 }
 
 const SEG: Record<HubLang, string> = { en: 'polls', fr: 'sondages', es: 'sondeos' };
@@ -58,7 +57,7 @@ export const POLLS_HUBS: Record<string, PollsHubConfig> = {
     },
   },
   'us-house': {
-    webKey: 'us-house', currentPage: 'us', langs: ['en', 'fr', 'es'], seg: SEG, hasCards: true,
+    webKey: 'us-house', currentPage: 'us', langs: ['en', 'fr', 'es'], seg: SEG,
     base: { en: '/en/us/house', fr: '/fr/us/chambre', es: '/es/us/house' },
     copy: {
       en: { eyebrow: 'Polls · U.S. House of Representatives · 2026 cycle', h1: 'U.S. House generic-ballot polls',
@@ -112,7 +111,7 @@ export const POLLS_HUBS: Record<string, PollsHubConfig> = {
     },
   },
   federal: {
-    webKey: 'federal', currentPage: 'canada', langs: ['en', 'fr', 'es'], seg: SEG, hasCards: true,
+    webKey: 'federal', currentPage: 'canada', langs: ['en', 'fr', 'es'], seg: SEG,
     base: { en: '/en/canada/federal', fr: '/fr/canada/federal', es: '/es/canada/federal' },
     copy: {
       en: { eyebrow: 'Polls · Canada · House of Commons', h1: 'Federal voting intention',
@@ -130,7 +129,7 @@ export const POLLS_HUBS: Record<string, PollsHubConfig> = {
     },
   },
   quebec: {
-    webKey: 'quebec', currentPage: 'canada', langs: ['en', 'fr', 'es'], seg: SEG, hasCards: true,
+    webKey: 'quebec', currentPage: 'canada', langs: ['en', 'fr', 'es'], seg: SEG,
     base: { en: '/en/canada/quebec', fr: '/fr/canada/quebec', es: '/es/canada/quebec' },
     copy: {
       en: { eyebrow: 'Polls · Quebec · National Assembly', h1: 'Quebec voting intention',
@@ -166,7 +165,7 @@ export const POLLS_HUBS: Record<string, PollsHubConfig> = {
     },
   },
   'british-columbia': {
-    webKey: 'british-columbia', currentPage: 'canada', langs: ['en', 'fr', 'es'], seg: SEG, hasCards: true,
+    webKey: 'british-columbia', currentPage: 'canada', langs: ['en', 'fr', 'es'], seg: SEG,
     base: {
       en: '/en/canada/british-columbia',
       fr: '/fr/canada/colombie-britannique',
@@ -188,7 +187,7 @@ export const POLLS_HUBS: Record<string, PollsHubConfig> = {
     },
   },
   uk: {
-    webKey: 'uk', currentPage: 'uk', langs: ['en', 'fr', 'es'], seg: SEG, hasCards: true,
+    webKey: 'uk', currentPage: 'uk', langs: ['en', 'fr', 'es'], seg: SEG,
     base: { en: '/en/uk', fr: '/fr/uk', es: '/es/uk' },
     copy: {
       en: { eyebrow: 'Polls · United Kingdom · Westminster', h1: 'UK voting intention',

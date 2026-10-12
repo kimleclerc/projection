@@ -8,10 +8,11 @@ import EditorialLayout from '../layouts/EditorialLayout.astro';
 import PollsHub from './PollsHub.astro';
 import JurisdictionNav from './JurisdictionNav.astro';
 import {
-  getPollsMeta, getHubPolls, getFirms, getPollsTrend, getRecentNationalPolls,
+  getPollsMeta, getHubPolls, getFirms, getPollsTrend,
   getDisplayPartyCodes,
 } from '../lib/polls-adapter';
 import { pollPartyChips } from '../lib/poll-parties';
+import { voteDayFor } from '../lib/share/poll-payload';
 import { POLLS_HUBS, hubLinks, hubUrl, type HubLang } from '../lib/polls-hubs';
 
 interface Props { webKey: string; lang: HubLang; }
@@ -29,8 +30,8 @@ const { canonical, alternates } = hubLinks(cfg, lang);
 const pollsBase = `${cfg.base[lang]}/${cfg.seg[lang]}`;
 const ogImage = `https://vote-scope.com/og/${webKey}/polls/${lang}.png`;
 
-const cardBase = cfg.hasCards ? `/og/${webKey}/poll/${lang}` : undefined;
-const cardIds = cfg.hasCards ? getRecentNationalPolls(webKey).map((p) => p.poll_id) : undefined;
+// Chaque sondage du tableau se télécharge en image, dessinée au clic.
+const share = { title: copy.ogTitle, voteDay: voteDayFor(webKey, meta.run_date) };
 
 // Fraîcheur dans l'extrait de recherche. Sur les requêtes « sondages », les
 // pages qui nous devancent affichent toutes une date dans leur extrait
@@ -99,8 +100,7 @@ const description = latestPollDate
     parties={chips}
     trend={trend}
     pollsBase={pollsBase}
-    cardBase={cardBase}
-    cardIds={cardIds}
+    share={share}
   />
 </EditorialLayout>
 

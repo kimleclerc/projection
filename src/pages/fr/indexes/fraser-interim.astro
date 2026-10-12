@@ -1,4 +1,5 @@
 ---
+import { longDate } from '../../../lib/format';
 import EditorialLayout from '../../../layouts/EditorialLayout.astro';
 import EditorialHero from '../../../components/EditorialHero.astro';
 import MethodologyNote from '../../../components/MethodologyNote.astro';
@@ -10,7 +11,7 @@ import fraserData from '../../../../web_data/on-fraser-interim/latest.json';
 const data = fraserData;
 const score = data.index.score;
 const labelFr = data.index.label_fr;
-const asOf = data.meta.as_of_date;
+const asOf = longDate(data.meta.as_of_date, 'fr');
 const nPolls = data.meta.n_polls;
 const periods = data.periods;
 ---
@@ -70,7 +71,7 @@ const periods = data.periods;
         </h2>
         <p style="font-weight:700;font-size:1.15rem;margin-bottom:0.5rem;">{labelFr}</p>
         <p style="font-family:var(--mono);font-size:0.8rem;color:var(--ink-3);">
-          {nPolls} sondages · {data.meta.period_start} → {data.meta.period_end} · source : {data.meta.source}
+          {nPolls} sondages, du {longDate(data.meta.period_start, 'fr')} au {longDate(data.meta.period_end, 'fr')}
         </p>
       </div>
     </div>
@@ -98,7 +99,7 @@ const periods = data.periods;
                 <span class="fraser-period-pill" style={`background:${accentColor};`}>
                   {isInterim ? 'Intérimaire' : 'Permanent'}
                 </span>
-                <span class="fraser-period-dates">{p.first_poll} → {p.last_poll}</span>
+                <span class="fraser-period-dates">{longDate(p.first_poll, 'fr')} au {longDate(p.last_poll, 'fr')}</span>
               </div>
               <p class="fraser-period-leader">{p.leader_name}</p>
               <div class="fraser-period-avg">
@@ -135,9 +136,9 @@ const periods = data.periods;
     body="L'Indice Fraser intérimaire n'est pas un intrant de projection. C'est un indicateur éditorial conçu pour répondre à une question : les libéraux ontariens sondent-ils mieux sous la gérance intérimaire de Fraser que sous des chefs permanents, après contrôle des sources de variation élémentaires?"
     bullets={[
       "Intention éditoriale : l'indice compare les moyennes de sondage sur cinq périodes de leadership (2018–2026) — trois périodes intérimaires Fraser et deux périodes de chef permanent (Del Duca, Crombie). C'est un signal, pas une preuve de causalité.",
-      "Données : 324 sondages topline ontariens de juin 2018 à avril 2026, tirés des archives sidecar Wikipedia Ontario. Chaque sondage est tagué selon la période de leadership active à la date du terrain.",
+      "Données : 324 sondages ontariens publiés de juin 2018 à avril 2026. Chaque sondage est rattaché au chef en poste au moment où il a été mené.",
       "Méthode : moindres carrés ordinaires pondérés avec contrôles de firme, de cycle électoral et de tendance temporelle. Le coefficient sur l'indicateur Fraser-intérimaire est converti en indice 0–100 (50 = neutre, au-dessus de 50 = périodes intérimaires relativement meilleures).",
-      "Reproductibilité : l'archive de sondages sidecar est préservée localement ; la logique de taguage et les MCO sont documentés dans le README de l'analyse. L'indice peut être recalculé à l'arrivée de nouveaux sondages.",
+      "L’indice est recalculé à l’arrivée de chaque nouveau sondage.",
     ]}
   />
 

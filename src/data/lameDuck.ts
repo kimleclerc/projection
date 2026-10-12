@@ -197,16 +197,16 @@ function buildTicker(data: Partial<LameDuckData>, locale: LameDuckLocale = 'en')
       ldi: (s: string) => `Indice canard boiteux à ${s}/100`,
       polls: (rl: string) => `Approbation nette Trump ${rl}`,
       house: (seats: string) => `Modèle Chambre : Démocrates ${seats} sièges`,
-      senate: (pct: string) => `Probabilité contrôle Sénat Démocrate ${pct}%`,
+      senate: (pct: string) => `Chances démocrates au Sénat : ${pct} %`,
       ballot: (rl: string) => `Baromètre vote générique ${rl}`,
       econ: (rl: string) => `Sentiment économique ${rl}`,
       latest: 'récent', tracker: 'sondages', model: 'modèle', polls_time: 'sondages',
     },
     es: {
-      ldi: (s: string) => `Lame-Duck Index en ${s}/100`,
+      ldi: (s: string) => `Índice Pato Cojo en ${s}/100`,
       polls: (rl: string) => `Aprobación neta de Trump ${rl}`,
       house: (seats: string) => `Modelo Cámara: Demócratas ${seats} escaños`,
-      senate: (pct: string) => `Probabilidad de control demócrata del Senado ${pct}%`,
+      senate: (pct: string) => `Probabilidad de control demócrata del Senado: ${pct} %`,
       ballot: (rl: string) => `Termómetro de voto genérico ${rl}`,
       econ: (rl: string) => `Sentimiento del consumidor ${rl}`,
       latest: 'reciente', tracker: 'encuestas', model: 'modelo', polls_time: 'encuestas',
@@ -220,8 +220,10 @@ function buildTicker(data: Partial<LameDuckData>, locale: LameDuckLocale = 'en')
   // Use the localised raw_label (raw_label_fr/_es) when available, else the EN one.
   const localizedRaw = (c?: LameDuckComponent | undefined): string => {
     if (!c) return '—';
-    if (locale === 'fr') return c.raw_label_fr ?? c.raw_label ?? '—';
-    if (locale === 'es') return c.raw_label_es ?? c.raw_label ?? '—';
+    // Sans libellé traduit, on francise le libellé anglais : -22.2pp → −22,2 pts.
+    const fr = (x: string) => x.replace(/\bUMCSENT\s*/g, '').replace(/(\d)\.(\d)/g, '$1,$2').replace(/(\d)pp\b/g, '$1 pts').replace(/(\d)%/g, '$1 %').replace(/(^|\s)-(?=\d)/g, '$1−');
+    if (locale === 'fr') return c.raw_label_fr ?? (c.raw_label ? fr(c.raw_label) : '—');
+    if (locale === 'es') return c.raw_label_es ?? (c.raw_label ? fr(c.raw_label) : '—');
     return c.raw_label ?? '—';
   };
 
@@ -254,7 +256,7 @@ function buildTicker(data: Partial<LameDuckData>, locale: LameDuckLocale = 'en')
       href: `${pathPrefix}/${senateSlug}/`,
     },
     {
-      tag: locale === 'es' ? 'BOLETA' : 'BALLOT',
+      tag: locale === 'es' ? 'BOLETA' : locale === 'fr' ? 'VOTE GÉNÉRIQUE' : 'BALLOT',
       tone: 'neutral',
       text: T.ballot(localizedRaw(genericBallot)),
       time: genericBallot?.last_updated ?? T.polls_time,

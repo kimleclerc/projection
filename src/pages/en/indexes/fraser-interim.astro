@@ -1,4 +1,5 @@
 ---
+import { longDate } from '../../../lib/format';
 import EditorialLayout from '../../../layouts/EditorialLayout.astro';
 import EditorialHero from '../../../components/EditorialHero.astro';
 import MethodologyNote from '../../../components/MethodologyNote.astro';
@@ -10,7 +11,7 @@ import fraserData from '../../../../web_data/on-fraser-interim/latest.json';
 const data = fraserData;
 const score = data.index.score;
 const labelEn = data.index.label_en;
-const asOf = data.meta.as_of_date;
+const asOf = longDate(data.meta.as_of_date, 'en');
 const nPolls = data.meta.n_polls;
 const periods = data.periods;
 ---
@@ -70,7 +71,7 @@ const periods = data.periods;
         </h2>
         <p style="font-weight:700;font-size:1.15rem;margin-bottom:0.5rem;">{labelEn}</p>
         <p style="font-family:var(--mono);font-size:0.8rem;color:var(--ink-3);">
-          {nPolls} polls · {data.meta.period_start} → {data.meta.period_end} · source: {data.meta.source}
+          {nPolls} polls, {longDate(data.meta.period_start, 'en')} to {longDate(data.meta.period_end, 'en')}
         </p>
       </div>
     </div>
@@ -98,7 +99,7 @@ const periods = data.periods;
                 <span class="fraser-period-pill" style={`background:${accentColor};`}>
                   {isInterim ? 'Interim' : 'Regular'}
                 </span>
-                <span class="fraser-period-dates">{p.first_poll} → {p.last_poll}</span>
+                <span class="fraser-period-dates">{longDate(p.first_poll, 'en')} to {longDate(p.last_poll, 'en')}</span>
               </div>
               <p class="fraser-period-leader">{p.leader_name}</p>
               <div class="fraser-period-avg">
@@ -135,9 +136,9 @@ const periods = data.periods;
     body="The Fraser Interim Index is not a projection input. It is an editorial indicator built to answer one question: do Ontario Liberals poll better under Fraser's interim stewardship than under permanent leaders, after controlling for basic sources of variation?"
     bullets={[
       `Editorial intent: the index compares polling averages across five leadership periods (2018–2026) — three Fraser interim stints and two permanent-leader periods (Del Duca, Crombie). It is a signal, not proof of causality.`,
-      `Data: 324 Ontario topline polls from June 2018 to April 2026, sourced from the Ontario Wikipedia sidecar archive. Each poll is tagged to the leadership period active at the date of fieldwork.`,
+      `Data: 324 Ontario polls published from June 2018 to April 2026. Each poll is matched to the leader in office when it was conducted.`,
       `Method: weighted ordinary least squares with firm, electoral cycle, and time-trend controls. The coefficient on the Fraser-interim indicator is mapped to a 0–100 index (50 = neutral, above 50 = interim periods poll relatively better).`,
-      `Reproducibility: the sidecar poll archive is preserved locally; the period tagging logic and OLS are documented in the analysis README. The index can be recomputed as new polls arrive.`,
+      `The index is recalculated as each new poll arrives.`,
     ]}
   />
 

@@ -1,4 +1,5 @@
 ---
+import { longDate } from '../lib/format';
 import desk from '../../web_data/us-house/fl-20-primary.json';
 
 interface Props { lang: 'en' | 'fr'; demVote: number; demWinProb: number; runDate?: string }
@@ -30,7 +31,7 @@ const sources = isFr ? [
     <section class="status-grid" aria-label={isFr ? 'Repères' : 'Race markers'}>
       <article><span>{isFr ? 'Primaire fermée' : 'Closed primary'}</span><strong>{isFr ? '18 août 2026' : 'August 18, 2026'}</strong><p>{isFr ? 'La date vise la nomination régulière pour le prochain Congrès.' : 'This is the regular nomination for the next Congress.'}</p></article>
       <article><span>{isFr ? 'Élection partielle' : 'Special election'}</span><strong>{isFr ? 'Date à déterminer' : 'Date TBD'}</strong><p>{isFr ? 'Elle comblera séparément le mandat actuel devenu vacant.' : 'It will separately fill the vacant remainder of the current term.'}</p></article>
-      <article><span>{isFr ? 'Projection générale publiée' : 'Published general-election model'}</span><strong>{(demWinProb * 100).toFixed(0)}% {isFr ? 'victoire dém.' : 'Dem. win'}</strong><p>{demVote.toFixed(1)}% {isFr ? 'voix dém.' : 'Dem. vote'} · {runDate}</p></article>
+      <article><span>{isFr ? 'Projection générale publiée' : 'Published general-election model'}</span><strong>{isFr ? `${(demWinProb * 100).toFixed(0)} % de chances démocrates` : `${(demWinProb * 100).toFixed(0)}% Dem. win`}</strong><p>{isFr ? `${demVote.toFixed(1).replace('.', ',')} % du vote aux démocrates` : `${demVote.toFixed(1)}% Dem. vote`}{runDate ? ` · ${longDate(runDate, lang)}` : ''}</p></article>
     </section>
 
     <section class="story">

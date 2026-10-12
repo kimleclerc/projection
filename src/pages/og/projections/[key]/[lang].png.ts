@@ -8,13 +8,14 @@ import { partyName } from '../../../../lib/party-names';
 
 type Lang = 'en' | 'fr' | 'es';
 const LANGS: Lang[] = ['en', 'fr', 'es'];
-const KEYS = ['federal', 'ontario', 'quebec', 'us-house', 'us-senate', 'us-governor', 'uk', 'british-columbia'] as const;
+// Les autres scrutins utilisent les images de partage communes (og/share, cards.ts).
+const KEYS = ['uk'] as const;
 type Key = (typeof KEYS)[number];
 
 export const getStaticPaths: GetStaticPaths = () =>
   KEYS.flatMap((key) => LANGS.map((lang) => ({ params: { key, lang } })));
 
-const TITLES: Record<Key, Record<Lang, string>> = {
+const TITLES: Record<string, Record<Lang, string>> = {
   federal: { en: 'Canada federal forecast', fr: 'Projection fédérale · Canada', es: 'Pronóstico federal · Canadá' },
   ontario: { en: 'Ontario election forecast', fr: 'Ontario · Projection électorale', es: 'Ontario · Pronóstico electoral' },
   quebec: { en: 'Quebec 2026 forecast', fr: 'Québec 2026 · Projection', es: 'Quebec 2026 · Pronóstico' },

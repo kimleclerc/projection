@@ -38,7 +38,9 @@ export function longDate(iso: string | null | undefined, lang: Lang): string {
   if (!iso) return '';
   const d = new Date(`${String(iso).slice(0, 10)}T12:00:00Z`);
   if (Number.isNaN(d.getTime())) return String(iso);
-  return d.toLocaleDateString(DATE_LOCALE[lang], { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+  const out = d.toLocaleDateString(DATE_LOCALE[lang], { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+  // Français : « 1er février », jamais « 1 février ».
+  return lang === 'fr' ? out.replace(/^1 /, '1er ') : out;
 }
 
 /** Nom propre saisi en capitales (« BETH VAN DUYNE ») remis en casse de titre. */

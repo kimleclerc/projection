@@ -1,0 +1,100 @@
+---
+/**
+ * Images de sondages, pour tout tableau de sondages du site (tableaux nationaux,
+ * sondages locaux des fiches, France…). Chaque ligne porte un bouton « Image »
+ * avec ses chiffres en version compacte (lib/share/poll-payload → pollShareRow) ;
+ * le titre, la légende des partis et le jour du scrutin sont donnés une seule
+ * fois ici. L'image est dessinée dans le navigateur au clic (cards → pollCard) :
+ * aucun fichier stocké par sondage.
+ *
+ *   <PollShare lang title chips voteDay>…<button class="poll-share-btn" data-poll=…>…</PollShare>
+ */
+import type { Chip } from '../lib/share/poll-payload';
+
+interface Props { lang: 'fr' | 'en' | 'es'; title: string; chips: Chip[]; voteDay?: string }
+const { lang, title, chips, voteDay } = Astro.props as Props;
+const T = {
+  fr: { wide: 'Paysage', square: 'Carré', busy: 'Image en cours…', label: 'Télécharger l’image du sondage' },
+  en: { wide: 'Landscape', square: 'Square', busy: 'Drawing…', label: 'Download the poll image' },
+  es: { wide: 'Horizontal', square: 'Cuadrada', busy: 'Generando…', label: 'Descargar la imagen de la encuesta' },
+}[lang];
+const ctx = JSON.stringify({ lang, title, voteDay, chips: chips.map(({ code, label, color }) => ({ code, label, color })) });
+---
+
+<div class="poll-share-ctx" data-ctx={ctx} data-busy={T.busy}>
+  <slot />
+  <div class="poll-share-menu" role="menu" aria-label={T.label} hidden>
+    <button type="button" role="menuitem" data-fmt="wide">{T.wide}</button>
+    <button type="button" role="menuitem" data-fmt="square">{T.square}</button>
+    <button type="button" role="menuitem" data-fmt="story">Story</button>
+  </div>
+</div>
+
+<script>
+  type Fmt = 'wide' | 'square' | 'story';
+
+  document.querySelectorAll<HTMLElement>('.poll-share-ctx').forEach((root) => {
+    const menu = root.querySelector<HTMLElement>(':scope > .poll-share-menu')!;
+    let current: HTMLButtonElement | null = null;
+    const close = () => { menu.hidden = true; current?.setAttribute('aria-expanded', 'false'); current = null; };
+
+    root.addEventListener('click', (ev) => {
+      const btn = (ev.target as HTMLElement).closest<HTMLButtonElement>('.poll-share-btn');
+      if (!btn || !root.contains(btn)) return;
+      if (current === btn) { close(); return; }
+      close();
+      current = btn;
+      btn.setAttribute('aria-expanded', 'true');
+      const r = btn.getBoundingClientRect();
+      const box = root.getBoundingClientRect();
+      menu.style.top = `${r.bottom - box.top + 4}px`;
+      menu.style.left = `${Math.max(0, r.right - box.left - 150)}px`;
+      menu.hidden = false;
+      menu.querySelector('button')?.focus();
+    });
+    document.addEventListener('click', (ev) => {
+      const t = ev.target as HTMLElement;
+      if (!menu.hidden && !menu.contains(t) && !t.closest('.poll-share-btn')) close();
+    });
+    document.addEventListener('keydown', (ev) => { if (ev.key === 'Escape' && !menu.hidden) { current?.focus(); close(); } });
+
+    menu.querySelectorAll<HTMLButtonElement>('button[data-fmt]').forEach((item) => {
+      item.addEventListener('click', async () => {
+        const btn = current;
+        if (!btn || root.dataset.working) return;
+        const label = item.textContent;
+        root.dataset.working = '1';
+        item.textContent = root.dataset.busy ?? '…';
+        try {
+          const ctx = JSON.parse(root.dataset.ctx!);
+          const fmt = item.dataset.fmt as Fmt;
+          const [{ expandPollRow, unpackRow }, { renderPollPng }] = await Promise.all([
+            import('../lib/share/poll-payload'), import('../lib/share/render-client'),
+          ]);
+          const row = unpackRow(btn.dataset.poll!);
+          const blob = await renderPollPng(fmt, ctx.lang, expandPollRow(row, ctx));
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(blob);
+          const slug = `${row.f}-${row.b ?? ''}`.normalize('NFKD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+          a.download = `vote-scope-${slug}-${ctx.lang}${fmt === 'wide' ? '' : `-${fmt}`}.png`;
+          a.click();
+          setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+        } catch { /* rien de plus à faire */ }
+        item.textContent = label;
+        delete root.dataset.working;
+        close();
+      });
+    });
+  });
+</script>
+
+<style>
+  .poll-share-ctx { position: relative; }
+  .poll-share-menu { position: absolute; z-index: 20; display: flex; flex-direction: column; width: 150px; background: var(--card); border: 1px solid var(--ink-3); border-radius: 2px; }
+  .poll-share-menu[hidden] { display: none; }
+  .poll-share-menu button { all: unset; cursor: pointer; padding: 9px 12px; font-size: 14px; color: var(--ink); border-bottom: 1px solid var(--rule); }
+  .poll-share-menu button:last-child { border-bottom: 0; }
+  .poll-share-menu button:hover, .poll-share-menu button:focus-visible { background: var(--paper-2); }
+  :global(.poll-share-btn) { cursor: pointer; padding: 3px 8px; border: 1px solid var(--rule); border-radius: 2px; background: transparent; font: inherit; font-size: 12px; color: var(--ink); white-space: nowrap; }
+  :global(.poll-share-btn:hover), :global(.poll-share-btn[aria-expanded='true']) { border-color: var(--ink-3); }
+</style>

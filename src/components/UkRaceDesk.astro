@@ -1,4 +1,5 @@
 ---
+import { longDate } from '../lib/format';
 // Desk de COURSE — partielle UK en cours, sans sondage de circonscription.
 //
 // Séparé de UkByelectionDesk, qui est le dossier de Clacton : cette page-là
@@ -350,7 +351,7 @@ const jsonLd = [
       title={t.methodTitle}
       body={t.methodBody}
       bullets={[
-        `${t.modelLabel} — ${lang === 'en' ? 'updated' : lang === 'es' ? 'actualizado el' : 'mis à jour le'} ${meta.run_date} · ${nfmt(meta.n_sims)} ${lang === 'es' ? 'simulaciones' : 'simulations'} · ${meta.model_version}`,
+        `${t.modelLabel} — ${lang === 'en' ? 'updated' : lang === 'es' ? 'actualizado el' : 'mis à jour le'} ${longDate(meta.run_date, lang)} · ${nfmt(meta.n_sims)} ${lang === 'es' ? 'simulaciones' : 'simulations'}`,
         `${t.anchorLabel} — ${anchor.source}`,
       ]}
     />

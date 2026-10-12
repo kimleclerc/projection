@@ -1,4 +1,5 @@
 ---
+import { longDate } from '../lib/format';
 /**
  * Auto-generated tournament read. All sentences are derived from the current
  * model run (web_data/sports/worldcup2026_latest.json), so the text stays
@@ -80,9 +81,9 @@ const n = (t: BoardTeam | GroupStanding) => `${flagFor((t as { team?: string }).
 const pct = (v: number) => (lang === 'en' ? `${v}%` : `${String(v).replace('.', ',')} %`);
 
 const heading: Record<string, { eyebrow: string; title: string }> = {
-  en: { eyebrow: `The model's read — run ${runDate}`, title: 'Favorites, dark horses and the group to watch.' },
-  fr: { eyebrow: `La lecture du modèle — run ${runDate}`, title: 'Favoris, négligés et le groupe à surveiller.' },
-  es: { eyebrow: `La lectura del modelo — corrida ${runDate}`, title: 'Favoritos, tapados y el grupo a seguir.' },
+  en: { eyebrow: `The model's read — ${longDate(runDate, 'en')}`, title: 'Favorites, dark horses and the group to watch.' },
+  fr: { eyebrow: `La lecture du modèle — ${longDate(runDate, 'fr')}`, title: 'Favoris, négligés et le groupe à surveiller.' },
+  es: { eyebrow: `La lectura del modelo — ${longDate(runDate, 'es')}`, title: 'Favoritos, tapados y el grupo a seguir.' },
 };
 
 const paragraphs: Record<string, string[]> = {
@@ -177,9 +178,9 @@ const aliveNames = joinList(alive.map((t) => n(t)));
 const finalSet = !liveSemi && throughFinal.length >= 2;
 
 const koHeading: Record<string, { eyebrow: string; title: string }> = {
-  en: { eyebrow: `The model's read — run ${runDate}`, title: finalSet ? 'Forty-eight teams became two.' : 'The favorite, the finalist and the last semifinal.' },
-  fr: { eyebrow: `La lecture du modèle — run ${runDate}`, title: finalSet ? 'Quarante-huit équipes sont devenues deux.' : 'Le favori, le finaliste et la dernière demi-finale.' },
-  es: { eyebrow: `La lectura del modelo — corrida ${runDate}`, title: finalSet ? 'Cuarenta y ocho selecciones se convirtieron en dos.' : 'El favorito, el finalista y la última semifinal.' },
+  en: { eyebrow: `The model's read — ${longDate(runDate, 'en')}`, title: finalSet ? 'Forty-eight teams became two.' : 'The favorite, the finalist and the last semifinal.' },
+  fr: { eyebrow: `La lecture du modèle — ${longDate(runDate, 'fr')}`, title: finalSet ? 'Quarante-huit équipes sont devenues deux.' : 'Le favori, le finaliste et la dernière demi-finale.' },
+  es: { eyebrow: `La lectura del modelo — ${longDate(runDate, 'es')}`, title: finalSet ? 'Cuarenta y ocho selecciones se convirtieron en dos.' : 'El favorito, el finalista y la última semifinal.' },
 };
 
 const koParagraphs: Record<string, string[]> = {

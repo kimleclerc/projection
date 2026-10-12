@@ -1,4 +1,5 @@
 ---
+import { longDate } from '../lib/format';
 import fs from 'node:fs';
 import path from 'node:path';
 import latest from '../../web_data/france-legislative/latest.json';
@@ -239,8 +240,8 @@ const topSeats = (sc: any) => sc.seats.filter((r: any) => ['far_right', 'left', 
       <h1>{copy.title}</h1>
       <p class="leg-dek">{copy.dek}</p>
       <div class="leg-meta">
-        <span>{copy.updated} : {meta.generated ?? '—'}</span>
-        <span>{copy.anchor} : {meta.anchor_midpoint ?? '—'}</span>
+        <span>{copy.updated}{locale === 'fr' ? ' : ' : ': '}{meta.generated ? longDate(meta.generated, locale) : '—'}</span>
+        <span>{copy.anchor}{locale === 'fr' ? ' : ' : ': '}{meta.anchor_midpoint ? longDate(meta.anchor_midpoint, locale) : '—'}</span>
       </div>
     </div>
     <div class="leg-hero-facts" aria-label={copy.majority}>

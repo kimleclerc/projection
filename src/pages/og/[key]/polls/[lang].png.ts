@@ -1,12 +1,15 @@
 /**
- * Aggregate hub share-card (og:image), generic across all polls jurisdictions.
- * Built statically → /og/<key>/polls/{lang}.png. Shows the recent Vote-Scope
- * average as a branded, watermarked card. Copy comes from POLLS_HUBS.
+ * Image de partage d'un tableau de sondages (og:image), au build :
+ * /og/<scrutin>/polls/<langue>.png. Moyenne simple des 15 sondages les plus
+ * récents, même dessin que l'image d'un sondage (cards.ts → pollCard).
  */
 import type { APIRoute, GetStaticPaths } from 'astro';
 import { getHubPolls, getPollsMeta, getDisplayPartyCodes } from '../../../../lib/polls-adapter';
 import { pollPartyChips } from '../../../../lib/poll-parties';
-import { renderPollCard, type CardEntry } from '../../../../lib/og/poll-card';
+import { pollCard } from '../../../../lib/share/cards';
+import { renderPngServer } from '../../../../lib/share/render-server';
+import { voteDayFor } from '../../../../lib/share/poll-payload';
+import { longDate } from '../../../../lib/format';
 import { POLLS_HUBS, type HubLang } from '../../../../lib/polls-hubs';
 
 const RECENT_N = 15;
@@ -22,7 +25,6 @@ export const GET: APIRoute = async ({ params }) => {
   const cfg = POLLS_HUBS[key];
   const meta = getPollsMeta(key);
   if (!cfg || !meta) return new Response('Not found', { status: 404 });
-  const copy = cfg.copy[lang];
 
   const polls = getHubPolls(key).filter((p) => !p.topline_scope).slice(0, RECENT_N);
   const sum: Record<string, number> = {};
@@ -34,36 +36,23 @@ export const GET: APIRoute = async ({ params }) => {
       cnt[code] = (cnt[code] ?? 0) + 1;
     }
   }
-  const chips = pollPartyChips(key, getDisplayPartyCodes(key), lang);
-  const entries: CardEntry[] = chips
+  const parties = pollPartyChips(key, getDisplayPartyCodes(key), lang)
     .filter((c) => cnt[c.code])
-    .map((c) => ({ label: c.label, color: c.color, value: sum[c.code] / cnt[c.code] }))
-    .sort((a, b) => b.value - a.value)
-    .slice(0, 5);
+    .map((c) => ({ label: c.label, color: c.color, v: sum[c.code] / cnt[c.code] }))
+    .sort((a, b) => b.v - a.v);
 
-  const LOC: Record<HubLang, string> = { en: 'en-US', fr: 'fr-CA', es: 'es-ES' };
-  const iso = meta.latest_field_end ?? meta.run_date;
-  const d = new Date(`${iso}T00:00:00Z`);
-  const dateStr = Number.isNaN(d.getTime())
-    ? iso
-    : d.toLocaleDateString(LOC[lang], { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
-  const footByLang: Record<HubLang, (s: string) => string> = {
-    en: (s) => `Latest fieldwork: ${s}`,
-    fr: (s) => `Terrain le plus récent : ${s}`,
-    es: (s) => `Campo más reciente: ${s}`,
-  };
-
-  const png = await renderPollCard({
-    eyebrow: copy.ogEyebrow,
-    title: copy.ogTitle,
-    subtitle: ({ fr: `Moyenne simple · ${polls.length} sondages récents`,
-      en: `Simple average · ${polls.length} recent polls`,
-      es: `Promedio simple · ${polls.length} encuestas recientes` })[lang],
-    entries,
-    footerLeft: footByLang[lang](dateStr),
+  const n = polls.length;
+  const latest = meta.latest_field_end ?? meta.run_date;
+  const tree = pollCard('wide', lang, {
+    title: cfg.copy[lang].ogTitle,
+    firm: ({ fr: `Moyenne des ${n} derniers sondages`, en: `Average of the latest ${n} polls`, es: `Promedio de las ${n} últimas encuestas` })[lang],
+    field: ({ fr: `Terrain le plus récent : ${longDate(latest, lang)}`, en: `Most recent fieldwork: ${longDate(latest, lang)}`, es: `Trabajo de campo más reciente: ${longDate(latest, lang)}` })[lang],
+    meta: ({ fr: 'Moyenne simple, sans correction', en: 'Simple average, uncorrected', es: 'Promedio simple, sin corrección' })[lang],
+    parties,
+    foot: ({ fr: `Mis à jour le ${longDate(meta.run_date, lang)}`, en: `Updated ${longDate(meta.run_date, lang)}`, es: `Actualizado el ${longDate(meta.run_date, lang)}` })[lang],
+    voteDay: voteDayFor(key, meta.run_date),
+    digits: 1,
   });
-
-  return new Response(new Uint8Array(png), {
-    headers: { 'Content-Type': 'image/png', 'Cache-Control': 'public, max-age=3600' },
-  });
+  const png = await renderPngServer(tree, 'wide');
+  return new Response(png, { headers: { 'Content-Type': 'image/png', 'Cache-Control': 'public, max-age=3600' } });
 };

@@ -1,4 +1,5 @@
 ---
+import { longDate } from '../lib/format';
 // Desk d'une partielle fédérale en attente.
 // Reprend la structure du desk de Clacton (UkByelectionDesk.astro) : compte à
 // rebours, fourchettes de projection, contexte, sources — mais les chiffres
@@ -337,8 +338,8 @@ const ridingName = config.ridingName?.[lang] ?? data.district?.name ?? (fromTitl
             </div>
           )}
           <p class="cabye-meta">
-            {titleCase(localPoll.firm)} · {localPoll.field_end ?? localPoll.release_date}
-            {localPoll.sample_size ? ` · n=${localPoll.sample_size}` : ''}
+            {titleCase(localPoll.firm)} · {longDate(localPoll.field_end ?? localPoll.release_date, lang)}
+            {localPoll.sample_size ? ` · ${localPoll.sample_size.toLocaleString(lang === 'en' ? 'en-US' : lang === 'es' ? 'es-ES' : 'fr-CA')} ${lang === 'en' ? 'respondents' : lang === 'es' ? 'encuestados' : 'répondants'}` : ''}
           </p>
           {localPoll.undecided != null && (
             <p class="cabye-caveat">{t.undecidedNote(fmtPct(localPoll.undecided, 0))}</p>
@@ -430,7 +431,7 @@ const ridingName = config.ridingName?.[lang] ?? data.district?.name ?? (fromTitl
           <li><a href={s.url} rel="noopener">{s.label}</a></li>
         ))}
         {localPoll?.source_url && (
-          <li><a href={localPoll.source_url} rel="noopener">{titleCase(localPoll.firm)} — {ridingName} ({localPoll.field_end ?? localPoll.release_date})</a></li>
+          <li><a href={localPoll.source_url} rel="noopener">{titleCase(localPoll.firm)} — {ridingName} ({longDate(localPoll.field_end ?? localPoll.release_date, lang)})</a></li>
         )}
         <li><a href="https://www.elections.ca/" rel="noopener">Elections Canada</a></li>
       </ol>

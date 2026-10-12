@@ -1,4 +1,5 @@
 ---
+import { longDate } from '../lib/format';
 import { placeName } from '../lib/place-names';
 // Desk présidentiel US 2028 — composant partagé fr/en/es (pattern FranceDesk :
 // logique + markup + style une seule fois, langue en prop). Produit actuel :
@@ -34,7 +35,7 @@ const scenarios = data.primary.scenarios;
 const earlyStates = data.primary.early_states;
 const ec = data.electoral_college;
 
-const runDate = meta.run_date;
+const runDate = longDate(meta.run_date, locale);
 const nPolls = meta.n_primary_polls;
 // Le « favori » affiché (hero + prose) est le premier candidat ÉLIGIBLE : Trump
 // est inclus dans la liste (drapeau inéligible + note 3e mandat) mais ne coiffe
@@ -101,7 +102,7 @@ const C = {
     titleA: 'The White House race begins in ',
     titleEm: '2028',
     dek: 'Long before the first vote, the race is measured in endorsements and primary polling. Here is where the Democratic and Republican fields stand — and the electoral-college map.',
-    runOf: `Run of ${runDate}`,
+    runOf: `Updated ${runDate}`,
     pollsAgg: `${nPolls} primary polls`,
     weighting: 'Quality-weighted',
     standingsTitle: '2028 primaries — where the fields stand',
@@ -129,7 +130,7 @@ const C = {
     titleA: 'La Casa Blanca se decide desde ',
     titleEm: '2028',
     dek: 'Mucho antes del primer voto, la carrera se mide en apoyos y encuestas de primarias. Aquí está la situación de los campos demócrata y republicano — y el mapa del colegio electoral.',
-    runOf: `Ejecución del ${runDate}`,
+    runOf: `Actualizado el ${runDate}`,
     pollsAgg: `${nPolls} encuestas de primarias`,
     weighting: 'Ponderado por calidad',
     standingsTitle: 'Primarias 2028 — cómo están los campos',

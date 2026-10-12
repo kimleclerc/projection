@@ -1,4 +1,5 @@
 ---
+import { longDate } from '../../lib/format';
 import EditorialLayout from '../../layouts/EditorialLayout.astro';
 import BarrageMeter from '../../islands/BarrageMeter.tsx';
 import LiveTicker from '../../islands/LiveTicker.tsx';
@@ -257,7 +258,7 @@ const duelLabel = duel.barrage_name && duel.far_right_name ? `${duel.barrage_nam
           <article>
             <p>{t.countdownStat}</p>
             <strong>{data.computed.daysToFirstRound ?? '—'}</strong>
-            <em>{data.meta.first_round_date ?? '2027-04-18'}</em>
+            <em>{longDate(data.meta.first_round_date ?? '2027-04-18', locale)}</em>
           </article>
         </div>
       </div>
@@ -282,7 +283,7 @@ const duelLabel = duel.barrage_name && duel.far_right_name ? `${duel.barrage_nam
       </aside>
     </header>
 
-    <LiveTicker items={data.ticker} client:idle />
+    <LiveTicker items={data.ticker} lang={locale} client:idle />
 
     <section class="content-band" id="methodology">
       <div class="container">
