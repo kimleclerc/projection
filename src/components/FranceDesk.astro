@@ -30,6 +30,8 @@ import {
 import { slugify } from '../lib/fr-candidates';
 import { franceCandBase } from '../lib/fr-pres';
 import { pickHeroScenario, buildExplorerCards } from '../lib/fr-explorer';
+import { faceOff } from '../lib/share/fr-face';
+import ShareModule from '../islands/lib/ShareModule.tsx';
 
 interface Props {
   locale: Locale;
@@ -222,27 +224,16 @@ const pollTop = (x: any, n = 3) =>
   }));
 
 // ── Qui affronterait le premier au second tour ────────────────────────────
-// Ce qu'aucun sondage isolé ne donne : la chance de chaque candidat d'être
-// au second tour, et le score de son duel face au premier. On n'affiche PAS
-// de probabilité de victoire globale ici : à sept mois, le modèle la donne
-// trop tranchée (calibration de la confiance à revoir).
-const leader = heroCard.qualification[0];
-const heroDuels = ((heroScenario as any).duels ?? []) as any[];
-const opponents = heroCard.qualification
-  .filter((q) => q.id !== leader?.id && q.pTop2 >= 0.05)
-  .sort((a, b) => b.pTop2 - a.pTop2)
+// Ce qu'aucun sondage isolé ne donne : qui affrontera le favori au second tour,
+// toutes les listes de candidats testées réunies (lib/share/fr-face, comme
+// l'image de partage), avec le score moyen de chaque duel. On n'affiche PAS
+// de probabilité de victoire : à sept mois, le modèle la donne trop tranchée.
+const face = faceOff(latest);
+const leader = face?.favourite;
+const opponents = (face?.rows ?? [])
+  .filter((o) => o.p >= 0.05)
   .slice(0, 3)
-  .map((q) => {
-    const d = heroDuels.find(
-      (x) =>
-        (x.duel_left_id === q.id && x.duel_right_id === leader?.id) ||
-        (x.duel_right_id === q.id && x.duel_left_id === leader?.id),
-    );
-    const share: number | null = d
-      ? d.duel_left_id === q.id ? d.left_share_expressed_mean : d.right_share_expressed_mean
-      : null;
-    return { ...q, duelShare: share };
-  });
+  .map((o) => ({ ...o, pTop2: o.p, duelShare: o.runoff }));
 const pctInt = (v: number) => `${Math.round(v * 100)}${locale === 'en' ? '%' : ' %'}`;
 
 // ── Prose SEO auto-générée (change à chaque run/sondage) ──────────────────
@@ -313,7 +304,8 @@ const COPY = {
     latestLabel: 'Dernier sondage',
     firstAvg: 'Premier tour — notre moyenne',
     secondWho: (name: string) => `Qui affronterait ${name} au second tour ?`,
-    qualifies: 'de chances d’y être',
+    qualifies: 'de chances de ce duel',
+    faceNote: (c: number) => `Les ${c} listes de candidats testées récemment, chacune selon le nombre de sondages qui l’ont testée.`,
     duelLabel: 'Second tour :',
     seePoll: 'Voir ce sondage',
     latestTitle: 'Les derniers sondages',
@@ -366,7 +358,8 @@ const COPY = {
     latestLabel: 'Latest poll',
     firstAvg: 'First round — our average',
     secondWho: (name: string) => `Who would face ${name} in the runoff?`,
-    qualifies: 'chance to get there',
+    qualifies: 'chance of this matchup',
+    faceNote: (c: number) => `The ${c} candidate lineups tested recently, each weighted by how many polls tested it.`,
     duelLabel: 'Runoff:',
     seePoll: 'See this poll',
     latestTitle: 'Latest polls',
@@ -419,7 +412,8 @@ const COPY = {
     latestLabel: 'Última encuesta',
     firstAvg: 'Primera vuelta — nuestro promedio',
     secondWho: (name: string) => `¿Quién se enfrentaría a ${name} en la segunda vuelta?`,
-    qualifies: 'de probabilidad de llegar',
+    qualifies: 'de probabilidad de este duelo',
+    faceNote: (c: number) => `Las ${c} combinaciones de candidatos probadas recientemente, cada una según el número de encuestas que la probaron.`,
     duelLabel: 'Segunda vuelta:',
     seePoll: 'Ver esta encuesta',
     latestTitle: 'Últimas encuestas',
@@ -531,6 +525,7 @@ const C = COPY[locale];
               </li>
             ))}
           </ul>
+          {face && <p class="fr-hl-note">{C.faceNote(face.nCastings)}</p>}
         </div>
       )}
     </div>
@@ -539,6 +534,7 @@ const C = COPY[locale];
       {heroProvenance.text}
     </p>
 
+    <ShareModule lang={locale} kind="projection" election="france-presidential" runDate={(latest as any).meta.run_date} client:idle />
     <GooglePreferredSource locale={locale} />
   </header>
 
@@ -904,6 +900,7 @@ const C = COPY[locale];
   .fr-hl-opp-p { font-family: var(--mono); font-size: 13px; color: var(--ink-2); }
   .fr-hl-opp-p b { color: var(--ink); }
   .fr-hl-opp-duel { font-family: var(--mono); font-size: 13px; color: var(--ink-3); }
+  .fr-hl-note { margin: 10px 0 0; font-size: 13px; color: var(--ink-3); }
   .fr-latest-list { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--rule); }
   .fr-latest-list a {
     display: grid;
