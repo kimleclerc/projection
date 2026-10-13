@@ -72,6 +72,11 @@ const longDate = (iso: string, lang: Lang) => {
 export const partyLabel = (p: { party: string; label_en?: string; label_fr?: string }, lang: Lang) =>
   lang === 'fr' ? (p.label_fr ?? p.label_en ?? p.party) : lang === 'es' ? (PARTY_ES[p.party] ?? p.label_fr ?? p.party) : (p.label_en ?? p.party);
 
+/** Étiquettes trop longues pour la marge du graphique. */
+const SHORT: Record<string, Record<Lang, string>> = {
+  uk_ld: { fr: 'Lib-dém', en: 'Lib Dem', es: 'Lib-dem' },
+};
+
 const seatsOf = (p: any) => Math.round(p.seats_projected ?? p.seats_median ?? p.seats_mean ?? 0);
 
 // ------------------------------------------------------------------ cadre commun
@@ -351,11 +356,17 @@ export function chartCard(fmt: Format, { key, lang, latest }: { key: string; lan
   const { w, h: H } = SIZE[fmt];
   const pad = fmt === 'wide' ? 34 : 44;
   const inner = w - pad * 2;
-  const polls: any[] = (latest.polls_history ?? []).filter((p: any) => p.date);
+  // R.-U. : la date du sondage est la fin du terrain.
+  const polls: any[] = (latest.polls_history ?? [])
+    .map((p: any) => (p.date ? p : { ...p, date: String(p.field_end ?? '').slice(0, 10) }))
+    .filter((p: any) => p.date)
+    .sort((a: any, b: any) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
   const parties = [...latest.parties].filter((p: any) => !/_oth$/.test(p.party)).sort((a: any, b: any) => (b.vote_mean ?? 0) - (a.vote_mean ?? 0)).slice(0, 4);
   const last = polls.length ? polls[polls.length - 1].date : latest.meta.run_date;
   const t1 = Date.parse(`${last}T12:00:00Z`);
-  const t0 = t1 - 365 * 86400000;
+  // Un an au plus ; moins quand l'historique est plus court (R.-U. : depuis juin).
+  const first = polls.length ? Date.parse(`${polls[0].date}T12:00:00Z`) - 14 * 86400000 : t1 - 365 * 86400000;
+  const t0 = Math.max(t1 - 365 * 86400000, first);
   const recent = polls.filter((p) => Date.parse(`${p.date}T12:00:00Z`) >= t0);
   const values = recent.flatMap((p) => parties.map((q: any) => p[q.party]).filter((v: any) => typeof v === 'number'));
   const vmax = Math.min(100, Math.ceil(((values.length ? Math.max(...values) : 50) + 4) / 10) * 10);
@@ -395,12 +406,15 @@ export function chartCard(fmt: Format, { key, lang, latest }: { key: string; lan
     const v = l.endValue;
     return h('div', { position: 'absolute', left: cw + 10, top: Y(v) - 14, alignItems: 'baseline', color: l.q.color },
       h('div', { fontFamily: 'Barlow Condensed', fontWeight: 700, fontSize: 30 }, `${Math.round(v)}`),
-      h('div', { fontSize: 14, fontWeight: 700, marginLeft: 6 }, partyLabel(l.q, lang)));
+      h('div', { fontSize: 14, fontWeight: 700, marginLeft: 6 }, SHORT[l.q.party]?.[lang] ?? partyLabel(l.q, lang)));
   });
   const months = [];
-  for (let i = 0; i <= 12; i += fmt === 'wide' ? 2 : 3) {
-    const d = new Date(t0 + (i / 12) * (t1 - t0));
-    months.push(h('div', { position: 'absolute', left: (i / 12) * cw - 20, top: ch + 6, width: 60, fontSize: 14, fontWeight: 600, color: INK_3 },
+  // Un repère au premier du mois, tous les 2 ou 3 mois sur un an, chaque mois sur moins.
+  const span = (t1 - t0) / (30.4 * 86400000);
+  const step = span > 7 ? (fmt === 'wide' ? 2 : 3) : span > 4 && fmt !== 'wide' ? 2 : 1;
+  const m0 = new Date(t0);
+  for (let d = new Date(Date.UTC(m0.getUTCFullYear(), m0.getUTCMonth() + 1, 1)); d.getTime() <= t1; d = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + step, 1))) {
+    months.push(h('div', { position: 'absolute', left: X(d.toISOString().slice(0, 10)) - 20, top: ch + 6, width: 60, fontSize: 14, fontWeight: 600, color: INK_3 },
       d.toLocaleDateString(lang === 'en' ? 'en-US' : lang === 'es' ? 'es-ES' : 'fr-CA', { month: 'short', year: '2-digit', timeZone: 'UTC' })));
   }
   const body = h('div', { flexDirection: 'column', flexGrow: 1 },

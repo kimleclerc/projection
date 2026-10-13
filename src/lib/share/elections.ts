@@ -76,6 +76,13 @@ export const SHARE_ELECTIONS: Record<string, ShareElection> = {
     unit: 'riding', fullChamber: true, baselineYear: 2022, date: '2026-10-05',
     simulator: { fr: '/fr/outils/simulateur-quebec/', en: '/en/tools/quebec-simulator/', es: '/es/herramientas/simulador-quebec/' },
   },
+  uk: {
+    name: { fr: 'Royaume-Uni', en: 'United Kingdom', es: 'Reino Unido' },
+    question: { fr: 'Qui gouvernerait le Royaume-Uni ?', en: 'Who would govern the U.K.?', es: '¿Quién gobernaría el Reino Unido?' },
+    when: { fr: 'prochaines élections générales', en: 'next general election', es: 'próximas elecciones generales' },
+    page: { fr: '/fr/uk/general-election/', en: '/en/uk/general-election/', es: '/es/uk/general-election/' },
+    unit: 'riding', fullChamber: true, baselineYear: 2024,
+  },
 };
 
 /** Ce qu'on partage, et l'ancre de la page où cela se trouve. */
