@@ -577,10 +577,10 @@ const C = COPY[locale];
     <h2 id="fr-explain-title" class="fr-section-title">{C.howTitle}</h2>
     {/* Une phrase, pas trois colonnes numérotées (motif « 1-2-3 » typique des pages générées). */}
     <p class="fr-add-note">{locale === 'fr'
-      ? 'Notre moyenne réunit toutes les enquêtes déposées à la Commission des sondages, pondérées selon leur date, leur taille et les écarts habituels de leur institut ; le second tour est simulé avec les reports de voix observés depuis 2017.'
+      ? 'Chaque candidat a un seul niveau, suivi dans le temps et lu dans toutes les enquêtes déposées à la Commission des sondages, quelle que soit la liste testée : une liste peu sondée profite des autres. Les marges tiennent compte des mois qui restent : en 2017 et en 2022, six mois avant le vote, les sondages s’écartaient du résultat de six points en moyenne par candidat. Le second tour combine les sondages de duel et les reports de voix observés depuis 2017.'
       : locale === 'es'
-      ? 'Nuestro promedio reúne todas las encuestas registradas ante la Comisión de Sondeos, ponderadas según su fecha, su tamaño y los desvíos habituales de su instituto; la segunda vuelta se simula con los traspasos de voto observados desde 2017.'
-      : 'Our average includes every poll filed with France’s polling commission, weighted by date, sample size and each pollster’s usual lean; the runoff is simulated with the vote transfers observed since 2017.'}</p>
+      ? 'Cada candidato tiene un solo nivel, seguido en el tiempo y leído en todas las encuestas registradas ante la Comisión de Sondeos, sea cual sea la combinación probada: una combinación poco encuestada aprovecha las demás. Los márgenes tienen en cuenta los meses que faltan: en 2017 y en 2022, seis meses antes de la votación, las encuestas se desviaban del resultado seis puntos de media por candidato. La segunda vuelta combina las encuestas de duelo y los traspasos de voto observados desde 2017.'
+      : 'Each candidate has a single level, tracked over time and read from every poll filed with France’s polling commission, whatever lineup it tested: a lineup with few polls borrows from the others. The margins account for the months left: in 2017 and 2022, six months out, polls missed the result by six points per candidate on average. The runoff combines head-to-head polls with the vote transfers observed since 2017.'}</p>
     <div class="fr-how">
       <ul>{C.howItems.map((t) => <li>{t}</li>)}</ul>
       <a class="fr-cta" href={C.methodHref}>{C.ctaMethod}</a>
