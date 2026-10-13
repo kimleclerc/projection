@@ -10,6 +10,7 @@
  */
 import { PARTY_ES } from '../party-names';
 import { SHARE_ELECTIONS, type Lang } from './elections';
+import { faceOff } from './fr-face';
 import { simulateRidings, decodeState, partyLabel as simPartyLabel, regionLabel, type SimDoc } from '../mini-sim';
 
 export type Format = 'wide' | 'square' | 'story';
@@ -348,6 +349,41 @@ export function projectionCard(fmt: Format, { key, lang, latest }: { key: string
   return frame(fmt, lang, el.name[lang], el.when[lang], body, asOfLine(key, lang, latest));
 }
 
+// ------------------------------------------------------------------ présidentielle française
+
+const FACE = {
+  fr: { q: (n: string) => `Qui affrontera ${n} au second tour ?`, qual: (n: string, p: string) => `${n} se qualifie dans ${p} des simulations`, who: 'Candidat', odds: 'Chances du duel', runoff: 'Au second tour', other: 'Un autre duel', foot: (c: number, d: string) => `${c} listes de candidats testées · Projection du ${d}` },
+  en: { q: (n: string) => `Who will face ${n} in the runoff?`, qual: (n: string, p: string) => `${n} reaches the runoff in ${p} of simulations`, who: 'Candidate', odds: 'Odds of the matchup', runoff: 'Runoff vote', other: 'Another matchup', foot: (c: number, d: string) => `${c} candidate lineups tested · Forecast of ${d}` },
+  es: { q: (n: string) => `¿Quién se enfrentará a ${n} en la segunda vuelta?`, qual: (n: string, p: string) => `${n} pasa a la segunda vuelta en el ${p} de las simulaciones`, who: 'Candidato', odds: 'Probabilidad del duelo', runoff: 'En la segunda vuelta', other: 'Otro duelo', foot: (c: number, d: string) => `${c} combinaciones de candidatos · Proyección del ${d}` },
+} as const;
+
+/** Présidentielle : l'adversaire du favori au second tour, toutes listes de candidats réunies. */
+export function faceOffCard(fmt: Format, { key, lang, latest }: { key: string; lang: Lang; latest: any }): Node {
+  const t = FACE[lang];
+  const el = SHARE_ELECTIONS[key];
+  const f = faceOff(latest);
+  const big = fmt !== 'wide';
+  const rows = (f?.rows ?? []).filter((r) => r.p >= 0.01).slice(0, big ? 5 : 4);
+  const row = (name: string, color: string, p: number, runoff: number | null) => h('div', { alignItems: 'center', borderBottom: `1px solid ${RULE}`, padding: fmt === 'story' ? '22px 0' : big ? '16px 0' : '9px 0' },
+    h('div', { width: 8, height: big ? 40 : 32, backgroundColor: color, marginRight: 14 }),
+    h('div', { flexGrow: 1, fontSize: big ? 30 : 26, fontWeight: 700 }, name),
+    h('div', { width: 200, justifyContent: 'flex-end', fontFamily: 'Barlow Condensed', fontWeight: 700, fontSize: big ? 60 : 50, lineHeight: 1, color }, pct(p, lang)),
+    h('div', { width: 190, justifyContent: 'flex-end', fontSize: big ? 26 : 22, fontWeight: 600, color: INK_3 },
+      runoff == null ? '—' : lang === 'en' ? `${Math.round(runoff)}%` : `${Math.round(runoff)} %`));
+  const head = h('div', { alignItems: 'center', borderBottom: `1px solid ${INK}`, paddingBottom: 6, fontSize: 15, fontWeight: 600, color: INK_3 },
+    h('div', { flexGrow: 1, marginLeft: 22 }, t.who),
+    h('div', { width: 200, justifyContent: 'flex-end' }, t.odds),
+    h('div', { width: 190, justifyContent: 'flex-end' }, t.runoff));
+  const fav = f?.favourite.name ?? '';
+  const body = h('div', { flexDirection: 'column', flexGrow: 1, justifyContent: fmt === 'wide' ? 'flex-start' : 'center', paddingTop: big ? 10 : 18 },
+    h('div', { fontSize: big ? 52 : 40, fontWeight: 700, lineHeight: 1.05 }, f ? t.q(fav) : el.question[lang]),
+    h('div', { fontSize: big ? 24 : 20, fontWeight: 600, color: INK_2, marginTop: 8, marginBottom: big ? 30 : 14 }, f ? t.qual(fav, pct(f.favourite.p, lang)) : ''),
+    head, ...rows.map((r) => row(r.name, r.color, r.p, r.runoff)),
+    ...(f && f.other >= 0.02 ? [row(t.other, VIDE, f.other, null)] : []));
+  const foot = f ? t.foot(f.nCastings, longDate(latest.meta.run_date, lang)) : `${T[lang].asOf} ${longDate(latest.meta.run_date, lang)}`;
+  return frame(fmt, lang, el.name[lang], el.when[lang], body, foot);
+}
+
 // ------------------------------------------------------------------ graphique des sondages
 
 export function chartCard(fmt: Format, { key, lang, latest }: { key: string; lang: Lang; latest: any }): Node {
@@ -401,10 +437,17 @@ export function chartCard(fmt: Format, { key, lang, latest }: { key: string; lan
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${cw} ${ch}">${grid.join('')}${dots.join('')}${lines.map((l) => `<polyline points="${l.pts.join(' ')}" fill="none" stroke="${l.q.color}" stroke-width="3.2" stroke-linejoin="round"/>`).join('')}</svg>`;
   const axis = [];
   for (let v = vmin; v <= vmax; v += 10) axis.push(h('div', { position: 'absolute', left: 0, top: Y(v) - 9, fontSize: 14, fontWeight: 600, color: INK_3 }, lang === 'en' ? `${v}%` : `${v} %`));
+  // Étiquettes au bout des courbes, écartées d'au moins 34 px quand deux finissent ensemble.
+  const tops = new Map<any, number>();
+  let floor = -Infinity;
+  for (const l of [...lines].sort((a, b) => Y(a.endValue) - Y(b.endValue))) {
+    floor = Math.max(Y(l.endValue) - 14, floor + 34);
+    tops.set(l, floor);
+  }
   const labels = lines.map((l) => {
     // L'étiquette dit la valeur où la courbe s'arrête, pas un autre chiffre.
     const v = l.endValue;
-    return h('div', { position: 'absolute', left: cw + 10, top: Y(v) - 14, alignItems: 'baseline', color: l.q.color },
+    return h('div', { position: 'absolute', left: cw + 10, top: tops.get(l), alignItems: 'baseline', color: l.q.color },
       h('div', { fontFamily: 'Barlow Condensed', fontWeight: 700, fontSize: 30 }, `${Math.round(v)}`),
       h('div', { fontSize: 14, fontWeight: 700, marginLeft: 6 }, SHORT[l.q.party]?.[lang] ?? partyLabel(l.q, lang)));
   });

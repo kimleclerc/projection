@@ -9,6 +9,7 @@ import GooglePreferredSource from './GooglePreferredSource.astro';
 import pollsData from '../../web_data/france-presidential/polls.json';
 import { blocVar, blocHex, blocLabel, fmtPct1, type Locale } from '../lib/fr-pres';
 import PollShare from './PollShare.astro';
+import ShareModule from '../islands/lib/ShareModule.tsx';
 import { pollShareRow, packRow } from '../lib/share/poll-payload';
 
 interface Props { locale: Locale; }
@@ -101,6 +102,7 @@ const shareRow = (p: any, entries: Array<[string, number]>) => packRow(pollShare
     <h1>{C.h1}</h1>
     <p class="frp-lede">{C.lede1}</p>
     <p class="frp-lede frp-lede-2">{C.lede2}</p>
+    <ShareModule lang={locale} kind="chart" election="france-presidential" runDate={(pollsData as any).meta.last_release_date} client:idle />
     <GooglePreferredSource locale={locale} />
   </header>
 

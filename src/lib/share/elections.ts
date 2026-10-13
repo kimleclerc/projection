@@ -83,6 +83,13 @@ export const SHARE_ELECTIONS: Record<string, ShareElection> = {
     page: { fr: '/fr/uk/general-election/', en: '/en/uk/general-election/', es: '/es/uk/general-election/' },
     unit: 'riding', fullChamber: true, baselineYear: 2024,
   },
+  'france-presidential': {
+    name: { fr: 'Présidentielle française', en: 'French presidential election', es: 'Presidencial francesa' },
+    question: { fr: 'Qui sera au second tour ?', en: 'Who will make the runoff?', es: '¿Quién pasará a la segunda vuelta?' },
+    when: { fr: '18 avril 2027', en: 'April 18, 2027', es: '18 de abril de 2027' },
+    page: { fr: '/fr/france/', en: '/en/france/', es: '/es/france/' },
+    unit: 'riding', fullChamber: false, baselineYear: 2022, date: '2027-04-18',
+  },
 };
 
 /** Ce qu'on partage, et l'ancre de la page où cela se trouve. */
