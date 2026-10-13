@@ -17,6 +17,16 @@ import { SHARE_ELECTIONS, type Lang } from '../../../../../lib/share/elections';
 const ROOT = process.cwd();
 const data = (key: string, f: string) => resolve(ROOT, 'web_data', key, f);
 const read = (key: string, f: string) => JSON.parse(readFileSync(data(key, f), 'utf8'));
+// Le R.-U. garde ses circonscriptions détaillées (projection, résultat 2024) dans
+// ridings.json, latest.json n'en porte que le résumé : on prend le détail.
+const readLatest = (key: string) => {
+  const latest = read(key, 'latest.json');
+  if (existsSync(data(key, 'ridings.json'))) {
+    const detail = read(key, 'ridings.json');
+    if (detail.meta?.run_date === latest.meta.run_date) latest.ridings = detail.ridings;
+  }
+  return latest;
+};
 const font = (f: string) => readFileSync(resolve(ROOT, 'public', 'og-fonts', f));
 const FONTS = [
   { name: 'Barlow', data: font('barlow-latin-500-normal.woff'), weight: 500 as const, style: 'normal' as const },
@@ -29,7 +39,7 @@ export const getStaticPaths: GetStaticPaths = () => {
   const out = [];
   for (const key of Object.keys(SHARE_ELECTIONS)) {
     if (!existsSync(data(key, 'latest.json'))) continue;
-    const latest = read(key, 'latest.json');
+    const latest = readLatest(key);
     const kinds = ['projection'];
     if (existsSync(data(key, 'geomap.json'))) kinds.push('map');
     if ((latest.polls_history ?? []).length > 10) kinds.push('chart');
@@ -45,7 +55,7 @@ export const GET: APIRoute = async ({ params }) => {
   const file = params.file as string;
   const fmt: Format = file.endsWith('-carre') ? 'square' : file.endsWith('-story') ? 'story' : 'wide';
   const lang = file.replace(/-(carre|story)$/, '') as Lang;
-  const latest = read(key, 'latest.json');
+  const latest = readLatest(key);
   const tree = kind === 'map'
     ? mapCard(fmt, { key, lang, latest, geo: read(key, 'geomap.json') })
     : kind === 'chart' ? chartCard(fmt, { key, lang, latest }) : projectionCard(fmt, { key, lang, latest });

@@ -1,4 +1,6 @@
 ---
+import { existsSync } from 'node:fs';
+import { resolve } from 'node:path';
 import EditorialLayout from '../../../layouts/EditorialLayout.astro';
 import RidingsCta from '../../../components/RidingsCta.astro';
 import NewsletterCta from '../../../components/NewsletterCta.astro';
@@ -16,6 +18,8 @@ const alternates = {
   fr: 'https://vote-scope.com/fr/uk/general-election/',
   es: canonical,
 };
+// La carte existe dès que la nuit a produit geomap.json ; sinon, la projection.
+const ogImage = `https://vote-scope.com/og/share/${existsSync(resolve(process.cwd(), 'web_data/uk/geomap.json')) ? 'map' : 'projection'}/uk/es.png`;
 ---
 
 <EditorialLayout
@@ -24,7 +28,7 @@ const alternates = {
   canonical={canonical}
   lang="es"
   currentPage={j.currentPage}
-  ogImage="https://vote-scope.com/og/projections/uk/es.png"
+  ogImage={ogImage}
   alternates={alternates}
   jsonLd={[
     {
