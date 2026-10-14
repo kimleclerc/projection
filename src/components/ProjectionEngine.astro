@@ -579,10 +579,16 @@ const shareKey = SHARE_ELECTIONS[jurisdiction.dataPath] ? jurisdiction.dataPath 
 const geomapUrl = existsSync(resolve(process.cwd(), 'web_data', jurisdiction.dataPath, 'geomap.json'))
   ? `/web_data/${jurisdiction.dataPath}/geomap.json` : undefined;
 
-// Top 5 mainstream parties (drop the catch-all "_oth" buckets).
+// Les cinq premiers partis par intention de vote projetée, pas les cinq
+// premiers de la liste fixe : au R.-U., Reform (2e) y était 7e et disparaissait
+// du graphique derrière le SNP et les Verts. Seaux « _oth » exclus.
+const voteOf = new Map<string, number>(((data as any).parties ?? []).map((p: any) => [p.party, Number(p.vote_mean ?? 0)]));
 const trendOrder = jurisdiction.parties
   .filter((k) => !/_oth$/.test(k))
-  .slice(0, 5);
+  .map((k, i) => ({ k, i }))
+  .sort((a, b) => (voteOf.get(b.k) ?? 0) - (voteOf.get(a.k) ?? 0) || a.i - b.i)
+  .slice(0, 5)
+  .map(({ k }) => k);
 
 const pollsHistory = ((data.polls_history ?? []) as any[]).map((poll) => ({
   ...poll,
