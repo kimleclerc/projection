@@ -1,8 +1,8 @@
 {
  "meta": {
   "index_version": "latino-vote-index-v0.2",
-  "run_date": "2026-10-14",
-  "generated_at": "2026-10-14T09:05:08",
+  "run_date": "2026-10-15",
+  "generated_at": "2026-10-15T09:25:18",
   "half_life_days": 60.0,
   "class_weights": {
    "dedicated": 1.0,
@@ -26,19 +26,19 @@
   "crosstab_adults_generic": {
    "two_party_dem": 62.69,
    "two_party_margin_dem": 25.38,
-   "standard_error": 2.34,
+   "standard_error": 2.36,
    "ci95": [
-    58.1,
-    67.29
+    58.07,
+    67.31
    ],
-   "effective_sample": 426,
+   "effective_sample": 421,
    "raw_sample": 1337,
    "waves": 6,
    "houses": [
     "yougov"
    ],
    "latest_field": "2026-08-31",
-   "days_since_latest_field": 44,
+   "days_since_latest_field": 45,
    "status": "thin",
    "movement_within_track": {
     "from": {
@@ -92,23 +92,34 @@
    ]
   },
   "crosstab_rv_named": {
-   "two_party_dem": 60.69,
-   "two_party_margin_dem": 21.37,
-   "standard_error": 2.86,
+   "two_party_dem": 60.6,
+   "two_party_margin_dem": 21.2,
+   "standard_error": 1.58,
    "ci95": [
-    55.07,
-    66.3
+    57.5,
+    63.7
    ],
-   "effective_sample": 291,
-   "raw_sample": 426,
-   "waves": 2,
+   "effective_sample": 955,
+   "raw_sample": 1203,
+   "waves": 6,
    "houses": [
     "yougov"
    ],
-   "latest_field": "2026-09-14",
-   "days_since_latest_field": 30,
+   "latest_field": "2026-10-12",
+   "days_since_latest_field": 3,
    "status": "thin",
-   "movement_within_track": null,
+   "movement_within_track": {
+    "from": {
+     "date": "2026-09-08",
+     "two_party_dem": 56.34
+    },
+    "to": {
+     "date": "2026-10-12",
+     "two_party_dem": 58.44
+    },
+    "change": 2.1,
+    "span_days": 34
+   },
    "series": [
     {
      "field_end": "2026-09-08",
@@ -121,38 +132,63 @@
      "two_party_dem": 65.06,
      "sample_size": 205,
      "firm": "yougov"
+    },
+    {
+     "field_end": "2026-09-21",
+     "two_party_dem": 64.63,
+     "sample_size": 197,
+     "firm": "yougov"
+    },
+    {
+     "field_end": "2026-09-28",
+     "two_party_dem": 63.41,
+     "sample_size": 190,
+     "firm": "yougov"
+    },
+    {
+     "field_end": "2026-10-05",
+     "two_party_dem": 56.82,
+     "sample_size": 196,
+     "firm": "yougov"
+    },
+    {
+     "field_end": "2026-10-12",
+     "two_party_dem": 58.44,
+     "sample_size": 194,
+     "firm": "yougov"
     }
    ]
   },
   "dedicated_rv_generic": {
-   "two_party_dem": 65.1,
-   "two_party_margin_dem": 30.19,
-   "standard_error": 1.75,
+   "two_party_dem": 64.4,
+   "two_party_margin_dem": 28.81,
+   "standard_error": 0.88,
    "ci95": [
-    61.67,
-    68.53
+    62.67,
+    66.14
    ],
-   "effective_sample": 742,
-   "raw_sample": 8000,
-   "waves": 3,
+   "effective_sample": 2940,
+   "raw_sample": 10600,
+   "waves": 5,
    "houses": [
     "BSP Research & Shaw & Company Research",
-    "Equis Research"
+    "Equis Research",
+    "Hart Research Associates & Public Opinion Strategies"
    ],
-   "latest_field": "2026-05-14",
-   "days_since_latest_field": 153,
-   "status": "thin",
+   "latest_field": "2026-10-02",
+   "days_since_latest_field": 13,
+   "status": "ok",
    "movement_within_track": {
     "from": {
      "date": "2025-10-22",
      "two_party_dem": 65.0
     },
     "to": {
-     "date": "2026-05-14",
-     "two_party_dem": 66.67
+     "date": "2026-10-02",
+     "two_party_dem": 64.77
     },
-    "change": 1.67,
-    "span_days": 204
+    "change": -0.23,
+    "span_days": 345
    },
    "series": [
     {
@@ -172,11 +208,83 @@
      "two_party_dem": 66.67,
      "sample_size": 3000,
      "firm": "BSP Research & Shaw & Company Research"
+    },
+    {
+     "field_end": "2026-09-28",
+     "two_party_dem": 62.77,
+     "sample_size": 800,
+     "firm": "Hart Research Associates & Public Opinion Strategies"
+    },
+    {
+     "field_end": "2026-10-02",
+     "two_party_dem": 64.77,
+     "sample_size": 1800,
+     "firm": "Equis Research"
     }
    ]
   }
  },
  "cross_track_offsets": [
+  {
+   "tracks": [
+    "crosstab_rv_named",
+    "dedicated_rv_generic"
+   ],
+   "dates": [
+    "2026-09-28",
+    "2026-09-28"
+   ],
+   "days_apart": 0,
+   "difference": 0.64
+  },
+  {
+   "tracks": [
+    "crosstab_rv_named",
+    "dedicated_rv_generic"
+   ],
+   "dates": [
+    "2026-10-05",
+    "2026-10-02"
+   ],
+   "days_apart": 3,
+   "difference": -7.95
+  },
+  {
+   "tracks": [
+    "crosstab_rv_named",
+    "dedicated_rv_generic"
+   ],
+   "dates": [
+    "2026-09-28",
+    "2026-10-02"
+   ],
+   "days_apart": 4,
+   "difference": -1.36
+  },
+  {
+   "tracks": [
+    "crosstab_rv_named",
+    "dedicated_rv_generic"
+   ],
+   "dates": [
+    "2026-09-21",
+    "2026-09-28"
+   ],
+   "days_apart": 7,
+   "difference": 1.86
+  },
+  {
+   "tracks": [
+    "crosstab_rv_named",
+    "dedicated_rv_generic"
+   ],
+   "dates": [
+    "2026-10-05",
+    "2026-09-28"
+   ],
+   "days_apart": 7,
+   "difference": -5.95
+  },
   {
    "tracks": [
     "crosstab_adults_generic",
@@ -191,6 +299,18 @@
   },
   {
    "tracks": [
+    "crosstab_rv_named",
+    "dedicated_rv_generic"
+   ],
+   "dates": [
+    "2026-10-12",
+    "2026-10-02"
+   ],
+   "days_apart": 10,
+   "difference": -6.33
+  },
+  {
+   "tracks": [
     "crosstab_adults_generic",
     "dedicated_rv_generic"
    ],
@@ -200,6 +320,18 @@
    ],
    "days_apart": 11,
    "difference": 0.76
+  },
+  {
+   "tracks": [
+    "crosstab_rv_named",
+    "dedicated_rv_generic"
+   ],
+   "dates": [
+    "2026-09-21",
+    "2026-10-02"
+   ],
+   "days_apart": 11,
+   "difference": -0.14
   },
   {
    "tracks": [
@@ -227,6 +359,30 @@
   },
   {
    "tracks": [
+    "crosstab_rv_named",
+    "dedicated_rv_generic"
+   ],
+   "dates": [
+    "2026-09-14",
+    "2026-09-28"
+   ],
+   "days_apart": 14,
+   "difference": 2.29
+  },
+  {
+   "tracks": [
+    "crosstab_rv_named",
+    "dedicated_rv_generic"
+   ],
+   "dates": [
+    "2026-10-12",
+    "2026-09-28"
+   ],
+   "days_apart": 14,
+   "difference": -4.33
+  },
+  {
+   "tracks": [
     "crosstab_adults_generic",
     "crosstab_rv_named"
    ],
@@ -239,6 +395,30 @@
   },
   {
    "tracks": [
+    "crosstab_rv_named",
+    "dedicated_rv_generic"
+   ],
+   "dates": [
+    "2026-09-14",
+    "2026-10-02"
+   ],
+   "days_apart": 18,
+   "difference": 0.29
+  },
+  {
+   "tracks": [
+    "crosstab_rv_named",
+    "dedicated_rv_generic"
+   ],
+   "dates": [
+    "2026-09-08",
+    "2026-09-28"
+   ],
+   "days_apart": 20,
+   "difference": -6.43
+  },
+  {
+   "tracks": [
     "crosstab_adults_generic",
     "crosstab_rv_named"
    ],
@@ -248,46 +428,64 @@
    ],
    "days_apart": 21,
    "difference": -1.73
+  },
+  {
+   "tracks": [
+    "crosstab_adults_generic",
+    "crosstab_rv_named"
+   ],
+   "dates": [
+    "2026-08-31",
+    "2026-09-21"
+   ],
+   "days_apart": 21,
+   "difference": 1.5
   }
  ],
  "index": {
-  "status": "thin",
-  "two_party_dem": 65.1,
-  "two_party_margin_dem": 30.19,
-  "standard_error": 1.75,
+  "status": "ok",
+  "two_party_dem": 64.4,
+  "two_party_margin_dem": 28.81,
+  "standard_error": 0.88,
   "ci95": [
-   61.67,
-   68.53
+   62.67,
+   66.14
   ],
-  "effective_sample": 742,
-  "raw_sample_behind_index": 8000,
+  "effective_sample": 2940,
+  "raw_sample_behind_index": 10600,
   "polls_used": [
    "us_latino_unidosus_2025_10",
    "us_latino_equis_2026_03",
-   "us_latino_unidosus_2026_05"
+   "us_latino_unidosus_2026_05",
+   "us_latino_nbc_telemundo_2026_09",
+   "us_latino_equis_2026_10"
   ],
-  "distinct_houses": 2,
-  "days_since_latest_field": 153,
+  "distinct_houses": 3,
+  "days_since_latest_field": 13,
   "house_spread": {
    "by_house": {
     "BSP Research & Shaw & Company Research": 65.84,
-    "Equis Research": 60.67
+    "Equis Research": 62.72,
+    "Hart Research Associates & Public Opinion Strategies": 62.77
    },
-   "spread": 5.17,
+   "spread": 3.12,
    "waves_per_house": {
     "BSP Research & Shaw & Company Research": 2,
-    "Equis Research": 1
+    "Equis Research": 2,
+    "Hart Research Associates & Public Opinion Strategies": 1
    }
   }
  },
  "trump_approval": {
   "status": "ok",
-  "net_approval": -29.38,
-  "effective_sample": 604,
+  "net_approval": -35.44,
+  "effective_sample": 2803,
   "polls_used": [
    "us_latino_equis_2025_10",
    "us_latino_equis_2026_03",
-   "us_latino_equis_2026_05"
+   "us_latino_equis_2026_05",
+   "us_latino_nbc_telemundo_2026_09",
+   "us_latino_equis_2026_10"
   ]
  },
  "waves": [
@@ -435,6 +633,64 @@
    "gap_vs_total_electorate": null,
    "source_url": "https://www.weareequis.us/research/memo-summer-2026-economy-poll",
    "notes": "Memo publishes the lead (D+21 nationally, D+13 in competitive districts) without the two shares, so lat_dem and lat_rep stay empty and only the margin series can use this wave."
+  },
+  {
+   "poll_id": "us_latino_nbc_telemundo_2026_09",
+   "firm": "Hart Research Associates & Public Opinion Strategies",
+   "client": "NBC News/Telemundo",
+   "field_start": "2026-09-21",
+   "field_end": "2026-09-28",
+   "release_date": "2026-10-04",
+   "release_date_inferred": false,
+   "sample_size": 800,
+   "sample_class": "dedicated",
+   "languages": "en_es",
+   "moe": 3.1,
+   "dem": 59.0,
+   "rep": 35.0,
+   "undecided": null,
+   "two_party_dem": 62.77,
+   "margin_dem": 24.0,
+   "trump_approve": 27.0,
+   "trump_disapprove": 69.0,
+   "national_same_window": {
+    "two_party_dem": 54.14,
+    "dem": 49.52,
+    "rep": 41.95,
+    "n_polls": 16
+   },
+   "gap_vs_total_electorate": 8.63,
+   "source_url": "https://www.telemundo.com/noticias/noticias-telemundo/elecciones-estados-unidos-2026/encuesta-nbc-telemundo-voto-latino-2026-republicanos-democratas-rcna601372",
+   "notes": "Question : parti préféré pour contrôler le Congrès (pas le vote dans la circonscription). 20 % des entrevues en espagnol ; téléphone et sondage en ligne par texto. Autres/indécis non publiés (6 % par différence, laissé vide)."
+  },
+  {
+   "poll_id": "us_latino_equis_2026_10",
+   "firm": "Equis Research",
+   "client": "Equis Research",
+   "field_start": "2026-09-23",
+   "field_end": "2026-10-02",
+   "release_date": "2026-10-13",
+   "release_date_inferred": false,
+   "sample_size": 1800,
+   "sample_class": "dedicated",
+   "languages": "en_es",
+   "moe": 2.3,
+   "dem": 57.0,
+   "rep": 31.0,
+   "undecided": null,
+   "two_party_dem": 64.77,
+   "margin_dem": 26.0,
+   "trump_approve": 30.0,
+   "trump_disapprove": 65.0,
+   "national_same_window": {
+    "two_party_dem": 54.23,
+    "dem": 49.36,
+    "rep": 41.65,
+    "n_polls": 18
+   },
+   "gap_vs_total_electorate": 10.54,
+   "source_url": "https://www.weareequis.us/research/memo-october-2026-national-poll",
+   "notes": "Vote générique au Congrès, électeurs inscrits hispaniques, anglais ou espagnol au choix ; téléphone et texte vers le web. Autres/indécis non publiés (12 % par différence, laissé vide)."
   }
  ]
 }
