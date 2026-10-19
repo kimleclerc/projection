@@ -26,6 +26,23 @@ const SCHEMA_VERSION = 1;
 const errors = [];
 const notes = [];
 
+// Un siège compétitif vérifie que le calcul répond aux curseurs et que leur
+// signe est correct. Les vrais sièges peuvent rester constants sur toute la
+// course : le résultat est arrondi au dixième, et un siège sûr reste sûr.
+const competitive = {
+  meta: { total_seats: 1, softmax_k: 0.1 },
+  parties: [{ code: 'a', national: 50 }, { code: 'b', national: 50 }],
+  regions: [{ id: 'r', anchor: [50, 50] }],
+  ridings: [{ region: 'r', v: [50, 50] }],
+  anchor_offset: [0, 0],
+};
+const competitiveLow = simulate(competitive, { a: -10 }).a;
+const competitiveAnchor = simulate(competitive).a;
+const competitiveHigh = simulate(competitive, { a: 10 }).a;
+if (!(competitiveLow < competitiveAnchor && competitiveAnchor < competitiveHigh)) {
+  errors.push('cas compétitif : curseur inversé ou sans effet');
+}
+
 function check(juris) {
   const dir = path.join(WEB, juris);
   const latestPath = path.join(dir, 'latest.json');
@@ -87,13 +104,14 @@ function check(juris) {
     // 64,1 %, et la suivante à 16,8 % derrière un NPD à 38,2 : +3,6 points de
     // curseur ne peuvent pas combler 21 points, et c'est bien ainsi.
     //
-    // La propriété qui attrape vraiment une inversion est `haut >= ancre >= bas`
-    // ET `haut > bas` : la course entière doit gagner des sièges, sans jamais
-    // reculer. Un signe inversé donne `haut < bas` et reste attrapé.
+    // `haut >= ancre >= bas` accepte aussi une saturation sur toute la
+    // course. Le 2026-10-16, on_oth restait à 1,0 siège aux trois positions :
+    // sa marge variait de 8,8 à 60,4 points sans gain ni perte de siège.
+    // Le cas compétitif ci-dessus exige séparément une réponse stricte.
     if (p.seats_projected >= 1) {
       const haut = simulate(doc, { [p.code]: p.travel })[p.code];
       const bas = simulate(doc, { [p.code]: -p.travel })[p.code];
-      if (!(haut >= anchor[p.code] && anchor[p.code] >= bas && haut > bas)) {
+      if (!(haut >= anchor[p.code] && anchor[p.code] >= bas)) {
         errors.push(
           `${juris}/${p.code} : curseur non monotone ` +
           `(${bas.toFixed(1)} / ${anchor[p.code].toFixed(1)} / ${haut.toFixed(1)})`,
