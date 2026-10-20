@@ -1,6 +1,7 @@
 ---
 import EditorialLayout from '../../../../../layouts/EditorialLayout.astro';
 import RidingPage from '../../../../../components/riding/RidingPage.astro';
+import BritishColumbiaRidingLive from '../../../../../components/BritishColumbiaRidingLive.astro';
 import { getAllBcRidings } from '../../../../../lib/riding-adapters/bc';
 
 export function getStaticPaths() {
@@ -47,5 +48,7 @@ const description = `Vote-Scope — ${name} : parts de voix, probabilité de vic
     },
   ]}
 >
-  <RidingPage data={data} lang="fr" />
+  <RidingPage data={data} lang="fr">
+    <BritishColumbiaRidingLive slot="local-feature" locale="fr" ridingId={data.id} name={name} />
+  </RidingPage>
 </EditorialLayout>

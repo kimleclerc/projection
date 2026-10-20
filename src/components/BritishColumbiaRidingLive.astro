@@ -1,0 +1,37 @@
+---
+/**
+ * Bloc « résultats en direct » en tête des 93 fiches de circonscription de la
+ * C.-B. L'îlot principal tourne en mode invisible (lecture, barrière de 19 h 30
+ * heure du Pacifique, replis) et diffuse ; QcLiveRiding n'affiche que cette
+ * circonscription. Mêmes réglages que la page de soirée.
+ */
+import BritishColumbiaElectionNightLive from '../islands/BritishColumbiaElectionNightLive.tsx';
+import QcLiveRiding from '../islands/QcLiveRiding.tsx';
+import { getAllBcRidings } from '../lib/riding-adapters/bc';
+import {
+  BC_LIVE_API_BASE, BC_LIVE_EVENT_ID, BC_LIVE_FALLBACK_API_BASE, BC_TZ,
+  bcLiveParties, bcLiveRiding, bcRawRidings, bcResultsHref,
+} from '../data/bc-live';
+
+interface Props { locale: 'fr' | 'en' | 'es'; ridingId: string; name: string }
+const { locale, ridingId, name } = Astro.props;
+
+const parties = bcLiveParties(locale);
+const raw = bcRawRidings.find((r) => r.riding_id === ridingId);
+const slug = getAllBcRidings().find((d) => d.id === ridingId)?.slug ?? ridingId;
+const info = raw ? bcLiveRiding(raw, locale, () => slug) : undefined;
+const TEXT = {
+  fr: { before: `Les résultats de ${name} s’afficheront ici dès la fermeture des bureaux, à 20 h heure du Pacifique (23 h à Montréal) le samedi 24 octobre.`,
+        waiting: 'En attente des premières boîtes de cette circonscription.', polls: 'boîtes dépouillées', all: 'Tous les résultats de la Colombie-Britannique' },
+  en: { before: `Results for ${name} will appear here when polls close at 8 p.m. Pacific time on Saturday, October 24.`,
+        waiting: 'Waiting for the first ballot boxes in this riding.', polls: 'ballot boxes counted', all: 'All British Columbia results' },
+  es: { before: `Los resultados de ${name} aparecerán aquí al cierre de las urnas, a las 20:00 hora del Pacífico del sábado 24 de octubre.`,
+        waiting: 'A la espera de las primeras urnas de este distrito.', polls: 'urnas escrutadas', all: 'Todos los resultados de Columbia Británica' },
+}[locale];
+const { before, ...text } = TEXT;
+---
+<div>
+  <BritishColumbiaElectionNightLive client:load headless eventId={BC_LIVE_EVENT_ID} lang={locale} apiBase={BC_LIVE_API_BASE} fallbackApiBase={BC_LIVE_FALLBACK_API_BASE} />
+  <QcLiveRiding client:load lang={locale} ridingId={ridingId} name={name} parties={parties} resultsHref={bcResultsHref[locale]}
+    info={info} timeZone={BC_TZ} text={text} beforeText={before} />
+</div>

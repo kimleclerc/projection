@@ -163,3 +163,17 @@ tr.is-called td:first-child{font-weight:600}
   .qcl-table thead th { font-size: 9px; letter-spacing: 0; }
   .qcl-table tbody th i { margin-right: 5px; }
 }
+
+/* Colombie-Britannique : dépouillement initial ce soir, final une semaine plus tard. */
+.qcl-phase{margin:12px 0 16px;padding:12px 14px;border-top:1px solid var(--rule);background:var(--paper-2);font-size:14px;line-height:1.6;color:var(--ink-2)}
+.qcl-phase strong{color:var(--ink)}
+.qcl-phase.is-final{border-top-color:var(--ink)}
+.qcl-pending{margin-top:8px;font-size:14px;line-height:1.55;color:var(--ink-2)}
+.qll-badge.is-final{border-style:dashed;border-color:var(--ink-3);color:var(--ink-2);cursor:help}
+.qlr-final{margin-top:8px;padding:10px 12px;border-top:1px solid var(--rule);background:var(--paper-2);font-size:14px;line-height:1.55;color:var(--ink-2)}
+/* Petits écrans : un nom de parti long (« Conservadores ») ne doit pas pousser la dernière colonne hors du cadre. */
+@media (max-width: 560px) {
+  .qcl-seats { overflow-x: auto; }
+  .qcl-table tbody th { white-space: normal; }
+  .qcl-table thead th { word-break: break-word; }
+}

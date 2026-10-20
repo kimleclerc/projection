@@ -1,0 +1,433 @@
+---
+/**
+ * Soirée électorale britanno-colombienne du samedi 24 octobre 2026.
+ *
+ * Calquée sur QuebecElectionNight.astro : la page existe avant le scrutin, à
+ * l'URL qu'elle gardera, et reçoit la couche directe le soir même. Même
+ * live.json, mêmes blocs (carte en tuiles, annonces, liste), mêmes règles de
+ * lecture — voir les commentaires de la version québécoise sur le rail statique.
+ *
+ * Ce qui est propre à la C.-B. et que la page doit dire sans détour : le soir,
+ * Elections BC publie le dépouillement INITIAL. Le vote postal tardif et les
+ * bulletins d'absents sont comptés au dépouillement FINAL, une semaine plus
+ * tard ; en 2024 il a renversé Surrey-Guildford. Une circonscription à 100 %
+ * des boîtes peut rester sans appel : c'est voulu, pas une panne.
+ */
+import { partyName } from '../lib/party-names';
+import { getAllBcRidings } from '../lib/riding-adapters/bc';
+import { partyMeta } from '../lib/riding-adapters/parties';
+import bcMeta from '../../web_data/british-columbia/latest.json';
+import resolvedCalls from '../../web_data/resolved-calls.json';
+import bcTiles from '../data/bc-tiles.json';
+import type { Locale } from '../data/editorial';
+import BritishColumbiaElectionNightLive from '../islands/BritishColumbiaElectionNightLive.tsx';
+import QcLiveTileMap from '../islands/QcLiveTileMap.tsx';
+import QcLiveFeed from '../islands/QcLiveFeed.tsx';
+import QcLiveList from '../islands/QcLiveList.tsx';
+import {
+  BC_LIVE_API_BASE, BC_LIVE_EVENT_ID, BC_LIVE_FALLBACK_API_BASE, BC_TZ,
+  bcLiveParties, bcLiveRiding, bcProvinceBase, bcRawRidings,
+} from '../data/bc-live';
+
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+
+// ── Données ────────────────────────────────────────────────────────
+const meta = bcMeta.meta;
+const totalSeats = meta.total_seats;
+const majority = meta.majority_threshold;
+const runDate = meta.run_date;
+const seatParties = bcMeta.parties
+  .filter((p) => p.seats_projected > 0)
+  .slice()
+  .sort((a, b) => b.seats_projected - a.seats_projected);
+
+const allRidings = getAllBcRidings();
+// Sélection par probabilité de course serrée, affichage par écart (cf. Québec).
+const closest = allRidings
+  .slice()
+  .sort((a, b) => b.projection.p_close_race - a.projection.p_close_race)
+  .slice(0, 8)
+  .sort((a, b) => a.projection.mean_margin - b.projection.mean_margin);
+
+const electionCalls = (resolvedCalls.calls as Array<{ domain?: string; result?: { status?: string } }>)
+  .filter((c) => c.domain === 'election');
+const callsTotal = electionCalls.length;
+const callsCorrect = electionCalls.filter((c) => c.result?.status === 'correct').length;
+
+const num = (v: number, d = 1) => (locale === 'en' ? v.toFixed(d) : v.toFixed(d).replace('.', ','));
+const base = bcProvinceBase[locale];
+const ridingsBase = { fr: 'circonscriptions', en: 'ridings', es: 'distritos' }[locale];
+const pollsBase = { fr: 'sondages', en: 'polls', es: 'sondeos' }[locale];
+
+const LIVE_PARTIES = bcLiveParties(locale);
+const slugById = new Map(allRidings.map((d) => [d.id, d.slug]));
+const liveRidings = bcRawRidings.map((r) => bcLiveRiding(r, locale, (id) => slugById.get(id) ?? id));
+const projectedSeats = Object.fromEntries(bcMeta.parties.map((p) => [p.party, p.seats_projected]));
+const projectedBy = Object.fromEntries(bcRawRidings.map((r) => [r.riding_id, r.projection?.winner]).filter(([, w]) => w));
+
+// Textes des blocs partagés avec le Québec : nombre de sièges, heure, « boîtes ».
+const TILE_TEXT = {
+  fr: { title: 'La carte des 93 circonscriptions', before: 'Projection d’avant-scrutin. La carte passe au dépouillement à 20 h, heure du Pacifique.', polls: 'boîtes' },
+  en: { title: 'Map of all 93 ridings', before: 'Pre-election projection. The map switches to the live count at 8 p.m. Pacific time.', polls: 'boxes' },
+  es: { title: 'El mapa de los 93 distritos', before: 'Proyección previa. El mapa pasa al recuento a las 20:00, hora del Pacífico.', polls: 'urnas' },
+}[locale];
+const FEED_TEXT = {
+  fr: { gains: 'Circonscriptions qui changent de parti depuis 2024', polls: 'boîtes', noClose: 'Les écarts apparaîtront avec les premières boîtes.' },
+  en: { gains: 'Seats changing hands since 2024', polls: 'boxes', noClose: 'Margins will appear with the first boxes.' },
+  es: { gains: 'Distritos que cambian de partido desde 2024', polls: 'urnas', noClose: 'Las diferencias aparecerán con las primeras urnas.' },
+}[locale];
+const LIST_TEXT = { fr: { polls: 'Boîtes' }, en: { polls: 'Boxes' }, es: { polls: 'Urnas' } }[locale];
+
+// ── Textes ─────────────────────────────────────────────────────────
+const COPY = {
+  fr: {
+    eyebrow: 'Élection générale de la Colombie-Britannique · 24 octobre 2026',
+    h1: 'Élections en Colombie-Britannique 2026 : les résultats en direct',
+    lede: 'Dès la fermeture des bureaux, à 20 h heure du Pacifique (23 h à Montréal) le samedi 24 octobre, cette page porte le dépouillement en direct des 93 circonscriptions : voix, boîtes dépouillées, sièges, et les gagnants annoncés dès que le résultat est certain. Elle se met à jour d’elle-même.',
+    countTitle: 'Deux dépouillements, pas un',
+    count: [
+      { label: 'Ce soir : le dépouillement initial', text: 'Elections BC compte, boîte par boîte, la grande majorité des bulletins : vote par anticipation, jour du scrutin, vote postal reçu à temps. C’est ce compte que cette page suit en direct.' },
+      { label: 'Une semaine plus tard : le dépouillement final', text: 'Le vote postal arrivé tard et les bulletins d’absents — ceux déposés hors de leur circonscription — ne sont comptés qu’à ce moment. En 2024, ce second compte a déplacé certains écarts de plus de deux points et renversé Surrey-Guildford.' },
+      { label: 'Ce que ça change ce soir', text: 'Une circonscription peut avoir toutes ses boîtes dépouillées et rester « trop serrée pour un appel ce soir ». Nous n’annonçons un gagnant que si l’avance résiste aussi à ce qui reste à compter la semaine suivante.' },
+    ],
+    scheduleTitle: 'Le déroulé de la soirée',
+    schedule: [
+      { time: '20 h 00 HP', label: 'Fermeture des bureaux', text: 'Elections BC commence à publier les résultats du dépouillement initial. Cette page relit la source officielle environ toutes les 90 secondes.' },
+      { time: '20 h 15 HP', label: 'Les premières boîtes', text: 'Une avance de quelques centaines de voix ne veut encore rien dire : l’ordre dans lequel les boîtes rentrent fabrique des mirages.' },
+      { time: 'En continu', label: 'Les gagnants annoncés', text: 'Dès que le résultat d’une circonscription est certain, nous annonçons le gagnant et elle change de couleur sur la carte. Les courses serrées attendent, parfois jusqu’au dépouillement final.' },
+      { time: 'Fin de soirée', label: 'Le portrait du soir', text: 'Le décompte circonscription par circonscription, la composition probable de l’Assemblée législative, et les sièges qui restent suspendus au dépouillement final.' },
+    ],
+    methodTitle: 'Quand annonçons-nous un gagnant?',
+    methodLede: 'Être en avance au décompte ne suffit pas. Nous annonçons un gagnant seulement quand plus rien ne peut changer le résultat, y compris les bulletins qui ne seront comptés que la semaine suivante.',
+    thresholds: [
+      { value: 'Gagnant', text: 'L’avance ne peut plus être rattrapée, ni par les boîtes qui restent ni par le dépouillement final : la circonscription est annoncée et change de couleur.' },
+      { value: 'Serré', text: 'Quand l’écart tient dans ce que le dépouillement final peut encore déplacer, on attend, même avec 100 % des boîtes. Mieux vaut annoncer tard que se tromper.' },
+      { value: 'Deux modèles', text: 'Une annonce part seulement si nos deux modèles indépendants la jugent sûre pour le même parti; sinon une personne décide. Dans le doute, on attend.' },
+    ],
+    methodNote: `Notre bilan : ${callsCorrect} bonnes annonces sur ${callsTotal} lors des dernières élections.`,
+    trackCta: 'Voir toutes nos annonces',
+    projectionTitle: 'Notre projection d’avant-scrutin',
+    projectionLede: 'Les sièges que notre modèle donne à chaque parti avant le vote, à comparer au résultat ci-dessus.',
+    majorityLabel: `Majorité : ${majority} sièges sur ${totalSeats}`,
+    seatsLabel: 'sièges projetés',
+    runLabel: 'Projection du',
+    deskCta: 'Ouvrir la projection détaillée',
+    closeTitle: 'Les courses qui se décideront tard',
+    closeLede: 'Les huit circonscriptions où l’écart projeté est le plus mince. Ce sont celles qui seront appelées en dernier — certaines peut-être seulement au dépouillement final.',
+    marginLabel: 'écart projeté',
+    linksTitle: 'Pendant ce temps',
+    links: [
+      { href: `${base}/${ridingsBase}/`, label: 'Les 93 circonscriptions', text: 'Projection, titulaire du siège et résultat de 2024, une page par circonscription.' },
+      { href: `${base}/${pollsBase}/`, label: 'Tous les sondages', text: 'Chaque sondage britanno-colombien de la campagne, avec sa maison, son terrain et son poids dans le modèle.' },
+      { href: `${base}/`, label: 'La projection', text: 'Sièges, vote populaire et probabilités pour chaque parti, mis à jour jusqu’à la veille du vote.' },
+      { href: '/fr/methodologie/', label: 'La méthodologie', text: 'Comment le modèle passe des sondages aux sièges, et ce qu’il ne prétend pas savoir.' },
+    ],
+    sourceNote: 'Source officielle du dépouillement : Elections BC. Les projections, les seuils de décision et les appels appartiennent à Vote-Scope; Elections BC ne fait et ne fournit aucun appel. Les heures sont celles du Pacifique.',
+  },
+  en: {
+    eyebrow: 'British Columbia general election · October 24, 2026',
+    h1: 'B.C. election 2026: live results',
+    lede: 'From the moment polls close at 8 p.m. Pacific time on Saturday, October 24, this page carries the live count across all 93 ridings: votes, ballot boxes reporting, seats, and our race calls the moment they are safe enough to publish. It updates on its own.',
+    countTitle: 'Two counts, not one',
+    count: [
+      { label: 'Tonight: the initial count', text: 'Elections BC counts the vast majority of ballots, box by box: advance voting, election day, mail-in ballots received in time. That is the count this page follows live.' },
+      { label: 'A week later: the final count', text: 'Mail-in ballots that arrived late and absentee ballots — those cast outside the voter’s own riding — are only counted then. In 2024, that second count moved some margins by more than two points and reversed Surrey-Guildford.' },
+      { label: 'What it means tonight', text: 'A riding can have every box counted and still be “too close to call tonight”. We only call a winner when the lead also survives what is left to count the following week.' },
+    ],
+    scheduleTitle: 'How the night unfolds',
+    schedule: [
+      { time: '8:00 p.m. PT', label: 'Polls close', text: 'Elections BC begins publishing initial-count results. This page reads the official source roughly every ninety seconds.' },
+      { time: '8:15 p.m. PT', label: 'The first boxes', text: 'A lead of a few hundred votes means nothing yet: the order boxes report in manufactures mirages.' },
+      { time: 'Throughout', label: 'The calls', text: 'The moment a riding clears our certainty threshold, it is called and changes colour on the map. Close races wait, sometimes until the final count.' },
+      { time: 'Late night', label: 'The picture tonight', text: 'The count riding by riding, the likely make-up of the Legislative Assembly, and the seats still hanging on the final count.' },
+    ],
+    methodTitle: 'When do we call a winner?',
+    methodLede: 'Being ahead in the count is not enough. We only call a winner when nothing left to count can change the result — including the ballots that will only be counted the following week.',
+    thresholds: [
+      { value: 'Called', text: 'The lead can no longer be overtaken, neither by the boxes still out nor by the final count: the riding is called and changes colour.' },
+      { value: 'Too close', text: 'When the margin is within what the final count can still move, we wait, even with 100% of boxes in. Better late than wrong.' },
+      { value: 'Two models', text: 'A call goes out only when our two independent models both judge it safe for the same party; otherwise a person decides. When in doubt, we wait.' },
+    ],
+    methodNote: `Our record: ${callsCorrect} correct calls out of ${callsTotal} in recent elections.`,
+    trackCta: 'See all our calls',
+    projectionTitle: 'Our pre-election forecast',
+    projectionLede: 'The seats our model gives each party ahead of the vote, to compare with the result above.',
+    majorityLabel: `Majority: ${majority} of ${totalSeats} seats`,
+    seatsLabel: 'projected seats',
+    runLabel: 'Projection of',
+    deskCta: 'Open the full forecast',
+    closeTitle: 'The races that will be decided late',
+    closeLede: 'The eight ridings with the thinnest projected margin. These are the last to be called — some perhaps only at the final count.',
+    marginLabel: 'projected margin',
+    linksTitle: 'In the meantime',
+    links: [
+      { href: `${base}/${ridingsBase}/`, label: 'All 93 ridings', text: 'Projection, sitting member and 2024 result — one page per riding.' },
+      { href: `${base}/${pollsBase}/`, label: 'Every poll', text: 'Every B.C. poll of the campaign, with its firm, field dates and weight in the model.' },
+      { href: `${base}/`, label: 'The forecast', text: 'Seats, popular vote and odds for every party, updated up to the eve of the vote.' },
+      { href: '/en/methodology/', label: 'The methodology', text: 'How the model goes from polls to seats, and what it does not claim to know.' },
+    ],
+    sourceNote: 'Official count source: Elections BC. Projections, decision thresholds and calls belong to Vote-Scope; Elections BC makes and supplies no calls. Times are Pacific.',
+  },
+  es: {
+    eyebrow: 'Elección general de Columbia Británica · 24 de octubre de 2026',
+    h1: 'Elecciones en Columbia Británica 2026: resultados en directo',
+    lede: 'Desde el cierre de las urnas, a las 20:00 hora del Pacífico del sábado 24 de octubre, esta página lleva el recuento en directo de los 93 distritos: votos, urnas escrutadas, escaños y nuestros anuncios en cuanto son lo bastante seguros para publicarse. Se actualiza sola.',
+    countTitle: 'Dos recuentos, no uno',
+    count: [
+      { label: 'Esta noche: el recuento inicial', text: 'Elections BC cuenta, urna por urna, la gran mayoría de las papeletas: voto anticipado, día de la elección y voto por correo recibido a tiempo. Es el recuento que esta página sigue en directo.' },
+      { label: 'Una semana después: el recuento final', text: 'El voto por correo llegado tarde y las papeletas de ausentes —las depositadas fuera del distrito del votante— solo se cuentan entonces. En 2024, ese segundo recuento movió algunas diferencias más de dos puntos y dio la vuelta a Surrey-Guildford.' },
+      { label: 'Lo que cambia esta noche', text: 'Un distrito puede tener todas sus urnas escrutadas y seguir «demasiado ajustado para anunciarse esta noche». Solo anunciamos un ganador si la ventaja resiste también lo que queda por contar la semana siguiente.' },
+    ],
+    scheduleTitle: 'El desarrollo de la noche',
+    schedule: [
+      { time: '20:00 HP', label: 'Cierre de las urnas', text: 'Elections BC empieza a publicar los resultados del recuento inicial. Esta página vuelve a leer la fuente oficial cada 90 segundos, aproximadamente.' },
+      { time: '20:15 HP', label: 'Las primeras urnas', text: 'Una ventaja de unos cientos de votos todavía no significa nada: el orden en que llegan las urnas fabrica espejismos.' },
+      { time: 'En continuo', label: 'Los anuncios', text: 'En cuanto un distrito supera nuestro umbral de certeza, se anuncia y cambia de color en el mapa. Las contiendas ajustadas esperan, a veces hasta el recuento final.' },
+      { time: 'Final de la noche', label: 'El panorama de la noche', text: 'El recuento distrito por distrito, la composición probable de la Asamblea Legislativa y los escaños que quedan pendientes del recuento final.' },
+    ],
+    methodTitle: '¿Cuándo anunciamos un ganador?',
+    methodLede: 'Ir por delante en el recuento no basta. Solo anunciamos un ganador cuando nada de lo que queda por contar puede cambiar el resultado, incluidas las papeletas que solo se contarán la semana siguiente.',
+    thresholds: [
+      { value: 'Ganador', text: 'La ventaja ya no puede ser alcanzada, ni por las urnas que faltan ni por el recuento final: el distrito se anuncia y cambia de color.' },
+      { value: 'Ajustado', text: 'Cuando la diferencia cabe en lo que el recuento final aún puede mover, esperamos, incluso con el 100 % de las urnas. Mejor tarde que equivocados.' },
+      { value: 'Dos modelos', text: 'Un anuncio sale solo si nuestros dos modelos independientes lo consideran seguro para el mismo partido; si no, decide una persona. Ante la duda, esperamos.' },
+    ],
+    methodNote: `Nuestro historial: ${callsCorrect} anuncios acertados de ${callsTotal} en las últimas elecciones.`,
+    trackCta: 'Ver todos nuestros anuncios',
+    projectionTitle: 'Nuestra proyección previa',
+    projectionLede: 'Los escaños que nuestro modelo da a cada partido antes de la votación, para comparar con el resultado de arriba.',
+    majorityLabel: `Mayoría: ${majority} de ${totalSeats} escaños`,
+    seatsLabel: 'escaños proyectados',
+    runLabel: 'Proyección del',
+    deskCta: 'Abrir la proyección detallada',
+    closeTitle: 'Las contiendas que se decidirán tarde',
+    closeLede: 'Los ocho distritos con el margen proyectado más estrecho. Son los últimos en anunciarse; algunos quizá solo en el recuento final.',
+    marginLabel: 'margen proyectado',
+    linksTitle: 'Mientras tanto',
+    links: [
+      { href: `${base}/${ridingsBase}/`, label: 'Los 93 distritos', text: 'Proyección, diputado saliente y resultado de 2024: una página por distrito.' },
+      { href: `${base}/${pollsBase}/`, label: 'Todos los sondeos', text: 'Cada sondeo de la campaña en Columbia Británica, con su casa, su trabajo de campo y su peso en el modelo.' },
+      { href: `${base}/`, label: 'La proyección', text: 'Escaños, voto popular y probabilidades de cada partido, actualizados hasta la víspera de la votación.' },
+      { href: '/es/metodologia/', label: 'La metodología', text: 'Cómo pasa el modelo de los sondeos a los escaños, y qué no pretende saber.' },
+    ],
+    sourceNote: 'Fuente oficial del recuento: Elections BC. Las proyecciones, los umbrales de decisión y los anuncios son de Vote-Scope; Elections BC no emite ni suministra ningún anuncio. Las horas son del Pacífico.',
+  },
+}[locale];
+
+const deskHref = `${base}/`;
+const trackHref = `/${locale}/track-record/`;
+const seatTotal = seatParties.reduce((s, p) => s + p.seats_projected, 0) || totalSeats;
+const runDateText = new Intl.DateTimeFormat(
+  { fr: 'fr-CA', en: 'en-CA', es: 'es-ES' }[locale],
+  { day: 'numeric', month: 'long', year: 'numeric' },
+).format(new Date(`${runDate}T12:00:00Z`));
+---
+
+<article class="qen" data-content-area>
+<section class="qen-hero vs-page-head">
+  <div class="container">
+    <p class="eyebrow">{COPY.eyebrow}</p>
+    <h1>{COPY.h1}</h1>
+    <p class="lede">{COPY.lede}</p>
+  </div>
+</section>
+
+<section class="qen-live">
+  <div class="container">
+    <BritishColumbiaElectionNightLive client:load eventId={BC_LIVE_EVENT_ID} lang={locale} apiBase={BC_LIVE_API_BASE} fallbackApiBase={BC_LIVE_FALLBACK_API_BASE}
+      parties={LIVE_PARTIES} projected={projectedSeats} projectedBy={projectedBy} />
+  </div>
+</section>
+
+<section class="qen-map">
+  <div class="container">
+    <QcLiveTileMap client:load lang={locale} parties={LIVE_PARTIES} ridings={liveRidings} tiles={bcTiles as any} text={TILE_TEXT} />
+  </div>
+</section>
+
+<section class="qen-feed">
+  <div class="container">
+    <QcLiveFeed client:load lang={locale} parties={LIVE_PARTIES} ridings={liveRidings} timeZone={BC_TZ} text={FEED_TEXT} />
+  </div>
+</section>
+
+<section class="qen-list">
+  <div class="container">
+    <QcLiveList client:load lang={locale} parties={LIVE_PARTIES} ridings={liveRidings} timeZone={BC_TZ} text={LIST_TEXT} />
+  </div>
+</section>
+
+<section class="qen-count">
+  <div class="container">
+    <h2>{COPY.countTitle}</h2>
+    <ul class="qen-thresholds qen-count-list">
+      {COPY.count.map((c) => (
+        <li>
+          <h3>{c.label}</h3>
+          <p>{c.text}</p>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<section class="qen-schedule">
+  <div class="container">
+    <h2>{COPY.scheduleTitle}</h2>
+    <ol class="qen-steps">
+      {COPY.schedule.map((s) => (
+        <li>
+          <span class="qen-time">{s.time}</span>
+          <h3>{s.label}</h3>
+          <p>{s.text}</p>
+        </li>
+      ))}
+    </ol>
+  </div>
+</section>
+
+<section class="qen-method">
+  <div class="container">
+    <h2>{COPY.methodTitle}</h2>
+    <p class="qen-lede">{COPY.methodLede}</p>
+    <ul class="qen-thresholds">
+      {COPY.thresholds.map((t) => (
+        <li>
+          <strong>{t.value}</strong>
+          <p>{t.text}</p>
+        </li>
+      ))}
+    </ul>
+    <p class="qen-note">{COPY.methodNote} <a href={trackHref}>{COPY.trackCta}</a></p>
+  </div>
+</section>
+
+<section class="qen-projection">
+  <div class="container">
+    <h2>{COPY.projectionTitle}</h2>
+    <p class="qen-lede">{COPY.projectionLede}</p>
+
+    <div class="qen-bar" role="img" aria-label={`${COPY.seatsLabel} — ${seatParties.map((p) => `${partyName(p, locale)} ${p.seats_projected}`).join(', ')}`}>
+      {seatParties.map((p) => (
+        <span style={`--w:${(100 * p.seats_projected) / seatTotal}%;--c:${p.color}`}></span>
+      ))}
+      <i class="qen-majority" style={`--m:${(100 * majority) / totalSeats}%`} aria-hidden="true"></i>
+    </div>
+    <p class="qen-majority-label">{COPY.majorityLabel}</p>
+
+    <ul class="qen-legend">
+      {seatParties.map((p) => (
+        <li>
+          <i style={`--c:${p.color}`} aria-hidden="true"></i>
+          <span class="qen-party">{partyName(p, locale)}</span>
+          <strong>{p.seats_projected}</strong>
+        </li>
+      ))}
+    </ul>
+
+    <p class="qen-note">
+      <span class="mono">{COPY.runLabel} {runDateText}</span> · <a href={deskHref}>{COPY.deskCta}</a>
+    </p>
+  </div>
+</section>
+
+<section class="qen-close">
+  <div class="container">
+    <h2>{COPY.closeTitle}</h2>
+    <p class="qen-lede">{COPY.closeLede}</p>
+    <ul class="qen-races">
+      {closest.map((r) => {
+        const pm = partyMeta(r.jurisdiction, r.projection.winner);
+        return (
+          <li>
+            <a href={`${base}/${ridingsBase}/${r.slug}/`} style={`--c:${pm.color}`}>
+              <span class="qen-dot" aria-hidden="true"></span>
+              <span class="qen-riding">{locale === 'fr' ? r.name.fr : r.name.en}</span>
+              <span class="qen-lead">{LIVE_PARTIES.find((p) => p.code === r.projection.winner)?.label ?? partyName(pm, locale)}</span>
+              <span class="qen-margin">{num(r.projection.mean_margin)} pt · {COPY.marginLabel}</span>
+            </a>
+          </li>
+        );
+      })}
+    </ul>
+  </div>
+</section>
+
+<section class="qen-links">
+  <div class="container">
+    <h2>{COPY.linksTitle}</h2>
+    <ul class="qen-cards">
+      {COPY.links.map((l) => (
+        <li>
+          <a href={l.href}>
+            <h3>{l.label}</h3>
+            <p>{l.text}</p>
+          </a>
+        </li>
+      ))}
+    </ul>
+    <p class="qen-source">{COPY.sourceNote}</p>
+  </div>
+</section>
+</article>
+
+<style>
+  .qen-hero { padding: 80px 0 40px; border-bottom: 1px solid var(--rule); background: var(--paper); }
+  .qen-hero h1 { margin: 8px 0 16px; font-family: var(--serif); font-size: clamp(38px, 5vw, 62px); font-weight: 700; letter-spacing: -0.01em; line-height: 1.04; max-width: 980px; }
+  .qen-hero .lede { max-width: 780px; font-family: var(--serif); font-size: clamp(17px, 1.8vw, 20px); line-height: 1.55; color: var(--ink-2); }
+
+  section h2 { font-family: var(--serif); font-size: clamp(26px, 3vw, 34px); font-weight: 700; letter-spacing: -0.01em; margin-bottom: 10px; }
+  .qen-lede { max-width: 720px; font-family: var(--serif); font-size: 17px; line-height: 1.6; color: var(--ink-2); margin-bottom: 28px; }
+  .qen-note { margin-top: 20px; font-size: 14px; line-height: 1.6; color: var(--ink-3); max-width: 720px; }
+  .qen-note a { color: var(--blue); text-decoration: underline; text-underline-offset: 3px; }
+
+  .qen-count { padding: 56px 0; background: var(--paper); border-bottom: 1px solid var(--rule); }
+  .qen-count-list h3 { margin-bottom: 8px; font-family: var(--serif); font-size: 19px; font-weight: 600; }
+
+  .qen-schedule { padding: 56px 0; background: var(--paper-2); border-bottom: 1px solid var(--rule); }
+  .qen-steps { list-style: none; margin-top: 24px; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 0; border-top: 1px solid var(--rule); border-left: 1px solid var(--rule); }
+  .qen-steps li { padding: 20px 18px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule); background: var(--card); }
+  .qen-time { font-family: var(--mono); font-size: 13px; letter-spacing: 0; color: var(--blue); }
+  .qen-steps h3 { margin: 8px 0 8px; font-family: var(--serif); font-size: 19px; font-weight: 500; }
+  .qen-steps p { font-size: 14px; line-height: 1.6; color: var(--ink-2); }
+
+  .qen-method { padding: 56px 0; background: var(--paper); border-bottom: 1px solid var(--rule); }
+  .qen-thresholds { list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; }
+  .qen-thresholds li { padding: 20px; border: 0; border-top: 1px solid var(--rule); border-radius: 0; background: transparent; }
+  .qen-thresholds strong { display: block; font-family: var(--mono); font-size: 28px; font-weight: 500; color: var(--ink); margin-bottom: 8px; }
+  .qen-thresholds p { font-size: 14px; line-height: 1.6; color: var(--ink-2); }
+
+  .qen-projection { padding: 56px 0; background: var(--paper-2); border-bottom: 1px solid var(--rule); }
+  .qen-bar { position: relative; display: flex; height: 34px; border: 1px solid var(--rule); border-radius: 2px; overflow: hidden; background: var(--card); }
+  .qen-bar > span { width: var(--w); background: var(--c); }
+  .qen-majority { position: absolute; left: var(--m); top: -4px; bottom: -4px; width: 2px; background: var(--ink); }
+  .qen-majority-label { margin-top: 8px; font-family: var(--mono); font-size: 13px; letter-spacing: 0; color: var(--ink-3); }
+  .qen-legend { list-style: none; display: flex; flex-wrap: wrap; gap: 8px 22px; margin-top: 18px; }
+  .qen-legend li { display: flex; align-items: center; gap: 8px; }
+  .qen-legend i { width: 10px; height: 10px; border-radius: 50%; background: var(--c); }
+  .qen-party { font-family: var(--mono); font-size: 13px; letter-spacing: 0; color: var(--ink-2); }
+  .qen-legend strong { font-family: var(--serif); font-size: 19px; font-weight: 500; }
+
+  .qen-close { padding: 56px 0; background: var(--paper); border-bottom: 1px solid var(--rule); }
+  .qen-races { list-style: none; display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 0; border-top: 1px solid var(--rule); border-left: 1px solid var(--rule); }
+  .qen-races a { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 4px 10px; padding: 14px 16px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule); background: var(--card); transition: background .15s ease; }
+  .qen-races a:hover { background: color-mix(in oklab, var(--c) 12%, var(--card)); }
+  .qen-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--c); }
+  .qen-riding { font-family: var(--serif); font-size: 16px; }
+  .qen-lead { font-family: var(--mono); font-size: 13px; letter-spacing: 0; color: var(--ink-3); }
+  .qen-margin { grid-column: 2 / -1; font-family: var(--mono); font-size: 13px; color: var(--ink-3); }
+
+  .qen-links { padding: 56px 0 72px; background: var(--paper-2); }
+  .qen-cards { list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; margin-top: 20px; }
+  .qen-cards a { display: block; height: 100%; padding: 20px; border: 0; border-top: 1px solid var(--rule); border-radius: 0; background: transparent; transition: border-color .15s ease; }
+  .qen-cards a:hover { border-color: var(--blue); }
+  .qen-cards h3 { font-family: var(--serif); font-size: 19px; font-weight: 500; margin-bottom: 8px; }
+  .qen-cards p { font-size: 14px; line-height: 1.6; color: var(--ink-2); }
+  .qen-source { margin-top: 28px; max-width: 760px; font-size: 13px; line-height: 1.65; color: var(--ink-3); }
+
+  @media (max-width: 600px) {
+    .qen-hero { padding: 56px 0 32px; }
+    .qen-races { grid-template-columns: 1fr; }
+  }
+</style>
