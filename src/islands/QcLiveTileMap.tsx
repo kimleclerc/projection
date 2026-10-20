@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'preact/hooks';
 import { deriveRows, numFmt, useLive, type Locale, type PartyInfo, type RidingInfo } from './qcLiveBus';
-import tiles from '../data/qc-tiles.json';
+import qcTiles from '../data/qc-tiles.json';
 
 /**
  * Carte en tuiles des 127 circonscriptions : une case par siège, placée à peu
@@ -20,14 +20,21 @@ const copy = {
         noResult: 'sin resultados', gain: 'ganancia', polls: 'mesas', open: 'Ver el distrito', tap: 'Toca una casilla para ver el detalle.' },
 };
 
-export default function QcLiveTileMap({ lang, parties, ridings }: { lang: Locale; parties: PartyInfo[]; ridings: RidingInfo[] }) {
-  const t = copy[lang];
+type Tiles = { cols: number; rows: number; tiles: Record<string, [number, number]> };
+
+export default function QcLiveTileMap({ lang, parties, ridings, tiles = qcTiles as Tiles, text }:
+  { lang: Locale; parties: PartyInfo[]; ridings: RidingInfo[];
+    /** Grille d'une autre province (C.-B. : src/data/bc-tiles.json). Québec par défaut. */
+    tiles?: Tiles;
+    /** Textes propres à une autre soirée (nombre de sièges, heure de fermeture). */
+    text?: Partial<typeof copy.fr> }) {
+  const t = { ...copy[lang], ...text };
   const { data } = useLive();
   const [sel, setSel] = useState<string | null>(null);
   const pmap = useMemo(() => new Map(parties.map((p) => [p.code, p])), [parties]);
   const rows = useMemo(() => new Map(deriveRows(data).map((r) => [r.id, r])), [data]);
   const live = !!data && [...rows.values()].some((r) => r.party);
-  const grid = tiles as { cols: number; rows: number; tiles: Record<string, [number, number]> };
+  const grid = tiles;
 
   const info = (rid: string) => {
     const r = rows.get(rid); const rd = ridings.find((x) => x.id === rid);

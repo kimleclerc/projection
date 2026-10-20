@@ -1,18 +1,22 @@
 import { useMemo } from 'preact/hooks';
-import { deriveRows, numFmt, outcomeLabel, outcomeOf, timeFmt, useLive, type Locale, type PartyInfo, type RidingInfo } from './qcLiveBus';
+import { awaitsFinalCount, deriveRows, numFmt, outcomeLabel, outcomeOf, timeFmt, useLive, type Locale, type PartyInfo, type RidingInfo } from './qcLiveBus';
 
 /** Dernières annonces, courses les plus serrées, gains par rapport à 2022. Rien avant les premiers résultats. */
 const copy = {
   fr: { calls: 'Dernières annonces', close: 'Les courses les plus serrées', gains: 'Circonscriptions qui changent de parti', noCalls: 'Aucun gagnant annoncé pour l’instant.',
-        noClose: 'Les écarts apparaîtront avec les premiers bureaux.', in: 'dans', from: 'sur', ahead: 'd’avance', polls: 'bureaux', seats: 'sièges' },
+        noClose: 'Les écarts apparaîtront avec les premiers bureaux.', in: 'dans', from: 'sur', ahead: 'd’avance', polls: 'bureaux', seats: 'sièges',
+        final: 'attend le dépouillement final' },
   en: { calls: 'Latest calls', close: 'Closest races', gains: 'Seats changing hands', noCalls: 'No winner called yet.',
-        noClose: 'Margins will appear with the first polls.', in: 'in', from: 'from', ahead: 'ahead', polls: 'polls', seats: 'seats' },
+        noClose: 'Margins will appear with the first polls.', in: 'in', from: 'from', ahead: 'ahead', polls: 'polls', seats: 'seats',
+        final: 'awaits the final count' },
   es: { calls: 'Últimos anuncios', close: 'Las contiendas más ajustadas', gains: 'Distritos que cambian de partido', noCalls: 'Todavía no se ha anunciado ningún ganador.',
-        noClose: 'Las diferencias aparecerán con las primeras mesas.', in: 'en', from: 'sobre', ahead: 'de ventaja', polls: 'mesas', seats: 'escaños' },
+        noClose: 'Las diferencias aparecerán con las primeras mesas.', in: 'en', from: 'sobre', ahead: 'de ventaja', polls: 'mesas', seats: 'escaños',
+        final: 'espera el recuento final' },
 };
 
-export default function QcLiveFeed({ lang, parties, ridings }: { lang: Locale; parties: PartyInfo[]; ridings: RidingInfo[] }) {
-  const t = copy[lang];
+export default function QcLiveFeed({ lang, parties, ridings, timeZone, text }:
+  { lang: Locale; parties: PartyInfo[]; ridings: RidingInfo[]; timeZone?: string; text?: Partial<typeof copy.fr> }) {
+  const t = { ...copy[lang], ...text };
   const { data } = useLive();
   const pmap = useMemo(() => new Map(parties.map((p) => [p.code, p])), [parties]);
   const rinfo = useMemo(() => new Map(ridings.map((r) => [r.id, r])), [ridings]);
@@ -39,7 +43,7 @@ export default function QcLiveFeed({ lang, parties, ridings }: { lang: Locale; p
             const o = outcomeOf(r.call, rinfo.get(r.id));
             return <li key={r.id}>{dot(r.party)}<span><strong>{r.call?.candidate_name}</strong> ({label(r.party)}){' '}
               {o && <em class={`qlf-outcome is-${o.kind}`}>{outcomeLabel(o, lang)}{o.kind === 'gain' && o.from ? ` ${t.from} ${label(o.from)}` : ''}</em>}{' '}
-              {t.in} {link(r.id, r.name)}</span><time>{timeFmt(r.call?.called_at, lang)}</time></li>;
+              {t.in} {link(r.id, r.name)}</span><time>{timeFmt(r.call?.called_at, lang, timeZone)}</time></li>;
           })}</ol>
         )}
       </div>
@@ -47,7 +51,7 @@ export default function QcLiveFeed({ lang, parties, ridings }: { lang: Locale; p
         <h3>{t.close}</h3>
         {close.length === 0 ? <p class="qlf-empty">{t.noClose}</p> : (
           <ol>{close.map((r) => <li key={r.id}>{dot(r.party)}<span>{link(r.id, r.name)} — {label(r.party)} {numFmt(r.margin ?? 0, lang)} pt {t.ahead}</span>
-            <small>{r.polls?.total ? `${r.polls.reported ?? 0}/${r.polls.total} ${t.polls}` : ''}</small></li>)}</ol>
+            <small>{awaitsFinalCount(data, r) ? t.final : r.polls?.total ? `${r.polls.reported ?? 0}/${r.polls.total} ${t.polls}` : ''}</small></li>)}</ol>
         )}
       </div>
       {gains.size > 0 && (

@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'preact/hooks';
-import { deriveRows, numFmt, outcomeLabel, outcomeOf, timeFmt, useLive, type Locale, type PartyInfo, type RidingInfo } from './qcLiveBus';
+import { awaitsFinalCount, deriveRows, numFmt, outcomeLabel, outcomeOf, timeFmt, useLive, type Locale, type PartyInfo, type RidingInfo } from './qcLiveBus';
 
 /**
  * Les 127 circonscriptions : recherche, filtres, 25 lignes puis « voir tout ».
@@ -10,18 +10,19 @@ const PAGE = 25;
 const copy = {
   fr: { title: 'Toutes les circonscriptions', search: 'Chercher une circonscription', all: 'Toutes', close: 'Serrées', gains: 'Gains', elected: 'Élues',
         riding: 'Circonscription', leader: 'En tête', pct: '%', margin: 'Écart', polls: 'Bureaux', status: 'Statut',
-        calledBadge: 'Élu', leadingBadge: 'En tête', gainBadge: 'Gain', more: (n: number) => `Voir les ${n} circonscriptions`, less: 'Réduire la liste', none: '—' },
+        calledBadge: 'Élu', leadingBadge: 'En tête', gainBadge: 'Gain', finalBadge: 'Dépouillement final', finalTitle: 'Toutes les boîtes sont dépouillées, mais l’écart est trop mince pour un appel ce soir : le vote postal tardif et les bulletins d’absents seront comptés au dépouillement final.', more: (n: number) => `Voir les ${n} circonscriptions`, less: 'Réduire la liste', none: '—' },
   en: { title: 'All ridings', search: 'Find a riding', all: 'All', close: 'Close', gains: 'Gains', elected: 'Elected',
         riding: 'Riding', leader: 'Leading', pct: '%', margin: 'Margin', polls: 'Polls', status: 'Status',
-        calledBadge: 'Elected', leadingBadge: 'Leading', gainBadge: 'Gain', more: (n: number) => `Show all ${n} ridings`, less: 'Show fewer', none: '—' },
+        calledBadge: 'Elected', leadingBadge: 'Leading', gainBadge: 'Gain', finalBadge: 'Final count', finalTitle: 'Every box is counted, but the margin is too thin to call tonight: late mail-in and absentee ballots are counted at the final count.', more: (n: number) => `Show all ${n} ridings`, less: 'Show fewer', none: '—' },
   es: { title: 'Todos los distritos', search: 'Buscar un distrito', all: 'Todos', close: 'Ajustados', gains: 'Ganancias', elected: 'Electos',
         riding: 'Distrito', leader: 'En cabeza', pct: '%', margin: 'Diferencia', polls: 'Mesas', status: 'Estado',
-        calledBadge: 'Electo', leadingBadge: 'En cabeza', gainBadge: 'Ganancia', more: (n: number) => `Ver los ${n} distritos`, less: 'Ver menos', none: '—' },
+        calledBadge: 'Electo', leadingBadge: 'En cabeza', gainBadge: 'Ganancia', finalBadge: 'Recuento final', finalTitle: 'Todas las urnas están escrutadas, pero la diferencia es demasiado estrecha para anunciarla esta noche: el voto por correo tardío y las papeletas de ausentes se cuentan en el recuento final.', more: (n: number) => `Ver los ${n} distritos`, less: 'Ver menos', none: '—' },
 };
 type Filter = 'all' | 'close' | 'gains' | 'elected';
 
-export default function QcLiveList({ lang, parties, ridings }: { lang: Locale; parties: PartyInfo[]; ridings: RidingInfo[] }) {
-  const t = copy[lang];
+export default function QcLiveList({ lang, parties, ridings, timeZone, text }:
+  { lang: Locale; parties: PartyInfo[]; ridings: RidingInfo[]; timeZone?: string; text?: Partial<typeof copy.fr> }) {
+  const t = { ...copy[lang], ...text };
   const { data } = useLive();
   const [q, setQ] = useState('');
   const [f, setF] = useState<Filter>('all');
@@ -67,7 +68,8 @@ export default function QcLiveList({ lang, parties, ridings }: { lang: Locale; p
                 <td>{(() => {
                   const o = outcomeOf(r?.call ?? null, rd);
                   if (o) return <><span class={`qll-badge is-called is-${o.kind}`}>{outcomeLabel(o, lang)}</span>
-                    <small class="qll-time">{timeFmt(r?.call?.called_at, lang)}</small></>;
+                    <small class="qll-time">{timeFmt(r?.call?.called_at, lang, timeZone)}</small></>;
+                  if (awaitsFinalCount(data, r)) return <span class="qll-badge is-final" title={t.finalTitle}>{t.finalBadge}</span>;
                   return <>{r?.leader ? <span class="qll-badge">{t.leadingBadge}</span> : null}
                     {isGain({ rd, r }) && <span class="qll-badge is-gain">{t.gainBadge}</span>}</>;
                 })()}</td>

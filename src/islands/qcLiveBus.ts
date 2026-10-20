@@ -15,6 +15,8 @@ export type Result = {
   riding_id: string; slug?: string; name?: string;
   polls?: { reported?: number | null; total?: number | null; pct?: number | null };
   ballots_counted?: number; registered_electors?: number; candidates: Candidate[];
+  /** C.-B. seulement : état des bulletins d'absents, tel qu'Elections BC l'imprime (« Complete », « Not Started »…). */
+  out_of_district?: string | null;
 };
 export type Call = { riding_id: string; party_code: string; candidate_name: string; called_at?: string;
   source_anomalies_overridden?: boolean };
@@ -23,7 +25,11 @@ export type Projection = { riding_id: string; candidates: ProjCandidate[] };
 export type LivePayload = {
   sequence?: number; generated_at?: string;
   event?: { id?: string; mode?: string; election_date?: string };
-  source?: { source_updated_at?: string | null; healthy?: boolean; anomaly_count?: number; url?: string };
+  source?: { source_updated_at?: string | null; healthy?: boolean; anomaly_count?: number; url?: string;
+    /** C.-B. seulement : « initial » le soir du vote, « final » une semaine plus tard. */
+    count_phase?: 'initial' | 'final' | null;
+    /** C.-B. : la source se présente elle-même comme une page d'essai. */
+    is_test_page?: boolean };
   results: Result[]; calls?: Call[]; projections?: Projection[];
   /** Appels d'ensemble faits à la main (gouvernement, majorité, minorité), datés. */
   national_calls?: NationalCall[];
@@ -74,12 +80,38 @@ export function numFmt(v: number, locale: Locale, digits = 1): string {
     { minimumFractionDigits: digits, maximumFractionDigits: digits });
 }
 
-export function timeFmt(iso: string | null | undefined, locale: Locale): string {
+/** Heure locale du scrutin : l'Est pour le Québec (défaut), le Pacifique pour la C.-B. */
+export function timeFmt(iso: string | null | undefined, locale: Locale, timeZone = 'America/Toronto'): string {
   if (!iso) return '';
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return iso;
   return d.toLocaleTimeString(locale === 'en' ? 'en-CA' : locale === 'es' ? 'es-ES' : 'fr-CA',
-    { hour: '2-digit', minute: '2-digit', timeZone: 'America/Toronto' });
+    { hour: '2-digit', minute: '2-digit', timeZone });
+}
+
+/**
+ * Toutes les boîtes sont dépouillées, mais rien n'est appelé : en C.-B., le
+ * vote postal tardif et les bulletins d'absents attendent le dépouillement
+ * FINAL, une semaine plus tard. Ce n'est pas une panne, c'est une course trop
+ * serrée pour être annoncée le soir même.
+ */
+export function awaitsFinalCount(data: LivePayload | null, row: Pick<Row, 'call' | 'leader' | 'polls'> | null): boolean {
+  if (!row || row.call || !row.leader) return false;
+  if (data?.source?.count_phase !== 'initial') return false;
+  const total = row.polls?.total ?? 0;
+  return total > 0 && (row.polls?.reported ?? 0) >= total;
+}
+
+/** État des bulletins d'absents, traduit quand Elections BC imprime une valeur connue. */
+const OOD: Record<string, Record<Locale, string>> = {
+  'complete': { fr: 'comptés', en: 'counted', es: 'contadas' },
+  'not started': { fr: 'pas encore comptés', en: 'not counted yet', es: 'aún sin contar' },
+  'in progress': { fr: 'en cours', en: 'in progress', es: 'en curso' },
+  'partial': { fr: 'en partie comptés', en: 'partly counted', es: 'contadas en parte' },
+};
+export function oodLabel(value: string | null | undefined, locale: Locale): string {
+  if (!value) return '';
+  return OOD[value.trim().toLowerCase()]?.[locale] ?? value;
 }
 
 /** Informations statiques par parti, passées au build (couleurs, noms). */
@@ -142,7 +174,7 @@ export type GovStatus = { kind: 'government' | 'majority' | 'minority'; party: s
  *   - plus aucun parti ne peut atteindre 64 → gouvernement minoritaire.
  * Les appels faits à la main (national_calls), plus précoces, s'ajoutent.
  */
-export function governmentStatus(data: LivePayload | null): GovStatus[] {
+export function governmentStatus(data: LivePayload | null, majority = MAJORITY, totalSeats = TOTAL_SEATS): GovStatus[] {
   const out: GovStatus[] = [];
   const calls = [...(data?.calls ?? [])].filter((c) => c.called_at).sort((a, b) => (a.called_at ?? '').localeCompare(b.called_at ?? ''));
   const seats = new Map<string, number>();
@@ -151,13 +183,13 @@ export function governmentStatus(data: LivePayload | null): GovStatus[] {
   for (const c of calls) {
     seats.set(c.party_code, (seats.get(c.party_code) ?? 0) + 1);
     decided += 1;
-    const open = TOTAL_SEATS - decided;
+    const open = totalSeats - decided;
     const ranked = [...seats.entries()].sort((a, b) => b[1] - a[1]);
     const [top, n] = ranked[0];
     const second = ranked[1]?.[1] ?? 0;
     if (!gov && n > second + open) { gov = top; out.push({ kind: 'government', party: top, at: c.called_at!, manual: false }); }
-    if (!maj && n >= MAJORITY) { maj = true; out.push({ kind: 'majority', party: top, at: c.called_at!, manual: false }); }
-    if (!maj && !minority && ranked.every(([, k]) => k + open < MAJORITY)) {
+    if (!maj && n >= majority) { maj = true; out.push({ kind: 'majority', party: top, at: c.called_at!, manual: false }); }
+    if (!maj && !minority && ranked.every(([, k]) => k + open < majority)) {
       minority = true; out.push({ kind: 'minority', party: gov, at: c.called_at!, manual: false });
     }
   }
