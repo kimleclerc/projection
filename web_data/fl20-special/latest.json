@@ -2,23 +2,23 @@
   "meta": {
     "run_date": "2026-10-22",
     "race_id": "fl20_special_pending_2026",
-    "title": "Florida's 20th Congressional District Pending Special Election",
+    "title": "Florida's 20th Congressional District: No Special Election",
     "election_date": null,
     "n_simulations": 50000,
     "model_type": "provisional_party_control_v1",
     "pipeline_version": "1.0",
     "language": "en",
-    "status": "vacant_pending_writ",
+    "status": "no_special_election",
     "race_format": "party_control"
   },
   "district": {
     "state": "Florida",
     "district": "20th Congressional District",
-    "vacancy_reason": "The seat became vacant after Rep. Sheila Cherfilus-McCormick resigned. The special-election date has not yet been set.",
+    "vacancy_reason": "The seat became vacant after Rep. Sheila Cherfilus-McCormick resigned. No special election was called: the seat stays vacant until the winner of the regular general of November 3, 2026 is sworn in.",
     "district_context": {
       "house_2024_democratic_share": 81.78,
       "house_2024_republican_share": 18.22,
-      "note": "The projection is party-level and remains provisional until the election calendar and candidate field are official."
+      "note": "The party-level projection below is the last provisional one, frozen when the desk closed. The seat is decided on November 3 under the 2026 map, in the House projection."
     }
   },
   "candidates": [
@@ -110,21 +110,22 @@
         "note": "The distribution is deliberately wider than a normal general-election projection because date, turnout and nominees remain unknown."
       },
       {
-        "label": "A writ may never come",
-        "note": "This projection assumes a special election is eventually called. No writ had been issued for either seat five months after the vacancy, and leaving a seat vacant until the regular general is a live outcome — not an oversight to be projected away."
+        "label": "No special election",
+        "note": "No writ was ever issued. Six months after the vacancy and days before the regular general, the seat is left vacant until November 3; this desk is closed and its projection kept unchanged as a record."
       }
     ]
   },
   "pending": {
     "vacancy_date": "2026-04-21",
-    "status": "vacant_pending_writ",
+    "status": "no_special_election",
+    "closed_on": "2026-10-22",
     "departing_member": "Sheila Cherfilus-McCormick",
     "reason": "resignation",
     "days_vacant_without_writ": 184,
     "no_writ_fallback": {
       "date": "2026-11-03",
-      "note": "If no writ is issued, the seat is not filled by a special election at all: it stays vacant until the regular general of November 3, 2026, whose winner is sworn in January 2027. That contest runs on the 2026 map and is covered by the House projection, not by this desk.",
-      "house_projection": "/en/us/house/districts/12020/"
+      "note": "No writ was issued, so the seat is not filled by a special election at all: it stays vacant until the regular general of November 3, 2026, whose winner is sworn in January 2027. That contest runs on the 2026 map and is covered by the House projection, not by this desk.",
+      "house_projection": "/en/us/house/districts/12020-fl-20/"
     }
   },
   "sources": [
@@ -133,5 +134,5 @@
       "url": "https://clerk.house.gov/Members/ViewVacancies"
     }
   ],
-  "method_note": "A provisional party-control projection for a vacant seat before the writ, date and candidate field are known. It anchors to the 119th Congress district result and widens uncertainty for special-election turnout and candidate effects. It assumes a special election is eventually called — see pending.no_writ_fallback for what governs the seat if none is."
+  "method_note": "Closed desk. The figures are the last provisional party-control projection, made while a special election was still expected: it anchors to the 119th Congress district result and widens uncertainty for special-election turnout and candidate effects. No special election was called — see pending.no_writ_fallback for the contest that fills the seat."
 }

@@ -113,6 +113,35 @@ function heroCopy(c: SpecialElectionConfig, locale: SpecialElectionLocale) {
 
 const hero = heroCopy(config, lang);
 
+// Vacance close sans partielle (FL-20, TX-23) : la projection de partielle porte
+// sur un scrutin qui n'aura pas lieu, sur la carte du 119ᵉ Congrès. Elle reste
+// dans le JSON comme archive, mais la page renvoie à la course qui pourvoit
+// vraiment le siège : la générale, dans la projection de la Chambre.
+const noSpecial = config.noSpecial;
+const noSpecialCopy = noSpecial && {
+  en: {
+    label: 'What fills the seat',
+    title: `The ${longDate(noSpecial.generalDate, 'en')} general`,
+    body: 'No writ was ever issued, so no special election will be held. The seat stays vacant until the winner of the regular general election, run on the 2026 district map, is sworn in in January 2027.',
+    link: 'See the district in our House forecast',
+    closed: 'Desk closed',
+  },
+  fr: {
+    label: 'Ce qui pourvoit le siège',
+    title: `L’élection générale du ${longDate(noSpecial.generalDate, 'fr')}`,
+    body: 'Aucune partielle n’a été convoquée et il n’y en aura pas. Le siège reste vacant jusqu’à l’assermentation, en janvier 2027, de l’élu de l’élection générale régulière, tenue sur la carte de 2026.',
+    link: 'Voir le district dans notre projection de la Chambre',
+    closed: 'Page close le',
+  },
+  es: {
+    label: 'Qué cubre el escaño',
+    title: `La general del ${longDate(noSpecial.generalDate, 'es')}`,
+    body: 'Nunca se convocó la elección especial y no la habrá. El escaño sigue vacante hasta que el ganador de la elección general ordinaria, con el mapa de distritos de 2026, asuma en enero de 2027.',
+    link: 'Ver el distrito en nuestro pronóstico de la Cámara',
+    closed: 'Página cerrada el',
+  },
+}[lang];
+
 // Other specials for KeepDigging cross-links (excluding current)
 const otherSpecials = Object.values(specialElections)
   .filter((special) => special.slug !== config.slug)
@@ -189,7 +218,7 @@ const jsonLd = [
       name: 'Vote-Scope',
       url: 'https://vote-scope.com',
     },
-    temporalCoverage: `${initialData.meta.run_date}/${initialData.meta.election_date}`,
+    temporalCoverage: `${initialData.meta.run_date}/${initialData.meta.election_date ?? noSpecial?.generalDate ?? initialData.meta.run_date}`,
     dateModified: initialData.meta.run_date,
     datePublished: initialData.meta.run_date,
     url: canonical,
@@ -240,21 +269,40 @@ const jsonLd = [
         {hero.dek}
       </p>
       <div class="special-meta">
-        <span>{mc.updated} {longDate(initialData.meta.run_date, lang)}</span>
-        <span aria-hidden="true">·</span>
-        <span>{initialData.meta.n_simulations.toLocaleString(lang === 'en' ? 'en-CA' : lang === 'es' ? 'es-ES' : 'fr-FR')} {mc.simulations}</span>
-        <span aria-hidden="true">·</span>
-        <span>{specialBadge(config.modelBadge, lang)}</span>
+        {noSpecial && noSpecialCopy ? (
+          <>
+            <span>{noSpecialCopy.closed} {longDate(noSpecial.closedOn, lang)}</span>
+            <span aria-hidden="true">·</span>
+            <span>{specialBadge(config.modelBadge, lang)}</span>
+          </>
+        ) : (
+          <>
+            <span>{mc.updated} {longDate(initialData.meta.run_date, lang)}</span>
+            <span aria-hidden="true">·</span>
+            <span>{initialData.meta.n_simulations.toLocaleString(lang === 'en' ? 'en-CA' : lang === 'es' ? 'es-ES' : 'fr-FR')} {mc.simulations}</span>
+            <span aria-hidden="true">·</span>
+            <span>{specialBadge(config.modelBadge, lang)}</span>
+          </>
+        )}
       </div>
     </header>
 
-    <SpecialElectionForecast
-      initialData={initialData}
-      locale={lang}
-      dataUrl={`/web_data/${config.dataPath}/latest.json`}
-      slug={config.slug}
-      client:load
-    />
+    {noSpecial && noSpecialCopy ? (
+      <section class="special-no-special container" aria-labelledby="special-no-special-title">
+        <p class="special-kicker">{noSpecialCopy.label}</p>
+        <h2 id="special-no-special-title">{noSpecialCopy.title}</h2>
+        <p>{noSpecialCopy.body}</p>
+        <p><a class="vs-link" href={noSpecial.houseDistrict[lang]}>{noSpecialCopy.link}</a></p>
+      </section>
+    ) : (
+      <SpecialElectionForecast
+        initialData={initialData}
+        locale={lang}
+        dataUrl={`/web_data/${config.dataPath}/latest.json`}
+        slug={config.slug}
+        client:load
+      />
+    )}
 
     {config.bookContext && (
       <div class="special-books container">
@@ -360,6 +408,25 @@ const jsonLd = [
   .special-polymarket {
     max-width: 1080px;
     margin-top: 48px;
+  }
+
+  .special-no-special {
+    max-width: 1080px;
+    padding-block: 48px;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .special-no-special h2 {
+    margin: 0 0 16px;
+    font-family: var(--serif);
+    font-size: clamp(30px, 4vw, 44px);
+    line-height: 1.05;
+  }
+
+  .special-no-special p {
+    max-width: 760px;
+    color: var(--ink-2);
+    line-height: 1.6;
   }
 
   .special-books {

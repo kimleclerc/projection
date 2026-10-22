@@ -41,6 +41,19 @@ export interface SpecialElectionConfig {
   countdownTitle?: string;
   /** Editorially curated Amazon shelf, shown only when a race-specific context exists. */
   bookContext?: 'ga13' | 'fl20' | 'tx23';
+  /**
+   * Vacance close sans partielle : aucun bref, la générale régulière pourvoit le
+   * siège. FL-20 et TX-23 restaient listés « en cours » parce que leur
+   * `electionDate` est `null` ; le 2026-10-22, il a été acté qu'aucune spéciale
+   * n'aurait lieu avant le 3 novembre. La page ne montre plus la projection de
+   * partielle et renvoie à la page du district dans la projection de la Chambre ;
+   * la rubrique US la range avec les archives.
+   */
+  noSpecial?: {
+    closedOn: string;
+    generalDate: string;
+    houseDistrict: Record<SpecialElectionLocale, string>;
+  };
 }
 
 export const specialElections = {
@@ -84,50 +97,68 @@ export const specialElections = {
     electionDate: null,
     dataPath: 'fl20-special',
     currentPage: 'usa-hub',
-    modelBadge: 'Provisional party-control model',
-    title: 'FL-20 Special Election Projection — Vote-Scope',
-    title_fr: 'Partielle FL-20 : projection provisoire — Vote-Scope',
-    title_es: 'Especial FL-20: proyección provisional — Vote-Scope',
-    description: 'A provisional party-control forecast for the vacant FL-20 U.S. House seat while Florida has not yet set the special-election date.',
-    description_fr: 'Projection provisoire du contrôle partisan du siège fédéral vacant FL-20, en attendant que la Floride fixe la date de la partielle.',
-    description_es: 'Pronóstico provisional del control partidista del escaño federal vacante FL-20, a la espera de una fecha oficial.',
-    kicker: 'Vacant U.S. House seat · No special election called',
-    headline: 'FL‑20: a vacant seat',
-    dek: 'Florida never called a special election and, weeks before the general election, is unlikely to: the seat should stay vacant until the November 3 winner is sworn in in January. The forecast covers which party will hold it.',
-    kicker_fr: 'Siège vacant à la Chambre · aucune partielle convoquée',
-    headline_fr: 'FL‑20 : un siège vacant',
-    dek_fr: 'La Floride n’a jamais convoqué de partielle et, à quelques semaines des élections générales, ne le fera sans doute pas : le siège devrait rester vacant jusqu’à l’entrée en fonction, en janvier, de l’élu du 3 novembre. La projection porte sur le parti qui l’occupera.',
-    kicker_es: 'Escaño vacante · Sin elección especial convocada',
-    headline_es: 'FL‑20: un escaño vacante',
-    dek_es: 'Florida nunca convocó una elección especial y, a pocas semanas de las generales, probablemente no lo hará: el escaño debería seguir vacante hasta que el ganador del 3 de noviembre asuma en enero. El pronóstico indica qué partido lo ocupará.',
+    modelBadge: 'Closed desk · no special election',
+    title: 'FL-20: No Special Election — Vote-Scope',
+    title_fr: 'FL-20 : pas de partielle — Vote-Scope',
+    title_es: 'FL-20: no habrá elección especial — Vote-Scope',
+    description: 'Florida never called a special election for the vacant FL-20 seat. It stays vacant until the winner of the November 3, 2026 general is sworn in.',
+    description_fr: 'La Floride n’a jamais convoqué de partielle pour le siège vacant de FL-20. Il reste vacant jusqu’à l’assermentation de l’élu du 3 novembre 2026.',
+    description_es: 'Florida nunca convocó una elección especial para el escaño vacante de FL-20. Seguirá vacante hasta que asuma el ganador de la general del 3 de noviembre de 2026.',
+    kicker: 'Vacant U.S. House seat · No special election',
+    headline: 'FL‑20: no special election',
+    dek: 'Florida never issued a writ. There will be no special election: the seat, vacant since April 21, stays empty until the winner of the November 3 general is sworn in in January. That race is in our House forecast.',
+    kicker_fr: 'Siège vacant à la Chambre · pas de partielle',
+    headline_fr: 'FL‑20 : pas de partielle',
+    dek_fr: 'La Floride n’a jamais convoqué de partielle, et il n’y en aura pas : le siège, vacant depuis le 21 avril, le reste jusqu’à l’assermentation, en janvier, de l’élu du 3 novembre. Cette course figure dans notre projection de la Chambre.',
+    kicker_es: 'Escaño vacante · Sin elección especial',
+    headline_es: 'FL‑20: no habrá elección especial',
+    dek_es: 'Florida nunca convocó la elección especial y no la habrá: el escaño, vacante desde el 21 de abril, seguirá así hasta que el ganador de la general del 3 de noviembre asuma en enero. Esa contienda figura en nuestro pronóstico de la Cámara.',
     paths: { en: '/en/us/specials/fl20/', fr: '/fr/us/specials/fl20/', es: '/es/us/specials/fl20/' },
     translated: { en: true, fr: true, es: true },
     bookContext: 'fl20',
+    noSpecial: {
+      closedOn: '2026-10-22',
+      generalDate: '2026-11-03',
+      houseDistrict: {
+        en: '/en/us/house/districts/12020-fl-20/',
+        fr: '/fr/us/chambre/districts/12020-fl-20/',
+        es: '/es/us/house/distritos/12020-fl-20/',
+      },
+    },
   },
   tx23: {
     slug: 'tx23',
     electionDate: null,
     dataPath: 'tx23-special',
     currentPage: 'usa-hub',
-    modelBadge: 'Provisional party-control model',
-    title: 'TX-23 Special Election Projection — Vote-Scope',
-    title_fr: 'Partielle TX-23 : projection provisoire — Vote-Scope',
-    title_es: 'Especial TX-23: proyección provisional — Vote-Scope',
-    description: 'A provisional party-control forecast for the vacant TX-23 U.S. House seat while Texas has not yet set the special-election date.',
-    description_fr: 'Projection provisoire du contrôle partisan du siège fédéral vacant TX-23, en attendant que le Texas fixe la date de la partielle.',
-    description_es: 'Pronóstico provisional del control partidista del escaño federal vacante TX-23, a la espera de una fecha oficial.',
-    kicker: 'Vacant U.S. House seat · No special election called',
-    headline: 'TX‑23: a vacant seat',
-    dek: 'Texas never called a special election and, weeks before the general election, is unlikely to: the seat should stay vacant until the November 3 winner is sworn in in January. The forecast covers which party will hold it.',
-    kicker_fr: 'Siège vacant à la Chambre · aucune partielle convoquée',
-    headline_fr: 'TX‑23 : un siège vacant',
-    dek_fr: 'Le Texas n’a jamais convoqué de partielle et, à quelques semaines des élections générales, ne le fera sans doute pas : le siège devrait rester vacant jusqu’à l’entrée en fonction, en janvier, de l’élu du 3 novembre. La projection porte sur le parti qui l’occupera.',
-    kicker_es: 'Escaño vacante · Sin elección especial convocada',
-    headline_es: 'TX‑23: un escaño vacante',
-    dek_es: 'Texas nunca convocó una elección especial y, a pocas semanas de las generales, probablemente no lo hará: el escaño debería seguir vacante hasta que el ganador del 3 de noviembre asuma en enero. El pronóstico indica qué partido lo ocupará.',
+    modelBadge: 'Closed desk · no special election',
+    title: 'TX-23: No Special Election — Vote-Scope',
+    title_fr: 'TX-23 : pas de partielle — Vote-Scope',
+    title_es: 'TX-23: no habrá elección especial — Vote-Scope',
+    description: 'Texas never called a special election for the vacant TX-23 seat. It stays vacant until the winner of the November 3, 2026 general is sworn in.',
+    description_fr: 'Le Texas n’a jamais convoqué de partielle pour le siège vacant de TX-23. Il reste vacant jusqu’à l’assermentation de l’élu du 3 novembre 2026.',
+    description_es: 'Texas nunca convocó una elección especial para el escaño vacante de TX-23. Seguirá vacante hasta que asuma el ganador de la general del 3 de noviembre de 2026.',
+    kicker: 'Vacant U.S. House seat · No special election',
+    headline: 'TX‑23: no special election',
+    dek: 'Texas never issued a writ. There will be no special election: the seat, vacant since April 14, stays empty until the winner of the November 3 general is sworn in in January. That race is in our House forecast.',
+    kicker_fr: 'Siège vacant à la Chambre · pas de partielle',
+    headline_fr: 'TX‑23 : pas de partielle',
+    dek_fr: 'Le Texas n’a jamais convoqué de partielle, et il n’y en aura pas : le siège, vacant depuis le 14 avril, le reste jusqu’à l’assermentation, en janvier, de l’élu du 3 novembre. Cette course figure dans notre projection de la Chambre.',
+    kicker_es: 'Escaño vacante · Sin elección especial',
+    headline_es: 'TX‑23: no habrá elección especial',
+    dek_es: 'Texas nunca convocó la elección especial y no la habrá: el escaño, vacante desde el 14 de abril, seguirá así hasta que el ganador de la general del 3 de noviembre asuma en enero. Esa contienda figura en nuestro pronóstico de la Cámara.',
     paths: { en: '/en/us/specials/tx23/', fr: '/fr/us/specials/tx23/', es: '/es/us/specials/tx23/' },
     translated: { en: true, fr: true, es: true },
     bookContext: 'tx23',
+    noSpecial: {
+      closedOn: '2026-10-22',
+      generalDate: '2026-11-03',
+      houseDistrict: {
+        en: '/en/us/house/districts/48023-tx-23/',
+        fr: '/fr/us/chambre/districts/48023-tx-23/',
+        es: '/es/us/house/distritos/48023-tx-23/',
+      },
+    },
   },
   ca1: {
     slug: 'ca1',

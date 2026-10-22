@@ -72,11 +72,14 @@ const presDemLead = presDem.standings.find((s: any) => s.status !== 'ineligible'
  * ouverte.
  */
 const today = new Date().toISOString().slice(0, 10);
-const allSpecials = Object.values(specialElections);
-const liveSpecials = allSpecials.filter((s) => !s.electionDate || s.electionDate >= today);
+const allSpecials: SpecialElectionConfig[] = Object.values(specialElections);
+// Une vacance close sans partielle (FL-20, TX-23 : `noSpecial`) n'a pas de date
+// mais n'est plus vive : elle rejoint l'archive, datée du jour où elle a été close.
+const archiveDate = (s: SpecialElectionConfig) => s.electionDate ?? s.noSpecial?.closedOn ?? '';
+const liveSpecials = allSpecials.filter((s) => !s.noSpecial && (!s.electionDate || s.electionDate >= today));
 const pastSpecials = allSpecials
-  .filter((s) => s.electionDate && s.electionDate < today)
-  .sort((a, b) => (b.electionDate! < a.electionDate! ? -1 : 1));
+  .filter((s) => s.noSpecial || (s.electionDate && s.electionDate < today))
+  .sort((a, b) => (archiveDate(b) < archiveDate(a) ? -1 : 1));
 
 const specialHref = (s: (typeof allSpecials)[number]) => s.paths[lang] ?? s.paths.en ?? '#';
 
@@ -128,7 +131,7 @@ const COPY = {
     pres: 'Presidential 2028 · The invisible primary',
     presBody: 'Primary fields plus the electoral-college map.', presCta: 'Presidential desk',
     archiveEyebrow: 'Archive',
-    archiveTitle: 'Special elections already decided',
+    archiveTitle: 'Special elections already decided', archiveNoSpecial: 'no special election',
     archiveHint: 'Kept for the record — these races are over.',
     marketEyebrow: 'Prediction markets',
     marketTitle: 'What the markets say alongside the model',
@@ -195,7 +198,7 @@ const COPY = {
     pres: 'Présidentielle 2028 · La primaire invisible',
     presBody: 'Champs de primaire + carte du collège électoral.', presCta: 'Présidentielle 2028',
     archiveEyebrow: 'Archives',
-    archiveTitle: 'Partielles déjà tranchées',
+    archiveTitle: 'Partielles déjà tranchées', archiveNoSpecial: 'pas de partielle',
     archiveHint: 'Conservées pour mémoire — ces courses sont finies.',
     marketEyebrow: 'Marchés de prédiction',
     marketTitle: 'Ce que les marchés disent en parallèle du modèle',
@@ -262,7 +265,7 @@ const COPY = {
     pres: 'Presidencial 2028 · La primaria invisible',
     presBody: 'Campos de primarias + mapa del colegio electoral.', presCta: 'Presidenciales 2028',
     archiveEyebrow: 'Archivo',
-    archiveTitle: 'Especiales ya decididas',
+    archiveTitle: 'Especiales ya decididas', archiveNoSpecial: 'sin elección especial',
     archiveHint: 'Conservadas como registro — estas contiendas terminaron.',
     marketEyebrow: 'Mercados de predicción',
     marketTitle: 'Lo que dicen los mercados junto al modelo',
@@ -407,7 +410,7 @@ const presItems = [
           {pastSpecials.map((s) => (
             <li>
               <a href={specialHref(s)}>{specialHeadline(s).replace(/\n/g, ' ')}</a>
-              <span class="us-small"> · {longDate(s.electionDate, lang)}</span>
+              <span class="us-small"> · {s.noSpecial ? t.archiveNoSpecial : longDate(s.electionDate, lang)}</span>
             </li>
           ))}
         </ul>

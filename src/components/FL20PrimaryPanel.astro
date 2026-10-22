@@ -30,7 +30,7 @@ const sources = isFr ? [
     </header>
     <section class="status-grid" aria-label={isFr ? 'Repères' : 'Race markers'}>
       <article><span>{isFr ? 'Primaire fermée' : 'Closed primary'}</span><strong>{isFr ? '18 août 2026' : 'August 18, 2026'}</strong><p>{isFr ? 'La date vise la nomination régulière pour le prochain Congrès.' : 'This is the regular nomination for the next Congress.'}</p></article>
-      <article><span>{isFr ? 'Élection partielle' : 'Special election'}</span><strong>{isFr ? 'Date à déterminer' : 'Date TBD'}</strong><p>{isFr ? 'Elle comblera séparément le mandat actuel devenu vacant.' : 'It will separately fill the vacant remainder of the current term.'}</p></article>
+      <article><span>{isFr ? 'Élection partielle' : 'Special election'}</span><strong>{isFr ? 'Aucune' : 'None'}</strong><p>{isFr ? 'La Floride n’a jamais convoqué de partielle : le siège reste vacant jusqu’à l’assermentation de l’élu du 3 novembre.' : 'Florida never called one: the seat stays vacant until the November 3 winner is sworn in.'}</p></article>
       <article><span>{isFr ? 'Projection générale publiée' : 'Published general-election model'}</span><strong>{isFr ? `${(demWinProb * 100).toFixed(0)} % de chances démocrates` : `${(demWinProb * 100).toFixed(0)}% Dem. win`}</strong><p>{isFr ? `${demVote.toFixed(1).replace('.', ',')} % du vote aux démocrates` : `${demVote.toFixed(1)}% Dem. vote`}{runDate ? ` · ${longDate(runDate, lang)}` : ''}</p></article>
     </section>
 

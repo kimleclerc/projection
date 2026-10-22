@@ -189,6 +189,7 @@ const BADGES: Record<string, T> = {
   'Fundamentals-only': { fr: 'Fondé sur les fondamentaux', es: 'Basado en los fundamentos' },
   'Fundamentals-only · 50,000 simulations': { fr: 'Fondé sur les fondamentaux · 50 000 simulations', es: 'Basado en los fundamentos · 50 000 simulaciones' },
   'Provisional party-control model': { fr: 'Modèle provisoire du parti gagnant', es: 'Modelo provisional del partido ganador' },
+  'Closed desk · no special election': { fr: 'Page close · pas de partielle', es: 'Página cerrada · sin elección especial' },
 };
 const PARTY_WORDS: Record<string, T> = {
   Democrat: { fr: 'Démocrate', es: 'Demócrata' },
