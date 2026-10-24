@@ -23,6 +23,8 @@ const main = MAIN_PAGES[locale][labsKey];
 const C = locale === 'fr' ? ' : ' : ': ';
 const P = locale === 'en' ? '%' : ' %';
 const cmp = compare(labsKey, d, locale);
+// Juridictions dont la projection de référence publie chaque circonscription.
+const RIDING_COMPARE: Partial<Record<LabsKey, string>> = { qc_2026: 'quebec', bc_44: 'british-columbia' };
 const refSeats = Object.fromEntries(cmp.reference.map((s) => [s.party, s.seats]));
 const signed = (n: number) => (n > 0 ? `+${n}` : n < 0 ? `−${Math.abs(n)}` : '=');
 
@@ -162,7 +164,7 @@ const btRows = (pastCycles[labsKey] ?? []).map((c) => {
 
   <LabsEntangled locale={locale} labsKey={labsKey} />
 
-  {labsKey === 'qc_2026' && <LabsRidingCompare locale={locale} desk={d} />}
+  {RIDING_COMPARE[labsKey] && <LabsRidingCompare locale={locale} desk={d} webDir={RIDING_COMPARE[labsKey]} />}
 
   {!isUS && (
     <section class="lb-section" aria-labelledby="lb-parties">

@@ -1,17 +1,17 @@
 ---
-// Les 127 circonscriptions du Québec : favori et chance selon Harfang des
-// neiges (projection de référence), selon Orbite, et selon le mélange 50/50
-// (moyenne des deux chances). Québec seulement : la référence est lue dans
-// web_data/quebec/latest.json au moment du build.
+// Toutes les circonscriptions d'une juridiction : favori et chance selon
+// Harfang des neiges (projection de référence), selon Orbite, et selon le
+// mélange 50/50 (moyenne des deux chances). La référence est lue dans
+// web_data/<webDir>/latest.json au moment du build (Québec, Colombie-Britannique).
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { type Locale, partyLabel, partyColor, pct } from '../lib/labs';
 import { MODEL_RELEASES } from '../data/modelVersion';
 
-interface Props { locale: Locale; desk: any }
-const { locale, desk } = Astro.props;
+interface Props { locale: Locale; desk: any; webDir?: string }
+const { locale, desk, webDir = 'quebec' } = Astro.props;
 const refName = MODEL_RELEASES[0].name;
-const f = resolve(process.cwd(), 'web_data', 'quebec', 'latest.json');
+const f = resolve(process.cwd(), 'web_data', webDir, 'latest.json');
 const ref = existsSync(f) ? JSON.parse(readFileSync(f, 'utf-8')) : null;
 const R = new Map<string, any>((ref?.ridings ?? []).map((r: any) => [String(Number(r.riding_id)), r]));
 
