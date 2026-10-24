@@ -570,11 +570,26 @@ const languageLinks = (['en', 'fr', 'es'] as Locale[])
     }
     .footer-bottom { padding-top: 22px; border-top: 1px solid var(--rule); display: flex; justify-content: space-between; font-size: 13px; color: var(--ink-3); font-family: var(--mono); }
 
+    /* En-tête sur une seule ligne, resserré : sous 1280 px, les libellés
+       espagnols (« Herramientas », « Suscribirse ») et la recherche ne
+       tiennent plus au gabarit de bureau. On garde l'ordre et le style,
+       on réduit seulement les écarts, le corps des liens et le bouton de
+       recherche (icône seule). */
+    @media (max-width: 1279px) {
+      .nav-inner { gap: 16px; }
+      .nav-links { gap: 16px; font-size: 13px; }
+      .nav-right { gap: 6px; }
+      .nav-cta { padding: 8px 10px; }
+      .nav-search pagefind-modal-trigger { max-width: 44px; overflow: hidden; }
+    }
     @media (max-width: 900px) {
       .footer-grid { grid-template-columns: 1fr 1fr; gap: 32px; }
-      .nav-links    { gap: 14px; }
     }
-    @media (max-width: 760px) {
+    /* Sous 1100 px, même resserrée, la ligne déborde en espagnol : les
+       liens passent sur une deuxième rangée, comme sur mobile. Garder ce
+       seuil aligné sur celui de .tw-section-nav (cusma-desk.css), qui
+       cesse d'être collante quand l'en-tête dépasse 60 px. */
+    @media (max-width: 1099px) {
       .nav-inner {
         flex-wrap: wrap;
         align-content: center;
@@ -604,11 +619,11 @@ const languageLinks = (['en', 'fr', 'es'] as Locale[])
       .nav-links a {
         flex: 0 0 auto;
       }
+    }
+    @media (max-width: 760px) {
       .nav-cta {
-        padding: 8px 10px;
         font-size: 10px;
       }
-      .nav-search pagefind-modal-trigger { max-width: 44px; overflow: hidden; }
       .lang-toggle {
         padding: 7px 9px;
       }
