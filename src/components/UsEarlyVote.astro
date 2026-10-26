@@ -21,6 +21,8 @@ const pts = (n: number | null | undefined) => {
   const s = Math.abs(n).toLocaleString(loc, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
   return `${n > 0 ? '+' : n < 0 ? '−' : ''}${s}`;
 };
+const abs1 = (n: number) => Math.abs(n).toLocaleString(loc, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+const ratio = (r: number) => r.toLocaleString(loc, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 const dateFmt = (iso: string) =>
   new Date(`${iso}T12:00:00`).toLocaleDateString(loc, { day: 'numeric', month: 'long', year: 'numeric' });
 
@@ -45,12 +47,12 @@ const T = {
     vs: 'Par rapport à 2022', vs24: 'Par rapport à 2024',
     modes: { mail: 'vote postal seulement', in_person: 'en personne', both: 'en personne et par la poste' },
     asOf: (iso: string, d: number) => `au ${dateFmt(iso)}, ${d} jours avant le scrutin`,
-    ballotsVs: (p: number) => `${pc(p, 0)} du volume de 2022 au même stade`,
+    ballotsVs: (r: number) => Math.abs(r - 1) < 0.05 ? 'À peu près autant de bulletins qu\'en 2022 au même stade' : r > 1 ? `${ratio(r)} fois plus de bulletins qu'en 2022 au même stade` : `${pc(100 * (1 - r), 0)} de bulletins de moins qu'en 2022 au même stade`,
     read: {
-      better: (party: string, v: number, ref: string) => `L'écart entre inscrits démocrates et républicains est plus favorable aux ${party} qu'en ${ref} au même stade (${pts(v)} point${Math.abs(v) >= 2 ? 's' : ''}).`,
+      better: (party: string, v: number, ref: string) => `L'écart entre inscrits démocrates et républicains est plus favorable aux ${party} qu'en ${ref} au même stade, de ${abs1(v)} point${Math.abs(v) >= 2 ? 's' : ''}.`,
       same: (ref: string) => `L'écart entre inscrits démocrates et républicains est à peu près le même qu'en ${ref} au même stade.`,
       dems: 'démocrates', reps: 'républicains',
-      una: (v: number) => `La part des non-affiliés ${v > 0 ? 'monte' : 'baisse'} de ${pts(Math.abs(v)).replace('+', '')} point${Math.abs(v) >= 2 ? 's' : ''} par rapport à 2022.`,
+      una: (v: number) => `La part des non-affiliés ${v > 0 ? 'monte' : 'baisse'} de ${abs1(v)} point${Math.abs(v) >= 2 ? 's' : ''} par rapport à 2022.`,
     },
     note: {
       PA: `Seul le vote postal est compté : la Pennsylvanie n'a presque pas de vote anticipé en personne. Les républicains, qui votaient très peu par la poste en 2022, s'y sont mis en 2024. Une partie de leur progression par rapport à 2022 vient de ce changement de façon de voter : ces électeurs auraient sans doute voté de toute façon, le jour du scrutin.`,
@@ -62,7 +64,6 @@ const T = {
     ageTitle: 'Âge', histTitle: 'Habitudes de vote', raceTitle: 'Origine déclarée à l\'inscription',
     age: { '18_29': '18 à 29 ans', '30_44': '30 à 44 ans', '45_64': '45 à 64 ans', '65_plus': '65 ans et plus' },
     hist: { regular: 'Ont voté en 2022 et en 2024', intermittent: 'Ont voté à l\'une des deux', new_or_inactive: 'N\'ont voté à aucune des deux' },
-    histFor: (c: string) => c === C22 ? 'en 2022 : en 2018 et en 2020' : c === C24 ? 'en 2024 : en 2020 et en 2022' : '',
     histNote: 'Pour 2022 et 2024, mêmes questions décalées : avaient-ils voté aux deux scrutins de novembre précédents ? La catégorie « aucune des deux » réunit les nouveaux inscrits et les électeurs qui s\'étaient abstenus.',
     newParty: (d: number, r: number, u: number) => `Parmi les votants qui n'avaient voté à aucun des deux derniers scrutins, ${pc(d, 0)} sont inscrits démocrates, ${pc(r, 0)} républicains et ${pc(u, 0)} non affiliés ou autres.`,
     race: { white: 'Blancs', black: 'Noirs', hispanic: 'Hispaniques', other: 'Autres', unknown: 'Non déclaré' },
@@ -81,6 +82,7 @@ const T = {
     methodTitle: 'Méthode et sources',
     method: 'Un bulletin compte le jour où il a été retourné ou déposé. Pour 2022 et 2024, on recompte les fichiers définitifs en s\'arrêtant au même nombre de jours avant le scrutin que les données de 2026. Les parts portent sur le parti d\'inscription. En Pennsylvanie et en Floride, « non affiliés et autres » réunit les non-affiliés et les petits partis, que les fichiers ne séparent pas toujours.',
     sources: 'Sources',
+    elon: 'Sondage Elon University, octobre 2026',
   },
   en: {
     eyebrow: '2026 midterms · early vote',
@@ -93,12 +95,12 @@ const T = {
     vs: 'Compared with 2022', vs24: 'Compared with 2024',
     modes: { mail: 'mail ballots only', in_person: 'in person', both: 'in person and by mail' },
     asOf: (iso: string, d: number) => `as of ${dateFmt(iso)}, ${d} days before the election`,
-    ballotsVs: (p: number) => `${pc(p, 0)} of the 2022 volume at the same point`,
+    ballotsVs: (r: number) => Math.abs(r - 1) < 0.05 ? 'About as many ballots as in 2022 at the same point' : r > 1 ? `${ratio(r)} times as many ballots as in 2022 at the same point` : `${pc(100 * (1 - r), 0)} fewer ballots than in 2022 at the same point`,
     read: {
-      better: (party: string, v: number, ref: string) => `The gap between registered Democrats and Republicans is more favourable to ${party} than in ${ref} at the same point (${pts(v)} point${Math.abs(v) >= 1.05 ? 's' : ''}).`,
+      better: (party: string, v: number, ref: string) => `The gap between registered Democrats and Republicans is more favourable to ${party} than in ${ref} at the same point, by ${abs1(v)} point${Math.abs(v) >= 1.05 ? 's' : ''}.`,
       same: (ref: string) => `The gap between registered Democrats and Republicans is about the same as in ${ref} at the same point.`,
       dems: 'Democrats', reps: 'Republicans',
-      una: (v: number) => `The unaffiliated share is ${v > 0 ? 'up' : 'down'} ${pts(Math.abs(v)).replace('+', '')} point${Math.abs(v) >= 1.05 ? 's' : ''} from 2022.`,
+      una: (v: number) => `The unaffiliated share is ${v > 0 ? 'up' : 'down'} ${abs1(v)} point${Math.abs(v) >= 1.05 ? 's' : ''} from 2022.`,
     },
     note: {
       PA: 'Only mail ballots are counted: Pennsylvania has almost no in-person early voting. Republicans, who rarely voted by mail in 2022, started doing so in 2024. Part of their gain over 2022 comes from that change in how they vote: these voters would probably have voted anyway, on election day.',
@@ -110,7 +112,6 @@ const T = {
     ageTitle: 'Age', histTitle: 'Voting habits', raceTitle: 'Race reported at registration',
     age: { '18_29': '18 to 29', '30_44': '30 to 44', '45_64': '45 to 64', '65_plus': '65 and over' },
     hist: { regular: 'Voted in both 2022 and 2024', intermittent: 'Voted in one of the two', new_or_inactive: 'Voted in neither' },
-    histFor: (c: string) => c === C22 ? 'for 2022: 2018 and 2020' : c === C24 ? 'for 2024: 2020 and 2022' : '',
     histNote: 'For 2022 and 2024, the same question shifted back: had they voted in the two previous November elections? "Neither" groups newly registered voters and voters who had stayed home.',
     newParty: (d: number, r: number, u: number) => `Among voters who had voted in neither of the last two elections, ${pc(d, 0)} are registered Democrats, ${pc(r, 0)} Republicans and ${pc(u, 0)} unaffiliated or other.`,
     race: { white: 'White', black: 'Black', hispanic: 'Hispanic', other: 'Other', unknown: 'Not reported' },
@@ -129,6 +130,7 @@ const T = {
     methodTitle: 'Method and sources',
     method: 'A ballot counts on the day it was returned or cast. For 2022 and 2024, we recount the final files, stopping at the same number of days before the election as the 2026 data. Shares are by party of registration. In Pennsylvania and Florida, "unaffiliated and other" groups unaffiliated voters and minor parties, which the files do not always separate.',
     sources: 'Sources',
+    elon: 'Elon University Poll, October 2026',
   },
   es: {
     eyebrow: 'Elecciones de medio mandato 2026 · voto anticipado',
@@ -141,12 +143,12 @@ const T = {
     vs: 'Frente a 2022', vs24: 'Frente a 2024',
     modes: { mail: 'solo voto por correo', in_person: 'en persona', both: 'en persona y por correo' },
     asOf: (iso: string, d: number) => `al ${dateFmt(iso)}, ${d} días antes de la elección`,
-    ballotsVs: (p: number) => `${pc(p, 0)} del volumen de 2022 en el mismo momento`,
+    ballotsVs: (r: number) => Math.abs(r - 1) < 0.05 ? 'Más o menos tantas papeletas como en 2022 en el mismo momento' : r > 1 ? `${ratio(r)} veces más papeletas que en 2022 en el mismo momento` : `${pc(100 * (1 - r), 0)} menos papeletas que en 2022 en el mismo momento`,
     read: {
-      better: (party: string, v: number, ref: string) => `La diferencia entre inscritos demócratas y republicanos es más favorable a los ${party} que en ${ref} en el mismo momento (${pts(v)} punto${Math.abs(v) >= 1.05 ? 's' : ''}).`,
+      better: (party: string, v: number, ref: string) => `La diferencia entre inscritos demócratas y republicanos es más favorable a los ${party} que en ${ref} en el mismo momento, por ${abs1(v)} punto${Math.abs(v) >= 1.05 ? 's' : ''}.`,
       same: (ref: string) => `La diferencia entre inscritos demócratas y republicanos es más o menos la misma que en ${ref} en el mismo momento.`,
       dems: 'demócratas', reps: 'republicanos',
-      una: (v: number) => `La parte de los no afiliados ${v > 0 ? 'sube' : 'baja'} ${pts(Math.abs(v)).replace('+', '')} punto${Math.abs(v) >= 1.05 ? 's' : ''} frente a 2022.`,
+      una: (v: number) => `La parte de los no afiliados ${v > 0 ? 'sube' : 'baja'} ${abs1(v)} punto${Math.abs(v) >= 1.05 ? 's' : ''} frente a 2022.`,
     },
     note: {
       PA: 'Solo se cuenta el voto por correo: Pensilvania casi no tiene voto anticipado en persona. Los republicanos, que casi no votaban por correo en 2022, empezaron a hacerlo en 2024. Parte de su avance frente a 2022 viene de ese cambio en la forma de votar: estos electores probablemente habrían votado de todos modos, el día de la elección.',
@@ -158,7 +160,6 @@ const T = {
     ageTitle: 'Edad', histTitle: 'Hábitos de voto', raceTitle: 'Origen declarado al inscribirse',
     age: { '18_29': '18 a 29 años', '30_44': '30 a 44 años', '45_64': '45 a 64 años', '65_plus': '65 años o más' },
     hist: { regular: 'Votaron en 2022 y en 2024', intermittent: 'Votaron en una de las dos', new_or_inactive: 'No votaron en ninguna' },
-    histFor: (c: string) => c === C22 ? 'para 2022: 2018 y 2020' : c === C24 ? 'para 2024: 2020 y 2022' : '',
     histNote: 'Para 2022 y 2024, la misma pregunta desplazada: ¿habían votado en las dos elecciones de noviembre anteriores? «Ninguna» agrupa a los nuevos inscritos y a quienes se habían abstenido.',
     newParty: (d: number, r: number, u: number) => `Entre los votantes que no habían votado en ninguna de las dos últimas elecciones, el ${pc(d, 0)} está inscrito como demócrata, el ${pc(r, 0)} como republicano y el ${pc(u, 0)} como no afiliado u otro.`,
     race: { white: 'Blancos', black: 'Negros', hispanic: 'Hispanos', other: 'Otros', unknown: 'No declarado' },
@@ -177,6 +178,7 @@ const T = {
     methodTitle: 'Método y fuentes',
     method: 'Una papeleta cuenta el día en que se devolvió o se emitió. Para 2022 y 2024, volvemos a contar los archivos definitivos deteniéndonos al mismo número de días antes de la elección que los datos de 2026. Las partes se refieren al partido de inscripción. En Pensilvania y Florida, «no afiliados y otros» agrupa a los no afiliados y a los partidos pequeños, que los archivos no siempre separan.',
     sources: 'Fuentes',
+    elon: 'Encuesta de Elon University, octubre de 2026',
   },
 }[locale];
 
@@ -246,7 +248,7 @@ const CYC = [C26, C22, C24];
   </section>
 
   {states.map((s) => (
-    <section class="container uev-card">
+    <section class="container uev-block">
       <h2>{nameOf(s)}</h2>
       <div class="uev-bars" role="img" aria-label={`${nameOf(s)} : ${T.th[2]} ${pc(s.headline.shares[C26].dem)}, ${T.th[3]} ${pc(s.headline.shares[C26].rep)}, ${T.th[4]} ${pc(s.headline.shares[C26].una)}`}>
         {CYC.map((c) => (
@@ -263,7 +265,7 @@ const CYC = [C26, C22, C24];
       <ul class="uev-vs">
         <li><span>{T.vs}</span> D {pts(s.headline.change_vs_2022.dem)} · R {pts(s.headline.change_vs_2022.rep)} · {T.th[4]} {pts(s.headline.change_vs_2022.una)}</li>
         <li><span>{T.vs24}</span> D {pts(s.headline.change_vs_2024.dem)} · R {pts(s.headline.change_vs_2024.rep)} · {T.th[4]} {pts(s.headline.change_vs_2024.una)}</li>
-        <li>{T.ballotsVs(s.headline.ballots_vs_2022_pct)}</li>
+        <li>{T.ballotsVs(s.headline.ballots_vs_2022_pct / 100)}</li>
       </ul>
       {reading(s).map((p) => <p>{p}</p>)}
       <p class="uev-small">{(T.note as any)[s.state]}</p>
@@ -318,8 +320,8 @@ const CYC = [C26, C22, C24];
     <p>{T.method}</p>
     <p>{T.sources} :</p>
     <ul>
-      {states.flatMap((s) => s.sources).map((src: any) => <li><a href={src.url} rel="noopener">{src.label}</a></li>)}
-      {nc?.likely_voter_samples?.[0] && <li><a href={nc.likely_voter_samples[0].source_url} rel="noopener">Elon University Poll, October 2026</a></li>}
+      {states.flatMap((s) => s.sources).map((src: any) => <li><a href={src.url} rel="noopener">{src.label[locale] ?? src.label.en}</a></li>)}
+      {nc?.likely_voter_samples?.[0] && <li><a href={nc.likely_voter_samples[0].source_url} rel="noopener">{T.elon}</a></li>}
     </ul>
   </section>
 </article>
@@ -338,8 +340,8 @@ const CYC = [C26, C22, C24];
   .uev-scroll { overflow-x: auto; }
   .uev-state td { border-top: 2px solid var(--border, #ccc); }
   .uev-ref td { opacity: .75; font-size: .95rem; }
-  .uev-table, .uev-card, .uev-nc, .uev-read, .uev-method { margin: 2rem auto; }
-  .uev-card p, .uev-read p, .uev-read li, .uev-nc > p, .uev-method p { max-width: 70ch; }
+  .uev-table, .uev-block, .uev-nc, .uev-read, .uev-method { margin: 2rem auto; }
+  .uev-block p, .uev-read p, .uev-read li, .uev-nc > p, .uev-method p { max-width: 70ch; }
   .uev-bars { display: grid; gap: .35rem; margin: .75rem 0 1rem; max-width: 640px; }
   .uev-bar-row { display: grid; grid-template-columns: 3.2rem 1fr; align-items: center; gap: .5rem; }
   .uev-bar-label { font-size: .85rem; font-variant-numeric: tabular-nums; }
