@@ -1,0 +1,20 @@
+---
+import EditorialLayout from '../../../layouts/EditorialLayout.astro';
+import UsEarlyVote from '../../../components/UsEarlyVote.astro';
+import NewsletterCta from '../../../components/NewsletterCta.astro';
+
+const canonical = 'https://vote-scope.com/es/us/voto-anticipado/';
+---
+
+<EditorialLayout
+  title="Voto anticipado de las elecciones de medio mandato 2026: ¿quién ya votó? — Vote-Scope"
+  description="Demócratas, republicanos y no afiliados entre las papeletas ya emitidas en Carolina del Norte, Pensilvania y Florida, frente al mismo momento de 2022 y 2024."
+  canonical={canonical}
+  lang="es"
+  currentPage="us"
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={{ en: 'https://vote-scope.com/en/us/early-vote/', fr: 'https://vote-scope.com/fr/us/vote-anticipe/', es: 'https://vote-scope.com/es/us/voto-anticipado/' }}
+>
+  <UsEarlyVote locale="es" />
+  <NewsletterCta lang="es" placement="us-early-vote" />
+</EditorialLayout>

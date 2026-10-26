@@ -1,0 +1,355 @@
+---
+/**
+ * Vote anticipé, midterms US 2026 — qui a déjà voté, comparé au même stade de
+ * 2022 et de 2024. Page descriptive en trois langues : rien ici ne modifie les
+ * probabilités publiées.
+ * Source : web_data/us-senate/early_vote.json (moteur, build_us_early_vote_web.py).
+ * Blocs en enfants directs de [data-content-area] pour l'insertion publicitaire.
+ */
+import data from '../../web_data/us-senate/early_vote.json';
+
+interface Props { locale: 'fr' | 'en' | 'es'; }
+const { locale } = Astro.props;
+
+const loc = locale === 'fr' ? 'fr-CA' : locale === 'es' ? 'es' : 'en-US';
+const unit = locale === 'en' ? '%' : ' %';
+const num = (n: number) => n.toLocaleString(loc);
+const pc = (n: number | null | undefined, d = 1) =>
+  n == null ? '—' : `${n.toLocaleString(loc, { minimumFractionDigits: d, maximumFractionDigits: d })}${unit}`;
+const pts = (n: number | null | undefined) => {
+  if (n == null) return '—';
+  const s = Math.abs(n).toLocaleString(loc, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  return `${n > 0 ? '+' : n < 0 ? '−' : ''}${s}`;
+};
+const dateFmt = (iso: string) =>
+  new Date(`${iso}T12:00:00`).toLocaleDateString(loc, { day: 'numeric', month: 'long', year: 'numeric' });
+
+const meta: any = (data as any).meta;
+const states: any[] = (data as any).states;
+const C22 = 'us_general_2022', C24 = 'us_general_2024', C26 = 'us_general_2026';
+const nc = states.find((s) => s.state === 'NC');
+const nameOf = (s: any) => s.state_name[locale];
+const total26 = states.reduce((a, s) => a + s.totals[C26].ballots, 0);
+
+const PARTY_COLORS = { dem: '#1f77d0', rep: '#c62828', una: '#8a8a8a' };
+
+const T = {
+  fr: {
+    eyebrow: 'Midterms 2026 · vote anticipé',
+    h1: 'Qui a déjà voté ? Le vote anticipé comparé à 2022 et à 2024',
+    lede: `${num(total26)} bulletins déjà déposés dans les trois États suivis ici. Pour chacun, on compare la part des inscrits démocrates, républicains et non affiliés parmi ces votants à leur part au même nombre de jours avant le scrutin, en 2022 (le dernier midterm) et en 2024.`,
+    notPred: `Ces chiffres décrivent qui vote, pas pour qui. Ils ne modifient pas nos probabilités.`,
+    tableTitle: 'État par État, au même stade de la campagne',
+    th: ['État', 'Bulletins déposés', 'Démocrates', 'Républicains', 'Non affiliés et autres', 'Écart D − R'],
+    rowNow: '2026', row22: (d: number) => `2022, ${d} jours avant`, row24: (d: number) => `2024, ${d} jours avant`,
+    vs: 'Par rapport à 2022', vs24: 'Par rapport à 2024',
+    modes: { mail: 'vote postal seulement', in_person: 'en personne', both: 'en personne et par la poste' },
+    asOf: (iso: string, d: number) => `au ${dateFmt(iso)}, ${d} jours avant le scrutin`,
+    ballotsVs: (p: number) => `${pc(p, 0)} du volume de 2022 au même stade`,
+    read: {
+      better: (party: string, v: number, ref: string) => `L'écart entre inscrits démocrates et républicains est plus favorable aux ${party} qu'en ${ref} au même stade (${pts(v)} point${Math.abs(v) >= 2 ? 's' : ''}).`,
+      same: (ref: string) => `L'écart entre inscrits démocrates et républicains est à peu près le même qu'en ${ref} au même stade.`,
+      dems: 'démocrates', reps: 'républicains',
+      una: (v: number) => `La part des non-affiliés ${v > 0 ? 'monte' : 'baisse'} de ${pts(Math.abs(v)).replace('+', '')} point${Math.abs(v) >= 2 ? 's' : ''} par rapport à 2022.`,
+    },
+    note: {
+      PA: `Seul le vote postal est compté : la Pennsylvanie n'a presque pas de vote anticipé en personne. Les républicains, qui votaient très peu par la poste en 2022, s'y sont mis en 2024. Une partie de leur progression par rapport à 2022 vient de ce changement de façon de voter : ces électeurs auraient sans doute voté de toute façon, le jour du scrutin.`,
+      FL: `Comptes des comtés compilés par DataRepublican. Nous avons vérifié leur méthode sur la Pennsylvanie, où la source officielle permet de refaire le calcul : les chiffres concordent.`,
+      NC: `Fichiers officiels du State Board of Elections, bulletin par bulletin. La période de vote en personne s'ouvre le même jour de la semaine, au même nombre de jours du scrutin, en 2022, 2024 et 2026 : la comparaison est directe.`,
+    },
+    ncTitle: 'Caroline du Nord : âge, habitudes de vote et nouveaux votants',
+    ncLede: 'La Caroline du Nord publie, pour chaque bulletin, l\'âge et le parti de l\'électeur, et l\'historique de participation de chaque inscrit. On peut donc voir si les votants anticipés sont des habitués ou des électeurs qui votent rarement.',
+    ageTitle: 'Âge', histTitle: 'Habitudes de vote', raceTitle: 'Origine déclarée à l\'inscription',
+    age: { '18_29': '18 à 29 ans', '30_44': '30 à 44 ans', '45_64': '45 à 64 ans', '65_plus': '65 ans et plus' },
+    hist: { regular: 'Ont voté en 2022 et en 2024', intermittent: 'Ont voté à l\'une des deux', new_or_inactive: 'N\'ont voté à aucune des deux' },
+    histFor: (c: string) => c === C22 ? 'en 2022 : en 2018 et en 2020' : c === C24 ? 'en 2024 : en 2020 et en 2022' : '',
+    histNote: 'Pour 2022 et 2024, mêmes questions décalées : avaient-ils voté aux deux scrutins de novembre précédents ? La catégorie « aucune des deux » réunit les nouveaux inscrits et les électeurs qui s\'étaient abstenus.',
+    newParty: (d: number, r: number, u: number) => `Parmi les votants qui n'avaient voté à aucun des deux derniers scrutins, ${pc(d, 0)} sont inscrits démocrates, ${pc(r, 0)} républicains et ${pc(u, 0)} non affiliés ou autres.`,
+    race: { white: 'Blancs', black: 'Noirs', hispanic: 'Hispaniques', other: 'Autres', unknown: 'Non déclaré' },
+    colShare: (c: string) => c === C26 ? '2026' : c === C22 ? '2022' : '2024',
+    lvTitle: 'Et les sondages ?',
+    lv1: (lv: number, f22: number, f24: number) => `L'échantillon d'électeurs probables du sondage Elon University de début octobre prévoyait que ${pc(lv, 0)} d'entre eux voteraient avant le jour du scrutin. En 2022, c'était ${pc(f22, 0)} de l'électorat final ; en 2024, ${pc(f24, 0)}.`,
+    lv2: (share: number) => `Les ${num(nc.totals[C26].ballots)} bulletins déjà déposés représentent ${pc(share, 0)} de toute la participation de 2022.`,
+    lv3: 'Les votants anticipés sont toujours plus âgés que l\'électorat complet : comparer leur âge à celui d\'un échantillon de sondage ne dit rien en soi. Ce qui compte, c\'est l\'évolution par rapport à 2022 au même stade, plus haut.',
+    cautionTitle: 'Ce qu\'il faut garder en tête',
+    caution: [
+      'Une inscription n\'est pas un vote. Un inscrit démocrate peut voter républicain, et les non-affiliés penchent d\'un côté ou de l\'autre selon l\'État. Ces chiffres mesurent qui se déplace, jamais pour qui il vote.',
+      'Un bulletin anticipé de plus est souvent un bulletin du jour du scrutin de moins. Quand un parti pousse ses électeurs à voter tôt, sa part du vote anticipé monte sans que son électorat grossisse. C\'est pourquoi on compare au même stade des campagnes précédentes, et non au résultat final.',
+      'Les façons de voter ont beaucoup changé depuis 2020 : vote postal massif chez les démocrates en 2020, retour au vote en personne ensuite, campagnes républicaines pour le vote anticipé en 2024. Aucune élection passée n\'est un repère parfait ; 2022 et 2024 en encadrent deux différents.',
+      'Le vote du jour du scrutin reste à venir. En 2022, en Caroline du Nord, il comptait encore pour plus de 40 % de la participation.',
+    ],
+    methodTitle: 'Méthode et sources',
+    method: 'Un bulletin compte le jour où il a été retourné ou déposé. Pour 2022 et 2024, on recompte les fichiers définitifs en s\'arrêtant au même nombre de jours avant le scrutin que les données de 2026. Les parts portent sur le parti d\'inscription. En Pennsylvanie et en Floride, « non affiliés et autres » réunit les non-affiliés et les petits partis, que les fichiers ne séparent pas toujours.',
+    sources: 'Sources',
+  },
+  en: {
+    eyebrow: '2026 midterms · early vote',
+    h1: 'Who has already voted? The early vote compared with 2022 and 2024',
+    lede: `${num(total26)} ballots already cast in the three states tracked here. For each, we compare the share of registered Democrats, Republicans and unaffiliated voters among these voters with their share at the same number of days before the election in 2022 (the last midterm) and in 2024.`,
+    notPred: 'These figures describe who is voting, not for whom. They do not change our probabilities.',
+    tableTitle: 'State by state, at the same point in the campaign',
+    th: ['State', 'Ballots cast', 'Democrats', 'Republicans', 'Unaffiliated and other', 'D − R gap'],
+    rowNow: '2026', row22: (d: number) => `2022, ${d} days out`, row24: (d: number) => `2024, ${d} days out`,
+    vs: 'Compared with 2022', vs24: 'Compared with 2024',
+    modes: { mail: 'mail ballots only', in_person: 'in person', both: 'in person and by mail' },
+    asOf: (iso: string, d: number) => `as of ${dateFmt(iso)}, ${d} days before the election`,
+    ballotsVs: (p: number) => `${pc(p, 0)} of the 2022 volume at the same point`,
+    read: {
+      better: (party: string, v: number, ref: string) => `The gap between registered Democrats and Republicans is more favourable to ${party} than in ${ref} at the same point (${pts(v)} point${Math.abs(v) >= 1.05 ? 's' : ''}).`,
+      same: (ref: string) => `The gap between registered Democrats and Republicans is about the same as in ${ref} at the same point.`,
+      dems: 'Democrats', reps: 'Republicans',
+      una: (v: number) => `The unaffiliated share is ${v > 0 ? 'up' : 'down'} ${pts(Math.abs(v)).replace('+', '')} point${Math.abs(v) >= 1.05 ? 's' : ''} from 2022.`,
+    },
+    note: {
+      PA: 'Only mail ballots are counted: Pennsylvania has almost no in-person early voting. Republicans, who rarely voted by mail in 2022, started doing so in 2024. Part of their gain over 2022 comes from that change in how they vote: these voters would probably have voted anyway, on election day.',
+      FL: 'County counts compiled by DataRepublican. We checked their method on Pennsylvania, where the official source lets us redo the calculation: the figures match.',
+      NC: 'Official State Board of Elections files, ballot by ballot. In-person voting opens on the same weekday, the same number of days before the election, in 2022, 2024 and 2026: the comparison is direct.',
+    },
+    ncTitle: 'North Carolina: age, voting habits and new voters',
+    ncLede: 'North Carolina publishes the age and party of the voter for every ballot, and the turnout history of every registered voter. So we can see whether early voters are regulars or people who rarely vote.',
+    ageTitle: 'Age', histTitle: 'Voting habits', raceTitle: 'Race reported at registration',
+    age: { '18_29': '18 to 29', '30_44': '30 to 44', '45_64': '45 to 64', '65_plus': '65 and over' },
+    hist: { regular: 'Voted in both 2022 and 2024', intermittent: 'Voted in one of the two', new_or_inactive: 'Voted in neither' },
+    histFor: (c: string) => c === C22 ? 'for 2022: 2018 and 2020' : c === C24 ? 'for 2024: 2020 and 2022' : '',
+    histNote: 'For 2022 and 2024, the same question shifted back: had they voted in the two previous November elections? "Neither" groups newly registered voters and voters who had stayed home.',
+    newParty: (d: number, r: number, u: number) => `Among voters who had voted in neither of the last two elections, ${pc(d, 0)} are registered Democrats, ${pc(r, 0)} Republicans and ${pc(u, 0)} unaffiliated or other.`,
+    race: { white: 'White', black: 'Black', hispanic: 'Hispanic', other: 'Other', unknown: 'Not reported' },
+    colShare: (c: string) => c === C26 ? '2026' : c === C22 ? '2022' : '2024',
+    lvTitle: 'What about the polls?',
+    lv1: (lv: number, f22: number, f24: number) => `The likely-voter sample in Elon University's early-October poll expected ${pc(lv, 0)} of them to vote before election day. In 2022, that was ${pc(f22, 0)} of the final electorate; in 2024, ${pc(f24, 0)}.`,
+    lv2: (share: number) => `The ${num(nc.totals[C26].ballots)} ballots already cast amount to ${pc(share, 0)} of total 2022 turnout.`,
+    lv3: 'Early voters are always older than the full electorate: comparing their age with a poll sample says nothing on its own. What matters is the change from 2022 at the same point, above.',
+    cautionTitle: 'Keep in mind',
+    caution: [
+      'Registration is not a vote. A registered Democrat can vote Republican, and unaffiliated voters lean one way or the other depending on the state. These figures measure who turns out, never how they vote.',
+      'One more early ballot is often one fewer election-day ballot. When a party pushes its voters to vote early, its share of the early vote rises without its electorate growing. That is why we compare with the same point in past campaigns, not with the final result.',
+      'How people vote has changed a lot since 2020: heavy Democratic mail voting in 2020, a return to in-person voting afterwards, Republican early-vote drives in 2024. No past election is a perfect benchmark; 2022 and 2024 bracket two different ones.',
+      'Election-day voting is still to come. In North Carolina in 2022, it still made up more than 40% of turnout.',
+    ],
+    methodTitle: 'Method and sources',
+    method: 'A ballot counts on the day it was returned or cast. For 2022 and 2024, we recount the final files, stopping at the same number of days before the election as the 2026 data. Shares are by party of registration. In Pennsylvania and Florida, "unaffiliated and other" groups unaffiliated voters and minor parties, which the files do not always separate.',
+    sources: 'Sources',
+  },
+  es: {
+    eyebrow: 'Elecciones de medio mandato 2026 · voto anticipado',
+    h1: '¿Quién ya votó? El voto anticipado frente a 2022 y 2024',
+    lede: `${num(total26)} papeletas ya emitidas en los tres estados que seguimos aquí. Para cada uno, comparamos la parte de inscritos demócratas, republicanos y no afiliados entre estos votantes con su parte al mismo número de días antes de la elección, en 2022 (las últimas de medio mandato) y en 2024.`,
+    notPred: 'Estas cifras describen quién vota, no por quién. No modifican nuestras probabilidades.',
+    tableTitle: 'Estado por estado, en el mismo momento de la campaña',
+    th: ['Estado', 'Papeletas emitidas', 'Demócratas', 'Republicanos', 'No afiliados y otros', 'Diferencia D − R'],
+    rowNow: '2026', row22: (d: number) => `2022, ${d} días antes`, row24: (d: number) => `2024, ${d} días antes`,
+    vs: 'Frente a 2022', vs24: 'Frente a 2024',
+    modes: { mail: 'solo voto por correo', in_person: 'en persona', both: 'en persona y por correo' },
+    asOf: (iso: string, d: number) => `al ${dateFmt(iso)}, ${d} días antes de la elección`,
+    ballotsVs: (p: number) => `${pc(p, 0)} del volumen de 2022 en el mismo momento`,
+    read: {
+      better: (party: string, v: number, ref: string) => `La diferencia entre inscritos demócratas y republicanos es más favorable a los ${party} que en ${ref} en el mismo momento (${pts(v)} punto${Math.abs(v) >= 1.05 ? 's' : ''}).`,
+      same: (ref: string) => `La diferencia entre inscritos demócratas y republicanos es más o menos la misma que en ${ref} en el mismo momento.`,
+      dems: 'demócratas', reps: 'republicanos',
+      una: (v: number) => `La parte de los no afiliados ${v > 0 ? 'sube' : 'baja'} ${pts(Math.abs(v)).replace('+', '')} punto${Math.abs(v) >= 1.05 ? 's' : ''} frente a 2022.`,
+    },
+    note: {
+      PA: 'Solo se cuenta el voto por correo: Pensilvania casi no tiene voto anticipado en persona. Los republicanos, que casi no votaban por correo en 2022, empezaron a hacerlo en 2024. Parte de su avance frente a 2022 viene de ese cambio en la forma de votar: estos electores probablemente habrían votado de todos modos, el día de la elección.',
+      FL: 'Conteos de los condados recopilados por DataRepublican. Verificamos su método en Pensilvania, donde la fuente oficial permite rehacer el cálculo: las cifras coinciden.',
+      NC: 'Archivos oficiales de la Junta Electoral del estado, papeleta por papeleta. El voto en persona abre el mismo día de la semana, al mismo número de días de la elección, en 2022, 2024 y 2026: la comparación es directa.',
+    },
+    ncTitle: 'Carolina del Norte: edad, hábitos de voto y nuevos votantes',
+    ncLede: 'Carolina del Norte publica, para cada papeleta, la edad y el partido del elector, y el historial de participación de cada inscrito. Así se puede ver si los votantes anticipados son habituales o personas que votan poco.',
+    ageTitle: 'Edad', histTitle: 'Hábitos de voto', raceTitle: 'Origen declarado al inscribirse',
+    age: { '18_29': '18 a 29 años', '30_44': '30 a 44 años', '45_64': '45 a 64 años', '65_plus': '65 años o más' },
+    hist: { regular: 'Votaron en 2022 y en 2024', intermittent: 'Votaron en una de las dos', new_or_inactive: 'No votaron en ninguna' },
+    histFor: (c: string) => c === C22 ? 'para 2022: 2018 y 2020' : c === C24 ? 'para 2024: 2020 y 2022' : '',
+    histNote: 'Para 2022 y 2024, la misma pregunta desplazada: ¿habían votado en las dos elecciones de noviembre anteriores? «Ninguna» agrupa a los nuevos inscritos y a quienes se habían abstenido.',
+    newParty: (d: number, r: number, u: number) => `Entre los votantes que no habían votado en ninguna de las dos últimas elecciones, el ${pc(d, 0)} está inscrito como demócrata, el ${pc(r, 0)} como republicano y el ${pc(u, 0)} como no afiliado u otro.`,
+    race: { white: 'Blancos', black: 'Negros', hispanic: 'Hispanos', other: 'Otros', unknown: 'No declarado' },
+    colShare: (c: string) => c === C26 ? '2026' : c === C22 ? '2022' : '2024',
+    lvTitle: '¿Y las encuestas?',
+    lv1: (lv: number, f22: number, f24: number) => `La muestra de votantes probables de la encuesta de Elon University de principios de octubre preveía que el ${pc(lv, 0)} votaría antes del día de la elección. En 2022 fue el ${pc(f22, 0)} del electorado final; en 2024, el ${pc(f24, 0)}.`,
+    lv2: (share: number) => `Las ${num(nc.totals[C26].ballots)} papeletas ya emitidas equivalen al ${pc(share, 0)} de toda la participación de 2022.`,
+    lv3: 'Los votantes anticipados siempre son mayores que el electorado completo: comparar su edad con la de una muestra de encuesta no dice nada por sí solo. Lo que cuenta es el cambio frente a 2022 en el mismo momento, más arriba.',
+    cautionTitle: 'Lo que hay que tener en cuenta',
+    caution: [
+      'Una inscripción no es un voto. Un inscrito demócrata puede votar republicano, y los no afiliados se inclinan hacia un lado u otro según el estado. Estas cifras miden quién acude a votar, nunca por quién vota.',
+      'Una papeleta anticipada más suele ser una papeleta del día de la elección menos. Cuando un partido empuja a sus electores a votar temprano, su parte del voto anticipado sube sin que su electorado crezca. Por eso comparamos con el mismo momento de campañas anteriores, y no con el resultado final.',
+      'Las formas de votar han cambiado mucho desde 2020: voto por correo masivo de los demócratas en 2020, vuelta al voto en persona después, campañas republicanas a favor del voto anticipado en 2024. Ninguna elección pasada es una referencia perfecta; 2022 y 2024 enmarcan dos distintas.',
+      'Falta el voto del día de la elección. En Carolina del Norte, en 2022, aún representó más del 40 % de la participación.',
+    ],
+    methodTitle: 'Método y fuentes',
+    method: 'Una papeleta cuenta el día en que se devolvió o se emitió. Para 2022 y 2024, volvemos a contar los archivos definitivos deteniéndonos al mismo número de días antes de la elección que los datos de 2026. Las partes se refieren al partido de inscripción. En Pensilvania y Florida, «no afiliados y otros» agrupa a los no afiliados y a los partidos pequeños, que los archivos no siempre separan.',
+    sources: 'Fuentes',
+  },
+}[locale];
+
+const modeLabel = (s: any) => (s.modes.length > 1 ? T.modes.both : (T.modes as any)[s.modes[0]] ?? '');
+// Lecture : un écart de moins d'un point est « à peu près le même ».
+const reading = (s: any) => {
+  const out: string[] = [];
+  for (const [ref, key] of [['2022', 'change_vs_2022'], ['2024', 'change_vs_2024']] as const) {
+    const ch = s.headline[key];
+    const gap = ch.dem - ch.rep;
+    out.push(Math.abs(gap) < 1 ? T.read.same(ref) : T.read.better(gap > 0 ? T.read.dems : T.read.reps, Math.abs(gap), ref));
+  }
+  const u = s.headline.change_vs_2022.una;
+  if (Math.abs(u) >= 1) out.push(T.read.una(u));
+  return out;
+};
+const hist = nc?.composition?.vote_history;
+const newp = nc?.new_or_inactive_by_party?.[C26] ?? {};
+const lvMode = nc?.likely_voter_samples?.[0]?.dimensions?.planned_mode;
+const CYC = [C26, C22, C24];
+---
+
+<article class="uev" data-content-area>
+  <header class="container uev-head vs-page-head">
+    <p class="eyebrow">{T.eyebrow}</p>
+    <h1>{T.h1}</h1>
+    <p class="uev-lede">{T.lede}</p>
+    <p class="uev-note">{T.notPred}</p>
+  </header>
+
+  <section class="container uev-table">
+    <h2>{T.tableTitle}</h2>
+    <div class="uev-scroll">
+      <table>
+        <thead><tr>{T.th.map((h) => <th>{h}</th>)}</tr></thead>
+        {states.map((s) => (
+          <tbody>
+            <tr class="uev-state">
+              <th scope="row" rowspan="3">
+                {nameOf(s)}
+                <small>{modeLabel(s)}<br />{T.asOf(s.totals[C26].as_of, s.stage_days_before)}</small>
+              </th>
+              <td><strong>{num(s.totals[C26].ballots)}</strong> <small>{T.rowNow}</small></td>
+              <td><strong>{pc(s.headline.shares[C26].dem)}</strong></td>
+              <td><strong>{pc(s.headline.shares[C26].rep)}</strong></td>
+              <td><strong>{pc(s.headline.shares[C26].una)}</strong></td>
+              <td><strong>{pts(s.headline.dem_minus_rep[C26])}</strong></td>
+            </tr>
+            <tr class="uev-ref">
+              <td>{num(s.totals[C22].ballots)} <small>{T.row22(s.stage_days_before)}</small></td>
+              <td>{pc(s.headline.shares[C22].dem)}</td>
+              <td>{pc(s.headline.shares[C22].rep)}</td>
+              <td>{pc(s.headline.shares[C22].una)}</td>
+              <td>{pts(s.headline.dem_minus_rep[C22])}</td>
+            </tr>
+            <tr class="uev-ref">
+              <td>{num(s.totals[C24].ballots)} <small>{T.row24(s.stage_days_before)}</small></td>
+              <td>{pc(s.headline.shares[C24].dem)}</td>
+              <td>{pc(s.headline.shares[C24].rep)}</td>
+              <td>{pc(s.headline.shares[C24].una)}</td>
+              <td>{pts(s.headline.dem_minus_rep[C24])}</td>
+            </tr>
+          </tbody>
+        ))}
+      </table>
+    </div>
+  </section>
+
+  {states.map((s) => (
+    <section class="container uev-card">
+      <h2>{nameOf(s)}</h2>
+      <div class="uev-bars" role="img" aria-label={`${nameOf(s)} : ${T.th[2]} ${pc(s.headline.shares[C26].dem)}, ${T.th[3]} ${pc(s.headline.shares[C26].rep)}, ${T.th[4]} ${pc(s.headline.shares[C26].una)}`}>
+        {CYC.map((c) => (
+          <div class="uev-bar-row">
+            <span class="uev-bar-label">{T.colShare(c)}</span>
+            <div class="uev-bar">
+              {(['dem', 'rep', 'una'] as const).map((p) => (
+                <i style={`width:${s.headline.shares[c][p]}%;background:${PARTY_COLORS[p]}`}></i>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+      <ul class="uev-vs">
+        <li><span>{T.vs}</span> D {pts(s.headline.change_vs_2022.dem)} · R {pts(s.headline.change_vs_2022.rep)} · {T.th[4]} {pts(s.headline.change_vs_2022.una)}</li>
+        <li><span>{T.vs24}</span> D {pts(s.headline.change_vs_2024.dem)} · R {pts(s.headline.change_vs_2024.rep)} · {T.th[4]} {pts(s.headline.change_vs_2024.una)}</li>
+        <li>{T.ballotsVs(s.headline.ballots_vs_2022_pct)}</li>
+      </ul>
+      {reading(s).map((p) => <p>{p}</p>)}
+      <p class="uev-small">{(T.note as any)[s.state]}</p>
+    </section>
+  ))}
+
+  {nc && (
+    <section class="container uev-nc">
+      <h2>{T.ncTitle}</h2>
+      <p>{T.ncLede}</p>
+      <div class="uev-grid">
+        {[['age', T.ageTitle, T.age], ['vote_history', T.histTitle, T.hist], ['race', T.raceTitle, T.race]].map(([dim, title, labels]: any) => (
+          nc.composition[dim] && (
+            <div>
+              <h3>{title}</h3>
+              <table>
+                <thead><tr><th></th>{CYC.map((c) => <th>{T.colShare(c)}</th>)}</tr></thead>
+                <tbody>
+                  {nc.composition[dim].categories.map((k: string) => (
+                    <tr>
+                      <th scope="row">{labels[k] ?? k}</th>
+                      {CYC.map((c) => <td>{pc(nc.composition[dim].shares[c][k])}</td>)}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )
+        ))}
+      </div>
+      {hist && <p class="uev-small">{T.histNote}</p>}
+      {newp.dem != null && <p>{T.newParty(newp.dem, newp.rep, (newp.una ?? 0) + (newp.other ?? 0))}</p>}
+    </section>
+  )}
+
+  {nc && lvMode && (
+    <section class="container uev-read">
+      <h2>{T.lvTitle}</h2>
+      <p>{T.lv1(lvMode.early_share_lv_pct, lvMode.final_early_share_pct[C22], lvMode.final_early_share_pct[C24])}</p>
+      <p>{T.lv2(nc.totals[C26].share_of_2022_final_turnout_pct)}</p>
+      <p>{T.lv3}</p>
+    </section>
+  )}
+
+  <section class="container uev-read">
+    <h2>{T.cautionTitle}</h2>
+    <ul>{T.caution.map((c) => <li>{c}</li>)}</ul>
+  </section>
+
+  <section class="container uev-method">
+    <h2>{T.methodTitle}</h2>
+    <p>{T.method}</p>
+    <p>{T.sources} :</p>
+    <ul>
+      {states.flatMap((s) => s.sources).map((src: any) => <li><a href={src.url} rel="noopener">{src.label}</a></li>)}
+      {nc?.likely_voter_samples?.[0] && <li><a href={nc.likely_voter_samples[0].source_url} rel="noopener">Elon University Poll, October 2026</a></li>}
+    </ul>
+  </section>
+</article>
+
+<style>
+  .uev-head { padding-top: 2rem; }
+  .uev-lede { font-size: 1.15rem; max-width: 70ch; }
+  .uev-note { font-size: .95rem; opacity: .85; max-width: 70ch; }
+  .uev table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+  .uev th, .uev td { text-align: left; padding: .45rem .5rem; border-bottom: 1px solid var(--border, #e5e5e5); vertical-align: top; }
+  .uev td { text-align: right; }
+  .uev thead th { font-size: .85rem; opacity: .8; }
+  .uev thead th:not(:first-child) { text-align: right; }
+  .uev small { display: block; font-size: .8rem; opacity: .7; font-weight: normal; }
+  .uev td small { display: inline; }
+  .uev-scroll { overflow-x: auto; }
+  .uev-state td { border-top: 2px solid var(--border, #ccc); }
+  .uev-ref td { opacity: .75; font-size: .95rem; }
+  .uev-table, .uev-card, .uev-nc, .uev-read, .uev-method { margin: 2rem auto; }
+  .uev-card p, .uev-read p, .uev-read li, .uev-nc > p, .uev-method p { max-width: 70ch; }
+  .uev-bars { display: grid; gap: .35rem; margin: .75rem 0 1rem; max-width: 640px; }
+  .uev-bar-row { display: grid; grid-template-columns: 3.2rem 1fr; align-items: center; gap: .5rem; }
+  .uev-bar-label { font-size: .85rem; font-variant-numeric: tabular-nums; }
+  .uev-bar { display: flex; height: 1.1rem; border-radius: 2px; overflow: hidden; }
+  .uev-bar i { display: block; height: 100%; }
+  .uev-vs { list-style: none; padding: 0; margin: 0 0 1rem; font-variant-numeric: tabular-nums; }
+  .uev-vs li { padding: .15rem 0; }
+  .uev-vs span { display: inline-block; min-width: 11rem; opacity: .75; }
+  .uev-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; margin: 1rem 0; }
+  .uev-grid h3 { font-size: 1rem; margin: 0 0 .25rem; }
+  .uev-small { font-size: .9rem; opacity: .8; }
+  .uev-method p, .uev-method li { font-size: .9rem; opacity: .85; }
+</style>

@@ -1,0 +1,20 @@
+---
+import EditorialLayout from '../../../layouts/EditorialLayout.astro';
+import UsEarlyVote from '../../../components/UsEarlyVote.astro';
+import NewsletterCta from '../../../components/NewsletterCta.astro';
+
+const canonical = 'https://vote-scope.com/en/us/early-vote/';
+---
+
+<EditorialLayout
+  title="2026 midterm early vote: who has already voted? — Vote-Scope"
+  description="Registered Democrats, Republicans and unaffiliated voters among ballots already cast in North Carolina, Pennsylvania and Florida, compared with the same point in 2022 and 2024."
+  canonical={canonical}
+  lang="en"
+  currentPage="us"
+  ogImage="https://vote-scope.com/og/vote-scope.png"
+  alternates={{ en: 'https://vote-scope.com/en/us/early-vote/', fr: 'https://vote-scope.com/fr/us/vote-anticipe/', es: 'https://vote-scope.com/es/us/voto-anticipado/' }}
+>
+  <UsEarlyVote locale="en" />
+  <NewsletterCta lang="en" placement="us-early-vote" />
+</EditorialLayout>
