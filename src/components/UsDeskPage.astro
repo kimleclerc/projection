@@ -31,6 +31,7 @@ import governorData from '../../web_data/us-governor/latest.json';
 import showdownData from '../../web_data/cusma-showdown/latest.json';
 import presData from '../../web_data/us-president/latest.json';
 import primaryDesk from '../../web_data/us-primaries/latest.json';
+import earlyVote from '../../web_data/us-senate/early_vote.json';
 
 type Lang = 'en' | 'fr' | 'es';
 interface Props { lang: Lang; }
@@ -330,6 +331,16 @@ const firstSentence = (txt: string) => { const m = /^(.+?[.!?])(\s|$)/.exec(txt.
 const untilItems = [
   { meta: nextPrimary ? `${t.primariesNext} ${nextPrimaryStates}` : undefined, title: t.primaries, text: t.primariesCount(primaryMeta.n_races_decided, primaryMeta.n_races_awaiting), href: t.primariesHref },
   ...liveSpecials.map((sp) => ({ meta: specialKicker(sp), title: specialHeadline(sp).replace(/\n/g, ' '), text: firstSentence(specialDek(sp)), href: specialHref(sp) })),
+  (() => {
+    const ev: any = earlyVote; const n = ev.states.length;
+    const asOf = new Date(`${ev.meta.as_of}T12:00:00`).toLocaleDateString(lang === 'fr' ? 'fr-CA' : lang === 'es' ? 'es' : 'en-US', { day: 'numeric', month: 'long' });
+    return {
+      meta: lang === 'fr' ? `${n} États · données au ${asOf}` : lang === 'es' ? `${n} estados · datos al ${asOf}` : `${n} states · data as of ${asOf}`,
+      title: lang === 'fr' ? 'Vote anticipé : qui a déjà voté ?' : lang === 'es' ? 'Voto anticipado: ¿quién ya votó?' : 'Early vote: who has already voted?',
+      text: lang === 'fr' ? 'Démocrates, républicains et non-affiliés parmi les bulletins déjà déposés, comparés au même stade de 2022.' : lang === 'es' ? 'Demócratas, republicanos y no afiliados entre las papeletas ya emitidas, frente al mismo momento de 2022.' : 'Democrats, Republicans and unaffiliated voters among ballots already cast, compared with the same point in 2022.',
+      href: lang === 'fr' ? '/fr/us/vote-anticipe/' : lang === 'es' ? '/es/us/voto-anticipado/' : '/en/us/early-vote/',
+    };
+  })(),
 ];
 const ldiDelta = `${ldi.delta_7d >= 0 ? '+' : '−'}${num(Math.abs(ldi.delta_7d), lang, 1)}`;
 const indexItems = [
