@@ -3,6 +3,8 @@
  * Liens visibles vers le comparateur « Vote-Scope contre les autres » et la page
  * des marchés, placés dans la page projection juste sous la projection des
  * sièges. Ces pages existaient depuis le 19 septembre sans un seul lien entrant.
+ * Sénat et gouverneurs reçoivent aussi le lien vers le suivi du vote anticipé
+ * (2026-10-26), qui porte sur les États de ces courses.
  */
 interface Props { locale: 'en' | 'fr' | 'es'; chamber: 'house' | 'senate' | 'governor' }
 const { locale, chamber } = Astro.props as Props;
@@ -13,15 +15,17 @@ const compareHref = {
   es: { house: '/es/us/house/comparar-pronosticos/', senate: '/es/us/senate/comparar-pronosticos/', governor: '/es/us/gobernadores/comparar-pronosticos/' },
 }[locale][chamber];
 const marketsHref = { fr: '/fr/us/marches-previsionnels/', en: '/en/us/prediction-markets/', es: '/es/us/mercados-de-prediccion/' }[locale];
+const earlyVoteHref = chamber === 'house' ? null : { fr: '/fr/us/vote-anticipe/', en: '/en/us/early-vote/', es: '/es/us/voto-anticipado/' }[locale];
 const C = {
-  fr: { compare: 'Comparer avec The Economist, DDHQ, Silver Bulletin, Cook…', compareSub: 'Toutes les prévisions côte à côte', markets: 'Kalshi et Polymarket contre notre modèle', marketsSub: 'Là où les parieurs divergent' },
-  en: { compare: 'Compare with The Economist, DDHQ, Silver Bulletin, Cook…', compareSub: 'Every forecast side by side', markets: 'Kalshi and Polymarket vs our model', marketsSub: 'Where bettors disagree' },
-  es: { compare: 'Comparar con The Economist, DDHQ, Silver Bulletin, Cook…', compareSub: 'Todos los pronósticos lado a lado', markets: 'Kalshi y Polymarket frente a nuestro modelo', marketsSub: 'Donde los apostadores discrepan' },
+  fr: { compare: 'Comparer avec The Economist, DDHQ, Silver Bulletin, Cook…', compareSub: 'Toutes les prévisions côte à côte', markets: 'Kalshi et Polymarket contre notre modèle', marketsSub: 'Là où les parieurs divergent', earlyVote: 'Le vote anticipé, comparé à 2022', earlyVoteSub: 'Qui a déjà voté' },
+  en: { compare: 'Compare with The Economist, DDHQ, Silver Bulletin, Cook…', compareSub: 'Every forecast side by side', markets: 'Kalshi and Polymarket vs our model', marketsSub: 'Where bettors disagree', earlyVote: 'The early vote, compared with 2022', earlyVoteSub: 'Who has already voted' },
+  es: { compare: 'Comparar con The Economist, DDHQ, Silver Bulletin, Cook…', compareSub: 'Todos los pronósticos lado a lado', markets: 'Kalshi y Polymarket frente a nuestro modelo', marketsSub: 'Donde los apostadores discrepan', earlyVote: 'El voto anticipado, comparado con 2022', earlyVoteSub: 'Quién ya votó' },
 }[locale];
 ---
 <nav class="fcl container" aria-label={C.compareSub}>
   <a href={compareHref}><span>{C.compareSub}</span><b>{C.compare}</b></a>
   <a href={marketsHref}><span>{C.marketsSub}</span><b>{C.markets}</b></a>
+  {earlyVoteHref && <a href={earlyVoteHref}><span>{C.earlyVoteSub}</span><b>{C.earlyVote}</b></a>}
 </nav>
 
 <style>
