@@ -31,7 +31,7 @@ const states: any[] = (data as any).states;
 const C22 = 'us_general_2022', C24 = 'us_general_2024', C26 = 'us_general_2026';
 const nc = states.find((s) => s.state === 'NC');
 const nameOf = (s: any) => s.state_name[locale];
-const nWord = ({ fr: ['', 'un', 'deux', 'trois', 'quatre', 'cinq', 'six'], en: ['', 'one', 'two', 'three', 'four', 'five', 'six'], es: ['', 'un', 'dos', 'tres', 'cuatro', 'cinco', 'seis'] } as any)[locale][states.length] ?? String(states.length);
+const nWord = ({ fr: ['', 'un', 'deux', 'trois', 'quatre', 'cinq', 'six', 'sept', 'huit', 'neuf', 'dix'], en: ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'], es: ['', 'un', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve', 'diez'] } as any)[locale][states.length] ?? String(states.length);
 const total26 = states.reduce((a, s) => a + s.totals[C26].ballots, 0);
 
 const PARTY_COLORS = { dem: '#1f77d0', rep: '#c62828', una: '#8a8a8a' };
@@ -42,6 +42,10 @@ const T = {
     h1: 'Qui a déjà voté ? Le vote anticipé comparé à 2022 et à 2024',
     lede: `${num(total26)} bulletins déjà déposés dans les ${nWord} États suivis ici. Pour chacun, on compare la part des inscrits démocrates, républicains et non affiliés parmi ces votants à leur part au même nombre de jours avant le scrutin, en 2022 (le dernier midterm) et en 2024.`,
     notPred: `Ces chiffres décrivent qui vote, pas pour qui. Ils ne modifient pas nos probabilités.`,
+    sumTitle: 'En bref : l\'écart entre démocrates et républicains, comparé à 2022',
+    sumTh: ['État', 'Écart D − R en 2026', 'Au même stade en 2022', 'Évolution', 'Source'],
+    sumSrc: { official: 'officielle', press: 'presse', third_party: 'analyste' },
+    sumNote: 'Évolution positive : l\'écart est plus favorable aux démocrates qu\'à pareille date en 2022. Écart mesuré sur le parti d\'inscription des votants, pas sur leur vote.',
     tableTitle: 'État par État, au même stade de la campagne',
     th: ['État', 'Bulletins déposés', 'Démocrates', 'Républicains', 'Non affiliés et autres', 'Écart D − R'],
     rowNow: '2026', row22: (d: number) => `2022, ${d} jours avant`, row24: (d: number) => `2024, ${d} jours avant`,
@@ -59,6 +63,11 @@ const T = {
       PA: `Seul le vote postal est compté : la Pennsylvanie n'a presque pas de vote anticipé en personne. Les républicains, qui votaient très peu par la poste en 2022, s'y sont mis en 2024. Une partie de leur progression par rapport à 2022 vient de ce changement de façon de voter : ces électeurs auraient sans doute voté de toute façon, le jour du scrutin.`,
       FL: `Comptes des comtés compilés par DataRepublican. Nous avons vérifié leur méthode sur la Pennsylvanie, où la source officielle permet de refaire le calcul : les chiffres concordent.`,
       NV: `Chiffres publiés chaque jour par The Nevada Independent à partir des données des comtés. Pour 2022, seul l'écart entre démocrates et républicains a été publié. Le Nevada envoie un bulletin postal à tous les électeurs depuis 2021, et les républicains ont surtout voté en personne avant le jour du scrutin en 2024 : la comparaison avec 2024 dit peu de chose.`,
+      CO: `Rapports officiels du secrétariat d'État. Le Colorado vote presque entièrement par la poste, et les non-affiliés y sont le premier groupe d'inscrits.`,
+      AZ: `Repères publiés par des analystes, pas par l'État : Stealth Analytics pour 2026 (11 jours avant), Data Orbital pour 2022 (12 jours avant), le suivi du Parti démocrate de l'Arizona pour 2024 (14 jours avant). Les stades ne coïncident pas exactement. En 2022, l'écart était encore de 3 points à 8 jours du scrutin.`,
+      IA: `Chiffres officiels du secrétariat d'État : bulletins reçus par la poste ou déposés en personne au bureau du comté.`,
+      ME: `Chiffres officiels du secrétariat d'État : bulletins par anticipation retournés.`,
+      KS: `Chiffres compilés par ike-lab à partir des fichiers des comtés : vote postal et vote en personne réunis.`,
       NC: `Fichiers officiels du State Board of Elections, bulletin par bulletin. La période de vote en personne s'ouvre le même jour de la semaine, au même nombre de jours du scrutin, en 2022, 2024 et 2026 : la comparaison est directe.`,
     },
     ncTitle: 'Caroline du Nord : âge, habitudes de vote et nouveaux votants',
@@ -98,6 +107,10 @@ const T = {
     h1: 'Who has already voted? The early vote compared with 2022 and 2024',
     lede: `${num(total26)} ballots already cast in the ${nWord} states tracked here. For each, we compare the share of registered Democrats, Republicans and unaffiliated voters among these voters with their share at the same number of days before the election in 2022 (the last midterm) and in 2024.`,
     notPred: 'These figures describe who is voting, not for whom. They do not change our probabilities.',
+    sumTitle: 'At a glance: the gap between Democrats and Republicans, compared with 2022',
+    sumTh: ['State', 'D − R gap in 2026', 'Same point in 2022', 'Change', 'Source'],
+    sumSrc: { official: 'official', press: 'press', third_party: 'analyst' },
+    sumNote: 'A positive change means the gap is more favourable to Democrats than at the same point in 2022. The gap is measured on voters\' party of registration, not on their vote.',
     tableTitle: 'State by state, at the same point in the campaign',
     th: ['State', 'Ballots cast', 'Democrats', 'Republicans', 'Unaffiliated and other', 'D − R gap'],
     rowNow: '2026', row22: (d: number) => `2022, ${d} days out`, row24: (d: number) => `2024, ${d} days out`,
@@ -115,6 +128,11 @@ const T = {
       PA: 'Only mail ballots are counted: Pennsylvania has almost no in-person early voting. Republicans, who rarely voted by mail in 2022, started doing so in 2024. Part of their gain over 2022 comes from that change in how they vote: these voters would probably have voted anyway, on election day.',
       FL: 'County counts compiled by DataRepublican. We checked their method on Pennsylvania, where the official source lets us redo the calculation: the figures match.',
       NV: 'Figures published daily by The Nevada Independent from county data. For 2022, only the gap between Democrats and Republicans was published. Nevada has mailed a ballot to every voter since 2021, and Republicans largely voted in person before election day in 2024: the comparison with 2024 says little.',
+      CO: "Official Secretary of State reports. Colorado votes almost entirely by mail, and unaffiliated voters are its largest group of registered voters.",
+      AZ: "Benchmarks published by analysts, not by the state: Stealth Analytics for 2026 (11 days out), Data Orbital for 2022 (12 days out), the Arizona Democratic Party tracker for 2024 (14 days out). The points in the campaign do not match exactly. In 2022, the gap was still 3 points 8 days before the election.",
+      IA: "Official Secretary of State figures: ballots received by mail or cast in person at the county office.",
+      ME: "Official Secretary of State figures: absentee ballots returned.",
+      KS: "Figures compiled by ike-lab from county files: mail and in-person voting combined.",
       NC: 'Official State Board of Elections files, ballot by ballot. In-person voting opens on the same weekday, the same number of days before the election, in 2022, 2024 and 2026: the comparison is direct.',
     },
     ncTitle: 'North Carolina: age, voting habits and new voters',
@@ -154,6 +172,10 @@ const T = {
     h1: '¿Quién ya votó? El voto anticipado frente a 2022 y 2024',
     lede: `${num(total26)} papeletas ya emitidas en los ${nWord} estados que seguimos aquí. Para cada uno, comparamos la parte de inscritos demócratas, republicanos y no afiliados entre estos votantes con su parte al mismo número de días antes de la elección, en 2022 (las últimas de medio mandato) y en 2024.`,
     notPred: 'Estas cifras describen quién vota, no por quién. No modifican nuestras probabilidades.',
+    sumTitle: 'En resumen: la diferencia entre demócratas y republicanos, frente a 2022',
+    sumTh: ['Estado', 'Diferencia D − R en 2026', 'Mismo momento de 2022', 'Cambio', 'Fuente'],
+    sumSrc: { official: 'oficial', press: 'prensa', third_party: 'analista' },
+    sumNote: 'Un cambio positivo indica una diferencia más favorable a los demócratas que en el mismo momento de 2022. La diferencia se mide sobre el partido de inscripción de los votantes, no sobre su voto.',
     tableTitle: 'Estado por estado, en el mismo momento de la campaña',
     th: ['Estado', 'Papeletas emitidas', 'Demócratas', 'Republicanos', 'No afiliados y otros', 'Diferencia D − R'],
     rowNow: '2026', row22: (d: number) => `2022, ${d} días antes`, row24: (d: number) => `2024, ${d} días antes`,
@@ -171,6 +193,11 @@ const T = {
       PA: 'Solo se cuenta el voto por correo: Pensilvania casi no tiene voto anticipado en persona. Los republicanos, que casi no votaban por correo en 2022, empezaron a hacerlo en 2024. Parte de su avance frente a 2022 viene de ese cambio en la forma de votar: estos electores probablemente habrían votado de todos modos, el día de la elección.',
       FL: 'Conteos de los condados recopilados por DataRepublican. Verificamos su método en Pensilvania, donde la fuente oficial permite rehacer el cálculo: las cifras coinciden.',
       NV: 'Cifras publicadas cada día por The Nevada Independent a partir de los datos de los condados. Para 2022 solo se publicó la diferencia entre demócratas y republicanos. Nevada envía una papeleta por correo a todos los electores desde 2021, y en 2024 los republicanos votaron sobre todo en persona antes del día de la elección: la comparación con 2024 dice poco.',
+      CO: "Informes oficiales de la Secretaría de Estado. Colorado vota casi por completo por correo, y los no afiliados son su mayor grupo de inscritos.",
+      AZ: "Referencias publicadas por analistas, no por el estado: Stealth Analytics para 2026 (11 días antes), Data Orbital para 2022 (12 días antes), el seguimiento del Partido Demócrata de Arizona para 2024 (14 días antes). Los momentos no coinciden exactamente. En 2022, la diferencia seguía siendo de 3 puntos a 8 días de la elección.",
+      IA: "Cifras oficiales de la Secretaría de Estado: papeletas recibidas por correo o emitidas en persona en la oficina del condado.",
+      ME: "Cifras oficiales de la Secretaría de Estado: papeletas anticipadas devueltas.",
+      KS: "Cifras recopiladas por ike-lab a partir de los archivos de los condados: voto por correo y en persona juntos.",
       NC: 'Archivos oficiales de la Junta Electoral del estado, papeleta por papeleta. El voto en persona abre el mismo día de la semana, al mismo número de días de la elección, en 2022, 2024 y 2026: la comparación es directa.',
     },
     ncTitle: 'Carolina del Norte: edad, hábitos de voto y nuevos votantes',
@@ -223,6 +250,10 @@ const hist = nc?.composition?.vote_history;
 const newp = nc?.new_or_inactive_by_party?.[C26] ?? {};
 const lvMode = nc?.likely_voter_samples?.[0]?.dimensions?.planned_mode;
 const CYC = [C26, C22, C24];
+const PRIMARY = new Set(['NC', 'PA', 'CO']);
+const srcKind = (st: any) => PRIMARY.has(st.state) ? 'official' : st.state === 'FL' ? 'third_party'
+  : (st.source_kinds?.includes('official') ? 'official' : st.source_kinds?.includes('third_party') ? 'third_party' : 'press');
+const summary = [...states].sort((a, b) => b.headline.change_vs_2022.gap - a.headline.change_vs_2022.gap);
 ---
 
 <article class="uev" data-content-area>
@@ -232,6 +263,27 @@ const CYC = [C26, C22, C24];
     <p class="uev-lede">{T.lede}</p>
     <p class="uev-note">{T.notPred}</p>
   </header>
+
+  <section class="container uev-table">
+    <h2>{T.sumTitle}</h2>
+    <div class="uev-scroll">
+      <table class="uev-summary">
+        <thead><tr>{T.sumTh.map((h) => <th>{h}</th>)}</tr></thead>
+        <tbody>
+          {summary.map((st) => (
+            <tr>
+              <th scope="row">{nameOf(st)}{st.state === 'PA' && <small>{T.modes.mail}</small>}</th>
+              <td>{pts(st.headline.dem_minus_rep[C26])}</td>
+              <td>{pts(st.headline.dem_minus_rep[C22])}</td>
+              <td><strong>{pts(st.headline.change_vs_2022.gap)}</strong></td>
+              <td>{(T.sumSrc as any)[srcKind(st)]}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <p class="uev-small">{T.sumNote}</p>
+  </section>
 
   <section class="container uev-table">
     <h2>{T.tableTitle}</h2>
@@ -366,6 +418,7 @@ const CYC = [C26, C22, C24];
     <p>{T.sources} :</p>
     <ul>
       {states.flatMap((s) => s.sources).map((src: any) => <li><a href={src.url} rel="noopener">{src.label[locale] ?? src.label.en}</a></li>)}
+      {((data as any).compiler_sources ?? []).map((src: any) => <li><a href={src.url} rel="noopener">{src.label[locale] ?? src.label.en}</a></li>)}
       {nc?.likely_voter_samples?.[0] && <li><a href={nc.likely_voter_samples[0].source_url} rel="noopener">{T.elon}</a></li>}
     </ul>
   </section>
