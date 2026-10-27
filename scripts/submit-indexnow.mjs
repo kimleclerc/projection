@@ -76,7 +76,7 @@ const CURATED = [
   '/en/us/governors/polls/', '/fr/us/gouverneurs/sondages/', '/es/us/gobernadores/sondeos/',
   // Vote anticipé — page ouverte le 2026-10-26, mise à jour chaque jour
   // jusqu'au scrutin du 3 novembre.
-  '/en/us/early-vote', '/fr/us/vote-anticipe', '/es/us/voto-anticipado',
+  '/en/us/early-vote/', '/fr/us/vote-anticipe/', '/es/us/voto-anticipado/',
   '/en/us/indexes/lame-duck/', '/fr/us/indexes/lame-duck/', '/es/us/indexes/lame-duck/',
   // Desk des marchés et comparateur de modèles, ouverts le 2026-09-19. Le
   // premier suit deux bourses en direct, le second porte les toplines de sept
