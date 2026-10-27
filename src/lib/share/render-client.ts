@@ -69,3 +69,10 @@ export async function renderPollPng(fmt: 'wide' | 'square' | 'story', lang: Lang
   const { w, h } = SIZE[fmt];
   return toPng(pollCard(fmt, lang, payload), w, h);
 }
+
+/** Image du suivi du vote anticipé US, à partir des chiffres de la page. */
+export async function renderEarlyVotePng(fmt: 'wide' | 'square' | 'story', lang: Lang, payload: import('./cards').EarlyVoteCardInput): Promise<Blob> {
+  const { earlyVoteCard, SIZE } = await import('./cards');
+  const { w, h } = SIZE[fmt];
+  return toPng(earlyVoteCard(fmt, lang, payload), w, h);
+}

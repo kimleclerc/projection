@@ -648,3 +648,81 @@ export function pollCard(fmt: Format, lang: Lang, d: PollCardInput): Node {
     intro, head, ...rows);
   return frame(fmt, lang, d.title, d.voteDay ? longDate(d.voteDay, lang) : '', body, d.foot);
 }
+
+// ------------------------------------------------------------------ vote anticipé US
+
+export interface EarlyVoteCardInput {
+  title: string;      // « Vote anticipé des élections de mi-mandat »
+  heading: string;    // titre du graphique
+  rows: { label: string; note: string; a: number; b: number; group: number }[];
+  groups: string[];   // intitulés des groupes (gagnés par Trump, par Harris)
+  legendA: string;    // « 2024, même date »
+  legendB: string;    // « 2026 »
+  left: string;       // « plus républicain »
+  right: string;      // « plus démocrate »
+  ticks: { v: number; label: string }[];
+  voteDay: string;    // ISO
+  foot: string;
+  dem: string;        // couleurs des partis
+  rep: string;
+}
+
+/** Écart D − R des votants anticipés, 2024 puis 2026 au même stade, un État par
+ *  ligne : un anneau pour 2024, un point à la couleur du parti en tête pour 2026,
+ *  reliés par un trait. Même lecture que le graphique de la page. */
+export function earlyVoteCard(fmt: Format, lang: Lang, d: EarlyVoteCardInput): Node {
+  const { w } = SIZE[fmt];
+  const pad = fmt === 'wide' ? 34 : 44;
+  const inner = w - pad * 2;
+  const big = fmt !== 'wide';
+  const story = fmt === 'story';
+  const vals = d.rows.flatMap((r) => [r.a, r.b]);
+  const lo = Math.floor((Math.min(0, ...vals) - 2) / 10) * 10;
+  const hi = Math.ceil((Math.max(0, ...vals) + 2) / 10) * 10;
+  const labelW = big ? 300 : 270;
+  const trackW = inner - labelW - 10;
+  const X = (v: number) => ((v - lo) / (hi - lo)) * trackW;
+  const rowH = story ? 108 : big ? 52 : 26;
+  const dot = story ? 32 : big ? 22 : 14;
+  const lab = story ? 38 : big ? 26 : 18;
+  const sub = story ? 26 : big ? 18 : 14;
+  const track = (children: Node[], height: number) => h('div', { position: 'relative', width: trackW, height }, ...children);
+  const zero = (height: number) => h('div', { position: 'absolute', left: X(0), top: 0, width: 1, height, backgroundColor: INK_3 });
+  const out: Node[] = [];
+  d.groups.forEach((g, gi) => {
+    const rows = d.rows.filter((r) => r.group === gi);
+    if (!rows.length) return;
+    out.push(h('div', { borderBottom: `1px solid ${INK}`, paddingBottom: 4, marginTop: gi ? (big ? 18 : 8) : 0, fontSize: big ? 19 : 14, fontWeight: 600, color: INK_3 }, g));
+    for (const r of rows) {
+      const [x0, x1] = [X(r.a), X(r.b)].sort((p, q) => p - q);
+      const c = r.b >= 0 ? d.dem : d.rep;
+      out.push(h('div', { alignItems: 'center', height: rowH, borderBottom: `1px solid ${RULE}` },
+        // Grands formats : la marge de 2024 sous le nom, pour les noms longs.
+        h('div', { width: labelW, flexDirection: big ? 'column' : 'row', alignItems: big ? 'flex-start' : 'baseline', paddingRight: 10 },
+          h('div', { fontSize: lab, fontWeight: 700, lineHeight: 1.1 }, r.label),
+          h('div', { fontSize: sub, fontWeight: 500, color: INK_3, marginLeft: big ? 0 : 8, marginTop: big ? 2 : 0 }, r.note)),
+        track([
+          zero(rowH),
+          h('div', { position: 'absolute', left: x0, top: rowH / 2 - 2, width: Math.max(1, x1 - x0), height: 4, backgroundColor: RULE }),
+          h('div', { position: 'absolute', left: X(r.a) - dot / 2, top: rowH / 2 - dot / 2, width: dot, height: dot, borderRadius: dot, border: `3px solid ${INK_3}`, backgroundColor: PAPER }),
+          h('div', { position: 'absolute', left: X(r.b) - dot / 2, top: rowH / 2 - dot / 2, width: dot, height: dot, borderRadius: dot, backgroundColor: c, border: `2px solid ${PAPER}` }),
+        ], rowH)));
+    }
+  });
+  const axis = h('div', { marginTop: 6 },
+    h('div', { width: labelW }),
+    track(d.ticks.filter((t) => t.v >= lo && t.v <= hi).map((t) =>
+      h('div', { position: 'absolute', left: X(t.v) - 40, width: 80, justifyContent: 'center', fontSize: sub, fontWeight: 600, color: INK_3 }, t.label)), sub + 6));
+  const sides = h('div', { marginTop: 2 },
+    h('div', { width: labelW }),
+    h('div', { width: trackW, justifyContent: 'space-between', fontSize: sub, fontWeight: 600, color: INK_2 },
+      h('div', {}, d.left), h('div', {}, d.right)));
+  const legend = h('div', { alignItems: 'center', marginTop: big ? 14 : 6, marginBottom: big ? 18 : 8, fontSize: sub + 2, fontWeight: 600, color: INK_2 },
+    h('div', { width: dot, height: dot, borderRadius: dot, border: `3px solid ${INK_3}`, marginRight: 8 }), h('div', { marginRight: 24 }, d.legendA),
+    h('div', { width: dot, height: dot, borderRadius: dot, backgroundColor: d.dem, marginRight: 4 }),
+    h('div', { width: dot, height: dot, borderRadius: dot, backgroundColor: d.rep, marginRight: 8 }), h('div', {}, d.legendB));
+  const body = h('div', { flexDirection: 'column', flexGrow: 1, justifyContent: big ? 'center' : 'flex-start' },
+    h('div', { fontSize: story ? 52 : big ? 40 : 24, fontWeight: 700, lineHeight: 1.1 }, d.heading),
+    legend, ...out, axis, sides);
+  return frame(fmt, lang, d.title, longDate(d.voteDay, lang), body, d.foot);
+}

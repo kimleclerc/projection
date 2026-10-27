@@ -4,11 +4,14 @@
  * avant les scrutins de 2022 et de 2024. Page descriptive en trois langues ;
  * rien ici ne modifie les probabilités publiées.
  * Source : web_data/us-senate/early_vote.json (moteur, build_us_early_vote_web.py).
- * Gabarit : PageHeader, puis tableau de synthèse (docs/DESIGN.md § 7).
+ * Gabarit : PageHeader, graphique 2024 puis 2026 (téléchargeable en image, dessinée
+ * dans le navigateur par earlyVoteCard dans lib/share/cards), puis tableau de
+ * synthèse (docs/DESIGN.md § 7).
  * Blocs en enfants directs de [data-content-area] pour l'insertion publicitaire.
  */
 import PageHeader from './PageHeader.astro';
 import data from '../../web_data/us-senate/early_vote.json';
+import { partyHex } from '../lib/us-pres';
 
 interface Props { locale: 'fr' | 'en' | 'es'; }
 const { locale } = Astro.props;
@@ -41,17 +44,21 @@ const inWords = (n: number) => words[n] ?? String(n);
 // Préposition devant un nom d'État (« au Kansas », « en Floride »).
 const FR_AU = new Set(['KS', 'NV', 'ME', 'NE', 'CO']);
 const inState = (s: any) => locale === 'fr' ? `${FR_AU.has(s.state) ? 'au' : 'en'} ${nameOf(s)}` : locale === 'es' ? `en ${nameOf(s)}` : `in ${nameOf(s)}`;
-const join = (xs: string[]) => {
-  const and = locale === 'fr' ? 'et' : locale === 'es' ? 'y' : 'and';
-  return xs.length <= 1 ? (xs[0] ?? '') : `${xs.slice(0, -1).join(', ')} ${and} ${xs[xs.length - 1]}`;
-};
 
 // Un écart de moins d'un point est « à peu près le même ».
 const gap22 = (s: any) => s.headline.change_vs_2022.gap;
 const summary = [...states].sort((a, b) => gap22(b) - gap22(a));
 const demBetter = summary.filter((s) => gap22(s) >= 1);
-const repBetter = summary.filter((s) => gap22(s) <= -1);
-const flat = summary.filter((s) => Math.abs(gap22(s)) < 1);
+// 2024 : les États classés selon la marge de Trump (ensemble de l'État).
+const gap24 = (s: any) => s.headline.change_vs_2024.gap;
+const trumpM = (s: any) => s.pres_2024.rep_minus_dem;
+const byTrump = [...states].sort((a, b) => trumpM(b) - trumpM(a));
+const trumpStates = byTrump.filter((s) => s.pres_2024.winner === 'rep');
+const up24 = [...trumpStates.filter((s) => gap24(s) >= 1)].sort((a, b) => gap24(a) - gap24(b));
+const lo24 = up24[0], hi24 = up24[up24.length - 1];
+const abs1 = (n: number) => Math.abs(n).toLocaleString(loc, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+const marginNote = (s: any) => `${s.pres_2024.winner === 'rep' ? 'Trump' : 'Harris'} +${abs1(trumpM(s))}`;
+const DEM = partyHex('us_dem'), REP = partyHex('us_rep');
 const PRIMARY = new Set(['NC', 'PA', 'CO']);
 const srcKind = (s: any) => PRIMARY.has(s.state) ? 'official' : s.state === 'FL' ? 'third_party'
   : (s.source_kinds?.includes('official') ? 'official' : s.source_kinds?.includes('third_party') ? 'third_party' : 'press');
@@ -60,10 +67,20 @@ const dayLabel = (s: any, c: string) => s.stage_days_before_by_cycle?.[c] ?? s.s
 const T = {
   fr: {
     title: 'Vote anticipé des élections de mi-mandat : qui a déjà voté',
-    promise: `Part des inscrits démocrates, républicains et non affiliés parmi les bulletins déjà déposés dans ${inWords(states.length)} États, comparée à la même date avant le scrutin de 2022.`,
-    answer: `Dans ${inWords(demBetter.length)} États sur ${inWords(states.length)}, l'écart entre inscrits démocrates et républicains est plus favorable aux démocrates qu'à la même date en 2022. Il est plus favorable aux républicains ${join(repBetter.map(inState))}${flat.length ? `, et presque inchangé ${join(flat.map(inState))}` : ''}.`,
+    promise: `Part des inscrits démocrates, républicains et non affiliés parmi les bulletins déjà déposés dans ${inWords(states.length)} États, comparée à la même date avant les scrutins de 2024 et de 2022.`,
+    answer: up24.length
+      ? `Dans ${up24.length === trumpStates.length ? `les ${inWords(trumpStates.length)} États` : `${inWords(up24.length)} des ${inWords(trumpStates.length)} États`} gagnés par Trump en 2024, l'écart entre inscrits démocrates et républicains est plus favorable aux démocrates qu'à la même date en 2024 : de ${abs1(gap24(lo24))} points ${inState(lo24)} à ${abs1(gap24(hi24))} ${inState(hi24)}. Par rapport à 2022, il l'est dans ${inWords(demBetter.length)} États sur ${inWords(states.length)}.`
+      : `Par rapport à la même date en 2022, l'écart entre inscrits démocrates et républicains est plus favorable aux démocrates dans ${inWords(demBetter.length)} États sur ${inWords(states.length)}.`,
+    chartTitle: 'L\'écart démocrates − républicains parmi les votants anticipés, en 2024 et en 2026',
+    groups: ['Gagnés par Trump en 2024', 'Gagnés par Harris en 2024'],
+    legendA: '2024, même date', legendB: '2026, à la couleur du parti en tête',
+    left: 'plus républicain', right: 'plus démocrate',
+    chartMeta: `États classés selon la marge de Trump en 2024. Écart en points, au ${dateFmt(meta.as_of)} au plus tard. Pennsylvanie : vote postal seulement. Géorgie : participation passée aux primaires.`,
+    calendar: 'En 2024, Trump était candidat et le Parti républicain appelait ses électeurs à voter tôt. En 2026, il n\'est pas sur le bulletin. L\'écart avec 2024 réunit donc une mobilisation républicaine plus faible et un retour au vote du jour du scrutin, que ces chiffres ne permettent pas de séparer.',
+    share: 'Télécharger l\'image', shareFmt: { wide: 'Paysage', square: 'Carré', story: 'Story' }, busy: 'Image en cours…',
+    cardTitle: 'Vote anticipé, mi-mandat 2026', cardFoot: `Au ${dateFmt(meta.as_of)}. Un parti d'inscription n'est pas un vote.`,
     sumTitle: 'L\'écart démocrates − républicains, État par État',
-    sumTh: ['État', '2026', '2022, même date', 'Évolution', 'Source'],
+    sumTh: ['État', 'Présidentielle 2024', '2026', '2024, même date', 'Évolution', '2022, même date', 'Évolution', 'Source'],
     sumSrc: { official: 'État', press: 'presse', third_party: 'analyste' },
     sumMeta: `Écart en points entre la part des inscrits démocrates et celle des inscrits républicains parmi les votants, au ${dateFmt(meta.as_of)} au plus tard. Une inscription n'est pas un vote. Ces chiffres ne modifient pas nos probabilités.`,
     paNote: 'vote postal seulement',
@@ -105,19 +122,30 @@ const T = {
     cautionTitle: 'Limites',
     caution: [
       'Le parti d\'inscription n\'est pas le vote. Des démocrates inscrits votent républicain, et le vote des non-affiliés penche selon les États.',
-      'Quand un parti pousse ses électeurs à voter tôt, sa part du vote anticipé monte même si son électorat ne grossit pas. C\'est pourquoi la comparaison se fait à la même date qu\'en 2022, et non avec le résultat final.',
+      'Quand un parti pousse ses électeurs à voter tôt, sa part du vote anticipé monte même si son électorat ne grossit pas. C\'est pourquoi la comparaison se fait à la même date qu\'en 2024 et en 2022, et non avec le résultat final.',
       'Les habitudes de vote ont beaucoup changé depuis 2020, et 2022 comme 2024 sont des repères imparfaits. En Caroline du Nord, le vote du jour du scrutin pesait encore plus de 40 % de la participation en 2022.',
     ],
     methodTitle: 'Méthode et sources',
     method: 'Un bulletin compte le jour où il a été retourné ou déposé. Pour 2022 et 2024, les fichiers définitifs sont recomptés en s\'arrêtant au même nombre de jours avant le scrutin que les données de 2026. En Pennsylvanie, en Floride et en Géorgie, « non affiliés et autres » réunit les non-affiliés et les petits partis, que les fichiers ne séparent pas toujours.',
     elon: 'Sondage Elon University, octobre 2026',
+    pres24: 'Résultats de la présidentielle 2024 par État, compilés par Wikipédia',
   },
   en: {
     title: 'Midterm early vote: who has already voted',
-    promise: `Share of registered Democrats, Republicans and unaffiliated voters among ballots already cast in ${inWords(states.length)} states, compared with the same date before the 2022 election.`,
-    answer: `In ${inWords(demBetter.length)} of ${inWords(states.length)} states, the gap between registered Democrats and Republicans is more favorable to Democrats than at the same date in 2022. It is more favorable to Republicans ${join(repBetter.map(inState))}${flat.length ? `, and almost unchanged ${join(flat.map(inState))}` : ''}.`,
+    promise: `Share of registered Democrats, Republicans and unaffiliated voters among ballots already cast in ${inWords(states.length)} states, compared with the same date before the 2024 and 2022 elections.`,
+    answer: up24.length
+      ? `In ${up24.length === trumpStates.length ? `all ${inWords(trumpStates.length)} states` : `${inWords(up24.length)} of the ${inWords(trumpStates.length)} states`} Trump won in 2024, the gap between registered Democrats and Republicans is more favorable to Democrats than at the same date in 2024, by ${abs1(gap24(lo24))} points ${inState(lo24)} to ${abs1(gap24(hi24))} ${inState(hi24)}. Compared with 2022, it is more favorable in ${inWords(demBetter.length)} of ${inWords(states.length)} states.`
+      : `Compared with the same date in 2022, the gap between registered Democrats and Republicans is more favorable to Democrats in ${inWords(demBetter.length)} of ${inWords(states.length)} states.`,
+    chartTitle: 'The Democratic − Republican gap among early voters, 2024 and 2026',
+    groups: ['Won by Trump in 2024', 'Won by Harris in 2024'],
+    legendA: '2024, same date', legendB: '2026, in the color of the leading party',
+    left: 'more Republican', right: 'more Democratic',
+    chartMeta: `States ordered by Trump's 2024 margin. Gap in points, as of ${dateFmt(meta.as_of)} at the latest. Pennsylvania: mail ballots only. Georgia: past primary participation.`,
+    calendar: 'In 2024, Trump was on the ballot and the Republican Party urged its voters to vote early. In 2026, he is not on the ballot. The change since 2024 therefore combines weaker Republican turnout and a return to election-day voting, which these figures cannot separate.',
+    share: 'Download the image', shareFmt: { wide: 'Landscape', square: 'Square', story: 'Story' }, busy: 'Drawing…',
+    cardTitle: 'Early vote, 2026 midterms', cardFoot: `As of ${dateFmt(meta.as_of)}. Party registration is not a vote.`,
     sumTitle: 'The Democratic − Republican gap, state by state',
-    sumTh: ['State', '2026', '2022, same date', 'Change', 'Source'],
+    sumTh: ['State', '2024 presidential', '2026', '2024, same date', 'Change', '2022, same date', 'Change', 'Source'],
     sumSrc: { official: 'state', press: 'press', third_party: 'analyst' },
     sumMeta: `Gap in points between the share of registered Democrats and the share of registered Republicans among voters, as of ${dateFmt(meta.as_of)} at the latest. Registration is not a vote. These figures do not change our probabilities.`,
     paNote: 'mail ballots only',
@@ -159,19 +187,30 @@ const T = {
     cautionTitle: 'Limits',
     caution: [
       'Party registration is not a vote. Some registered Democrats vote Republican, and unaffiliated voters lean differently from state to state.',
-      'When a party pushes its voters to vote early, its share of the early vote rises even if its electorate does not grow. That is why the comparison is made at the same date as in 2022, not with the final result.',
+      'When a party pushes its voters to vote early, its share of the early vote rises even if its electorate does not grow. That is why the comparison is made at the same date as in 2024 and 2022, not with the final result.',
       'Voting habits have changed a lot since 2020, and both 2022 and 2024 are imperfect benchmarks. In North Carolina, election-day voting still made up more than 40% of turnout in 2022.',
     ],
     methodTitle: 'Method and sources',
     method: 'A ballot counts on the day it was returned or cast. For 2022 and 2024, the final files are recounted up to the same number of days before the election as the 2026 data. In Pennsylvania, Florida and Georgia, "unaffiliated and other" groups unaffiliated voters and minor parties, which the files do not always separate.',
     elon: 'Elon University Poll, October 2026',
+    pres24: '2024 presidential results by state, compiled by Wikipedia',
   },
   es: {
     title: 'Voto anticipado en las elecciones de medio mandato: quién ya votó',
-    promise: `Parte de los inscritos demócratas, republicanos y no afiliados entre las papeletas ya emitidas en ${inWords(states.length)} estados, frente a la misma fecha antes de la elección de 2022.`,
-    answer: `En ${inWords(demBetter.length)} de ${inWords(states.length)} estados, la diferencia entre inscritos demócratas y republicanos es más favorable a los demócratas que en la misma fecha de 2022. Es más favorable a los republicanos ${join(repBetter.map(inState))}${flat.length ? `, y casi no cambia ${join(flat.map(inState))}` : ''}.`,
+    promise: `Parte de los inscritos demócratas, republicanos y no afiliados entre las papeletas ya emitidas en ${inWords(states.length)} estados, frente a la misma fecha antes de las elecciones de 2024 y 2022.`,
+    answer: up24.length
+      ? `En ${up24.length === trumpStates.length ? `los ${inWords(trumpStates.length)} estados` : `${inWords(up24.length)} de los ${inWords(trumpStates.length)} estados`} que ganó Trump en 2024, la diferencia entre inscritos demócratas y republicanos es más favorable a los demócratas que en la misma fecha de 2024: de ${abs1(gap24(lo24))} puntos ${inState(lo24)} a ${abs1(gap24(hi24))} ${inState(hi24)}. Frente a 2022, lo es en ${inWords(demBetter.length)} de ${inWords(states.length)} estados.`
+      : `Frente a la misma fecha de 2022, la diferencia entre inscritos demócratas y republicanos es más favorable a los demócratas en ${inWords(demBetter.length)} de ${inWords(states.length)} estados.`,
+    chartTitle: 'La diferencia demócratas − republicanos entre los votantes anticipados, en 2024 y en 2026',
+    groups: ['Ganados por Trump en 2024', 'Ganados por Harris en 2024'],
+    legendA: '2024, misma fecha', legendB: '2026, con el color del partido en cabeza',
+    left: 'más republicano', right: 'más demócrata',
+    chartMeta: `Estados ordenados según el margen de Trump en 2024. Diferencia en puntos, al ${dateFmt(meta.as_of)} como muy tarde. Pensilvania: solo voto por correo. Georgia: participación pasada en primarias.`,
+    calendar: 'En 2024, Trump era candidato y el Partido Republicano pedía a sus electores votar temprano. En 2026 no está en la papeleta. El cambio frente a 2024 reúne, por tanto, una movilización republicana más débil y una vuelta al voto del día de la elección, que estas cifras no permiten separar.',
+    share: 'Descargar la imagen', shareFmt: { wide: 'Horizontal', square: 'Cuadrada', story: 'Story' }, busy: 'Generando…',
+    cardTitle: 'Voto anticipado, medio mandato 2026', cardFoot: `Al ${dateFmt(meta.as_of)}. El partido de inscripción no es un voto.`,
     sumTitle: 'La diferencia demócratas − republicanos, estado por estado',
-    sumTh: ['Estado', '2026', '2022, misma fecha', 'Cambio', 'Fuente'],
+    sumTh: ['Estado', 'Presidencial 2024', '2026', '2024, misma fecha', 'Cambio', '2022, misma fecha', 'Cambio', 'Fuente'],
     sumSrc: { official: 'estado', press: 'prensa', third_party: 'analista' },
     sumMeta: `Diferencia en puntos entre la parte de los inscritos demócratas y la de los republicanos entre los votantes, al ${dateFmt(meta.as_of)} como muy tarde. Una inscripción no es un voto. Estas cifras no modifican nuestras probabilidades.`,
     paNote: 'solo voto por correo',
@@ -213,12 +252,13 @@ const T = {
     cautionTitle: 'Límites',
     caution: [
       'El partido de inscripción no es el voto. Algunos demócratas inscritos votan republicano, y el voto de los no afiliados se inclina distinto según el estado.',
-      'Cuando un partido empuja a sus electores a votar temprano, su parte del voto anticipado sube aunque su electorado no crezca. Por eso la comparación se hace en la misma fecha que en 2022, y no con el resultado final.',
+      'Cuando un partido empuja a sus electores a votar temprano, su parte del voto anticipado sube aunque su electorado no crezca. Por eso la comparación se hace en la misma fecha que en 2024 y en 2022, y no con el resultado final.',
       'Los hábitos de voto han cambiado mucho desde 2020, y tanto 2022 como 2024 son referencias imperfectas. En Carolina del Norte, el voto del día de la elección aún pesó más del 40 % de la participación en 2022.',
     ],
     methodTitle: 'Método y fuentes',
     method: 'Una papeleta cuenta el día en que se devolvió o se emitió. Para 2022 y 2024, los archivos definitivos se recuentan hasta el mismo número de días antes de la elección que los datos de 2026. En Pensilvania, Florida y Georgia, «no afiliados y otros» agrupa a los no afiliados y a los partidos pequeños, que los archivos no siempre separan.',
     elon: 'Encuesta de Elon University, octubre de 2026',
+    pres24: 'Resultados presidenciales de 2024 por estado, recopilados por Wikipedia',
   },
 }[locale];
 
@@ -230,10 +270,73 @@ const yearOf = (c: string) => c.slice(-4);
 const rates = nc?.already_voted_rate;
 const sources = [...states.flatMap((s) => s.sources), ...((data as any).compiler_sources ?? [])]
   .filter((src, i, all) => all.findIndex((x: any) => x.url === src.url) === i);
+
+// Graphique : écart D − R en 2024 et en 2026, au même stade.
+const gapAt = (s: any, c: string) => s.headline.dem_minus_rep[c];
+const vals = byTrump.flatMap((s) => [gapAt(s, C24), gapAt(s, C26)]);
+const lo = Math.floor((Math.min(0, ...vals) - 2) / 10) * 10;
+const hi = Math.ceil((Math.max(0, ...vals) + 2) / 10) * 10;
+const P = (v: number) => `${(((v - lo) / (hi - lo)) * 100).toFixed(2)}%`;
+const tickLabel = (v: number) => (v === 0 ? '0' : `${v > 0 ? 'D' : 'R'} +${abs1(v).replace(/[.,]0$/, '')}`);
+const ticks: { v: number; label: string }[] = [];
+for (let v = lo; v <= hi; v += 10) ticks.push({ v, label: tickLabel(v) });
+const groupsOf = [byTrump.filter((s) => s.pres_2024.winner === 'rep'), byTrump.filter((s) => s.pres_2024.winner !== 'rep')];
+const card = JSON.stringify({
+  title: T.cardTitle, heading: T.chartTitle, groups: T.groups, legendA: T.legendA, legendB: '2026',
+  left: T.left, right: T.right, ticks, voteDay: meta.election_date, foot: T.cardFoot, dem: DEM, rep: REP,
+  rows: byTrump.map((s) => ({ label: nameOf(s), note: marginNote(s), a: gapAt(s, C24), b: gapAt(s, C26), group: s.pres_2024.winner === 'rep' ? 0 : 1 })),
+});
 ---
 
 <article class="uev" data-content-area>
   <PageHeader title={T.title} promise={T.promise} question={T.answer} />
+
+  <section class="container uev-section"><div class="vs-block">
+    <h2>{T.chartTitle}</h2>
+    <figure class="vs-figure uev-fig">
+      <p class="uev-legend" aria-hidden="true">
+        <span class="uev-key uev-ring"></span><span>{T.legendA}</span>
+        <span class="uev-key uev-dot" style={`background:${DEM}`}></span><span class="uev-key uev-dot" style={`background:${REP}`}></span><span>{T.legendB}</span>
+      </p>
+      {groupsOf.map((g, gi) => g.length > 0 && (
+        <div class="uev-group">
+          <p class="uev-group-title">{T.groups[gi]}</p>
+          {g.map((s) => {
+            const a = gapAt(s, C24), b = gapAt(s, C26);
+            const label = `${nameOf(s)} (${marginNote(s)}) : 2024 ${tickLabel(a)}, 2026 ${tickLabel(b)}`;
+            return (
+              <div class="uev-row" title={label}>
+                <span class="uev-name">{nameOf(s)} <span class="uev-note">{marginNote(s)}</span></span>
+                <span class="uev-track" aria-hidden="true">
+                  <span class="uev-zero" style={`left:${P(0)}`}></span>
+                  <span class="uev-link" style={`left:${P(Math.min(a, b))};width:calc(${P(Math.max(a, b))} - ${P(Math.min(a, b))})`}></span>
+                  <span class="uev-ring" style={`left:${P(a)}`}></span>
+                  <span class="uev-dot" style={`left:${P(b)};background:${b >= 0 ? DEM : REP}`}></span>
+                </span>
+                <span class="sr-only">{label}</span>
+              </div>
+            );
+          })}
+        </div>
+      ))}
+      <div class="uev-row uev-axis" aria-hidden="true">
+        <span class="uev-name"></span>
+        <span class="uev-track">{ticks.map((t) => <span class={`uev-tick${t.v % 20 ? ' uev-tick-minor' : ''}`} style={`left:${P(t.v)}`}>{t.label}</span>)}</span>
+      </div>
+      <div class="uev-row uev-sides" aria-hidden="true">
+        <span class="uev-name"></span>
+        <span class="uev-track"><span>{T.left}</span><span>{T.right}</span></span>
+      </div>
+    </figure>
+    <p class="vs-meta">{T.chartMeta}</p>
+    <p>{T.calendar}</p>
+    <div class="uev-share" data-card={card} data-lang={locale} data-busy={T.busy}>
+      <button type="button" class="vs-btn-secondary uev-share-btn" aria-expanded="false" aria-haspopup="menu">{T.share}</button>
+      <div class="uev-share-menu" role="menu" hidden>
+        {(['wide', 'square', 'story'] as const).map((f) => <button type="button" role="menuitem" data-fmt={f}>{T.shareFmt[f]}</button>)}
+      </div>
+    </div>
+  </div></section>
 
   <section class="container uev-section"><div class="vs-block">
     <h2>{T.sumTitle}</h2>
@@ -241,10 +344,13 @@ const sources = [...states.flatMap((s) => s.sources), ...((data as any).compiler
       <table class="uev-results">
         <thead><tr>{T.sumTh.map((h) => <th scope="col">{h}</th>)}</tr></thead>
         <tbody>
-          {summary.map((s) => (
+          {byTrump.map((s) => (
             <tr>
               <th scope="row">{nameOf(s)}{s.state === 'PA' && <span class="vs-meta uev-inline">{T.paNote}</span>}</th>
+              <td>{marginNote(s)}</td>
               <td>{pts(s.headline.dem_minus_rep[C26])}</td>
+              <td>{pts(s.headline.dem_minus_rep[C24])}</td>
+              <td><strong>{pts(gap24(s))}</strong></td>
               <td>{pts(s.headline.dem_minus_rep[C22])}</td>
               <td><strong>{pts(gap22(s))}</strong></td>
               <td>{(T.sumSrc as any)[srcKind(s)]}</td>
@@ -358,11 +464,78 @@ const sources = [...states.flatMap((s) => s.sources), ...((data as any).compiler
     <ul class="uev-sources vs-meta">
       {sources.map((src: any) => <li><a href={src.url} rel="noopener">{src.label[locale] ?? src.label.en}</a></li>)}
       {nc?.likely_voter_samples?.[0] && <li><a href={nc.likely_voter_samples[0].source_url} rel="noopener">{T.elon}</a></li>}
+      <li><a href={states[0].pres_2024.source_url} rel="noopener">{T.pres24}</a></li>
     </ul>
   </div></section>
 </article>
 
+<script>
+  type Fmt = 'wide' | 'square' | 'story';
+  document.querySelectorAll<HTMLElement>('.uev-share').forEach((root) => {
+    const btn = root.querySelector<HTMLButtonElement>('.uev-share-btn')!;
+    const menu = root.querySelector<HTMLElement>('.uev-share-menu')!;
+    const close = () => { menu.hidden = true; btn.setAttribute('aria-expanded', 'false'); };
+    btn.addEventListener('click', () => {
+      if (!menu.hidden) { close(); return; }
+      menu.hidden = false;
+      btn.setAttribute('aria-expanded', 'true');
+      menu.querySelector('button')?.focus();
+    });
+    document.addEventListener('click', (ev) => { if (!root.contains(ev.target as Node)) close(); });
+    document.addEventListener('keydown', (ev) => { if (ev.key === 'Escape' && !menu.hidden) { close(); btn.focus(); } });
+    menu.querySelectorAll<HTMLButtonElement>('button[data-fmt]').forEach((item) => {
+      item.addEventListener('click', async () => {
+        if (root.dataset.working) return;
+        const label = item.textContent;
+        root.dataset.working = '1';
+        item.textContent = root.dataset.busy ?? '…';
+        try {
+          const fmt = item.dataset.fmt as Fmt;
+          const lang = root.dataset.lang as 'fr' | 'en' | 'es';
+          const { renderEarlyVotePng } = await import('../lib/share/render-client');
+          const blob = await renderEarlyVotePng(fmt, lang, JSON.parse(root.dataset.card!));
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(blob);
+          a.download = `vote-scope-early-vote-${lang}${fmt === 'wide' ? '' : `-${fmt}`}.png`;
+          a.click();
+          setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+        } catch { /* rien de plus à faire */ }
+        item.textContent = label;
+        delete root.dataset.working;
+        close();
+      });
+    });
+  });
+</script>
+
 <style>
+  .uev-fig { margin: 16px 0 8px; padding: 16px; }
+  .uev-legend { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 0 0 12px; font-size: 14px; color: var(--ink-2); }
+  .uev-legend span + .uev-key { margin-left: 12px; }
+  .uev-legend .uev-key + .uev-key { margin-left: 0; }
+  .uev-legend .uev-key { position: static; transform: none; display: inline-block; flex-shrink: 0; }
+  .uev-group + .uev-group { margin-top: 12px; }
+  .uev-section .uev-group-title { max-width: none; margin: 0; padding-bottom: 4px; border-bottom: 1px solid var(--ink); font-size: 14px; font-weight: 600; color: var(--ink-3); }
+  .uev-row { display: grid; grid-template-columns: minmax(110px, 30%) 1fr; align-items: center; min-height: 34px; border-bottom: 1px solid var(--rule); }
+  .uev-name { font-weight: 700; font-size: 15px; padding-right: 8px; }
+  .uev-note { font-weight: 400; color: var(--ink-3); font-size: 13px; white-space: nowrap; }
+  .uev-track { position: relative; height: 34px; margin: 0 10px; }
+  .uev-zero { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--ink-3); }
+  .uev-link { position: absolute; top: 50%; height: 4px; margin-top: -2px; background: var(--rule); }
+  .uev-ring, .uev-dot { position: absolute; top: 50%; width: 14px; height: 14px; border-radius: 50%; transform: translate(-50%, -50%); box-sizing: border-box; }
+  .uev-ring { border: 2px solid var(--ink-3); background: var(--paper); }
+  .uev-dot { border: 2px solid var(--paper); width: 16px; height: 16px; }
+  .uev-axis, .uev-sides { border-bottom: 0; min-height: 22px; }
+  .uev-axis .uev-track, .uev-sides .uev-track { height: 22px; }
+  .uev-tick { position: absolute; top: 2px; transform: translateX(-50%); font-size: 12px; color: var(--ink-3); white-space: nowrap; }
+  @media (max-width: 560px) { .uev-tick-minor { display: none; } }
+  .uev-sides .uev-track { display: flex; justify-content: space-between; font-size: 13px; color: var(--ink-2); }
+  .uev-share { position: relative; margin-top: 12px; }
+  .uev-share-menu { position: absolute; z-index: 20; top: 100%; left: 0; margin-top: 4px; display: flex; flex-direction: column; width: 160px; background: var(--paper); border: 1px solid var(--ink-3); }
+  .uev-share-menu[hidden] { display: none; }
+  .uev-share-menu button { all: unset; cursor: pointer; padding: 9px 12px; font-size: 14px; color: var(--ink); border-bottom: 1px solid var(--rule); }
+  .uev-share-menu button:last-child { border-bottom: 0; }
+  .uev-share-menu button:hover, .uev-share-menu button:focus-visible { background: var(--paper-2); }
   .uev-section { margin-top: 32px; margin-bottom: 32px; }
   .uev-section p, .uev-notes dd { max-width: 72ch; }
   .uev table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
