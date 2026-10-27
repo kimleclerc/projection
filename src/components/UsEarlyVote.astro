@@ -31,7 +31,7 @@ const states: any[] = (data as any).states;
 const C22 = 'us_general_2022', C24 = 'us_general_2024', C26 = 'us_general_2026';
 const nc = states.find((s) => s.state === 'NC');
 const nameOf = (s: any) => s.state_name[locale];
-const nWord = ({ fr: ['', 'un', 'deux', 'trois', 'quatre', 'cinq', 'six', 'sept', 'huit', 'neuf', 'dix'], en: ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'], es: ['', 'un', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve', 'diez'] } as any)[locale][states.length] ?? String(states.length);
+const nWord = ({ fr: ['', 'un', 'deux', 'trois', 'quatre', 'cinq', 'six', 'sept', 'huit', 'neuf', 'dix', 'onze', 'douze'], en: ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve'], es: ['', 'un', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve', 'diez', 'once', 'doce'] } as any)[locale][states.length] ?? String(states.length);
 const total26 = states.reduce((a, s) => a + s.totals[C26].ballots, 0);
 
 const PARTY_COLORS = { dem: '#1f77d0', rep: '#c62828', una: '#8a8a8a' };
@@ -68,6 +68,8 @@ const T = {
       IA: `Chiffres officiels du secrétariat d'État : bulletins reçus par la poste ou déposés en personne au bureau du comté.`,
       ME: `Chiffres officiels du secrétariat d'État : bulletins par anticipation retournés.`,
       KS: `Chiffres compilés par ike-lab à partir des fichiers des comtés : vote postal et vote en personne réunis.`,
+      NE: `Chiffres du secrétariat d'État, cités d'après le suivi du New York Times. Au Sénat, le principal adversaire du sortant républicain est un candidat indépendant : l'inscription par parti dit encore moins ici comment les électeurs voteront.`,
+      GA: `La Géorgie n'enregistre pas les électeurs par parti : la répartition vient de la participation passée aux primaires de chaque parti, estimée par le New York Times. « Non affiliés et autres » désigne ici les électeurs sans primaire à leur actif. Part des électeurs noirs parmi les votants anticipés : 32 %, contre 30 % au même stade en 2022 et 26 % en 2024.`,
       NC: `Fichiers officiels du State Board of Elections, bulletin par bulletin. La période de vote en personne s'ouvre le même jour de la semaine, au même nombre de jours du scrutin, en 2022, 2024 et 2026 : la comparaison est directe.`,
     },
     ncTitle: 'Caroline du Nord : âge, habitudes de vote et nouveaux votants',
@@ -133,6 +135,8 @@ const T = {
       IA: "Official Secretary of State figures: ballots received by mail or cast in person at the county office.",
       ME: "Official Secretary of State figures: absentee ballots returned.",
       KS: "Figures compiled by ike-lab from county files: mail and in-person voting combined.",
+      NE: "Secretary of State figures, cited from The New York Times tracker. In the Senate race, the Republican incumbent's main opponent is an independent: party registration says even less here about how voters will vote.",
+      GA: "Georgia does not register voters by party: the split comes from past participation in each party's primaries, as estimated by The New York Times. “Unaffiliated and other” here means voters with no primary history. Black voters' share of early voters: 32%, against 30% at the same point in 2022 and 26% in 2024.",
       NC: 'Official State Board of Elections files, ballot by ballot. In-person voting opens on the same weekday, the same number of days before the election, in 2022, 2024 and 2026: the comparison is direct.',
     },
     ncTitle: 'North Carolina: age, voting habits and new voters',
@@ -198,6 +202,8 @@ const T = {
       IA: "Cifras oficiales de la Secretaría de Estado: papeletas recibidas por correo o emitidas en persona en la oficina del condado.",
       ME: "Cifras oficiales de la Secretaría de Estado: papeletas anticipadas devueltas.",
       KS: "Cifras recopiladas por ike-lab a partir de los archivos de los condados: voto por correo y en persona juntos.",
+      NE: "Cifras de la Secretaría de Estado, citadas según el seguimiento de The New York Times. En la carrera al Senado, el principal rival del titular republicano es un candidato independiente: el partido de inscripción dice aquí aún menos sobre cómo votarán los electores.",
+      GA: "Georgia no inscribe a los electores por partido: el reparto viene de la participación pasada en las primarias de cada partido, estimada por The New York Times. «No afiliados y otros» designa aquí a los electores sin primarias en su historial. Parte de los votantes negros entre los votantes anticipados: 32 %, frente al 30 % en el mismo momento de 2022 y el 26 % en 2024.",
       NC: 'Archivos oficiales de la Junta Electoral del estado, papeleta por papeleta. El voto en persona abre el mismo día de la semana, al mismo número de días de la elección, en 2022, 2024 y 2026: la comparación es directa.',
     },
     ncTitle: 'Carolina del Norte: edad, hábitos de voto y nuevos votantes',
