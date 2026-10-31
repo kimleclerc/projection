@@ -1,0 +1,26 @@
+---
+/**
+ * Mi-mandat américaines du 3 novembre 2026 : la couche directe des pages
+ * Chambre, Sénat et gouverneurs (étape 6 du plan de la soirée américaine).
+ *
+ * L'îlot lit `live.json` (même contrat qu'au Québec et en C.-B. : rail Pages
+ * d'abord, Worker en repli) et ne garde que les courses de sa chambre. Avant
+ * 18 h 30 HNE le 3 novembre, il ne fait aucune lecture et annonce l'heure des
+ * premières fermetures.
+ */
+import UsMidtermsLive from '../islands/UsMidtermsLive.tsx';
+import { US_LIVE_API_BASE, US_LIVE_EVENT_ID, US_LIVE_FALLBACK_API_BASE, usLiveProps } from '../data/us-live';
+import type { Chamber } from '../islands/usLive';
+
+interface Props { chamber: Chamber; locale: 'fr' | 'en' | 'es' }
+const { chamber, locale } = Astro.props;
+const props = usLiveProps(chamber, locale);
+---
+<div class="usl-wrap">
+  <UsMidtermsLive client:load eventId={US_LIVE_EVENT_ID} lang={locale} apiBase={US_LIVE_API_BASE}
+    fallbackApiBase={US_LIVE_FALLBACK_API_BASE} {...props} />
+</div>
+<style>
+  .usl-wrap { max-width: 1080px; margin-inline: auto; padding-inline: 1.5rem; }
+  @media (max-width: 620px) { .usl-wrap { padding-inline: 16px; } }
+</style>
