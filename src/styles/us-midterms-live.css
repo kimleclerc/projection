@@ -1,0 +1,64 @@
+/* Mi-mandat américaines, 3 novembre 2026 : îlot de direct des pages Chambre,
+   Sénat et gouverneurs. S'appuie sur quebec-election-night-live.css (.qcl, .qll). */
+.usl{margin-bottom:34px}
+.usl h3{margin:0;font-family:var(--serif);font-weight:700;font-size:20px}
+
+/* États sans flux, en saisie manuelle, en recul : dits, jamais « 0 voix ». */
+.usl-notices{display:grid;gap:8px;margin-top:14px}
+.usl-notice{margin:0;padding:9px 12px;border:1px solid var(--rule);border-radius:2px;background:var(--paper-2);font-size:14px;line-height:1.5;color:var(--ink-2)}
+.usl-notice.is-unavailable{border-style:dashed;border-color:var(--ink-3)}
+.usl-notice.is-transcribed{border-top:3px solid #d9a928}
+.usl-notice.is-regressed{border-top:3px solid var(--ink-3)}
+
+.usl-status{display:inline-block;font-style:normal;font-family:var(--mono);font-size:12px;padding:2px 7px;border-radius:2px;border:1px solid var(--rule);color:var(--ink-3);white-space:nowrap}
+.usl-status.is-called{background:var(--ink);color:var(--card);border-color:var(--ink)}
+.usl-status.is-counting{color:var(--ink-2)}
+.usl-status.is-transcribed,.usl-status.is-transcribed_empty{border-color:#d9a928;color:var(--ink-2)}
+.usl-status.is-state_unavailable,.usl-status.is-regressed{border-style:dashed;border-color:var(--ink-3);color:var(--ink-2)}
+
+/* Prédicteur d'avant-dépouillement : une estimation, présentée comme telle. */
+.usl-pred{margin-top:22px;padding:14px 14px 12px;border:1px dashed var(--ink-3);border-radius:2px;background:var(--paper-2)}
+.usl-pred-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 12px}
+.usl-pred-badge{font-family:var(--mono);font-size:12px;padding:2px 7px;border-radius:2px;border:1px solid var(--ink-3);color:var(--ink-2)}
+.usl-pred-lede{margin:8px 0 12px;font-size:14px;line-height:1.55;color:var(--ink-2);max-width:72ch}
+.usl-pred-list{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+.usl-pred-item{display:grid;gap:5px;padding:10px 12px;border:1px solid var(--rule);border-radius:2px;background:var(--card)}
+.usl-pred-name{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;font-size:15px}
+.usl-pred-fav{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;font-size:14px}
+.usl-pred-fav i{width:10px;height:10px;border-radius:2px}
+.usl-pred-fav small,.usl-pred-meta{font-family:var(--mono);font-size:12px;color:var(--ink-3)}
+.usl-pred-meter{position:relative;display:block;height:6px;border-radius:2px;overflow:hidden;opacity:.8}
+.usl-pred-meter span{display:block;height:100%}
+.usl-pred-meter::after{content:"";position:absolute;top:0;bottom:0;left:50%;width:1px;background:var(--card)}
+.usl-pred-empty,.usl-pred-gone{margin:8px 0 0;font-size:13px;color:var(--ink-3)}
+
+/* Course par course : une liste, pas un tableau, pour tenir sur un téléphone. */
+.usl-races{margin-top:22px;padding-top:14px;border-top:1px solid var(--rule)}
+.usl-races .qll-head h3{flex:1 1 100%}
+.usl-list{list-style:none;margin:0;padding:0}
+.usl-race{display:grid;grid-template-columns:minmax(0,1.3fr) auto minmax(0,1.6fr) auto;gap:4px 14px;align-items:center;padding:9px 0;border-bottom:1px solid var(--rule);font-size:14px}
+.usl-race-name{font-weight:600;min-width:0;overflow-wrap:anywhere}
+.usl-race-name a{color:var(--ink);text-decoration:underline;text-underline-offset:2px}
+.usl-race-lead{display:flex;flex-wrap:wrap;align-items:center;gap:2px 8px;min-width:0}
+.usl-race-lead i{width:10px;height:10px;border-radius:2px}
+.usl-race-lead span{color:var(--ink-2)}
+.usl-race-lead small{font-family:var(--mono);font-size:12px;color:var(--ink-3)}
+.usl-race-est{font-style:italic;color:var(--ink-3)}
+.usl-race-nums{display:flex;flex-direction:column;align-items:flex-end;font-family:var(--mono);font-size:12px;color:var(--ink-3);white-space:nowrap}
+.usl-race-nums span:first-child{color:var(--ink);font-size:13px}
+
+@media(max-width:620px){
+  .usl-race{grid-template-columns:minmax(0,1fr) auto;gap:5px 10px}
+  .usl-race-lead{grid-column:1/2}
+  .usl-race-nums{grid-column:2/3;grid-row:2}
+  .usl-pred{padding:12px 10px}
+  .usl-pred-list{grid-template-columns:1fr}
+}
+
+/* Tableau des sièges : la règle commune masque la 4e colonne sur mobile, qui est ici « En tête ». */
+.usl .qcl-table th:nth-child(4),.usl .qcl-table td:nth-child(4){display:table-cell}
+@media(max-width:620px){
+  .usl .qcl-table thead th{white-space:normal;word-break:normal;overflow-wrap:normal;hyphens:auto;font-size:11px;vertical-align:bottom}
+  .usl .qcl-table th,.usl .qcl-table td{padding:6px 3px}
+  .usl .qcl-table tbody th{white-space:nowrap}
+}

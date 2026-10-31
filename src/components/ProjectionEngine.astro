@@ -727,6 +727,9 @@ const pageNavItems = [
     <p class="vs-meta pe-updated">{t.runDate}</p>
   </header>
 
+  <!-- Soirée électorale : couche directe posée par la page (mi-mandat américaines). -->
+  <slot name="live" />
+
   <section id="forecast" class="pe-section container pe-snapshot" aria-labelledby="pe-snapshot-title">
     <h2 id="pe-snapshot-title" class="sr-only">{locale === 'fr' ? 'Projection des sièges' : locale === 'es' ? 'Proyección de escaños' : 'Seat forecast'}</h2>
     <ResultsTable

@@ -1,0 +1,385 @@
+{
+ "schema_version": "fastest-call.us-exit-poll.v1",
+ "generated_at": "2026-11-04T04:05:00Z",
+ "label_fr": "Prédicteur d'avant-dépouillement : projection VoteScope mise à jour par le sondage de sortie",
+ "label_en": "Pre-count predictor: VoteScope projection updated with the exit poll",
+ "error_models": {
+  "nep_initial": {
+   "bias": 2.0,
+   "sd": 5.0,
+   "note": "Edison/NEP, chiffres de fermeture non repondérés"
+  },
+  "votecast": {
+   "bias": 0.0,
+   "sd": 4.5,
+   "note": "AP VoteCast"
+  },
+  "nep_weighted": {
+   "bias": 0.0,
+   "sd": 3.5,
+   "note": "Edison/NEP repondéré sur le décompte (affichage seulement)"
+  }
+ },
+ "races": {
+  "governor:06000": [
+   {
+    "kind": "votecast",
+    "observed_margin": 18.0,
+    "bias_removed": 0.0,
+    "observation_sd": 5.0,
+    "exit_poll_weight": 0.677,
+    "prior": {
+     "margin": 22.36,
+     "sd": 7.24,
+     "p_dem": 0.999
+    },
+    "posterior": {
+     "margin": 19.41,
+     "sd": 4.11,
+     "p_dem": 1.0,
+     "p_rep": 0.0,
+     "margin_quantiles": {
+      "q05": 12.64,
+      "q25": 16.63,
+      "q50": 19.41,
+      "q75": 22.18,
+      "q95": 26.18
+     }
+    },
+    "source": "AP VoteCast — exemple synthétique",
+    "as_of": "2026-11-04T04:00:00Z",
+    "display_only": false
+   }
+  ],
+  "governor:32000": [
+   {
+    "kind": "nep_initial",
+    "observed_margin": 1.0,
+    "bias_removed": 2.0,
+    "observation_sd": 6.19,
+    "exit_poll_weight": 0.485,
+    "prior": {
+     "margin": 2.21,
+     "sd": 6.01,
+     "p_dem": 0.6435
+    },
+    "posterior": {
+     "margin": 0.65,
+     "sd": 4.31,
+     "p_dem": 0.5602,
+     "p_rep": 0.4398,
+     "margin_quantiles": {
+      "q05": -6.44,
+      "q25": -2.26,
+      "q50": 0.65,
+      "q75": 3.56,
+      "q95": 7.75
+     }
+    },
+    "source": "Edison Research (NEP) — exemple synthétique",
+    "as_of": "2026-11-04T03:00:00Z",
+    "display_only": false
+   }
+  ],
+  "senate:41000": [
+   {
+    "kind": "votecast",
+    "observed_margin": 15.0,
+    "bias_removed": 0.0,
+    "observation_sd": 5.29,
+    "exit_poll_weight": 0.773,
+    "prior": {
+     "margin": 25.48,
+     "sd": 9.75,
+     "p_dem": 0.9955
+    },
+    "posterior": {
+     "margin": 17.38,
+     "sd": 4.65,
+     "p_dem": 0.9999,
+     "p_rep": 0.0001,
+     "margin_quantiles": {
+      "q05": 9.73,
+      "q25": 14.24,
+      "q50": 17.38,
+      "q75": 20.51,
+      "q95": 25.02
+     }
+    },
+    "source": "AP VoteCast — exemple synthétique",
+    "as_of": "2026-11-04T04:00:00Z",
+    "display_only": false
+   }
+  ],
+  "governor:04000": [
+   {
+    "kind": "nep_initial",
+    "observed_margin": -2.0,
+    "bias_removed": 2.0,
+    "observation_sd": 6.01,
+    "exit_poll_weight": 0.482,
+    "prior": {
+     "margin": 8.48,
+     "sd": 5.79,
+     "p_dem": 0.9284
+    },
+    "posterior": {
+     "margin": 2.47,
+     "sd": 4.17,
+     "p_dem": 0.7231,
+     "p_rep": 0.2769,
+     "margin_quantiles": {
+      "q05": -4.39,
+      "q25": -0.34,
+      "q50": 2.47,
+      "q75": 5.28,
+      "q95": 9.33
+     }
+    },
+    "source": "Edison Research (NEP) — exemple synthétique",
+    "as_of": "2026-11-04T02:00:00Z",
+    "display_only": false
+   }
+  ],
+  "governor:42000": [
+   {
+    "kind": "votecast",
+    "observed_margin": 4.0,
+    "bias_removed": 0.0,
+    "observation_sd": 5.04,
+    "exit_poll_weight": 0.689,
+    "prior": {
+     "margin": 23.16,
+     "sd": 7.49,
+     "p_dem": 0.999
+    },
+    "posterior": {
+     "margin": 9.96,
+     "sd": 4.18,
+     "p_dem": 0.9914,
+     "p_rep": 0.0086,
+     "margin_quantiles": {
+      "q05": 3.09,
+      "q25": 7.14,
+      "q50": 9.96,
+      "q75": 12.78,
+      "q95": 16.84
+     }
+    },
+    "source": "AP VoteCast — exemple synthétique",
+    "as_of": "2026-11-04T01:00:00Z",
+    "display_only": false
+   }
+  ],
+  "senate:19000": [
+   {
+    "kind": "nep_initial",
+    "observed_margin": -6.0,
+    "bias_removed": 2.0,
+    "observation_sd": 6.35,
+    "exit_poll_weight": 0.443,
+    "prior": {
+     "margin": 0.34,
+     "sd": 5.67,
+     "p_dem": 0.5239
+    },
+    "posterior": {
+     "margin": -3.36,
+     "sd": 4.23,
+     "p_dem": 0.2137,
+     "p_rep": 0.7863,
+     "margin_quantiles": {
+      "q05": -10.32,
+      "q25": -6.21,
+      "q50": -3.36,
+      "q75": -0.5,
+      "q95": 3.6
+     }
+    },
+    "source": "Edison Research (NEP) — exemple synthétique",
+    "as_of": "2026-11-04T02:00:00Z",
+    "display_only": false
+   }
+  ],
+  "senate:13000": [
+   {
+    "kind": "nep_initial",
+    "observed_margin": 3.0,
+    "bias_removed": 2.0,
+    "observation_sd": 5.88,
+    "exit_poll_weight": 0.498,
+    "prior": {
+     "margin": 10.22,
+     "sd": 5.86,
+     "p_dem": 0.9595
+    },
+    "posterior": {
+     "margin": 5.62,
+     "sd": 4.15,
+     "p_dem": 0.9124,
+     "p_rep": 0.0876,
+     "margin_quantiles": {
+      "q05": -1.2,
+      "q25": 2.83,
+      "q50": 5.62,
+      "q75": 8.42,
+      "q95": 12.45
+     }
+    },
+    "source": "Edison Research (NEP) — exemple synthétique",
+    "as_of": "2026-11-04T00:00:00Z",
+    "display_only": false
+   }
+  ],
+  "senate:37000": [
+   {
+    "kind": "votecast",
+    "observed_margin": 1.0,
+    "bias_removed": 0.0,
+    "observation_sd": 5.08,
+    "exit_poll_weight": 0.54,
+    "prior": {
+     "margin": 9.22,
+     "sd": 5.5,
+     "p_dem": 0.9532
+    },
+    "posterior": {
+     "margin": 4.78,
+     "sd": 3.73,
+     "p_dem": 0.9001,
+     "p_rep": 0.0999,
+     "margin_quantiles": {
+      "q05": -1.35,
+      "q25": 2.27,
+      "q50": 4.78,
+      "q75": 7.3,
+      "q95": 10.92
+     }
+    },
+    "source": "AP VoteCast — exemple synthétique",
+    "as_of": "2026-11-04T00:30:00Z",
+    "display_only": false
+   }
+  ],
+  "senate:26000": [
+   {
+    "kind": "nep_initial",
+    "observed_margin": 5.0,
+    "bias_removed": 2.0,
+    "observation_sd": 5.96,
+    "exit_poll_weight": 0.442,
+    "prior": {
+     "margin": 5.31,
+     "sd": 5.3,
+     "p_dem": 0.8418
+    },
+    "posterior": {
+     "margin": 4.29,
+     "sd": 3.96,
+     "p_dem": 0.8606,
+     "p_rep": 0.1394,
+     "margin_quantiles": {
+      "q05": -2.22,
+      "q25": 1.62,
+      "q50": 4.29,
+      "q75": 6.96,
+      "q95": 10.8
+     }
+    },
+    "source": "Edison Research (NEP) — exemple synthétique",
+    "as_of": "2026-11-04T02:00:00Z",
+    "display_only": false
+   }
+  ],
+  "governor:55000": [
+   {
+    "kind": "votecast",
+    "observed_margin": 2.0,
+    "bias_removed": 0.0,
+    "observation_sd": 5.17,
+    "exit_poll_weight": 0.562,
+    "prior": {
+     "margin": 4.1,
+     "sd": 5.85,
+     "p_dem": 0.7584
+    },
+    "posterior": {
+     "margin": 2.92,
+     "sd": 3.87,
+     "p_dem": 0.7747,
+     "p_rep": 0.2253,
+     "margin_quantiles": {
+      "q05": -3.45,
+      "q25": 0.31,
+      "q50": 2.92,
+      "q75": 5.53,
+      "q95": 9.29
+     }
+    },
+    "source": "AP VoteCast — exemple synthétique",
+    "as_of": "2026-11-04T02:00:00Z",
+    "display_only": false
+   }
+  ],
+  "house:06013": [
+   {
+    "kind": "votecast",
+    "observed_margin": 5.0,
+    "bias_removed": 0.0,
+    "observation_sd": 7.32,
+    "exit_poll_weight": 0.578,
+    "prior": {
+     "margin": 16.92,
+     "sd": 8.57,
+     "p_dem": 0.9758
+    },
+    "posterior": {
+     "margin": 10.03,
+     "sd": 5.57,
+     "p_dem": 0.9642,
+     "p_rep": 0.0358,
+     "margin_quantiles": {
+      "q05": 0.87,
+      "q25": 6.27,
+      "q50": 10.03,
+      "q75": 13.78,
+      "q95": 19.18
+     }
+    },
+    "source": "AP VoteCast — exemple synthétique",
+    "as_of": "2026-11-04T04:00:00Z",
+    "display_only": false
+   }
+  ],
+  "house:32003": [
+   {
+    "kind": "nep_initial",
+    "observed_margin": -1.0,
+    "bias_removed": 2.0,
+    "observation_sd": 8.06,
+    "exit_poll_weight": 0.457,
+    "prior": {
+     "margin": 15.44,
+     "sd": 7.4,
+     "p_dem": 0.9815
+    },
+    "posterior": {
+     "margin": 7.01,
+     "sd": 5.45,
+     "p_dem": 0.9006,
+     "p_rep": 0.0994,
+     "margin_quantiles": {
+      "q05": -1.96,
+      "q25": 3.33,
+      "q50": 7.01,
+      "q75": 10.68,
+      "q95": 15.97
+     }
+    },
+    "source": "Edison Research (NEP) — exemple synthétique",
+    "as_of": "2026-11-04T03:00:00Z",
+    "display_only": false
+   }
+  ]
+ }
+}

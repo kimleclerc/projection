@@ -3,6 +3,7 @@ import EditorialLayout from '../../../layouts/EditorialLayout.astro';
 import RidingsCta from '../../../components/RidingsCta.astro';
 import NewsletterCta from '../../../components/NewsletterCta.astro';
 import ProjectionEngine from '../../../components/ProjectionEngine.astro';
+import UsMidtermsLive from '../../../components/UsMidtermsLive.astro';
 import KalshiBoard from '../../../components/KalshiBoard.astro';
 import ForecastCompareLinks from '../../../components/ForecastCompareLinks.astro';
 import RaceNarrative from '../../../components/RaceNarrative.astro';
@@ -52,7 +53,7 @@ const alternates = {
     },
   ]}
 >
-  <ProjectionEngine jurisdiction={j} locale="fr"><Fragment slot="markets"><ForecastCompareLinks locale="fr" chamber="governor" /><KalshiBoard locale="fr" chamber="governor" /></Fragment><Fragment slot="narrative"><RaceNarrative locale="fr" {...raceEditorial.usGovernor.fr} /></Fragment></ProjectionEngine>
+  <ProjectionEngine jurisdiction={j} locale="fr"><UsMidtermsLive slot="live" chamber="governor" locale="fr" /><Fragment slot="markets"><ForecastCompareLinks locale="fr" chamber="governor" /><KalshiBoard locale="fr" chamber="governor" /></Fragment><Fragment slot="narrative"><RaceNarrative locale="fr" {...raceEditorial.usGovernor.fr} /></Fragment></ProjectionEngine>
 
   <RidingsCta
     eyebrow="Profil de course"
