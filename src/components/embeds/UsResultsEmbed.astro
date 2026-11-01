@@ -1,0 +1,21 @@
+---
+// Version intégrable (iframe) de la soirée américaine : la réponse, la jauge de
+// majorité, l'écart avec la projection et la carte. La liste des courses reste
+// sur la page complète. Même lecture de live.json que la page (rail statique).
+import Embed from '../../layouts/Embed.astro';
+import UsMidtermsLive from '../UsMidtermsLive.astro';
+import { PAGE } from '../../data/us-live';
+import type { Chamber } from '../../islands/usLive';
+
+type Locale = 'en' | 'fr' | 'es';
+interface Props { chamber: Chamber; locale: Locale }
+const { chamber, locale } = Astro.props;
+const TITLE: Record<Chamber, Record<Locale, string>> = {
+  house: { fr: 'Chambre des représentants : résultats du 3 novembre 2026', en: 'U.S. House: November 3, 2026 results', es: 'Cámara de Representantes: resultados del 3 de noviembre de 2026' },
+  senate: { fr: 'Sénat américain : résultats du 3 novembre 2026', en: 'U.S. Senate: November 3, 2026 results', es: 'Senado de EE. UU.: resultados del 3 de noviembre de 2026' },
+  governor: { fr: 'Gouverneurs américains : résultats du 3 novembre 2026', en: 'U.S. governors: November 3, 2026 results', es: 'Gobernadores de EE. UU.: resultados del 3 de noviembre de 2026' },
+};
+---
+<Embed title={`${TITLE[chamber][locale]} — Vote-Scope`} lang={locale} backPath={PAGE[chamber][locale]}>
+  <UsMidtermsLive chamber={chamber} locale={locale} compact />
+</Embed>

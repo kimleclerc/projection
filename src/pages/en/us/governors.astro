@@ -4,6 +4,7 @@ import RidingsCta from '../../../components/RidingsCta.astro';
 import NewsletterCta from '../../../components/NewsletterCta.astro';
 import ProjectionEngine from '../../../components/ProjectionEngine.astro';
 import UsMidtermsLive from '../../../components/UsMidtermsLive.astro';
+import { usShareMeta } from '../../../data/us-live';
 import KalshiBoard from '../../../components/KalshiBoard.astro';
 import ForecastCompareLinks from '../../../components/ForecastCompareLinks.astro';
 import RaceNarrative from '../../../components/RaceNarrative.astro';
@@ -12,6 +13,8 @@ import governorMeta from '../../../../web_data/us-governor/latest.json';
 import { raceEditorial } from '../../../data/raceEditorial';
 
 const j = jurisdictions.usGovernor;
+// Semaine du vote : le titre et la description disent ce que la page montre et la projection chiffrée.
+const share = usShareMeta('governor', 'en');
 const canonical = 'https://vote-scope.com/en/us/governors/';
 const alternates = {
   en: 'https://vote-scope.com/en/us/governors/',
@@ -21,8 +24,8 @@ const alternates = {
 ---
 
 <EditorialLayout
-  title={j.pageTitle.en}
-  description={j.metaDescription.en}
+  title={share.title}
+  description={share.description}
   canonical={canonical}
   lang="en"
   currentPage={j.currentPage}

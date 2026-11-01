@@ -34,9 +34,9 @@ type LivePayload = {
 };
 
 const copy = {
-  en: { title: 'Live results', connecting: 'Connecting to the official count…', waiting: 'Waiting for the first official results', leading: 'Current leader', projected: 'Vote-Scope projects a win for', polls: 'Polls reporting', votes: 'votes', updated: 'Updated', source: 'Preliminary results', sourceDefault: 'Elections Canada', unavailable: 'Live results temporarily unavailable', stale: 'Count paused — no new official data for', minutes: 'min', calledAt: 'Projected at', pollsShort: 'polls' },
-  fr: { title: 'Résultats en direct', connecting: 'Connexion au dépouillement officiel…', waiting: 'En attente des premiers résultats officiels', leading: 'Tendance actuelle', projected: 'Vote-Scope projette une victoire de', polls: 'Bureaux dépouillés', votes: 'voix', updated: 'Mise à jour', source: 'Résultats préliminaires', sourceDefault: 'Élections Canada', unavailable: 'Résultats en direct temporairement indisponibles', stale: 'Dépouillement en pause — aucune donnée officielle depuis', minutes: 'min', calledAt: 'Projeté à', pollsShort: 'bureaux' },
-  es: { title: 'Resultados en directo', connecting: 'Conectando con el recuento oficial…', waiting: 'A la espera de los primeros resultados oficiales', leading: 'Tendencia actual', projected: 'Vote-Scope proyecta la victoria de', polls: 'Mesas escrutadas', votes: 'votos', updated: 'Actualizado', source: 'Resultados preliminares', sourceDefault: 'Elections Canada', unavailable: 'Resultados en directo temporalmente no disponibles', stale: 'Recuento en pausa — sin datos oficiales desde hace', minutes: 'min', calledAt: 'Proyectado con', pollsShort: 'mesas' },
+  en: { title: 'Results', connecting: 'Connecting to the official count…', waiting: 'Waiting for the first official results', leading: 'Leading', projected: 'Vote-Scope projects a win for', polls: 'Polls reporting', votes: 'votes', updated: 'Updated', source: 'Preliminary results', sourceDefault: 'Elections Canada', unavailable: 'Results are not loading right now. The page will try again on its own.', stale: 'No new official results for', minutes: 'min', calledAt: 'Projected at', pollsShort: 'polls', colon: ':', ahead: (n: string, who: string) => `${n} votes ahead of ${who}` },
+  fr: { title: 'Résultats', connecting: 'Connexion au dépouillement officiel…', waiting: 'En attente des premiers résultats officiels', leading: 'En tête', projected: 'Vote-Scope projette une victoire de', polls: 'Bureaux dépouillés', votes: 'voix', updated: 'Mise à jour', source: 'Résultats préliminaires', sourceDefault: 'Élections Canada', unavailable: 'Les résultats ne se chargent pas en ce moment. La page réessaie d’elle-même.', stale: 'Aucun résultat officiel nouveau depuis', minutes: 'min', calledAt: 'Projeté à', pollsShort: 'bureaux', colon: '\u00a0:', ahead: (n: string, who: string) => `${n} voix d’avance sur ${who}` },
+  es: { title: 'Resultados', connecting: 'Conectando con el recuento oficial…', waiting: 'A la espera de los primeros resultados oficiales', leading: 'En cabeza', projected: 'Vote-Scope proyecta la victoria de', polls: 'Mesas escrutadas', votes: 'votos', updated: 'Actualizado', source: 'Resultados preliminares', sourceDefault: 'Elections Canada', unavailable: 'Los resultados no se cargan en este momento. La página vuelve a intentarlo sola.', stale: 'Sin resultados oficiales nuevos desde hace', minutes: 'min', calledAt: 'Proyectado con', pollsShort: 'mesas', colon: ':', ahead: (n: string, who: string) => `${n} votos de ventaja sobre ${who}` },
 };
 
 export default function CanadaByelectionLive({ eventId, ridingId, lang, sourceName }: { eventId: string; ridingId: string; lang: Locale; sourceName?: string }) {
@@ -106,13 +106,14 @@ export default function CanadaByelectionLive({ eventId, ridingId, lang, sourceNa
   return <section className={stale ? "cblive cblive-is-stale" : "cblive"} aria-live="polite" aria-busy={!data && !failed}>
     <div className="cblive-head">
       <p className="cblive-label"><i />{t.title}</p>
-      {stamp && <span>{t.updated}: {stamp}</span>}
+      {stamp && <span>{t.updated}{t.colon} {stamp}</span>}
     </div>
     {stale && <p className="cblive-stale" role="status">{t.stale} {ageMinutes} {t.minutes}</p>}
     {!data && <p className="cblive-state">{failed ? t.unavailable : t.connecting}</p>}
     {data && !leader && <p className="cblive-state">{t.waiting}</p>}
     {leader && <>
-      <h2>{call ? `${t.projected} ${call.candidate_name}` : `${t.leading}: ${leader.candidate_name}`}</h2>
+      <h2>{call ? `${t.projected} ${call.candidate_name}` : `${t.leading}${t.colon} ${leader.candidate_name}`}</h2>
+      {candidates[1] && <p className="cblive-ahead">{t.ahead((leader.votes - candidates[1].votes).toLocaleString(locale), candidates[1].candidate_name)}</p>}
       {call && calledAt?.reported != null && <p className="cblive-called-at">{t.calledAt} {calledAt.reported}/{calledAt.total} {t.pollsShort}</p>}
       <div className="cblive-polls">
         <span>{t.polls}</span>

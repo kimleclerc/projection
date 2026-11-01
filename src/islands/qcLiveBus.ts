@@ -203,3 +203,31 @@ export function governmentStatus(data: LivePayload | null, majority = MAJORITY, 
   }
   return [...best.values()].sort((a, b) => a.at.localeCompare(b.at));
 }
+
+/**
+ * La réponse de la soirée en une phrase, au-dessus de la jauge des sièges (Québec,
+ * C.-B.) : qui a la majorité, qui y mène, ou personne encore. « Élus » = appelés
+ * par Vote-Scope ; « en tête » = meneur sans appel.
+ */
+export function seatAnswer(lang: Locale, tally: { label: string; called: number; total: number }[], majority: number): string | null {
+  const byTotal = [...tally].sort((a, b) => b.total - a.total || b.called - a.called);
+  const byCalled = [...tally].sort((a, b) => b.called - a.called);
+  const L = byTotal[0];
+  if (!L || L.total === 0) return null;
+  const R = byTotal[1];
+  const won = byCalled[0];
+  if (won && won.called >= majority) {
+    return lang === 'fr' ? `Majorité acquise pour ${won.label} : ${won.called} sièges élus, il en fallait ${majority}.`
+      : lang === 'es' ? `Mayoría asegurada para ${won.label}: ${won.called} escaños electos; hacían falta ${majority}.`
+      : `${won.label} has won a majority: ${won.called} seats elected, ${majority} needed.`;
+  }
+  if (L.total >= majority) {
+    return lang === 'fr' ? `${L.label} en tête : ${L.total} sièges élus ou en tête, pour ${majority} nécessaires. ${L.called} sont élus.`
+      : lang === 'es' ? `${L.label} en cabeza: ${L.total} escaños electos o en cabeza, de ${majority} necesarios. ${L.called} están electos.`
+      : `${L.label} leads: ${L.total} seats elected or leading, ${majority} needed. ${L.called} are elected.`;
+  }
+  const second = R ? `, ${R.label} ${R.total}` : '';
+  return lang === 'fr' ? `Aucun parti n’a encore ${majority} sièges : ${L.label} ${L.total}${second}, élus ou en tête.`
+    : lang === 'es' ? `Ningún partido tiene aún ${majority} escaños: ${L.label} ${L.total}${second}, electos o en cabeza.`
+    : `No party has ${majority} seats yet: ${L.label} ${L.total}${second}, elected or leading.`;
+}

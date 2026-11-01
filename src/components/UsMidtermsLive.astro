@@ -1,7 +1,7 @@
 ---
 /**
  * Mi-mandat américaines du 3 novembre 2026 : la couche directe des pages
- * Chambre, Sénat et gouverneurs (étape 6 du plan de la soirée américaine).
+ * Chambre, Sénat et gouverneurs, et de leurs versions intégrables.
  *
  * L'îlot lit `live.json` (même contrat qu'au Québec et en C.-B. : rail Pages
  * d'abord, Worker en repli) et ne garde que les courses de sa chambre. Avant
@@ -9,18 +9,19 @@
  * premières fermetures.
  */
 import UsMidtermsLive from '../islands/UsMidtermsLive.tsx';
-import { US_LIVE_API_BASE, US_LIVE_EVENT_ID, US_LIVE_FALLBACK_API_BASE, usLiveProps } from '../data/us-live';
+import { EMBED, US_LIVE_API_BASE, US_LIVE_EVENT_ID, US_LIVE_FALLBACK_API_BASE, usLiveProps } from '../data/us-live';
 import type { Chamber } from '../islands/usLive';
 
-interface Props { chamber: Chamber; locale: 'fr' | 'en' | 'es' }
-const { chamber, locale } = Astro.props;
+interface Props { chamber: Chamber; locale: 'fr' | 'en' | 'es'; compact?: boolean }
+const { chamber, locale, compact = false } = Astro.props;
 const props = usLiveProps(chamber, locale);
 ---
-<div class="usl-wrap">
+<div class={`usl-wrap${compact ? ' is-compact' : ''}`} id="resultats">
   <UsMidtermsLive client:load eventId={US_LIVE_EVENT_ID} lang={locale} apiBase={US_LIVE_API_BASE}
-    fallbackApiBase={US_LIVE_FALLBACK_API_BASE} {...props} />
+    fallbackApiBase={US_LIVE_FALLBACK_API_BASE} embedPath={EMBED[chamber][locale]} compact={compact} {...props} />
 </div>
 <style>
   .usl-wrap { max-width: 1080px; margin-inline: auto; padding-inline: 1.5rem; }
-  @media (max-width: 620px) { .usl-wrap { padding-inline: 16px; } }
+  .usl-wrap.is-compact { padding-inline: 0; }
+  @media (max-width: 620px) { .usl-wrap { padding-inline: 16px; } .usl-wrap.is-compact { padding-inline: 0; } }
 </style>

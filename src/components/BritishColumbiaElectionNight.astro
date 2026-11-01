@@ -88,7 +88,7 @@ const COPY = {
     countTitle: 'Deux dépouillements, pas un',
     count: [
       { label: 'Ce soir : le dépouillement initial', text: 'Elections BC compte, boîte par boîte, la grande majorité des bulletins : vote par anticipation, jour du scrutin, vote postal reçu à temps. C’est ce compte que cette page suit en direct.' },
-      { label: 'Une semaine plus tard : le dépouillement final', text: 'Le vote postal arrivé tard et les bulletins d’absents — ceux déposés hors de leur circonscription — ne sont comptés qu’à ce moment. En 2024, ce second compte a déplacé certains écarts de plus de deux points et renversé Surrey-Guildford.' },
+      { label: 'Une semaine plus tard : le dépouillement final', text: 'Le vote postal arrivé tard et les bulletins d’absents (déposés hors de la circonscription de l’électeur) ne sont comptés qu’à ce moment. En 2024, ce second compte a déplacé certains écarts de plus de deux points et renversé Surrey-Guildford.' },
       { label: 'Ce que ça change ce soir', text: 'Une circonscription peut avoir toutes ses boîtes dépouillées et rester « trop serrée pour un appel ce soir ». Nous n’annonçons un gagnant que si l’avance résiste aussi à ce qui reste à compter la semaine suivante.' },
     ],
     scheduleTitle: 'Le déroulé de la soirée',
@@ -114,7 +114,7 @@ const COPY = {
     runLabel: 'Projection du',
     deskCta: 'Ouvrir la projection détaillée',
     closeTitle: 'Les courses qui se décideront tard',
-    closeLede: 'Les huit circonscriptions où l’écart projeté est le plus mince. Ce sont celles qui seront appelées en dernier — certaines peut-être seulement au dépouillement final.',
+    closeLede: 'Les huit circonscriptions où l’écart projeté est le plus mince. Ce sont celles qui seront appelées en dernier, certaines peut-être seulement au dépouillement final.',
     marginLabel: 'écart projeté',
     linksTitle: 'Pendant ce temps',
     links: [
@@ -132,7 +132,7 @@ const COPY = {
     countTitle: 'Two counts, not one',
     count: [
       { label: 'Tonight: the initial count', text: 'Elections BC counts the vast majority of ballots, box by box: advance voting, election day, mail-in ballots received in time. That is the count this page follows live.' },
-      { label: 'A week later: the final count', text: 'Mail-in ballots that arrived late and absentee ballots — those cast outside the voter’s own riding — are only counted then. In 2024, that second count moved some margins by more than two points and reversed Surrey-Guildford.' },
+      { label: 'A week later: the final count', text: 'Mail-in ballots that arrived late and absentee ballots (cast outside the voter’s own riding) are only counted then. In 2024, that second count moved some margins by more than two points and reversed Surrey-Guildford.' },
       { label: 'What it means tonight', text: 'A riding can have every box counted and still be “too close to call tonight”. We only call a winner when the lead also survives what is left to count the following week.' },
     ],
     scheduleTitle: 'How the night unfolds',
@@ -143,7 +143,7 @@ const COPY = {
       { time: 'Late night', label: 'The picture tonight', text: 'The count riding by riding, the likely make-up of the Legislative Assembly, and the seats still hanging on the final count.' },
     ],
     methodTitle: 'When do we call a winner?',
-    methodLede: 'Being ahead in the count is not enough. We only call a winner when nothing left to count can change the result — including the ballots that will only be counted the following week.',
+    methodLede: 'Being ahead in the count is not enough. We only call a winner when nothing left to count can change the result, including the ballots that will only be counted the following week.',
     thresholds: [
       { value: 'Called', text: 'The lead can no longer be overtaken, neither by the boxes still out nor by the final count: the riding is called and changes colour.' },
       { value: 'Too close', text: 'When the margin is within what the final count can still move, we wait, even with 100% of boxes in. Better late than wrong.' },
@@ -158,11 +158,11 @@ const COPY = {
     runLabel: 'Projection of',
     deskCta: 'Open the full forecast',
     closeTitle: 'The races that will be decided late',
-    closeLede: 'The eight ridings with the thinnest projected margin. These are the last to be called — some perhaps only at the final count.',
+    closeLede: 'The eight ridings with the thinnest projected margin. These are the last to be called, some perhaps only at the final count.',
     marginLabel: 'projected margin',
     linksTitle: 'In the meantime',
     links: [
-      { href: `${base}/${ridingsBase}/`, label: 'All 93 ridings', text: 'Projection, sitting member and 2024 result — one page per riding.' },
+      { href: `${base}/${ridingsBase}/`, label: 'All 93 ridings', text: 'Projection, sitting member and 2024 result, one page per riding.' },
       { href: `${base}/${pollsBase}/`, label: 'Every poll', text: 'Every B.C. poll of the campaign, with its firm, field dates and weight in the model.' },
       { href: `${base}/`, label: 'The forecast', text: 'Seats, popular vote and odds for every party, updated up to the eve of the vote.' },
       { href: '/en/methodology/', label: 'The methodology', text: 'How the model goes from polls to seats, and what it does not claim to know.' },
@@ -176,7 +176,7 @@ const COPY = {
     countTitle: 'Dos recuentos, no uno',
     count: [
       { label: 'Esta noche: el recuento inicial', text: 'Elections BC cuenta, urna por urna, la gran mayoría de las papeletas: voto anticipado, día de la elección y voto por correo recibido a tiempo. Es el recuento que esta página sigue en directo.' },
-      { label: 'Una semana después: el recuento final', text: 'El voto por correo llegado tarde y las papeletas de ausentes —las depositadas fuera del distrito del votante— solo se cuentan entonces. En 2024, ese segundo recuento movió algunas diferencias más de dos puntos y dio la vuelta a Surrey-Guildford.' },
+      { label: 'Una semana después: el recuento final', text: 'El voto por correo llegado tarde y las papeletas de ausentes (depositadas fuera del distrito del votante) solo se cuentan entonces. En 2024, ese segundo recuento movió algunas diferencias más de dos puntos y dio la vuelta a Surrey-Guildford.' },
       { label: 'Lo que cambia esta noche', text: 'Un distrito puede tener todas sus urnas escrutadas y seguir «demasiado ajustado para anunciarse esta noche». Solo anunciamos un ganador si la ventaja resiste también lo que queda por contar la semana siguiente.' },
     ],
     scheduleTitle: 'El desarrollo de la noche',
@@ -308,7 +308,7 @@ const runDateText = new Intl.DateTimeFormat(
     <h2>{COPY.projectionTitle}</h2>
     <p class="qen-lede">{COPY.projectionLede}</p>
 
-    <div class="qen-bar" role="img" aria-label={`${COPY.seatsLabel} — ${seatParties.map((p) => `${partyName(p, locale)} ${p.seats_projected}`).join(', ')}`}>
+    <div class="qen-bar" role="img" aria-label={`${COPY.seatsLabel} : ${seatParties.map((p) => `${partyName(p, locale)} ${p.seats_projected}`).join(', ')}`}>
       {seatParties.map((p) => (
         <span style={`--w:${(100 * p.seats_projected) / seatTotal}%;--c:${p.color}`}></span>
       ))}

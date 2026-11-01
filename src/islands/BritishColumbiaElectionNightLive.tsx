@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import '../styles/quebec-election-night-live.css';
-import { awaitsFinalCount, deriveRows, governmentStatus, numFmt, publishLive, timeFmt,
+import { awaitsFinalCount, deriveRows, governmentStatus, numFmt, publishLive, seatAnswer, timeFmt,
   type LivePayload, type Locale, type PartyInfo } from './qcLiveBus';
 
 /**
@@ -44,11 +44,11 @@ const EARLY_UNTIL = Date.parse('2026-10-24T20:30:00-07:00');
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 const copy = {
-  fr: { live: 'En direct', waiting: 'En attente des premiers résultats officiels', connecting: 'Connexion au dépouillement officiel…',
-        unavailable: 'Résultats en direct temporairement indisponibles', lastKnown: 'Dernière mise à jour connue', updated: 'Données de',
+  fr: { decided: (n: number, of: number) => `${n} circonscriptions sur ${of} ont un élu ou un meneur`, live: 'En direct', waiting: 'En attente des premiers résultats officiels', connecting: 'Connexion au dépouillement officiel…',
+        unavailable: 'Les résultats ne se chargent pas en ce moment. La page réessaie d’elle-même.', lastKnown: 'Derniers chiffres reçus', updated: 'Données de',
         pacific: 'heure du Pacifique',
         seats: 'Sièges', popular: 'Vote populaire', majority: `Majorité : ${MAJORITY}`,
-        stale: 'Dépouillement en pause — aucune donnée officielle depuis', minutes: 'min',
+        stale: 'Aucun résultat officiel nouveau depuis', minutes: 'min',
         complete: 'Dépouillement initial terminé', source: 'Source officielle : Elections BC. Les appels sont ceux de Vote-Scope; Elections BC n’en fait aucun.',
         anomalies: 'candidats ou partis inconnus du registre',
         soon: 'Les bureaux ferment à 20 h, heure du Pacifique (23 h à Montréal). Les premiers résultats d’Elections BC apparaîtront ici dans les minutes qui suivent; inutile de rafraîchir, la page se met à jour d’elle-même.',
@@ -68,11 +68,11 @@ const copy = {
         gov: (p: string) => `${cap(p)} formera le gouvernement`, govMaj: (p: string) => `Majorité pour ${p}`,
         govMin: (p: string | null) => p ? `${cap(p)} formera un gouvernement minoritaire` : 'Gouvernement minoritaire', at: 'Appel à', manual: 'appel de la rédaction',
         auto: 'certain d’après les circonscriptions annoncées' },
-  en: { live: 'Live', waiting: 'Waiting for the first official results', connecting: 'Connecting to the official count…',
-        unavailable: 'Live results temporarily unavailable', lastKnown: 'Last known update', updated: 'Data as of',
+  en: { decided: (n: number, of: number) => `${n} of ${of} ridings have a winner or a leader`, live: 'Live', waiting: 'Waiting for the first official results', connecting: 'Connecting to the official count…',
+        unavailable: 'Results are not loading right now. The page will try again on its own.', lastKnown: 'Last figures received', updated: 'Data as of',
         pacific: 'Pacific time',
         seats: 'Seats', popular: 'Popular vote', majority: `Majority: ${MAJORITY}`,
-        stale: 'Count paused — no new official data for', minutes: 'min',
+        stale: 'No new official results for', minutes: 'min',
         complete: 'Initial count complete', source: 'Official source: Elections BC. Calls are Vote-Scope’s; Elections BC makes none.',
         anomalies: 'candidates or parties unknown to the registry',
         soon: 'Polls close at 8 p.m. Pacific time. The first results from Elections BC will appear here within minutes; no need to refresh, the page updates on its own.',
@@ -92,11 +92,11 @@ const copy = {
         gov: (p: string) => `${cap(p)} will form the government`, govMaj: (p: string) => `Majority for ${p}`,
         govMin: (p: string | null) => p ? `${cap(p)} will form a minority government` : 'Minority government', at: 'Called at', manual: 'newsroom call',
         auto: 'certain from the ridings called' },
-  es: { live: 'En directo', waiting: 'A la espera de los primeros resultados oficiales', connecting: 'Conectando con el recuento oficial…',
-        unavailable: 'Resultados en directo temporalmente no disponibles', lastKnown: 'Última actualización conocida', updated: 'Datos de las',
+  es: { decided: (n: number, of: number) => `${n} de ${of} distritos tienen electo o líder`, live: 'En directo', waiting: 'A la espera de los primeros resultados oficiales', connecting: 'Conectando con el recuento oficial…',
+        unavailable: 'Los resultados no se cargan en este momento. La página vuelve a intentarlo sola.', lastKnown: 'Últimas cifras recibidas', updated: 'Datos de las',
         pacific: 'hora del Pacífico',
         seats: 'Escaños', popular: 'Voto popular', majority: `Mayoría: ${MAJORITY}`,
-        stale: 'Recuento en pausa — sin datos oficiales desde hace', minutes: 'min',
+        stale: 'Sin resultados oficiales nuevos desde hace', minutes: 'min',
         complete: 'Recuento inicial terminado', source: 'Fuente oficial: Elections BC. Los anuncios son de Vote-Scope; Elections BC no hace ninguno.',
         anomalies: 'candidatos o partidos desconocidos para el registro',
         soon: 'Las urnas cierran a las 20:00, hora del Pacífico. Los primeros resultados de Elections BC aparecerán aquí en los minutos siguientes; no hace falta recargar, la página se actualiza sola.',
@@ -311,13 +311,13 @@ export default function BritishColumbiaElectionNightLive({ eventId, lang, apiBas
     <section class={`qcl${stale || fromStorage ? ' qcl-is-stale' : ''}`} aria-live="polite" data-sequence={data.sequence ?? ''}>
       <div class="qcl-head">
         <span class="qcl-label"><i></i>{phase === 'final' ? t.phaseFinal.replace(/\.$/, '') : complete ? t.complete : t.live}</span>
-        <span>{fromStorage ? `${t.lastKnown} · ` : ''}{sourceStamp ? `${t.updated} ${stamp(sourceStamp)}` : ''}{typeof data.sequence === 'number' ? ` · #${data.sequence}` : ''}</span>
+        <span>{fromStorage ? `${t.lastKnown} · ` : ''}{sourceStamp ? `${t.updated} ${stamp(sourceStamp)}` : ''}</span>
       </div>
       {data.source?.is_test_page && <p class="qcl-warn">{t.testPage}</p>}
       {failed && <p class="qcl-warn">{t.unavailable}</p>}
       {stale && ageMin !== null && <p class="qcl-warn">{t.stale} {ageMin} {t.minutes}.</p>}
       {(data.source?.anomaly_count ?? 0) > 0 && (
-        <p class="qcl-warn">{data.source?.anomaly_count} {t.anomalies}{anomalyClause ? ` — ${anomalyClause}` : ''}</p>
+        <p class="qcl-warn">{data.source?.anomaly_count} {t.anomalies}{anomalyClause ? ` : ${anomalyClause}` : ''}</p>
       )}
       {phase && (
         <p class={`qcl-phase is-${phase}`}><strong>{phase === 'final' ? t.phaseFinal : t.phaseInitial}</strong> {phase === 'final' ? t.phaseFinalText : t.phaseInitialText}</p>
@@ -325,7 +325,8 @@ export default function BritishColumbiaElectionNightLive({ eventId, lang, apiBas
 
       {decided === 0 ? <p class="qcl-state">{t.waiting}</p> : (
         <div class="qcl-seats">
-          <div class="qcl-bar" role="img" aria-label={`${t.seats} — ${tally.map((p) => `${p.label} ${p.total}`).join(', ')}`}>
+          <p class="qcl-answer">{seatAnswer(lang, tally, MAJORITY)}</p>
+          <div class="qcl-bar" role="img" aria-label={`${t.seats} : ${tally.map((p) => `${p.label} ${p.total}`).join(', ')}`}>
             {tally.map((p) => <i key={p.code} style={`width:${(100 * p.total) / TOTAL}%;background:${p.color}`}>{p.called > 0 && <b style={`width:${(100 * p.called) / p.total}%`}></b>}</i>)}
             <em style={`--m:${(100 * MAJORITY) / TOTAL}%`} aria-hidden="true"></em>
           </div>
@@ -348,7 +349,7 @@ export default function BritishColumbiaElectionNightLive({ eventId, lang, apiBas
               })}
             </tbody>
           </table>
-          <p class="qcl-majority">{t.majority} · {decided}/{TOTAL}</p>
+          <p class="qcl-majority">{t.majority} · {t.decided(decided, TOTAL)}</p>
           {pendingFinal > 0 && <p class="qcl-pending">{t.pendingFinal(pendingFinal)}</p>}
           <p class="qcl-note">{t.projNote(decided)}</p>
         </div>

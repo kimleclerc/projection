@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import '../styles/quebec-election-night-live.css';
 import { readDgeqDirect } from './dgeqDirect';
-import { publishLive, governmentStatus } from './qcLiveBus';
+import { publishLive, governmentStatus, seatAnswer } from './qcLiveBus';
 
 /**
  * La couche directe de la soirée québécoise : sièges en tête et appelés, et
@@ -57,13 +57,13 @@ const OPENS_AT = Date.parse('2026-10-05T19:30:00-04:00');
 const EARLY_UNTIL = Date.parse('2026-10-05T20:30:00-04:00');
 
 const copy = {
-  fr: { live: 'En direct', waiting: 'En attente des premiers résultats officiels', connecting: 'Connexion au dépouillement officiel…',
-        unavailable: 'Résultats en direct temporairement indisponibles', lastKnown: 'Dernière mise à jour connue', updated: 'Données du',
+  fr: { decided: (n: number, of: number) => `${n} circonscriptions sur ${of} ont un élu ou un meneur`, live: 'En direct', waiting: 'En attente des premiers résultats officiels', connecting: 'Connexion au dépouillement officiel…',
+        unavailable: 'Les résultats ne se chargent pas en ce moment. La page réessaie d’elle-même.', lastKnown: 'Derniers chiffres reçus', updated: 'Données du',
         seats: 'Sièges', popular: 'Vote populaire', called: 'élus', leading: 'en tête', majority: `Majorité : ${MAJORITY}`, ridings: 'Circonscriptions',
         riding: 'Circonscription', leader: 'Meneur', votes: 'Voix', polls: 'Bureaux', status: 'Statut', calledBadge: 'Appelé',
-        leadingBadge: 'En tête', noVotes: '—', stale: 'Dépouillement en pause — aucune donnée officielle depuis', minutes: 'min',
+        leadingBadge: 'En tête', noVotes: '—', stale: 'Aucun résultat officiel nouveau depuis', minutes: 'min',
         complete: 'Dépouillement terminé', source: 'Source officielle : Élections Québec. Les appels sont ceux de Vote-Scope.',
-        direct: 'Source directe du directeur général des élections — nos appels et nos projections ne sont pas disponibles.',
+        direct: 'Chiffres lus directement chez le directeur général des élections : nos appels et nos projections ne sont pas disponibles pour l’instant.',
         search: 'Chercher une circonscription', anomalies: 'candidats ou partis inconnus du registre',
         soon: 'Les bureaux ferment à 20 h. Les premiers résultats d’Élections Québec apparaîtront ici dans les minutes qui suivent; inutile de rafraîchir, la page se met à jour d’elle-même.',
         before: 'Les premiers résultats arrivent le lundi 5 octobre à 20 h, à la fermeture des bureaux. Gardez cette page dans vos favoris : elle se mettra à jour d’elle-même.',
@@ -75,13 +75,13 @@ const copy = {
         gov: (p: string) => `${p} formera le gouvernement`, govMaj: (p: string) => `Gouvernement ${p} majoritaire`,
         govMin: (p: string | null) => p ? `Gouvernement ${p} minoritaire` : 'Gouvernement minoritaire', at: 'Appel à', manual: 'appel de la rédaction',
         auto: 'certain d’après les circonscriptions annoncées' },
-  en: { live: 'Live', waiting: 'Waiting for the first official results', connecting: 'Connecting to the official count…',
-        unavailable: 'Live results temporarily unavailable', lastKnown: 'Last known update', updated: 'Data as of',
+  en: { decided: (n: number, of: number) => `${n} of ${of} ridings have a winner or a leader`, live: 'Live', waiting: 'Waiting for the first official results', connecting: 'Connecting to the official count…',
+        unavailable: 'Results are not loading right now. The page will try again on its own.', lastKnown: 'Last figures received', updated: 'Data as of',
         seats: 'Seats', popular: 'Popular vote', called: 'elected', leading: 'leading', majority: `Majority: ${MAJORITY}`, ridings: 'Ridings',
         riding: 'Riding', leader: 'Leader', votes: 'Votes', polls: 'Polls', status: 'Status', calledBadge: 'Called',
-        leadingBadge: 'Leading', noVotes: '—', stale: 'Count paused — no new official data for', minutes: 'min',
+        leadingBadge: 'Leading', noVotes: '—', stale: 'No new official results for', minutes: 'min',
         complete: 'Count complete', source: 'Official source: Élections Québec. Calls are Vote-Scope’s.',
-        direct: 'Reading the chief electoral officer directly — our calls and projections are unavailable.',
+        direct: 'Figures read directly from the chief electoral officer: our calls and projections are not available for now.',
         search: 'Find a riding', anomalies: 'candidates or parties unknown to the registry',
         soon: 'Polls close at 8 p.m. The first results from Élections Québec will appear here within minutes; no need to refresh, the page updates on its own.',
         before: 'The first results arrive on Monday, October 5 at 8 p.m., when polls close. Bookmark this page: it will update on its own.',
@@ -93,13 +93,13 @@ const copy = {
         gov: (p: string) => `${p} will form the government`, govMaj: (p: string) => `${p} majority government`,
         govMin: (p: string | null) => p ? `${p} minority government` : 'Minority government', at: 'Called at', manual: 'newsroom call',
         auto: 'certain from the ridings called' },
-  es: { live: 'En directo', waiting: 'A la espera de los primeros resultados oficiales', connecting: 'Conectando con el recuento oficial…',
-        unavailable: 'Resultados en directo temporalmente no disponibles', lastKnown: 'Última actualización conocida', updated: 'Datos del',
+  es: { decided: (n: number, of: number) => `${n} de ${of} distritos tienen electo o líder`, live: 'En directo', waiting: 'A la espera de los primeros resultados oficiales', connecting: 'Conectando con el recuento oficial…',
+        unavailable: 'Los resultados no se cargan en este momento. La página vuelve a intentarlo sola.', lastKnown: 'Últimas cifras recibidas', updated: 'Datos del',
         seats: 'Escaños', popular: 'Voto popular', called: 'electos', leading: 'en cabeza', majority: `Mayoría: ${MAJORITY}`, ridings: 'Distritos',
         riding: 'Distrito', leader: 'Líder', votes: 'Votos', polls: 'Mesas', status: 'Estado', calledBadge: 'Asignado',
-        leadingBadge: 'En cabeza', noVotes: '—', stale: 'Recuento en pausa — sin datos oficiales desde hace', minutes: 'min',
+        leadingBadge: 'En cabeza', noVotes: '—', stale: 'Sin resultados oficiales nuevos desde hace', minutes: 'min',
         complete: 'Recuento completo', source: 'Fuente oficial: Élections Québec. Las asignaciones son de Vote-Scope.',
-        direct: 'Lectura directa del director general de elecciones — nuestras asignaciones y proyecciones no están disponibles.',
+        direct: 'Cifras leídas directamente del director general de elecciones: nuestras asignaciones y proyecciones no están disponibles por ahora.',
         search: 'Buscar un distrito', anomalies: 'candidatos o partidos desconocidos para el registro',
         soon: 'Las urnas cierran a las 20:00. Los primeros resultados de Élections Québec aparecerán aquí en los minutos siguientes; no hace falta recargar, la página se actualiza sola.',
         before: 'Los primeros resultados llegan el lunes 5 de octubre a las 20:00, al cierre de las urnas. Guarda esta página en tus favoritos: se actualizará sola.',
@@ -357,18 +357,19 @@ export default function QuebecElectionNightLive({ eventId, lang, apiBase, fallba
     <section class={`qcl${stale || fromStorage ? ' qcl-is-stale' : ''}`} aria-live="polite" data-sequence={data.sequence ?? ''}>
       <div class="qcl-head">
         <span class="qcl-label"><i></i>{complete ? t.complete : t.live}</span>
-        <span>{fromStorage ? `${t.lastKnown} · ` : ''}{sourceStamp ? `${t.updated} ${fmtTime(sourceStamp, lang)}` : ''}{typeof data.sequence === 'number' ? ` · #${data.sequence}` : ''}</span>
+        <span>{fromStorage ? `${t.lastKnown} · ` : ''}{sourceStamp ? `${t.updated} ${fmtTime(sourceStamp, lang)}` : ''}</span>
       </div>
       {direct && <p class="qcl-warn">{t.direct}</p>}
       {failed && !direct && <p class="qcl-warn">{t.unavailable}</p>}
       {stale && ageMin !== null && <p class="qcl-warn">{t.stale} {ageMin} {t.minutes}.</p>}
       {(data.source?.anomaly_count ?? 0) > 0 && (
-        <p class="qcl-warn">{data.source?.anomaly_count} {t.anomalies}{anomalyClause ? ` — ${anomalyClause}` : ''}</p>
+        <p class="qcl-warn">{data.source?.anomaly_count} {t.anomalies}{anomalyClause ? ` : ${anomalyClause}` : ''}</p>
       )}
 
       {decided === 0 ? <p class="qcl-state">{t.waiting}</p> : (
         <div class="qcl-seats">
-          <div class="qcl-bar" role="img" aria-label={`${t.seats} — ${tally.map((p) => `${p.label} ${p.total}`).join(', ')}`}>
+          <p class="qcl-answer">{seatAnswer(lang, tally, MAJORITY)}</p>
+          <div class="qcl-bar" role="img" aria-label={`${t.seats} : ${tally.map((p) => `${p.label} ${p.total}`).join(', ')}`}>
             {tally.map((p) => <i key={p.code} style={`width:${(100 * p.total) / TOTAL}%;background:${p.color}`}>{p.called > 0 && <b style={`width:${(100 * p.called) / p.total}%`}></b>}</i>)}
             <em style={`--m:${(100 * MAJORITY) / TOTAL}%`} aria-hidden="true"></em>
           </div>
@@ -391,7 +392,7 @@ export default function QuebecElectionNightLive({ eventId, lang, apiBase, fallba
               })}
             </tbody>
           </table>
-          <p class="qcl-majority">{t.majority} · {decided}/{TOTAL}</p>
+          <p class="qcl-majority">{t.majority} · {t.decided(decided, TOTAL)}</p>
           <p class="qcl-note">{t.projNote(decided)}</p>
         </div>
       )}

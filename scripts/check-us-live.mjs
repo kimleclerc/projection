@@ -18,7 +18,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { deriveUsRows, exitPollKey, predictorVisible, sanitize, showsNumbers, stateNotices, tallyRows } from '../src/islands/usLive.ts';
+import { chamberSummary, deriveUsRows, exitPollKey, mapState, predictorVisible, RACE_ANCHOR, sanitize, showsNumbers, stateNotices, tallyRows,
+  waveReading, WAVE_MIN_REPORTED_PCT } from '../src/islands/usLive.ts';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const load = (rel) => JSON.parse(fs.readFileSync(path.join(ROOT, rel), 'utf8'));
@@ -91,6 +92,33 @@ check(deriveUsRows(first, 'governor').find((r) => r.id === 'G-06000')?.exitPoll 
 // ── Sièges : les non renouvelés comptent, les courses sans chiffres non ───
 const senate = tallyRows(deriveUsRows(sample, 'senate'), { us_dem: 34, us_rep: 31 });
 check(senate.reduce((a, t) => a + t.holdover, 0) === 65, 'Sénat : 65 sièges hors scrutin attendus');
+
+// ── Jauge de majorité : acquis + en tête + non attribués = la chambre ─────
+for (const [chamber, seats, majority, hold] of [['house', 435, 218, {}], ['senate', 100, 51, { us_dem: 34, us_rep: 31 }], ['governor', 50, 26, { us_dem: 6, us_rep: 8 }]]) {
+  const r = deriveUsRows(sample, chamber);
+  const s = chamberSummary(r, hold, seats, majority);
+  const sum = s.parties.reduce((a, p) => a + p.total, 0) + s.unassigned;
+  check(sum === seats, `${chamber} : acquis + en tête + non attribués = ${sum}, attendu ${seats}`);
+  check(s.parties[0]?.code === 'us_dem' && s.parties.at(-1)?.code === 'us_rep', `${chamber} : jauge hors de l'ordre D … R`);
+  for (const row of r) {
+    const m = mapState(row);
+    if (row.status === 'state_unavailable' && !row.call) check(m === 'unavailable', `${row.id} : carte ${m} pour un État sans chiffres`);
+    if (row.status === 'transcribed_empty') check(m === 'transcribed_empty', `${row.id} : carte ${m} pour une saisie vide`);
+    check(RACE_ANCHOR.test(row.id), `${row.id} : ancre invalide`);
+  }
+}
+// ── Jauge de vague : honnête quand trop peu de courses sont avancées ──────
+const houseRows = deriveUsRows(sample, 'house');
+const w = waveReading(sample, houseRows, 'house');
+check(w.mean !== null && w.races.length >= w.minRaces, 'vague : l\'exemple devrait permettre une lecture à la Chambre');
+check(w.races.every((r) => (houseRows.find((x) => x.id === r.id)?.reportedPct ?? 0) >= WAVE_MIN_REPORTED_PCT), 'vague : une course trop peu dépouillée est comptée');
+check(w.races.every((r) => !['IA', 'PA', 'AZ'].includes(houseRows.find((x) => x.id === r.id)?.state)), 'vague : une course sans chiffres est comptée');
+const early = structuredClone(sample);
+for (const r of early.results) if (r.polls && typeof r.polls.pct === 'number') r.polls.pct = Math.min(r.polls.pct, 30);
+const we = waveReading(early, deriveUsRows(early, 'house'), 'house');
+check(we.mean === null && we.races.length === 0, 'vague : une moyenne est donnée alors qu\'aucune course n\'est assez avancée');
+const noProj = structuredClone(sample); delete noProj.projections;
+check(waveReading(noProj, deriveUsRows(noProj, 'house'), 'house').mean === null, 'vague : une moyenne est donnée sans projection publiée');
 
 if (errors.length) {
   console.error(`✗ us-live : ${errors.length} écart(s)`);

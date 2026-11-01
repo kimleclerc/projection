@@ -150,6 +150,24 @@ nombre de sondages, lien vers la méthodologie).
 - Résultats : résultat officiel en tête, la projection devient « ce que nous avions prévu ».
 - Données indisponibles : dire ce qui manque et depuis quand, sans tableau vide.
 
+### Soirée électorale (couche directe d'une fiche de scrutin)
+Posée sous le `PageHeader`, avant la projection. Ordre de lecture, téléphone d'abord :
+1. Bandeau « En direct » et heure des derniers chiffres officiels (fuseau dit en clair).
+2. **La réponse en une phrase** : qui a la majorité, qui y mène, ou personne encore,
+   avec les chiffres (« Personne n'a encore 218 sièges : républicains 165, démocrates 157,
+   acquis ou en tête »).
+3. **Jauge de majorité** : acquis (couleur pleine), en tête (couleur du parti à 45 %),
+   non attribués (gris), trait de majorité ; une phrase dit ce que compte chaque catégorie.
+4. **Écart avec notre projection** (jauge de vague) : seulement sur les courses assez
+   dépouillées ; sinon, dire combien il en manque, sans moyenne.
+5. Ce que chaque source publie ce soir (indisponible, saisie manuelle, recul).
+6. Carte : appelé, en tête, en attente ; hachures pour « pas de chiffres lisibles »,
+   points pour « saisie manuelle ». Jamais « 0 voix » pour une source qu'on ne lit pas.
+7. Course par course : une ancre stable par course (`#H-13006`) et « Copier le lien ».
+- Partage : « Copier le lien de la page », image de l'état de la chambre dessinée dans le
+  navigateur (`liveChamberCard`), code d'intégration (`/embed/…`).
+- Pas de numéro de séquence ni de cote de marché devant le lecteur.
+
 ### Fiche de circonscription
 1. Nom, province ou État, région. 2. Projection en tableau, avec date.
 3. Candidats (noms, partis ; pas de biographie de campagne après le scrutin).

@@ -4,6 +4,7 @@ import RidingsCta from '../../../components/RidingsCta.astro';
 import NewsletterCta from '../../../components/NewsletterCta.astro';
 import ProjectionEngine from '../../../components/ProjectionEngine.astro';
 import UsMidtermsLive from '../../../components/UsMidtermsLive.astro';
+import { usShareMeta } from '../../../data/us-live';
 import RaceNarrative from '../../../components/RaceNarrative.astro';
 import PolymarketEmbed from '../../../components/PolymarketEmbed.astro';
 import { jurisdictions } from '../../../data/jurisdictions';
@@ -13,6 +14,8 @@ import KalshiBoard from '../../../components/KalshiBoard.astro';
 import ForecastCompareLinks from '../../../components/ForecastCompareLinks.astro';
 
 const j = jurisdictions.usHouse;
+// Semaine du vote : le titre et la description disent ce que la page montre et la projection chiffrée.
+const share = usShareMeta('house', 'fr');
 const canonical = 'https://vote-scope.com/fr/us/chambre/';
 const alternates = {
   en: 'https://vote-scope.com/en/us/house/',
@@ -21,8 +24,8 @@ const alternates = {
 ---
 
 <EditorialLayout
-  title={j.pageTitle.fr}
-  description={j.metaDescription.fr}
+  title={share.title}
+  description={share.description}
   canonical={canonical}
   lang="fr"
   currentPage={j.currentPage}

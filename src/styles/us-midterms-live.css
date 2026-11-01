@@ -1,64 +1,124 @@
 /* Mi-mandat américaines, 3 novembre 2026 : îlot de direct des pages Chambre,
-   Sénat et gouverneurs. S'appuie sur quebec-election-night-live.css (.qcl, .qll). */
-.usl{margin-bottom:34px}
-.usl h3{margin:0;font-family:var(--serif);font-weight:700;font-size:20px}
+   Sénat et gouverneurs. S'appuie sur quebec-election-night-live.css (.qcl, .qll).
+   Contrat : docs/DESIGN.md. Couleurs de remplissage : celles des partis seulement. */
+.usl{margin-bottom:34px;--usl-map-empty:#d9d9d9}
+:root[data-theme="dark"] .usl{--usl-map-empty:#3a3a3a}
+.usl h3{margin:0 0 8px;font-family:var(--serif);font-weight:700;font-size:20px;line-height:1.25}
+.usl-note{margin:8px 0 0;max-width:72ch;font-size:14px;line-height:1.5;color:var(--ink-3)}
+
+/* 1. La réponse, en une phrase, au premier écran. */
+.usl-answer,.usl-state{margin:16px 0 0;max-width:40ch;font-family:var(--serif);font-weight:700;font-size:clamp(22px,3.2vw,30px);line-height:1.2;color:var(--ink)}
+.usl-state{font-weight:400}
+
+/* 2. Jauge de majorité : acquis (plein), en tête (pâle), non attribués (gris). */
+.usl-gauge{margin-top:16px}
+.usl-gauge-ends{display:flex;justify-content:space-between;align-items:flex-end;gap:12px}
+.usl-gauge-end{display:flex;align-items:baseline;gap:10px;color:var(--c)}
+.usl-gauge-end.is-right{flex-direction:row-reverse;text-align:right}
+.usl-gauge-end strong{font-family:var(--numeric);font-weight:700;font-size:clamp(40px,7vw,64px);line-height:1}
+.usl-gauge-end span{display:flex;flex-direction:column;gap:2px}
+.usl-gauge-end b{font-size:17px;font-weight:700}
+.usl-gauge-end small{font-size:13px;font-weight:600;color:var(--ink-3)}
+.usl-gauge-bar{position:relative;display:flex;height:28px;margin-top:8px;background:var(--usl-map-empty)}
+.usl-gauge-bar i{display:block;height:100%;background:var(--c)}
+.usl-gauge-bar i.is-leading{background:color-mix(in srgb,var(--c) 45%,var(--paper))}
+.usl-gauge-bar i.is-open{background:var(--usl-map-empty)}
+.usl-gauge-bar em{position:absolute;top:-5px;bottom:-5px;left:calc(50% - 1px);width:2px;background:var(--ink)}
+.usl-gauge-foot{display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px 16px;margin-top:8px;font-size:13px;font-weight:600;color:var(--ink-3)}
+.usl-gauge-maj{color:var(--ink-2)}
+
+/* Partage : boutons texte, discrets. */
+.usl-share{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.usl-share-btn,.usl-copy{font:inherit;font-size:13px;padding:5px 10px;border:1px solid var(--rule);border-radius:2px;background:transparent;color:var(--ink-2);cursor:pointer}
+.usl-share-btn:hover,.usl-copy:hover{color:var(--ink);border-color:var(--ink-3)}
+.usl-share-btn.is-done,.usl-copy.is-done{color:var(--ink);border-color:var(--ink)}
+.usl-share-btn:disabled{color:var(--ink-3);cursor:wait}
+
+/* 3. Jauge de vague : l'écart du décompte avec notre projection. */
+.usl-wave{margin-top:24px;padding-top:14px;border-top:2px solid var(--ink)}
+.usl-wave-text{margin:0;max-width:72ch;font-size:16px;line-height:1.5;color:var(--ink-2)}
+.usl-wave-scale{position:relative;height:30px;margin-top:14px;border-bottom:1px solid var(--rule-2)}
+.usl-wave-zero{position:absolute;left:50%;top:0;bottom:0;width:1px;background:var(--ink-3)}
+.usl-wave-scale i{position:absolute;bottom:0;width:2px;height:12px;margin-left:-1px;background:var(--ink-3);opacity:.3}
+.usl-wave-scale b{position:absolute;top:0;bottom:-4px;width:3px;margin-left:-1.5px;background:var(--ink)}
+.usl-wave-axis{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:6px;font-size:12px;font-weight:600;color:var(--ink-3)}
+.usl-wave-axis span{display:flex;flex-direction:column;line-height:1.3}
+.usl-wave-axis b{font-size:13px}
+.usl-wave-axis .is-center{align-items:center;text-align:center}
+.usl-wave-axis .is-right{align-items:flex-end;text-align:right}
 
 /* États sans flux, en saisie manuelle, en recul : dits, jamais « 0 voix ». */
-.usl-notices{display:grid;gap:8px;margin-top:14px}
-.usl-notice{margin:0;padding:9px 12px;border:1px solid var(--rule);border-radius:2px;background:var(--paper-2);font-size:14px;line-height:1.5;color:var(--ink-2)}
-.usl-notice.is-unavailable{border-style:dashed;border-color:var(--ink-3)}
-.usl-notice.is-transcribed{border-top:3px solid #d9a928}
-.usl-notice.is-regressed{border-top:3px solid var(--ink-3)}
+.usl-notices{margin-top:24px;padding-top:14px;border-top:1px solid var(--rule)}
+.usl-notices p{margin:6px 0 0;max-width:72ch;font-size:15px;line-height:1.5;color:var(--ink-2)}
 
-.usl-status{display:inline-block;font-style:normal;font-family:var(--mono);font-size:12px;padding:2px 7px;border-radius:2px;border:1px solid var(--rule);color:var(--ink-3);white-space:nowrap}
-.usl-status.is-called{background:var(--ink);color:var(--card);border-color:var(--ink)}
-.usl-status.is-counting{color:var(--ink-2)}
-.usl-status.is-transcribed,.usl-status.is-transcribed_empty{border-color:#d9a928;color:var(--ink-2)}
-.usl-status.is-state_unavailable,.usl-status.is-regressed{border-style:dashed;border-color:var(--ink-3);color:var(--ink-2)}
+.usl-status{display:inline-block;margin-left:8px;font-style:normal;font-size:13px;font-weight:600;color:var(--ink-3);white-space:nowrap}
+.usl-status.is-called{color:var(--ink)}
 
-/* Prédicteur d'avant-dépouillement : une estimation, présentée comme telle. */
-.usl-pred{margin-top:22px;padding:14px 14px 12px;border:1px dashed var(--ink-3);border-radius:2px;background:var(--paper-2)}
-.usl-pred-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 12px}
-.usl-pred-badge{font-family:var(--mono);font-size:12px;padding:2px 7px;border-radius:2px;border:1px solid var(--ink-3);color:var(--ink-2)}
-.usl-pred-lede{margin:8px 0 12px;font-size:14px;line-height:1.55;color:var(--ink-2);max-width:72ch}
-.usl-pred-list{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
-.usl-pred-item{display:grid;gap:5px;padding:10px 12px;border:1px solid var(--rule);border-radius:2px;background:var(--card)}
-.usl-pred-name{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;font-size:15px}
-.usl-pred-fav{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;font-size:14px}
-.usl-pred-fav i{width:10px;height:10px;border-radius:2px}
-.usl-pred-fav small,.usl-pred-meta{font-family:var(--mono);font-size:12px;color:var(--ink-3)}
-.usl-pred-meter{position:relative;display:block;height:6px;border-radius:2px;overflow:hidden;opacity:.8}
-.usl-pred-meter span{display:block;height:100%}
-.usl-pred-meter::after{content:"";position:absolute;top:0;bottom:0;left:50%;width:1px;background:var(--card)}
+/* 4. Carte. */
+.usl-map{margin-top:24px;padding-top:14px;border-top:1px solid var(--rule)}
+.usl-map-legend{display:flex;flex-wrap:wrap;gap:6px 16px;margin:0 0 10px;padding:0;list-style:none;font-size:13px;color:var(--ink-2)}
+.usl-map-legend i{display:inline-block;width:12px;height:12px;margin-right:6px;vertical-align:-1px;background:var(--usl-map-empty)}
+.usl-map-legend i.is-called{width:18px;background:linear-gradient(90deg,var(--c) 50%,var(--c2) 50%)} /* design-ok : deux carrés de légende (D, R), pas un dégradé */
+.usl-map-legend i.is-leading{width:18px;background:linear-gradient(90deg,color-mix(in srgb,var(--c) 45%,var(--paper)) 50%,color-mix(in srgb,var(--c2) 45%,var(--paper)) 50%)} /* design-ok : légende */
+.usl-map-legend i.is-unavailable{background:repeating-linear-gradient(45deg,var(--ink-3) 0 1.5px,var(--usl-map-empty) 1.5px 4px)} /* design-ok : hachure de légende (pas de chiffres lisibles) */
+.usl-map-legend i.is-transcribed_empty{background:radial-gradient(circle,var(--ink-3) 1px,transparent 1.3px) 0 0/4px 4px,var(--usl-map-empty)} /* design-ok : trame de points de légende (saisie manuelle) */
+.usl-map-legend i.is-manual{background:radial-gradient(circle,var(--ink-3) 1px,transparent 1.3px) 0 0/4px 4px,var(--paper-2)} /* design-ok : trame de points de légende (saisie manuelle) */
+.usl-map-legend i.is-none{background:var(--paper-2);outline:1px solid var(--rule);outline-offset:-1px}
+.usl-map-board{position:relative;width:100%;container-type:inline-size}
+.usl-map-board svg{display:block;width:100%;height:auto}
+.usl-map-race path:first-child{stroke:var(--paper);stroke-width:.5px;vector-effect:non-scaling-stroke}
+.usl-map-race.is-leading path:first-child{fill-opacity:.45}
+.usl-map-race[class*="is-"]:not(.is-none) path:first-child{cursor:pointer}
+.usl-map-race.is-none path:first-child{stroke:var(--rule)}
+.usl-map-hatch{fill:var(--ink-3)}
+.usl-map-halo{fill:none;stroke:var(--ink);stroke-width:2px;vector-effect:non-scaling-stroke}
+.usl-map-inset{fill:var(--paper-2)}
+.usl-map-frame{fill:none;stroke:var(--rule-2);stroke-width:1px;vector-effect:non-scaling-stroke}
+.usl-map-title{position:absolute;padding:0 3px;background:var(--paper);font-size:clamp(8px,1.2cqw,12px);font-weight:700;color:var(--ink);pointer-events:none}
+.usl-map-detail{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px;min-height:24px;margin:10px 0 0;font-size:14px}
+.usl-map-detail a{color:var(--ink);text-decoration:underline;text-underline-offset:2px}
+.usl-map-who{display:inline-flex;align-items:center;gap:6px}
+.usl-map-who i{width:10px;height:10px}
+
+/* 5. Estimation d'avant-dépouillement : une liste, présentée comme une estimation. */
+.usl-pred{margin-top:24px;padding-top:14px;border-top:1px solid var(--rule)}
+.usl-pred-lede{margin:0 0 10px;font-size:14px;line-height:1.55;color:var(--ink-2);max-width:72ch}
+.usl-pred-list{list-style:none;margin:0;padding:0}
+.usl-pred-item{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr) auto;gap:4px 14px;align-items:baseline;padding:8px 0;border-bottom:1px solid var(--rule);font-size:14px}
+.usl-pred-name a{color:var(--ink);font-weight:600;text-decoration:underline;text-underline-offset:2px}
+.usl-pred-fav{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px}
+.usl-pred-fav i{width:10px;height:10px}
+.usl-pred-fav small,.usl-pred-meta{font-size:13px;color:var(--ink-3)}
 .usl-pred-empty,.usl-pred-gone{margin:8px 0 0;font-size:13px;color:var(--ink-3)}
 
-/* Course par course : une liste, pas un tableau, pour tenir sur un téléphone. */
-.usl-races{margin-top:22px;padding-top:14px;border-top:1px solid var(--rule)}
-.usl-races .qll-head h3{flex:1 1 100%}
+/* 6. Course par course : une liste, une ancre par course. */
+.usl-races{margin-top:24px;padding-top:14px;border-top:2px solid var(--ink)}
+.usl-races .qll-head h3{flex:1 1 100%;margin:0}
+.usl-races-lede{flex:1 1 100%;margin:0;font-size:14px;color:var(--ink-3)}
 .usl-list{list-style:none;margin:0;padding:0}
-.usl-race{display:grid;grid-template-columns:minmax(0,1.3fr) auto minmax(0,1.6fr) auto;gap:4px 14px;align-items:center;padding:9px 0;border-bottom:1px solid var(--rule);font-size:14px}
+.usl-race{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1.5fr) auto auto;gap:4px 14px;align-items:center;padding:9px 0;border-bottom:1px solid var(--rule);font-size:14px;scroll-margin-top:80px}
+.usl-race.is-target{outline:2px solid var(--ink);outline-offset:2px}
 .usl-race-name{font-weight:600;min-width:0;overflow-wrap:anywhere}
 .usl-race-name a{color:var(--ink);text-decoration:underline;text-underline-offset:2px}
 .usl-race-lead{display:flex;flex-wrap:wrap;align-items:center;gap:2px 8px;min-width:0}
-.usl-race-lead i{width:10px;height:10px;border-radius:2px}
+.usl-race-lead i{width:10px;height:10px}
 .usl-race-lead span{color:var(--ink-2)}
-.usl-race-lead small{font-family:var(--mono);font-size:12px;color:var(--ink-3)}
-.usl-race-est{font-style:italic;color:var(--ink-3)}
-.usl-race-nums{display:flex;flex-direction:column;align-items:flex-end;font-family:var(--mono);font-size:12px;color:var(--ink-3);white-space:nowrap}
-.usl-race-nums span:first-child{color:var(--ink);font-size:13px}
+.usl-race-lead small{font-size:13px;color:var(--ink-3)}
+.usl-race-est{color:var(--ink-3)}
+.usl-race-nums{display:flex;flex-direction:column;align-items:flex-end;font-size:13px;color:var(--ink-3);white-space:nowrap}
+.usl-race-nums span:first-child{color:var(--ink)}
+.usl-copy{font-size:12px;padding:3px 8px;white-space:nowrap}
+.usl-full{margin:16px 0 0;font-size:15px}
+.usl-full a{color:var(--ink);text-decoration:underline;text-underline-offset:2px}
 
 @media(max-width:620px){
+  .usl-gauge-end b{font-size:15px}
+  .usl-gauge-end small{font-size:12px}
   .usl-race{grid-template-columns:minmax(0,1fr) auto;gap:5px 10px}
+  .usl-race-name{grid-column:1/3}
   .usl-race-lead{grid-column:1/2}
-  .usl-race-nums{grid-column:2/3;grid-row:2}
-  .usl-pred{padding:12px 10px}
-  .usl-pred-list{grid-template-columns:1fr}
+  .usl-race-nums{grid-column:2/3;grid-row:2/4}
+  .usl-copy{grid-column:1/2;justify-self:start}
+  .usl-pred-item{grid-template-columns:minmax(0,1fr)}
 }
-
-/* Tableau des sièges : la règle commune masque la 4e colonne sur mobile, qui est ici « En tête ». */
-.usl .qcl-table th:nth-child(4),.usl .qcl-table td:nth-child(4){display:table-cell}
-@media(max-width:620px){
-  .usl .qcl-table thead th{white-space:normal;word-break:normal;overflow-wrap:normal;hyphens:auto;font-size:11px;vertical-align:bottom}
-  .usl .qcl-table th,.usl .qcl-table td{padding:6px 3px}
-  .usl .qcl-table tbody th{white-space:nowrap}
-}
+.usl[data-chamber="senate"] .usl-map-board,.usl[data-chamber="governor"] .usl-map-board{max-width:720px}

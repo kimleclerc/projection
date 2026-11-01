@@ -76,3 +76,11 @@ export async function renderEarlyVotePng(fmt: 'wide' | 'square' | 'story', lang:
   const { w, h } = SIZE[fmt];
   return toPng(earlyVoteCard(fmt, lang, payload), w, h);
 }
+
+/** Image de l'état d'une chambre le soir du vote, à partir des chiffres que l'îlot affiche. */
+export async function renderLiveChamberPng(fmt: 'wide' | 'square' | 'story', lang: Lang, geoUrl: string | null, payload: import('./cards').LiveChamberCardInput): Promise<Blob> {
+  const { liveChamberCard, SIZE } = await import('./cards');
+  const geo = geoUrl ? await fetch(geoUrl).then((r) => (r.ok ? r.json() : null)).catch(() => null) : null;
+  const { w, h } = SIZE[fmt];
+  return toPng(liveChamberCard(fmt, payload, geo, lang), w, h);
+}

@@ -726,3 +726,83 @@ export function earlyVoteCard(fmt: Format, lang: Lang, d: EarlyVoteCardInput): N
     legend, ...out, axis, sides);
   return frame(fmt, lang, d.title, longDate(d.voteDay, lang), body, d.foot);
 }
+
+// ------------------------------------------------------------------ soirée électorale
+
+/**
+ * L'état d'une chambre le soir du vote (mi-mandat américaines) : la réponse en
+ * une phrase, la jauge de majorité (acquis, en tête, non attribués) et la carte
+ * coloriée par appel ou meneur. Les chiffres viennent tous de live.json, déjà
+ * réduits par l'îlot (src/islands/usLive.ts) : cette fonction ne calcule rien.
+ * Dessinée dans le navigateur du lecteur (render-client), comme le scénario.
+ */
+export interface LiveChamberCardInput {
+  title: string;
+  when: string;
+  answer: string;
+  seats: number;
+  majorityLabel: string;
+  /** Dans l'ordre de la jauge, démocrates à gauche. */
+  parties: { label: string; color: string; secured: number; leading: number }[];
+  unassigned: number;
+  legend: { secured: string; leading: string; unassigned: string; hatched: string };
+  /** Couleur de remplissage par clé de geomap.json ; hachures pour « pas de chiffres lisibles ». */
+  fills: Record<string, string>;
+  hatched: string[];
+  foot: string;
+}
+
+export function liveChamberCard(fmt: Format, d: LiveChamberCardInput, geo: GeoDoc | null, lang: Lang): Node {
+  const { w, h: H } = SIZE[fmt];
+  const pad = fmt === 'wide' ? 34 : 44;
+  const inner = w - pad * 2;
+  const total = Math.max(d.seats, 1);
+  const segs: { n: number; color: string }[] = [];
+  const left = d.parties.slice(0, -1);
+  const right = d.parties.at(-1);
+  for (const p of left) segs.push({ n: p.secured, color: p.color }, { n: p.leading, color: tint(p.color, 0.45) });
+  segs.push({ n: d.unassigned, color: VIDE });
+  if (right) segs.push({ n: right.leading, color: tint(right.color, 0.45) }, { n: right.secured, color: right.color });
+  const big = fmt === 'wide' ? 58 : 72;
+  const ends = [d.parties[0], right].filter(Boolean) as LiveChamberCardInput['parties'];
+  const head = h('div', { justifyContent: 'space-between', alignItems: 'baseline', width: inner },
+    ...ends.map((p, i) => h('div', { alignItems: 'baseline', flexDirection: i === 1 ? 'row-reverse' : 'row' },
+      h('div', { fontFamily: 'Barlow Condensed', fontWeight: 700, fontSize: big, lineHeight: 1, color: p.color }, String(p.secured + p.leading)),
+      h('div', { flexDirection: 'column', margin: i === 1 ? '0 12px 0 0' : '0 0 0 12px', alignItems: i === 1 ? 'flex-end' : 'flex-start' },
+        h('div', { fontSize: fmt === 'wide' ? 22 : 26, fontWeight: 700, color: p.color }, p.label),
+        h('div', { fontSize: fmt === 'wide' ? 15 : 18, fontWeight: 600, color: INK_3 }, `${p.secured} ${d.legend.secured} · ${p.leading} ${d.legend.leading}`)))));
+  const bar = h('div', { position: 'relative', width: inner, height: 30, marginTop: 8, backgroundColor: VIDE },
+    ...segs.filter((s) => s.n > 0).map((s) => h('div', { width: (s.n / total) * inner, height: 30, backgroundColor: s.color })),
+    h('div', { position: 'absolute', left: inner / 2 - 1, top: -6, width: 2, height: 42, backgroundColor: INK }));
+  const under = h('div', { justifyContent: 'space-between', marginTop: 8, fontSize: fmt === 'wide' ? 15 : 18, fontWeight: 600, color: INK_3, width: inner },
+    h('div', {}, `${d.unassigned} ${d.legend.unassigned}`),
+    h('div', { color: INK_2 }, d.majorityLabel));
+  const answer = h('div', { fontSize: fmt === 'wide' ? 25 : 32, fontWeight: 700, lineHeight: 1.2, marginBottom: 12, color: INK }, d.answer);
+
+  let map: Node | null = null;
+  if (geo) {
+    const hatched = new Set(d.hatched);
+    const fill = (id: string) => d.fills[id] ?? PAPER_2;
+    const changed = (id: string) => hatched.has(id);
+    const [, , GW, GH] = geo.viewBox;
+    const topH = fmt === 'wide' ? 205 : 260;
+    const boxH = H - pad * 2 - 60 - topH - 70;
+    if (fmt === 'wide') {
+      const k = Math.min(inner / GW, boxH / GH);
+      const mw = Math.round(GW * k); const mh = Math.round(GH * k);
+      map = h('div', { position: 'relative', width: mw, height: mh },
+        img(svgUri(mapSvg(geo, fill, changed)), mw, mh, { position: 'absolute', left: 0, top: 0 }),
+        ...geo.panels.filter((p: any) => !p.main).map((p: any) => h('div', {
+          position: 'absolute', left: p.x * k + 3, top: p.y * k + 2, padding: '1px 4px', backgroundColor: 'rgba(255,255,255,.88)',
+          fontSize: 12, fontWeight: 700, color: INK,
+        }, lang === 'en' ? p.title_en : lang === 'es' ? p.title_es : p.title_fr)));
+    } else {
+      map = storyMap(geo, fill, changed, inner, boxH, lang);
+    }
+  }
+  const body = h('div', { flexDirection: 'column', flexGrow: 1 },
+    answer, head, bar, under,
+    ...(map ? [h('div', { flexGrow: 1, justifyContent: 'center', alignItems: fmt === 'story' ? 'flex-start' : 'center', marginTop: 12 }, map)] : []),
+    ...(d.hatched.length ? [h('div', { fontSize: fmt === 'wide' ? 13 : 16, fontWeight: 600, color: INK_3, marginTop: 6 }, d.legend.hatched)] : []));
+  return frame(fmt, lang, d.title, d.when, body, d.foot);
+}
