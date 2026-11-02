@@ -84,3 +84,10 @@ export async function renderLiveChamberPng(fmt: 'wide' | 'square' | 'story', lan
   const { w, h } = SIZE[fmt];
   return toPng(liveChamberCard(fmt, payload, geo, lang), w, h);
 }
+
+/** Image d'une série de partielles (une ligne par circonscription). */
+export async function renderSlatePng(fmt: 'wide' | 'square' | 'story', lang: Lang, payload: import('./cards').SlateCardInput): Promise<Blob> {
+  const { slateCard, SIZE } = await import('./cards');
+  const { w, h } = SIZE[fmt];
+  return toPng(slateCard(fmt, lang, payload), w, h);
+}

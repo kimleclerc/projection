@@ -16,6 +16,7 @@ import qcResults from '../data/qc-results-2026.json';
 import bcLatest from '../../web_data/british-columbia/latest.json';
 import houseLatest from '../../web_data/us-house/latest.json';
 import spainLatest from '../../web_data/spain/latest.json';
+import { nextByelectionDay, chance } from '../lib/canada-byelection-slate';
 
 type Lang = 'fr' | 'en' | 'es';
 /** compact : sans bande ni conteneur, pour une colonne (une de l'accueil). */
@@ -48,6 +49,10 @@ const qcSeats = (qcResults as any).parties.filter((p: any) => p.seats > 0 || p.p
 const qcWinner = label('quebec', (qcResults as any).winner);
 const bc = lead(bcLatest); const house = (houseLatest as any).parties.find((p: any) => p.party === 'us_dem');
 const es = lead(spainLatest);
+// Partielles fédérales : la prochaine journée de scrutin fixée, s'il y en a une.
+const by = nextByelectionDay(lang);
+const byFlips = by?.rows.filter((r) => r.incumbent && r.incumbent !== r.party) ?? [];
+const byClosest = by ? [...by.rows].sort((a, b) => a.p - b.p)[0] : null;
 
 const CALENDAR = [
   { id: 'qc-2026', canada: true, date: '2026-10-05', place: L('Québec', 'Quebec', 'Quebec'),
@@ -74,6 +79,20 @@ const CALENDAR = [
     detail: L('Élections générales anticipées', 'Snap general election', 'Elecciones generales anticipadas'),
     href: L('/fr/spain/', '/en/spain/', '/es/spain/'),
     cta: L('Ouvrir la projection', 'Open the forecast', 'Abrir la proyección') },
+  ...(by ? [{ id: 'ca-byelections', canada: true, date: by.date,
+    place: L(`Canada · ${by.rows.length} partielles fédérales`, `Canada · ${by.rows.length} federal by-elections`, `Canadá · ${by.rows.length} parciales federales`),
+    headline: byFlips.length
+      ? L(`${byFlips.length} siège${byFlips.length > 1 ? 's changeraient' : ' changerait'} de camp : ${byFlips.map((r) => r.name).join(', ')}`,
+          `${byFlips.length} seat${byFlips.length > 1 ? 's' : ''} would change hands: ${byFlips.map((r) => r.name).join(', ')}`,
+          `${byFlips.length} escaño${byFlips.length > 1 ? 's cambiarían' : ' cambiaría'} de manos: ${byFlips.map((r) => r.name).join(', ')}`)
+      : L('Aucun siège ne changerait de camp', 'No seat would change hands', 'Ningún escaño cambiaría de manos'),
+    detail: byClosest
+      ? L(`Course la plus ouverte : ${byClosest.name} (${byClosest.partyLabel}, ${chance(byClosest.p, lang)})`,
+          `Most open race: ${byClosest.name} (${byClosest.partyLabel}, ${chance(byClosest.p, lang)})`,
+          `Carrera más abierta: ${byClosest.name} (${byClosest.partyLabel}, ${chance(byClosest.p, lang)})`)
+      : '',
+    href: L('/fr/canada/byelections/', '/en/canada/byelections/', '/es/canada/byelections/'),
+    cta: L('Voir les partielles', 'See the by-elections', 'Ver las parciales') }] : []),
 ];
 
 const RECENT_DAYS = 21;

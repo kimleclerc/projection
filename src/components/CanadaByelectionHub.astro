@@ -1,147 +1,158 @@
 ---
-// Hub des partielles fédérales — courses en attente d'abord, archives ensuite.
-// Uniforme dans les trois langues : aucune locale n'est renvoyée vers une autre.
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+/**
+ * Partielles fédérales, communes aux trois langues (docs/DESIGN.md § 7) :
+ * 1. PageHeader : combien de sièges votent, quand, et la réponse en une phrase.
+ * 2. La prochaine journée de scrutin en tableau, avec l'image à télécharger.
+ * 3. Les sièges vacants ou annoncés, sans date. 4. Les partielles passées.
+ * Tout ce qui dépend du calendrier se calcule à partir des données : une phrase
+ * figée sur l'actualité se périme sans que personne la voie vieillir.
+ */
 import Base from '../layouts/Base.astro';
+import PageHeader from './PageHeader.astro';
+import StoryList from './StoryList.astro';
 import KeepDigging from './KeepDigging.astro';
-import GooglePreferredSource from './GooglePreferredSource.astro';
+import RidingShareButton from '../islands/RidingShareButton.tsx';
 import { canadaByelections } from '../data/canadaByelections';
-import {
-  canadaByelectionRaces,
-  type ByelectionRaceLocale,
-} from '../data/canadaByelectionRaces';
+import { writSource, type ByelectionRaceLocale } from '../data/canadaByelectionRaces';
+import { byelectionSlate, nextByelectionDay, byelectionRunDate, chance } from '../lib/canada-byelection-slate';
+import { longDate } from '../lib/format';
 
 interface Props {
   lang: ByelectionRaceLocale;
 }
 const { lang } = Astro.props;
+const L = <T,>(fr: T, en: T, es: T): T => (lang === 'fr' ? fr : lang === 'es' ? es : en);
+const loc = L('fr-CA', 'en-CA', 'es-ES');
 
-const index = JSON.parse(
-  readFileSync(resolve(process.cwd(), 'web_data', 'canada-byelections', 'latest.json'), 'utf-8'),
-);
-const pendingData = new Map<string, any>(
-  (index.pending ?? []).map((p: any) => [p.slug, p]),
-);
+const slate = byelectionSlate(lang);
+const next = nextByelectionDay(lang);
+const day = next?.rows ?? [];
+const waiting = slate.filter((r) => !(next && r.electionDate === next.date));
+const archives = Object.values(canadaByelections).sort((a: any, b: any) => b.electionDate.localeCompare(a.electionDate));
 
-const PARTY_LABEL: Record<string, Record<ByelectionRaceLocale, string>> = {
-  lib: { en: 'Liberal', fr: 'Libéral', es: 'Liberal' },
-  con: { en: 'Conservative', fr: 'Conservateur', es: 'Conservador' },
-  ndp: { en: 'NDP', fr: 'NPD', es: 'NPD' },
-  bq: { en: 'Bloc Québécois', fr: 'Bloc québécois', es: 'Bloque Quebequés' },
-  grn: { en: 'Green', fr: 'Vert', es: 'Verde' },
+const WORDS: Record<ByelectionRaceLocale, string[]> = {
+  fr: ['zéro', 'un', 'deux', 'trois', 'quatre', 'cinq', 'six', 'sept', 'huit', 'neuf', 'dix'],
+  en: ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'],
+  es: ['cero', 'un', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve', 'diez'],
 };
-const PARTY_COLOR: Record<string, string> = {
-  lib: '#D71920', con: '#1A4782', ndp: '#F58220', bq: '#33B2CC', grn: '#3D9B35',
-};
-
-const fmtProb = (p: number) => {
-  const v = p * 100;
-  if (v >= 99.5) return '> 99';
-  if (v < 0.5) return '< 1';
-  return v.toFixed(0);
+const word = (n: number) => WORDS[lang][n] ?? String(n);
+const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+const join = (xs: string[]) => {
+  const and = L('et', 'and', 'y');
+  return xs.length <= 1 ? (xs[0] ?? '') : `${xs.slice(0, -1).join(', ')} ${and} ${xs[xs.length - 1]}`;
 };
 
-const races = Object.values(canadaByelectionRaces);
-const scheduled = races.filter((r) => r.status === 'scheduled');
-const pendingWrit = races.filter((r) => r.status === 'vacant_pending_writ');
-const expected = races.filter((r) => r.status === 'expected');
-const archives = Object.values(canadaByelections);
+/** Sujet pluriel d'un parti fédéral : « les libéraux », « the Liberals ». */
+const PLURAL: Record<string, [string, string, string]> = {
+  lib: ['les libéraux', 'the Liberals', 'los liberales'],
+  con: ['les conservateurs', 'the Conservatives', 'los conservadores'],
+  bq: ['le Bloc', 'the Bloc', 'el Bloque'],
+  ndp: ['le NPD', 'the NDP', 'el NPD'],
+  grn: ['les verts', 'the Greens', 'los verdes'],
+  ppc: ['le PPC', 'the PPC', 'el PPC'],
+};
+const plural = (code: string) => {
+  const p = PLURAL[code];
+  return p ? L(p[0], p[1], p[2]) : code.toUpperCase();
+};
 
-// ⚠ Accroche et sous-titre étaient écrits EN DUR. Le 2026-09-19 la page
-// annonçait encore « Three seats are voting » et nommait les trois partielles du
-// 31 août 2026, qui avaient eu lieu trois semaines plus tôt et étaient déjà
-// sorties de la liste. Une phrase figée sur une actualité se périme le jour où
-// l'actualité bouge, et personne ne la voit vieillir.
-//
-// Tout ce qui dépend du calendrier se calcule donc à partir des données. Les
-// dates aussi : la journée de scrutin vient des courses convoquées, pas d'une
-// chaîne recopiée.
-const scheduledDates = [...new Set(scheduled.map((r: any) => r.electionDate).filter(Boolean))].sort();
-const nextPollingDay = scheduledDates[0] ?? null;
-const fmtDay = (iso: string | null, loc: string) => iso
-  ? new Date(`${iso}T12:00:00Z`).toLocaleDateString(loc, { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })
-  : '';
-const nWaiting = pendingWrit.length;
-const nAnnounced = expected.length;
-const nTotal = scheduled.length + nWaiting + nAnnounced;
+// « Trois au Québec, deux en Ontario, une en Saskatchewan. »
+const byProvince = [...day.reduce((m, r) => m.set(r.province, (m.get(r.province) ?? 0) + 1), new Map<string, number>())]
+  .sort((a, b) => b[1] - a[1]);
+const IN: Record<string, [string, string, string]> = {
+  Québec: ['au Québec', 'in Quebec', 'en Quebec'], Quebec: ['au Québec', 'in Quebec', 'en Quebec'],
+  Ontario: ['en Ontario', 'in Ontario', 'en Ontario'], Saskatchewan: ['en Saskatchewan', 'in Saskatchewan', 'en Saskatchewan'],
+};
+const inProv = (p: string) => (IN[p] ? L(IN[p][0], IN[p][1], IN[p][2]) : p);
+const fem = (n: number) => (lang === 'fr' && n === 1 ? 'une' : lang === 'es' && n === 1 ? 'una' : word(n));
+const provinceLine = join(byProvince.map(([p, n]) => `${fem(n)} ${inProv(p)}`));
 
+// « Les libéraux sont favoris dans quatre des six, le Bloc dans Saint-Hyacinthe… »
+const byParty = [...day.reduce((m, r) => m.set(r.party, [...(m.get(r.party) ?? []), r]), new Map<string, typeof day>())]
+  .sort((a, b) => b[1].length - a[1].length);
+const partyBits = byParty.map(([code, rows], i) => {
+  const where = rows.length === 1 ? L(`dans ${rows[0].name}`, `in ${rows[0].name}`, `en ${rows[0].name}`)
+    : L(`dans ${word(rows.length)} des ${word(day.length)}`, `in ${word(rows.length)} of the ${word(day.length)}`, `en ${word(rows.length)} de las ${word(day.length)}`);
+  if (i > 0) return `${plural(code)} ${where}`;
+  const verb = L(PLURAL[code]?.[0].startsWith('les') ? 'sont favoris' : 'est favori', PLURAL[code]?.[1].endsWith('s') ? 'are favoured' : 'is favoured', PLURAL[code]?.[2].startsWith('los') ? 'son favoritos' : 'es favorito');
+  return `${cap(plural(code))} ${verb} ${where}`;
+});
+const flips = day.filter((r) => r.incumbent && r.incumbent !== r.party);
+
+const nDay = day.length;
 const t = {
-  en: {
-    title: `Canada By-Elections — ${nTotal} Upcoming Races — Vote-Scope`,
-    description:
-      `${nTotal} upcoming federal by-elections: ${nWaiting} vacant seats and ${nAnnounced} announced departures. Dates, projections and updates for each riding.`,
-    kicker: 'Canada Desk · By-elections',
-    h1: scheduled.length > 0
-      ? `${scheduled.length} seat${scheduled.length > 1 ? 's are' : ' is'} voting. ${nWaiting + nAnnounced} more are coming.`
-      : `${nTotal} seat${nTotal > 1 ? 's' : ''} waiting to be filled.`,
-    dek: `${nWaiting} seat${nWaiting > 1 ? 's are' : ' is'} vacant and waiting on a writ, and ${nAnnounced} member${nAnnounced > 1 ? 's have' : ' has'} announced a departure without the seat being vacant yet. The common thread is measurement: how much of each seat belonged to the party, and how much belonged to the person who is leaving.`,
-    scheduledLabel: nextPollingDay ? `Called — polling day ${fmtDay(nextPollingDay, 'en-CA')}` : 'Called',
-    pendingLabel: 'Seats vacant — writ pending',
-    expectedLabel: 'Announced — seat not yet vacant',
-    archiveLabel: 'Resolved — April 13, 2026',
-    archiveDek: 'Three by-elections, three correct calls.',
-    favorite: 'Favourite',
-    pollBadge: 'Local poll',
-    view: 'View forecast',
-    viewArchive: 'View result',
-    keepEyebrow: 'Keep digging',
-    keepTitle: 'More from the Canada Desk.',
-    keepBody: 'The federal projection, the provincial models, and the track record behind these calls.',
-    federal: 'Canada federal projection',
-    track: 'Track record',
-  },
-  fr: {
-    title: `Partielles fédérales — ${nTotal} courses à suivre — Vote-Scope`,
-    description:
-      `${nTotal} partielles fédérales à suivre : ${nWaiting} sièges vacants et ${nAnnounced} départ annoncé. Dates, projections et nouvelles par circonscription.`,
-    kicker: 'Bureau Canada · Partielles',
-    h1: scheduled.length > 0
-      ? `${scheduled.length} siège${scheduled.length > 1 ? 's votent' : ' vote'}. ${nWaiting + nAnnounced} autres s’en viennent.`
-      : `${nTotal} siège${nTotal > 1 ? 's' : ''} à pourvoir.`,
-    dek: `${nWaiting} siège${nWaiting > 1 ? 's sont vacants' : ' est vacant'} en attente d’un bref, et ${nAnnounced} député${nAnnounced > 1 ? 's ont' : ' a'} annoncé son départ sans que le siège soit encore vacant. Le fil commun est une mesure : quelle part du siège appartenait au parti, et quelle part appartenait à la personne qui s’en va.`,
-    scheduledLabel: nextPollingDay ? `Déclenchées — scrutin le ${fmtDay(nextPollingDay, 'fr-CA')}` : 'Déclenchées',
-    pendingLabel: 'Sièges vacants — bref en attente',
-    expectedLabel: 'Départ annoncé — siège pas encore vacant',
-    archiveLabel: 'Résolues — 13 avril 2026',
-    archiveDek: 'Trois partielles, trois appels justes.',
-    favorite: 'Favori',
-    pollBadge: 'Sondage local',
-    view: 'Voir la projection',
-    viewArchive: 'Voir le résultat',
-    keepEyebrow: 'Pour aller plus loin',
-    keepTitle: 'Plus du bureau Canada.',
-    keepBody: 'La projection fédérale, les modèles provinciaux et le bilan derrière ces appels.',
-    federal: 'Projection fédérale',
-    track: 'Bilan des prévisions',
-  },
-  es: {
-    title: `Elecciones parciales federales de Canadá — ${nTotal} distritos — Vote-Scope`,
-    description:
-      `${nTotal} elecciones parciales federales previstas: ${nWaiting} escaños vacantes y ${nAnnounced} salida anunciada. Fechas, proyecciones y novedades por distrito.`,
-    kicker: 'Oficina Canadá · Parciales',
-    h1: scheduled.length > 0
-      ? `${scheduled.length} escaño${scheduled.length > 1 ? 's votan' : ' vota'}. Faltan ${nWaiting + nAnnounced} más.`
-      : `${nTotal} escaño${nTotal > 1 ? 's' : ''} por cubrir.`,
-    dek: `${nWaiting} escaño${nWaiting > 1 ? 's están vacantes' : ' está vacante'} a la espera de un decreto, y ${nAnnounced} diputado${nAnnounced > 1 ? 's han' : ' ha'} anunciado su salida sin que el escaño esté aún vacante. El hilo común es una medición: qué parte del escaño pertenecía al partido y qué parte a la persona que se va.`,
-    scheduledLabel: nextPollingDay ? `Convocadas — votación el ${fmtDay(nextPollingDay, 'es-ES')}` : 'Convocadas',
-    pendingLabel: 'Escaños vacantes — decreto pendiente',
-    expectedLabel: 'Salida anunciada — escaño aún no vacante',
-    archiveLabel: 'Resueltas — 13 de abril de 2026',
-    archiveDek: 'Tres parciales, tres aciertos.',
-    favorite: 'Favorito',
-    pollBadge: 'Encuesta local',
-    view: 'Ver proyección',
-    viewArchive: 'Ver resultado',
-    keepEyebrow: 'Seguir cavando',
-    keepTitle: 'Más sobre Canadá.',
-    keepBody: 'La proyección federal, los modelos provinciales y el historial detrás de estos pronósticos.',
-    federal: 'Proyección federal de Canadá',
-    track: 'Historial',
-  },
-}[lang];
+  title: next
+    ? L(`Partielles fédérales du ${longDate(next.date, lang)} : ${nDay} circonscriptions — Vote-Scope`,
+        `Canada federal by-elections, ${longDate(next.date, lang)}: ${nDay} ridings — Vote-Scope`,
+        `Elecciones parciales federales del ${longDate(next.date, lang)}: ${nDay} circunscripciones — Vote-Scope`)
+    : L('Partielles fédérales — Vote-Scope', 'Canada federal by-elections — Vote-Scope', 'Elecciones parciales federales de Canadá — Vote-Scope'),
+  description: next
+    ? L(`Projections pour les ${nDay} partielles fédérales du ${longDate(next.date, lang)} : ${join(day.map((r) => r.name))}. Favori et chances dans chaque circonscription.`,
+        `Forecasts for the ${nDay} federal by-elections on ${longDate(next.date, lang)}: ${join(day.map((r) => r.name))}. Favourite and chances in each riding.`,
+        `Proyecciones para las ${nDay} elecciones parciales federales del ${longDate(next.date, lang)}: ${join(day.map((r) => r.name))}. Favorito y probabilidades en cada circunscripción.`)
+    : L('Les partielles fédérales à venir, avec une projection pour chaque circonscription.', 'Upcoming federal by-elections, with a forecast for each riding.', 'Las próximas elecciones parciales federales, con una proyección para cada circunscripción.'),
+  h1: L('Élections partielles fédérales', 'Federal by-elections', 'Elecciones parciales federales'),
+  promise: next
+    ? L(`${cap(word(nDay))} circonscriptions votent le ${longDate(next.date, lang)} : ${provinceLine}.`,
+        `${cap(word(nDay))} ridings vote on ${longDate(next.date, lang)}: ${provinceLine}.`,
+        `${cap(word(nDay))} circunscripciones votan el ${longDate(next.date, lang)}: ${provinceLine}.`)
+    : L('Aucune partielle fédérale n’est déclenchée pour le moment.', 'No federal by-election has been called at the moment.', 'Por ahora no hay ninguna elección parcial federal convocada.'),
+  answer: next ? `${join(partyBits)}.` + (flips.length
+    ? L(` ${flips.length === 1 ? 'Un siège changerait' : `${cap(word(flips.length))} sièges changeraient`} de camp : ${join(flips.map((r) => r.name))}.`,
+        ` ${flips.length === 1 ? 'One seat would' : `${cap(word(flips.length))} seats would`} change hands: ${join(flips.map((r) => r.name))}.`,
+        ` ${flips.length === 1 ? 'Un escaño cambiaría' : `${cap(word(flips.length))} escaños cambiarían`} de manos: ${join(flips.map((r) => r.name))}.`)
+    : '') : '',
+  dayHeading: next ? L(`Le ${longDate(next.date, lang)}`, `On ${longDate(next.date, lang)}`, `El ${longDate(next.date, lang)}`) : '',
+  thRiding: L('Circonscription', 'Riding', 'Circunscripción'),
+  thHeld: L('Élu en 2025', 'Won in 2025', 'Ganado en 2025'),
+  thFav: L('Favori', 'Favourite', 'Favorito'),
+  thP: L('Chances', 'Chance', 'Probabilidad'),
+  thShare: L('Part projetée', 'Projected share', 'Cuota proyectada'),
+  meta: L(`Projections du ${longDate(byelectionRunDate, lang)}. Scrutin déclenché par le premier ministre le 1er novembre 2026.`,
+          `Forecasts of ${longDate(byelectionRunDate, lang)}. By-elections called by the Prime Minister on November 1, 2026.`,
+          `Proyecciones del ${longDate(byelectionRunDate, lang)}. Elecciones convocadas por el primer ministro el 1 de noviembre de 2026.`),
+  source: L('Communiqué du premier ministre', 'Prime Minister’s news release', 'Comunicado del primer ministro'),
+  waiting: L('Sans date de scrutin', 'No polling day yet', 'Sin fecha de votación'),
+  vacant: L('Siège vacant', 'Seat vacant', 'Escaño vacante'),
+  announced: L('Départ annoncé', 'Departure announced', 'Salida anunciada'),
+  archive: L('Les partielles passées', 'Past by-elections', 'Parciales anteriores'),
+  more: L('Voir aussi', 'See also', 'Ver también'),
+  federal: L('Projection fédérale', 'Canada federal projection', 'Proyección federal de Canadá'),
+  track: L('Bilan des prévisions', 'Track record', 'Historial'),
+  shareTitle: L('Partielles fédérales', 'Federal by-elections', 'Parciales federales'),
+};
+
+const sharePayload = next ? {
+  card: 'slate' as const,
+  slug: `partielles-${next.date}`,
+  jurisdiction: 'canada-byelection',
+  title: t.shareTitle,
+  heading: t.promise.split(':')[0].replace(/\s+$/, ''),
+  rows: day.map((r) => ({ name: r.name, where: r.province, fav: r.partyLabel, color: r.color, p: chance(r.p, lang) })),
+  thFav: t.thFav,
+  thP: t.thP,
+  voteDay: next.date,
+  foot: L(`Projection du ${longDate(byelectionRunDate, lang)}`, `Forecast of ${longDate(byelectionRunDate, lang)}`, `Proyección del ${longDate(byelectionRunDate, lang)}`),
+} : null;
+
+const waitingItems = waiting.map((r) => ({
+  meta: `${r.province} · ${r.status === 'expected' ? t.announced : t.vacant}`,
+  title: r.name,
+  text: L(`Favori : ${r.partyLabel}, ${chance(r.p, lang)} de chances.`, `Favourite: ${r.partyLabel}, ${chance(r.p, lang)} chance.`, `Favorito: ${r.partyLabel}, ${chance(r.p, lang)} de probabilidades.`),
+  href: r.href,
+  color: r.color,
+}));
+const archiveItems = archives.map((c: any) => ({
+  meta: (lang === 'en' ? undefined : c[`kicker_${lang}`]) ?? c.kicker,
+  title: ((lang === 'en' ? undefined : c[`headline_${lang}`]) ?? c.headline).replace(/\.$/, ''),
+  href: c.paths?.[lang] ?? c.paths?.en,
+}));
 
 const canonical = `https://vote-scope.com/${lang}/canada/byelections/`;
+const fmtShare = (v: number) => {
+  const s = v.toLocaleString(loc, { maximumFractionDigits: 0 });
+  return lang === 'en' ? `${s}%` : `${s} %`;
+};
 ---
 
 <Base
@@ -161,63 +172,53 @@ const canonical = `https://vote-scope.com/${lang}/canada/byelections/`;
     { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
       { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: `https://vote-scope.com/${lang}/` },
       { '@type': 'ListItem', position: 2, name: 'Canada', item: `https://vote-scope.com/${lang}/canada/` },
-      { '@type': 'ListItem', position: 3, name: t.kicker, item: canonical },
+      { '@type': 'ListItem', position: 3, name: t.h1, item: canonical },
     ]},
   ]}
 >
   <article class="byhub" data-content-area>
-    <header class="byhub-hero container vs-page-head">
-      <p class="byhub-kicker">{t.kicker}</p>
-      <h1>{t.h1}</h1>
-      <p class="byhub-dek">{t.dek}</p>
-      <GooglePreferredSource locale={lang} />
-    </header>
+    <PageHeader title={t.h1} promise={t.promise} question={t.answer} preferredSourceLocale={lang} />
 
-    {[{ label: t.scheduledLabel, list: scheduled, live: true }, { label: t.pendingLabel, list: pendingWrit, live: false }, { label: t.expectedLabel, list: expected, live: false }].filter((g) => g.list.length > 0).map((group) => (
-      <section class="container">
-        <p class="byhub-label">{group.label}</p>
-        <div class="byhub-grid">
-          {group.list.map((race) => {
-            const d = pendingData.get(race.slug);
-            const fav = d?.favorite;
-            return (
-              <a href={race.paths[lang]} class={`byhub-card${group.live ? ' byhub-card--live' : ''}`} style={`--accent:${PARTY_COLOR[fav] ?? 'var(--rule)'}`}>
-                <span class="byhub-card-kicker">{race.province}</span>
-                <h2>{race.ridingName?.[lang] ?? d?.riding_name_fr ?? race.slug}</h2>
-                <p class="byhub-card-dek">{race.headline[lang]}</p>
-                {fav && (
-                  <p class="byhub-card-fav">
-                    {t.favorite} · <strong style={`color:${PARTY_COLOR[fav]}`}>{PARTY_LABEL[fav]?.[lang] ?? fav.toUpperCase()}</strong>
-                    {' '}{fmtProb(d.favorite_probability)} %
-                  </p>
-                )}
-                {d?.has_local_poll && <span class="byhub-badge">{t.pollBadge}</span>}
-                <span class="byhub-card-cta">{t.view}</span>
-              </a>
-            );
-          })}
+    {next && (
+      <section class="container byhub-block" id="forecast" aria-labelledby="byhub-day">
+        <h2 id="byhub-day">{t.dayHeading}</h2>
+        <div class="table-scroll">
+          <table class="byhub-table">
+            <thead>
+              <tr><th>{t.thRiding}</th><th class="byhub-held">{t.thHeld}</th><th>{t.thFav}</th><th class="num">{t.thP}</th><th class="num byhub-share">{t.thShare}</th></tr>
+            </thead>
+            <tbody>
+              {day.map((r) => (
+                <tr>
+                  <th scope="row"><a class="vs-link" href={r.href}>{r.name}</a><span class="byhub-sub">{r.province}{r.departing ? ` · ${r.departing}` : ''}</span></th>
+                  <td class="byhub-held">{r.incumbentLabel}</td>
+                  <td><span class="dot" style={`background:${r.color}`} aria-hidden="true"></span>{r.partyLabel}</td>
+                  <td class="num byhub-big">{chance(r.p, lang)}</td>
+                  <td class="num byhub-share">{fmtShare(r.share)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
+        <p class="vs-meta">{t.meta} <a href={writSource.url} rel="noopener">{t.source}</a></p>
+        {sharePayload && <RidingShareButton client:idle lang={lang} payload={sharePayload} />}
       </section>
-    ))}
+    )}
 
-    <section class="container">
-      <p class="byhub-label">{t.archiveLabel}</p>
-      <p class="byhub-archive-dek">{t.archiveDek}</p>
-      <div class="byhub-grid">
-        {archives.map((config) => (
-          <a href={(config.paths as any)[lang] ?? config.paths.en} class="byhub-card byhub-card--archive">
-            <span class="byhub-card-kicker">{(lang === 'en' ? undefined : (config as any)[`kicker_${lang}`]) ?? config.kicker}</span>
-            <h2>{(lang === 'en' ? undefined : (config as any)[`headline_${lang}`]) ?? config.headline}</h2>
-            <span class="byhub-card-cta">{t.viewArchive}</span>
-          </a>
-        ))}
-      </div>
+    {waitingItems.length > 0 && (
+      <section class="container byhub-block">
+        <StoryList heading={t.waiting} items={waitingItems} size="sm" />
+      </section>
+    )}
+
+    <section class="container byhub-block">
+      <StoryList heading={t.archive} items={archiveItems} size="sm" columns={2} />
     </section>
 
     <KeepDigging
-      eyebrow={t.keepEyebrow}
-      title={t.keepTitle}
-      body={t.keepBody}
+      eyebrow={t.more}
+      title={t.more}
+      body=""
       links={[
         { href: `/${lang}/canada/federal/`, label: t.federal },
         { href: `/${lang}/track-record/`, label: t.track },
@@ -228,49 +229,21 @@ const canonical = `https://vote-scope.com/${lang}/canada/byelections/`;
 
 <style>
   .byhub { padding-bottom: 64px; }
-  .byhub .container { max-width: 1080px; margin-inline: auto; padding-inline: 1.5rem; }
-  .byhub-hero { padding-top: 56px; padding-bottom: 40px; border-bottom: 1px solid var(--rule); }
-  .byhub-kicker {
-    font-family: var(--mono); font-size: 13px; letter-spacing: 0; color: var(--ink-3);
-  }
-  .byhub-hero h1 {
-    margin-top: 14px; max-width: 800px; font-family: var(--serif); font-weight: 700;
-    font-size: clamp(38px, 6vw, 68px); letter-spacing: -0.01em; line-height: 1;
-  }
-  .byhub-dek { margin-top: 16px; max-width: 68ch; color: var(--ink-2); font-size: 17px; line-height: 1.6; }
-  .byhub-label {
-    margin-top: 48px; font-family: var(--mono); font-size: 13px; letter-spacing: 0; color: var(--ink-3);
-    border-bottom: 1px solid var(--rule); padding-bottom: 10px;
-  }
-  .byhub-archive-dek { margin-top: 12px; color: var(--ink-2); font-size: 15px; }
-  .byhub-grid {
-    margin-top: 20px; display: grid; gap: 18px;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  }
-  .byhub-card {
-    position: relative; display: flex; flex-direction: column; gap: 10px;
-    border: 1px solid var(--rule); border-top: 3px solid var(--accent, var(--rule));
-    border-radius: 2px; background: var(--card); padding: 22px;
-    color: var(--ink); text-decoration: none; transition: border-color 0.15s;
-  }
-  .byhub-card:hover { border-color: var(--ink-3); }
-  .byhub-card--archive { border-top-color: var(--rule); opacity: 0.86; }
-  .byhub-card--live {  }
-  .byhub-card-kicker {
-    font-family: var(--mono); font-size: 13px; letter-spacing: 0; color: var(--ink-3);
-  }
-  .byhub-card h2 {
-    margin: 0; font-family: var(--serif); font-size: 22px; font-weight: 700;
-    letter-spacing: -0.01em; line-height: 1.15;
-  }
-  .byhub-card-dek { flex: 1; margin: 0; color: var(--ink-2); font-size: 14px; line-height: 1.55; }
-  .byhub-card-fav { margin: 0; font-family: var(--mono); font-size: 13px; color: var(--ink-2); }
-  .byhub-badge {
-    align-self: flex-start; padding: 3px 8px; border-radius: 2px;
-    border: 1px solid var(--rule); font-family: var(--mono); font-size: 13px;
-    letter-spacing: 0; color: var(--ink-3);
-  }
-  .byhub-card-cta {
-    font-family: var(--mono); font-size: 13px; letter-spacing: 0; color: var(--ink-3);
+  .byhub-block { padding-block: 28px; }
+  /* Module : filet noir de 2 px au-dessus (DESIGN § 4), dans la marge du conteneur. */
+  .byhub-block > h2:first-child { padding-top: 12px; border-top: 2px solid var(--ink); }
+  .byhub-block h2 { margin: 12px 0 14px; font-size: clamp(24px, 3vw, 30px); font-weight: 700; }
+  .byhub-table { width: 100%; border-collapse: collapse; border-top: 4px solid var(--ink); font-size: 17px; }
+  .byhub-table th, .byhub-table td { padding: 12px 12px 12px 0; border-bottom: 1px solid var(--rule); text-align: left; vertical-align: top; }
+  .byhub-table thead th { font-size: 14px; font-weight: 600; color: var(--ink-3); }
+  .byhub-table tbody th { font-weight: 700; }
+  .byhub-table .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .byhub-big { font-family: var(--numeric); font-size: 24px; font-weight: 700; line-height: 1.1; }
+  .byhub-sub { display: block; margin-top: 2px; font-size: 14px; font-weight: 400; color: var(--ink-3); }
+  .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; }
+  .byhub-block .vs-meta a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+  @media (max-width: 640px) {
+    .byhub-held, .byhub-share { display: none; }
+    .byhub-table { font-size: 16px; }
   }
 </style>
