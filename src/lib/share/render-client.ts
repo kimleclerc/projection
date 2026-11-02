@@ -76,3 +76,10 @@ export async function renderEarlyVotePng(fmt: 'wide' | 'square' | 'story', lang:
   const { w, h } = SIZE[fmt];
   return toPng(earlyVoteCard(fmt, lang, payload), w, h);
 }
+
+/** Image d'une série de partielles (une ligne par circonscription). */
+export async function renderSlatePng(fmt: 'wide' | 'square' | 'story', lang: Lang, payload: import('./cards').SlateCardInput): Promise<Blob> {
+  const { slateCard, SIZE } = await import('./cards');
+  const { w, h } = SIZE[fmt];
+  return toPng(slateCard(fmt, lang, payload), w, h);
+}

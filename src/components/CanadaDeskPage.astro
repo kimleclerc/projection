@@ -1,8 +1,9 @@
 ---
 /**
  * Accueil du Canada, commun aux trois langues (docs/DESIGN.md § 7, « Une »).
- * 1. Titre et réponse : le prochain scrutin. 2. Les scrutins par date (ElectionsBand).
- * 3. Les projections en un tableau, une ligne par élection. 4. Les indices en liste.
+ * 1. Titre et réponse : le prochain scrutin. 2. La prochaine journée de partielles
+ * fédérales, en tableau, quand une est déclenchée. 3. Les scrutins par date
+ * (ElectionsBand). 4. Les projections en un tableau. 5. Les indices en liste.
  * 5. Marchés de prédiction. 6. Répertoire. 7. Méthode.
  */
 import EditorialLayout from '../layouts/EditorialLayout.astro';
@@ -19,6 +20,8 @@ import fraserData from '../../web_data/on-fraser-interim/latest.json';
 import gooseData from '../../web_data/ca-canada-goose/latest.json';
 import showdownData from '../../web_data/cusma-showdown/latest.json';
 import qcResults from '../data/qc-results-2026.json';
+import RidingShareButton from '../islands/RidingShareButton.tsx';
+import { nextByelectionDay, byelectionRunDate, chance } from '../lib/canada-byelection-slate';
 import { partyMeta, subjectFr } from '../lib/riding-adapters/parties';
 import { partyName } from '../lib/party-names';
 import { longDate, num } from '../lib/format';
@@ -97,11 +100,36 @@ const rows = [
 ];
 
 const cap = (t: string) => t.charAt(0).toUpperCase() + t.slice(1);
-const answer = L(
-  `La Colombie-Britannique vote le 24 octobre : ${subject('british-columbia', bc.party)} sont projetés à ${bc.seats_projected} sièges sur ${bcData.meta.total_seats}, avec ${pctChance(bc.p_majority)} de chances de majorité.`,
-  `British Columbia votes on October 24: ${subject('british-columbia', bc.party)} are projected to win ${bc.seats_projected} of ${bcData.meta.total_seats} seats, with a ${pctChance(bc.p_majority)} chance of a majority.`,
-  `Columbia Británica vota el 24 de octubre: ${subject('british-columbia', bc.party)} obtendrían ${bc.seats_projected} de ${bcData.meta.total_seats} escaños, con un ${pctChance(bc.p_majority)} de probabilidades de mayoría.`,
-);
+
+// Partielles fédérales : la prochaine journée de scrutin fixée passe en tête.
+const by = nextByelectionDay(lang);
+const byWords = L(['', 'une', 'deux', 'trois', 'quatre', 'cinq', 'six', 'sept', 'huit'], ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight'], ['', 'una', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho']);
+const nBy = by?.rows.length ?? 0;
+const byFlips = by?.rows.filter((r) => r.incumbent && r.incumbent !== r.party) ?? [];
+const byHref = `${root}/canada/byelections/`;
+const answer = by
+  ? L(
+      `${cap(byWords[nBy] ?? String(nBy))} partielles fédérales ont lieu le ${longDate(by.date, lang)}. ${byFlips.length ? `Notre projection fait changer de camp ${byFlips.length === 1 ? 'un siège' : `${byWords[byFlips.length]} sièges`} : ${byFlips.map((r) => r.name).join(', ')}.` : 'Notre projection ne fait changer de camp aucun siège.'}`,
+      `${cap(byWords[nBy] ?? String(nBy))} federal by-elections take place on ${longDate(by.date, lang)}. ${byFlips.length ? `Our forecast has ${byFlips.length === 1 ? 'one seat' : `${byWords[byFlips.length]} seats`} changing hands: ${byFlips.map((r) => r.name).join(', ')}.` : 'Our forecast has no seat changing hands.'}`,
+      `${cap(byWords[nBy] ?? String(nBy))} elecciones parciales federales se celebran el ${longDate(by.date, lang)}. ${byFlips.length ? `Nuestra proyección da ${byFlips.length === 1 ? 'un cambio de manos' : `${byWords[byFlips.length]} cambios de manos`}: ${byFlips.map((r) => r.name).join(', ')}.` : 'Nuestra proyección no da ningún cambio de manos.'}`,
+    )
+  : L(
+      `La Colombie-Britannique vote le 24 octobre : ${subject('british-columbia', bc.party)} sont projetés à ${bc.seats_projected} sièges sur ${bcData.meta.total_seats}, avec ${pctChance(bc.p_majority)} de chances de majorité.`,
+      `British Columbia votes on October 24: ${subject('british-columbia', bc.party)} are projected to win ${bc.seats_projected} of ${bcData.meta.total_seats} seats, with a ${pctChance(bc.p_majority)} chance of a majority.`,
+      `Columbia Británica vota el 24 de octubre: ${subject('british-columbia', bc.party)} obtendrían ${bc.seats_projected} de ${bcData.meta.total_seats} escaños, con un ${pctChance(bc.p_majority)} de probabilidades de mayoría.`,
+    );
+const byShare = by ? {
+  card: 'slate' as const,
+  slug: `partielles-${by.date}`,
+  jurisdiction: 'canada-byelection',
+  title: L('Partielles fédérales', 'Federal by-elections', 'Parciales federales'),
+  heading: L(`${cap(byWords[nBy])} circonscriptions votent le ${longDate(by.date, lang)}`, `${cap(byWords[nBy])} ridings vote on ${longDate(by.date, lang)}`, `${cap(byWords[nBy])} circunscripciones votan el ${longDate(by.date, lang)}`),
+  rows: by.rows.map((r) => ({ name: r.name, where: r.province, fav: r.partyLabel, color: r.color, p: chance(r.p, lang) })),
+  thFav: L('Favori', 'Favourite', 'Favorito'),
+  thP: L('Chances', 'Chance', 'Probabilidad'),
+  voteDay: by.date,
+  foot: L(`Projection du ${longDate(byelectionRunDate, lang)}`, `Forecast of ${longDate(byelectionRunDate, lang)}`, `Proyección del ${longDate(byelectionRunDate, lang)}`),
+} : null;
 
 const indexes = [
   {
@@ -148,6 +176,13 @@ const T = {
   ridings: (n: number) => L(`Les ${n} circonscriptions`, `All ${n} ridings`, `Los ${n} distritos`),
   updated: L(`Projections mises à jour le ${longDate(federalData.meta.run_date, lang)}. Québec : résultats préliminaires d’Élections Québec.`, `Forecasts updated ${longDate(federalData.meta.run_date, lang)}. Quebec: Élections Québec preliminary results.`, `Proyecciones actualizadas el ${longDate(federalData.meta.run_date, lang)}. Quebec: resultados preliminares de Élections Québec.`),
   indexes: L('Les indices', 'The indexes', 'Los índices'),
+  byHeading: by ? L(`Partielles fédérales du ${longDate(by.date, lang)}`, `Federal by-elections, ${longDate(by.date, lang)}`, `Parciales federales del ${longDate(by.date, lang)}`) : '',
+  riding: L('Circonscription', 'Riding', 'Circunscripción'),
+  held: L('Élu en 2025', 'Won in 2025', 'Ganado en 2025'),
+  fav: L('Favori', 'Favourite', 'Favorito'),
+  win: L('Chances de gagner', 'Chance of winning', 'Probabilidad de ganar'),
+  byMeta: L(`Projections du ${longDate(byelectionRunDate, lang)}.`, `Forecasts of ${longDate(byelectionRunDate, lang)}.`, `Proyecciones del ${longDate(byelectionRunDate, lang)}.`),
+  byAll: L('Toutes les partielles', 'All by-elections', 'Todas las parciales'),
   markets: L('Marchés de prédiction', 'Prediction markets', 'Mercados de predicción'),
   marketsNote: L('Les cotes des parieurs, à côté de nos projections. Elles n’entrent pas dans nos calculs.', 'Traders’ prices, shown next to our forecasts. They do not enter our calculations.', 'Las cuotas de los apostadores, junto a nuestras proyecciones. No entran en nuestros cálculos.'),
 };
@@ -171,7 +206,32 @@ const T = {
 >
   <PageHeader title={title} promise={L('Fédéral, Québec, Ontario, Colombie-Britannique et partielles.', 'Federal, Quebec, Ontario, British Columbia and by-elections.', 'Federal, Quebec, Ontario, Columbia Británica y elecciones parciales.')} question={answer} preferredSourceLocale={lang} />
 
-  <ElectionsBand lang={lang} scope="canada" />
+  {by && (
+    <section class="container ca-block" aria-labelledby="ca-by">
+      <h2 id="ca-by"><a class="ca-h2-link" href={byHref}>{T.byHeading}</a></h2>
+      <div class="table-scroll">
+        <table class="ca-table">
+          <thead>
+            <tr><th>{T.riding}</th><th class="ca-held">{T.held}</th><th>{T.fav}</th><th class="num">{T.win}</th></tr>
+          </thead>
+          <tbody>
+            {by.rows.map((r) => (
+              <tr>
+                <th scope="row"><a class="vs-link" href={r.href}>{r.name}</a><span class="ca-when">{r.province}</span></th>
+                <td class="ca-held">{r.incumbentLabel}</td>
+                <td><span class="dot" style={`background:${r.color}`} aria-hidden="true"></span>{r.partyLabel}</td>
+                <td class="num">{chance(r.p, lang)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p class="vs-meta">{T.byMeta} <a class="ca-meta-link" href={byHref}>{T.byAll}</a></p>
+      {byShare && <RidingShareButton client:idle lang={lang} payload={byShare} />}
+    </section>
+  )}
+
+  <ElectionsBand lang={lang} scope="canada" exclude={by ? ['ca-byelections'] : []} />
 
   <section class="container ca-block" aria-labelledby="ca-proj">
     <h2 id="ca-proj">{T.projections}</h2>
@@ -252,5 +312,9 @@ const T = {
   .ca-table .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
   .ca-when { display: block; margin-top: 2px; font-size: 14px; font-weight: 400; color: var(--ink-3); }
   .ca-when a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+  .ca-h2-link { color: inherit; text-decoration: none; }
+  .ca-h2-link:hover { text-decoration: underline; text-underline-offset: 4px; }
+  .ca-meta-link { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+  @media (max-width: 640px) { .ca-held { display: none; } }
   .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; }
 </style>

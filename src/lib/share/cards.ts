@@ -726,3 +726,41 @@ export function earlyVoteCard(fmt: Format, lang: Lang, d: EarlyVoteCardInput): N
     legend, ...out, axis, sides);
   return frame(fmt, lang, d.title, longDate(d.voteDay, lang), body, d.foot);
 }
+
+// ------------------------------------------------------------------ série de partielles
+
+export interface SlateCardInput {
+  title: string;      // « Partielles fédérales »
+  heading: string;    // « Six sièges votent le 7 décembre »
+  rows: { name: string; where: string; fav: string; color: string; p: string }[];
+  thFav: string;      // « Favori »
+  thP: string;        // « Chances »
+  voteDay: string;    // ISO
+  foot: string;       // « Projection du 1er novembre 2026 »
+}
+
+/** Une ligne par circonscription : nom, province, pastille et nom du favori, chances.
+ *  Dessinée dans le navigateur au clic, comme les fiches. */
+export function slateCard(fmt: Format, lang: Lang, d: SlateCardInput): Node {
+  const big = fmt !== 'wide';
+  const story = fmt === 'story';
+  const n = d.rows.length;
+  const rowPad = story ? 34 : big ? 18 : n > 6 ? 5 : 9;
+  const nameF = story ? 42 : big ? 34 : 25;
+  const subF = story ? 26 : big ? 21 : 15;
+  const valF = story ? 64 : big ? 50 : 34;
+  const head = h('div', { borderBottom: `1px solid ${INK}`, paddingBottom: 6, fontSize: big ? 18 : 15, fontWeight: 600, color: INK_3, justifyContent: 'space-between' },
+    h('div', {}, ''), h('div', { alignItems: 'center' }, h('div', { width: big ? 300 : 230 }, d.thFav), h('div', { width: big ? 170 : 120, justifyContent: 'flex-end' }, d.thP)));
+  const rows = d.rows.map((r) => h('div', { alignItems: 'center', justifyContent: 'space-between', borderBottom: `1px solid ${RULE}`, padding: `${rowPad}px 0` },
+    h('div', { flexDirection: big ? 'column' : 'row', alignItems: big ? 'flex-start' : 'baseline', flexShrink: 1, paddingRight: 12 },
+      h('div', { fontSize: nameF, fontWeight: 700, lineHeight: 1.1 }, r.name),
+      h('div', { fontSize: subF, fontWeight: 500, color: INK_3, marginLeft: big ? 0 : 10, marginTop: big ? 4 : 0 }, r.where)),
+    h('div', { alignItems: 'center', flexShrink: 0 },
+      h('div', { width: big ? 300 : 230, alignItems: 'center', fontSize: subF + 4, fontWeight: 700 },
+        h('div', { width: 10, height: big ? 34 : 24, backgroundColor: r.color, marginRight: 12 }), r.fav),
+      h('div', { width: big ? 170 : 120, justifyContent: 'flex-end', fontFamily: 'Barlow Condensed', fontWeight: 700, fontSize: valF, lineHeight: 1 }, r.p))));
+  const body = h('div', { flexDirection: 'column', flexGrow: 1, justifyContent: big ? 'center' : 'flex-start' },
+    h('div', { fontSize: story ? 64 : big ? 52 : 34, fontWeight: 700, lineHeight: 1.08, marginBottom: story ? 50 : big ? 30 : 12 }, d.heading),
+    head, ...rows);
+  return frame(fmt, lang, d.title, longDate(d.voteDay, lang), body, d.foot);
+}
