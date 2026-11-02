@@ -111,6 +111,8 @@ const copy = {
     ratingsLede: 'Races sorted from solid Democratic to solid Republican. Ours in seven levels; expert ratings as published.',
     demSide: 'Democratic side', repSide: 'Republican side', tossupShort: 'Toss-up',
     ours: 'Vote-Scope (ours)',
+    oursStd: 'Vote-Scope, common scale',
+    scaleNote: 'The “common scale” row sorts our own race-by-race probabilities with a single set of thresholds: safe at 95% or more, likely from 80%, lean from 60%, toss-up below 60%. Split Ticket uses the same cut-offs; FiftyPlusOne moves from lean to likely at 75%. Expert ratings are shown as their authors publish them.',
     races: 'races',
     otherTitle: 'Other forecasts worth checking',
     otherLede: 'They publish a forecast too. Their numbers are not carried here; follow the link.',
@@ -147,6 +149,8 @@ const copy = {
     ratingsLede: 'Courses rangées de « sûr démocrate » à « sûr républicain ». La nôtre en sept niveaux ; les cotes d’experts telles qu’ils les publient.',
     demSide: 'Côté démocrate', repSide: 'Côté républicain', tossupShort: 'Incertain',
     ours: 'Vote-Scope (nous)',
+    oursStd: 'Vote-Scope, barème commun',
+    scaleNote: 'La ligne « barème commun » range nos propres probabilités, course par course, selon un seul jeu de seuils : sûr à 95 % et plus, probable à partir de 80 %, penchant à partir de 60 %, incertain sous 60 %. Split Ticket utilise les mêmes seuils ; FiftyPlusOne passe de « penchant » à « probable » à 75 %. Les cotes d’experts restent telles que leurs auteurs les publient.',
     races: 'courses',
     otherTitle: 'Autres prévisions à consulter',
     otherLede: 'Elles publient aussi une prévision. Leurs chiffres ne sont pas repris ici : suivez le lien.',
@@ -183,6 +187,8 @@ const copy = {
     ratingsLede: 'Contiendas ordenadas de «segura demócrata» a «segura republicana». La nuestra en siete niveles; las calificaciones de expertos tal como se publican.',
     demSide: 'Lado demócrata', repSide: 'Lado republicano', tossupShort: 'Incierto',
     ours: 'Vote-Scope (nosotros)',
+    oursStd: 'Vote-Scope, escala común',
+    scaleNote: 'La fila «escala común» ordena nuestras propias probabilidades, contienda por contienda, con un solo juego de umbrales: segura desde el 95 %, probable desde el 80 %, inclinada desde el 60 %, incierta por debajo del 60 %. Split Ticket usa los mismos umbrales; FiftyPlusOne pasa de «inclinada» a «probable» en el 75 %. Las calificaciones de expertos se muestran tal como las publican sus autores.',
     races: 'contiendas',
     otherTitle: 'Otros pronósticos para consultar',
     otherLede: 'También publican un pronóstico. Sus cifras no se reproducen aquí: siga el enlace.',
@@ -229,9 +235,22 @@ const probRows = [
 // ── Barres d'intensité : nos cotes par course, et celles des experts ──────
 const latestByJur: Record<string, any> = { senate: senateLatest, house: houseLatest, governor: governorLatest };
 const ourCounts: Record<string, number> = {};
+// Nos cotes maison se fixent sur l'écart projeté ; les modèles tiers rangent
+// leurs courses sur la probabilité. Pour comparer à armes égales, on range
+// aussi nos probabilités sur un barème unique — celui de Split Ticket
+// (95 / 80 / 60). Un indépendant vainqueur se compte côté démocrate, comme le
+// fait 270toWin pour les cotes qu'on reprend de lui.
+const stdCounts: Record<string, number> = {};
+const stdCode = (p: number, side: 'dem' | 'rep') =>
+  p >= 0.95 ? `solid_${side}` : p >= 0.8 ? `likely_${side}` : p >= 0.6 ? `lean_${side}` : 'tossup';
 for (const r of (latestByJur[jurisdiction]?.ridings ?? []) as any[]) {
   const code = r?.projection?.rating?.code;
   if (code && code in RATING_STYLE) ourCounts[code] = (ourCounts[code] ?? 0) + 1;
+  const p = r?.projection?.p_winner;
+  if (typeof p === 'number') {
+    const s = stdCode(p, r.projection.winner === 'us_rep' ? 'rep' : 'dem');
+    stdCounts[s] = (stdCounts[s] ?? 0) + 1;
+  }
 }
 const lang = locale === 'fr' ? 'fr' : locale === 'es' ? 'es' : 'en';
 type Seg = { key: string; n: number; color: string; label: string; hatch?: boolean };
@@ -245,6 +264,7 @@ const threeSegs = (q: QuotedRow): Seg[] => [
 ].filter((x) => x.n > 0);
 const ratingRows = [
   ...(Object.keys(ourCounts).length ? [{ name: copy.ours, url: null as string | null, as_of: ours.as_of, segs: sevenSegs(ourCounts), ours: true }] : []),
+  ...(Object.keys(stdCounts).length ? [{ name: copy.oursStd, url: null as string | null, as_of: ours.as_of, segs: sevenSegs(stdCounts), ours: true }] : []),
   ...jur.quoted.filter((q) => q.unit === 'cotes' || q.ratings)
     .map((q) => ({ name: q.name, url: q.url, as_of: q.as_of, segs: q.ratings ? sevenSegs(q.ratings) : threeSegs(q), ours: false })),
 ].map((r) => {
@@ -331,6 +351,7 @@ const unchanged = prev && prev.p_dem_control !== null
             </li>
           ))}
         </ul>
+        {Object.keys(stdCounts).length > 0 && <p class="fcc-scale">{copy.scaleNote}</p>}
       </div>
     )}
 
@@ -466,6 +487,7 @@ const unchanged = prev && prev.p_dem_control !== null
   .fcc-rseg { display: flex; align-items: center; justify-content: center; min-width: 2px; color: #fff; font-family: var(--mono); font-size: 13px; }
   .fcc-rseg b { font-weight: 500; text-shadow: 0 0 2px rgba(0,0,0,.35); }
   .is-hatch { background-image: repeating-linear-gradient(45deg, rgba(255,255,255,.35) 0 3px, transparent 3px 7px); } /* design-ok : motif porteur d’information */
+  .fcc-scale { margin: 14px 0 0; font-size: 13px; color: var(--ink-2); max-width: 72ch; }
   .fcc-others { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px 22px; font-size: 14px; }
 
   .fcc-disclaimer {
