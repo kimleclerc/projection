@@ -6,6 +6,7 @@ import {
   compare, pct, fmt, fmtDate,
 } from '../lib/labs';
 import { EXPLAINER, EXPLAINER_SLUG } from '../lib/labs-explainer';
+import { QUANTUM_SLUG, QUANTUM_LINK } from '../lib/labs-quantum';
 import LabsSeatBars from './LabsSeatBars.astro';
 
 interface Props { locale: Locale }
@@ -42,6 +43,7 @@ const explainerUrl = `${labsUrl(locale)}${EXPLAINER_SLUG[locale]}/`;
     <h1>{t.hubTitle}</h1>
     <p class="lh-dek">{t.hubDek}</p>
     <p class="lh-cta"><a href={explainerUrl}>{EXPLAINER[locale].linkLabel}</a></p>
+    <p class="lh-cta"><a href={`${labsUrl(locale)}${QUANTUM_SLUG[locale]}/`}>{QUANTUM_LINK[locale]}</a></p>
   </header>
 
   <section class="lh-section" aria-labelledby="lh-compare">

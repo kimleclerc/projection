@@ -1,0 +1,33 @@
+---
+import Base from '../../../layouts/Base.astro';
+import LabsQuantumHub from '../../../components/LabsQuantumHub.astro';
+
+const LOCALE = 'es' as const;
+const title = 'Nuestras elecciones, sorteadas en un ordenador cuántico — Vote-Scope Labs';
+const description = 'Quebec, el Senado y la Cámara de Estados Unidos sorteados en chips de IBM de 156 cúbits por Órbita, nuestro modelo experimental: máquina, fecha, tiempo de cálculo y diferencia con el cálculo exacto.';
+const url = 'https://vote-scope.com/es/labs/cuantico/';
+---
+
+<Base
+  title={title}
+  description={description}
+  canonical={url}
+  lang={LOCALE}
+  currentPage="match"
+  alternates={{
+    en: 'https://vote-scope.com/en/labs/quantum/',
+    fr: 'https://vote-scope.com/fr/labs/quantique/',
+    es: 'https://vote-scope.com/es/labs/cuantico/',
+  }}
+  jsonLd={[
+    { '@context': 'https://schema.org', '@type': 'Article', headline: title, description, url, inLanguage: LOCALE,
+       author: { '@type': 'Organization', name: 'Vote-Scope' }, publisher: { '@type': 'Organization', name: 'Vote-Scope' } },
+    { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: 'https://vote-scope.com/es/' },
+      { '@type': 'ListItem', position: 2, name: 'Labs', item: 'https://vote-scope.com/es/labs/' },
+      { '@type': 'ListItem', position: 3, name: title, item: url },
+    ]},
+  ]}
+>
+  <LabsQuantumHub locale={LOCALE} />
+</Base>

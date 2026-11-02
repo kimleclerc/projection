@@ -1,0 +1,94 @@
+---
+// Fiche locale : la même course selon notre projection principale, selon Orbite
+// (le modèle expérimental de Vote-Scope Labs) et selon le mélange 50/50. Les
+// chiffres sont ceux de la liste complète de la page Labs (compareRows).
+import type { RidingData, Lang } from '../../../lib/riding-adapters/types';
+import { LABS_FOR_JURISDICTION, compareRows, loadLabs, labsUrl, partyLabel, partyColor, pct, fmtDate } from '../../../lib/labs';
+import { MODEL_RELEASES } from '../../../data/modelVersion';
+
+interface Props { data: RidingData; lang: Lang }
+const { data, lang } = Astro.props;
+const key = LABS_FOR_JURISDICTION[data.jurisdiction];
+const row = key ? compareRows(key).find((r) => Number(r.id) === Number(data.id)) : undefined;
+const desk = row && key ? loadLabs(key) : null;
+const refName = MODEL_RELEASES[0].name;
+
+const T = {
+  fr: {
+    title: 'Ce qu’en dit Orbite',
+    same: (o: string, p: string, r: string) => `Orbite, notre modèle expérimental, désigne le même favori que notre projection principale : ${o}, avec ${p} des chances (contre ${r} selon ${refName}).`,
+    diff: (o: string, p: string, f: string, r: string) => `Orbite, notre modèle expérimental, ne désigne pas le même favori : ${o}, avec ${p} des chances, alors que ${refName} donne l’avantage à ${f} (${r}).`,
+    model: 'Modèle', fav: 'Favori', chance: 'Chances',
+    orbit: 'Orbite', blend: 'Mélange 50/50',
+    note: (d: string) => `Chiffres du ${d}. Le mélange fait la moyenne des deux chances ; sur les rejeux du Québec de 2018 et 2022, il a fait mieux que notre projection principale seule.`,
+    more: 'Toutes les courses selon Orbite',
+  },
+  en: {
+    title: 'What Orbit says',
+    same: (o: string, p: string, r: string) => `Orbit, our experimental model, picks the same favourite as our main forecast: the ${o}, with a ${p} chance (${r} according to ${refName}).`,
+    diff: (o: string, p: string, f: string, r: string) => `Orbit, our experimental model, picks a different favourite: the ${o}, with a ${p} chance, while ${refName} favours the ${f} (${r}).`,
+    model: 'Model', fav: 'Favourite', chance: 'Chance',
+    orbit: 'Orbit', blend: '50/50 blend',
+    note: (d: string) => `Figures as of ${d}. The blend averages the two chances; in replays of the 2018 and 2022 Quebec elections, it beat our main forecast on its own.`,
+    more: 'Every race according to Orbit',
+  },
+  es: {
+    title: 'Lo que dice Órbita',
+    same: (o: string, p: string, r: string) => `Órbita, nuestro modelo experimental, elige el mismo favorito que nuestra proyección principal: ${o}, con un ${p} de probabilidad (${r} según ${refName}).`,
+    diff: (o: string, p: string, f: string, r: string) => `Órbita, nuestro modelo experimental, no elige el mismo favorito: ${o}, con un ${p} de probabilidad, mientras que ${refName} da ventaja a ${f} (${r}).`,
+    model: 'Modelo', fav: 'Favorito', chance: 'Probabilidad',
+    orbit: 'Órbita', blend: 'Mezcla 50/50',
+    note: (d: string) => `Cifras del ${d}. La mezcla promedia ambas probabilidades; en las repeticiones de las elecciones de Quebec de 2018 y 2022, superó a nuestra proyección principal por sí sola.`,
+    more: 'Todas las contiendas según Órbita',
+  },
+}[lang];
+
+const L = (p: string) => (desk ? partyLabel(desk, p, lang) : p);
+const C = (p: string) => (desk ? partyColor(desk, p) : 'var(--ink-3)');
+const answer = row
+  ? row.agree
+    ? T.same(L(row.fo), pct(row.po, lang), pct(row.pr, lang))
+    : T.diff(L(row.fo), pct(row.po, lang), L(row.fr), pct(row.pr, lang))
+  : '';
+const lines = row ? [
+  { name: refName, p: row.fr, v: row.pr },
+  { name: T.orbit, p: row.fo, v: row.po },
+  { name: T.blend, p: row.fb, v: row.pb, strong: true },
+] : [];
+---
+
+{row && key && desk && (
+  <section class="lo" aria-labelledby="lo-title">
+  <div class="container">
+    <h2 id="lo-title">{T.title}</h2>
+    <p class="lo-answer">{answer}</p>
+    <table class="lo-table">
+      <thead><tr><th>{T.model}</th><th>{T.fav}</th><th class="num">{T.chance}</th></tr></thead>
+      <tbody>
+        {lines.map((l) => (
+          <tr class:list={[l.strong && 'is-blend']}>
+            <td>{l.name}</td>
+            <td><span class="lo-dot" style={`background:${C(l.p)}`}></span>{L(l.p)}</td>
+            <td class="num">{pct(l.v, lang)}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+    <p class="vs-meta">{T.note(fmtDate(desk.as_of, lang))}</p>
+    <p><a class="vs-link" href={`${labsUrl(lang, key)}#lrc`}>{T.more}</a></p>
+  </div>
+  </section>
+)}
+
+<style>
+  .lo { padding: 56px 0; border-bottom: 1px solid var(--rule); }
+  .lo h2 { font-size: clamp(24px, 3vw, 30px); font-weight: 700; margin: 0 0 8px; }
+  .lo-answer { max-width: 72ch; margin: 0 0 16px; font-size: 17px; line-height: 1.55; color: var(--ink-2); }
+  .lo-table { width: 100%; max-width: 560px; border-collapse: collapse; font-size: 15px; }
+  .lo-table th { text-align: left; font-size: 13px; font-weight: 600; color: var(--ink-3); border-bottom: 1px solid var(--ink); padding: 6px 8px 6px 0; }
+  .lo-table td { border-bottom: 1px solid var(--rule); padding: 8px 8px 8px 0; }
+  .lo-table .num { text-align: right; }
+  .lo-table .is-blend td { font-weight: 700; }
+  .lo-dot { display: inline-block; width: 10px; height: 10px; margin-right: 8px; }
+  .lo .vs-meta { margin: 8px 0 0; max-width: 72ch; }
+</style>

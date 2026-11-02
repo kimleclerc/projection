@@ -6,8 +6,13 @@ import type { Locale, LabsKey } from './labs';
 
 const dir = resolve(process.cwd(), 'web_data', 'labs', 'quantum');
 
+// Nom du fichier du tirage principal, quand il diffère de la clé Labs.
+export const QUANTUM_FILE: Partial<Record<LabsKey, string>> = {
+  us_senate: 'us_senate_2026', us_house: 'us_house_2026',
+};
+
 export function loadQuantum(key: LabsKey): any | null {
-  const f = resolve(dir, `${key}.json`);
+  const f = resolve(dir, `${QUANTUM_FILE[key] ?? key}.json`);
   return existsSync(f) ? JSON.parse(readFileSync(f, 'utf-8')) : null;
 }
 
@@ -15,6 +20,14 @@ export function loadQuantumFile(name: string): any | null {
   const f = resolve(dir, `${name}.json`);
   return existsSync(f) ? JSON.parse(readFileSync(f, 'utf-8')) : null;
 }
+
+// Page qui rassemble tous les tirages sur puce (LabsQuantumHub).
+export const QUANTUM_SLUG: Record<Locale, string> = { fr: 'quantique', en: 'quantum', es: 'cuantico' };
+export const QUANTUM_LINK: Record<Locale, string> = {
+  fr: 'Tous nos tirages sur ordinateur quantique',
+  en: 'All our quantum-computer draws',
+  es: 'Todos nuestros sorteos en ordenador cuántico',
+};
 
 // Tirage annoncé (avant qu'il ait lieu) : date de la veille du vote.
 export const QUANTUM_PLANNED: Partial<Record<LabsKey, string>> = { qc_2026: '2026-10-04' };
@@ -151,5 +164,45 @@ export const QT = {
     colRun: 'Sorteo', colDrawn: 'Elecciones', twirled: 'torsión',
     jobs: 'Tareas de IBM',
     sec: 's',
+  },
+} as const satisfies Record<Locale, unknown>;
+
+// Textes propres aux États-Unis : une course par qubit, des États et des districts,
+// une seule puce et un seul tirage par chambre (le 1er novembre au soir).
+export const QT_US = {
+  fr: {
+    dek: (n: number) => `Chaque course disputée devient un qubit, réglé pour que la mesure donne chaque parti avec exactement sa chance selon Orbite. Une mesure du circuit, c’est une élection complète. On a répété la mesure des milliers de fois, sur ${n} scénarios nationaux, du raz-de-marée démocrate au retour républicain.`,
+    what: [
+      'Ça montre qu’un ordinateur quantique réel sait déjà tirer une élection américaine entière, district par district, et à quel point son bruit la déforme : un qubit qui bascule donne une course au parti le moins probable.',
+      'La correction des erreurs de lecture, calibrée par IBM pour chaque qubit, efface une bonne partie de cet écart.',
+      'Ça ne rend pas la prévision plus juste : Orbite calcule déjà la même loi exactement, sur un ordinateur ordinaire. C’est une expérience, publiée avec ses identifiants de tâches IBM.',
+    ],
+    ridingsTitle: (n: number) => `Les ${n} courses, une par une`,
+    ridingsNote: 'Pour chaque course : la chance du favori selon le calcul exact d’Orbite, et la fréquence à laquelle la machine l’a fait gagner. Les courses acquises (0 qubit) ne passent pas par la machine : le même parti l’emporte dans tous les scénarios.',
+    colRiding: 'Course',
+    chartTitle: (p: string) => `Sièges, ${p} : ce que la machine a tiré`,
+  },
+  en: {
+    dek: (n: number) => `Each contested race becomes one qubit, tuned so that measuring it returns each party with exactly its chance according to Orbit. One measurement of the circuit is one complete election. We repeated the measurement thousands of times, across ${n} national scenarios, from a Democratic wave to a Republican comeback.`,
+    what: [
+      'It shows that a real quantum computer can already draw an entire American election, district by district, and how much its noise distorts it: a qubit that flips hands a race to the less likely party.',
+      'Readout-error correction, calibrated by IBM for every qubit, removes a good share of that gap.',
+      'It does not make the forecast more accurate: Orbit already computes the same distribution exactly, on an ordinary computer. It is an experiment, published with its IBM job IDs.',
+    ],
+    ridingsTitle: (n: number) => `All ${n} races, one by one`,
+    ridingsNote: 'For each race: the favourite’s chance according to Orbit’s exact calculation, and how often the machine made it win. Safe races (0 qubits) skip the machine: the same party wins in every scenario.',
+    colRiding: 'Race',
+  },
+  es: {
+    dek: (n: number) => `Cada contienda disputada se convierte en un cúbit, ajustado para que al medirlo cada partido salga exactamente con su probabilidad según Órbita. Una medición del circuito es una elección completa. Repetimos la medición miles de veces, en ${n} escenarios nacionales, de la ola demócrata al regreso republicano.`,
+    what: [
+      'Muestra que un ordenador cuántico real ya puede sortear una elección estadounidense entera, distrito por distrito, y cuánto la deforma su ruido: un cúbit que se voltea entrega una contienda al partido menos probable.',
+      'La corrección de los errores de lectura, calibrada por IBM para cada cúbit, borra buena parte de esa diferencia.',
+      'No hace la previsión más precisa: Órbita ya calcula la misma distribución exactamente, en un ordenador común. Es un experimento, publicado con sus identificadores de tareas de IBM.',
+    ],
+    ridingsTitle: (n: number) => `Las ${n} contiendas, una por una`,
+    ridingsNote: 'Para cada contienda: la probabilidad del favorito según el cálculo exacto de Órbita y la frecuencia con la que la máquina lo hizo ganar. Las contiendas seguras (0 cúbits) no pasan por la máquina: el mismo partido gana en todos los escenarios.',
+    colRiding: 'Contienda',
+    chartTitle: (p: string) => `Escaños, ${p}: lo que sorteó la máquina`,
   },
 } as const satisfies Record<Locale, unknown>;

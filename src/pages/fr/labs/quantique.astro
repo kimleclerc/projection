@@ -1,0 +1,33 @@
+---
+import Base from '../../../layouts/Base.astro';
+import LabsQuantumHub from '../../../components/LabsQuantumHub.astro';
+
+const LOCALE = 'fr' as const;
+const title = 'Nos élections tirées sur un ordinateur quantique — Vote-Scope Labs';
+const description = 'Le Québec, le Sénat et la Chambre des États-Unis tirés sur des puces IBM de 156 qubits par Orbite, notre modèle expérimental : machine, date, temps de calcul et écart au calcul exact.';
+const url = 'https://vote-scope.com/fr/labs/quantique/';
+---
+
+<Base
+  title={title}
+  description={description}
+  canonical={url}
+  lang={LOCALE}
+  currentPage="match"
+  alternates={{
+    en: 'https://vote-scope.com/en/labs/quantum/',
+    fr: 'https://vote-scope.com/fr/labs/quantique/',
+    es: 'https://vote-scope.com/es/labs/cuantico/',
+  }}
+  jsonLd={[
+    { '@context': 'https://schema.org', '@type': 'Article', headline: title, description, url, inLanguage: LOCALE,
+       author: { '@type': 'Organization', name: 'Vote-Scope' }, publisher: { '@type': 'Organization', name: 'Vote-Scope' } },
+    { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: 'https://vote-scope.com/fr/' },
+      { '@type': 'ListItem', position: 2, name: 'Labs', item: 'https://vote-scope.com/fr/labs/' },
+      { '@type': 'ListItem', position: 3, name: title, item: url },
+    ]},
+  ]}
+>
+  <LabsQuantumHub locale={LOCALE} />
+</Base>

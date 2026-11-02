@@ -438,3 +438,70 @@ export const REFERENCES = [
   { label: 'Borghesi & Bouchaud — Spatial correlations in vote statistics: a diffusive field model', url: 'https://arxiv.org/abs/1003.2807' },
   { label: 'Khrennikov & Haven — Quantum-like modelling of the non-separability of voters’ preferences', url: 'https://arxiv.org/abs/1405.1029' },
 ];
+
+// ── Course par course : référence, Orbite et mélange 50/50 ──────────────────
+// Juridictions dont la projection de référence publie chaque circonscription
+// (ou course) avec ses chances : web_data/<dossier>/latest.json.
+export const RIDING_COMPARE: Partial<Record<LabsKey, string>> = {
+  qc_2026: 'quebec', bc_44: 'british-columbia',
+  us_senate: 'us-senate', us_house: 'us-house', us_governor: 'us-governor',
+};
+
+// Adresse de la fiche locale : même slug que les adaptateurs (ridingSlug).
+const LOCAL_PATHS: Partial<Record<LabsKey, Record<Locale, string>>> = {
+  qc_2026: { fr: '/fr/canada/quebec/circonscriptions/', en: '/en/canada/quebec/ridings/', es: '/es/canada/quebec/distritos/' },
+  bc_44: { fr: '/fr/canada/colombie-britannique/circonscriptions/', en: '/en/canada/british-columbia/ridings/', es: '/es/canada/columbia-britanica/distritos/' },
+  us_senate: { fr: '/fr/us/senat/sieges/', en: '/en/us/senate/seats/', es: '/es/us/senate/escanos/' },
+  us_house: { fr: '/fr/us/chambre/districts/', en: '/en/us/house/districts/', es: '/es/us/house/distritos/' },
+  us_governor: { fr: '/fr/us/gouverneurs/courses/', en: '/en/us/governors/races/', es: '/es/us/gobernadores/carreras/' },
+};
+
+export type CompareRow = {
+  id: string; name: string; slug: string;
+  /** favori et chance : référence, Orbite, mélange */
+  fr: string; pr: number; fo: string; po: number; fb: string; pb: number;
+  agree: boolean;
+};
+
+const slugOf = (id: string, name: string) => `${id}-${name.toLowerCase().normalize('NFD')
+  .replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')}`;
+const top = (wp: Record<string, number>): [string, number] =>
+  (Object.entries(wp).sort((a, b) => b[1] - a[1])[0] as [string, number]) ?? ['', 0];
+const rowsCache = new Map<LabsKey, CompareRow[]>();
+
+/** Une ligne par circonscription ou course présente des deux côtés, triée par nom. */
+export function compareRows(key: LabsKey): CompareRow[] {
+  const hit = rowsCache.get(key);
+  if (hit) return hit;
+  const webDir = RIDING_COMPARE[key];
+  const f = webDir ? resolve(process.cwd(), 'web_data', webDir, 'latest.json') : '';
+  if (!webDir || !hasLabs(key) || !existsSync(f)) { rowsCache.set(key, []); return []; }
+  const ref = JSON.parse(readFileSync(f, 'utf-8'));
+  const R = new Map<string, any>((ref.ridings ?? []).map((r: any) => [String(Number(r.riding_id)), r]));
+  const d = loadLabs(key);
+  const frFirst = key === 'qc_2026';
+  const rows = ((d.ridings ?? d.races ?? []) as any[]).flatMap((o) => {
+    const r = R.get(String(Number(o.id)));
+    if (!r) return [];
+    const wr: Record<string, number> = r.projection?.win_prob ?? {};
+    const wo: Record<string, number> = o.win_prob ?? {};
+    const parties = [...new Set([...Object.keys(wr), ...Object.keys(wo)])];
+    const wb = Object.fromEntries(parties.map((p) => [p, ((wr[p] ?? 0) + (wo[p] ?? 0)) / 2]));
+    const [fr, pr] = top(wr), [fo, po] = top(wo), [fb, pb] = top(wb);
+    const name = (frFirst ? r.name_fr || r.name_en : r.name_en || r.name_fr) ?? o.name;
+    return [{ id: String(r.riding_id), name, slug: slugOf(String(r.riding_id), name), fr, pr, fo, po, fb, pb, agree: fr === fo }];
+  }).sort((a, b) => a.name.localeCompare(b.name, 'fr', { numeric: true }));
+  rowsCache.set(key, rows);
+  return rows;
+}
+
+export function localUrl(key: LabsKey, locale: Locale, slug: string): string | undefined {
+  const base = LOCAL_PATHS[key]?.[locale];
+  return base ? `${base}${slug}/` : undefined;
+}
+
+// Fiche locale → clé Labs (juridictions de RidingData).
+export const LABS_FOR_JURISDICTION: Record<string, LabsKey> = {
+  quebec: 'qc_2026', 'british-columbia': 'bc_44',
+  'us-senate': 'us_senate', 'us-house': 'us_house', 'us-governor': 'us_governor',
+};

@@ -28,6 +28,7 @@ import NeighborRidings from './sections/NeighborRidings.astro';
 import CloseRaces from '../CloseRaces.astro';
 import LocalPolls from './sections/LocalPolls.astro';
 import ElectionResult from './sections/ElectionResult.astro';
+import LabsOrbit from './sections/LabsOrbit.astro';
 import PolymarketEmbed from '../PolymarketEmbed.astro';
 
 interface Props {
@@ -106,6 +107,7 @@ const pageNavItems = [
     {data.byelection && <ByelectionForecast data={data} lang={lang} />}
     <div id="projection" class="riding-anchor"><VoteBars data={data} lang={lang} /></div>
     <OnThisPage locale={lang} items={pageNavItems} />
+    <LabsOrbit data={data} lang={lang} />
   </>
 )}
 {data.advanceVote && <AdvanceVote data={data} lang={lang} />}

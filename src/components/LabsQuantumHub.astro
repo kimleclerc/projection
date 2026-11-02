@@ -1,0 +1,229 @@
+---
+// Page des tirages sur ordinateur quantique : chaque élection tirée sur une puce
+// IBM, au même endroit, avec la machine, la date, le temps de calcul et l'écart
+// au calcul exact d'Orbite. Le détail de chaque tirage reste sur la page Labs de
+// l'élection (section #lq-title).
+import { readdirSync, existsSync } from 'node:fs';
+import { resolve } from 'node:path';
+import PageHeader from './PageHeader.astro';
+import RidingShareButton from '../islands/RidingShareButton.tsx';
+import { type Locale, type LabsKey, NAMES, hasLabs, loadLabs, labsUrl, partyLabel, partyColor, fmt, pct } from '../lib/labs';
+import { loadQuantumFile, QT } from '../lib/labs-quantum';
+import { EXPLAINER, EXPLAINER_SLUG } from '../lib/labs-explainer';
+
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+
+const KEY_OF: Record<string, LabsKey> = { qc_2026: 'qc_2026', us_senate_2026: 'us_senate', us_house_2026: 'us_house' };
+const dir = resolve(process.cwd(), 'web_data', 'labs', 'quantum');
+const files = existsSync(dir) ? readdirSync(dir).filter((f) => f.endsWith('.json')).map((f) => f.slice(0, -5)) : [];
+const tz = 'America/Toronto';
+const loc = locale === 'fr' ? 'fr-CA' : locale === 'es' ? 'es-ES' : 'en-US';
+const day = (iso: string) => new Date(iso).toLocaleDateString(loc, { day: 'numeric', month: 'long', year: 'numeric', timeZone: tz });
+
+// Un tirage = un fichier sur vraie machine (ni simulation idéale, ni expérience intriquée).
+const runs = files
+  .filter((f) => !f.startsWith('entangled_') && !f.startsWith('correlation_'))
+  .map((f) => loadQuantumFile(f))
+  .filter((q: any) => q && q.backend === 'ibm' && q.parties && KEY_OF[q.cycle] && hasLabs(KEY_OF[q.cycle]))
+  .map((q: any) => {
+    const key = KEY_OF[q.cycle];
+    const desk = loadLabs(key);
+    const [lead, x] = Object.entries(q.parties as Record<string, any>).sort((a, b) => b[1].exact_mean - a[1].exact_mean)[0];
+    return {
+      key, desk, q, lead, x,
+      name: NAMES[key][locale],
+      tv: (q.total_variation_corrected?.[lead] ?? null) as number | null,
+      seconds: q.ibm_job?.qpu_seconds ?? null,
+      qubits: Math.max(...(q.qubits_per_circuit as number[])),
+    };
+  })
+  .sort((a, b) => String(a.q.run_at).localeCompare(String(b.q.run_at)));
+
+const elections = [...new Set(runs.map((r) => r.key))];
+const nDrawn = runs.reduce((s, r) => s + r.q.elections_drawn, 0);
+const nSeconds = runs.reduce((s, r) => s + (r.seconds ?? 0), 0);
+// tirage le plus récent de chaque élection, pour l'image et la réponse
+const latest = elections.map((k) => runs.filter((r) => r.key === k).at(-1)!);
+// écart du dernier tirage de chaque élection (les premiers tirages du Québec
+// servaient à régler la méthode)
+const lastTv = latest.map((r) => r.tv ?? 0);
+const tvLo = Math.min(...lastTv), tvHi = Math.max(...lastTv);
+const machines = [...new Set(runs.map((r) => r.q.machine.replace('ibm_', '')))];
+const P = (v: number) => pct(v, locale);
+const pts = (v: number) => fmt(100 * v, locale, 1);
+
+const T = {
+  fr: {
+    title: 'Nos élections tirées sur un ordinateur quantique',
+    promise: `Orbite, notre modèle expérimental, a tiré ${elections.length} élections sur des puces IBM de 156 qubits (${machines.join(', ')}). Une mesure du circuit donne une élection complète.`,
+    answer: `${runs.length} tirages, ${fmt(nDrawn, locale, 0)} élections, ${fmt(nSeconds, locale, 0)} secondes de calcul. Au dernier tirage de chaque élection, après correction des erreurs de lecture, la puce reste entre ${pts(tvLo)} et ${pts(tvHi)} points du calcul exact.`,
+    runsTitle: 'Tous les tirages',
+    th: ['Élection', 'Machine et date', 'Élections tirées', 'Qubits par circuit', 'Temps de calcul', 'Majorité selon la puce', 'Écart au calcul exact'],
+    gapNote: 'L’écart au calcul exact est la variation totale entre la distribution des sièges tirée par la puce (après correction des erreurs de lecture) et celle que calcule Orbite sur un ordinateur ordinaire : la part des élections qu’il faudrait déplacer pour que les deux coïncident.',
+    detail: 'Le tirage en détail',
+    howTitle: 'Comment une élection devient un circuit',
+    how: [
+      'Orbite regroupe ses scénarios en 256 climats : une vague pour un parti, un retour de l’autre, le statu quo et tout ce qu’il y a entre les deux. Pour chaque climat, il calcule la chance exacte de chaque parti dans chaque course.',
+      'Chaque course disputée devient un qubit (deux quand trois partis ou plus sont dans le jeu), tourné pour que la mesure donne chaque parti avec exactement cette chance. Les courses jouées d’avance ne passent pas par la machine.',
+      'La puce mesure le circuit et chaque qubit tombe sur un parti : on obtient une carte complète. On répète la mesure, on compte les sièges, et on compare au calcul exact.',
+    ],
+    notTitle: 'Ce que ça ne prouve pas',
+    not: [
+      'La puce ne rend pas la prévision plus juste. Orbite calcule la même distribution exactement, sans elle ; le tirage sert à mesurer ce qu’une vraie machine sait déjà faire, bruit compris.',
+      'Les puces actuelles se trompent : un qubit est parfois mal lu, une opération est imparfaite. Nous publions le tirage brut à côté du tirage corrigé, et les identifiants des tâches IBM.',
+      'Orbite reste expérimental. Il a fait mieux que notre projection principale au Québec en 2026, sur une seule élection ; ses réglages américains n’ont pas été testés sur des élections passées.',
+    ],
+    entangledTitle: 'L’élection intriquée du Québec',
+    entangled: 'Au Québec, nous avons aussi relié les circonscriptions entre elles sur la puce, de 10 à 90 circonscriptions, sur deux machines. Le détail est sur la page Labs du Québec.',
+    entangledLink: 'Voir l’élection intriquée',
+    method: 'Comment fonctionne Orbite',
+    share: { title: 'Vote-Scope Labs', heading: 'Des élections tirées sur un ordinateur quantique IBM', thFav: 'Majorité', thP: 'Chances',
+      foot: (n: string, s: string) => `${n} élections tirées en ${s} secondes de calcul` },
+  },
+  en: {
+    title: 'Our elections, drawn on a quantum computer',
+    promise: `Orbit, our experimental model, has drawn ${elections.length} elections on 156-qubit IBM chips (${machines.join(', ')}). One measurement of the circuit gives one complete election.`,
+    answer: `${runs.length} draws, ${fmt(nDrawn, locale, 0)} elections, ${fmt(nSeconds, locale, 0)} seconds of machine time. In the latest draw of each election, after readout-error correction, the chip lands ${pts(tvLo)} to ${pts(tvHi)} points from the exact calculation.`,
+    runsTitle: 'Every draw',
+    th: ['Election', 'Machine and date', 'Elections drawn', 'Qubits per circuit', 'Machine time', 'Majority according to the chip', 'Gap to the exact calculation'],
+    gapNote: 'The gap to the exact calculation is the total variation between the seat distribution drawn by the chip (after readout-error correction) and the one Orbit computes on an ordinary computer: the share of elections that would have to move for the two to match.',
+    detail: 'The draw in detail',
+    howTitle: 'How an election becomes a circuit',
+    how: [
+      'Orbit groups its scenarios into 256 climates: a wave for one party, a comeback for the other, the status quo and everything in between. For each climate it computes each party’s exact chance in every race.',
+      'Each contested race becomes a qubit (two when three or more parties are in play), rotated so that measuring it returns each party with exactly that chance. Races that are settled in advance skip the machine.',
+      'The chip measures the circuit and each qubit lands on a party: that gives a complete map. We repeat the measurement, count the seats and compare with the exact calculation.',
+    ],
+    notTitle: 'What it does not prove',
+    not: [
+      'The chip does not make the forecast more accurate. Orbit computes the same distribution exactly without it; the draw measures what a real machine can already do, noise included.',
+      'Today’s chips make mistakes: a qubit is sometimes misread, an operation is imperfect. We publish the raw draw next to the corrected one, along with the IBM job IDs.',
+      'Orbit is still experimental. It beat our main forecast in Quebec in 2026, in a single election; its American settings have not been tested against past elections.',
+    ],
+    entangledTitle: 'Quebec’s entangled election',
+    entangled: 'In Quebec, we also linked ridings to one another on the chip, from 10 to 90 ridings, on two machines. The details are on the Quebec Labs page.',
+    entangledLink: 'See the entangled election',
+    method: 'How Orbit works',
+    share: { title: 'Vote-Scope Labs', heading: 'Elections drawn on an IBM quantum computer', thFav: 'Majority', thP: 'Chance',
+      foot: (n: string, s: string) => `${n} elections drawn in ${s} seconds of machine time` },
+  },
+  es: {
+    title: 'Nuestras elecciones, sorteadas en un ordenador cuántico',
+    promise: `Órbita, nuestro modelo experimental, ha sorteado ${elections.length} elecciones en chips de IBM de 156 cúbits (${machines.join(', ')}). Una medición del circuito da una elección completa.`,
+    answer: `${runs.length} sorteos, ${fmt(nDrawn, locale, 0)} elecciones, ${fmt(nSeconds, locale, 0)} segundos de cálculo. En el último sorteo de cada elección, tras corregir los errores de lectura, el chip queda a entre ${pts(tvLo)} y ${pts(tvHi)} puntos del cálculo exacto.`,
+    runsTitle: 'Todos los sorteos',
+    th: ['Elección', 'Máquina y fecha', 'Elecciones sorteadas', 'Cúbits por circuito', 'Tiempo de cálculo', 'Mayoría según el chip', 'Diferencia con el cálculo exacto'],
+    gapNote: 'La diferencia con el cálculo exacto es la variación total entre la distribución de escaños sorteada por el chip (tras corregir los errores de lectura) y la que Órbita calcula en un ordenador común: la parte de las elecciones que habría que mover para que ambas coincidan.',
+    detail: 'El sorteo en detalle',
+    howTitle: 'Cómo una elección se convierte en un circuito',
+    how: [
+      'Órbita agrupa sus escenarios en 256 climas: una ola para un partido, un regreso del otro, el statu quo y todo lo intermedio. Para cada clima calcula la probabilidad exacta de cada partido en cada contienda.',
+      'Cada contienda disputada se convierte en un cúbit (dos cuando hay tres partidos o más en juego), girado para que al medirlo cada partido salga exactamente con esa probabilidad. Las contiendas decididas de antemano no pasan por la máquina.',
+      'El chip mide el circuito y cada cúbit cae en un partido: así se obtiene un mapa completo. Repetimos la medición, contamos los escaños y comparamos con el cálculo exacto.',
+    ],
+    notTitle: 'Lo que no demuestra',
+    not: [
+      'El chip no hace la previsión más precisa. Órbita calcula la misma distribución exactamente sin él; el sorteo mide lo que una máquina real ya sabe hacer, ruido incluido.',
+      'Los chips actuales se equivocan: a veces un cúbit se lee mal, una operación es imperfecta. Publicamos el sorteo bruto junto al corregido, con los identificadores de las tareas de IBM.',
+      'Órbita sigue siendo experimental. Superó a nuestra proyección principal en Quebec en 2026, en una sola elección; su configuración estadounidense no se ha probado con elecciones pasadas.',
+    ],
+    entangledTitle: 'La elección entrelazada de Quebec',
+    entangled: 'En Quebec también enlazamos las circunscripciones entre sí en el chip, de 10 a 90 circunscripciones, en dos máquinas. El detalle está en la página Labs de Quebec.',
+    entangledLink: 'Ver la elección entrelazada',
+    method: 'Cómo funciona Órbita',
+    share: { title: 'Vote-Scope Labs', heading: 'Elecciones sorteadas en un ordenador cuántico de IBM', thFav: 'Mayoría', thP: 'Probabilidad',
+      foot: (n: string, s: string) => `${n} elecciones sorteadas en ${s} segundos de cálculo` },
+  },
+}[locale];
+
+const hasEntangled = files.some((f) => f.startsWith('entangled_qc_2026'));
+const payload = {
+  card: 'slate' as const,
+  slug: 'orbite-quantique',
+  jurisdiction: 'labs-quantum',
+  title: T.share.title,
+  heading: T.share.heading,
+  rows: latest.map((r) => ({
+    name: r.name,
+    where: `${r.q.machine} · ${day(r.q.run_at)}`,
+    fav: partyLabel(r.desk, r.lead, locale), color: partyColor(r.desk, r.lead),
+    p: P(r.x.corrected_p_majority),
+  })),
+  thFav: T.share.thFav, thP: T.share.thP,
+  voteDay: '',
+  foot: T.share.foot(fmt(nDrawn, locale, 0), fmt(nSeconds, locale, 0)),
+};
+---
+
+<PageHeader title={T.title} promise={T.promise} question={runs.length ? T.answer : undefined} />
+
+<article class="lqh container" data-content-area>
+  {runs.length > 0 && (
+    <section class="lqh-runs" aria-labelledby="lqh-runs">
+      <h2 id="lqh-runs">{T.runsTitle}</h2>
+      <div class="table-scroll">
+        <table class="lqh-table">
+          <thead><tr>{T.th.map((h, i) => <th class:list={[i > 1 && 'num']}>{h}</th>)}</tr></thead>
+          <tbody>
+            {runs.map((r) => (
+              <tr>
+                <td><a href={`${labsUrl(locale, r.key)}#lq-title`}>{r.name}</a></td>
+                <td>{r.q.machine}{r.q.twirling ? ` (${QT[locale].twirled})` : ''} · {day(r.q.run_at)}</td>
+                <td class="num">{fmt(r.q.elections_drawn, locale, 0)}</td>
+                <td class="num">{r.qubits}</td>
+                <td class="num">{r.seconds != null ? `${fmt(r.seconds, locale, 0)} s` : '—'}</td>
+                <td class="num"><span class="lqh-dot" style={`background:${partyColor(r.desk, r.lead)}`}></span>{partyLabel(r.desk, r.lead, locale)} {P(r.x.corrected_p_majority)}</td>
+                <td class="num">{r.tv != null ? `${pts(r.tv)} pt` : '—'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p class="vs-meta lqh-meta">{T.gapNote}</p>
+      <RidingShareButton client:idle lang={locale} payload={payload} />
+    </section>
+  )}
+
+  <section class="lqh-block vs-block" aria-labelledby="lqh-how">
+    <h2 id="lqh-how">{T.howTitle}</h2>
+    {T.how.map((p) => <p>{p}</p>)}
+    <p><a class="vs-link" href={`${labsUrl(locale)}${EXPLAINER_SLUG[locale]}/`}>{T.method}</a></p>
+  </section>
+
+  {hasEntangled && (
+    <section class="lqh-block vs-block" aria-labelledby="lqh-ent">
+      <h2 id="lqh-ent">{T.entangledTitle}</h2>
+      <p>{T.entangled}</p>
+      <p><a class="vs-link" href={`${labsUrl(locale, 'qc_2026')}#lq-title`}>{T.entangledLink}</a></p>
+    </section>
+  )}
+
+  <section class="lqh-block vs-block" aria-labelledby="lqh-not">
+    <h2 id="lqh-not">{T.notTitle}</h2>
+    {T.not.map((p) => <p>{p}</p>)}
+  </section>
+
+  <section class="lqh-block vs-block" aria-labelledby="lqh-detail">
+    <h2 id="lqh-detail">{T.detail}</h2>
+    <ul class="lqh-list">
+      {elections.map((k) => <li><a class="vs-link" href={`${labsUrl(locale, k)}#lq-title`}>{NAMES[k][locale]}</a></li>)}
+    </ul>
+  </section>
+</article>
+
+<style>
+  .lqh { max-width: 1080px; padding-block: 32px 96px; }
+  .lqh h2 { font-size: clamp(24px, 3.2vw, 32px); font-weight: 700; margin: 0 0 12px; }
+  .lqh-runs { border-top: 4px solid var(--ink); padding-top: 16px; }
+  .lqh-table { width: 100%; border-collapse: collapse; font-size: 15px; }
+  .lqh-table th { text-align: left; font-size: 13px; font-weight: 600; color: var(--ink-3); border-bottom: 1px solid var(--ink); padding: 8px 12px 8px 0; vertical-align: bottom; }
+  .lqh-table td { border-bottom: 1px solid var(--rule); padding: 10px 12px 10px 0; white-space: nowrap; }
+  .lqh-table .num { text-align: right; }
+  .lqh-table td a { color: var(--ink); font-weight: 600; }
+  .lqh-dot { display: inline-block; width: 10px; height: 10px; margin-right: 8px; }
+  .lqh-meta { max-width: 72ch; margin: 8px 0 0; line-height: 1.5; }
+  .lqh-block { margin-top: 48px; padding-top: 16px; }
+  .lqh-block p { max-width: 72ch; color: var(--ink-2); font-size: 17px; line-height: 1.6; margin: 0 0 12px; }
+  .lqh-list { margin: 0; padding-left: 20px; line-height: 1.8; }
+</style>
