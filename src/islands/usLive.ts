@@ -54,11 +54,25 @@ export type ExitPollFile = {
   races: Record<string, ExitPollEntry[]>;
 };
 
+/**
+ * Lecture de vague calculée par le moteur (fastest_call/wave.py) : moyenne
+ * PAR ÉTAT puis entre États, États à long dépouillement (CA, NV, AZ, WA, OR,
+ * AK) exclus. Absente d'un vieux payload : la jauge retombe sur son calcul local.
+ */
+export type EngineWaveAggregate = { dem_vs_model: number; median_state: number; n_races: number; n_states: number; by_state: Record<string, number> };
+export type EngineWave = {
+  status: 'waiting' | 'provisional' | 'mature'; dem_vs_model: number | null;
+  by_chamber?: Partial<Record<Chamber, EngineWaveAggregate | null>>;
+  excluded_states?: string[];
+  rules?: { min_pct?: number; min_states?: number };
+};
+
 export type UsLivePayload = Omit<LivePayload, 'results' | 'source'> & {
   results: UsResult[];
   source?: LivePayload['source'] & { states?: Record<string, StateStatus> };
   /** Sortie de us_exit_poll.py, jointe telle quelle au live.json par le collecteur. */
   exit_poll?: ExitPollFile | null;
+  wave?: EngineWave | null;
   desk?: unknown;
 };
 
@@ -290,6 +304,10 @@ export type WaveReading = {
   minRaces: number;
   /** Écart moyen (points, démocrates moins républicains) ; null si trop peu de courses. */
   mean: number | null;
+  /** Moyenne du moteur (par État, puis entre États) ; sinon moyenne locale des courses. */
+  source: 'engine' | 'local';
+  /** États laissés de côté parce que leur soirée ne compte qu'une partie du postal. */
+  excludedStates: string[];
   towardDem: number; towardRep: number;
 };
 
@@ -306,8 +324,12 @@ export function waveReading(payload: UsLivePayload | null, rows: UsRow[], chambe
   const results = new Map((payload?.results ?? []).map((r) => [r.riding_id, r]));
   const projections = new Map((payload?.projections ?? []).map((p) => [p.riding_id, p]));
   const races: WaveRace[] = [];
+  const engine = payload?.wave ?? null;
+  const excluded = new Set(engine?.excluded_states ?? []);
+  const minPct = engine?.rules?.min_pct ?? WAVE_MIN_REPORTED_PCT;
   let measurable = 0;
   for (const row of rows) {
+    if (row.state && excluded.has(row.state)) continue;
     // Un appel sans chiffres (source indisponible) ne dit rien de l'écart.
     if (!showsNumbers(row.status) || row.votes <= 0) continue;
     const proj = projections.get(row.id)?.candidates as { party_code: string; mean?: number | null }[] | undefined;
@@ -321,12 +343,17 @@ export function waveReading(payload: UsLivePayload | null, rows: UsRow[], chambe
     const pr = proj.find((c) => c.party_code === 'us_rep')?.mean ?? 0;
     if (pd <= 0 || pr <= 0) continue;
     measurable += 1;
-    if ((row.reportedPct ?? 0) < WAVE_MIN_REPORTED_PCT) continue;
+    if ((row.reportedPct ?? 0) < minPct) continue;
     races.push({ id: row.id, live, projected, shift: live - projected });
   }
   const minRaces = WAVE_MIN_RACES[chamber];
-  const mean = races.length >= minRaces ? races.reduce((a, r) => a + r.shift, 0) / races.length : null;
-  return { measurable, races, minRaces, mean,
+  const agg = engine?.by_chamber?.[chamber];
+  const engineReady = !!agg && agg.n_states >= (engine?.rules?.min_states ?? 3);
+  const local = races.length >= minRaces ? races.reduce((a, r) => a + r.shift, 0) / races.length : null;
+  // Le moteur pèse chaque État une fois (quarante districts du Texas ne font pas
+  // quarante observations) ; il ne parle qu'une fois les courses assez nombreuses ici aussi.
+  const mean = races.length >= minRaces ? (engineReady ? agg!.dem_vs_model : local) : null;
+  return { measurable, races, minRaces, mean, source: engineReady ? 'engine' : 'local', excludedStates: [...excluded].sort(),
     towardDem: races.filter((r) => r.shift > 0).length, towardRep: races.filter((r) => r.shift < 0).length };
 }
 

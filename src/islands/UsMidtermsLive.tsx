@@ -104,6 +104,8 @@ const copy = {
       : `Pas encore de lecture : ${k} course${k > 1 ? 's' : ''} dépouillée${k > 1 ? 's' : ''} à ${WAVE_MIN_REPORTED_PCT} % ou plus, il en faut au moins ${min} pour que la moyenne dise quelque chose.`,
     waveCaveat: 'Les États publient la part des bureaux ou des comtés qui ont rapporté, pas la part des voix comptées : les derniers bulletins (vote par correspondance, grandes villes) peuvent encore déplacer cet écart. Chaque trait gris est une course ; le trait noir, la moyenne.',
     waveAxis: { center: 'notre projection', dem: 'plus démocrate', rep: 'plus républicain' },
+    waveExcluded: (states: string) => `Hors de la moyenne : ${states}, dont la soirée ne compte qu’une partie du vote par correspondance.`,
+    waveByState: 'La moyenne pèse chaque État une fois : quarante districts du Texas ne font pas quarante indices.',
     noticeTitle: 'Ce que chaque État publie ce soir',
     noticeUnavailable: (s: string) => `Pas de chiffres lisibles pour ${s}. Ces courses ne sont pas à zéro voix : nous ne pouvons pas lire la source de l’État en ce moment, et rien n’y est affiché.`,
     noticeTranscribed: (s: string) => `Saisie manuelle pour ${s}. Ces États ne publient pas de fichier lisible par machine : leurs chiffres sont relevés à la main sur le site officiel, avec du retard, et aucune course n’y est appelée automatiquement.`,
@@ -179,6 +181,8 @@ const copy = {
       : `No reading yet: ${k} race${k > 1 ? 's have' : ' has'} ${WAVE_MIN_REPORTED_PCT}% or more reported; it takes at least ${min} for the average to mean anything.`,
     waveCaveat: 'States report the share of precincts or counties in, not the share of votes counted: the last ballots (mail votes, big cities) can still move this gap. Each grey tick is a race; the black line is the average.',
     waveAxis: { center: 'our forecast', dem: 'more Democratic', rep: 'more Republican' },
+    waveExcluded: (states: string) => `Left out of the average: ${states}, where election night counts only part of the mail vote.`,
+    waveByState: 'Each state counts once in the average: forty Texas districts are not forty separate clues.',
     noticeTitle: 'What each state is publishing tonight',
     noticeUnavailable: (s: string) => `No readable figures for ${s}. These races are not at zero votes: we cannot read the state’s source right now, so nothing is shown.`,
     noticeTranscribed: (s: string) => `Hand-entered for ${s}. These states publish no machine-readable file: their figures are copied by hand from the official site, with a delay, and no race there is called automatically.`,
@@ -254,6 +258,8 @@ const copy = {
       : `Aún no hay lectura: ${k} contienda${k > 1 ? 's' : ''} escrutada${k > 1 ? 's' : ''} al ${WAVE_MIN_REPORTED_PCT} % o más; hacen falta al menos ${min} para que el promedio signifique algo.`,
     waveCaveat: 'Los estados publican la parte de precintos o condados escrutados, no la parte de votos contados: las últimas papeletas (voto por correo, grandes ciudades) aún pueden mover esta diferencia. Cada trazo gris es una contienda; la línea negra, el promedio.',
     waveAxis: { center: 'nuestra proyección', dem: 'más demócrata', rep: 'más republicano' },
+    waveExcluded: (states: string) => `Fuera del promedio: ${states}, donde la noche electoral solo cuenta parte del voto por correo.`,
+    waveByState: 'Cada estado pesa una vez en el promedio: cuarenta distritos de Texas no son cuarenta indicios.',
     noticeTitle: 'Lo que publica cada estado esta noche',
     noticeUnavailable: (s: string) => `Sin cifras legibles para ${s}. Estas contiendas no están en cero votos: ahora no podemos leer la fuente del estado, y no se muestra nada.`,
     noticeTranscribed: (s: string) => `Captura manual para ${s}. Estos estados no publican un archivo legible por máquina: sus cifras se copian a mano del sitio oficial, con retraso, y ninguna contienda se anuncia allí automáticamente.`,
@@ -684,7 +690,7 @@ function WaveGauge({ wave, t, metaOf, lang }: { wave: WaveReading; t: Copy; meta
           </div>
         </>
       )}
-      <p class="usl-note">{typo(lang, t.waveCaveat)}</p>
+      <p class="usl-note">{typo(lang, t.waveCaveat)}{wave.excludedStates.length > 0 && ` ${typo(lang, t.waveExcluded(wave.excludedStates.join(', ')))}`}{wave.source === 'engine' && ` ${typo(lang, t.waveByState)}`}</p>
     </div>
   );
 }

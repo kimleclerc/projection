@@ -117,6 +117,17 @@ const early = structuredClone(sample);
 for (const r of early.results) if (r.polls && typeof r.polls.pct === 'number') r.polls.pct = Math.min(r.polls.pct, 30);
 const we = waveReading(early, deriveUsRows(early, 'house'), 'house');
 check(we.mean === null && we.races.length === 0, 'vague : une moyenne est donnée alors qu\'aucune course n\'est assez avancée');
+check(w.source === 'local' && w.excludedStates.length === 0, 'vague : sans lecture du moteur, la moyenne doit rester locale');
+// Lecture du moteur (fastest_call/wave.py) : sa moyenne par État prime, ses États exclus sortent des traits.
+const firstState = houseRows.find((r) => w.races.some((x) => x.id === r.id))?.state;
+const withEngine = structuredClone(sample);
+withEngine.wave = { status: 'mature', dem_vs_model: 1.23, excluded_states: [firstState], rules: { min_pct: WAVE_MIN_REPORTED_PCT, min_states: 3 },
+  by_chamber: { house: { dem_vs_model: 1.23, median_state: 1, n_races: 40, n_states: 12, by_state: {} } } };
+const wEng = waveReading(withEngine, deriveUsRows(withEngine, 'house'), 'house');
+check(wEng.source === 'engine' && wEng.mean === 1.23, 'vague : la moyenne du moteur est ignorée');
+check(wEng.races.every((r) => houseRows.find((x) => x.id === r.id)?.state !== firstState), 'vague : un État exclu par le moteur est compté');
+withEngine.wave.by_chamber.house.n_states = 2;
+check(waveReading(withEngine, deriveUsRows(withEngine, 'house'), 'house').source === 'local', 'vague : le moteur parle sur trop peu d\'États');
 const noProj = structuredClone(sample); delete noProj.projections;
 check(waveReading(noProj, deriveUsRows(noProj, 'house'), 'house').mean === null, 'vague : une moyenne est donnée sans projection publiée');
 
