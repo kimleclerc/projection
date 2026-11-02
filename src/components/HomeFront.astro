@@ -51,9 +51,20 @@ const T = {
     'Les midterms américains, le Canada, le Royaume-Uni, la France et l’Espagne, mis à jour chaque jour. Par Kim Leclerc, vingt ans de campagnes électorales.',
     'U.S. midterms, Canada, the U.K., France and Spain, updated daily. By Kim Leclerc, twenty years of election campaigns.',
     'Las elecciones intermedias de EE. UU., Canadá, el Reino Unido, Francia y España, actualizadas cada día. Por Kim Leclerc, veinte años de campañas electorales.'),
-  kicker: daysLeft > 0
+  kicker: daysLeft > 1
     ? L(`Midterms américains · 3 novembre, dans ${daysLeft} jours`, `U.S. midterms · November 3, in ${daysLeft} days`, `Elecciones intermedias de EE. UU. · 3 de noviembre, en ${daysLeft} días`)
+    : daysLeft === 1
+    ? L('Midterms américains · 3 novembre, demain', 'U.S. midterms · November 3, tomorrow', 'Elecciones intermedias de EE. UU. · 3 de noviembre, mañana')
     : L('Midterms américains · 3 novembre', 'U.S. midterms · November 3', 'Elecciones intermedias de EE. UU. · 3 de noviembre'),
+  // Semaine du vote : la une annonce le direct, qui se tient sur les fiches
+  // Chambre, Sénat et gouverneurs (bloc #resultats). Après le vote, les fiches
+  // portent les résultats ; la ligne disparaît.
+  live: daysLeft >= 0
+    ? L('Résultats en direct le 3 novembre dès 19 h, heure de l’Est (minuit en temps universel) : Chambre district par district, Sénat et gouverneurs État par État.',
+        'Live results on November 3 from 7 p.m. Eastern (midnight UTC): the House district by district, the Senate and governors state by state.',
+        'Resultados en directo el 3 de noviembre desde las 19:00, hora del Este (medianoche UTC): la Cámara distrito por distrito, el Senado y los gobernadores estado por estado.')
+    : '',
+  senateLive: L('Suivre les résultats du Sénat', 'Follow the Senate results', 'Seguir los resultados del Senado'),
   question: L('Qui contrôlera le Sénat?', 'Who will control the Senate?', '¿Quién controlará el Senado?'),
   answer: L(
     `${leadPlural} ont ${pct(lead.p_majority)} de chances ${keeps ? 'de conserver' : 'd’obtenir'} la majorité au Sénat, selon ${nSims} simulations.`,
@@ -82,9 +93,12 @@ const T = {
         <p class="vs-meta">{T.kicker}</p>
         <h2 class="hf-question"><a href={T.href.senate}>{T.question}</a></h2>
         <p class="hf-answer">{T.answer}</p>
+        {T.live && <p class="hf-live">{T.live}</p>}
         <ResultsTable lang={lang} rows={rows} totalSeats={meta.total_seats ?? 100} majority={meta.majority_threshold ?? 51} chanceKind="majority" meta={T.meta} />
         <p class="hf-actions">
-          <a class="vs-btn" href={T.href.senate}>{T.senate}</a>
+          {T.live
+            ? <a class="vs-btn" href={`${T.href.senate}#resultats`}>{T.senateLive}</a>
+            : <a class="vs-btn" href={T.href.senate}>{T.senate}</a>}
           <a class="vs-btn-secondary" href={T.href.house}>{T.house}</a>
           <a class="vs-link" href={T.href.gov}>{T.gov}</a>
         </p>
@@ -106,6 +120,7 @@ const T = {
   .hf-question a { color: var(--ink); text-decoration: none; }
   .hf-question a:hover { text-decoration: underline; text-underline-offset: 6px; text-decoration-thickness: 3px; }
   .hf-answer { margin: 0; max-width: 680px; color: var(--ink-2); font-size: 19px; line-height: 1.45; }
+  .hf-live { margin: 12px 0 0; max-width: 680px; color: var(--ink); font-size: 16px; font-weight: 600; line-height: 1.45; }
   .hf-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; margin: 18px 0 0; }
   @media (max-width: 900px) {
     .hf-grid { grid-template-columns: 1fr; gap: 28px; }

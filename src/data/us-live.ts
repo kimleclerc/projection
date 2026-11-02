@@ -147,3 +147,44 @@ export function usShareMeta(chamber: Chamber, locale: Locale): { title: string; 
   };
   return T[chamber][locale];
 }
+
+/**
+ * Données structurées de la soirée (schema.org) : une couverture en direct
+ * (`LiveBlogPosting`) de l'élection du 3 novembre, posée sur chaque fiche à côté
+ * du jeu de données de la projection. Les heures sont celles du direct : premières
+ * fermetures à 19 h HNE (00 h UTC le 4), couverture ouverte jusqu'au 5 au matin.
+ * Rien n'y est inventé : titre et description sont ceux de la page.
+ */
+export function usLiveJsonLd(chamber: Chamber, locale: Locale) {
+  const share = usShareMeta(chamber, locale);
+  const url = `https://vote-scope.com${PAGE[chamber][locale]}`;
+  const election = {
+    fr: 'Élections de mi-mandat américaines du 3 novembre 2026',
+    en: 'U.S. midterm elections, November 3, 2026',
+    es: 'Elecciones intermedias de EE. UU. del 3 de noviembre de 2026',
+  }[locale];
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'LiveBlogPosting',
+    headline: share.title,
+    description: share.description,
+    url,
+    mainEntityOfPage: url,
+    inLanguage: locale,
+    datePublished: '2026-11-02T12:00:00Z',
+    coverageStartTime: '2026-11-04T00:00:00Z',
+    coverageEndTime: '2026-11-05T12:00:00Z',
+    author: { '@type': 'Person', name: 'Kim Leclerc', url: 'https://kimleclerc.ca' },
+    publisher: { '@type': 'Organization', name: 'Vote-Scope', url: 'https://vote-scope.com' },
+    isAccessibleForFree: true,
+    about: {
+      '@type': 'Event',
+      name: election,
+      startDate: '2026-11-03',
+      endDate: '2026-11-03',
+      eventStatus: 'https://schema.org/EventScheduled',
+      eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+      location: { '@type': 'Country', name: { fr: 'États-Unis', en: 'United States', es: 'Estados Unidos' }[locale] },
+    },
+  };
+}

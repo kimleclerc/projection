@@ -4,7 +4,7 @@ import RidingsCta from '../../../components/RidingsCta.astro';
 import NewsletterCta from '../../../components/NewsletterCta.astro';
 import ProjectionEngine from '../../../components/ProjectionEngine.astro';
 import UsMidtermsLive from '../../../components/UsMidtermsLive.astro';
-import { usShareMeta } from '../../../data/us-live';
+import { usShareMeta, usLiveJsonLd } from '../../../data/us-live';
 import RaceNarrative from '../../../components/RaceNarrative.astro';
 import PolymarketEmbed from '../../../components/PolymarketEmbed.astro';
 import { jurisdictions } from '../../../data/jurisdictions';
@@ -33,6 +33,7 @@ const alternates = {
   ogImage="https://vote-scope.com/og/share/map/us-senate/es.png"
   alternates={alternates}
   jsonLd={[
+    usLiveJsonLd('senate', 'es'),
     {
       '@context': 'https://schema.org',
       '@type': 'Dataset',
