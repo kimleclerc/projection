@@ -861,13 +861,41 @@ export function trioCard(fmt: Format, lang: Lang, d: TrioCardInput): Node {
   const story = fmt === 'story';
   const labelF = story ? 50 : big ? 40 : 30;
   const lineF = story ? 30 : big ? 24 : 19;
-  const valF = story ? 150 : big ? 110 : 84;
+  const valF = story ? 150 : big ? 110 : 96;
   // L'espace insécable manque à Barlow Condensed : espace simple dans les chiffres.
-  const rows = d.rows.map((r) => h('div', { alignItems: 'center', justifyContent: 'space-between', borderBottom: `1px solid ${RULE}`, padding: story ? '40px 0' : big ? '22px 0' : '8px 0' },
+  const rows = d.rows.map((r) => h('div', { alignItems: 'center', justifyContent: 'space-between', borderBottom: `1px solid ${RULE}`, padding: story ? '40px 0' : big ? '22px 0' : '14px 0' },
     h('div', { flexDirection: 'column', flexShrink: 1, paddingRight: 16 },
       h('div', { fontSize: labelF, fontWeight: 700, lineHeight: 1.05 }, r.label),
       h('div', { fontSize: lineF, fontWeight: 500, color: INK_3, marginTop: 4 }, r.line)),
     h('div', { fontFamily: 'Barlow Condensed', fontWeight: 700, fontSize: valF, lineHeight: 1, color: d.color, flexShrink: 0 }, r.value.replace(/ /g, ' '))));
-  const body = h('div', { flexDirection: 'column', flexGrow: 1, justifyContent: big ? 'center' : 'flex-start' }, ...rows);
+  const body = h('div', { flexDirection: 'column', flexGrow: 1, justifyContent: 'center' }, ...rows);
   return frame(fmt, lang, d.title, longDate(d.voteDay, lang), body, d.foot);
+}
+
+// ------------------------------------------------------------------ appel Fastest Call
+
+export interface CallCardInput {
+  title: string;      // « Fastest Call · Mi-mandat 2026 »
+  race: string;       // « Sénat · Géorgie »
+  party: string;      // « Démocrates »
+  candidate: string | null;
+  color: string;
+  verdict: string;    // « remporte la course »
+  when: string;       // « Appel Vote-Scope à 21 h 14, heure de l'Est »
+  foot: string;
+}
+
+/** Un appel : la course, le gagnant en grand, l'heure de l'appel. Dessiné dans le navigateur au clic. */
+export function callCard(fmt: Format, lang: Lang, d: CallCardInput): Node {
+  const big = fmt !== 'wide';
+  const story = fmt === 'story';
+  const body = h('div', { flexDirection: 'column', flexGrow: 1, justifyContent: 'center' },
+    h('div', { fontSize: story ? 46 : big ? 38 : 30, fontWeight: 600, color: INK_3, marginBottom: 10 }, d.race),
+    h('div', { alignItems: 'center' },
+      h('div', { width: story ? 20 : 14, height: story ? 150 : big ? 120 : 96, backgroundColor: d.color, marginRight: 20 }),
+      h('div', { flexDirection: 'column' },
+        h('div', { fontFamily: 'Barlow Condensed', fontWeight: 700, fontSize: story ? 140 : big ? 110 : 88, lineHeight: 1, color: d.color }, d.candidate ?? d.party),
+        h('div', { fontSize: story ? 40 : big ? 32 : 26, fontWeight: 700, marginTop: 6 }, d.candidate ? `${d.party} · ${d.verdict}` : d.verdict))),
+    h('div', { fontSize: story ? 32 : big ? 26 : 21, fontWeight: 600, color: INK_2, marginTop: story ? 40 : 22 }, d.when));
+  return frame(fmt, lang, d.title, longDate('2026-11-03', lang), body, d.foot);
 }
