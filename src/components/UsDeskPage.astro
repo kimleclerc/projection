@@ -24,6 +24,8 @@ import AffiliateCard from './AffiliateCard.astro';
 import DeskSections from './DeskSections.astro';
 import UsTrioShare from '../islands/UsTrioShare.tsx';
 import UsPreCount from './UsPreCount.astro';
+import UsNeedle from '../islands/UsNeedle.tsx';
+import { US_LIVE_API_BASE, US_LIVE_EVENT_ID, US_LIVE_FALLBACK_API_BASE } from '../data/us-live';
 import { usTrio } from '../data/us-live';
 import { specialElections, type SpecialElectionConfig } from '../data/specialElections';
 
@@ -223,6 +225,7 @@ const COPY = {
 
 const t = COPY[lang];
 const trio = usTrio(lang);
+const liveUrl = (base: string) => `${base.replace(/\/$/, '')}/api/v1/elections/${US_LIVE_EVENT_ID}/live.json`;
 const canonical = `https://vote-scope.com/${lang}/us/`;
 const ldiLabel = partyName(ldi, lang);
 const showdownLabel = lang === 'fr' ? showdownData.showdown.label_fr
@@ -303,6 +306,11 @@ const presItems = [
   <PageHeader title={t.heroTitle} promise={t.heroPromise} preferredSourceLocale={lang} />
 
   <UsPreCount lang={lang} />
+
+  <section class="container us-block">
+    <UsNeedle client:load lang={lang} liveUrl={liveUrl(US_LIVE_API_BASE)} fallbackUrl={liveUrl(US_LIVE_FALLBACK_API_BASE)}
+      demColor={houseDem.color} repColor={houseRep.color} />
+  </section>
 
   <section class="container us-block" aria-labelledby="us-proj">
     <h2 id="us-proj">{t.projTitle}</h2>
