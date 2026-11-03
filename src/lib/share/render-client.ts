@@ -91,3 +91,10 @@ export async function renderSlatePng(fmt: 'wide' | 'square' | 'story', lang: Lan
   const { w, h } = SIZE[fmt];
   return toPng(slateCard(fmt, lang, payload), w, h);
 }
+
+/** Image d'un appel Fastest Call, à partir de la ligne de la course. */
+export async function renderCallPng(fmt: 'wide' | 'square' | 'story', lang: Lang, payload: import('./cards').CallCardInput): Promise<Blob> {
+  const { callCard, SIZE } = await import('./cards');
+  const { w, h } = SIZE[fmt];
+  return toPng(callCard(fmt, lang, payload), w, h);
+}

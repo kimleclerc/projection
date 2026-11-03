@@ -133,6 +133,9 @@ const copy = {
     reported: 'dépouillé', more: (n: number) => `Afficher ${n} de plus`, votes: 'voix', none: 'Aucune course ne correspond.', estimate: 'Estimation',
     margin: (m: string) => `écart ${m} pt`, at: 'appelée à',
     copy: 'Copier le lien', copied: 'Lien copié', copyPage: 'Copier le lien de la page',
+    callShare: 'Partager l’appel', callImage: 'Image de l’appel', callTitle: 'Fastest Call · mi-mandat 2026', callVerdict: { governor: 'remporte le poste de gouverneur', other: 'remporte la course' },
+    callText: (who: string, race: string, time: string) => `Fastest Call de Vote-Scope : ${who} remporte ${race}. Appel à ${time}.`,
+    callWhen: (time: string) => `Appel Vote-Scope à ${time}`, callFoot: 'Décision Fastest Call, à partir du décompte officiel',
     image: 'Télécharger l’image', imageBusy: 'Image en cours…', imageShare: 'Partager l’image', embed: 'Intégrer', embedCopied: 'Code copié',
     fullPage: 'Toutes les courses sur Vote-Scope',
     source: 'Chiffres : les bureaux électoraux des États, État par État ; là où un État ne publie rien de lisible, civicAPI (civicapi.org). Les appels sont ceux de Vote-Scope, approuvés par une personne. Sondages de sortie : Edison Research (NEP) et AP VoteCast. Projection : Kim Leclerc, Vote-Scope.',
@@ -210,6 +213,9 @@ const copy = {
     reported: 'reported', more: (n: number) => `Show ${n} more`, votes: 'votes', none: 'No race matches.', estimate: 'Estimate',
     margin: (m: string) => `margin ${m} pt`, at: 'called at',
     copy: 'Copy link', copied: 'Link copied', copyPage: 'Copy page link',
+    callShare: 'Share the call', callImage: 'Call image', callTitle: 'Fastest Call · 2026 midterms', callVerdict: { governor: 'wins the governorship', other: 'wins the race' },
+    callText: (who: string, race: string, time: string) => `Vote-Scope Fastest Call: ${who} wins ${race}. Called at ${time}.`,
+    callWhen: (time: string) => `Vote-Scope call at ${time}`, callFoot: 'Fastest Call decision, from the official count',
     image: 'Download image', imageBusy: 'Drawing…', imageShare: 'Share image', embed: 'Embed', embedCopied: 'Code copied',
     fullPage: 'Every race on Vote-Scope',
     source: 'Figures: each state’s election office; where a state publishes nothing readable, civicAPI (civicapi.org). Calls are Vote-Scope’s, approved by a person. Exit polls: Edison Research (NEP) and AP VoteCast. Forecast: Kim Leclerc, Vote-Scope.',
@@ -287,6 +293,9 @@ const copy = {
     reported: 'escrutado', more: (n: number) => `Mostrar ${n} más`, votes: 'votos', none: 'Ninguna contienda coincide.', estimate: 'Estimación',
     margin: (m: string) => `diferencia ${m} pt`, at: 'anunciada a las',
     copy: 'Copiar el enlace', copied: 'Enlace copiado', copyPage: 'Copiar el enlace de la página',
+    callShare: 'Compartir el anuncio', callImage: 'Imagen del anuncio', callTitle: 'Fastest Call · intermedias 2026', callVerdict: { governor: 'gana la gobernación', other: 'gana la contienda' },
+    callText: (who: string, race: string, time: string) => `Fastest Call de Vote-Scope: ${who} gana ${race}. Anunciado a las ${time}.`,
+    callWhen: (time: string) => `Anuncio de Vote-Scope a las ${time}`, callFoot: 'Decisión Fastest Call, a partir del recuento oficial',
     image: 'Descargar la imagen', imageBusy: 'Generando…', imageShare: 'Compartir la imagen', embed: 'Insertar', embedCopied: 'Código copiado',
     fullPage: 'Todas las contiendas en Vote-Scope',
     source: 'Cifras: la oficina electoral de cada estado; donde un estado no publica nada legible, civicAPI (civicapi.org). Los anuncios son de Vote-Scope, aprobados por una persona. Encuestas a pie de urna: Edison Research (NEP) y AP VoteCast. Proyección: Kim Leclerc, Vote-Scope.',
@@ -612,7 +621,7 @@ export default function UsMidtermsLive({ chamber, eventId, lang, apiBase, fallba
           {shown.length === 0 ? <p class="qlf-empty">{t.none}</p> : (
             <ul class="usl-list">
               {shown.slice(0, visibleCount).map((r) => <RaceItem key={r.id} row={r} info={races[r.id]} t={t} metaOf={metaOf} pct={pct}
-                lang={lang} stamp={stamp} isTarget={r.id === target} link={() => pageUrl(r.id)} />)}
+                lang={lang} stamp={stamp} isTarget={r.id === target} link={() => pageUrl(r.id)} chamber={chamber} />)}
             </ul>
           )}
           {shown.length > visibleCount && <button type="button" class="qll-more" onClick={() => setLimit(visibleCount + PAGE * 2)}>{t.more(Math.min(PAGE * 2, shown.length - visibleCount))}</button>}
@@ -891,9 +900,9 @@ function PredictorItem({ row, name, t, metaOf, pct, margin, stamp }:
   );
 }
 
-function RaceItem({ row, info, t, metaOf, pct, lang, stamp, isTarget, link }:
+function RaceItem({ row, info, t, metaOf, pct, lang, stamp, isTarget, link, chamber }:
   { row: UsRow; info?: UsRaceInfo; t: Copy; metaOf: MetaOf; pct: (p: number) => string; lang: Locale; stamp: (iso: string) => string;
-    isTarget: boolean; link: () => string }) {
+    isTarget: boolean; link: () => string; chamber: Chamber }) {
   const name = info?.name ?? row.name;
   const lead = row.call ? metaOf(row.call.party_code) : row.leader ? metaOf(row.leader.party_code) : null;
   const who = row.call?.candidate_name ?? row.leader?.candidate_name ?? null;
@@ -914,6 +923,45 @@ function RaceItem({ row, info, t, metaOf, pct, lang, stamp, isTarget, link }:
         {row.votes > 0 && <span>{row.votes.toLocaleString(lang === 'en' ? 'en-US' : lang === 'es' ? 'es-ES' : 'fr-CA')} {t.votes}</span>}
       </div>
       <CopyButton text={link} label={t.copy} done={t.copied} />
+      {row.call && lead && <CallShare t={t} lang={lang} chamber={chamber} race={name} party={lead.label} color={lead.color}
+        candidate={who} time={row.call.called_at ? stamp(row.call.called_at) : null} link={link} id={row.id} />}
     </li>
+  );
+}
+
+/**
+ * Partager un appel : le texte prêt (gagnant, course, heure de l'appel) et le
+ * lien de la course ; l'image est dessinée dans le navigateur, au clic, comme
+ * celle de la chambre — rien n'est fabriqué au build.
+ */
+function CallShare({ t, lang, chamber, race, party, color, candidate, time, link, id }:
+  { t: Copy; lang: Locale; chamber: Chamber; race: string; party: string; color: string; candidate: string | null; time: string | null; link: () => string; id: string }) {
+  const [busy, setBusy] = useState(false);
+  const raceLabel = `${t.cardTitle[chamber]} · ${race}`;
+  const who = candidate ? `${candidate} (${party})` : party;
+  const text = () => t.callText(who, raceLabel, time ?? '—');
+  const share = async () => {
+    try {
+      if (typeof navigator.share === 'function') await navigator.share({ text: text(), url: link() });
+      else await copyText(`${text()} ${link()}`);
+    } catch { /* annulé */ }
+  };
+  const image = async () => {
+    if (busy) return; setBusy(true);
+    try {
+      const { renderCallPng } = await import('../lib/share/render-client');
+      const blob = await renderCallPng('wide', lang, { title: t.callTitle, race: raceLabel, party, candidate, color,
+        verdict: chamber === 'governor' ? t.callVerdict.governor : t.callVerdict.other, when: time ? t.callWhen(time) : '', foot: t.callFoot });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob); a.download = `vote-scope-call-${id}-${lang}.png`; a.click();
+      window.setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+    } catch { /* réseau ou navigateur */ }
+    setBusy(false);
+  };
+  return (
+    <span class="usl-call-share">
+      <button type="button" class="usl-copy" onClick={share} data-analytics-event="share_click" data-analytics-kind="call">{t.callShare}</button>
+      <button type="button" class="usl-copy" onClick={image} disabled={busy} data-analytics-event="share_click" data-analytics-kind="call-image">{busy ? t.imageBusy : t.callImage}</button>
+    </span>
   );
 }
