@@ -1,0 +1,146 @@
+---
+/**
+ * Avant le dépouillement, sur le bureau US : les heures de fermeture et le vote
+ * anticipé déjà publié, rien d'autre. Le bloc s'efface de lui-même dès que le
+ * live.json porte un premier appel ou un premier bulletin compté — pas avant
+ * 18 h HNE, première fermeture. Sans JavaScript, il reste affiché.
+ */
+import earlyVote from '../../web_data/us-senate/early_vote.json';
+import { US_POLL_CLOSINGS, US_FIRST_CLOSE_UTC } from '../data/us-poll-closings';
+import { US_LIVE_API_BASE, US_LIVE_EVENT_ID } from '../data/us-live';
+
+type Lang = 'fr' | 'en' | 'es';
+interface Props { lang: Lang }
+const { lang } = Astro.props as Props;
+
+const ev: any = earlyVote;
+const loc = lang === 'fr' ? 'fr-CA' : lang === 'es' ? 'es-ES' : 'en-US';
+const asOf = new Date(`${ev.meta.as_of}T12:00:00Z`).toLocaleDateString(loc, { day: 'numeric', month: 'long', timeZone: 'UTC' });
+const gap = (n: number) => `${n > 0 ? 'D +' : n < 0 ? 'R +' : ''}${Math.abs(n).toLocaleString(loc, { maximumFractionDigits: 1, minimumFractionDigits: 1 })}`;
+const pc = (n: number) => (lang === 'en' ? `${Math.round(n)}%` : `${Math.round(n)} %`);
+const rows = (ev.states as any[]).map((s) => ({
+  name: s.state_name[lang] ?? s.state_name.en,
+  now: s.headline.dem_minus_rep.us_general_2026,
+  then: s.headline.dem_minus_rep.us_general_2022,
+  ballots: s.headline.ballots_vs_2022_pct,
+}));
+const hhmm = (et: string) => {
+  const [h, m] = et.split(':').map(Number);
+  if (lang === 'en') { const h12 = h % 12 || 12; return `${h12}${m ? `:${String(m).padStart(2, '0')}` : ''} ${h < 12 ? 'a.m.' : 'p.m.'}`; }
+  return lang === 'fr' ? `${h} h${m ? ` ${String(m).padStart(2, '0')}` : ''}` : `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+};
+
+const T = {
+  fr: {
+    kicker: 'Avant le dépouillement',
+    title: 'Les premiers bureaux ferment à 18 h, heure de l’Est.',
+    lede: 'Dans l’est de l’Indiana et du Kentucky d’abord ; la plupart des États suivent entre 19 h et 21 h. Les résultats prendront la place de ce bloc dès les premiers chiffres.',
+    closeTitle: 'Fermeture des bureaux (heure de l’Est)',
+    splitNote: '* L’État ferme en deux temps, selon le fuseau : l’heure est celle de la majorité de ses bureaux.',
+    evTitle: `Vote anticipé, données au ${asOf}`,
+    evLede: 'Écart entre démocrates et républicains inscrits parmi les bulletins déjà déposés, à la même date qu’en 2022. Une inscription n’est pas un vote ; ces chiffres ne changent pas nos probabilités.',
+    colState: 'État', colNow: '2026', colThen: '2022, même date', colBallots: 'Bulletins vs 2022',
+    more: 'Tout le vote anticipé', moreHref: '/fr/us/vote-anticipe/',
+  },
+  en: {
+    kicker: 'Before the count',
+    title: 'The first polls close at 6 p.m. Eastern.',
+    lede: 'Eastern Indiana and Kentucky go first; most states follow between 7 and 9 p.m. Results will replace this block as soon as the first figures come in.',
+    closeTitle: 'Poll closing times (Eastern)',
+    splitNote: '* The state closes in two steps, by time zone: the time shown is when most of its polls close.',
+    evTitle: `Early vote, data as of ${asOf}`,
+    evLede: 'Gap between registered Democrats and Republicans among ballots already cast, at the same date as in 2022. Registration is not a vote; these figures do not change our probabilities.',
+    colState: 'State', colNow: '2026', colThen: '2022, same date', colBallots: 'Ballots vs 2022',
+    more: 'The full early vote', moreHref: '/en/us/early-vote/',
+  },
+  es: {
+    kicker: 'Antes del recuento',
+    title: 'Las primeras urnas cierran a las 18:00, hora del Este.',
+    lede: 'Primero en el este de Indiana y Kentucky; la mayoría de los estados siguen entre las 19:00 y las 21:00. Los resultados ocuparán el lugar de este bloque en cuanto lleguen las primeras cifras.',
+    closeTitle: 'Cierre de las urnas (hora del Este)',
+    splitNote: '* El estado cierra en dos tiempos, según el huso horario: la hora es la de la mayoría de sus urnas.',
+    evTitle: `Voto anticipado, datos al ${asOf}`,
+    evLede: 'Diferencia entre demócratas y republicanos inscritos entre las papeletas ya emitidas, en la misma fecha que en 2022. La inscripción no es un voto; estas cifras no cambian nuestras probabilidades.',
+    colState: 'Estado', colNow: '2026', colThen: '2022, misma fecha', colBallots: 'Papeletas vs 2022',
+    more: 'Todo el voto anticipado', moreHref: '/es/us/voto-anticipado/',
+  },
+}[lang];
+---
+<section class="container us-precount" id="avant-depouillement" aria-labelledby="upc-h"
+  data-live={`${US_LIVE_API_BASE.replace(/\/$/, '')}/api/v1/elections/${US_LIVE_EVENT_ID}/live.json`} data-opens={US_FIRST_CLOSE_UTC}>
+  <p class="upc-kicker">{T.kicker}</p>
+  <h2 id="upc-h" class="upc-h">{T.title}</h2>
+  <p class="upc-lede">{T.lede}</p>
+  <div class="upc-grid">
+    <div>
+      <h3 class="upc-sub">{T.closeTitle}</h3>
+      <ol class="upc-waves">
+        {US_POLL_CLOSINGS.map((w) => (
+          <li><time datetime={w.utc}>{hhmm(w.et)}</time>
+            <span>{w.states.map((s) => (w.split ?? []).includes(s) ? `${s}*` : s).join(' · ')}</span></li>
+        ))}
+      </ol>
+      <p class="upc-note">{T.splitNote}</p>
+    </div>
+    <div>
+      <h3 class="upc-sub">{T.evTitle}</h3>
+      <p class="upc-note">{T.evLede}</p>
+      <div class="table-scroll">
+        <table class="upc-table">
+          <thead><tr><th>{T.colState}</th><th class="num">{T.colNow}</th><th class="num">{T.colThen}</th><th class="num">{T.colBallots}</th></tr></thead>
+          <tbody>
+            {rows.map((r) => (
+              <tr><th scope="row">{r.name}</th><td class="num">{gap(r.now)}</td><td class="num">{gap(r.then)}</td><td class="num">{pc(r.ballots)}</td></tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p><a class="vs-link" href={T.moreHref}>{T.more}</a></p>
+    </div>
+  </div>
+</section>
+
+<script>
+  // Le bloc s'efface au premier appel ou au premier bulletin compté. Avant la
+  // première fermeture, aucune lecture (?direct=1 lève la barrière, pour essai).
+  const el = document.getElementById('avant-depouillement');
+  if (el) {
+    const url = el.dataset.live!;
+    const force = new URLSearchParams(location.search).has('direct');
+    const opens = Date.parse(el.dataset.opens!);
+    const hasResults = (p: any) => {
+      if (!p || p.source?.is_test_page) return false;
+      if ((p.calls ?? []).length) return true;
+      return (p.results ?? []).some((r: any) => (r.ballots_counted ?? 0) > 0
+        || (r.candidates ?? []).some((c: any) => (c.votes ?? 0) > 0));
+    };
+    const check = async () => {
+      try {
+        const r = await fetch(url, { cache: 'no-store' });
+        if (r.ok && hasResults(await r.json())) { el.hidden = true; return; }
+      } catch { /* on réessaie */ }
+      setTimeout(check, 60_000);
+    };
+    const wait = force ? 0 : Math.max(0, opens - Date.now());
+    setTimeout(check, wait);
+  }
+</script>
+
+<style>
+  .us-precount { padding-block: 32px; }
+  .us-precount[hidden] { display: none; }
+  .upc-kicker { margin: 0 0 4px; font-family: var(--font-mono, monospace); font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-3); }
+  .upc-h { margin: 0 0 8px; font-size: clamp(24px, 3vw, 30px); font-weight: 700; border-top: 4px solid var(--ink); padding-top: 10px; }
+  .upc-lede { margin: 0 0 20px; font-size: 17px; max-width: 62ch; }
+  .upc-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr); gap: 32px; }
+  @media (max-width: 760px) { .upc-grid { grid-template-columns: minmax(0, 1fr); gap: 24px; } }
+  .upc-sub { margin: 0 0 8px; font-size: 18px; font-weight: 700; }
+  .upc-waves { list-style: none; margin: 0; padding: 0; }
+  .upc-waves li { display: grid; grid-template-columns: 5.5em 1fr; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--rule); font-size: 15px; }
+  .upc-waves time { font-weight: 700; font-variant-numeric: tabular-nums; }
+  .upc-note { margin: 8px 0; font-size: 14px; color: var(--ink-3); }
+  .upc-table { width: 100%; border-collapse: collapse; font-size: 15px; }
+  .upc-table th, .upc-table td { padding: 6px 10px 6px 0; border-bottom: 1px solid var(--rule); text-align: left; }
+  .upc-table thead th { font-size: 13px; font-weight: 600; color: var(--ink-3); }
+  .upc-table .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+</style>

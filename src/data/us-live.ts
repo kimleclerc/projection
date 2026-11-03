@@ -126,11 +126,11 @@ export function usShareMeta(chamber: Chamber, locale: Locale): { title: string; 
   const T = {
     house: {
       fr: { title: 'Chambre des représentants : résultats du 3 novembre 2026, district par district — Vote-Scope',
-        description: `Les 435 districts au fil du dépouillement, à partir de 19 h (heure de l’Est) le 3 novembre. Notre projection du ${day} : démocrates ${d} sièges, républicains ${r} ; il en faut ${maj} pour la majorité.` },
+        description: `Les 435 districts au fil du dépouillement, à partir de 18 h (heure de l’Est) le 3 novembre. Notre projection du ${day} : démocrates ${d} sièges, républicains ${r} ; il en faut ${maj} pour la majorité.` },
       en: { title: 'U.S. House: November 3, 2026 results, district by district — Vote-Scope',
-        description: `All 435 districts as the count comes in, from 7 p.m. Eastern on November 3. Our ${day} forecast: Democrats ${d} seats, Republicans ${r}; ${maj} make a majority.` },
+        description: `All 435 districts as the count comes in, from 6 p.m. Eastern on November 3. Our ${day} forecast: Democrats ${d} seats, Republicans ${r}; ${maj} make a majority.` },
       es: { title: 'Cámara de Representantes: resultados del 3 de noviembre de 2026, distrito por distrito — Vote-Scope',
-        description: `Los 435 distritos a medida que avanza el recuento, desde las 19:00 (hora del Este) del 3 de noviembre. Nuestra proyección del ${day}: demócratas ${d} escaños, republicanos ${r}; la mayoría es ${maj}.` },
+        description: `Los 435 distritos a medida que avanza el recuento, desde las 18:00 (hora del Este) del 3 de noviembre. Nuestra proyección del ${day}: demócratas ${d} escaños, republicanos ${r}; la mayoría es ${maj}.` },
     },
     senate: {
       fr: { title: 'Sénat américain : résultats du 3 novembre 2026, État par État — Vote-Scope',
@@ -156,7 +156,8 @@ export function usShareMeta(chamber: Chamber, locale: Locale): { title: string; 
  * Données structurées de la soirée (schema.org) : une couverture en direct
  * (`LiveBlogPosting`) de l'élection du 3 novembre, posée sur chaque fiche à côté
  * du jeu de données de la projection. Les heures sont celles du direct : premières
- * fermetures à 19 h HNE (00 h UTC le 4), couverture ouverte jusqu'au 5 au matin.
+ * fermetures à 18 h HNE (23 h UTC, est de l'Indiana et du Kentucky), couverture
+ * ouverte jusqu'au 5 au matin.
  * Rien n'y est inventé : titre et description sont ceux de la page.
  */
 export function usLiveJsonLd(chamber: Chamber, locale: Locale) {
@@ -176,7 +177,7 @@ export function usLiveJsonLd(chamber: Chamber, locale: Locale) {
     mainEntityOfPage: url,
     inLanguage: locale,
     datePublished: '2026-11-02T12:00:00Z',
-    coverageStartTime: '2026-11-04T00:00:00Z',
+    coverageStartTime: '2026-11-03T23:00:00Z',
     coverageEndTime: '2026-11-05T12:00:00Z',
     author: { '@type': 'Person', name: 'Kim Leclerc', url: 'https://kimleclerc.ca' },
     publisher: { '@type': 'Organization', name: 'Vote-Scope', url: 'https://vote-scope.com' },
@@ -191,4 +192,62 @@ export function usLiveJsonLd(chamber: Chamber, locale: Locale) {
       location: { '@type': 'Country', name: { fr: 'États-Unis', en: 'United States', es: 'Estados Unidos' }[locale] },
     },
   };
+}
+
+/**
+ * Nos trois chiffres de la soirée — Chambre, Sénat, gouverneurs — pour le bloc
+ * de partage du bureau US et sa carte sociale (/og/us-midterms/…). Lus dans la
+ * projection finale publiée (web_data), jamais recalculés : Chambre en médiane
+ * des simulations, comme la tuile du bureau et usShareMeta.
+ */
+export function usTrio(locale: Locale) {
+  type P = { party: string; seats_median?: number; p_majority?: number };
+  const dem = (desk: Desk) => (desk as Desk & { parties: P[] }).parties.find((p) => p.party === 'us_dem')!;
+  const pc = (p: number) => {
+    const n = Math.round(p * 100);
+    return locale === 'en' ? `${n}%` : `${n} %`;
+  };
+  const nf = (n: number) => n.toLocaleString(locale === 'en' ? 'en-US' : locale === 'es' ? 'es-ES' : 'fr-CA');
+  const h = dem(SOURCES.house), s = dem(SOURCES.senate), g = dem(SOURCES.governor);
+  const houseD = Math.round(h.seats_median!);
+  const houseR = (SOURCES.house.meta.total_seats ?? 435) - houseD;
+  const govD = Math.round(g.seats_median!);
+  const meta = SOURCES.house.meta as Desk['meta'] & { run_date: string; n_simulations?: number };
+  const sims = nf(meta.n_simulations ?? 0);
+  const v = { house: pc(h.p_majority!), senate: pc(s.p_majority!), governor: pc(g.p_majority!), houseD, houseR, govD,
+    houseMaj: SOURCES.house.meta.majority_threshold ?? 218, govMaj: SOURCES.governor.meta.majority_threshold ?? 26, sims, runDate: meta.run_date };
+  const path = { fr: '/fr/us/', en: '/en/us/', es: '/es/us/' }[locale];
+  const T = {
+    fr: {
+      title: 'Mi-mandat 2026 : nos trois chiffres',
+      rows: [
+        { label: 'Chambre', value: v.house, line: `Démocrates favoris · médiane de ${houseD} sièges contre ${houseR}` },
+        { label: 'Sénat', value: v.senate, line: 'Démocrates favoris pour la majorité' },
+        { label: 'Gouverneurs', value: v.governor, line: `Démocrates à ${v.govMaj} postes ou plus · médiane de ${govD} sur 50` },
+      ],
+      text: `Notre projection finale des mi-mandats américains (${sims} simulations) : Chambre, démocrates favoris à ${v.house} (médiane de ${houseD} sièges contre ${houseR}) ; Sénat, démocrates favoris à ${v.senate} ; gouverneurs, ${v.governor} de chances que les démocrates détiennent au moins ${v.govMaj} des 50 postes. Résultats ce soir dès 18 h, heure de l’Est.`,
+      foot: `Projection finale du 3 novembre 2026 · ${sims} simulations`,
+    },
+    en: {
+      title: '2026 midterms: our three numbers',
+      rows: [
+        { label: 'House', value: v.house, line: `Democrats favoured · median ${houseD} seats to ${houseR}` },
+        { label: 'Senate', value: v.senate, line: 'Democrats favoured for the majority' },
+        { label: 'Governors', value: v.governor, line: `Democrats at ${v.govMaj}+ governorships · median ${govD} of 50` },
+      ],
+      text: `Our final forecast for the U.S. midterms (${sims} simulations): House, Democrats favoured at ${v.house} (median ${houseD} seats to ${houseR}); Senate, Democrats favoured at ${v.senate}; governors, a ${v.governor} chance Democrats hold at least ${v.govMaj} of 50 governorships. Results tonight from 6 p.m. Eastern.`,
+      foot: `Final forecast, November 3, 2026 · ${sims} simulations`,
+    },
+    es: {
+      title: 'Intermedias 2026: nuestras tres cifras',
+      rows: [
+        { label: 'Cámara', value: v.house, line: `Demócratas favoritos · mediana de ${houseD} escaños frente a ${houseR}` },
+        { label: 'Senado', value: v.senate, line: 'Demócratas favoritos para la mayoría' },
+        { label: 'Gobernadores', value: v.governor, line: `Demócratas con ${v.govMaj} gobernaciones o más · mediana de ${govD} de 50` },
+      ],
+      text: `Nuestra proyección final de las intermedias de EE. UU. (${sims} simulaciones): Cámara, demócratas favoritos con un ${v.house} (mediana de ${houseD} escaños frente a ${houseR}); Senado, demócratas favoritos con un ${v.senate}; gobernadores, un ${v.governor} de probabilidad de que los demócratas tengan al menos ${v.govMaj} de las 50 gobernaciones. Resultados esta noche desde las 18:00, hora del Este.`,
+      foot: `Proyección final del 3 de noviembre de 2026 · ${sims} simulaciones`,
+    },
+  }[locale];
+  return { ...T, url: `https://vote-scope.com${path}`, image: `/og/us-midterms/${locale}.png`, runDate: v.runDate };
 }

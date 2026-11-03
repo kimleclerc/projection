@@ -42,11 +42,12 @@ const BASE_INTERVAL_MS = 90_000;
 const STALE_AFTER_MS = 5 * 60_000;
 const FALLBACK_AFTER_MS = 3 * 60_000;
 const FALLBACK_MAX_USES = 3;
-// Premières fermetures : 19 h HNE (00 h UTC le 4). Aucune lecture avant 18 h 30 :
+// Premières fermetures : 18 h HNE (23 h UTC), dans l'est de l'Indiana et du
+// Kentucky ; 19 h pour le gros de la côte Est. Aucune lecture avant 17 h 30 :
 // les pages sont en ligne depuis des mois. Un identifiant d'événement surchargé
 // (répétition) ou `?direct=1` lève la barrière.
 const DEFAULT_EVENT_ID = 'us-2026-11-03';
-const OPENS_AT = Date.parse('2026-11-03T18:30:00-05:00');
+const OPENS_AT = Date.parse('2026-11-03T17:30:00-05:00');
 const EARLY_UNTIL = Date.parse('2026-11-03T19:30:00-05:00');
 const PAGE = 30;
 // Bornes de la jauge de vague, en points d'écart démocrates moins républicains.
@@ -68,8 +69,8 @@ const copy = {
     unavailable: 'Les résultats ne se chargent pas en ce moment. La page réessaie d’elle-même.',
     lastKnown: 'Derniers chiffres reçus', updated: 'Chiffres des États à', eastern: 'heure de l’Est',
     stale: (m: number) => `Aucun chiffre officiel nouveau depuis ${m} min.`,
-    before: 'Les premiers bureaux de vote ferment le mardi 3 novembre à 19 h, heure de l’Est (19 h aussi à Montréal). Les résultats s’afficheront ici d’eux-mêmes, sans recharger la page.',
-    soon: 'Les premiers bureaux ferment à 19 h, heure de l’Est. Les premiers chiffres des États s’afficheront ici dans les minutes qui suivent.',
+    before: 'Les premiers bureaux de vote ferment le mardi 3 novembre à 18 h, heure de l’Est (18 h aussi à Montréal), dans l’est de l’Indiana et du Kentucky ; la plupart des États suivent à partir de 19 h. Les résultats s’afficheront ici d’eux-mêmes, sans recharger la page.',
+    soon: 'Les premiers bureaux ferment à 18 h, heure de l’Est, dans l’est de l’Indiana et du Kentucky. Les premiers chiffres des États s’afficheront ici dans les minutes qui suivent.',
     testPage: 'Une source se présente encore comme une page d’essai : ces chiffres ne sont pas des résultats.',
     subj: { us_dem: 'Les démocrates', us_rep: 'Les républicains', us_oth: 'Les autres partis' } as Record<string, string>,
     short: { us_dem: 'démocrates', us_rep: 'républicains', us_oth: 'autres' } as Record<string, string>,
@@ -146,8 +147,8 @@ const copy = {
     unavailable: 'Results are not loading right now. The page will try again on its own.',
     lastKnown: 'Last figures received', updated: 'State figures as of', eastern: 'ET',
     stale: (m: number) => `No new official figures for ${m} min.`,
-    before: 'The first polls close on Tuesday, November 3 at 7 p.m. Eastern. Results will appear here on their own, no need to reload the page.',
-    soon: 'The first polls close at 7 p.m. Eastern. The first state figures will appear here within minutes.',
+    before: 'The first polls close on Tuesday, November 3 at 6 p.m. Eastern, in eastern Indiana and Kentucky; most states follow from 7 p.m. Results will appear here on their own, no need to reload the page.',
+    soon: 'The first polls close at 6 p.m. Eastern, in eastern Indiana and Kentucky. The first state figures will appear here within minutes.',
     testPage: 'A source still labels itself as a test page: these numbers are not results.',
     subj: { us_dem: 'Democrats', us_rep: 'Republicans', us_oth: 'Other parties' } as Record<string, string>,
     short: { us_dem: 'Democrats', us_rep: 'Republicans', us_oth: 'others' } as Record<string, string>,
@@ -223,8 +224,8 @@ const copy = {
     unavailable: 'Los resultados no se cargan en este momento. La página vuelve a intentarlo sola.',
     lastKnown: 'Últimas cifras recibidas', updated: 'Cifras de los estados a las', eastern: 'hora del Este',
     stale: (m: number) => `Sin cifras oficiales nuevas desde hace ${m} min.`,
-    before: 'Las primeras urnas cierran el martes 3 de noviembre a las 19:00, hora del Este. Los resultados aparecerán aquí solos, sin recargar la página.',
-    soon: 'Las primeras urnas cierran a las 19:00, hora del Este. Las primeras cifras de los estados aparecerán aquí en los minutos siguientes.',
+    before: 'Las primeras urnas cierran el martes 3 de noviembre a las 18:00, hora del Este, en el este de Indiana y Kentucky; la mayoría de los estados siguen desde las 19:00. Los resultados aparecerán aquí solos, sin recargar la página.',
+    soon: 'Las primeras urnas cierran a las 18:00, hora del Este, en el este de Indiana y Kentucky. Las primeras cifras de los estados aparecerán aquí en los minutos siguientes.',
     testPage: 'Una fuente aún figura como página de prueba: estas cifras no son resultados.',
     subj: { us_dem: 'Los demócratas', us_rep: 'Los republicanos', us_oth: 'Los demás partidos' } as Record<string, string>,
     short: { us_dem: 'demócratas', us_rep: 'republicanos', us_oth: 'otros' } as Record<string, string>,

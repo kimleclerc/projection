@@ -151,9 +151,9 @@ export const DESKS: DeskGroup[] = [
         id: 'us-lame-duck',
         label: l10n('Lame-Duck Index', 'Indice Canard boiteux', 'Índice Pato Cojo'),
         blurb: l10n(
-          'How much presidential weight is left before the midterms.',
-          'Ce qu’il reste de poids au président avant les élections de mi-mandat.',
-          'Cuánto peso le queda al presidente antes de las intermedias.',
+          'How much political weight the president has left, on a 100-point scale.',
+          'Le poids politique qu’il reste au président, mesuré sur 100.',
+          'El peso político que le queda al presidente, medido sobre 100.',
         ),
         href: samePath('/us/indexes/lame-duck/'),
       },

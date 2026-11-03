@@ -844,3 +844,30 @@ export function slateCard(fmt: Format, lang: Lang, d: SlateCardInput): Node {
     head, ...rows);
   return frame(fmt, lang, d.title, longDate(d.voteDay, lang), body, d.foot);
 }
+
+// ------------------------------------------------------------------ mi-mandat : trois chiffres
+
+export interface TrioCardInput {
+  title: string;      // « Mi-mandat 2026 : nos trois chiffres »
+  rows: { label: string; value: string; line: string }[];
+  voteDay: string;    // ISO
+  foot: string;       // « Projection finale du 3 novembre 2026 · 200 000 simulations »
+  color: string;      // couleur du parti favori
+}
+
+/** Une ligne par chambre : nom, probabilité en très grand, phrase d'appui. Fabriquée au build. */
+export function trioCard(fmt: Format, lang: Lang, d: TrioCardInput): Node {
+  const big = fmt !== 'wide';
+  const story = fmt === 'story';
+  const labelF = story ? 50 : big ? 40 : 30;
+  const lineF = story ? 30 : big ? 24 : 19;
+  const valF = story ? 150 : big ? 110 : 84;
+  // L'espace insécable manque à Barlow Condensed : espace simple dans les chiffres.
+  const rows = d.rows.map((r) => h('div', { alignItems: 'center', justifyContent: 'space-between', borderBottom: `1px solid ${RULE}`, padding: story ? '40px 0' : big ? '22px 0' : '8px 0' },
+    h('div', { flexDirection: 'column', flexShrink: 1, paddingRight: 16 },
+      h('div', { fontSize: labelF, fontWeight: 700, lineHeight: 1.05 }, r.label),
+      h('div', { fontSize: lineF, fontWeight: 500, color: INK_3, marginTop: 4 }, r.line)),
+    h('div', { fontFamily: 'Barlow Condensed', fontWeight: 700, fontSize: valF, lineHeight: 1, color: d.color, flexShrink: 0 }, r.value.replace(/ /g, ' '))));
+  const body = h('div', { flexDirection: 'column', flexGrow: 1, justifyContent: big ? 'center' : 'flex-start' }, ...rows);
+  return frame(fmt, lang, d.title, longDate(d.voteDay, lang), body, d.foot);
+}

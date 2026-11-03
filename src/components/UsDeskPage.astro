@@ -22,6 +22,9 @@ import MethodologyNote from './MethodologyNote.astro';
 import PolymarketEmbed from './PolymarketEmbed.astro';
 import AffiliateCard from './AffiliateCard.astro';
 import DeskSections from './DeskSections.astro';
+import UsTrioShare from '../islands/UsTrioShare.tsx';
+import UsPreCount from './UsPreCount.astro';
+import { usTrio } from '../data/us-live';
 import { specialElections, type SpecialElectionConfig } from '../data/specialElections';
 
 import ldiData from '../../web_data/us-lame-duck/latest.json';
@@ -31,7 +34,6 @@ import governorData from '../../web_data/us-governor/latest.json';
 import showdownData from '../../web_data/cusma-showdown/latest.json';
 import presData from '../../web_data/us-president/latest.json';
 import primaryDesk from '../../web_data/us-primaries/latest.json';
-import earlyVote from '../../web_data/us-senate/early_vote.json';
 
 type Lang = 'en' | 'fr' | 'es';
 interface Props { lang: Lang; }
@@ -56,11 +58,6 @@ const govRep = pick(govParties, 'us_rep');
 const govOpenSeats = (governorData.ridings as Array<{ open_seat?: boolean }>).filter((r) => r.open_seat).length;
 
 const primaryMeta = (primaryDesk as any).meta;
-const nextPrimary = (primaryDesk as any).upcoming?.[0];
-const nextPrimaryStates = [...new Set(((primaryDesk as any).upcoming ?? [])
-  .filter((g: any) => g.primary_date === nextPrimary?.primary_date)
-  .map((g: any) => g.state_name[lang]))].join(' · ');
-
 const presRep = (presData as any).primary.rep;
 const presDem = (presData as any).primary.dem;
 const presRepLead = presRep.standings.find((s: any) => s.status !== 'ineligible') ?? presRep.standings[0];
@@ -98,47 +95,23 @@ const pSenate = Math.round((senateDem?.p_majority ?? 0) * 100);
 const COPY = {
   en: {
     title: 'Trump\u2019s 2026 Midterms — House, Senate and Governor Forecast — Vote-Scope',
-    description: 'House control, Senate fragility, special elections, and the Lame-Duck Index in one place. Live projections updated as polls arrive — Vote-Scope.',
+    description: 'House control, Senate fragility, special elections, and the Lame-Duck Index in one place. Our final projection, and the results as the count comes in on November 3 — Vote-Scope.',
     breadcrumb: 'U.S.',
-    heroEyebrow: 'United States Desk',
     heroTitle: `Democrats are favoured for the House at ${pHouse}%, and for the Senate at ${pSenate}%.`,
-    heroPromise: "House, Senate and governors, all decided on November 3, 2026, projected from public polls.",
-    heroQuestion: 'Who will control Congress after the 2026 midterm elections?',
-    heroPrimary: 'Senate forecast', heroSecondary: 'House forecast',
-    midtermEyebrow: 'Midterms · November 3, 2026',
-    midtermTitle: 'Three chambers on one ballot.',
-    midtermLede: 'The House, a third of the Senate and 36 governorships are decided the same night. Everything else on this page feeds these three numbers.',
-    daysLabel: 'days to go', dayLabel: 'day to go', todayLabel: 'Election day',
-    house: 'House 2026', senate: 'Senate 2026', governors: 'Governors 2026',
-    houseCta: 'House projection', senateCta: 'Senate projection', govCta: 'Governor projection',
-    majorityD: 'Chance of a D majority', seatsOf: 'of',
+    heroPromise: "House, Senate and governors, all decided tonight, November 3, 2026: our final projection from public polls, before the first results.",
     govRaces: (n: number) => `36 races on the ballot · ${n} open seats.`,
-    roadEyebrow: 'On the road to November',
-    roadTitle: 'The races still filling in the map.',
-    primaries: 'Primaries 2026', primariesNext: 'Next:', primariesCta: 'Primary tracker',
+    primaries: 'Primaries 2026',
     primariesCount: (decided: number, awaiting: number) => `${decided} nominations settled · ${awaiting} races still awaiting official results.`,
-    liveSpecials: 'Special elections under way', noLiveSpecials: 'No special election is currently pending.',
-    indexEyebrow: 'Vote-Scope indexes',
-    indexTitle: 'Our own instruments.',
-    ldiCta: 'Full index', delta7: 'Change over 7 days',
     radar: 'U.S. Latino Radar',
     radarBody: 'The House and Senate races where Latino electoral weight, competitiveness, and control of Congress intersect — ranked on a 100-point scale.',
-    radarCta: 'Open the radar', radarHref: '/en/us/latino-radar/',
-    cusma: 'CUSMA Showdown', cusmaGap: 'Leverage gap', cusmaCta: 'Goose vs Lame-Duck',
-    beyondEyebrow: 'Beyond 2026',
-    pres: 'Presidential 2028 · The invisible primary',
-    presBody: 'Primary fields plus the electoral-college map.', presCta: 'Presidential desk',
+    radarHref: '/en/us/latino-radar/',
     archiveEyebrow: 'Archive',
-    archiveTitle: 'Special elections already decided',
-    archiveHint: 'Kept for the record — these races are over.',
+    archiveTitle: 'Before November 3',
+    archiveHint: 'Kept for the record: the primaries and special elections that led up to the midterms.',
+    archivePast: 'Special elections already decided',
     marketEyebrow: 'Prediction markets',
-    marketTitle: 'What the markets say alongside the model',
     marketBalance: 'U.S. Midterms 2026 — balance of power',
     marketPres: 'U.S. Presidential 2028',
-    mcKicker: 'Model vs Market', mcTitle: 'Where the model and the market disagree.',
-    mcBody: 'Control odds, race-level confidence, and the moments traders panic — set right next to our projection, so the gaps are easy to spot.',
-    mcModel: 'Vote-Scope model', mcMarket: 'Polymarket / odds',
-    mcNote: 'Polymarket benchmarks, refreshed daily next to every projection.',
     methodTitle: "How the U.S. forecasts are built",
     methodBody: "Each forecast starts from public polls, corrected for each pollster’s usual lean, then simulates the election district by district and state by state.",
     projTitle: "The forecasts",
@@ -146,7 +119,6 @@ const COPY = {
     colD: "Democrats",
     colR: "Republicans",
     colChance: "Chance of a Democratic majority",
-    untilTitle: "Before November 3",
     indexTitle2: "The indexes",
     presTitle: "Beyond 2026",
     updated: "Updated",
@@ -161,51 +133,27 @@ const COPY = {
     houseHref: '/en/us/house/', senateHref: '/en/us/senate/', govHref: '/en/us/governors/',
     primariesHref: '/en/us/primaries/', presHref: '/en/us/president/',
     ldiHref: '/en/us/indexes/lame-duck/', cusmaHref: '/en/indexes/cusma-showdown/',
-    indexesHref: '/en/indexes/', homeHref: 'https://vote-scope.com/en/',
+    homeHref: 'https://vote-scope.com/en/',
   },
   fr: {
     title: 'Les mi-mandats de Trump 2026 — Chambre, Sénat, gouverneurs — Vote-Scope',
-    description: "Contrôle de la Chambre, fragilité du Sénat, partielles et indice Canard boiteux réunis. Projections en direct mises à jour à chaque nouveau sondage — Vote-Scope.",
+    description: "Contrôle de la Chambre, fragilité du Sénat, partielles et indice Canard boiteux réunis. Notre projection finale, puis les résultats au fil du dépouillement le 3 novembre — Vote-Scope.",
     breadcrumb: 'États-Unis',
-    heroEyebrow: 'États-Unis',
     heroTitle: `Les démocrates sont favoris pour la Chambre à ${pHouse} %, et pour le Sénat à ${pSenate} %.`,
-    heroPromise: "Chambre, Sénat et gouverneurs, tous décidés le 3 novembre 2026, projetés à partir des sondages publics.",
-    heroQuestion: 'Qui contrôlera le Congrès après les élections de mi-mandat 2026?',
-    heroPrimary: 'Projection du Sénat', heroSecondary: 'Projection de la Chambre',
-    midtermEyebrow: 'Mi-mandat · 3 novembre 2026',
-    midtermTitle: 'Trois chambres sur un même bulletin.',
-    midtermLede: "La Chambre, un tiers du Sénat et 36 postes de gouverneur se tranchent le même soir. Tout le reste de cette page alimente ces trois chiffres.",
-    daysLabel: 'jours avant le vote', dayLabel: 'jour avant le vote', todayLabel: 'Jour du scrutin',
-    house: 'Chambre 2026', senate: 'Sénat 2026', governors: 'Gouverneurs 2026',
-    houseCta: 'Projection Chambre', senateCta: 'Projection Sénat', govCta: 'Projection des gouverneurs',
-    majorityD: 'Probabilité de majorité D', seatsOf: 'sur',
+    heroPromise: "Chambre, Sénat et gouverneurs, tous décidés ce soir, 3 novembre 2026 : notre projection finale, tirée des sondages publics, avant les premiers résultats.",
     govRaces: (n: number) => `36 courses au bulletin · ${n} sièges ouverts.`,
-    roadEyebrow: 'En route vers novembre',
-    roadTitle: 'Les courses qui remplissent encore la carte.',
-    primaries: 'Primaires 2026', primariesNext: 'Prochaine :', primariesCta: 'Suivi des primaires',
+    primaries: 'Primaires 2026',
     primariesCount: (decided: number, awaiting: number) => `${decided} investitures tranchées · ${awaiting} courses encore sans résultat officiel.`,
-    liveSpecials: 'Partielles en cours', noLiveSpecials: "Aucune partielle n'est en attente en ce moment.",
-    indexEyebrow: 'Indices Vote-Scope',
-    indexTitle: 'Nos propres indices.',
-    ldiCta: 'Index complet', delta7: 'Variation sur 7 jours',
     radar: 'Radar Latino USA',
     radarBody: "Les courses Chambre et Sénat où l’électorat latino, la compétitivité et le contrôle du Congrès se rencontrent — classées sur 100.",
-    radarCta: 'Ouvrir le radar', radarHref: '/fr/us/radar-latino/',
-    cusma: 'Duel ACEUM', cusmaGap: 'Écart de levier', cusmaCta: 'Bernache vs Canard boiteux',
-    beyondEyebrow: 'Au-delà de 2026',
-    pres: 'Présidentielle 2028 · La primaire invisible',
-    presBody: 'Champs de primaire + carte du collège électoral.', presCta: 'Présidentielle 2028',
+    radarHref: '/fr/us/radar-latino/',
     archiveEyebrow: 'Archives',
-    archiveTitle: 'Partielles déjà tranchées',
-    archiveHint: 'Conservées pour mémoire — ces courses sont finies.',
+    archiveTitle: 'Avant le 3 novembre',
+    archiveHint: 'Conservées pour mémoire : les primaires et les partielles qui ont précédé le mi-mandat.',
+    archivePast: 'Partielles déjà tranchées',
     marketEyebrow: 'Marchés de prédiction',
-    marketTitle: 'Ce que les marchés disent en parallèle du modèle',
     marketBalance: 'Mi-mandat américain 2026 — équilibre des pouvoirs',
     marketPres: 'Présidentielle américaine 2028',
-    mcKicker: 'Modèle vs marché', mcTitle: 'Là où le modèle et le marché divergent.',
-    mcBody: "Contrôle des chambres, confiance par course et les moments où les traders paniquent — placés juste à côté de notre projection, pour que les écarts sautent aux yeux.",
-    mcModel: 'Modèle', mcMarket: 'Marché',
-    mcNote: 'Repères Polymarket, actualisés chaque jour à côté de chaque projection.',
     methodTitle: "Comment nous faisons les projections américaines",
     methodBody: "Chaque projection part des sondages publics, corrigés des écarts habituels de chaque institut, puis simule l’élection district par district et État par État.",
     projTitle: "Les projections",
@@ -213,7 +161,6 @@ const COPY = {
     colD: "Démocrates",
     colR: "Républicains",
     colChance: "Chances de majorité démocrate",
-    untilTitle: "D’ici le 3 novembre",
     indexTitle2: "Les indices",
     presTitle: "Après 2026",
     updated: "Mis à jour",
@@ -228,51 +175,27 @@ const COPY = {
     houseHref: '/fr/us/chambre/', senateHref: '/fr/us/senat/', govHref: '/fr/us/gouverneurs/',
     primariesHref: '/fr/us/primaires/', presHref: '/fr/us/presidentielle/',
     ldiHref: '/fr/us/indexes/lame-duck/', cusmaHref: '/fr/indexes/cusma-showdown/',
-    indexesHref: '/fr/indexes/', homeHref: 'https://vote-scope.com/fr/',
+    homeHref: 'https://vote-scope.com/fr/',
   },
   es: {
     title: 'Las intermedias de Trump 2026 — Cámara, Senado, gobernadores — Vote-Scope',
-    description: 'Control de la Cámara, fragilidad del Senado, elecciones especiales y el índice Pato Cojo en un solo lugar. Proyecciones en vivo actualizadas con cada encuesta — Vote-Scope.',
+    description: 'Control de la Cámara, fragilidad del Senado, elecciones especiales y el índice Pato Cojo en un solo lugar. Nuestra proyección final y los resultados a medida que avanza el recuento el 3 de noviembre — Vote-Scope.',
     breadcrumb: 'EE. UU.',
-    heroEyebrow: 'Estados Unidos',
     heroTitle: `Los demócratas son favoritos para la Cámara con un ${pHouse} % y para el Senado con un ${pSenate} %.`,
-    heroPromise: "Cámara, Senado y gobernadores, todos decididos el 3 de noviembre de 2026, proyectados a partir de encuestas públicas.",
-    heroQuestion: '¿Quién controlará el Congreso tras las elecciones intermedias de 2026?',
-    heroPrimary: 'Pronóstico del Senado', heroSecondary: 'Pronóstico de la Cámara',
-    midtermEyebrow: 'Intermedias · 3 de noviembre de 2026',
-    midtermTitle: 'Tres cámaras en una misma papeleta.',
-    midtermLede: 'La Cámara, un tercio del Senado y 36 gobernaciones se deciden la misma noche. Todo lo demás en esta página alimenta esas tres cifras.',
-    daysLabel: 'días para la elección', dayLabel: 'día para la elección', todayLabel: 'Día de la elección',
-    house: 'Cámara 2026', senate: 'Senado 2026', governors: 'Gobernadores 2026',
-    houseCta: 'Proyección Cámara', senateCta: 'Proyección Senado', govCta: 'Proyección de gobernadores',
-    majorityD: 'Probabilidad de mayoría D', seatsOf: 'de',
+    heroPromise: "Cámara, Senado y gobernadores, todos decididos esta noche, 3 de noviembre de 2026: nuestra proyección final, a partir de encuestas públicas, antes de los primeros resultados.",
     govRaces: (n: number) => `36 contiendas en la papeleta · ${n} puestos abiertos.`,
-    roadEyebrow: 'Camino a noviembre',
-    roadTitle: 'Las contiendas que todavía completan el mapa.',
-    primaries: 'Primarias 2026', primariesNext: 'Próxima:', primariesCta: 'Seguimiento de primarias',
+    primaries: 'Primarias 2026',
     primariesCount: (decided: number, awaiting: number) => `${decided} nominaciones decididas · ${awaiting} contiendas aún sin resultado oficial.`,
-    liveSpecials: 'Elecciones especiales en curso', noLiveSpecials: 'Ninguna elección especial está pendiente en este momento.',
-    indexEyebrow: 'Índices Vote-Scope',
-    indexTitle: 'Nuestros propios instrumentos.',
-    ldiCta: 'Índice completo', delta7: 'Variación en 7 días',
     radar: 'Radar Latino USA',
     radarBody: 'Las contiendas de Cámara y Senado donde coinciden el peso electoral latino, la competitividad y el control del Congreso — clasificadas sobre 100.',
-    radarCta: 'Abrir el radar', radarHref: '/es/us/radar-latino/',
-    cusma: 'Duelo T-MEC', cusmaGap: 'Brecha de ventaja', cusmaCta: 'Ganso vs Pato cojo',
-    beyondEyebrow: 'Más allá de 2026',
-    pres: 'Presidencial 2028 · La primaria invisible',
-    presBody: 'Campos de primarias + mapa del colegio electoral.', presCta: 'Presidenciales 2028',
+    radarHref: '/es/us/radar-latino/',
     archiveEyebrow: 'Archivo',
-    archiveTitle: 'Especiales ya decididas',
-    archiveHint: 'Conservadas como registro — estas contiendas terminaron.',
+    archiveTitle: 'Antes del 3 de noviembre',
+    archiveHint: 'Conservadas como registro: las primarias y elecciones especiales previas a las intermedias.',
+    archivePast: 'Especiales ya decididas',
     marketEyebrow: 'Mercados de predicción',
-    marketTitle: 'Lo que dicen los mercados junto al modelo',
     marketBalance: 'Elecciones intermedias 2026 — equilibrio de poder',
     marketPres: 'Elección presidencial 2028',
-    mcKicker: 'Modelo vs. mercado', mcTitle: 'Dónde difieren el modelo y el mercado.',
-    mcBody: 'Probabilidades de control, confianza por carrera y los momentos en que los traders entran en pánico — junto a nuestra proyección, para que las brechas se vean de inmediato.',
-    mcModel: 'Modelo Vote-Scope', mcMarket: 'Polymarket / cuotas',
-    mcNote: 'Referencias de Polymarket, actualizadas a diario junto a cada proyección.',
     methodTitle: "Cómo hacemos las proyecciones de EE. UU.",
     methodBody: "Cada proyección parte de encuestas públicas, corregidas según el sesgo habitual de cada encuestadora, y simula la elección distrito por distrito y estado por estado.",
     projTitle: "Las proyecciones",
@@ -280,7 +203,6 @@ const COPY = {
     colD: "Demócratas",
     colR: "Republicanos",
     colChance: "Probabilidad de mayoría demócrata",
-    untilTitle: "Hasta el 3 de noviembre",
     indexTitle2: "Los índices",
     presTitle: "Después de 2026",
     updated: "Actualizado",
@@ -295,11 +217,12 @@ const COPY = {
     houseHref: '/es/us/house/', senateHref: '/es/us/senate/', govHref: '/es/us/gobernadores/',
     primariesHref: '/es/us/primarias/', presHref: '/es/us/presidencial/',
     ldiHref: '/es/us/indexes/lame-duck/', cusmaHref: '/es/indexes/cusma-showdown/',
-    indexesHref: '/es/indexes/', homeHref: 'https://vote-scope.com/es/',
+    homeHref: 'https://vote-scope.com/es/',
   },
 } as const;
 
 const t = COPY[lang];
+const trio = usTrio(lang);
 const canonical = `https://vote-scope.com/${lang}/us/`;
 const ldiLabel = partyName(ldi, lang);
 const showdownLabel = lang === 'fr' ? showdownData.showdown.label_fr
@@ -324,28 +247,20 @@ const chambers = [
   { label: lang === 'fr' ? 'Sénat' : lang === 'es' ? 'Senado' : 'Senate', href: t.senateHref,
     d: senateDem.seats_projected ?? Math.round(senateDem.seats_mean!), r: senateRep.seats_projected ?? Math.round(senateRep.seats_mean!), chance: pctTxt(senateDem.p_majority), note: seatNote(100, senateOth) },
   { label: lang === 'fr' ? 'Gouverneurs' : lang === 'es' ? 'Gobernadores' : 'Governors', href: t.govHref,
-    d: govDem.seats_projected ?? Math.round(govDem.seats_mean!), r: govRep.seats_projected ?? Math.round(govRep.seats_mean!), chance: '—', note: `${lang === 'fr' ? 'Les 50 États' : lang === 'es' ? 'Los 50 estados' : 'All 50 states'}${lang === 'fr' ? ' ; ' : '; '}${t.govRaces(govOpenSeats).replace(' · ', ', ').replace(/^./, (c) => c.toLowerCase())}` },
+    d: govDem.seats_projected ?? Math.round(govDem.seats_mean!), r: govRep.seats_projected ?? Math.round(govRep.seats_mean!), chance: pctTxt(govDem.p_majority), note: `${lang === 'fr' ? 'Les 50 États' : lang === 'es' ? 'Los 50 estados' : 'All 50 states'}${lang === 'fr' ? ' ; ' : '; '}${t.govRaces(govOpenSeats).replace(' · ', ', ').replace(/^./, (c) => c.toLowerCase())}` },
 ];
 
 const firstSentence = (txt: string) => { const m = /^(.+?[.!?])(\s|$)/.exec(txt.trim()); return m ? m[1] : txt; };
-const untilItems = [
-  { meta: nextPrimary ? `${t.primariesNext} ${nextPrimaryStates}` : undefined, title: t.primaries, text: t.primariesCount(primaryMeta.n_races_decided, primaryMeta.n_races_awaiting), href: t.primariesHref },
+// Le 3 novembre, primaires et partielles vacantes passent aux archives : la
+// carte qu'elles remplissaient se remplit ce soir.
+const archiveItems = [
+  { title: t.primaries, text: t.primariesCount(primaryMeta.n_races_decided, primaryMeta.n_races_awaiting), href: t.primariesHref },
   ...liveSpecials.map((sp) => ({ meta: specialKicker(sp), title: specialHeadline(sp).replace(/\n/g, ' '), text: firstSentence(specialDek(sp)), href: specialHref(sp) })),
-  (() => {
-    const ev: any = earlyVote; const n = ev.states.length;
-    const asOf = new Date(`${ev.meta.as_of}T12:00:00`).toLocaleDateString(lang === 'fr' ? 'fr-CA' : lang === 'es' ? 'es' : 'en-US', { day: 'numeric', month: 'long' });
-    return {
-      meta: lang === 'fr' ? `${n} États · données au ${asOf}` : lang === 'es' ? `${n} estados · datos al ${asOf}` : `${n} states · data as of ${asOf}`,
-      title: lang === 'fr' ? 'Vote anticipé : qui a déjà voté ?' : lang === 'es' ? 'Voto anticipado: ¿quién ya votó?' : 'Early vote: who has already voted?',
-      text: lang === 'fr' ? 'Démocrates, républicains et non-affiliés parmi les bulletins déjà déposés, comparés au même stade de 2022.' : lang === 'es' ? 'Demócratas, republicanos y no afiliados entre las papeletas ya emitidas, frente al mismo momento de 2022.' : 'Democrats, Republicans and unaffiliated voters among ballots already cast, compared with the same point in 2022.',
-      href: lang === 'fr' ? '/fr/us/vote-anticipe/' : lang === 'es' ? '/es/us/voto-anticipado/' : '/en/us/early-vote/',
-    };
-  })(),
 ];
 const ldiDelta = `${ldi.delta_7d >= 0 ? '+' : '−'}${num(Math.abs(ldi.delta_7d), lang, 1)}`;
 const indexItems = [
   { meta: lang === 'fr' ? `${Math.round(ldi.score)} sur 100 · ${ldiLabel} · ${ldiDelta} en 7 jours` : lang === 'es' ? `${Math.round(ldi.score)} sobre 100 · ${ldiLabel} · ${ldiDelta} en 7 días` : `${Math.round(ldi.score)} out of 100 · ${ldiLabel} · ${ldiDelta} over 7 days`,
-    color: ldi.zone_color, title: t.ldiTitle, text: lang === 'fr' ? 'Ce qu’il reste de poids au président avant les élections de mi-mandat.' : lang === 'es' ? 'El peso que le queda al presidente antes de las intermedias.' : 'How much weight the president has left before the midterms.', href: t.ldiHref },
+    color: ldi.zone_color, title: t.ldiTitle, text: lang === 'fr' ? 'Le poids politique qu’il reste au président, mesuré sur 100.' : lang === 'es' ? 'El peso político que le queda al presidente, medido sobre 100.' : 'How much political weight the president has left, on a 100-point scale.', href: t.ldiHref },
   { title: t.radar, text: t.radarBody, href: t.radarHref },
   { meta: lang === 'fr' ? `Écart de ${Math.round(showdownData.showdown.gap)} points · ${showdownLabel}` : lang === 'es' ? `Diferencia de ${Math.round(showdownData.showdown.gap)} puntos · ${showdownLabel}` : `${Math.round(showdownData.showdown.gap)}-point gap · ${showdownLabel}`,
     title: lang === 'fr' ? 'Guerre commerciale Canada–États-Unis' : lang === 'es' ? 'Guerra comercial Canadá–EE. UU.' : 'Canada–U.S. trade war', text: lang === 'fr' ? 'Le rapport de force entre Ottawa et Washington.' : lang === 'es' ? 'La relación de fuerzas entre Ottawa y Washington.' : 'The balance of power between Ottawa and Washington.', href: t.cusmaHref },
@@ -365,7 +280,7 @@ const presItems = [
   canonical={canonical}
   lang={lang}
   currentPage="usa-hub"
-  ogImage="https://vote-scope.com/og/vote-scope.png"
+  ogImage={`https://vote-scope.com${trio.image}?v=${trio.runDate}`}
   alternates={{ en: 'https://vote-scope.com/en/us/', fr: 'https://vote-scope.com/fr/us/', es: 'https://vote-scope.com/es/us/' }}
   jsonLd={[
     {
@@ -386,6 +301,8 @@ const presItems = [
   ]}
 >
   <PageHeader title={t.heroTitle} promise={t.heroPromise} preferredSourceLocale={lang} />
+
+  <UsPreCount lang={lang} />
 
   <section class="container us-block" aria-labelledby="us-proj">
     <h2 id="us-proj">{t.projTitle}</h2>
@@ -410,20 +327,7 @@ const presItems = [
   </section>
 
   <section class="container us-block">
-    <StoryList heading={t.untilTitle} items={untilItems} size="sm" />
-    {pastSpecials.length > 0 && (
-      <details class="us-archive">
-        <summary>{t.archiveTitle} ({pastSpecials.length})</summary>
-        <ul>
-          {pastSpecials.map((s) => (
-            <li>
-              <a href={specialHref(s)}>{specialHeadline(s).replace(/\n/g, ' ')}</a>
-              <span class="us-small"> · {longDate(s.electionDate, lang)}</span>
-            </li>
-          ))}
-        </ul>
-      </details>
-    )}
+    <UsTrioShare client:visible lang={lang} text={trio.text} url={trio.url} image={trio.image} runDate={trio.runDate} />
   </section>
 
   <section class="container us-block">
@@ -444,6 +348,25 @@ const presItems = [
     <div class="container">
       <AffiliateCard partner="proton" lang={lang} visual placement="us-desk" />
     </div>
+  </section>
+
+  <section class="container us-block" aria-labelledby="us-archive">
+    <h2 id="us-archive">{t.archiveEyebrow} · {t.archiveTitle}</h2>
+    <p class="us-small">{t.archiveHint}</p>
+    <StoryList items={archiveItems} size="sm" />
+    {pastSpecials.length > 0 && (
+      <details class="us-archive">
+        <summary>{t.archivePast} ({pastSpecials.length})</summary>
+        <ul>
+          {pastSpecials.map((s) => (
+            <li>
+              <a href={specialHref(s)}>{specialHeadline(s).replace(/\n/g, ' ')}</a>
+              <span class="us-small"> · {longDate(s.electionDate, lang)}</span>
+            </li>
+          ))}
+        </ul>
+      </details>
+    )}
   </section>
 
   <DeskSections lang={lang} desk="us" />
@@ -470,4 +393,11 @@ const presItems = [
   .us-archive summary { cursor: pointer; font-weight: 600; }
   .us-archive ul { margin: 0.75rem 0 0; padding-left: 1.1rem; }
   .us-archive li { margin-bottom: 0.35rem; }
+</style>
+<style is:global>
+  .ust { border-top: 4px solid var(--ink); padding-top: 12px; }
+  .ust-h { margin: 0 0 8px; font-size: 22px; font-weight: 700; }
+  .ust-text { margin: 0 0 12px; padding: 12px 14px; background: var(--paper-2, #f4f4f4); font-size: 16px; line-height: 1.45; user-select: all; }
+  .ust-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
+  .ust-img { font-size: 15px; color: var(--ink-3); }
 </style>
