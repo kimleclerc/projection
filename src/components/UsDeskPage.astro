@@ -38,7 +38,7 @@ interface Props { lang: Lang; }
 const { lang } = Astro.props as Props;
 
 
-type SeatParty = { party: string; seats_projected?: number; seats_mean?: number; p_majority: number; color: string };
+type SeatParty = { party: string; seats_projected?: number; seats_median?: number; seats_mean?: number; p_majority: number; color: string };
 const pick = (rows: SeatParty[], party: string) => rows.find((p) => p.party === party)!;
 
 const ldi = ldiData.ldi;
@@ -320,7 +320,7 @@ const seatNote = (n: number, oth: number) => {
 };
 const chambers = [
   { label: lang === 'fr' ? 'Chambre des représentants' : lang === 'es' ? 'Cámara de Representantes' : 'House of Representatives', href: t.houseHref,
-    d: houseDem.seats_projected!, r: houseRep.seats_projected!, chance: pctTxt(houseDem.p_majority), note: seatNote(435, houseOth) },
+    d: houseDem.seats_median!, r: 435 - houseDem.seats_median!, chance: pctTxt(houseDem.p_majority), note: seatNote(435, houseOth) },
   { label: lang === 'fr' ? 'Sénat' : lang === 'es' ? 'Senado' : 'Senate', href: t.senateHref,
     d: senateDem.seats_projected ?? Math.round(senateDem.seats_mean!), r: senateRep.seats_projected ?? Math.round(senateRep.seats_mean!), chance: pctTxt(senateDem.p_majority), note: seatNote(100, senateOth) },
   { label: lang === 'fr' ? 'Gouverneurs' : lang === 'es' ? 'Gobernadores' : 'Governors', href: t.govHref,

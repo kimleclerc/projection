@@ -165,8 +165,19 @@ const ratingBarCopy = {
 };
 
 // Build seat-projection bar segments
+// Chambre US : la médiane des simulations en vedette, pas le compte des
+// districts « en avance ». Ce compte saute de trois sièges dès qu'un sondage
+// générique bouge les pile-ou-face (Zogby, nuit du 2026-11-03 : 238 → 235,
+// médiane 245 → 242). Le démocrate prend sa médiane, le républicain le reste,
+// pour que les deux tuiles fassent toujours 435.
+const headlineMedian = jurisdiction.id === 'us-house';
+const houseDemMedian = headlineMedian
+  ? (data.parties as any[]).find((p) => p.party === 'us_dem')?.seats_median
+  : undefined;
 const projectedSeatsFor = (p: any) =>
-  p.seats_projected ?? p.seats_median ?? Math.round(p.seats_mean ?? 0);
+  houseDemMedian != null && (p.party === 'us_dem' || p.party === 'us_rep')
+    ? (p.party === 'us_dem' ? houseDemMedian : data.meta.total_seats - houseDemMedian)
+    : p.seats_projected ?? p.seats_median ?? Math.round(p.seats_mean ?? 0);
 // Deuxième chiffre : la médiane des simulations, quand elle s'écarte du compte
 // des sièges où chaque parti est favori (vague : les sièges « penche adverse »
 // que le parti gagne souvent dans les simulations ne comptent pas dans le

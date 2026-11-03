@@ -114,7 +114,11 @@ export function usShareMeta(chamber: Chamber, locale: Locale): { title: string; 
     const p = desk.parties?.find((x) => x.party === code);
     return Math.round(p?.seats_projected ?? p?.seats_median ?? 0);
   };
-  const d = seats('us_dem'); const r = seats('us_rep');
+  // Chambre : la médiane, comme la tuile du bureau US et ProjectionEngine.
+  const houseDem = chamber === 'house'
+    ? desk.parties?.find((x) => x.party === 'us_dem')?.seats_median : undefined;
+  const d = houseDem != null ? Math.round(houseDem) : seats('us_dem');
+  const r = houseDem != null ? 435 - d : seats('us_rep');
   const run = desk.meta.run_date ? new Date(`${desk.meta.run_date}T12:00:00Z`) : null;
   const day = run ? run.toLocaleDateString(locale === 'en' ? 'en-US' : locale === 'es' ? 'es-ES' : 'fr-CA', { day: 'numeric', month: 'long', timeZone: 'UTC' }) : '';
   const n = desk.ridings.length;
