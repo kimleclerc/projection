@@ -1,0 +1,23 @@
+---
+/**
+ * Bloc « Résultat » d'une fiche de course américaine (Chambre, Sénat,
+ * gouverneur). Rendu au build depuis la copie de repli du live.json, puis tenu
+ * à jour dans le navigateur.
+ */
+import UsRaceResult from '../islands/UsRaceResult.tsx';
+import snapshot from '../data/us-results-snapshot.json';
+import { raceView, liveJsonUrl } from '../lib/us-results';
+import { CHAMBER_PREFIX, type Chamber, type UsLivePayload } from '../islands/usLive';
+import { US_LIVE_API_BASE, US_LIVE_FALLBACK_API_BASE, US_LIVE_EVENT_ID, PAGE, usLiveParties } from '../data/us-live';
+
+interface Props { chamber: Chamber; id: string; lang: 'fr' | 'en' | 'es' }
+const { chamber, id, lang } = Astro.props;
+const raceId = `${CHAMBER_PREFIX[chamber]}${String(id).padStart(5, '0')}`;
+const initial = raceView(snapshot as unknown as UsLivePayload, raceId);
+const urls = [liveJsonUrl(US_LIVE_API_BASE, US_LIVE_EVENT_ID), liveJsonUrl(US_LIVE_FALLBACK_API_BASE, US_LIVE_EVENT_ID)];
+const parties = usLiveParties(lang).map(({ code, color }) => ({ code, color }));
+---
+{initial && (
+  <UsRaceResult client:load lang={lang} raceId={raceId} initial={initial} urls={urls} parties={parties}
+    allRacesHref={PAGE[chamber][lang]} />
+)}

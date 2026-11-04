@@ -7,6 +7,8 @@
  */
 import ResultsTable from './ResultsTable.astro';
 import ElectionsBand from './ElectionsBand.astro';
+import UsMidtermsHomeCard from '../islands/UsMidtermsHomeCard.tsx';
+import { usResultsHome, priorMajority } from '../data/us-results-context';
 import senate from '../../web_data/us-senate/latest.json';
 import { partyName } from '../lib/party-names';
 
@@ -80,6 +82,8 @@ const T = {
     gov: L('/fr/us/gouverneurs/', '/en/us/governors/', '/es/us/gobernadores/'),
   },
 };
+const usRes = usResultsHome(lang);
+const usHome = lang === 'fr' ? '/fr/us/' : lang === 'es' ? '/es/us/' : '/en/us/';
 ---
 <section class="home-front">
   <div class="container">
@@ -90,6 +94,8 @@ const T = {
 
     <div class="hf-grid">
       <article class="hf-lead">
+        <UsMidtermsHomeCard client:load lang={lang} initial={usRes.initial} ctx={usRes.ctx} urls={usRes.urls} colors={usRes.colors}
+          before={{ house: priorMajority('house'), senate: priorMajority('senate') }} href={usHome} />
         <p class="vs-meta">{T.kicker}</p>
         <h2 class="hf-question"><a href={T.href.senate}>{T.question}</a></h2>
         <p class="hf-answer">{T.answer}</p>

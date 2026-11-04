@@ -6,15 +6,14 @@
  */
 import { useEffect, useState } from 'preact/hooks';
 import '../styles/us-national-calls.css';
+import { majorityCalls } from '../lib/us-majority';
 
 type Lang = 'fr' | 'en' | 'es';
-type NationalCall = { kind?: string; party?: string | null; chamber?: string | null; called_at?: string };
 interface Props { lang: Lang; liveUrl: string; fallbackUrl?: string; demColor: string; repColor: string; pageUrl: string }
 
 const OPENS_AT = Date.parse('2026-11-03T17:30:00-05:00');
 const POLL_MS = 60_000;
-const CHAMBERS = ['house', 'senate'] as const;
-type Ch = (typeof CHAMBERS)[number];
+type Ch = 'house' | 'senate';
 type Side = 'dem' | 'rep';
 
 const T = {
@@ -52,26 +51,6 @@ function etTime(iso: string, lang: Lang): string {
   const m = parts.find((p) => p.type === 'minute')?.value ?? '00';
   if (lang === 'en') return `${h % 12 || 12}:${m} ${h < 12 ? 'a.m.' : 'p.m.'}`;
   return lang === 'fr' ? `${h} h ${m}` : `${String(h).padStart(2, '0')}:${m}`;
-}
-
-function sideOf(party?: string | null): Side | null {
-  if (party === 'us_dem') return 'dem';
-  if (party === 'us_rep') return 'rep';
-  return null;
-}
-
-/** Ne garde que les appels de majorité lisibles, un par chambre (le plus tôt), Chambre d'abord. */
-export function majorityCalls(raw: unknown): { chamber: Ch; side: Side; at: string }[] {
-  const list = Array.isArray(raw) ? (raw as NationalCall[]) : [];
-  const out = new Map<Ch, { chamber: Ch; side: Side; at: string }>();
-  for (const c of list) {
-    const chamber = c?.chamber as Ch;
-    const side = sideOf(c?.party);
-    if (c?.kind !== 'majority' || !CHAMBERS.includes(chamber) || !side || typeof c.called_at !== 'string') continue;
-    const prev = out.get(chamber);
-    if (!prev || c.called_at < prev.at) out.set(chamber, { chamber, side, at: c.called_at });
-  }
-  return CHAMBERS.flatMap((ch) => (out.has(ch) ? [out.get(ch)!] : []));
 }
 
 async function copyText(text: string): Promise<void> {

@@ -30,6 +30,7 @@ import LocalPolls from './sections/LocalPolls.astro';
 import ElectionResult from './sections/ElectionResult.astro';
 import LabsOrbit from './sections/LabsOrbit.astro';
 import PolymarketEmbed from '../PolymarketEmbed.astro';
+import UsRaceResult from '../UsRaceResult.astro';
 
 interface Props {
   data: RidingData;
@@ -40,6 +41,9 @@ const { data, lang } = Astro.props;
 // État « résultats » : le scrutin est tenu, la fiche ouvre sur le résultat et retire
 // ce qui n'a de sens qu'avant le vote (question, biographies, député sortant, direct).
 const hasResults = !!data.results;
+// Mi-mandat du 3 novembre 2026 : le résultat du soir en tête des fiches américaines.
+const US_CHAMBER = { 'us-house': 'house', 'us-senate': 'senate', 'us-governor': 'governor' } as const;
+const usChamber = US_CHAMBER[data.jurisdiction as keyof typeof US_CHAMBER];
 const navWebKey = data.navWebKey ?? getNavEntryForRiding(data.jurisdiction)?.webKey;
 
 // Porte de mi-page. Mesuré en prod : entre le ruban du haut et le bloc des
@@ -99,6 +103,7 @@ const pageNavItems = [
 
 {navWebKey && <JurisdictionNav webKey={navWebKey} lang={lang} active="districts" />}
 <RidingHeader data={data} lang={lang} results={hasResults} />
+{usChamber && <UsRaceResult chamber={usChamber} id={data.id} lang={lang} />}
 {hasResults ? (
   <ElectionResult data={data} lang={lang} />
 ) : (
