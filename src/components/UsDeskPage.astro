@@ -25,6 +25,7 @@ import DeskSections from './DeskSections.astro';
 import UsTrioShare from '../islands/UsTrioShare.tsx';
 import UsPreCount from './UsPreCount.astro';
 import UsNeedle from '../islands/UsNeedle.tsx';
+import UsNationalCalls from '../islands/UsNationalCalls.tsx';
 import { US_LIVE_API_BASE, US_LIVE_EVENT_ID, US_LIVE_FALLBACK_API_BASE } from '../data/us-live';
 import { usTrio } from '../data/us-live';
 import { specialElections, type SpecialElectionConfig } from '../data/specialElections';
@@ -304,6 +305,11 @@ const presItems = [
   ]}
 >
   <PageHeader title={t.heroTitle} promise={t.heroPromise} preferredSourceLocale={lang} />
+
+  <div class="container">
+    <UsNationalCalls client:load lang={lang} liveUrl={liveUrl(US_LIVE_API_BASE)} fallbackUrl={liveUrl(US_LIVE_FALLBACK_API_BASE)}
+      demColor={houseDem.color} repColor={houseRep.color} pageUrl={canonical} />
+  </div>
 
   <UsPreCount lang={lang} />
 

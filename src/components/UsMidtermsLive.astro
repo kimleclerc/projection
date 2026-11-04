@@ -9,14 +9,19 @@
  * premières fermetures.
  */
 import UsMidtermsLive from '../islands/UsMidtermsLive.tsx';
+import UsNationalCalls from '../islands/UsNationalCalls.tsx';
+import { partyMeta } from '../lib/riding-adapters/parties';
 import { EMBED, US_LIVE_API_BASE, US_LIVE_EVENT_ID, US_LIVE_FALLBACK_API_BASE, usLiveProps } from '../data/us-live';
 import type { Chamber } from '../islands/usLive';
 
 interface Props { chamber: Chamber; locale: 'fr' | 'en' | 'es'; compact?: boolean }
 const { chamber, locale, compact = false } = Astro.props;
 const props = usLiveProps(chamber, locale);
+const liveUrl = (base: string) => `${base.replace(/\/$/, '')}/api/v1/elections/${US_LIVE_EVENT_ID}/live.json`;
 ---
 <div class={`usl-wrap${compact ? ' is-compact' : ''}`} id="resultats">
+  <UsNationalCalls client:load lang={locale} liveUrl={liveUrl(US_LIVE_API_BASE)} fallbackUrl={liveUrl(US_LIVE_FALLBACK_API_BASE)}
+    demColor={partyMeta('us-house', 'us_dem').color} repColor={partyMeta('us-house', 'us_rep').color} pageUrl={`https://vote-scope.com/${locale}/us/`} />
   <UsMidtermsLive client:load eventId={US_LIVE_EVENT_ID} lang={locale} apiBase={US_LIVE_API_BASE}
     fallbackApiBase={US_LIVE_FALLBACK_API_BASE} embedPath={EMBED[chamber][locale]} compact={compact} {...props} />
 </div>
