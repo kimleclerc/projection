@@ -74,6 +74,7 @@ const copy = {
     testPage: 'Une source se présente encore comme une page d’essai : ces chiffres ne sont pas des résultats.',
     subj: { us_dem: 'Les démocrates', us_rep: 'Les républicains', us_oth: 'Les autres partis' } as Record<string, string>,
     short: { us_dem: 'démocrates', us_rep: 'républicains', us_oth: 'autres' } as Record<string, string>,
+    callLead: (party: string, chamber: Chamber) => `Projection Vote-Scope : les ${party === 'us_dem' ? 'démocrates' : 'républicains'} remportent ${chamber === 'senate' ? 'le Sénat' : 'la Chambre'}.`,
     answer: (s: ChamberSummary, u: Unit, chamber: Chamber, subj: string, lead: string, run: string) => {
       const L = s.leader!, R = s.runnerUp;
       if (chamber === 'governor') {
@@ -155,6 +156,7 @@ const copy = {
     testPage: 'A source still labels itself as a test page: these numbers are not results.',
     subj: { us_dem: 'Democrats', us_rep: 'Republicans', us_oth: 'Other parties' } as Record<string, string>,
     short: { us_dem: 'Democrats', us_rep: 'Republicans', us_oth: 'others' } as Record<string, string>,
+    callLead: (party: string, chamber: Chamber) => `Vote-Scope projection: ${party === 'us_dem' ? 'Democrats' : 'Republicans'} win the ${chamber === 'senate' ? 'Senate' : 'House'}.`,
     answer: (s: ChamberSummary, u: Unit, chamber: Chamber, subj: string, lead: string, run: string) => {
       const L = s.leader!, R = s.runnerUp;
       if (chamber === 'governor') {
@@ -235,6 +237,7 @@ const copy = {
     testPage: 'Una fuente aún figura como página de prueba: estas cifras no son resultados.',
     subj: { us_dem: 'Los demócratas', us_rep: 'Los republicanos', us_oth: 'Los demás partidos' } as Record<string, string>,
     short: { us_dem: 'demócratas', us_rep: 'republicanos', us_oth: 'otros' } as Record<string, string>,
+    callLead: (party: string, chamber: Chamber) => `Proyección de Vote-Scope: los ${party === 'us_dem' ? 'demócratas' : 'republicanos'} ganan ${chamber === 'senate' ? 'el Senado' : 'la Cámara'}.`,
     answer: (s: ChamberSummary, u: Unit, chamber: Chamber, subj: string, lead: string, run: string) => {
       const L = s.leader!, R = s.runnerUp;
       if (chamber === 'governor') {
@@ -554,6 +557,8 @@ export default function UsMidtermsLive({ chamber, eventId, lang, apiBase, fallba
     ? t.answer(summary, unit, chamber, t.subj[summary.leader.code] ?? metaOf(summary.leader.code).label,
       t.short[summary.leader.code] ?? summary.leader.code, t.short[summary.runnerUp?.code ?? ''] ?? '')
     : t.waiting;
+  const calledParty = majorityCallParty(data, chamber);
+  const answerShown = summary.leader && summary.state !== 'none' && calledParty ? withCallLead(answer, t.callLead(calledParty, chamber)) : answer;
   const holdoverTotal = Object.values(holdovers).reduce((a, b) => a + b, 0);
   const projParts = summary.parties.filter((p) => (projectedHere[p.code] ?? 0) > 0)
     .map((p) => `${t.short[p.code] ?? metaOf(p.code).label} ${projectedHere[p.code]}`).join(', ');
@@ -568,7 +573,7 @@ export default function UsMidtermsLive({ chamber, eventId, lang, apiBase, fallba
       {failed && <p class="qcl-warn">{t.unavailable}</p>}
       {stale && ageMin !== null && <p class="qcl-warn">{t.stale(ageMin)}</p>}
 
-      <p class="usl-answer">{typo(lang, answer)}</p>
+      <p class="usl-answer">{typo(lang, answerShown)}</p>
       {decidedRows.length > 0 && (
         <MajorityGauge summary={summary} chamber={chamber} t={t} metaOf={metaOf} />
       )}
@@ -577,7 +582,7 @@ export default function UsMidtermsLive({ chamber, eventId, lang, apiBase, fallba
       )}
       {!compact && decidedRows.length > 0 && (
         <ShareRow t={t} lang={lang} chamber={chamber} geoUrl={geoUrl} embedPath={embedPath} pageUrl={pageUrl}
-          card={() => liveCardInput(t, chamber, summary, rows, metaOf, majority, sourceStamp ? timeFmt(sourceStamp, lang, TZ) : '')} />
+          card={() => liveCardInput(t, chamber, summary, rows, metaOf, majority, sourceStamp ? timeFmt(sourceStamp, lang, TZ) : '', calledParty)} />
       )}
 
       {decidedRows.length > 0 && <WaveGauge wave={wave} t={t} metaOf={metaOf} lang={lang} />}
@@ -802,7 +807,27 @@ function LiveMap({ url, chamber, rows, t, metaOf, nameOf, lang, goHref, external
 }
 
 /** Ce que l'image de partage montre : exactement ce que la page affiche. */
-function liveCardInput(t: Copy, chamber: Chamber, s: ChamberSummary, rows: UsRow[], metaOf: MetaOf, majority: number | null, time: string) {
+/**
+ * Appel de majorité publié par Vote-Scope pour cette chambre (`national_calls`
+ * du live.json), ou null. Seule l'attaque de la phrase change : le décompte
+ * qui suit reste celui des courses, tel quel.
+ */
+function majorityCallParty(data: UsLivePayload | null, chamber: Chamber): string | null {
+  const list = (data as { national_calls?: unknown } | null)?.national_calls;
+  if (!Array.isArray(list) || chamber === 'governor') return null;
+  const hits = list.filter((c: any) => c?.kind === 'majority' && c?.chamber === chamber && (c?.party === 'us_dem' || c?.party === 'us_rep'))
+    .sort((a: any, b: any) => String(a.called_at ?? '').localeCompare(String(b.called_at ?? '')));
+  return hits[0]?.party ?? null;
+}
+function withCallLead(answer: string, lead: string | null): string {
+  if (!lead) return answer;
+  const i = answer.indexOf(':');
+  if (i < 0) return lead;
+  const rest = answer.slice(i + 1).trim();
+  return rest ? `${lead} ${rest.charAt(0).toUpperCase()}${rest.slice(1)}` : lead;
+}
+
+function liveCardInput(t: Copy, chamber: Chamber, s: ChamberSummary, rows: UsRow[], metaOf: MetaOf, majority: number | null, time: string, calledParty: string | null = null) {
   const fills: Record<string, string> = {};
   const hatched: string[] = [];
   for (const r of rows) {
@@ -816,7 +841,7 @@ function liveCardInput(t: Copy, chamber: Chamber, s: ChamberSummary, rows: UsRow
     ? t.answer(s, UNIT[langOf(t)][chamber], chamber, t.subj[s.leader.code] ?? metaOf(s.leader.code).label, t.short[s.leader.code] ?? '', t.short[s.runnerUp?.code ?? ''] ?? '')
     : t.waiting;
   return {
-    title: t.cardTitle[chamber], when: t.cardWhen, answer, seats: s.seats,
+    title: t.cardTitle[chamber], when: t.cardWhen, answer: s.leader && s.state !== 'none' && calledParty ? withCallLead(answer, t.callLead(calledParty, chamber)) : answer, seats: s.seats,
     majorityLabel: majority ? t.majorityLabel(chamber, majority) : '',
     parties: s.parties.map((p) => ({ label: metaOf(p.code).label, color: metaOf(p.code).color, secured: p.secured, leading: p.leading })),
     unassigned: s.unassigned,
