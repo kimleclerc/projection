@@ -1,81 +1,28 @@
 ---
 /**
  * Une de l'accueil, commune aux trois langues (docs/DESIGN.md §7) :
- * une ligne de titre du site, puis la course principale du moment en grand
- * (aujourd'hui le Sénat américain, avec le tableau de résultats commun) et,
- * en colonne, les autres élections par date.
+ * une ligne de titre du site, puis l'élection principale du moment en grand
+ * (les résultats des mi-mandats américains) et, en colonne, les autres
+ * élections par date.
  */
-import ResultsTable from './ResultsTable.astro';
 import ElectionsBand from './ElectionsBand.astro';
 import UsMidtermsHomeCard from '../islands/UsMidtermsHomeCard.tsx';
 import { usResultsHome, priorMajority } from '../data/us-results-context';
-import senate from '../../web_data/us-senate/latest.json';
-import { partyName } from '../lib/party-names';
 
 type Lang = 'en' | 'fr' | 'es';
 interface Props { lang: Lang }
 const { lang } = Astro.props;
 const L = (fr: string, en: string, es: string) => ({ fr, en, es }[lang]);
 
-const meta = (senate as any).meta;
-const parties = (senate as any).parties as any[];
-const dem = parties.find((p) => p.party === 'us_dem');
-const rep = parties.find((p) => p.party === 'us_rep');
-const lead = (dem.p_majority ?? 0) >= (rep.p_majority ?? 0) ? dem : rep;
-const pct = (p: number) => `${Math.round(p * 100)}${lang === 'en' ? '%' : ' %'}`;
-const leadPlural = {
-  us_dem: L('Les démocrates', 'Democrats', 'Los demócratas'),
-  us_rep: L('Les républicains', 'Republicans', 'Los republicanos'),
-}[lead.party as 'us_dem' | 'us_rep'];
-
-// Parti qui détient la majorité au Sénat sortant (119ᵉ Congrès) : « conserver » pour lui,
-// « obtenir » pour l'autre. À changer si la composition change avant le scrutin.
-const SENATE_INCUMBENT = 'us_rep';
-const keeps = lead.party === SENATE_INCUMBENT;
-
-const today = new Date(new Date().toISOString().slice(0, 10) + 'T12:00:00Z');
-const daysLeft = Math.round((Date.parse('2026-11-03T12:00:00Z') - today.getTime()) / 86_400_000);
-const nSims = Number(meta.n_simulations ?? 50000).toLocaleString(lang === 'en' ? 'en-US' : 'fr-FR');
-
-const rows = parties.map((p) => ({
-  label: partyName(p, lang),
-  color: p.color,
-  seats: p.seats_projected,
-  low: p.seats_ci_low_80 !== undefined ? Math.round(p.seats_ci_low_80) : undefined,
-  high: p.seats_ci_high_80 !== undefined ? Math.round(p.seats_ci_high_80) : undefined,
-  chance: p.p_majority,
-}));
-
-const longRun = new Date(`${meta.run_date}T12:00:00Z`).toLocaleDateString(lang === 'en' ? 'en-US' : lang === 'es' ? 'es-ES' : 'fr-CA', { day: 'numeric', month: 'long', timeZone: 'UTC' });
 const T = {
   h1: L('Projections électorales indépendantes : États-Unis, Canada, Royaume-Uni, France, Espagne.', 'Independent election forecasts: United States, Canada, United Kingdom, France, Spain.', 'Proyecciones electorales independientes: Estados Unidos, Canadá, Reino Unido, Francia, España.'),
   promise: L(
     'Les midterms américains, le Canada, le Royaume-Uni, la France et l’Espagne, mis à jour chaque jour. Par Kim Leclerc, vingt ans de campagnes électorales.',
     'U.S. midterms, Canada, the U.K., France and Spain, updated daily. By Kim Leclerc, twenty years of election campaigns.',
     'Las elecciones intermedias de EE. UU., Canadá, el Reino Unido, Francia y España, actualizadas cada día. Por Kim Leclerc, veinte años de campañas electorales.'),
-  kicker: daysLeft > 1
-    ? L(`Midterms américains · 3 novembre, dans ${daysLeft} jours`, `U.S. midterms · November 3, in ${daysLeft} days`, `Elecciones intermedias de EE. UU. · 3 de noviembre, en ${daysLeft} días`)
-    : daysLeft === 1
-    ? L('Midterms américains · 3 novembre, demain', 'U.S. midterms · November 3, tomorrow', 'Elecciones intermedias de EE. UU. · 3 de noviembre, mañana')
-    : L('Midterms américains · 3 novembre', 'U.S. midterms · November 3', 'Elecciones intermedias de EE. UU. · 3 de noviembre'),
-  // Semaine du vote : la une annonce le direct, qui se tient sur les fiches
-  // Chambre, Sénat et gouverneurs (bloc #resultats). Après le vote, les fiches
-  // portent les résultats ; la ligne disparaît.
-  live: daysLeft >= 0
-    ? L('Résultats en direct le 3 novembre dès 18 h, heure de l’Est (23 h en temps universel) : Chambre district par district, Sénat et gouverneurs État par État.',
-        'Live results on November 3 from 6 p.m. Eastern (11 p.m. UTC): the House district by district, the Senate and governors state by state.',
-        'Resultados en directo el 3 de noviembre desde las 18:00, hora del Este (23:00 UTC): la Cámara distrito por distrito, el Senado y los gobernadores estado por estado.')
-    : '',
-  senateLive: L('Suivre les résultats du Sénat', 'Follow the Senate results', 'Seguir los resultados del Senado'),
-  question: L('Qui contrôlera le Sénat?', 'Who will control the Senate?', '¿Quién controlará el Senado?'),
-  answer: L(
-    `${leadPlural} ont ${pct(lead.p_majority)} de chances ${keeps ? 'de conserver' : 'd’obtenir'} la majorité au Sénat, selon ${nSims} simulations.`,
-    `${leadPlural} have a ${pct(lead.p_majority)} chance of ${keeps ? 'keeping' : 'winning'} the Senate majority, across ${nSims} simulations.`,
-    `${leadPlural} tienen un ${pct(lead.p_majority)} de probabilidad de ${keeps ? 'conservar' : 'obtener'} la mayoría en el Senado, según ${nSims} simulaciones.`),
-  senate: L('Projection du Sénat', 'Senate forecast', 'Pronóstico del Senado'),
-  house: L('Projection de la Chambre', 'House forecast', 'Pronóstico de la Cámara'),
+  senate: L('Résultats du Sénat', 'Senate results', 'Resultados del Senado'),
+  house: L('Résultats de la Chambre', 'House results', 'Resultados de la Cámara'),
   gov: L('Gouverneurs', 'Governors', 'Gobernadores'),
-  meta: L(`${meta.n_polls} sondages · mis à jour le ${longRun}`, `${meta.n_polls} polls · updated ${longRun}`, `${meta.n_polls} encuestas · actualizado el ${longRun}`),
   href: {
     senate: L('/fr/us/senat/', '/en/us/senate/', '/es/us/senate/'),
     house: L('/fr/us/chambre/', '/en/us/house/', '/es/us/house/'),
@@ -96,17 +43,10 @@ const usHome = lang === 'fr' ? '/fr/us/' : lang === 'es' ? '/es/us/' : '/en/us/'
       <article class="hf-lead">
         <UsMidtermsHomeCard client:load lang={lang} initial={usRes.initial} ctx={usRes.ctx} urls={usRes.urls} colors={usRes.colors}
           before={{ house: priorMajority('house'), senate: priorMajority('senate') }} href={usHome} />
-        <p class="vs-meta">{T.kicker}</p>
-        <h2 class="hf-question"><a href={T.href.senate}>{T.question}</a></h2>
-        <p class="hf-answer">{T.answer}</p>
-        {T.live && <p class="hf-live">{T.live}</p>}
-        <ResultsTable lang={lang} rows={rows} totalSeats={meta.total_seats ?? 100} majority={meta.majority_threshold ?? 51} chanceKind="majority" meta={T.meta} />
         <p class="hf-actions">
-          {T.live
-            ? <a class="vs-btn" href={`${T.href.senate}#resultats`}>{T.senateLive}</a>
-            : <a class="vs-btn" href={T.href.senate}>{T.senate}</a>}
-          <a class="vs-btn-secondary" href={T.href.house}>{T.house}</a>
-          <a class="vs-link" href={T.href.gov}>{T.gov}</a>
+          <a class="vs-btn" href={`${T.href.senate}#resultats`}>{T.senate}</a>
+          <a class="vs-btn-secondary" href={`${T.href.house}#resultats`}>{T.house}</a>
+          <a class="vs-link" href={`${T.href.gov}#resultats`}>{T.gov}</a>
         </p>
       </article>
       <aside class="hf-side">
@@ -122,16 +62,11 @@ const usHome = lang === 'fr' ? '/fr/us/' : lang === 'es' ? '/es/us/' : '/en/us/'
   .hf-mast h1 { font-size: clamp(30px, 3.6vw, 44px) !important; margin-bottom: 8px !important; }
   .hf-promise { margin: 0; max-width: 760px; color: var(--ink-2); font-size: 17px; line-height: 1.5; }
   .hf-grid { display: grid; grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr); gap: 44px; padding-top: 22px; border-top: 3px solid var(--ink); }
-  .hf-question { margin: 6px 0 8px; font-size: clamp(36px, 5vw, 60px); font-weight: 700; line-height: 1.02; letter-spacing: -0.01em; }
-  .hf-question a { color: var(--ink); text-decoration: none; }
-  .hf-question a:hover { text-decoration: underline; text-underline-offset: 6px; text-decoration-thickness: 3px; }
-  .hf-answer { margin: 0; max-width: 680px; color: var(--ink-2); font-size: 19px; line-height: 1.45; }
-  .hf-live { margin: 12px 0 0; max-width: 680px; color: var(--ink); font-size: 16px; font-weight: 600; line-height: 1.45; }
   .hf-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; margin: 18px 0 0; }
   @media (max-width: 900px) {
     .hf-grid { grid-template-columns: 1fr; gap: 28px; }
   }
-  /* Téléphone : la question du jour au premier écran (la présentation reste dans le titre du site). */
+  /* Téléphone : les résultats au premier écran (la présentation reste dans le titre du site). */
   @media (max-width: 640px) {
     .hf-promise { display: none; }
     .hf-mast { padding: 18px 0 10px; }
