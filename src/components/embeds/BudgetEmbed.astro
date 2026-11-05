@@ -1,0 +1,27 @@
+---
+// Intégration d'une édition du budget : la réponse et les premiers chiffres.
+import Embed from '../../layouts/Embed.astro';
+import { t, val, editionLabel, answerOf, budgetEdition, type BudgetData, type Locale } from '../../lib/budget';
+interface Props { data: BudgetData; locale: Locale }
+const { data, locale } = Astro.props;
+---
+<Embed title={`${editionLabel(data, locale)} — Vote-Scope`} lang={locale} backPath={budgetEdition(locale, data.slug, data.edition)}>
+  <div class="be">
+    <p class="be-title">{editionLabel(data, locale)}</p>
+    <p class="be-answer">{answerOf(data, locale)}</p>
+    <table>
+      <tbody>
+        {data.key_numbers.slice(0, 4).map((n) => (
+          <tr><th scope="row">{t(n.label, locale)}</th><td>{val(n.value, locale)}</td></tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+</Embed>
+<style>
+  .be-title { margin: 0 0 4px; font-size: 14px; font-weight: 600; color: var(--ink-3); }
+  .be-answer { margin: 0 0 12px; font-size: 20px; font-weight: 700; line-height: 1.25; }
+  .be table { width: 100%; border-collapse: collapse; border-top: 4px solid var(--ink); }
+  .be th, .be td { padding: 8px 0; border-bottom: 1px solid var(--rule); text-align: left; font-size: 15px; font-weight: 600; }
+  .be td { text-align: right; font-family: var(--numeric); font-size: 26px; font-weight: 700; white-space: nowrap; }
+</style>

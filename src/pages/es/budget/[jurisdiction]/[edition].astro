@@ -18,16 +18,17 @@ const alternates = {
   fr: `https://vote-scope.com${budgetEdition('fr', data.slug, data.edition)}`,
   es: canonical,
 };
-const desc = `Análisis independiente del ${heading} (${jur}): las cifras, los sectores y lo que cambia para usted. Presentado por ${data.minister}. Sin afiliación gubernamental.`;
+const desc = (t(data.headline, locale) ? `${t(data.headline, locale)} ` : '') + `Análisis independiente del ${heading} (${jur}): las cifras, los sectores y lo que cambia para usted. Presentado por ${data.minister}. Sin afiliación gubernamental.`;
 ---
 
 <EditorialLayout
-  title={`${heading} — ${jur} · Análisis independiente — Vote-Scope`}
+  title={t(data.seo_title, locale) ? `${t(data.seo_title, locale)} — Vote-Scope` : `${heading} — ${jur} · Análisis independiente — Vote-Scope`}
   description={desc}
   canonical={canonical}
   lang="es"
   currentPage="budget"
-  ogImage="https://vote-scope.com/og/vote-scope.png"
+  ogImage={`https://vote-scope.com/og/budget/${data.slug}/${data.edition}/es.png?v=${data.meta.ingested_at}`}
+  ogType="article"
   alternates={alternates}
   jsonLd={[
     {
@@ -37,7 +38,7 @@ const desc = `Análisis independiente del ${heading} (${jur}): las cifras, los s
       description: desc,
       url: canonical,
       inLanguage: 'es',
-      datePublished: t(data.date_tabled, 'es'),
+      datePublished: data.date_iso,
       dateModified: data.meta.ingested_at,
       author: { '@type': 'Person', name: 'Kim Leclerc', url: 'https://kimleclerc.ca' },
       publisher: { '@type': 'Organization', name: 'Vote-Scope', url: 'https://vote-scope.com' },
@@ -48,9 +49,9 @@ const desc = `Análisis independiente del ${heading} (${jur}): las cifras, los s
       '@context': 'https://schema.org',
       '@type': 'BreadcrumbList',
       itemListElement: [
-        { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: 'https://vote-scope.com/es/' },
-        { '@type': 'ListItem', position: 2, name: 'Budget', item: 'https://vote-scope.com/es/budget/' },
-        { '@type': 'ListItem', position: 3, name: jur, item: `https://vote-scope.com/es/budget/${data.slug}/` },
+        { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: 'https://vote-scope.com/es' },
+        { '@type': 'ListItem', position: 2, name: 'Budget', item: 'https://vote-scope.com/es/budget' },
+        { '@type': 'ListItem', position: 3, name: jur, item: `https://vote-scope.com/es/budget/${data.slug}` },
         { '@type': 'ListItem', position: 4, name: heading, item: canonical },
       ],
     },

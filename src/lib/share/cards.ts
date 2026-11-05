@@ -899,3 +899,25 @@ export function callCard(fmt: Format, lang: Lang, d: CallCardInput): Node {
     h('div', { fontSize: story ? 32 : big ? 26 : 21, fontWeight: 600, color: INK_2, marginTop: story ? 40 : 22 }, d.when));
   return frame(fmt, lang, d.title, longDate('2026-11-03', lang), body, d.foot);
 }
+
+// ------------------------------------------------------------------ budget
+
+export interface BudgetCardInput {
+  title: string;      // « Budget fédéral 2026 »
+  heading: string;    // la réponse en une phrase, ou le profil (« Familles »)
+  rows: { label: string; value: string }[];
+  foot: string;       // « Déposé le 5 novembre 2026 »
+}
+
+/** La phrase, puis une ligne par chiffre. Noir sur blanc : un budget n'a pas de couleur de parti. */
+export function budgetCard(fmt: Format, lang: Lang, d: BudgetCardInput): Node {
+  const big = fmt !== 'wide';
+  const story = fmt === 'story';
+  const rows = d.rows.map((r) => h('div', { alignItems: 'center', justifyContent: 'space-between', borderBottom: `1px solid ${RULE}`, padding: story ? '34px 0' : big ? '20px 0' : '13px 0' },
+    h('div', { flexShrink: 1, paddingRight: 20, fontSize: story ? 42 : big ? 34 : 28, fontWeight: 600, lineHeight: 1.12 }, r.label),
+    h('div', { flexShrink: 0, fontFamily: 'Barlow Condensed', fontWeight: 700, fontSize: story ? 104 : big ? 78 : 60, lineHeight: 1 }, r.value.replace(/\u00a0/g, ' '))));
+  const body = h('div', { flexDirection: 'column', flexGrow: 1, justifyContent: big ? 'center' : 'flex-start' },
+    h('div', { fontSize: story ? 70 : big ? 54 : 37, fontWeight: 700, lineHeight: 1.1, marginBottom: story ? 52 : big ? 30 : 16 }, d.heading),
+    ...rows);
+  return frame(fmt, lang, d.title, '', body, d.foot);
+}

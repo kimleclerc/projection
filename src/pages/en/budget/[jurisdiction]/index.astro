@@ -10,8 +10,8 @@ export function getStaticPaths() {
 const { slug } = Astro.props;
 const locale = 'en' as const;
 const jur = JURISDICTION_LABEL[slug]?.[locale] ?? slug;
-const canonical = `https://vote-scope.com/en/budget/${slug}/`;
-const alternates = { en: canonical, fr: `https://vote-scope.com/fr/budget/${slug}/`, es: `https://vote-scope.com/es/budget/${slug}/` };
+const canonical = `https://vote-scope.com/en/budget/${slug}`;
+const alternates = { en: canonical, fr: `https://vote-scope.com/fr/budget/${slug}`, es: `https://vote-scope.com/es/budget/${slug}` };
 ---
 <EditorialLayout
   title={`${jur} Budgets — Independent Analysis — Vote-Scope`}

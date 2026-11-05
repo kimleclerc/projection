@@ -19,6 +19,7 @@ const I18N = path.join(OUT, '_i18n');
 
 const FILES = [
   ['canada', '2025'],
+  ['canada', '2026'],
   ['ontario', '2026'],
   ['quebec', '2026'],
 ];

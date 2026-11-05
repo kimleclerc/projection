@@ -18,16 +18,17 @@ const alternates = {
   fr: `https://vote-scope.com${budgetEdition('fr', data.slug, data.edition)}`,
   es: `https://vote-scope.com${budgetEdition('es', data.slug, data.edition)}`,
 };
-const desc = `Independent analysis of ${heading} (${jur}): the numbers, the sectors and what changes for you. Tabled by ${data.minister}. Not affiliated with any government.`;
+const desc = (t(data.headline, locale) ? `${t(data.headline, locale)} ` : '') + `Independent analysis of ${heading} (${jur}): the numbers, the sectors and what changes for you. Tabled by ${data.minister}. Not affiliated with any government.`;
 ---
 
 <EditorialLayout
-  title={`${heading} — ${jur} · Independent Analysis — Vote-Scope`}
+  title={t(data.seo_title, locale) ? `${t(data.seo_title, locale)} — Vote-Scope` : `${heading} — ${jur} · Independent Analysis — Vote-Scope`}
   description={desc}
   canonical={canonical}
   lang="en"
   currentPage="budget"
-  ogImage="https://vote-scope.com/og/vote-scope.png"
+  ogImage={`https://vote-scope.com/og/budget/${data.slug}/${data.edition}/en.png?v=${data.meta.ingested_at}`}
+  ogType="article"
   alternates={alternates}
   jsonLd={[
     {
@@ -37,7 +38,7 @@ const desc = `Independent analysis of ${heading} (${jur}): the numbers, the sect
       description: desc,
       url: canonical,
       inLanguage: 'en',
-      datePublished: t(data.date_tabled, 'en'),
+      datePublished: data.date_iso,
       dateModified: data.meta.ingested_at,
       author: { '@type': 'Person', name: 'Kim Leclerc', url: 'https://kimleclerc.ca' },
       publisher: { '@type': 'Organization', name: 'Vote-Scope', url: 'https://vote-scope.com' },
@@ -48,9 +49,9 @@ const desc = `Independent analysis of ${heading} (${jur}): the numbers, the sect
       '@context': 'https://schema.org',
       '@type': 'BreadcrumbList',
       itemListElement: [
-        { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: 'https://vote-scope.com/en/' },
-        { '@type': 'ListItem', position: 2, name: 'Budget', item: 'https://vote-scope.com/en/budget/' },
-        { '@type': 'ListItem', position: 3, name: jur, item: `https://vote-scope.com/en/budget/${data.slug}/` },
+        { '@type': 'ListItem', position: 1, name: 'Vote-Scope', item: 'https://vote-scope.com/en' },
+        { '@type': 'ListItem', position: 2, name: 'Budget', item: 'https://vote-scope.com/en/budget' },
+        { '@type': 'ListItem', position: 3, name: jur, item: `https://vote-scope.com/en/budget/${data.slug}` },
         { '@type': 'ListItem', position: 4, name: heading, item: canonical },
       ],
     },

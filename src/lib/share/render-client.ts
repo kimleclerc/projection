@@ -98,3 +98,10 @@ export async function renderCallPng(fmt: 'wide' | 'square' | 'story', lang: Lang
   const { w, h } = SIZE[fmt];
   return toPng(callCard(fmt, lang, payload), w, h);
 }
+
+/** Image d'un budget ou d'un de ses profils, à partir des chiffres de la page. */
+export async function renderBudgetPng(fmt: 'wide' | 'square' | 'story', lang: Lang, payload: import('./cards').BudgetCardInput): Promise<Blob> {
+  const { budgetCard, SIZE } = await import('./cards');
+  const { w, h } = SIZE[fmt];
+  return toPng(budgetCard(fmt, lang, payload), w, h);
+}

@@ -5,12 +5,12 @@
  * images de partage (lib/share/cards → ridingCard).
  */
 import { useEffect, useState } from 'preact/hooks';
-import type { RidingCardInput, SlateCardInput } from '../lib/share/cards';
+import type { RidingCardInput, SlateCardInput, BudgetCardInput } from '../lib/share/cards';
 
 type Lang = 'fr' | 'en' | 'es';
 type Fmt = 'wide' | 'square' | 'story';
 // Une fiche (ridingCard) par défaut ; « slate » : une série de courses (slateCard).
-type Payload = { slug: string; jurisdiction: string } & ((RidingCardInput & { card?: 'riding' }) | (SlateCardInput & { card: 'slate' }));
+type Payload = { slug: string; jurisdiction: string } & ((RidingCardInput & { card?: 'riding' }) | (SlateCardInput & { card: 'slate' }) | (BudgetCardInput & { card: 'budget' }));
 interface Props { lang: Lang; payload: Payload }
 
 const T = {
@@ -33,6 +33,7 @@ export default function RidingShareButton({ lang, payload }: Props) {
   const name = (f: Fmt) => `vote-scope-${payload.slug}-${lang}${f === 'wide' ? '' : `-${f}`}.png`;
   const render = async (f: Fmt) => {
     const r = await import('../lib/share/render-client');
+    if (payload.card === 'budget') return r.renderBudgetPng(f, lang, payload);
     return payload.card === 'slate' ? r.renderSlatePng(f, lang, payload) : r.renderRidingPng(f, lang, payload);
   };
   const track = { 'data-analytics-event': 'share_click', 'data-analytics-kind': 'riding', 'data-analytics-election': payload.jurisdiction };

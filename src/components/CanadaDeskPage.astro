@@ -10,6 +10,8 @@ import EditorialLayout from '../layouts/EditorialLayout.astro';
 import PageHeader from './PageHeader.astro';
 import ElectionsBand from './ElectionsBand.astro';
 import StoryList from './StoryList.astro';
+import { getEdition } from '../lib/budget-data';
+import { t as budgetText, answerOf, budgetEdition } from '../lib/budget';
 import DeskSections from './DeskSections.astro';
 import MethodologyNote from './MethodologyNote.astro';
 import PolymarketEmbed from './PolymarketEmbed.astro';
@@ -155,6 +157,9 @@ const indexes = [
 // La page Fraser n'existe pas en espagnol : pas de lien vers une page absente.
 if (lang === 'es') indexes.pop();
 
+const budget = getEdition('canada', '2026');
+const budgetItems = budget ? [{ meta: budgetText(budget.date_tabled, lang), title: budgetText(budget.title, lang), text: answerOf(budget, lang), href: budgetEdition(lang, 'canada', '2026') }] : [];
+
 const title = L('Projections électorales au Canada', 'Canada election forecasts', 'Proyecciones electorales en Canadá');
 const seoTitle = L(
   'Projections électorales au Canada — fédéral, Québec, Ontario, C.-B. — Vote-Scope',
@@ -257,6 +262,12 @@ const T = {
     </div>
     <p class="vs-meta">{T.updated}</p>
   </section>
+
+  {budgetItems.length > 0 && (
+    <section class="container ca-block">
+      <StoryList heading={L('Le budget', 'The budget', 'El presupuesto')} items={budgetItems} size="sm" />
+    </section>
+  )}
 
   <section class="container ca-block">
     <StoryList heading={T.indexes} items={indexes} size="sm" />

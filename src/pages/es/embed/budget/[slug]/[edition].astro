@@ -1,0 +1,9 @@
+---
+import BudgetEmbed from '../../../../../components/embeds/BudgetEmbed.astro';
+import { ALL } from '../../../../../lib/budget-data';
+export function getStaticPaths() {
+  return ALL.map((d) => ({ params: { slug: d.slug, edition: d.edition }, props: { data: d } }));
+}
+const { data } = Astro.props;
+---
+<BudgetEmbed data={data} locale="es" />
