@@ -102,11 +102,11 @@ export const UI = {
 export const lab = (l: L, locale: Locale) => l[locale];
 
 // ── URLs (event-scopées, permanentes) ────────────────────────────────────────
-export const budgetHub = (locale: Locale) => `/${locale}/budget`;
-export const budgetJur = (locale: Locale, slug: string) => `/${locale}/budget/${slug}`;
+export const budgetHub = (locale: Locale) => `/${locale}/budget/`;
+export const budgetJur = (locale: Locale, slug: string) => `/${locale}/budget/${slug}/`;
 export const budgetEdition = (locale: Locale, slug: string, edition: string) =>
-  `/${locale}/budget/${slug}/${edition}`;
-export const labHub = (locale: Locale) => `/${locale}/lab`;
+  `/${locale}/budget/${slug}/${edition}/`;
+export const labHub = (locale: Locale) => `/${locale}/lab/`;
 
 export const methodHref = (locale: Locale): string =>
   locale === 'en' ? '/en/methodology/' : `/${locale}/${locale === 'es' ? 'metodologia' : 'methodologie'}/`;
