@@ -5,6 +5,9 @@
  * (les résultats des mi-mandats américains) et, en colonne, les autres
  * élections par date.
  */
+import StoryList from './StoryList.astro';
+import { latestFor } from '../lib/budget-data';
+import { t as budgetText, answerOf, budgetEdition } from '../lib/budget';
 import ElectionsBand from './ElectionsBand.astro';
 import UsMidtermsHomeCard from '../islands/UsMidtermsHomeCard.tsx';
 import { usResultsHome, priorMajority } from '../data/us-results-context';
@@ -30,6 +33,10 @@ const T = {
   },
 };
 const usRes = usResultsHome(lang);
+// Le dernier budget fédéral reste en tête de la colonne pendant 30 jours après son dépôt.
+const budget = latestFor('canada');
+const budgetFresh = budget?.date_iso && (Date.now() - Date.parse(budget.date_iso)) / 86400000 <= 30;
+const budgetItems = budget && budgetFresh ? [{ meta: budgetText(budget.date_tabled, lang), title: budgetText(budget.title, lang), text: answerOf(budget, lang), href: budgetEdition(lang, budget.slug, budget.edition), strong: true }] : [];
 const usHome = lang === 'fr' ? '/fr/us/' : lang === 'es' ? '/es/us/' : '/en/us/';
 ---
 <section class="home-front">
@@ -50,6 +57,7 @@ const usHome = lang === 'fr' ? '/fr/us/' : lang === 'es' ? '/es/us/' : '/en/us/'
         </p>
       </article>
       <aside class="hf-side">
+        {budgetItems.length > 0 && <div class="hf-budget"><StoryList items={budgetItems} size="sm" /></div>}
         <ElectionsBand lang={lang} compact exclude={['us-2026']} />
       </aside>
     </div>
@@ -62,6 +70,7 @@ const usHome = lang === 'fr' ? '/fr/us/' : lang === 'es' ? '/es/us/' : '/en/us/'
   .hf-mast h1 { font-size: clamp(30px, 3.6vw, 44px) !important; margin-bottom: 8px !important; }
   .hf-promise { margin: 0; max-width: 760px; color: var(--ink-2); font-size: 17px; line-height: 1.5; }
   .hf-grid { display: grid; grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr); gap: 44px; padding-top: 22px; border-top: 3px solid var(--ink); }
+  .hf-budget { margin-bottom: 24px; }
   .hf-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; margin: 18px 0 0; }
   @media (max-width: 900px) {
     .hf-grid { grid-template-columns: 1fr; gap: 28px; }

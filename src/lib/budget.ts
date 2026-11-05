@@ -45,6 +45,8 @@ export interface BudgetData {
   date_iso?: string;
   /** Notre lecture : sous-titre et paragraphes. */
   reading?: { title: Prose; body: Prose[] }[];
+  /** Réactions au budget, attribuées et liées à leur source. */
+  reactions?: { who: Prose; person: Prose; text: Prose; url: string; source: Prose }[];
   notebook: { url: string; label: Prose; note: Prose } | null;
   meta: { analyst: string; org: string; source: string; ingested_at: string; needs_translation: string[] };
 }
@@ -75,6 +77,8 @@ export const UI = {
     'Independent analysis, not affiliated with any government.',
     'Análisis independiente, sin vínculo con ningún gobierno.'),
   reading: M('Notre lecture', 'Our reading', 'Nuestra lectura'),
+  reactions: M('Les réactions', 'Reactions', 'Las reacciones'),
+  source: M('Source :', 'Source:', 'Fuente:'),
   by: M('Par Kim Leclerc', 'By Kim Leclerc', 'Por Kim Leclerc'),
   details: M('Le détail', 'The details', 'El detalle'),
   spending: M('Sommes', 'Amounts', 'Montos'),

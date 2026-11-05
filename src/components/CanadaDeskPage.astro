@@ -236,6 +236,12 @@ const T = {
     </section>
   )}
 
+  {budgetItems.length > 0 && (
+    <section class="container ca-block">
+      <StoryList heading={L('Le budget', 'The budget', 'El presupuesto')} items={budgetItems} size="sm" />
+    </section>
+  )}
+
   <ElectionsBand lang={lang} scope="canada" exclude={by ? ['ca-byelections'] : []} />
 
   <section class="container ca-block" aria-labelledby="ca-proj">
@@ -262,12 +268,6 @@ const T = {
     </div>
     <p class="vs-meta">{T.updated}</p>
   </section>
-
-  {budgetItems.length > 0 && (
-    <section class="container ca-block">
-      <StoryList heading={L('Le budget', 'The budget', 'El presupuesto')} items={budgetItems} size="sm" />
-    </section>
-  )}
 
   <section class="container ca-block">
     <StoryList heading={T.indexes} items={indexes} size="sm" />

@@ -300,6 +300,7 @@ const navLinks = [
   { href: copy.france, label: copy.franceLabel, key: 'france' },
   { href: copy.spain, label: copy.spainLabel, key: 'spain' },
   { href: copy.indexes, label: copy.indexesLabel, key: 'indexes' },
+  { href: `/${lang}/budget/`, label: lang === 'es' ? 'Presupuesto' : 'Budget', key: 'budget' },
   { href: copy.sports, label: copy.sportsLabel, key: 'sports' },
 ];
 
@@ -461,8 +462,9 @@ const myRacesLabel = lang === 'fr' ? 'Mes courses' : lang === 'es' ? 'Mis contie
   <link rel="alternate" hreflang="x-default" href={derivedAlternates.en} />
 
   <!-- Favicons -->
-  <link rel="icon" href="/favicon.ico" sizes="any" />
-  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="icon" href="/favicon.ico?v=2" sizes="any" />
+  <link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=2" />
 
   {/* schema.org JSON-LD — ONE <script> per schema, never a single array.
 

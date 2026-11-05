@@ -81,6 +81,20 @@ const crumbLabel = locale === 'fr' ? 'Fil d’Ariane' : locale === 'es' ? 'Ruta 
       </section>
     )}
 
+    {data.reactions && data.reactions.length > 0 && (
+      <section class="bd-section" id="reactions">
+        <h2>{UI.reactions[locale]}</h2>
+        {data.reactions.map((r) => (
+          <div class="bd-item">
+            <h3>{t(r.who, locale)}</h3>
+            <p class="bd-amount">{t(r.person, locale)}</p>
+            <p>{t(r.text, locale)}</p>
+            <p class="vs-meta">{UI.source[locale]} <a class="vs-link" href={r.url} target="_blank" rel="noopener">{t(r.source, locale)}</a></p>
+          </div>
+        ))}
+      </section>
+    )}
+
     {data.audiences.length > 0 && (
       <section class="bd-section" id="pour-vous">
         <h2>{UI.forYou[locale]}</h2>
