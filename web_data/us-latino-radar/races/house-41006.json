@@ -4,12 +4,12 @@
   "slug": "or-6",
   "name": "OR-6",
   "state": "OR",
-  "rank": 64,
-  "score": 28.4,
+  "rank": 121,
+  "score": 13.2,
   "eligibility": {
     "eligible": true,
     "latino_cvap_threshold": true,
-    "verified_candidate": true,
+    "verified_candidate": false,
     "mobilization_signal": false
   },
   "projection": {
@@ -21,11 +21,11 @@
       "us_oth": 0.0
     },
     "vote_mean": {
-      "us_dem": 58.92,
-      "us_rep": 41.08,
+      "us_dem": 58.95,
+      "us_rep": 41.05,
       "us_oth": 0.0
     },
-    "mean_margin": 17.92,
+    "mean_margin": 17.97,
     "rating": {
       "code": "solid_dem",
       "side": "dem",
@@ -35,8 +35,8 @@
     "current_party": "us_dem"
   },
   "movement_7d": {
-    "delta_probability_points": 0.35,
-    "comparison_date": "2026-10-28"
+    "delta_probability_points": 0.34,
+    "comparison_date": "2026-10-29"
   },
   "components": [
     {
@@ -75,7 +75,7 @@
       "source": {
         "label": "Vote-Scope model",
         "url": "/web_data/us-house/latest.json",
-        "as_of": "2026-11-04",
+        "as_of": "2026-11-05",
         "confidence": "model"
       },
       "detail": {}
@@ -94,7 +94,7 @@
       "source": {
         "label": "Vote-Scope model",
         "url": "/web_data/us-house/latest.json",
-        "as_of": "2026-11-04",
+        "as_of": "2026-11-05",
         "confidence": "model"
       },
       "detail": {
@@ -108,15 +108,15 @@
         "en": "Candidate representation",
         "es": "Representación de candidatos"
       },
-      "score": 100.0,
+      "score": 0.0,
       "weight": 15,
-      "raw_value": 1,
+      "raw_value": 0,
       "unit": "verified candidates",
       "source": {
-        "label": "U.S. House History — Hispanic-American members of the 119th Congress",
-        "url": "https://history.house.gov/Exhibitions-and-Publications/HAIC/Historical-Data/Hispanic-American-Representatives%2C-Senators%2C-Delegates%2C-and-Resident-Commissioners-by-Congress/",
-        "as_of": "2026-07-24",
-        "confidence": "reviewed"
+        "label": "Vote-Scope reviewed identity registry",
+        "url": "",
+        "as_of": "2026-11-05",
+        "confidence": "no verified candidate in registry"
       },
       "detail": {}
     },
@@ -127,14 +127,14 @@
         "en": "Control importance",
         "es": "Importancia para el control"
       },
-      "score": 23.6,
+      "score": 22.5,
       "weight": 10,
-      "raw_value": 23.57,
+      "raw_value": 22.49,
       "unit": "normalized pivotality",
       "source": {
         "label": "Vote-Scope model",
         "url": "/web_data/us-house/latest.json",
-        "as_of": "2026-11-04",
+        "as_of": "2026-11-05",
         "confidence": "model"
       },
       "detail": {
@@ -150,16 +150,16 @@
       },
       "score": 2.3,
       "weight": 10,
-      "raw_value": 0.35,
+      "raw_value": 0.34,
       "unit": "probability points over at least 7 days",
       "source": {
         "label": "Vote-Scope model",
         "url": "/web_data/us-house/latest.json",
-        "as_of": "2026-11-04",
+        "as_of": "2026-11-05",
         "confidence": "model"
       },
       "detail": {
-        "comparison_date": "2026-10-28"
+        "comparison_date": "2026-10-29"
       }
     },
     {
@@ -188,8 +188,8 @@
     }
   ],
   "reason_keys": [
-    "candidate_representation",
-    "latino_electorate"
+    "latino_electorate",
+    "mobilization"
   ],
   "candidates": [
     {
@@ -210,13 +210,8 @@
         "certified_on": "",
         "confidence": "official"
       },
-      "latino_verified": true,
-      "identity_source": {
-        "url": "https://history.house.gov/Exhibitions-and-Publications/HAIC/Historical-Data/Hispanic-American-Representatives%2C-Senators%2C-Delegates%2C-and-Resident-Commissioners-by-Congress/",
-        "label": "U.S. House History — Hispanic-American members of the 119th Congress",
-        "verified_on": "2026-07-24",
-        "verified_by": "Vote-Scope"
-      }
+      "latino_verified": false,
+      "identity_source": null
     },
     {
       "fec_id": "H2OR01240",
@@ -1403,6 +1398,17 @@
         "us_dem": 0.9906,
         "us_rep": 0.0094
       }
+    },
+    {
+      "date": "2026-11-05",
+      "vote_mean": {
+        "us_dem": 58.95,
+        "us_rep": 41.05
+      },
+      "win_prob": {
+        "us_dem": 0.9906,
+        "us_rep": 0.0094
+      }
     }
   ],
   "sources": [
@@ -1415,7 +1421,7 @@
     {
       "label": "Vote-Scope model",
       "url": "/web_data/us-house/latest.json",
-      "as_of": "2026-11-04",
+      "as_of": "2026-11-05",
       "confidence": "model"
     },
     {
@@ -1423,12 +1429,6 @@
       "url": "https://www2.census.gov/programs-surveys/cps/tables/p20/587/vote04b_2024.xlsx",
       "as_of": "2026-07-24",
       "confidence": "official; state estimate"
-    },
-    {
-      "label": "U.S. House History — Hispanic-American members of the 119th Congress",
-      "url": "https://history.house.gov/Exhibitions-and-Publications/HAIC/Historical-Data/Hispanic-American-Representatives%2C-Senators%2C-Delegates%2C-and-Resident-Commissioners-by-Congress/",
-      "as_of": "2026-07-24",
-      "confidence": "reviewed"
     },
     {
       "label": "Associated Press calls reported by Wikipedia — unofficial, pending state certification",
@@ -1440,7 +1440,7 @@
   "data_completeness": {
     "score": 100,
     "required_fields_present": true,
-    "candidate_registry_reviewed": true,
+    "candidate_registry_reviewed": false,
     "mobilization_signal_reviewed": false
   },
   "urls": {
@@ -1458,5 +1458,5 @@
     "en": "/og/latino-radar/house-or-6-en.png",
     "es": "/og/latino-radar/house-or-6-es.png"
   },
-  "run_date": "2026-11-04"
+  "run_date": "2026-11-05"
 }

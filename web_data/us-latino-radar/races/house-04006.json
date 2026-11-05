@@ -4,28 +4,28 @@
   "slug": "az-6",
   "name": "AZ-6",
   "state": "AZ",
-  "rank": 7,
-  "score": 59.3,
+  "rank": 15,
+  "score": 44.6,
   "eligibility": {
     "eligible": true,
     "latino_cvap_threshold": true,
-    "verified_candidate": true,
+    "verified_candidate": false,
     "mobilization_signal": false
   },
   "projection": {
     "winner": "us_dem",
-    "p_winner": 0.789,
+    "p_winner": 0.7919,
     "win_prob": {
-      "us_dem": 0.789,
-      "us_rep": 0.211,
+      "us_dem": 0.7919,
+      "us_rep": 0.2081,
       "us_oth": 0.0
     },
     "vote_mean": {
-      "us_dem": 52.65,
-      "us_rep": 47.05,
-      "us_oth": 0.3
+      "us_dem": 52.68,
+      "us_rep": 47.02,
+      "us_oth": 0.31
     },
-    "mean_margin": 7.42,
+    "mean_margin": 7.47,
     "rating": {
       "code": "lean_dem",
       "side": "dem",
@@ -35,8 +35,8 @@
     "current_party": "us_rep"
   },
   "movement_7d": {
-    "delta_probability_points": 4.74,
-    "comparison_date": "2026-10-28"
+    "delta_probability_points": 5.29,
+    "comparison_date": "2026-10-29"
   },
   "components": [
     {
@@ -68,14 +68,14 @@
         "en": "Competitiveness",
         "es": "Competitividad"
       },
-      "score": 42.2,
+      "score": 41.6,
       "weight": 20,
-      "raw_value": 78.9,
+      "raw_value": 79.19,
       "unit": "favorite probability",
       "source": {
         "label": "Vote-Scope model",
         "url": "/web_data/us-house/latest.json",
-        "as_of": "2026-11-04",
+        "as_of": "2026-11-05",
         "confidence": "model"
       },
       "detail": {}
@@ -87,14 +87,14 @@
         "en": "Flip probability",
         "es": "Probabilidad de cambio"
       },
-      "score": 78.9,
+      "score": 79.2,
       "weight": 15,
-      "raw_value": 78.9,
+      "raw_value": 79.19,
       "unit": "percent",
       "source": {
         "label": "Vote-Scope model",
         "url": "/web_data/us-house/latest.json",
-        "as_of": "2026-11-04",
+        "as_of": "2026-11-05",
         "confidence": "model"
       },
       "detail": {
@@ -108,15 +108,15 @@
         "en": "Candidate representation",
         "es": "Representación de candidatos"
       },
-      "score": 100.0,
+      "score": 0.0,
       "weight": 15,
-      "raw_value": 1,
+      "raw_value": 0,
       "unit": "verified candidates",
       "source": {
-        "label": "U.S. House History — Hispanic-American members of the 119th Congress",
-        "url": "https://history.house.gov/Exhibitions-and-Publications/HAIC/Historical-Data/Hispanic-American-Representatives%2C-Senators%2C-Delegates%2C-and-Resident-Commissioners-by-Congress/",
-        "as_of": "2026-07-24",
-        "confidence": "reviewed"
+        "label": "Vote-Scope reviewed identity registry",
+        "url": "",
+        "as_of": "2026-11-05",
+        "confidence": "no verified candidate in registry"
       },
       "detail": {}
     },
@@ -134,7 +134,7 @@
       "source": {
         "label": "Vote-Scope model",
         "url": "/web_data/us-house/latest.json",
-        "as_of": "2026-11-04",
+        "as_of": "2026-11-05",
         "confidence": "model"
       },
       "detail": {
@@ -148,18 +148,18 @@
         "en": "Recent movement",
         "es": "Dinámica reciente"
       },
-      "score": 31.6,
+      "score": 35.3,
       "weight": 10,
-      "raw_value": 4.74,
+      "raw_value": 5.29,
       "unit": "probability points over at least 7 days",
       "source": {
         "label": "Vote-Scope model",
         "url": "/web_data/us-house/latest.json",
-        "as_of": "2026-11-04",
+        "as_of": "2026-11-05",
         "confidence": "model"
       },
       "detail": {
-        "comparison_date": "2026-10-28"
+        "comparison_date": "2026-10-29"
       }
     },
     {
@@ -188,36 +188,10 @@
     }
   ],
   "reason_keys": [
-    "candidate_representation",
-    "flip_probability"
+    "flip_probability",
+    "control_importance"
   ],
   "candidates": [
-    {
-      "fec_id": "H2AZ02360",
-      "name": "Juan Ciscomani",
-      "party": "us_rep",
-      "party_labels": {
-        "fr": "Républicain",
-        "en": "Republican",
-        "es": "Republicano"
-      },
-      "incumbency": "I",
-      "filing_status": "C",
-      "ballot_status": "qualified_general",
-      "ballot_source": {
-        "url": "https://en.wikipedia.org/wiki/2026_United_States_House_of_Representatives_elections_in_Arizona",
-        "label": "Associated Press calls reported by Wikipedia — unofficial, pending state certification",
-        "certified_on": "",
-        "confidence": "official"
-      },
-      "latino_verified": true,
-      "identity_source": {
-        "url": "https://history.house.gov/Exhibitions-and-Publications/HAIC/Historical-Data/Hispanic-American-Representatives%2C-Senators%2C-Delegates%2C-and-Resident-Commissioners-by-Congress/",
-        "label": "U.S. House History — Hispanic-American members of the 119th Congress",
-        "verified_on": "2026-07-24",
-        "verified_by": "Vote-Scope"
-      }
-    },
     {
       "fec_id": "H6AZ06107",
       "name": "Chris Donat",
@@ -268,6 +242,27 @@
       "filing_status": "C",
       "ballot_status": "fec_filing",
       "ballot_source": null,
+      "latino_verified": false,
+      "identity_source": null
+    },
+    {
+      "fec_id": "H2AZ02360",
+      "name": "Juan Ciscomani",
+      "party": "us_rep",
+      "party_labels": {
+        "fr": "Républicain",
+        "en": "Republican",
+        "es": "Republicano"
+      },
+      "incumbency": "I",
+      "filing_status": "C",
+      "ballot_status": "qualified_general",
+      "ballot_source": {
+        "url": "https://en.wikipedia.org/wiki/2026_United_States_House_of_Representatives_elections_in_Arizona",
+        "label": "Associated Press calls reported by Wikipedia — unofficial, pending state certification",
+        "certified_on": "",
+        "confidence": "official"
+      },
       "latino_verified": false,
       "identity_source": null
     },
@@ -1605,6 +1600,18 @@
         "us_dem": 0.789,
         "us_rep": 0.211
       }
+    },
+    {
+      "date": "2026-11-05",
+      "vote_mean": {
+        "us_dem": 52.68,
+        "us_rep": 47.02,
+        "us_oth": 0.31
+      },
+      "win_prob": {
+        "us_dem": 0.7919,
+        "us_rep": 0.2081
+      }
     }
   ],
   "sources": [
@@ -1617,7 +1624,7 @@
     {
       "label": "Vote-Scope model",
       "url": "/web_data/us-house/latest.json",
-      "as_of": "2026-11-04",
+      "as_of": "2026-11-05",
       "confidence": "model"
     },
     {
@@ -1625,12 +1632,6 @@
       "url": "https://www2.census.gov/programs-surveys/cps/tables/p20/587/vote04b_2024.xlsx",
       "as_of": "2026-07-24",
       "confidence": "official; state estimate"
-    },
-    {
-      "label": "U.S. House History — Hispanic-American members of the 119th Congress",
-      "url": "https://history.house.gov/Exhibitions-and-Publications/HAIC/Historical-Data/Hispanic-American-Representatives%2C-Senators%2C-Delegates%2C-and-Resident-Commissioners-by-Congress/",
-      "as_of": "2026-07-24",
-      "confidence": "reviewed"
     },
     {
       "label": "Associated Press calls reported by Wikipedia — unofficial, pending state certification",
@@ -1642,7 +1643,7 @@
   "data_completeness": {
     "score": 100,
     "required_fields_present": true,
-    "candidate_registry_reviewed": true,
+    "candidate_registry_reviewed": false,
     "mobilization_signal_reviewed": false
   },
   "urls": {
@@ -1660,5 +1661,5 @@
     "en": "/og/latino-radar/house-az-6-en.png",
     "es": "/og/latino-radar/house-az-6-es.png"
   },
-  "run_date": "2026-11-04"
+  "run_date": "2026-11-05"
 }
