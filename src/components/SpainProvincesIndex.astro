@@ -1,0 +1,108 @@
+---
+// Les 52 circonscriptions du Congrès : sièges, listes proclamées et projection.
+import EditorialLayout from '../layouts/EditorialLayout.astro';
+import JurisdictionNav from './JurisdictionNav.astro';
+import { partyMeta } from '../lib/riding-adapters/parties';
+import { candidatesMeta, getSpainProvinces, provinceUrl, type Locale } from '../lib/spain-provinces';
+
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+const provinces = getSpainProvinces();
+const label = (k: string) => partyMeta('spain', k).label_en;
+const color = (k: string) => partyMeta('spain', k).color;
+const seatsOf = (proj: Record<string, any>) =>
+  Object.entries(proj).filter(([, v]) => v.seats_median > 0).sort((a, b) => b[1].seats_median - a[1].seats_median);
+const nf = (n: number) => n.toLocaleString(locale === 'en' ? 'en-GB' : locale === 'fr' ? 'fr-FR' : 'es-ES');
+
+const T = {
+  fr: {
+    title: 'Élections en Espagne : candidats au Congrès par province — Vote-Scope',
+    description: `Les ${candidatesMeta.n_lists} listes proclamées dans les 52 circonscriptions pour les élections générales espagnoles du 29 novembre 2026, avec notre projection des sièges province par province.`,
+    eyebrow: 'Espagne · élections générales du 29 novembre 2026',
+    h1: 'Candidats au Congrès, province par province',
+    lede: `${nf(candidatesMeta.n_lists)} listes et ${nf(candidatesMeta.n_candidates)} candidats, titulaires et suppléants, dans les 52 circonscriptions. Pour chacune : ses sièges, ses listes et notre projection.`,
+    th: ['Province', 'Sièges', 'Listes', 'Projection médiane'],
+  },
+  en: {
+    title: 'Spain election: Congress candidates by province — Vote-Scope',
+    description: `The ${candidatesMeta.n_lists} lists proclaimed in Spain's 52 constituencies for the 29 November 2026 general election, with our seat projection for each province.`,
+    eyebrow: 'Spain · general election, 29 November 2026',
+    h1: 'Congress candidates, province by province',
+    lede: `${nf(candidatesMeta.n_lists)} lists and ${nf(candidatesMeta.n_candidates)} candidates, including substitutes, in the 52 constituencies. For each: its seats, its lists and our projection.`,
+    th: ['Province', 'Seats', 'Lists', 'Median projection'],
+  },
+  es: {
+    title: 'Elecciones generales: candidatos al Congreso por provincia — Vote-Scope',
+    description: `Las ${candidatesMeta.n_lists} candidaturas proclamadas en las 52 circunscripciones para las elecciones generales del 29 de noviembre de 2026, con nuestra proyección de escaños provincia por provincia.`,
+    eyebrow: 'España · elecciones generales del 29 de noviembre de 2026',
+    h1: 'Candidatos al Congreso, provincia por provincia',
+    lede: `${nf(candidatesMeta.n_lists)} candidaturas y ${nf(candidatesMeta.n_candidates)} candidatos, titulares y suplentes, en las 52 circunscripciones. En cada una: sus escaños, sus candidaturas y nuestra proyección.`,
+    th: ['Provincia', 'Escaños', 'Candidaturas', 'Proyección mediana'],
+  },
+}[locale];
+
+const canonical = `https://vote-scope.com${provinceUrl(locale)}`;
+const alternates = {
+  en: `https://vote-scope.com${provinceUrl('en')}`,
+  fr: `https://vote-scope.com${provinceUrl('fr')}`,
+  es: `https://vote-scope.com${provinceUrl('es')}`,
+};
+---
+
+<EditorialLayout title={T.title} description={T.description} canonical={canonical} lang={locale} currentPage="spain" alternates={alternates}>
+  <JurisdictionNav webKey="spain" lang={locale} active="districts" />
+  <article class="es-provs" data-content-area>
+    <header class="vs-page-head">
+      <div class="container">
+        <p class="eyebrow">{T.eyebrow}</p>
+        <h1>{T.h1}</h1>
+        <p class="lede">{T.lede}</p>
+      </div>
+    </header>
+    <section class="container">
+      <div class="table-wrap">
+        <table class="es-provs-table">
+          <thead><tr>{T.th.map((h, i) => <th class={i === 1 || i === 2 ? 'num' : ''}>{h}</th>)}</tr></thead>
+          <tbody>
+            {provinces.map((p) => (
+              <tr>
+                <td>
+                  <a href={provinceUrl(locale, p.slug)}>{p.name}</a>
+                  <span class="proj-inline">
+                    {seatsOf(p.projection).map(([k, v]) => (
+                      <span class="seat"><span class="chip" style={`background:${color(k)}`}></span>{label(k)} {v.seats_median}</span>
+                    ))}
+                  </span>
+                </td>
+                <td class="num">{p.seats}</td>
+                <td class="num">{p.lists.length}</td>
+                <td class="proj-col">
+                  {seatsOf(p.projection).map(([k, v]) => (
+                    <span class="seat"><span class="chip" style={`background:${color(k)}`}></span>{label(k)} {v.seats_median}</span>
+                  ))}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </article>
+</EditorialLayout>
+
+<style>
+  .es-provs section { margin-block: 2rem; }
+  .table-wrap { overflow-x: auto; }
+  .es-provs-table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+  .es-provs-table th, .es-provs-table td { padding: 0.4rem 0.6rem; border-bottom: 1px solid var(--rule, #ddd); text-align: left; vertical-align: top; }
+  .es-provs-table .num { text-align: right; }
+  .seat { display: inline-block; margin-right: 0.75rem; white-space: nowrap; }
+  .chip { display: inline-block; width: 0.7rem; height: 0.7rem; border-radius: 2px; margin-right: 0.3rem; }
+  .proj-inline { display: none; }
+  /* Téléphone : la projection passe sous le nom plutôt que dans une 4e colonne
+     poussée hors de l'écran. */
+  @media (max-width: 640px) {
+    .proj-col, .es-provs-table th:last-child { display: none; }
+    .proj-inline { display: block; margin-top: 0.25rem; font-size: 0.85rem; color: var(--ink-3, #666); }
+  }
+</style>

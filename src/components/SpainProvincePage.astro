@@ -1,0 +1,181 @@
+---
+// Une province espagnole : les listes proclamées au Congrès (BOE du 3 novembre 2026)
+// et notre projection des sièges. Les rangs que la projection médiane fait élire sont
+// mis en évidence dans chaque liste.
+import EditorialLayout from '../layouts/EditorialLayout.astro';
+import JurisdictionNav from './JurisdictionNav.astro';
+import { partyMeta } from '../lib/riding-adapters/parties';
+import { candidatesMeta, provinceUrl, type Locale, type SpainProvince } from '../lib/spain-provinces';
+
+interface Props { locale: Locale; province: SpainProvince }
+const { locale, province: p } = Astro.props;
+
+const dec = (v: number) => (locale === 'en' ? v.toFixed(1) : v.toFixed(1).replace('.', ','));
+const pct = (v: number) => {
+  const x = Math.round(v * 100);
+  return x >= 99 ? '>99' : x < 1 ? '<1' : String(x);
+};
+const label = (k: string) => (k === 'other' ? '' : partyMeta('spain', k).label_en);
+const color = (k: string) => (k === 'other' ? '#9A938A' : partyMeta('spain', k).color);
+const published = new Date(`${candidatesMeta.published}T12:00:00`).toLocaleDateString(
+  locale === 'en' ? 'en-GB' : locale === 'fr' ? 'fr-FR' : 'es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+
+const projected = Object.entries(p.projection)
+  .filter(([, v]) => v.vote_mean >= 0.5 || v.seats_median > 0)
+  .sort((a, b) => b[1].seats_median - a[1].seats_median || b[1].vote_mean - a[1].vote_mean);
+const withSeats = projected.filter(([, v]) => v.seats_median > 0);
+const seatsOf = (party: string) => (party === 'other' ? 0 : p.projection[party]?.seats_median ?? 0);
+const seatWord = (n: number) =>
+  locale === 'en' ? (n === 1 ? 'seat' : 'seats') : locale === 'fr' ? (n === 1 ? 'siège' : 'sièges') : (n === 1 ? 'escaño' : 'escaños');
+const summary = withSeats.map(([k, v]) => `${label(k)} ${v.seats_median}`).join(' · ');
+
+const T = {
+  fr: {
+    title: `${p.name} : candidats au Congrès et projection des sièges, élections du 29 novembre — Vote-Scope`,
+    description: `Les ${p.lists.length} listes proclamées dans la circonscription de ${p.name} (${p.seats} ${seatWord(p.seats)}) pour les élections générales espagnoles du 29 novembre 2026, et notre projection : ${summary}.`,
+    eyebrow: 'Espagne · élections générales du 29 novembre 2026',
+    h1: `${p.name} : candidats et projection`,
+    lede: `${p.seats} ${seatWord(p.seats)} au Congrès, ${p.lists.length} listes proclamées. Notre projection médiane : ${summary || 'aucun siège attribué de façon stable'}.`,
+    projTitle: 'Projection des sièges',
+    th: ['Parti', 'Vote projeté', 'Sièges (médiane)', 'Au moins un siège', 'Sièges en 2023'],
+    listsTitle: 'Les listes, dans l’ordre du bulletin',
+    listsIntro: 'Les noms surlignés sont les rangs que notre projection médiane fait élire.',
+    subs: (n: number) => `${n} suppléant${n > 1 ? 's' : ''}`,
+    elected: 'élu selon la projection médiane',
+    source: `Listes proclamées par la junte électorale provinciale, publiées au Bulletin officiel de l’État le ${published}.`,
+    back: 'Toutes les provinces',
+    desk: 'La projection nationale',
+  },
+  en: {
+    title: `${p.name}: Congress candidates and seat projection, 29 November election — Vote-Scope`,
+    description: `The ${p.lists.length} lists proclaimed in ${p.name} (${p.seats} ${seatWord(p.seats)}) for Spain's general election on 29 November 2026, and our projection: ${summary}.`,
+    eyebrow: 'Spain · general election, 29 November 2026',
+    h1: `${p.name}: candidates and projection`,
+    lede: `${p.seats} ${seatWord(p.seats)} in Congress, ${p.lists.length} proclaimed lists. Our median projection: ${summary || 'no seat allocated consistently'}.`,
+    projTitle: 'Seat projection',
+    th: ['Party', 'Projected vote', 'Seats (median)', 'At least one seat', 'Seats in 2023'],
+    listsTitle: 'The lists, in ballot order',
+    listsIntro: 'Highlighted names are the places our median projection elects.',
+    subs: (n: number) => `${n} substitute${n > 1 ? 's' : ''}`,
+    elected: 'elected in the median projection',
+    source: `Lists proclaimed by the provincial electoral board, published in Spain's Official State Gazette on ${published}.`,
+    back: 'All provinces',
+    desk: 'The national projection',
+  },
+  es: {
+    title: `${p.name}: candidatos al Congreso y proyección de escaños, elecciones del 29 de noviembre — Vote-Scope`,
+    description: `Las ${p.lists.length} candidaturas proclamadas en ${p.name} (${p.seats} ${seatWord(p.seats)}) para las elecciones generales del 29 de noviembre de 2026, y nuestra proyección: ${summary}.`,
+    eyebrow: 'España · elecciones generales del 29 de noviembre de 2026',
+    h1: `${p.name}: candidatos y proyección`,
+    lede: `${p.seats} ${seatWord(p.seats)} en el Congreso, ${p.lists.length} candidaturas proclamadas. Nuestra proyección mediana: ${summary || 'ningún escaño asignado de forma estable'}.`,
+    projTitle: 'Proyección de escaños',
+    th: ['Partido', 'Voto proyectado', 'Escaños (mediana)', 'Al menos un escaño', 'Escaños en 2023'],
+    listsTitle: 'Las candidaturas, en el orden de la papeleta',
+    listsIntro: 'Los nombres resaltados son los puestos que nuestra proyección mediana hace entrar.',
+    subs: (n: number) => `${n} suplente${n > 1 ? 's' : ''}`,
+    elected: 'electo en la proyección mediana',
+    source: `Candidaturas proclamadas por la junta electoral provincial, publicadas en el Boletín Oficial del Estado el ${published}.`,
+    back: 'Todas las provincias',
+    desk: 'La proyección nacional',
+  },
+}[locale];
+
+const canonical = `https://vote-scope.com${provinceUrl(locale, p.slug)}`;
+const alternates = {
+  en: `https://vote-scope.com${provinceUrl('en', p.slug)}`,
+  fr: `https://vote-scope.com${provinceUrl('fr', p.slug)}`,
+  es: `https://vote-scope.com${provinceUrl('es', p.slug)}`,
+};
+const deskHref = `/${locale}/spain/`;
+---
+
+<EditorialLayout
+  title={T.title}
+  description={T.description}
+  canonical={canonical}
+  lang={locale}
+  currentPage="spain"
+  alternates={alternates}
+>
+  <JurisdictionNav webKey="spain" lang={locale} active="districts" />
+  <article class="es-prov" data-content-area>
+    <header class="vs-page-head">
+      <div class="container">
+        <p class="eyebrow">{T.eyebrow}</p>
+        <h1>{T.h1}</h1>
+        <p class="lede">{T.lede}</p>
+      </div>
+    </header>
+
+    <section class="container">
+      <h2>{T.projTitle}</h2>
+      <div class="table-wrap">
+        <table class="es-prov-table">
+          <thead><tr>{T.th.map((h, i) => <th class={i ? 'num' : ''}>{h}</th>)}</tr></thead>
+          <tbody>
+            {projected.map(([k, v]) => (
+              <tr>
+                <td><span class="chip" style={`background:${color(k)}`}></span>{label(k)}</td>
+                <td class="num">{dec(v.vote_mean)} %</td>
+                <td class="num"><strong>{v.seats_median}</strong></td>
+                <td class="num">{pct(v.p_at_least_one)} %</td>
+                <td class="num">{p.seats2023[k] ?? 0}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="container">
+      <h2>{T.listsTitle}</h2>
+      <p class="intro">{T.listsIntro}</p>
+      <ol class="es-lists">
+        {p.lists.map((l) => {
+          const n = seatsOf(l.party);
+          return (
+            <li class="es-list">
+              <h3>
+                <span class="chip" style={`background:${color(l.party)}`}></span>
+                <span class="order">{l.order}.</span> {l.name}{l.abbr && l.abbr !== l.name ? <span class="abbr"> ({l.abbr})</span> : null}
+                {n > 0 ? <span class="seats">{n} {seatWord(n)}</span> : null}
+              </h3>
+              <ol class="names">
+                {l.titulares.map((name, i) => (
+                  <li class={i < n ? 'in' : ''} title={i < n ? T.elected : undefined}>{name}</li>
+                ))}
+              </ol>
+              {l.suplentes.length > 0 && (
+                <details>
+                  <summary>{T.subs(l.suplentes.length)}</summary>
+                  <ol class="names subs">{l.suplentes.map((name) => <li>{name}</li>)}</ol>
+                </details>
+              )}
+            </li>
+          );
+        })}
+      </ol>
+      <p class="source"><a href={candidatesMeta.source_url} rel="noopener">{T.source}</a></p>
+      <p class="links"><a href={provinceUrl(locale)}>{T.back}</a> · <a href={deskHref}>{T.desk}</a></p>
+    </section>
+  </article>
+</EditorialLayout>
+
+<style>
+  .es-prov section { margin-block: 2rem; }
+  .table-wrap { overflow-x: auto; }
+  .es-prov-table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+  .es-prov-table th, .es-prov-table td { padding: 0.4rem 0.6rem; border-bottom: 1px solid var(--rule, #ddd); text-align: left; }
+  .es-prov-table .num { text-align: right; }
+  .chip { display: inline-block; width: 0.75rem; height: 0.75rem; border-radius: 2px; margin-right: 0.45rem; vertical-align: baseline; }
+  .es-lists { list-style: none; padding: 0; display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr)); }
+  .es-list h3 { font-size: 1rem; margin: 0 0 0.4rem; line-height: 1.35; }
+  .es-list .order { color: var(--ink-3, #666); }
+  .es-list .abbr { color: var(--ink-3, #666); font-weight: normal; }
+  .es-list .seats { display: inline-block; margin-left: 0.4rem; font-size: 0.8rem; font-weight: normal; color: var(--ink-3, #666); }
+  .names { margin: 0; padding-left: 1.6rem; font-size: 0.92rem; }
+  .names li.in { font-weight: 600; background: var(--highlight, rgba(255, 214, 0, 0.18)); }
+  .subs { color: var(--ink-3, #666); }
+  details summary { cursor: pointer; font-size: 0.85rem; color: var(--ink-3, #666); margin-top: 0.3rem; }
+  .intro, .source, .links { color: var(--ink-3, #666); font-size: 0.9rem; }
+</style>

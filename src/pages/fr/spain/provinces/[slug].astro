@@ -1,0 +1,11 @@
+---
+import SpainProvincePage from '../../../../components/SpainProvincePage.astro';
+import { getSpainProvinces } from '../../../../lib/spain-provinces';
+
+export function getStaticPaths() {
+  return getSpainProvinces().map((province) => ({ params: { slug: province.slug }, props: { province } }));
+}
+
+const { province } = Astro.props;
+---
+<SpainProvincePage locale="fr" province={province} />

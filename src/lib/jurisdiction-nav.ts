@@ -201,13 +201,16 @@ export const JURISDICTION_NAV: JurisdictionNavEntry[] = [
   },
   {
     // Élections générales espagnoles — 52 circonscriptions (provinces, Ceuta,
-    // Melilla) projetées sur le hub même ; pas encore de pages par province.
+    // Melilla). Une page par province : listes proclamées au Congrès (BOE du
+    // 3 novembre 2026) et projection des sièges.
     webKey: 'spain', langs: ['en', 'fr', 'es'], group: GROUP_ES,
     label: { en: 'Congress', fr: 'Congrès', es: 'Congreso' },
     base: { en: '/en/spain', fr: '/fr/spain', es: '/es/spain' },
     sections: {
       projection: { seg: SEG_NONE },
       polls: { seg: SEG_POLLS },
+      districts: { seg: { en: 'provinces', fr: 'provinces', es: 'provincias' },
+        label: { en: 'Provinces', fr: 'Provinces', es: 'Provincias' } },
     },
   },
 ];
