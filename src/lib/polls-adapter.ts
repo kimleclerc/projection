@@ -150,6 +150,20 @@ const LATEST = import.meta.glob<{ default: Record<string, unknown> }>(
   { eager: true },
 );
 
+// Archives : la série d'un cycle clos, figée dans src/data/ (la nuit n'y touche
+// jamais). Clé publique → dossier d'archive. Le desk courant garde sa clé
+// (« quebec » sert qc_2030 depuis le 11 nov. 2026) ; « quebec-2026 » sert les
+// sondages du cycle 2026 et la projection de la veille du 5 octobre.
+const ARCHIVE_DIRS: Record<string, string> = { 'quebec-2026': 'qc-2026-eve' };
+const ARCHIVE_INDEXES = import.meta.glob<{ default: PollsIndex }>(
+  '../data/*/polls/index.json', { eager: true });
+const ARCHIVE_FIRMS = import.meta.glob<{ default: PollFirm[] | Record<string, PollFirm> }>(
+  '../data/*/polls/firms.json', { eager: true });
+const ARCHIVE_DETAILS = import.meta.glob<{ default: PollDetail }>(
+  '../data/*/polls/!(index|firms).json', { eager: true });
+const ARCHIVE_LATEST = import.meta.glob<{ default: Record<string, unknown> }>(
+  '../data/*/latest.json', { eager: true });
+
 /** Extract `<web_key>` from any `.../web_data/<web_key>/…` path. */
 function webKeyFromPath(path: string): string {
   const m = /web_data\/([^/]+)\//.exec(path);
@@ -179,6 +193,23 @@ const DETAIL_BY_KEY: Record<string, Record<string, PollDetail>> = {};
 for (const [path, mod] of Object.entries(DETAILS)) {
   const key = webKeyFromPath(path);
   (DETAIL_BY_KEY[key] ??= {})[mod.default.poll_id] = mod.default;
+}
+
+for (const [key, dir] of Object.entries(ARCHIVE_DIRS)) {
+  const at = (glob: Record<string, any>, file: string) =>
+    glob[`../data/${dir}/${file}`]?.default;
+  const index = at(ARCHIVE_INDEXES, 'polls/index.json');
+  if (!index) continue;
+  INDEX_BY_KEY[key] = index;
+  const firms = at(ARCHIVE_FIRMS, 'polls/firms.json');
+  FIRMS_BY_KEY[key] = Array.isArray(firms) ? firms : (firms?.firms ?? Object.values(firms ?? {}));
+  const latest = at(ARCHIVE_LATEST, 'latest.json');
+  if (latest) LATEST_BY_KEY[key] = latest;
+  for (const [path, mod] of Object.entries(ARCHIVE_DETAILS)) {
+    if (path.startsWith(`../data/${dir}/polls/`)) {
+      (DETAIL_BY_KEY[key] ??= {})[mod.default.poll_id] = mod.default;
+    }
+  }
 }
 
 // --- public API -----------------------------------------------------------

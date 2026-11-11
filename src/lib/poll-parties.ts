@@ -15,6 +15,7 @@ const WEBKEY_TO_PALETTE: Record<string, string> = {
   'us-senate': 'us-senate',
   federal: 'federal-ca',
   quebec: 'quebec',
+  'quebec-2026': 'quebec',
   ontario: 'ontario',
   uk: 'uk',
   spain: 'spain',

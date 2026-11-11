@@ -32,6 +32,9 @@ export interface PollsHubConfig {
   base: Record<HubLang, string>;  // path prefix per language
   seg: Record<HubLang, string>;   // localized "polls" segment
   copy: Record<HubLang, HubCopy>;
+  /** Barre de navigation à afficher quand la clé n'est pas une juridiction
+   *  (archive d'un cycle clos : « quebec-2026 » → nav du Québec). */
+  navKey?: string;
 }
 
 const SEG: Record<HubLang, string> = { en: 'polls', fr: 'sondages', es: 'sondeos' };
@@ -134,16 +137,38 @@ export const POLLS_HUBS: Record<string, PollsHubConfig> = {
     copy: {
       en: { eyebrow: 'Polls · Quebec · National Assembly', h1: 'Quebec voting intention',
         lede1: 'CAQ, PLQ, PQ, QS: every published provincial poll on Quebec voting intention, pollster by pollster.',
-        lede2: 'Vote-Scope aggregates them and projects the National Assembly. Below: the trend against the model estimate, then the full table.',
+        lede2: 'Vote-Scope aggregates them and projects the National Assembly. Below: the trend against the model estimate, then the full table. The polls of the 2026 election are <a href="/en/canada/quebec/polls/2026/">archived here</a>.',
         ogEyebrow: 'POLLS · QUEBEC', ogTitle: 'Quebec voting intention', seoTitle: 'Quebec Election Polls', ogSub: 'Vote-Scope · National Assembly' },
       fr: { eyebrow: 'Sondages · Québec · Assemblée nationale', h1: 'Intentions de vote au Québec',
         lede1: 'CAQ, PLQ, PQ, QS : chaque sondage provincial publié sur les intentions de vote au Québec, maison par maison.',
-        lede2: 'Vote-Scope les agrège et projette l’Assemblée nationale. Ci-dessous : la tendance face à l’estimation du modèle, puis le tableau complet.',
+        lede2: 'Vote-Scope les agrège et projette l’Assemblée nationale. Ci-dessous : la tendance face à l’estimation du modèle, puis le tableau complet. Les sondages de l’élection de 2026 sont <a href="/fr/canada/quebec/sondages/2026/">archivés ici</a>.',
         ogEyebrow: 'SONDAGES · QUÉBEC', ogTitle: 'Intentions de vote au Québec', seoTitle: 'Sondages élections Québec', ogSub: 'Vote-Scope · Assemblée nationale' },
       es: { eyebrow: 'Encuestas · Quebec · Asamblea Nacional', h1: 'Intención de voto en Quebec',
         lede1: 'CAQ, PLQ, PQ, QS: cada encuesta provincial publicada sobre la intención de voto en Quebec, encuestadora por encuestadora.',
-        lede2: 'Vote-Scope las agrega y proyecta la Asamblea Nacional. Abajo: la tendencia frente a la estimación del modelo, y la tabla completa, sondeo por sondeo.',
+        lede2: 'Vote-Scope las agrega y proyecta la Asamblea Nacional. Abajo: la tendencia frente a la estimación del modelo, y la tabla completa, sondeo por sondeo. Las encuestas de la elección de 2026 están <a href="/es/canada/quebec/sondeos/2026/">archivadas aquí</a>.',
         ogEyebrow: 'SONDEOS · QUEBEC', ogTitle: 'Intención de voto en Quebec', seoTitle: 'Encuestas elecciones Quebec', ogSub: 'Vote-Scope · Asamblea Nacional' },
+    },
+  },
+  // Archive du cycle 2026 (bascule du desk vers qc_2030, 11 nov. 2026) : les
+  // sondages publiés de l'élection de 2022 à la veille du 5 octobre 2026, avec
+  // l'estimation du modèle de la veille. Données figées dans src/data/qc-2026-eve/.
+  'quebec-2026': {
+    webKey: 'quebec-2026', navKey: 'quebec', currentPage: 'canada', langs: ['en', 'fr', 'es'],
+    seg: { en: 'polls/2026', fr: 'sondages/2026', es: 'sondeos/2026' },
+    base: { en: '/en/canada/quebec', fr: '/fr/canada/quebec', es: '/es/canada/quebec' },
+    copy: {
+      en: { eyebrow: 'Polls · Quebec · October 5, 2026 election', h1: 'The polls of the 2026 Quebec election',
+        lede1: 'Every provincial poll published between the 2022 election and the eve of the October 5, 2026 vote, pollster by pollster, with our model’s estimate on the eve.',
+        lede2: 'The <a href="/en/canada/quebec/results/">results</a> and <a href="/en/track-record/quebec-2026/">our review</a> compare them with the vote. The polls since the election are on the <a href="/en/canada/quebec/polls/">current polls page</a>.',
+        ogEyebrow: 'POLLS · QUEBEC 2026', ogTitle: 'The polls of the 2026 Quebec election', seoTitle: 'Quebec 2026 Election Polls', ogSub: 'Vote-Scope · National Assembly' },
+      fr: { eyebrow: 'Sondages · Québec · Élection du 5 octobre 2026', h1: 'Les sondages de l’élection québécoise de 2026',
+        lede1: 'Chaque sondage provincial publié entre l’élection de 2022 et la veille du vote du 5 octobre 2026, maison par maison, avec l’estimation de notre modèle la veille du scrutin.',
+        lede2: 'Les <a href="/fr/canada/quebec/resultats/">résultats</a> et <a href="/fr/track-record/quebec-2026/">notre bilan</a> les comparent au vote. Les sondages publiés depuis l’élection sont sur la <a href="/fr/canada/quebec/sondages/">page Sondages</a>.',
+        ogEyebrow: 'SONDAGES · QUÉBEC 2026', ogTitle: 'Les sondages de l’élection québécoise de 2026', seoTitle: 'Sondages élections Québec 2026', ogSub: 'Vote-Scope · Assemblée nationale' },
+      es: { eyebrow: 'Encuestas · Quebec · Elección del 5 de octubre de 2026', h1: 'Las encuestas de la elección de Quebec de 2026',
+        lede1: 'Cada encuesta provincial publicada entre la elección de 2022 y la víspera de la votación del 5 de octubre de 2026, encuestadora por encuestadora, con la estimación de nuestro modelo la víspera.',
+        lede2: 'Los <a href="/es/canada/quebec/resultados/">resultados</a> y <a href="/es/track-record/quebec-2026/">nuestro balance</a> las comparan con el voto. Las encuestas publicadas desde la elección están en la <a href="/es/canada/quebec/sondeos/">página de encuestas</a>.',
+        ogEyebrow: 'ENCUESTAS · QUEBEC 2026', ogTitle: 'Las encuestas de la elección de Quebec de 2026', seoTitle: 'Encuestas elecciones Quebec 2026', ogSub: 'Vote-Scope · Asamblea Nacional' },
     },
   },
   ontario: {
