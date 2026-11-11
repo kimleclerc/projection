@@ -15,15 +15,17 @@ import { partyName } from '../lib/party-names';
  * est recomptée depuis le registre des appels résolus.
  */
 import { getAllQuebecRidings } from '../lib/riding-adapters/quebec';
+import { ridingSlug } from '../lib/riding-adapters/types';
 import { partyMeta } from '../lib/riding-adapters/parties';
-import quebecMeta from '../../web_data/quebec/latest.json';
+// Projection de la VEILLE (archive figée) : web_data/quebec/ sert qc_2030.
+import quebecMeta from '../data/qc-2026-eve/latest.json';
 import resolvedCalls from '../../web_data/resolved-calls.json';
 import type { Locale } from '../data/editorial';
 import QuebecElectionNightLive from '../islands/QuebecElectionNightLive.tsx';
 import QcLiveTileMap from '../islands/QcLiveTileMap.tsx';
 import QcLiveFeed from '../islands/QcLiveFeed.tsx';
 import QcLiveList from '../islands/QcLiveList.tsx';
-import ridingsSource from '../../web_data/quebec/ridings.json';
+import ridingsSource from '../data/qc-2026-eve/ridings.json';
 import liveRidingData from '../data/qc-live-ridings.json';
 
 // LECTURE PUBLIQUE = RAIL STATIQUE. Chaque lecture du Worker est une invocation
@@ -64,8 +66,15 @@ const seatParties = quebecMeta.parties
 // PEUT basculer, pas l'écart seul. L'affichage, lui, est réordonné par écart :
 // une liste qui montre 2,1 pt avant 1,9 pt a l'air d'un tri cassé, même quand
 // le classement sous-jacent est le bon.
-const closest = getAllQuebecRidings()
-  .slice()
+// Les courses serrées de la VEILLE : celles de l'archive, pas celles du desk
+// courant (qui projette 2030 depuis la fin de 2026).
+const closest = ((ridingsSource as any).ridings as any[])
+  .map((r) => ({
+    jurisdiction: 'quebec',
+    slug: ridingSlug(r.riding_id, r.name_fr || r.name_en),
+    name: { fr: r.name_fr, en: r.name_en || r.name_fr },
+    projection: r.projection,
+  }))
   .sort((a, b) => b.projection.p_close_race - a.projection.p_close_race)
   .slice(0, 8)
   .sort((a, b) => a.projection.mean_margin - b.projection.mean_margin);

@@ -6,6 +6,7 @@ import KimNote from './KimNote.astro';
 import type { Jurisdiction, Locale, ProjectionData } from '../data/jurisdictions';
 import { modelBadge } from '../data/modelVersion';
 import { existsSync, readFileSync } from 'node:fs';
+import { assertPhaseData } from '../lib/phase-guard';
 import { resolve } from 'node:path';
 import ScenariosChart from '../islands/ScenariosChart.tsx';
 import VoteTrendChart from '../islands/VoteTrendChart.tsx';
@@ -53,6 +54,7 @@ const dataFilePath = resolve(
   'latest.json',
 );
 const data: ProjectionData = JSON.parse(readFileSync(dataFilePath, 'utf-8'));
+assertPhaseData(jurisdiction, (data as any).meta, `web_data/${jurisdiction.dataPath}/latest.json`);
 
 const { meta, parties, current_composition } = data;
 
@@ -265,10 +267,8 @@ const marketByJurisdiction: Record<string, { slug: string; label: Record<Locale,
     slug: 'will-the-democratic-party-control-the-senate-after-the-2026-midterm-elections',
     label: { en: 'Democrats · Polymarket', fr: 'Démocrates · Polymarket', es: 'Demócratas · Polymarket' },
   },
-  quebec: {
-    slug: 'will-parti-qubcois-win-the-most-seats-in-the-2026-quebec-general-election',
-    label: { en: 'PQ · Polymarket', fr: 'PQ · Polymarket', es: 'PQ · Polymarket' },
-  },
+  // Québec : le marché de 2026 (« le PQ remporte le plus de sièges ») est
+  // résolu depuis le 5 octobre. Aucun marché 2030 coté à ce jour.
 };
 const marketConfig = marketByJurisdiction[jurisdiction.id];
 const marketEntry = marketConfig

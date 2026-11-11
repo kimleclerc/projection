@@ -9,7 +9,11 @@ import { MODEL_RELEASES } from '../../../data/modelVersion';
 interface Props { data: RidingData; lang: Lang }
 const { data, lang } = Astro.props;
 const key = LABS_FOR_JURISDICTION[data.jurisdiction];
-const row = key ? compareRows(key).find((r) => Number(r.id) === Number(data.id)) : undefined;
+// Une clé Labs nommée d'après un cycle (qc_2026, bc_44) ne vaut que pour ce
+// cycle : entre deux élections, la fiche projette qc_2030 et les chiffres
+// d'Orbite de la veille de 2026 n'ont plus rien à comparer.
+const sameCycle = !key || !/^[a-z]+_\d+$/.test(key) || !data.cycle || data.cycle === key;
+const row = key && sameCycle ? compareRows(key).find((r) => Number(r.id) === Number(data.id)) : undefined;
 const desk = row && key ? loadLabs(key) : null;
 const refName = MODEL_RELEASES[0].name;
 

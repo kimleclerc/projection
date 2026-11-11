@@ -18,6 +18,8 @@ import { partyMeta } from './parties';
 import { nomineesByParty } from './nominees';
 import { marketForRiding } from '../prediction-markets';
 import ridingsSource from '../../../web_data/quebec/ridings.json';
+import { jurisdictions } from '../../data/jurisdictions';
+import { assertPhaseData } from '../phase-guard';
 import membersSource from '../../../web_data/quebec/members.json';
 import candidatesSource from '../../../web_data/quebec/candidates_2022.json';
 import declared2026Source from '../../../web_data/quebec/candidates_2026.json';
@@ -61,6 +63,13 @@ export interface RidingOriginEntry {
   overlap_pct: number;
   overlap_type: string;
 }
+
+// Phase déclarée (src/data/jurisdictions.ts). Entre deux élections, la fiche
+// projette le prochain scrutin : le résultat de 2026 passe dans l'historique,
+// et ce qui ne valait que pour la campagne 2026 disparaît (vote par
+// anticipation, candidatures déclarées, marché de la veille, origine 2022).
+const BETWEEN = jurisdictions.quebec.phase === 'between';
+assertPhaseData(jurisdictions.quebec, (ridingsSource as any).meta, 'web_data/quebec/ridings.json');
 
 const ridings = (ridingsSource as { ridings: RawRiding[]; meta: { run_date: string } }).ridings;
 const META = (ridingsSource as { meta: { run_date: string; total_seats?: number } }).meta;
@@ -143,7 +152,7 @@ function adaptOne(raw: RawRiding): RidingData {
   // Pas de primaire au Québec : le parti désigne, donc toute candidature
   // déclarée est celle qui portera la part projetée de son parti. Le nom
   // existait déjà dans le slate, il manquait seulement en face de la barre.
-  const nominees = nomineesByParty(declared2026ByRiding[raw.riding_id]);
+  const nominees = BETWEEN ? {} : nomineesByParty(declared2026ByRiding[raw.riding_id]);
   const parties = Object.keys(raw.projection.vote_mean)
     .map((code) => {
       const meta = partyMeta('quebec', code);
@@ -198,11 +207,11 @@ function adaptOne(raw: RawRiding): RidingData {
     },
     baseline,
     demographics: buildDemographics(),
-    advanceVote: advanceById[raw.riding_id],
-    member: members[raw.riding_id],
-    candidates: candidatesByRiding[raw.riding_id],
-    results: buildResults(raw.riding_id),
-    declaredCandidates: (declared2026ByRiding[raw.riding_id] ?? []).map((c): DeclaredCandidate => ({
+    advanceVote: BETWEEN ? undefined : advanceById[raw.riding_id],
+    member: buildMember(raw.riding_id),
+    candidates: BETWEEN ? candidates2026(raw.riding_id) : candidatesByRiding[raw.riding_id],
+    results: BETWEEN ? undefined : buildResults(raw.riding_id),
+    declaredCandidates: (BETWEEN ? [] : declared2026ByRiding[raw.riding_id] ?? []).map((c): DeclaredCandidate => ({
       name: c.name,
       party_code: c.party_code,
       party_raw: c.party_raw,
@@ -224,12 +233,43 @@ function adaptOne(raw: RawRiding): RidingData {
     },
     shapePath: SHAPES[raw.riding_id]?.path,
     shapeViewBox: SHAPES[raw.riding_id]?.viewBox,
-    redistrictingOrigin: buildRedistrictingOrigin(raw.riding_id),
+    redistrictingOrigin: BETWEEN ? undefined : buildRedistrictingOrigin(raw.riding_id),
     // Polymarket cote 21 des 127 circonscriptions pour le 5 octobre. Le
     // registre décide lesquelles ; une circonscription sans entrée n'affiche
     // rien du tout (cf. prediction-markets.ts).
-    predictionMarket: marketForRiding('qc', raw.riding_id),
+    predictionMarket: BETWEEN ? undefined : marketForRiding('qc', raw.riding_id),
   };
+}
+
+/** Candidatures et voix du 5 octobre 2026 (résultats officiels validés), pour
+ *  la table « Candidats et voix en 2026 » des fiches entre deux élections. */
+function candidates2026(rid: string): RidingCandidate[] | undefined {
+  const r = (results2026 as any).ridings[rid];
+  if (!r?.candidates?.length) return undefined;
+  return (r.candidates as any[]).map((c) => ({
+    name: c.name,
+    party_code: c.party,
+    is_elected: c.party === r.winner && c.name === r.winner_name,
+    votes: c.votes,
+    vote_pct: c.pct,
+  }));
+}
+
+// Vachon : le dépouillement judiciaire a donné le siège au PQ par 3 voix ;
+// le résultat est contesté devant la Cour d'appel (bilan du 10 nov. 2026).
+const MEMBER_NOTES: Record<string, RidingMember['status_note']> = {
+  '00211': {
+    fr: 'Élu par 3 voix au dépouillement judiciaire ; le résultat est contesté devant la Cour d’appel.',
+    en: 'Elected by 3 votes on a judicial recount; the result is being challenged before the Court of Appeal.',
+    es: 'Elegido por 3 votos en el recuento judicial; el resultado está impugnado ante el Tribunal de Apelación.',
+  },
+};
+
+function buildMember(rid: string): RidingMember | undefined {
+  const m = members[rid];
+  if (!m) return undefined;
+  const note = BETWEEN ? MEMBER_NOTES[rid] : undefined;
+  return note ? { ...m, status_note: note } : m;
 }
 
 /** Résultat du 5 octobre 2026 (archive src/data/qc-2026-ridings.json). La loi fixe la

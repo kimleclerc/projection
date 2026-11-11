@@ -73,6 +73,7 @@ const tenure = [
       <strong>{displayName}</strong> · {currentLabel}
     </p>
     {(tenure || changeNote) && <p class="vs-meta member-meta">{[changeNote, tenure].filter(Boolean).join(' ')}</p>}
+    {m.status_note && <p class="vs-meta member-meta">{m.status_note[lang]}</p>}
   </div>
 </section>
 

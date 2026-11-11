@@ -9,9 +9,25 @@ export interface JurisdictionLocalized {
   es?: string;
 }
 
+/** Phase d'une juridiction dans son cycle électoral. Déclarée ici, lue par
+ *  chaque page (hub, fiches) — et non déduite de la présence d'un fichier :
+ *  - campaign : projection, candidatures, direct annoncé ;
+ *  - night    : soirée électorale en direct ;
+ *  - results  : le scrutin est tenu, les fiches ouvrent sur le résultat ;
+ *  - between  : nouveau cycle, projection du prochain scrutin sur la base du
+ *               dernier, comme l'Ontario et le fédéral.
+ *  Absente = pas de phase déclarée (comportement historique des pages). */
+export type ElectionPhase = 'campaign' | 'night' | 'results' | 'between';
+
 export interface Jurisdiction {
   /** Internal id, stable. */
   id: string;
+  /** Phase déclarée (voir ElectionPhase). */
+  phase?: ElectionPhase;
+  /** Cycle que web_data/<dataPath>/ doit servir dans cette phase : le build
+   *  échoue si les données publiées ne le portent pas (phase et données
+   *  basculent ensemble, jamais l'une sans l'autre). */
+  expectedCycle?: string;
   /** Path under web_data/, e.g. "federal" → /web_data/federal/latest.json. */
   dataPath: string;
   /** GeoJSON path for the riding map. */
@@ -201,12 +217,18 @@ export const jurisdictions: Record<string, Jurisdiction> = {
 
   quebec: {
     id: 'quebec',
+    // Entre deux élections depuis le 11 novembre 2026 : projection du scrutin
+    // du 7 octobre 2030 sur la base des résultats officiels du 5 octobre 2026.
+    // Les pages de 2026 (résultats, bilan, vote par anticipation) sont des
+    // archives qui lisent src/data/qc-2026-eve/ et src/data/qc-2026-ridings.json.
+    phase: 'between',
+    expectedCycle: 'qc_2030',
     dataPath: 'quebec',
     geoPath: 'quebec',
     heroTitle: {
-      fr: 'Ce que nous avions prévu',
-      en: 'What we forecast',
-      es: 'Lo que habíamos previsto',
+      fr: 'Prévision <em>québécoise</em>',
+      en: 'Quebec <em>Forecast</em>',
+      es: 'Pronóstico <em>de Quebec</em>',
     },
     institution: {
       fr: "Composition actuelle de l'Assemblée nationale",
@@ -219,21 +241,21 @@ export const jurisdictions: Record<string, Jurisdiction> = {
       es: 'Fuentes: Élections Québec, sondeadoras públicas',
     },
     mapSubtitle: {
-      fr: 'Projection d’avant-scrutin par circonscription (sondages et résultats de 2022), à comparer aux résultats du 5 octobre.',
-      en: 'Pre-election riding forecast (polls and 2022 results), to compare with the October 5 results.',
-      es: 'Proyección previa por distrito (encuestas y resultados de 2022), para comparar con los resultados del 5 de octubre.',
+      fr: 'Projection par circonscription à partir des résultats officiels du 5 octobre 2026 et des sondages publiés depuis.',
+      en: 'Riding projection built on the official October 5, 2026 results and the polls published since.',
+      es: 'Proyección por distrito a partir de los resultados oficiales del 5 de octubre de 2026 y de las encuestas publicadas desde entonces.',
     },
     pageTitle: {
-      fr: 'Élections Québec 2026 : qui a gagné? Résultats et projection — Vote-Scope',
-      en: 'Who Won the 2026 Quebec Election? Results and Forecast — Vote-Scope',
-      es: 'Elecciones Quebec 2026: ¿quién ganó? Resultados y proyección — Vote-Scope',
+      fr: 'Qui va gagner les prochaines élections au Québec ? — Vote-Scope',
+      en: 'Who Will Win the Next Quebec Election? — Vote-Scope',
+      es: '¿Quién ganará las próximas elecciones de Quebec? — Vote-Scope',
     },
     metaDescription: {
-      fr: 'Qui a gagné les élections du Québec du 5 octobre 2026? Le Parti québécois forme un gouvernement minoritaire. Résultats, notre projection d\'avant-scrutin et les 127 circonscriptions de l\'Assemblée nationale.',
-      en: 'Who won the October 5, 2026 Quebec election? The Parti Québécois forms a minority government. Results, our pre-election forecast and all 127 National Assembly ridings.',
-      es: '¿Quién ganó las elecciones de Quebec del 5 de octubre de 2026? El Parti Québécois forma un gobierno minoritario. Resultados, nuestra proyección previa y los 127 distritos de la Asamblea Nacional.',
+      fr: 'Qui gagnerait si le Québec votait aujourd\'hui? Sondages provinciaux agrégés depuis l\'élection du 5 octobre 2026, projection des 127 circonscriptions de l\'Assemblée nationale et probabilités de majorité. Prochain scrutin : 7 octobre 2030.',
+      en: 'Who would win if Quebec voted today? Provincial polls aggregated since the October 5, 2026 election, all 127 National Assembly ridings projected and majority odds. Next election: October 7, 2030.',
+      es: '¿Quién ganaría si Quebec votara hoy? Encuestas provinciales agregadas desde la elección del 5 de octubre de 2026, proyección de los 127 distritos de la Asamblea Nacional y probabilidades de mayoría. Próxima elección: 7 de octubre de 2030.',
     },
-    baselineYear: 2022,
+    baselineYear: 2026,
     seatsTotal: 127,
     byelections: false,
     mapCenter: [52, -71],
@@ -242,8 +264,13 @@ export const jurisdictions: Record<string, Jurisdiction> = {
     parties: ['pq', 'plq', 'pcq', 'qs', 'caq', 'qc_oth', 'qc_ind'],
     slug: { en: 'quebec', fr: 'quebec' },
     currentPage: 'canada',
-    electionDate: '2026-10-05',
-    // Compte à rebours retiré après le scrutin (liste post-élection).
+    // Date fixée par la Loi électorale : premier lundi d'octobre de la
+    // quatrième année suivant l'élection précédente.
+    electionDate: '2030-10-07',
+    countdown: {
+      title: { fr: 'Le Québec vote le 7 octobre 2030.', en: 'Quebec votes on October 7, 2030.', es: 'Quebec vota el 7 de octubre de 2030.' },
+      kicker: { fr: 'Prochaine élection générale', en: 'Next general election', es: 'Próxima elección general' },
+    },
   },
 
   usHouse: {

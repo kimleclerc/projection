@@ -5,8 +5,6 @@ import NewsletterCta from '../../../components/NewsletterCta.astro';
 import ProjectionEngine from '../../../components/ProjectionEngine.astro';
 import { jurisdictions } from '../../../data/jurisdictions';
 import quebecMeta from '../../../../web_data/quebec/latest.json';
-import advanceVote from '../../../../web_data/quebec/advance_vote.json';
-const nfEn = (x: number) => x.toLocaleString('en-CA', { maximumFractionDigits: 1 });
 
 const j = jurisdictions.quebec;
 const canonical = 'https://vote-scope.com/en/canada/quebec/';
@@ -29,7 +27,7 @@ const alternates = {
     {
       '@context': 'https://schema.org',
       '@type': 'Dataset',
-      name: 'Quebec 2026 election: results and forecast',
+      name: 'Next Quebec election: forecast for all 127 ridings',
       description: j.metaDescription.en,
       url: canonical,
       dateModified: quebecMeta.meta.run_date,
@@ -50,41 +48,34 @@ const alternates = {
     },
   ]}
 >
-  <RidingsCta
-    eyebrow="October 5 election night"
-    title="The PQ forms a minority government"
-    blurb="Who won in your riding? The winners in all 127 ridings, the seat count, the popular vote and the gap with our forecast."
-    href="/en/canada/quebec/results/"
-    cta="Open the results page"
-  />
   <ProjectionEngine jurisdiction={j} locale="en" />
   <RidingsCta
-    eyebrow="Advance voting"
-    title={`About ${advanceVote.meta.provincial.advance_share_est_pct}% of the vote is already in`}
-    blurb={`${nfEn(advanceVote.meta.provincial.advance_turnout_pct)}% of registered electors voted at the advance polls on September 27 and 28. Turnout in each of the 127 ridings, on the map and by region.`}
-    href="/en/canada/quebec/advance-voting/"
-    cta="See turnout by riding"
+    eyebrow="October 5, 2026"
+    title="The PQ forms a minority government"
+    blurb="The winners in all 127 ridings, the seat count and the popular vote from the last election. The review sets our eve-of-vote forecast against the official results, riding by riding."
+    href="/en/canada/quebec/results/"
+    cta="See the 2026 results"
+  />
+  <RidingsCta
+    eyebrow="2026 review"
+    title="What our forecast got right, and what it missed"
+    blurb="Popular vote, seats and local winners, compared with the official October 5 results and the final polls."
+    href="/en/track-record/quebec-2026/"
+    cta="Read the review"
   />
   <RidingsCta
     eyebrow="The simulator"
     title="What if Quebec voted differently?"
-    blurb="Move the vote on a dedicated page and watch the seats, map and all 127 ridings respond — without confusing your scenario with our projection."
+    blurb="Move the vote on a dedicated page and watch the seats, map and all 127 ridings respond, without confusing your scenario with our projection."
     href="/en/tools/quebec-simulator"
     cta="Open the simulator"
   />
   <RidingsCta
     eyebrow="Riding profile"
     title="Dive into a specific riding"
-    blurb="Projection, sitting MNA, 2022 candidates, projection track and nearby ridings — for each of the 127 Quebec provincial ridings on the 2026 map."
+    blurb="Projection, the MNA elected on October 5, the 2026 candidates and votes, and nearby ridings, for each of the 127 ridings."
     href="/en/canada/quebec/ridings/"
     cta="Browse all 127 ridings"
-  />
-  <RidingsCta
-    eyebrow="Candidate Barometer"
-    title="Gender and access to winnable ridings"
-    blurb="The race to 127 candidacies, party by party — and whether each party gives its women candidates the ridings where it is actually competitive. Calibrated on 2018 and 2022."
-    href="/en/canada/quebec/candidate-barometer/"
-    cta="Open the Candidate Barometer"
   />
   <NewsletterCta lang="en" placement="quebec" />
 </EditorialLayout>

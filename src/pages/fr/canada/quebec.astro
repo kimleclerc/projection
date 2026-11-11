@@ -5,8 +5,6 @@ import NewsletterCta from '../../../components/NewsletterCta.astro';
 import ProjectionEngine from '../../../components/ProjectionEngine.astro';
 import { jurisdictions } from '../../../data/jurisdictions';
 import quebecMeta from '../../../../web_data/quebec/latest.json';
-import advanceVote from '../../../../web_data/quebec/advance_vote.json';
-const nfFr = (x: number) => x.toLocaleString('fr-CA', { maximumFractionDigits: 1 });
 
 const j = jurisdictions.quebec;
 const canonical = 'https://vote-scope.com/fr/canada/quebec/';
@@ -29,7 +27,7 @@ const alternates = {
     {
       '@context': 'https://schema.org',
       '@type': 'Dataset',
-      name: 'Élections Québec 2026 : résultats et projection',
+      name: 'Prochaines élections au Québec : projection des 127 circonscriptions',
       description: j.metaDescription.fr,
       url: canonical,
       dateModified: quebecMeta.meta.run_date,
@@ -50,41 +48,34 @@ const alternates = {
     },
   ]}
 >
-  <RidingsCta
-    eyebrow="Résultats du 5 octobre"
-    title="Le PQ forme un gouvernement minoritaire"
-    blurb="Qui a gagné chez vous? Les gagnants des 127 circonscriptions, les sièges et le vote populaire, et l’écart avec notre projection."
-    href="/fr/canada/quebec/resultats/"
-    cta="Voir les résultats"
-  />
   <ProjectionEngine jurisdiction={j} locale="fr" />
   <RidingsCta
-    eyebrow="Vote par anticipation"
-    title={`Environ ${advanceVote.meta.provincial.advance_share_est_pct} % des votes déjà dans l'urne`}
-    blurb={`${nfFr(advanceVote.meta.provincial.advance_turnout_pct)} % des électeurs inscrits ont voté par anticipation les 27 et 28 septembre. Le taux de chacune des 127 circonscriptions, sur la carte et par région.`}
-    href="/fr/canada/quebec/vote-par-anticipation/"
-    cta="Voir la participation par circonscription"
+    eyebrow="Le 5 octobre 2026"
+    title="Le PQ forme un gouvernement minoritaire"
+    blurb="Les gagnants des 127 circonscriptions, les sièges et le vote populaire du dernier scrutin. Le bilan compare notre projection de la veille aux résultats officiels, circonscription par circonscription."
+    href="/fr/canada/quebec/resultats/"
+    cta="Voir les résultats de 2026"
+  />
+  <RidingsCta
+    eyebrow="Bilan de 2026"
+    title="Ce que notre projection a vu juste, et ce qu'elle a manqué"
+    blurb="Vote populaire, sièges et gagnants locaux, comparés aux résultats officiels du 5 octobre et aux derniers sondages."
+    href="/fr/track-record/quebec-2026/"
+    cta="Lire le bilan"
   />
   <RidingsCta
     eyebrow="Le simulateur"
     title="Et si le Québec votait autrement?"
-    blurb="Faites bouger le vote sur une page dédiée et regardez les sièges, la carte et les 127 circonscriptions réagir — sans confondre votre scénario avec notre projection."
+    blurb="Faites bouger le vote sur une page dédiée et regardez les sièges, la carte et les 127 circonscriptions réagir, sans confondre votre scénario avec notre projection."
     href="/fr/outils/simulateur-quebec"
     cta="Ouvrir le simulateur"
   />
   <RidingsCta
     eyebrow="Profil par circonscription"
     title="Plonger dans une circonscription précise"
-    blurb="Projection, titulaire du siège, candidats 2022, trajectoire des projections et circonscriptions voisines — pour chacune des 127 circonscriptions provinciales sur la carte 2026."
+    blurb="Projection, député élu le 5 octobre, candidats et voix de 2026, et circonscriptions voisines, pour chacune des 127 circonscriptions."
     href="/fr/canada/quebec/circonscriptions/"
     cta="Parcourir les 127 circonscriptions"
-  />
-  <RidingsCta
-    eyebrow="Baromètre des candidatures"
-    title="Genre et accès aux comtés gagnables"
-    blurb="La course aux 127 candidatures, parti par parti — et si chaque parti confie à ses candidates les comtés où il est réellement compétitif. Calibré sur 2018 et 2022."
-    href="/fr/canada/quebec/barometre-candidatures/"
-    cta="Ouvrir le Baromètre des candidatures"
   />
   <NewsletterCta lang="fr" placement="quebec" />
 </EditorialLayout>

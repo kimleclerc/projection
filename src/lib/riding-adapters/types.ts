@@ -127,6 +127,9 @@ export interface RidingMember {
    *  déposé auprès d'Elections BC. Les compter comme treize solitudes
    *  effacerait le fait central de cette législature. */
   caucus_group?: string;
+  /** Une phrase sur le statut du siège quand le résultat est contesté
+   *  (Vachon 2026 : dépouillement judiciaire porté en appel). */
+  status_note?: { en: string; fr: string; es: string };
   source?: string;
 }
 

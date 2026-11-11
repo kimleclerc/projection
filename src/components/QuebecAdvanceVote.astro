@@ -11,7 +11,8 @@ import '../styles/minisim.css';
 import TileMap from '../islands/TileMap';
 import { getAllQuebecRidings } from '../lib/riding-adapters/quebec';
 import advance from '../../web_data/quebec/advance_vote.json';
-import ridingsSource from '../../web_data/quebec/ridings.json';
+// Projection de la veille (archive figée) : web_data/quebec/ sert qc_2030.
+import ridingsSource from '../data/qc-2026-eve/ridings.json';
 
 interface Props { locale: 'fr' | 'en' | 'es'; }
 const { locale } = Astro.props;
