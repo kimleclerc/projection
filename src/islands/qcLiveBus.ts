@@ -19,7 +19,9 @@ export type Result = {
   out_of_district?: string | null;
 };
 export type Call = { riding_id: string; party_code: string; candidate_name: string; called_at?: string;
-  source_anomalies_overridden?: boolean };
+  source_anomalies_overridden?: boolean;
+  /** « official » : résultat validé par Élections Québec qui remplace l'appel du soir. */
+  status?: string };
 export type ProjCandidate = { party_code: string; candidate_name?: string | null; color?: string; party_label?: Partial<Record<Locale, string>> };
 export type Projection = { riding_id: string; candidates: ProjCandidate[] };
 export type LivePayload = {
@@ -209,7 +211,7 @@ export function governmentStatus(data: LivePayload | null, majority = MAJORITY, 
  * C.-B.) : qui a la majorité, qui y mène, ou personne encore. « Élus » = appelés
  * par Vote-Scope ; « en tête » = meneur sans appel.
  */
-export function seatAnswer(lang: Locale, tally: { label: string; called: number; total: number }[], majority: number): string | null {
+export function seatAnswer(lang: Locale, tally: { label: string; called: number; total: number }[], majority: number, final = false): string | null {
   const byTotal = [...tally].sort((a, b) => b.total - a.total || b.called - a.called);
   const byCalled = [...tally].sort((a, b) => b.called - a.called);
   const L = byTotal[0];
@@ -227,6 +229,12 @@ export function seatAnswer(lang: Locale, tally: { label: string; called: number;
       : `${L.label} leads: ${L.total} seats elected or leading, ${majority} needed. ${L.called} are elected.`;
   }
   const second = R ? `, ${R.label} ${R.total}` : '';
+  // Dépouillement terminé : plus de « encore », plus de « en tête ».
+  if (final) {
+    return lang === 'fr' ? `Aucun parti n’a obtenu ${majority} sièges : ${L.label} ${L.total}${second}.`
+      : lang === 'es' ? `Ningún partido obtuvo ${majority} escaños: ${L.label} ${L.total}${second}.`
+      : `No party won ${majority} seats: ${L.label} ${L.total}${second}.`;
+  }
   return lang === 'fr' ? `Aucun parti n’a encore ${majority} sièges : ${L.label} ${L.total}${second}, élus ou en tête.`
     : lang === 'es' ? `Ningún partido tiene aún ${majority} escaños: ${L.label} ${L.total}${second}, electos o en cabeza.`
     : `No party has ${majority} seats yet: ${L.label} ${L.total}${second}, elected or leading.`;

@@ -25,7 +25,9 @@ type Result = {
 };
 type Call = { riding_id: string; party_code: string; candidate_name: string; called_at?: string;
   /** posé par le collecteur quand l'appel a été publié PAR-DESSUS une anomalie de source. */
-  source_anomalies_overridden?: boolean };
+  source_anomalies_overridden?: boolean;
+  /** « official » : résultat validé par Élections Québec, qui remplace l'appel du soir. */
+  status?: string };
 type ProjCandidate = { party_code: string; candidate_name?: string | null; color?: string; party_label?: Partial<Record<Locale, string>> };
 type Projection = { riding_id: string; candidates: ProjCandidate[] };
 type LivePayload = {
@@ -62,7 +64,7 @@ const copy = {
         seats: 'Sièges', popular: 'Vote populaire', called: 'élus', leading: 'en tête', majority: `Majorité : ${MAJORITY}`, ridings: 'Circonscriptions',
         riding: 'Circonscription', leader: 'Meneur', votes: 'Voix', polls: 'Bureaux', status: 'Statut', calledBadge: 'Appelé',
         leadingBadge: 'En tête', noVotes: '—', stale: 'Aucun résultat officiel nouveau depuis', minutes: 'min',
-        complete: 'Dépouillement terminé', source: 'Source officielle : Élections Québec. Les appels sont ceux de Vote-Scope.',
+        complete: 'Dépouillement terminé', official: 'Résultats officiels', officialNote: 'validés par Élections Québec, après le dépouillement judiciaire de Vachon', source: 'Source officielle : Élections Québec. Les appels sont ceux de Vote-Scope.',
         direct: 'Chiffres lus directement chez le directeur général des élections : nos appels et nos projections ne sont pas disponibles pour l’instant.',
         search: 'Chercher une circonscription', anomalies: 'candidats ou partis inconnus du registre',
         soon: 'Les bureaux ferment à 20 h. Les premiers résultats d’Élections Québec apparaîtront ici dans les minutes qui suivent; inutile de rafraîchir, la page se met à jour d’elle-même.',
@@ -80,7 +82,7 @@ const copy = {
         seats: 'Seats', popular: 'Popular vote', called: 'elected', leading: 'leading', majority: `Majority: ${MAJORITY}`, ridings: 'Ridings',
         riding: 'Riding', leader: 'Leader', votes: 'Votes', polls: 'Polls', status: 'Status', calledBadge: 'Called',
         leadingBadge: 'Leading', noVotes: '—', stale: 'No new official results for', minutes: 'min',
-        complete: 'Count complete', source: 'Official source: Élections Québec. Calls are Vote-Scope’s.',
+        complete: 'Count complete', official: 'Official results', officialNote: 'validated by Élections Québec, after the Vachon judicial recount', source: 'Official source: Élections Québec. Calls are Vote-Scope’s.',
         direct: 'Figures read directly from the chief electoral officer: our calls and projections are not available for now.',
         search: 'Find a riding', anomalies: 'candidates or parties unknown to the registry',
         soon: 'Polls close at 8 p.m. The first results from Élections Québec will appear here within minutes; no need to refresh, the page updates on its own.',
@@ -98,7 +100,7 @@ const copy = {
         seats: 'Escaños', popular: 'Voto popular', called: 'electos', leading: 'en cabeza', majority: `Mayoría: ${MAJORITY}`, ridings: 'Distritos',
         riding: 'Distrito', leader: 'Líder', votes: 'Votos', polls: 'Mesas', status: 'Estado', calledBadge: 'Asignado',
         leadingBadge: 'En cabeza', noVotes: '—', stale: 'Sin resultados oficiales nuevos desde hace', minutes: 'min',
-        complete: 'Recuento completo', source: 'Fuente oficial: Élections Québec. Las asignaciones son de Vote-Scope.',
+        complete: 'Recuento completo', official: 'Resultados oficiales', officialNote: 'validados por Élections Québec, tras el recuento judicial de Vachon', source: 'Fuente oficial: Élections Québec. Las asignaciones son de Vote-Scope.',
         direct: 'Cifras leídas directamente del director general de elecciones: nuestras asignaciones y proyecciones no están disponibles por ahora.',
         search: 'Buscar un distrito', anomalies: 'candidatos o partidos desconocidos para el registro',
         soon: 'Las urnas cierran a las 20:00. Los primeros resultados de Élections Québec aparecerán aquí en los minutos siguientes; no hace falta recargar, la página se actualiza sola.',
@@ -281,7 +283,11 @@ export default function QuebecElectionNightLive({ eventId, lang, apiBase, fallba
     return () => { stopped.current = true; if (timer.current) window.clearTimeout(timer.current); window.clearInterval(clock); document.removeEventListener('visibilitychange', onVisible); };
   }, [eventId, apiBase]);
 
-  useEffect(() => { if (complete) stopped.current = true; }, [complete]);
+  // Arrêt seulement sur un décompte complet LU sur le réseau. Un instantané
+  // complet gardé dans le navigateur arrêtait l'îlot avant toute lecture : les
+  // visiteurs de la soirée restaient figés sur le décompte de 2 h 23 (Vachon au
+  // PLQ) et ne recevaient jamais les résultats officiels du 26 octobre.
+  useEffect(() => { if (complete && !fromStorage) stopped.current = true; }, [complete, fromStorage]);
   // Diffusion aux autres blocs de la page (carte, annonces, liste) : aucune lecture de plus.
   useEffect(() => { publishLive({ data, beforeOpen, failed }); }, [data, beforeOpen, failed]);
 
@@ -343,6 +349,8 @@ export default function QuebecElectionNightLive({ eventId, lang, apiBase, fallba
   // En simulation, `allow_source_anomalies` peut lever le garde-fou : on ne
   // promet donc rien tant qu'aucun appel n'a porté la dérogation.
   const anomalyOverridden = (data?.calls ?? []).some((c) => c.source_anomalies_overridden);
+  // Un appel « official » remplace celui du soir (Vachon, dépouillement judiciaire).
+  const official = complete && (data?.calls ?? []).some((c) => c.status === 'official');
   const anomalyClause = anomalyOverridden ? t.anomaliesOverridden
     : REHEARSAL_MODES.has(data?.event?.mode ?? '') ? null : t.anomaliesBlocked;
 
@@ -356,8 +364,8 @@ export default function QuebecElectionNightLive({ eventId, lang, apiBase, fallba
   return (
     <section class={`qcl${stale || fromStorage ? ' qcl-is-stale' : ''}`} aria-live="polite" data-sequence={data.sequence ?? ''}>
       <div class="qcl-head">
-        <span class="qcl-label"><i></i>{complete ? t.complete : t.live}</span>
-        <span>{fromStorage ? `${t.lastKnown} · ` : ''}{sourceStamp ? `${t.updated} ${fmtTime(sourceStamp, lang)}` : ''}</span>
+        <span class="qcl-label"><i></i>{complete ? (official ? t.official : t.complete) : t.live}</span>
+        <span>{official ? t.officialNote : <>{fromStorage ? `${t.lastKnown} · ` : ''}{sourceStamp ? `${t.updated} ${fmtTime(sourceStamp, lang)}` : ''}</>}</span>
       </div>
       {direct && <p class="qcl-warn">{t.direct}</p>}
       {failed && !direct && <p class="qcl-warn">{t.unavailable}</p>}
@@ -368,7 +376,7 @@ export default function QuebecElectionNightLive({ eventId, lang, apiBase, fallba
 
       {decided === 0 ? <p class="qcl-state">{t.waiting}</p> : (
         <div class="qcl-seats">
-          <p class="qcl-answer">{seatAnswer(lang, tally, MAJORITY)}</p>
+          <p class="qcl-answer">{seatAnswer(lang, tally, MAJORITY, complete)}</p>
           <div class="qcl-bar" role="img" aria-label={`${t.seats} : ${tally.map((p) => `${p.label} ${p.total}`).join(', ')}`}>
             {tally.map((p) => <i key={p.code} style={`width:${(100 * p.total) / TOTAL}%;background:${p.color}`}>{p.called > 0 && <b style={`width:${(100 * p.called) / p.total}%`}></b>}</i>)}
             <em style={`--m:${(100 * MAJORITY) / TOTAL}%`} aria-hidden="true"></em>

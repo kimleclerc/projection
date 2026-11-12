@@ -14,6 +14,16 @@ const copy = {
         final: 'espera el recuento final' },
 };
 
+// Un résultat officiel qui remplace l'appel du soir (Vachon) n'a pas d'heure
+// de soirée : sa date et sa cause, « 26 oct. · dépouillement judiciaire ».
+function officialWhen(at: string | undefined, lang: Locale): string {
+  const why = { fr: 'dépouillement judiciaire', en: 'judicial recount', es: 'recuento judicial' }[lang];
+  if (!at) return why;
+  const day = new Date(at).toLocaleDateString(lang === 'en' ? 'en-CA' : lang === 'es' ? 'es-ES' : 'fr-CA',
+    { day: 'numeric', month: 'short', timeZone: 'America/Toronto' });
+  return `${day} · ${why}`;
+}
+
 export default function QcLiveFeed({ lang, parties, ridings, timeZone, text }:
   { lang: Locale; parties: PartyInfo[]; ridings: RidingInfo[]; timeZone?: string; text?: Partial<typeof copy.fr> }) {
   const t = { ...copy[lang], ...text };
@@ -43,7 +53,7 @@ export default function QcLiveFeed({ lang, parties, ridings, timeZone, text }:
             const o = outcomeOf(r.call, rinfo.get(r.id));
             return <li key={r.id}>{dot(r.party)}<span><strong>{r.call?.candidate_name}</strong> ({label(r.party)}){' '}
               {o && <em class={`qlf-outcome is-${o.kind}`}>{outcomeLabel(o, lang)}{o.kind === 'gain' && o.from ? ` ${t.from} ${label(o.from)}` : ''}</em>}{' '}
-              {t.in} {link(r.id, r.name)}</span><time>{timeFmt(r.call?.called_at, lang, timeZone)}</time></li>;
+              {t.in} {link(r.id, r.name)}</span><time>{r.call?.status === 'official' ? officialWhen(r.call.called_at, lang) : timeFmt(r.call?.called_at, lang, timeZone)}</time></li>;
           })}</ol>
         )}
       </div>
