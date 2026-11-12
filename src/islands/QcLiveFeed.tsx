@@ -4,13 +4,13 @@ import { awaitsFinalCount, deriveRows, numFmt, outcomeLabel, outcomeOf, timeFmt,
 /** Dernières annonces, courses les plus serrées, gains par rapport à 2022. Rien avant les premiers résultats. */
 const copy = {
   fr: { calls: 'Dernières annonces', close: 'Les courses les plus serrées', gains: 'Circonscriptions qui changent de parti', noCalls: 'Aucun gagnant annoncé pour l’instant.',
-        noClose: 'Les écarts apparaîtront avec les premiers bureaux.', in: 'dans', from: 'sur', ahead: 'd’avance', polls: 'bureaux', seats: 'sièges',
+        noClose: 'Aucune course en suspens.', in: 'dans', from: 'sur', ahead: 'd’avance', polls: 'bureaux', seats: 'sièges',
         final: 'attend le dépouillement final' },
   en: { calls: 'Latest calls', close: 'Closest races', gains: 'Seats changing hands', noCalls: 'No winner called yet.',
-        noClose: 'Margins will appear with the first polls.', in: 'in', from: 'from', ahead: 'ahead', polls: 'polls', seats: 'seats',
+        noClose: 'No race left undecided.', in: 'in', from: 'from', ahead: 'ahead', polls: 'polls', seats: 'seats',
         final: 'awaits the final count' },
   es: { calls: 'Últimos anuncios', close: 'Las contiendas más ajustadas', gains: 'Distritos que cambian de partido', noCalls: 'Todavía no se ha anunciado ningún ganador.',
-        noClose: 'Las diferencias aparecerán con las primeras mesas.', in: 'en', from: 'sobre', ahead: 'de ventaja', polls: 'mesas', seats: 'escaños',
+        noClose: 'Ninguna contienda pendiente.', in: 'en', from: 'sobre', ahead: 'de ventaja', polls: 'mesas', seats: 'escaños',
         final: 'espera el recuento final' },
 };
 
