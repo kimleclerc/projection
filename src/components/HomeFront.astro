@@ -18,7 +18,7 @@ const { lang } = Astro.props;
 const L = (fr: string, en: string, es: string) => ({ fr, en, es }[lang]);
 
 const T = {
-  h1: L('Projections électorales et sondages : États-Unis, Canada, Royaume-Uni, France, Espagne.', 'Election forecasts and polls: United States, Canada, United Kingdom, France, Spain.', 'Encuestas y proyecciones electorales: Estados Unidos, Canadá, Reino Unido, Francia, España.'),
+  h1: L('Sondages et projections électorales : États-Unis, Canada, Royaume-Uni, France, Espagne.', 'Election forecasts and polls: United States, Canada, United Kingdom, France, Spain.', 'Encuestas electorales y proyecciones: Estados Unidos, Canadá, Reino Unido, Francia, España.'),
   promise: L(
     'Projections indépendantes et moyennes de sondages : présidentielle américaine 2028, Canada, Royaume-Uni, présidentielle 2027, élections espagnoles du 29 novembre. Mises à jour chaque jour. Par Kim Leclerc, vingt ans de campagnes électorales.',
     'Independent forecasts and polling averages: the 2028 U.S. presidential race, Canada, the U.K., France 2027 and Spain’s November 29 election, updated daily. By Kim Leclerc, twenty years of election campaigns.',
@@ -38,6 +38,20 @@ const budget = latestFor('canada');
 const budgetFresh = budget?.date_iso && (Date.now() - Date.parse(budget.date_iso)) / 86400000 <= 30;
 const budgetItems = budget && budgetFresh ? [{ meta: budgetText(budget.date_tabled, lang), title: budgetText(budget.title, lang), text: answerOf(budget, lang), href: budgetEdition(lang, budget.slug, budget.edition), strong: true }] : [];
 const usHome = lang === 'fr' ? '/fr/us/' : lang === 'es' ? '/es/us/' : '/en/us/';
+
+// Comparer avec les autres modèles et les marchés : ceux qui cherchent 538, Silver
+// Bulletin, The Economist, Kalshi ou Polymarket trouvent ici la confrontation.
+const COMPARE = {
+  title: L('Comparer avec les autres modèles', 'Compare with other forecasts', 'Comparar con otros modelos'),
+  items: [
+    { href: L('/fr/us/chambre/comparer-les-previsions/', '/en/us/house/compare-forecasts/', '/es/us/house/comparar-pronosticos/'), label: L('Chambre US : Vote-Scope face aux autres modèles', 'U.S. House: Vote-Scope vs other models', 'Cámara de EE. UU.: Vote-Scope frente a otros modelos') },
+    { href: L('/fr/us/senat/comparer-les-previsions/', '/en/us/senate/compare-forecasts/', '/es/us/senate/comparar-pronosticos/'), label: L('Sénat US : face aux autres modèles', 'U.S. Senate: vs other models', 'Senado de EE. UU.: frente a otros modelos') },
+    { href: L('/fr/us/gouverneurs/comparer-les-previsions/', '/en/us/governors/compare-forecasts/', '/es/us/gobernadores/comparar-pronosticos/'), label: L('Gouverneurs : face aux autres modèles', 'Governors: vs other models', 'Gobernadores: frente a otros modelos') },
+    { href: L('/fr/spain/#comparar', '/en/spain/#comparar', '/es/spain/#comparar'), label: L('Espagne : face aux autres projections', 'Spain: vs other projections', 'España: frente a otras proyecciones') },
+    { href: L('/fr/us/marches-previsionnels/', '/en/us/prediction-markets/', '/es/us/mercados-de-prediccion/'), label: L('Kalshi et Polymarket face à nos projections', 'Kalshi and Polymarket vs our forecasts', 'Kalshi y Polymarket frente a nuestras proyecciones') },
+    { href: L('/fr/track-record/', '/en/track-record/', '/es/track-record/'), label: L('Notre bilan : appels réussis et ratés', 'Our track record: calls made and missed', 'Nuestro historial: aciertos y fallos') },
+  ],
+};
 ---
 <section class="home-front">
   <div class="container">
@@ -59,6 +73,10 @@ const usHome = lang === 'fr' ? '/fr/us/' : lang === 'es' ? '/es/us/' : '/en/us/'
       <aside class="hf-side">
         {budgetItems.length > 0 && <div class="hf-budget"><StoryList items={budgetItems} size="sm" /></div>}
         <ElectionsBand lang={lang} compact exclude={['us-2026']} />
+        <nav class="hf-compare" aria-labelledby="hf-compare-title">
+          <h2 id="hf-compare-title">{COMPARE.title}</h2>
+          <ul>{COMPARE.items.map((i) => <li><a href={i.href}>{i.label}</a></li>)}</ul>
+        </nav>
       </aside>
     </div>
   </div>
@@ -71,6 +89,11 @@ const usHome = lang === 'fr' ? '/fr/us/' : lang === 'es' ? '/es/us/' : '/en/us/'
   .hf-promise { margin: 0; max-width: 760px; color: var(--ink-2); font-size: 17px; line-height: 1.5; }
   .hf-grid { display: grid; grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr); gap: 44px; padding-top: 22px; border-top: 3px solid var(--ink); }
   .hf-budget { margin-bottom: 24px; }
+  .hf-compare { margin-top: 26px; padding-top: 14px; border-top: 1px solid var(--rule); }
+  .hf-compare h2 { margin: 0 0 8px; font-family: var(--mono); font-size: 13px; font-weight: 600; letter-spacing: 0; color: var(--ink-2); text-transform: none; }
+  .hf-compare ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+  .hf-compare a { color: var(--ink); text-decoration: underline; text-decoration-color: var(--rule); text-underline-offset: 3px; font-size: 15px; line-height: 1.35; }
+  .hf-compare a:hover { text-decoration-color: var(--ink); }
   .hf-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; margin: 18px 0 0; }
   @media (max-width: 900px) {
     .hf-grid { grid-template-columns: 1fr; gap: 28px; }
