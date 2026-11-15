@@ -83,6 +83,21 @@ export const SHARE_ELECTIONS: Record<string, ShareElection> = {
     page: { fr: '/fr/uk/general-election/', en: '/en/uk/general-election/', es: '/es/uk/general-election/' },
     unit: 'riding', fullChamber: true, baselineYear: 2024,
   },
+  spain: {
+    name: { fr: 'Élections générales en Espagne', en: 'Spanish general election', es: 'Elecciones generales en España' },
+    question: { fr: 'PP et Vox auront-ils la majorité absolue ?', en: 'Will PP and Vox win a majority?', es: '¿Sumarán PP y Vox mayoría absoluta?' },
+    when: { fr: '29 novembre 2026', en: 'November 29, 2026', es: '29 de noviembre de 2026' },
+    page: { fr: '/fr/spain/', en: '/en/spain/', es: '/es/spain/' },
+    unit: 'riding', fullChamber: true, baselineYear: 2023, date: '2026-11-29',
+    simulator: { fr: '/fr/outils/simulateur-espagne/', en: '/en/tools/spain-simulator/', es: '/es/herramientas/simulador-espana/' },
+  },
+  'us-president': {
+    name: { fr: 'Présidentielle américaine 2028', en: '2028 U.S. presidential election', es: 'Presidenciales de EE. UU. 2028' },
+    question: { fr: 'Qui seront les candidats en 2028 ?', en: 'Who will be the 2028 nominees?', es: '¿Quiénes serán los candidatos en 2028?' },
+    when: { fr: '7 novembre 2028', en: 'November 7, 2028', es: '7 de noviembre de 2028' },
+    page: { fr: '/fr/us/presidentielle/', en: '/en/us/president/', es: '/es/us/presidencial/' },
+    unit: 'state', fullChamber: false, baselineYear: 2024, date: '2028-11-07',
+  },
   'france-presidential': {
     name: { fr: 'Présidentielle française', en: 'French presidential election', es: 'Presidencial francesa' },
     question: { fr: 'Qui sera au second tour ?', en: 'Who will make the runoff?', es: '¿Quién pasará a la segunda vuelta?' },
@@ -98,6 +113,8 @@ export const SHARE_KINDS = {
   projection: { anchor: 'forecast', label: { fr: 'la projection', en: 'the forecast', es: 'la proyección' } },
   chart: { anchor: 'analysis', label: { fr: 'les sondages', en: 'the polls', es: 'las encuestas' } },
   scenario: { anchor: '', label: { fr: 'mon scénario', en: 'my scenario', es: 'mi escenario' } },
+  candidate: { anchor: '', label: { fr: 'cette fiche', en: 'this profile', es: 'esta ficha' } },
+  province: { anchor: '', label: { fr: 'cette province', en: 'this province', es: 'esta provincia' } },
 } as const;
 export type ShareKind = keyof typeof SHARE_KINDS;
 

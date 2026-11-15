@@ -13,6 +13,8 @@ import DeskSections from './DeskSections.astro';
 import { partyMeta } from '../lib/riding-adapters/parties';
 import { CURRENT_RELEASE } from '../data/modelVersion';
 import es from '../../web_data/spain/latest.json';
+import pollIndex from '../../web_data/spain/polls/index.json';
+import ShareModule from '../islands/lib/ShareModule.tsx';
 
 type Locale = 'en' | 'fr' | 'es';
 interface Props {
@@ -187,12 +189,34 @@ const blackoutNote = {
   en: 'Vote-Scope is published from Canada. Spanish electoral law bars media subject to it from publishing polls in the five days before the vote; our projection keeps updating through November 29.',
 }[locale];
 
+// ── Derniers sondages (la requête n° 1 : « encuestas electorales », Bing 2026) ──
+const FIRM_NAMES: Record<string, string> = {
+  '40db': '40dB', cis: 'CIS', gad3: 'GAD3', sigma_dos: 'Sigma Dos', nc_report: 'NC Report', dym: 'DYM', imop: 'IMOP Insights',
+  sociometrica: 'Sociométrica', sw_demoscopia: 'SW Demoscopia', target_point: 'Target Point', gesop: 'GESOP', invymark: 'Invymark',
+  hamalgama_metrica: 'Hamalgama Métrica', more_in_common: 'More in Common', data10: 'Data10', celeste_tel: 'Celeste-Tel',
+  ateneo_del_dato: 'Ateneo del Dato', em_analytics: 'EM-Analytics', sondaxe: 'Sondaxe', winston: 'Winston', vox: 'Vox (interna)',
+  simple_logica: 'Simple Lógica', key_data: 'Key Data', keydata: 'Key Data', opina_360: 'Opina 360', cluster17: 'Cluster17', ipsos: 'Ipsos',
+  odec: 'ODEC', demoscopia_y_servicios: 'Demoscopia y Servicios', sumar: 'Sumar (interna)',
+};
+const firmName = (f: string, raw?: string) => FIRM_NAMES[f] ?? (raw ?? f).replace(/(^|\s)\S/g, (m) => m.toUpperCase());
+const POLL_COLS = ['pp', 'psoe', 'vox', 'sumar', 'podemos', 'salf'];
+const latestPolls = ((pollIndex as any).polls as any[])
+  .filter((p) => p.topline && p.topline.pp != null && p.topline.psoe != null)
+  .sort((a, b) => (b.field_end ?? '').localeCompare(a.field_end ?? '') || (b.release_date ?? '').localeCompare(a.release_date ?? ''))
+  .slice(0, 10);
+const pollsHref = { es: '/es/spain/sondeos/', fr: '/fr/spain/sondages/', en: '/en/spain/polls/' }[locale];
+const avg = meta.poll_average as Record<string, number>;
+// Phase de campagne : la page parle au présent de ce qui se passe cette semaine.
+const buildDay = new Date().toISOString().slice(0, 10);
+const phase = buildDay >= '2026-11-30' ? 'after' : buildDay >= '2026-11-24' ? 'blackout' : buildDay >= '2026-11-13' ? 'campaign' : 'pre';
+const nextStep = CALENDAR.find((c) => c.date >= buildDay);
+
 const copy = {
   es: {
-    title: `Elecciones generales 29 de noviembre: encuestas y escaños — PP ${nat.pp.seats_median}, PSOE ${psoe.seats_median}, Vox ${nat.vox.seats_median} — Vote-Scope`,
-    description: `Encuestas electorales España y proyección de los 350 escaños, provincia por provincia: PP ${nat.pp.seats_median}, PSOE ${psoe.seats_median}, Vox ${nat.vox.seats_median}. Elecciones el 29 de noviembre.`,
+    title: `Encuestas electorales elecciones generales 2026: PP ${nat.pp.seats_median}, PSOE ${psoe.seats_median}, Vox ${nat.vox.seats_median} escaños — Vote-Scope`,
+    description: `Últimas encuestas electorales de las elecciones generales del 29 de noviembre en España y proyección de los 350 escaños provincia por provincia: PP ${nat.pp.seats_median}, PSOE ${psoe.seats_median}, Vox ${nat.vox.seats_median}. Actualizado cada día.`,
     eyebrow: 'Mesa España · Elecciones generales del 29 de noviembre',
-    h1: 'Elecciones generales en España: encuestas y proyección de escaños',
+    h1: 'Elecciones generales 2026 en España: encuestas electorales y proyección de escaños',
     promise: `Proyectamos los 350 escaños del Congreso provincia por provincia, con la ley D'Hondt y el umbral del 3 %, a partir de ${meta.n_polls_window} encuestas recientes corregidas por el sesgo de cada empresa.`,
     whenLabel: '¿Cuándo son las próximas elecciones?',
     whenAnswer: 'El domingo 29 de noviembre de 2026. Pedro Sánchez anunció el 5 de octubre la disolución de las Cortes; el decreto se publica en el BOE el 6 de octubre.',
@@ -212,7 +236,7 @@ const copy = {
       { label: 'PP + Vox', value: `${blocs.pp_vox.median} escaños`, note: `rango ${blocs.pp_vox.p10}–${blocs.pp_vox.p90} · mayoría en ${pctW(blocs.pp_vox.p_majority)} de cada 100` },
       { label: 'PP solo', value: `${nat.pp.seats_median} escaños`, note: `mayoría absoluta en ${pctW(blocs.pp_alone.p_majority)} de cada 100` },
     ],
-    adelantoBody: `Con las encuestas de hoy, el PSOE perdería unos ${121 - psoe.seats_median} escaños y la mayoría que lo invistió en 2023 quedaría lejos. La campaña empieza el 13 de noviembre: es la última oportunidad de mover estos números.`,
+    adelantoBody: `Con las encuestas de hoy, el PSOE perdería unos ${121 - psoe.seats_median} escaños y la mayoría que lo invistió en 2023 quedaría lejos. ${phase === 'pre' ? 'La campaña empieza el 13 de noviembre: es la última oportunidad de mover estos números.' : 'La campaña ya está en marcha: es la última oportunidad de mover estos números.'}`,
     leftKicker: 'La división a la izquierda del PSOE',
     leftTitle: `Separados, Sumar y Podemos sacan ${leftDivided} escaños. Juntos, con los mismos votos, sacarían ${united.sumar_podemos_seats_median}.`,
     leftBody: `La ley D'Hondt castiga a los partidos medianos que se dividen en provincias pequeñas. La diferencia (${leftGain} escaños) es mayor que la mayoría de los grupos del Congreso.`,
@@ -279,7 +303,7 @@ const copy = {
     ],
   },
   fr: {
-    title: `Élections en Espagne le 29 novembre : sondages et sièges — PP ${nat.pp.seats_median}, PSOE ${psoe.seats_median}, Vox ${nat.vox.seats_median} — Vote-Scope`,
+    title: `Élections en Espagne 2026 : sondages et projection des sièges — PP ${nat.pp.seats_median}, PSOE ${psoe.seats_median}, Vox ${nat.vox.seats_median} — Vote-Scope`,
     description: `Sondages des élections en Espagne et projection des 350 sièges, province par province : PP ${nat.pp.seats_median}, PSOE ${psoe.seats_median}, Vox ${nat.vox.seats_median}. Vote le 29 novembre.`,
     eyebrow: 'Espagne · Élections générales du 29 novembre',
     h1: 'Élections générales en Espagne : sondages et projection des sièges',
@@ -302,7 +326,7 @@ const copy = {
       { label: 'PP + Vox', value: `${blocs.pp_vox.median} sièges`, note: `fourchette ${blocs.pp_vox.p10}–${blocs.pp_vox.p90} · majorité dans ${pctW(blocs.pp_vox.p_majority)} sur 100` },
       { label: 'PP seul', value: `${nat.pp.seats_median} sièges`, note: `majorité absolue dans ${pctW(blocs.pp_alone.p_majority)} sur 100` },
     ],
-    adelantoBody: `Avec les sondages d'aujourd'hui, le PSOE perdrait environ ${121 - psoe.seats_median} sièges et la majorité qui l'a investi en 2023 serait hors de portée. La campagne commence le 13 novembre : c'est la dernière occasion de faire bouger ces chiffres.`,
+    adelantoBody: `Avec les sondages d'aujourd'hui, le PSOE perdrait environ ${121 - psoe.seats_median} sièges et la majorité qui l'a investi en 2023 serait hors de portée. ${phase === 'pre' ? 'La campagne commence le 13 novembre : c’est la dernière occasion de faire bouger ces chiffres.' : 'La campagne est lancée : c’est la dernière occasion de faire bouger ces chiffres.'}`,
     leftKicker: 'La division à gauche du PSOE',
     leftTitle: `Séparés, Sumar et Podemos obtiennent ${leftDivided} sièges. Ensemble, avec les mêmes voix, ils en auraient ${united.sumar_podemos_seats_median}.`,
     leftBody: `La règle D'Hondt punit les partis moyens qui se divisent dans les petites provinces. L'écart (${leftGain} sièges) dépasse la taille de la plupart des groupes du Congrès.`,
@@ -369,7 +393,7 @@ const copy = {
     ],
   },
   en: {
-    title: `Spain Election, November 29: Polls & Seat Projection — PP ${nat.pp.seats_median}, PSOE ${psoe.seats_median}, Vox ${nat.vox.seats_median} — Vote-Scope`,
+    title: `Spanish Election 2026 Polls & Seat Forecast: PP ${nat.pp.seats_median}, PSOE ${psoe.seats_median}, Vox ${nat.vox.seats_median} — Vote-Scope`,
     description: `Spain election polls and a projection of all 350 seats, province by province: PP ${nat.pp.seats_median}, PSOE ${psoe.seats_median}, Vox ${nat.vox.seats_median}. Polling day: November 29.`,
     eyebrow: 'Spain Desk · General election, November 29',
     h1: 'Spain general election: polls and seat projection',
@@ -392,7 +416,7 @@ const copy = {
       { label: 'PP + Vox', value: `${blocs.pp_vox.median} seats`, note: `range ${blocs.pp_vox.p10}–${blocs.pp_vox.p90} · majority in ${pctW(blocs.pp_vox.p_majority)} of 100` },
       { label: 'PP alone', value: `${nat.pp.seats_median} seats`, note: `outright majority in ${pctW(blocs.pp_alone.p_majority)} of 100` },
     ],
-    adelantoBody: `On today's polls, the PSOE would lose about ${121 - psoe.seats_median} seats and the majority that re-elected him in 2023 would be out of reach. The campaign opens on November 13: the last chance to move these numbers.`,
+    adelantoBody: `On today's polls, the PSOE would lose about ${121 - psoe.seats_median} seats and the majority that re-elected him in 2023 would be out of reach. ${phase === 'pre' ? 'The campaign opens on November 13: the last chance to move these numbers.' : 'The campaign is under way: the last chance to move these numbers.'}`,
     leftKicker: 'The split left of the PSOE',
     leftTitle: `Running apart, Sumar and Podemos win ${leftDivided} seats. Together, on the same votes, they would win ${united.sumar_podemos_seats_median}.`,
     leftBody: `D'Hondt punishes mid-sized parties that split in small provinces. The gap (${leftGain} seats) is bigger than most groups in Congress.`,
@@ -470,6 +494,59 @@ const frFix = (x: any): any =>
         : x;
 const t = locale === 'fr' ? frFix(copy) : copy;
 
+const L = {
+  es: {
+    kicker: 'Encuestas electorales',
+    title: `Últimas encuestas de las elecciones generales: PP ${dec(avg.pp)} %, PSOE ${dec(avg.psoe)} %, Vox ${dec(avg.vox)} %`,
+    lede: `Nuestro promedio de ${meta.n_polls_window} encuestas recientes, corregido por el sesgo de cada empresa. Debajo, las diez últimas encuestas publicadas, con su fecha de campo.`,
+    firm: 'Empresa', date: 'Trabajo de campo', n: 'Muestra', all: 'Ver todas las encuestas electorales',
+    avgRow: 'Promedio Vote-Scope',
+    faqQ: '¿Qué dicen las últimas encuestas electorales?',
+    faqA: `El PP lidera con un ${dec(avg.pp)} % de media, seguido del PSOE (${dec(avg.psoe)} %) y Vox (${dec(avg.vox)} %). Con esos números, PP y Vox suman ${blocs.pp_vox.median} escaños, por encima de la mayoría absoluta de 176, en ${pctW(blocs.pp_vox.p_majority)} de cada 100 simulaciones.`,
+    phase: {
+      pre: '',
+      campaign: `La campaña está en marcha hasta el 27 de noviembre. Desde el 24 de noviembre la ley prohíbe publicar encuestas en España.`,
+      blackout: `Últimos días: la ley prohíbe publicar encuestas en España desde el 24 de noviembre. Nuestra proyección usa las últimas publicadas.`,
+      after: '',
+    },
+    next: 'Próxima etapa',
+  },
+  fr: {
+    kicker: 'Sondages',
+    title: `Derniers sondages des élections en Espagne : PP ${dec(avg.pp)} %, PSOE ${dec(avg.psoe)} %, Vox ${dec(avg.vox)} %`,
+    lede: `Notre moyenne de ${meta.n_polls_window} sondages récents, corrigée du biais de chaque institut. En dessous, les dix derniers sondages publiés, avec leur date de terrain.`,
+    firm: 'Institut', date: 'Terrain', n: 'Échantillon', all: 'Voir tous les sondages espagnols',
+    avgRow: 'Moyenne Vote-Scope',
+    faqQ: 'Que disent les derniers sondages en Espagne ?',
+    faqA: `Le PP est en tête avec ${dec(avg.pp)} % en moyenne, devant le PSOE (${dec(avg.psoe)} %) et Vox (${dec(avg.vox)} %). Avec ces chiffres, PP et Vox totalisent ${blocs.pp_vox.median} sièges, au-dessus de la majorité absolue de 176, dans ${pctW(blocs.pp_vox.p_majority)} simulations sur 100.`,
+    phase: {
+      pre: '',
+      campaign: 'La campagne officielle est en cours jusqu’au 27 novembre. À partir du 24 novembre, la loi interdit de publier des sondages en Espagne.',
+      blackout: 'Derniers jours : la loi interdit de publier des sondages en Espagne depuis le 24 novembre. Notre projection repose sur les derniers publiés.',
+      after: '',
+    },
+    next: 'Prochaine étape',
+  },
+  en: {
+    kicker: 'Polls',
+    title: `Latest Spain election polls: PP ${dec(avg.pp)}%, PSOE ${dec(avg.psoe)}%, Vox ${dec(avg.vox)}%`,
+    lede: `Our average of ${meta.n_polls_window} recent polls, corrected for each pollster's lean. Below, the ten most recent published polls, with their fieldwork dates.`,
+    firm: 'Pollster', date: 'Fieldwork', n: 'Sample', all: 'See every Spanish poll',
+    avgRow: 'Vote-Scope average',
+    faqQ: 'What do the latest Spanish election polls say?',
+    faqA: `The PP leads on ${dec(avg.pp)}% on average, ahead of the PSOE (${dec(avg.psoe)}%) and Vox (${dec(avg.vox)}%). On those numbers, PP and Vox reach ${blocs.pp_vox.median} seats, above the 176 needed for a majority, in ${pctW(blocs.pp_vox.p_majority)} of 100 simulations.`,
+    phase: {
+      pre: '',
+      campaign: 'The official campaign runs until November 27. From November 24, the law bars publishing polls in Spain.',
+      blackout: 'Final days: Spanish law has barred publishing polls since November 24. Our projection uses the last ones published.',
+      after: '',
+    },
+    next: 'Next step',
+  },
+}[locale];
+const lt = locale === 'fr' ? frFix(L) : L;
+const phaseNote = lt.phase[phase as 'pre' | 'campaign' | 'blackout' | 'after'];
+
 const canonical = `https://vote-scope.com/${locale}/spain/`;
 const alternates = {
   en: 'https://vote-scope.com/en/spain/',
@@ -494,6 +571,11 @@ const jsonLd = [
         name: t.whenLabel,
         acceptedAnswer: { '@type': 'Answer', text: t.whenAnswer },
       },
+      {
+        '@type': 'Question',
+        name: lt.faqQ,
+        acceptedAnswer: { '@type': 'Answer', text: lt.faqA },
+      },
     ],
   },
   {
@@ -516,12 +598,13 @@ const jsonLd = [
   canonical={canonical}
   lang={locale}
   currentPage="spain"
+  ogImage={`https://vote-scope.com/og/share/projection/spain/${locale}.png`}
   alternates={alternates}
   jsonLd={jsonLd}
 >
   <JurisdictionNav webKey="spain" lang={locale} active="projection" />
   <article class="es-desk" data-content-area>
-    <header class="es-head vs-page-head">
+    <header class="es-head vs-page-head" id="forecast">
       <div class="container">
         <p class="eyebrow">{t.eyebrow}</p>
         <h1>{t.h1}</h1>
@@ -531,7 +614,7 @@ const jsonLd = [
           <p>{t.whenAnswer} <a href="#fechas">{t.whenLink}</a></p>
         </div>
 
-        {inBlackout && <p class="es-blackout">{blackoutNote}</p>}
+        {inBlackout ? <p class="es-blackout">{blackoutNote}</p> : phaseNote && <p class="es-blackout">{phaseNote}{nextStep && nextStep.date !== '2026-11-29' && <> {lt.next}{locale === 'fr' ? ' : ' : ': '}{capFirst(longDate(nextStep.date))} — {nextStep.step[locale]}.</>}</p>}
         <p class="es-headline">{t.headline}</p>
 
         <ResultsTable
@@ -544,9 +627,41 @@ const jsonLd = [
         />
         <p class="es-sim-link"><a class="cta-link" href={simHref}>{simLabel}</a></p>
         <p class="es-updated">{t.updated}</p>
+        <ShareModule lang={locale} kind="projection" election="spain" runDate={meta.run_date} client:idle />
         <GooglePreferredSource locale={locale} />
       </div>
     </header>
+
+    <section class="content-band" id="analysis">
+      <div class="container">
+        <p class="eyebrow">{lt.kicker}</p>
+        <h2 class="es-h2">{lt.title}</h2>
+        <p class="es-lede">{lt.lede}</p>
+        <div class="es-table-wrap">
+          <table class="es-table es-polls">
+            <thead>
+              <tr><th>{lt.firm}</th><th>{lt.date}</th><th class="num">{lt.n}</th>{POLL_COLS.map((k) => <th class="num"><i class="es-swatch" style={`background:${color(k)}`}></i>{name(k)}</th>)}</tr>
+            </thead>
+            <tbody>
+              <tr class="is-own">
+                <td><strong>{lt.avgRow}</strong></td><td>{shortDate(meta.run_date)}</td><td class="num">{meta.n_polls_window}</td>
+                {POLL_COLS.map((k) => <td class="num"><strong>{avg[k] != null ? dec(avg[k]) : '—'}</strong></td>)}
+              </tr>
+              {latestPolls.map((p) => (
+                <tr>
+                  <td>{p.source_url ? <a href={p.source_url} rel="noopener nofollow">{firmName(p.firm, p.firm_name)}</a> : firmName(p.firm, p.firm_name)}{p.client && <span class="es-client"> · {p.client}</span>}</td>
+                  <td>{p.field_start && p.field_start !== p.field_end ? `${shortDate(p.field_start)}–${shortDate(p.field_end)}` : shortDate(p.field_end)}</td>
+                  <td class="num">{p.sample_size ? Number(p.sample_size).toLocaleString(locale === 'en' ? 'en-GB' : 'es-ES') : '—'}</td>
+                  {POLL_COLS.map((k) => <td class="num">{p.topline[k] != null ? dec(p.topline[k]) : '—'}</td>)}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p style="margin-top:.8rem;"><a class="cta-link" href={pollsHref}>{lt.all}</a></p>
+        <ShareModule lang={locale} kind="chart" election="spain" runDate={meta.run_date} client:idle />
+      </div>
+    </section>
 
     <section class="content-band">
       <div class="container es-two">
@@ -571,6 +686,54 @@ const jsonLd = [
             <div><span style={`background:${color('sumar')}`}></span>Sumar {nat.sumar.seats_median} + Podemos {nat.podemos.seats_median} = {leftDivided}</div>
             <div><span style={`background:${color('sumar')}`}></span>Sumar + Podemos = {united.sumar_podemos_seats_median} ({united.p10}–{united.p90})</div>
           </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="content-band">
+      <div class="container">
+        <p class="eyebrow">{t.provKicker}</p>
+        <h2 class="es-h2">{t.provTitle}</h2>
+        <p class="es-lede">{t.provBody}</p>
+        <div class="es-contested">
+          {contested.map((p) => (
+            <div class="es-prov-card">
+              <h3>{p.name} <span>{p.seats} {t.seats}</span></h3>
+              <p class="es-chips">
+                {Object.entries(p.modal)
+                  .sort((a, b) => b[1] - a[1])
+                  .map(([k, n]) => (
+                    <span style={`--party-color:${color(k)}`}>{name(k)} {n}</span>
+                  ))}
+              </p>
+              {p.swing.length > 0 && (
+                <p class="es-swing">{t.provSwing} {p.swing.map((k) => `${name(k)} (${pct(p.parties[k].p_at_least_one)} %)`).join(', ')}</p>
+              )}
+            </div>
+          ))}
+        </div>
+
+        <h3 class="es-h3">{t.provAllTitle}</h3>
+        <div class="es-table-wrap">
+          <table class="es-table">
+            <thead><tr><th>{t.provCol}</th><th>{t.seatsCol}</th><th>{t.projCol}</th><th>{t.probCol}</th></tr></thead>
+            <tbody>
+              {provinceRows.map((p) => (
+                <tr>
+                  <td>{p.name}</td>
+                  <td class="num">{p.seats}</td>
+                  <td class="es-chips">
+                    {Object.entries(p.modal)
+                      .sort((a, b) => b[1] - a[1])
+                      .map(([k, n]) => (
+                        <span style={`--party-color:${color(k)}`}>{name(k)} {n}</span>
+                      ))}
+                  </td>
+                  <td class="num">{pct(p.p_modal)} %</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </section>
@@ -656,39 +819,6 @@ const jsonLd = [
       </div>
     </section>
 
-    <section class="content-band es-orbit" id="orbite">
-      <div class="container">
-        <div class="note-card es-orbit-card">
-          <p class="eyebrow">{t.orbKicker}</p>
-          <h2>{t.orbTitle}</h2>
-          <p class="es-lede">{t.orbBody}</p>
-          <div class="es-table-wrap">
-            <table class="es-table es-models">
-              <thead>
-                <tr><th>{t.orbParty}</th><th>{t.orbMain}</th><th>{t.orbOrbit}</th><th>{t.orbBlend}</th></tr>
-              </thead>
-              <tbody>
-                {MODEL_ROWS.filter((k) => nat[k]).map((k) => (
-                  <tr>
-                    <td><i class="es-swatch" style={`background:${color(k)}`}></i>{name(k)}</td>
-                    <td class="num"><strong>{nat[k].seats_median}</strong> <span>{nat[k].seats_p10}–{nat[k].seats_p90}</span></td>
-                    <td class="num"><strong>{orbit.national[k].seats_median}</strong> <span>{orbit.national[k].seats_p10}–{orbit.national[k].seats_p90}</span></td>
-                    <td class="num"><strong>{blend.national[k].seats_median}</strong> <span>{blend.national[k].seats_p10}–{blend.national[k].seats_p90}</span></td>
-                  </tr>
-                ))}
-                <tr class="es-models-bloc">
-                  <td>{t.orbMajority}</td>
-                  <td class="num"><strong>{pct(blocs.pp_vox.p_majority)} %</strong></td>
-                  <td class="num"><strong>{pct(orbit.blocs.pp_vox.p_majority)} %</strong></td>
-                  <td class="num"><strong>{pct(blend.blocs.pp_vox.p_majority)} %</strong></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <p style="margin-top:1rem;"><a class="cta-link" href={labsHref}>{t.orbHow}</a></p>
-        </div>
-      </div>
-    </section>
 
     <section class="content-band" id="comparar">
       <div class="container">
@@ -734,53 +864,40 @@ const jsonLd = [
       </div>
     </section>
 
-    <section class="content-band">
+    <section class="content-band es-orbit" id="orbite">
       <div class="container">
-        <p class="eyebrow">{t.provKicker}</p>
-        <h2 class="es-h2">{t.provTitle}</h2>
-        <p class="es-lede">{t.provBody}</p>
-        <div class="es-contested">
-          {contested.map((p) => (
-            <div class="es-prov-card">
-              <h3>{p.name} <span>{p.seats} {t.seats}</span></h3>
-              <p class="es-chips">
-                {Object.entries(p.modal)
-                  .sort((a, b) => b[1] - a[1])
-                  .map(([k, n]) => (
-                    <span style={`--party-color:${color(k)}`}>{name(k)} {n}</span>
-                  ))}
-              </p>
-              {p.swing.length > 0 && (
-                <p class="es-swing">{t.provSwing} {p.swing.map((k) => `${name(k)} (${pct(p.parties[k].p_at_least_one)} %)`).join(', ')}</p>
-              )}
-            </div>
-          ))}
-        </div>
-
-        <h3 class="es-h3">{t.provAllTitle}</h3>
-        <div class="es-table-wrap">
-          <table class="es-table">
-            <thead><tr><th>{t.provCol}</th><th>{t.seatsCol}</th><th>{t.projCol}</th><th>{t.probCol}</th></tr></thead>
-            <tbody>
-              {provinceRows.map((p) => (
-                <tr>
-                  <td>{p.name}</td>
-                  <td class="num">{p.seats}</td>
-                  <td class="es-chips">
-                    {Object.entries(p.modal)
-                      .sort((a, b) => b[1] - a[1])
-                      .map(([k, n]) => (
-                        <span style={`--party-color:${color(k)}`}>{name(k)} {n}</span>
-                      ))}
-                  </td>
-                  <td class="num">{pct(p.p_modal)} %</td>
+        <div class="note-card es-orbit-card">
+          <p class="eyebrow">{t.orbKicker}</p>
+          <h2>{t.orbTitle}</h2>
+          <p class="es-lede">{t.orbBody}</p>
+          <div class="es-table-wrap">
+            <table class="es-table es-models">
+              <thead>
+                <tr><th>{t.orbParty}</th><th>{t.orbMain}</th><th>{t.orbOrbit}</th><th>{t.orbBlend}</th></tr>
+              </thead>
+              <tbody>
+                {MODEL_ROWS.filter((k) => nat[k]).map((k) => (
+                  <tr>
+                    <td><i class="es-swatch" style={`background:${color(k)}`}></i>{name(k)}</td>
+                    <td class="num"><strong>{nat[k].seats_median}</strong> <span>{nat[k].seats_p10}–{nat[k].seats_p90}</span></td>
+                    <td class="num"><strong>{orbit.national[k].seats_median}</strong> <span>{orbit.national[k].seats_p10}–{orbit.national[k].seats_p90}</span></td>
+                    <td class="num"><strong>{blend.national[k].seats_median}</strong> <span>{blend.national[k].seats_p10}–{blend.national[k].seats_p90}</span></td>
+                  </tr>
+                ))}
+                <tr class="es-models-bloc">
+                  <td>{t.orbMajority}</td>
+                  <td class="num"><strong>{pct(blocs.pp_vox.p_majority)} %</strong></td>
+                  <td class="num"><strong>{pct(orbit.blocs.pp_vox.p_majority)} %</strong></td>
+                  <td class="num"><strong>{pct(blend.blocs.pp_vox.p_majority)} %</strong></td>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </tbody>
+            </table>
+          </div>
+          <p style="margin-top:1rem;"><a class="cta-link" href={labsHref}>{t.orbHow}</a></p>
         </div>
       </div>
     </section>
+
 
     <section class="content-band">
       <div class="container">
@@ -963,6 +1080,8 @@ const jsonLd = [
   .es-topics li.is-viv .es-topic-name { font-weight: 600; }
   .es-topic-val { font-family: var(--mono); font-size: 13px; text-align: right; color: var(--ink-2); }
   .es-trust td:first-child { white-space: nowrap; }
+  .es-client { color: var(--ink-3); font-size: 12.5px; }
+  .es-polls th.num, .es-polls td.num { text-align: right; white-space: nowrap; }
   .es-swatch { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 7px; }
   .es-viv-trustbody { font-size: 14px; line-height: 1.55; color: var(--ink-2); margin: 12px 0 0; }
 
@@ -971,7 +1090,7 @@ const jsonLd = [
   .es-models td.num strong { font-family: var(--serif); font-size: 17px; font-weight: 450; }
   .es-models td.num span { display: block; font-family: var(--mono); font-size: 13px; color: var(--ink-3); }
   .es-models tr.es-models-bloc td { border-top: 1px solid var(--rule); font-weight: 600; }
-  .es-cmp tr.is-own td { background: color-mix(in oklab, var(--blue) 5%, transparent); }
+  .es-cmp tr.is-own td, .es-polls tr.is-own td { background: color-mix(in oklab, var(--blue) 5%, transparent); }
   .es-cmp td a { color: inherit; }
   @media (max-width: 900px) {
     .es-two { grid-template-columns: 1fr; }

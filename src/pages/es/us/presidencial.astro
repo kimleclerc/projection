@@ -4,6 +4,14 @@ import UsPresidentDesk from '../../../components/UsPresidentDesk.astro';
 import latest from '../../../../web_data/us-president/latest.json';
 
 const meta = (latest as any).meta;
+const demLead = (latest as any).primary.dem.standings[0];
+const repLead = (latest as any).primary.rep.standings[0];
+const demTop = demLead.short_label;
+const repTop = repLead.short_label;
+const demLeadName = demLead.name;
+const repLeadName = repLead.name;
+const demLeadShare = demLead.share.toFixed(1).replace('.', ',');
+const repLeadShare = repLead.share.toFixed(1).replace('.', ',');
 const canonical = 'https://vote-scope.com/es/us/presidencial/';
 const alternates = {
   en: 'https://vote-scope.com/en/us/president/',
@@ -13,12 +21,12 @@ const alternates = {
 ---
 
 <EditorialLayout
-  title="Presidencial de EE. UU. 2028 — Primaria invisible y colegio electoral — Vote-Scope"
-  description={`Media ponderada por calidad de los sondeos de primarias de la presidencial de EE. UU. 2028 (DEM y REP), escenarios de campo, primeros estados y mapa del colegio electoral. ${meta.n_primary_polls} sondeos, ejecución del ${meta.run_date}.`}
+  title={`Elecciones Estados Unidos 2028: encuestas y candidatos — ¿${repTop} o ${demTop}? — Vote-Scope`}
+  description={`Encuestas de las elecciones de Estados Unidos 2028: ${demLeadName} lidera entre los demócratas (${demLeadShare} %) y ${repLeadName} entre los republicanos (${repLeadShare} %). Los candidatos, el promedio de encuestas de las primarias, los primeros estados y el mapa electoral. ${meta.n_primary_polls} encuestas, actualizado el ${meta.run_date}.`}
   canonical={canonical}
   lang="es"
   currentPage="us"
-  ogImage="https://vote-scope.com/og/vote-scope.png"
+  ogImage="https://vote-scope.com/og/share/projection/us-president/es.png"
   alternates={alternates}
   jsonLd={[
     {
@@ -33,6 +41,14 @@ const alternates = {
       license: 'https://vote-scope.com/es/terms/',
       isAccessibleForFree: true,
       distribution: { '@type': 'DataDownload', contentUrl: 'https://vote-scope.com/web_data/us-president/latest.json', encodingFormat: 'application/json' },
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: [
+        { '@type': 'Question', name: '¿Cuándo son las próximas elecciones presidenciales en Estados Unidos?', acceptedAnswer: { '@type': 'Answer', text: 'Las próximas elecciones presidenciales de Estados Unidos son el martes 7 de noviembre de 2028. Las primarias y los caucus empiezan a principios de 2028.' } },
+        { '@type': 'Question', name: '¿Quién lidera las encuestas de las primarias de 2028?', acceptedAnswer: { '@type': 'Answer', text: `En nuestro promedio de encuestas, ${demLeadName} lidera las primarias demócratas con un ${demLeadShare} % y ${repLeadName} las republicanas con un ${repLeadShare} %.` } },
+      ],
     },
     {
       '@context': 'https://schema.org',

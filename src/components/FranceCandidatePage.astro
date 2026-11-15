@@ -5,6 +5,8 @@
 import { blocVar, blocLabel, statusLabel, fmtPct1, franceBase, franceCandBase, type Locale } from '../lib/fr-pres';
 import { candidateProse, slugify, getAllCandidates, type CandidateProfile } from '../lib/fr-candidates';
 import ContextualBookShelf from './ContextualBookShelf.astro';
+import ShareModule from '../islands/lib/ShareModule.tsx';
+import frLatest from '../../web_data/france-presidential/latest.json';
 import { contextualBooks } from '../data/contextualBooks';
 
 interface Props {
@@ -103,6 +105,7 @@ const C = COPY[locale];
       <span class="frc-badge">{blocLabel(c.bloc, locale, c.partyFamily)}</span>
       <span class={`frc-badge frc-status is-${c.status}`}>{statusLabel(c.status, locale)}</span>
     </div>
+    <ShareModule lang={locale} kind="candidate" election={c.slug} runDate={(frLatest as any).meta.run_date} client:idle />
   </header>
 
   <section class="frc-section container frc-prose" aria-label={c.name}>

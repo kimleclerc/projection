@@ -13,6 +13,7 @@ import PolymarketEmbed from './PolymarketEmbed.astro';
 import ContextualBookShelf from './ContextualBookShelf.astro';
 import UsPrimaryStandings from '../islands/UsPrimaryStandings.tsx';
 import UsElectoralMap from '../islands/UsElectoralMap.tsx';
+import ShareModule from '../islands/lib/ShareModule.tsx';
 import latest from '../../web_data/us-president/latest.json';
 import {
   partyVar,
@@ -71,8 +72,9 @@ const intro =
 const C = {
   fr: {
     kicker: 'Présidentielle 2028 · Primaire invisible',
-    titleA: 'La Maison-Blanche se joue dès ',
+    titleA: 'Présidentielle américaine : qui sera candidat en ',
     titleEm: '2028',
+    titleEnd: ' ?',
     dek: 'Bien avant le premier vote, la course se mesure aux soutiens et aux sondages de primaire. Voici où en sont les champs démocrate et républicain — et la carte du collège électoral.',
     runOf: `Mis à jour le ${runDate}`,
     pollsAgg: `${nPolls} sondages de primaire`,
@@ -99,8 +101,9 @@ const C = {
   },
   en: {
     kicker: '2028 Presidential · Invisible primary',
-    titleA: 'The White House race begins in ',
+    titleA: 'Who’s running for president in ',
     titleEm: '2028',
+    titleEnd: '?',
     dek: 'Long before the first vote, the race is measured in endorsements and primary polling. Here is where the Democratic and Republican fields stand — and the electoral-college map.',
     runOf: `Updated ${runDate}`,
     pollsAgg: `${nPolls} primary polls`,
@@ -127,8 +130,9 @@ const C = {
   },
   es: {
     kicker: 'Presidencial 2028 · Primaria invisible',
-    titleA: 'La Casa Blanca se decide desde ',
+    titleA: '¿Quién será candidato a la presidencia de EE. UU. en ',
     titleEm: '2028',
+    titleEnd: '?',
     dek: 'Mucho antes del primer voto, la carrera se mide en apoyos y encuestas de primarias. Aquí está la situación de los campos demócrata y republicano — y el mapa del colegio electoral.',
     runOf: `Actualizado el ${runDate}`,
     pollsAgg: `${nPolls} encuestas de primarias`,
@@ -164,7 +168,7 @@ for (const u of ec.units) stateNameByAbbr[u.state] = placeName(u, locale);
 <article class="up-desk" data-content-area>
   <header class="up-hero container vs-page-head">
     <p class="up-kicker">{C.kicker}</p>
-    <h1 class="up-title">{C.titleA}<em>{C.titleEm}</em>.</h1>
+    <h1 class="up-title">{C.titleA}<em>{C.titleEm}</em>{C.titleEnd}</h1>
     <p class="up-dek">{C.dek}</p>
     <div class="up-meta">
       <span>{C.runOf}</span><span aria-hidden="true">·</span>
@@ -180,6 +184,7 @@ for (const u of ec.units) stateNameByAbbr[u.state] = placeName(u, locale);
         </div>
       ))}
     </div>
+    <ShareModule lang={locale} kind="projection" election="us-president" runDate={(latest as any).meta.run_date} client:idle />
     <GooglePreferredSource locale={locale} />
     <div class="up-cta-row">
       <a class="up-cta" href={methodHref(locale)}>{C.ctaMethod}</a>

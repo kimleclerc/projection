@@ -16,16 +16,16 @@ import { LIVE_IMAGES, shareImage, type ShareFormat } from '../../lib/share/elect
 type Lang = 'fr' | 'en' | 'es';
 interface Props {
   lang: Lang;
-  kind: 'map' | 'projection' | 'chart' | 'scenario';
+  kind: 'map' | 'projection' | 'chart' | 'scenario' | 'candidate' | 'province';
   election: string;   // clé de SHARE_ELECTIONS (us-house, federal…)
   runDate: string;    // date du calcul : l'image change avec lui
   sim?: string;       // état du scénario (?sim=) pour un simulateur
 }
 
 const T = {
-  fr: { get: 'Télécharger', share: 'Partager l’image', wide: 'Paysage', square: 'Carré', story: 'Story', busy: 'Image en cours…', what: { map: 'cette carte', projection: 'cette projection', chart: 'ce graphique', scenario: 'mon scénario' }, hint: { wide: 'X, Facebook', square: 'Instagram', story: 'Instagram, TikTok' } },
-  en: { get: 'Download', share: 'Share image', wide: 'Landscape', square: 'Square', story: 'Story', busy: 'Drawing…', what: { map: 'this map', projection: 'this forecast', chart: 'this chart', scenario: 'my scenario' }, hint: { wide: 'X, Facebook', square: 'Instagram', story: 'Instagram, TikTok' } },
-  es: { get: 'Descargar', share: 'Compartir la imagen', wide: 'Horizontal', square: 'Cuadrada', story: 'Story', busy: 'Generando…', what: { map: 'este mapa', projection: 'esta proyección', chart: 'este gráfico', scenario: 'mi escenario' }, hint: { wide: 'X, Facebook', square: 'Instagram', story: 'Instagram, TikTok' } },
+  fr: { get: 'Télécharger', share: 'Partager l’image', wide: 'Paysage', square: 'Carré', story: 'Story', busy: 'Image en cours…', what: { map: 'cette carte', projection: 'cette projection', chart: 'ce graphique', scenario: 'mon scénario', candidate: 'cette fiche', province: 'cette province' }, hint: { wide: 'X, Facebook', square: 'Instagram', story: 'Instagram, TikTok' } },
+  en: { get: 'Download', share: 'Share image', wide: 'Landscape', square: 'Square', story: 'Story', busy: 'Drawing…', what: { map: 'this map', projection: 'this forecast', chart: 'this chart', scenario: 'my scenario', candidate: 'this profile', province: 'this province' }, hint: { wide: 'X, Facebook', square: 'Instagram', story: 'Instagram, TikTok' } },
+  es: { get: 'Descargar', share: 'Compartir la imagen', wide: 'Horizontal', square: 'Cuadrada', story: 'Story', busy: 'Generando…', what: { map: 'este mapa', projection: 'esta proyección', chart: 'este gráfico', scenario: 'mi escenario', candidate: 'esta ficha', province: 'esta provincia' }, hint: { wide: 'X, Facebook', square: 'Instagram', story: 'Instagram, TikTok' } },
 };
 const FORMATS: ShareFormat[] = ['wide', 'square', 'story'];
 

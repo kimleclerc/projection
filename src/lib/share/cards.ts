@@ -317,6 +317,8 @@ export function mapCard(fmt: Format, { key, lang, latest, geo }: MapCardInput): 
 // ------------------------------------------------------------------ projection
 
 export function projectionCard(fmt: Format, { key, lang, latest }: { key: string; lang: Lang; latest: any }): Node {
+  if (key === 'spain' && latest.blocs && latest.national) return spainCard(fmt, { key, lang, latest });
+  if (key === 'us-president' && latest.primary) return primaryCard(fmt, { key, lang, latest });
   const t = T[lang];
   const el = SHARE_ELECTIONS[key];
   const { w } = SIZE[fmt];
@@ -347,6 +349,149 @@ export function projectionCard(fmt: Format, { key, lang, latest }: { key: string
     head, ...parties.map(row), bar,
     h('div', { marginTop: 8, fontSize: 15, fontWeight: 600, color: INK_2 }, t.majority(majority)));
   return frame(fmt, lang, el.name[lang], el.when[lang], body, asOfLine(key, lang, latest));
+}
+
+// ------------------------------------------------------------------ Espagne (Congrès, blocs)
+
+const ES_T = {
+  fr: { bloc: 'PP + Vox', maj: (p: string) => `Majorité absolue dans ${p} des simulations`, seats: 'Sièges projetés', range: 'Fourchette à 80 %', vote: 'Voix', line: '176 pour la majorité absolue', inv: 'Bloc d’investiture de Sánchez (2023)' },
+  en: { bloc: 'PP + Vox', maj: (p: string) => `Majority in ${p} of simulations`, seats: 'Projected seats', range: '80% range', vote: 'Vote', line: '176 for a majority', inv: 'Sánchez’s 2023 investiture bloc' },
+  es: { bloc: 'PP + Vox', maj: (p: string) => `Mayoría absoluta en el ${p} de las simulaciones`, seats: 'Escaños proyectados', range: 'Horquilla al 80 %', vote: 'Voto', line: '176 para la mayoría absoluta', inv: 'Bloque de investidura de Sánchez (2023)' },
+} as const;
+
+/** Espagne : la question est un bloc (PP + Vox), pas un parti seul. */
+function spainCard(fmt: Format, { key, lang, latest }: { key: string; lang: Lang; latest: any }): Node {
+  const t = ES_T[lang];
+  const el = SHARE_ELECTIONS[key];
+  const { w } = SIZE[fmt];
+  const pad = fmt === 'wide' ? 34 : 44;
+  const inner = w - pad * 2;
+  const big = fmt !== 'wide';
+  const nat = latest.national as Record<string, any>;
+  const meta = (k: string) => latest.parties.find((p: any) => p.party === k) ?? { party: k, color: '#999999' };
+  const order = Object.keys(nat).sort((a, b) => nat[b].seats_median - nat[a].seats_median).slice(0, fmt === 'wide' ? 4 : 6);
+  const pp = latest.blocs.pp_vox;
+  const dec = (v: number) => (lang === 'en' ? v.toFixed(1) : v.toFixed(1).replace('.', ','));
+  const row = (k: string) => {
+    const p = meta(k);
+    return h('div', { alignItems: 'center', borderBottom: `1px solid ${RULE}`, padding: fmt === 'story' ? '20px 0' : big ? '14px 0' : '4px 0' },
+      h('div', { width: 8, height: big ? 40 : 26, backgroundColor: p.color, marginRight: 14 }),
+      h('div', { flexGrow: 1, fontSize: big ? 30 : 26, fontWeight: 700 }, partyLabel(p, lang)),
+      h('div', { width: 150, justifyContent: 'flex-end', fontFamily: 'Barlow Condensed', fontWeight: 700, fontSize: big ? 58 : 40, lineHeight: 1, color: p.color }, String(nat[k].seats_median)),
+      h('div', { width: 150, justifyContent: 'flex-end', fontSize: 20, fontWeight: 600, color: INK_3 }, `${nat[k].seats_p10}–${nat[k].seats_p90}`),
+      h('div', { width: 120, justifyContent: 'flex-end', fontSize: big ? 26 : 22, fontWeight: 600, color: INK_2 }, lang === 'en' ? `${dec(nat[k].vote_mean)}%` : `${dec(nat[k].vote_mean)} %`));
+  };
+  const head = h('div', { alignItems: 'center', borderBottom: `1px solid ${INK}`, paddingBottom: 6, fontSize: 15, fontWeight: 600, color: INK_3 },
+    h('div', { flexGrow: 1, marginLeft: 22 }, T[lang].party),
+    h('div', { width: 150, justifyContent: 'flex-end' }, t.seats),
+    h('div', { width: 150, justifyContent: 'flex-end' }, t.range),
+    h('div', { width: 120, justifyContent: 'flex-end' }, t.vote));
+  // Barre : PP puis Vox depuis la gauche, ligne des 176.
+  const ppW = (nat.pp.seats_median / 350) * inner;
+  const voxW = (nat.vox.seats_median / 350) * inner;
+  const bar = h('div', { position: 'relative', width: inner, height: big ? 30 : 20, marginTop: big ? 18 : 10, backgroundColor: RULE },
+    h('div', { width: ppW, height: big ? 30 : 20, backgroundColor: meta('pp').color }),
+    h('div', { width: voxW, height: big ? 30 : 20, backgroundColor: meta('vox').color }),
+    h('div', { position: 'absolute', left: (176 / 350) * inner - 1, top: -6, width: 3, height: big ? 42 : 32, backgroundColor: INK }));
+  const hero = h('div', { alignItems: 'baseline', marginBottom: big ? 26 : 8 },
+    h('div', { fontFamily: 'Barlow Condensed', fontWeight: 700, fontSize: big ? 120 : 64, lineHeight: 1, color: INK }, pct(pp.p_majority, lang)),
+    h('div', { flexDirection: 'column', marginLeft: 18, flexShrink: 1 },
+      h('div', { fontSize: big ? 30 : 24, fontWeight: 700 }, `${t.bloc}${lang === 'fr' ? ' : ' : ': '}${pp.median} (${pp.p10}–${pp.p90})`),
+      h('div', { fontSize: big ? 22 : 18, fontWeight: 600, color: INK_2 }, t.maj(pct(pp.p_majority, lang)))));
+  const body = h('div', { flexDirection: 'column', flexGrow: 1, justifyContent: fmt === 'wide' ? 'flex-start' : 'center', paddingTop: big ? 10 : 2 },
+    h('div', { fontSize: big ? 50 : 30, fontWeight: 700, lineHeight: 1.05, marginBottom: big ? 24 : 4 }, el.question[lang]),
+    hero, head, ...order.map(row), bar,
+    h('div', { marginTop: 8, fontSize: 15, fontWeight: 600, color: INK_2 }, t.line));
+  return frame(fmt, lang, el.name[lang], el.when[lang], body, asOfLine(key, lang, latest));
+}
+
+// ------------------------------------------------------------------ présidentielle américaine (primaires)
+
+const PRIM_T = {
+  fr: { dem: 'Primaire démocrate', rep: 'Primaire républicaine', avg: 'Moyenne des sondages, tendance sur 30 jours', foot: (n: string, d: string) => `${n} sondages de primaire · Moyenne du ${d}` },
+  en: { dem: 'Democratic primary', rep: 'Republican primary', avg: 'Polling average, 30-day trend', foot: (n: string, d: string) => `${n} primary polls · Average of ${d}` },
+  es: { dem: 'Primarias demócratas', rep: 'Primarias republicanas', avg: 'Promedio de encuestas, tendencia a 30 días', foot: (n: string, d: string) => `${n} encuestas de primarias · Promedio del ${d}` },
+} as const;
+
+/** Présidentielle US, phase des primaires : les deux courses côte à côte. */
+function primaryCard(fmt: Format, { key, lang, latest }: { key: string; lang: Lang; latest: any }): Node {
+  const t = PRIM_T[lang];
+  const el = SHARE_ELECTIONS[key];
+  const big = fmt !== 'wide';
+  const n = fmt === 'story' ? 7 : big ? 6 : 5;
+  const dec = (v: number) => (lang === 'en' ? v.toFixed(0) : v.toFixed(0));
+  const trend = (v: number) => (Math.abs(v) < 0.5 ? '=' : `${v > 0 ? '+' : '−'}${(lang === 'en' ? Math.abs(v).toFixed(1) : Math.abs(v).toFixed(1).replace('.', ','))}`);
+  const col = (party: any, title: string) => {
+    const rows = (party.standings as any[]).slice(0, n);
+    const max = Math.max(...rows.map((r) => r.share), 1);
+    const colW = fmt === 'wide' ? 553 : SIZE[fmt].w - 88;
+    const nameW = big ? 300 : 190;
+    const barW = colW - nameW - 70 - 64 - 10;
+    return h('div', { flexDirection: 'column', width: colW, flexShrink: 0, marginRight: fmt === 'wide' ? 26 : 0, marginBottom: fmt === 'wide' ? 0 : 28 },
+      h('div', { fontSize: big ? 30 : 24, fontWeight: 700, color: party.color, borderBottom: `3px solid ${party.color}`, paddingBottom: 6, marginBottom: 6 }, title),
+      ...rows.map((r) => h('div', { alignItems: 'center', padding: fmt === 'story' ? '12px 0' : big ? '7px 0' : '4px 0', borderBottom: `1px solid ${RULE}` },
+        h('div', { width: nameW, flexShrink: 0, fontSize: big ? 25 : 20, fontWeight: 700 }, r.name),
+        h('div', { width: barW, flexShrink: 0, height: big ? 18 : 14, backgroundColor: PAPER_2, marginRight: 10 },
+          h('div', { width: Math.round((r.share / max) * barW), height: big ? 18 : 14, backgroundColor: party.color })),
+        h('div', { width: 70, flexShrink: 0, justifyContent: 'flex-end', fontFamily: 'Barlow Condensed', fontWeight: 700, fontSize: big ? 38 : 30, lineHeight: 1 }, `${dec(r.share)}`),
+        h('div', { width: 64, flexShrink: 0, justifyContent: 'flex-end', fontSize: big ? 19 : 15, fontWeight: 600, color: r.trend > 0.5 ? '#2e7d32' : r.trend < -0.5 ? '#b71c1c' : INK_3 }, trend(r.trend)))));
+  };
+  const p = latest.primary;
+  const body = h('div', { flexDirection: 'column', flexGrow: 1, justifyContent: fmt === 'wide' ? 'flex-start' : 'center' },
+    h('div', { fontSize: big ? 50 : 34, fontWeight: 700, lineHeight: 1.05 }, el.question[lang]),
+    h('div', { fontSize: big ? 22 : 17, fontWeight: 600, color: INK_2, marginTop: 6, marginBottom: big ? 26 : 12 }, t.avg),
+    h('div', { flexDirection: fmt === 'wide' ? 'row' : 'column' }, col(p.dem, t.dem), col(p.rep, t.rep)));
+  return frame(fmt, lang, el.name[lang], el.when[lang], body, t.foot(nf(latest.meta.n_primary_polls, lang), longDate(latest.meta.run_date, lang)));
+}
+
+// ------------------------------------------------------------------ province espagnole
+
+export interface ProvinceCardInput {
+  name: string;
+  seats: number;
+  rows: { label: string; color: string; seats: number; vote: number; pOne: number; s2023: number; head?: string }[];
+  runDate: string;
+}
+
+const PROV_T = {
+  fr: { title: 'Élections générales en Espagne', when: '29 novembre 2026', seats: (n: number) => `${n} siège${n > 1 ? 's' : ''} au Congrès`, col: ['Parti', 'Voix', 'Sièges', 'Au moins 1', '2023'], head: 'Tête de liste', foot: (d: string) => `Projection du ${d} · règle D’Hondt, seuil de 3 %` },
+  en: { title: 'Spanish general election', when: 'November 29, 2026', seats: (n: number) => `${n} seat${n > 1 ? 's' : ''} in Congress`, col: ['Party', 'Vote', 'Seats', 'At least 1', '2023'], head: 'Top of list', foot: (d: string) => `Forecast of ${d} · D’Hondt rule, 3% threshold` },
+  es: { title: 'Elecciones generales en España', when: '29 de noviembre de 2026', seats: (n: number) => `${n} escaño${n > 1 ? 's' : ''} en el Congreso`, col: ['Partido', 'Voto', 'Escaños', 'Al menos 1', '2023'], head: 'Cabeza de lista', foot: (d: string) => `Proyección del ${d} · ley D’Hondt, umbral del 3 %` },
+} as const;
+
+/** Une circonscription espagnole : qui prend les sièges, et avec quelle assurance. */
+export function provinceCard(fmt: Format, lang: Lang, d: ProvinceCardInput): Node {
+  const t = PROV_T[lang];
+  const big = fmt !== 'wide';
+  const dec = (v: number) => (lang === 'en' ? v.toFixed(1) : v.toFixed(1).replace('.', ','));
+  const rows = d.rows.slice(0, fmt === 'story' ? 8 : big ? 6 : 4);
+  const { w } = SIZE[fmt];
+  const inner = w - (fmt === 'wide' ? 68 : 88);
+  const nameW = inner - 120 - 110 - 150 - 90;
+  const cell = (wd: number, txt: string, st: Record<string, unknown> = {}) => h('div', { width: wd, flexShrink: 0, justifyContent: 'flex-end', ...st }, txt);
+  const head = h('div', { alignItems: 'center', borderBottom: `1px solid ${INK}`, paddingBottom: 6, fontSize: 15, fontWeight: 600, color: INK_3 },
+    h('div', { width: nameW, flexShrink: 0, paddingLeft: 22 }, t.col[0]), cell(120, t.col[1]), cell(110, t.col[2]), cell(150, t.col[3]), cell(90, t.col[4]));
+  const row = (r: ProvinceCardInput['rows'][number]) => h('div', { alignItems: 'center', borderBottom: `1px solid ${RULE}`, padding: fmt === 'story' ? '16px 0' : big ? '11px 0' : '6px 0' },
+    h('div', { width: nameW, flexShrink: 0, alignItems: 'center' },
+      h('div', { width: 8, height: big ? 44 : 34, backgroundColor: r.color, marginRight: 14, flexShrink: 0 }),
+      h('div', { flexDirection: 'column', flexShrink: 1 },
+        h('div', { fontSize: big ? 28 : 24, fontWeight: 700, lineHeight: 1.05 }, r.label),
+        ...(r.head && big ? [h('div', { fontSize: 17, fontWeight: 600, color: INK_3 }, `${t.head} : ${r.head}`.replace(' : ', lang === 'fr' ? ' : ' : ': '))] : []))),
+    cell(120, lang === 'en' ? `${dec(r.vote)}%` : `${dec(r.vote)} %`, { fontSize: big ? 24 : 21, fontWeight: 600, color: INK_2 }),
+    cell(110, String(r.seats), { fontFamily: 'Barlow Condensed', fontWeight: 700, fontSize: big ? 56 : 44, lineHeight: 1, color: r.seats > 0 ? r.color : INK_3 }),
+    cell(150, pct(r.pOne, lang), { fontSize: big ? 26 : 22, fontWeight: 700 }),
+    cell(90, String(r.s2023), { fontSize: big ? 22 : 19, fontWeight: 600, color: INK_3 }));
+  // Hémicycle simplifié : un carré par siège, dans l'ordre des partis.
+  const squares: Node[] = [];
+  for (const r of d.rows) for (let i = 0; i < r.seats; i++) squares.push(h('div', { width: big ? 34 : 26, height: big ? 34 : 26, backgroundColor: r.color, marginRight: 6, marginBottom: 6 }));
+  const body = h('div', { flexDirection: 'column', flexGrow: 1, justifyContent: fmt === 'wide' ? 'flex-start' : 'center' },
+    h('div', { alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: big ? 18 : 8 },
+      h('div', { flexDirection: 'column' },
+        h('div', { fontSize: big ? 64 : 46, fontWeight: 700, lineHeight: 1 }, d.name),
+        h('div', { fontSize: big ? 24 : 19, fontWeight: 600, color: INK_2, marginTop: 4 }, t.seats(d.seats))),
+      h('div', { flexWrap: 'wrap', width: big ? 360 : 330, justifyContent: 'flex-end' }, ...squares)),
+    head, ...rows.map(row));
+  return frame(fmt, lang, t.title, t.when, body, t.foot(longDate(d.runDate, lang)));
 }
 
 // ------------------------------------------------------------------ présidentielle française
@@ -382,6 +527,61 @@ export function faceOffCard(fmt: Format, { key, lang, latest }: { key: string; l
     ...(f && f.other >= 0.02 ? [row(t.other, VIDE, f.other, null)] : []));
   const foot = f ? t.foot(f.nCastings, longDate(latest.meta.run_date, lang)) : `${T[lang].asOf} ${longDate(latest.meta.run_date, lang)}`;
   return frame(fmt, lang, el.name[lang], el.when[lang], body, foot);
+}
+
+// ------------------------------------------------------------------ candidat (présidentielle française)
+
+export interface CandidateCardInput {
+  name: string;
+  party: string;          // « Droite (NE) »
+  status: string;         // « Candidature déclarée »
+  color: string;
+  bestMean: number | null;
+  nScenarios: number;
+  pTop2: number | null;
+  duels: { opponent: string; own: number; opp: number }[];
+  runDate: string;
+}
+
+const CAND_T = {
+  fr: { title: 'Présidentielle française 2027', when: '18 avril 2027', first: 'Premier tour, meilleure hypothèse', range: (n: number) => n > 1 ? `Testé dans ${n} hypothèses de candidatures` : 'Testé dans une hypothèse de candidatures', top2: 'Chances d’accéder au second tour', duels: 'Duels de second tour', vs: 'contre', none: 'Pas encore de duel de second tour testé', foot: (d: string) => `Projection du ${d}` },
+  en: { title: '2027 French presidential election', when: 'April 18, 2027', first: 'First round, best lineup', range: (n: number) => n > 1 ? `Tested in ${n} candidate lineups` : 'Tested in one candidate lineup', top2: 'Chance of making the runoff', duels: 'Runoff matchups', vs: 'vs', none: 'No runoff matchup polled yet', foot: (d: string) => `Forecast of ${d}` },
+  es: { title: 'Presidencial francesa 2027', when: '18 de abril de 2027', first: 'Primera vuelta, mejor hipótesis', range: (n: number) => n > 1 ? `Probado en ${n} combinaciones de candidatos` : 'Probado en una combinación de candidatos', top2: 'Probabilidad de pasar a la segunda vuelta', duels: 'Duelos de segunda vuelta', vs: 'contra', none: 'Aún sin duelo de segunda vuelta en encuestas', foot: (d: string) => `Proyección del ${d}` },
+} as const;
+
+/** Fiche d'un candidat : son niveau, ses chances de second tour, ses duels. */
+export function candidateCard(fmt: Format, lang: Lang, d: CandidateCardInput): Node {
+  const t = CAND_T[lang];
+  const big = fmt !== 'wide';
+  const dec = (v: number) => (lang === 'en' ? v.toFixed(1) : v.toFixed(1).replace('.', ','));
+  const p = (v: number) => (lang === 'en' ? `${dec(v)}%` : `${dec(v)} %`);
+  const stat = (label: string, value: string, sub?: string) => h('div', { flexDirection: 'column', flexGrow: 1, flexBasis: 0, marginRight: 24 },
+    h('div', { fontSize: big ? 22 : 17, fontWeight: 600, color: INK_3 }, label),
+    h('div', { fontFamily: 'Barlow Condensed', fontWeight: 700, fontSize: big ? 110 : 78, lineHeight: 1, color: d.color }, value),
+    ...(sub ? [h('div', { fontSize: big ? 20 : 16, fontWeight: 600, color: INK_2 }, sub)] : []));
+  const duels = d.duels.slice(0, big ? 4 : 3);
+  const duelRow = (x: { opponent: string; own: number; opp: number }) => {
+    const share = (x.own / (x.own + x.opp || 100)) * 100;
+    const H = big ? 24 : 20;
+    const W = big ? 400 : 500;
+    return h('div', { alignItems: 'center', padding: big ? '14px 0' : '5px 0', borderBottom: `1px solid ${RULE}` },
+      h('div', { width: big ? 430 : 470, flexShrink: 0, fontSize: big ? 26 : 21, fontWeight: 700 }, `${t.vs} ${x.opponent}`),
+      h('div', { width: W, flexShrink: 0, height: H, backgroundColor: PAPER_2 },
+        h('div', { width: Math.round((share / 100) * W), height: H, backgroundColor: x.own >= x.opp ? d.color : tint(d.color, 0.45) })),
+      h('div', { width: 150, flexShrink: 0, justifyContent: 'flex-end', fontFamily: 'Barlow Condensed', fontWeight: 700, fontSize: big ? 40 : 32, lineHeight: 1 }, `${Math.round(x.own)}–${Math.round(x.opp)}`));
+  };
+  const body = h('div', { flexDirection: 'column', flexGrow: 1, justifyContent: fmt === 'wide' ? 'flex-start' : 'center' },
+    h('div', { alignItems: 'center', marginBottom: big ? 8 : 2 },
+      h('div', { width: 12, height: big ? 74 : 54, backgroundColor: d.color, marginRight: 16 }),
+      h('div', { flexDirection: 'column' },
+        h('div', { fontSize: big ? 66 : 48, fontWeight: 700, lineHeight: 1 }, d.name),
+        h('div', { fontSize: big ? 24 : 19, fontWeight: 600, color: INK_3, marginTop: 4 }, `${d.party} · ${d.status}`))),
+    h('div', { marginTop: big ? 30 : 14, marginBottom: big ? 30 : 12 },
+      stat(t.first, d.bestMean == null ? '—' : p(d.bestMean), t.range(d.nScenarios)),
+      stat(t.top2, d.pTop2 == null ? '—' : pct(d.pTop2, lang))),
+    h('div', { fontSize: big ? 20 : 15, fontWeight: 600, color: INK_3, borderBottom: `1px solid ${INK}`, paddingBottom: 6 }, t.duels),
+    ...(duels.length ? duels.map(duelRow) : [h('div', { fontSize: big ? 24 : 19, color: INK_2, paddingTop: 10 }, t.none)]));
+  return frame(fmt, lang, t.title, t.when, body, t.foot(longDate(d.runDate, lang)));
 }
 
 // ------------------------------------------------------------------ graphique des sondages

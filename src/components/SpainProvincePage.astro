@@ -6,6 +6,8 @@ import EditorialLayout from '../layouts/EditorialLayout.astro';
 import JurisdictionNav from './JurisdictionNav.astro';
 import { partyMeta } from '../lib/riding-adapters/parties';
 import { candidatesMeta, provinceUrl, type Locale, type SpainProvince } from '../lib/spain-provinces';
+import ShareModule from '../islands/lib/ShareModule.tsx';
+import esLatest from '../../web_data/spain/latest.json';
 
 interface Props { locale: Locale; province: SpainProvince }
 const { locale, province: p } = Astro.props;
@@ -95,6 +97,7 @@ const deskHref = `/${locale}/spain/`;
   canonical={canonical}
   lang={locale}
   currentPage="spain"
+  ogImage={`https://vote-scope.com/og/share/province/${p.slug}/${locale}.png`}
   alternates={alternates}
 >
   <JurisdictionNav webKey="spain" lang={locale} active="districts" />
@@ -104,6 +107,7 @@ const deskHref = `/${locale}/spain/`;
         <p class="eyebrow">{T.eyebrow}</p>
         <h1>{T.h1}</h1>
         <p class="lede">{T.lede}</p>
+        <ShareModule lang={locale} kind="province" election={p.slug} runDate={(esLatest as any).meta.run_date} client:idle />
       </div>
     </header>
 
