@@ -1,0 +1,14 @@
+import assert from 'node:assert/strict';
+import { rankContenders, prepareSurveys, candidateObservations, rollingTrend } from '../src/lib/fr-race-tracker.ts';
+const scenario=(n, qs)=>({scenario:{featured:true,n_polls_recent:n},qualification:qs.map(([id,p,v])=>({candidate_id:id,candidate_name:id,bloc:'right',p_top2:p,first_round_mean:v}))});
+const ranking=rankContenders([scenario(2,[['a',.8,25],['b',.2,10]]),scenario(8,[['a',.4,15]]),scenario(0,[['b',1,70]])],[]);
+assert.equal(ranking[0].id,'a');assert.ok(Math.abs(ranking[0].probability-.48)<1e-9);
+assert.equal(ranking[1].probability,.2,'absence from another lineup must not count as zero');
+const entry=(share)=>({id:'a',share});
+const surveys=prepareSurveys([{field_end:'2026-11-01',firm_name:'One',source_url:'https://example.com/one',scenarios:[{entries:[entry(10)]},{entries:[entry(20),{id:'b',share:30}]}]},{field_end:'2026-11-11',firm_name:'Two',source_url:'https://example.com/two',scenarios:[{entries:[entry(30)]}]}]);
+const points=candidateObservations(surveys,'a');assert.equal(points.length,2,'two lineups from one survey must produce one point');assert.equal(points[0].mean,15);assert.equal(points[0].low,10);assert.equal(points[0].high,20);
+assert.equal(candidateObservations(surveys,'missing').length,0,'an absent candidate must not get zero observations');
+assert.equal(candidateObservations(surveys,'a','a')[0].mean,10,'fixed-field filter must use the exact candidate set');
+assert.deepEqual(rollingTrend(points),[{date:'2026-11-11',value:22.5}]);
+assert.equal(rollingTrend([{...points[0],date:'2026-01-01'},points[1]]).length,0,'old polls must not leak into the 30-day window');
+console.log('France race tracker: conditional ranking, survey grouping, ranges, absent candidates, fixed field and 30-day window OK.');

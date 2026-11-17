@@ -4,6 +4,9 @@
 // Le modèle est PAR SCÉNARIOS (castings hypothétiques → 1er tour mean±sd +
 // duel 2d tour), pas une projection par sièges.
 import '../styles/fse.css';
+import '../styles/france-race-tracker.css';
+import FranceRaceTracker from '../islands/FranceRaceTracker.tsx';
+import { rankContenders, prepareSurveys } from '../lib/fr-race-tracker';
 import ElectionCountdown from '../islands/ElectionCountdown.tsx';
 import FranceScenarioExplorer from '../islands/FranceScenarioExplorer.tsx';
 import JurisdictionNav from './JurisdictionNav.astro';
@@ -178,6 +181,10 @@ const registry = candidates
     return (b.default_first_round_mean ?? 0) - (a.default_first_round_mean ?? 0);
   });
 const nDeclared = candidates.filter((c) => c.status === 'declared').length;
+const contenders = rankContenders(scenarios, candidates).slice(0, 8);
+const trendSurveys = prepareSurveys((byPoll as any).polls ?? [], contenders.map(c => c.id));
+const trendNames = Object.fromEntries(candidates.map(c => [c.candidate_id, c.short_label ?? c.candidate_name]));
+const candidateSlugs = Object.fromEntries(candidates.map(c => [c.candidate_id, slugify(c.candidate_name)]));
 
 const runDate = meta.run_date;
 const nPolls = meta.n_first_round_polls;
@@ -478,6 +485,8 @@ const C = COPY[locale];
       <span aria-hidden="true">·</span>
       <span>{C.voteDay}</span>
     </div>
+
+    <FranceRaceTracker contenders={contenders} surveys={trendSurveys} names={trendNames} locale={locale} candidateBase={candBase} slugs={candidateSlugs} client:load />
 
     <div class="fr-hero-headline">
       {latestPolls[0] && (

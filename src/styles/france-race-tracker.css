@@ -1,0 +1,26 @@
+.fr-race-tracker { margin-block: 28px; }
+.fr-race-tracker h2 { margin: 0 0 16px; font-size: clamp(22px, 3vw, 28px); line-height: 1.2; }
+.fr-race-table { width: 100%; border-collapse: collapse; border-top: 4px solid var(--ink); font-size: 16px; }
+.fr-race-table th, .fr-race-table td { padding: 9px 8px; border-bottom: 1px solid var(--rule); text-align: left; }
+.fr-race-table thead th { font-size: 13px; color: var(--ink-3); }
+.fr-race-table .num { text-align: right; white-space: nowrap; }
+.fr-race-table a { color: var(--ink); text-underline-offset: 3px; }
+.fr-race-dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 7px; }
+.fr-race-note { margin: 12px 0; font-size: 14px; line-height: 1.5; color: var(--ink-2); max-width: 90ch; }
+.fr-race-trend { margin-top: 32px; }
+.fr-race-controls { display: flex; gap: 16px; flex-wrap: wrap; }
+.fr-race-controls label { display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600; }
+.fr-race-controls select { min-height: 42px; border: 1px solid var(--rule); border-radius: 2px; padding: 8px; background: var(--paper); color: var(--ink); font: inherit; width: 100%; }
+.fr-race-lineup { flex: 1; min-width: 200px; max-width: 100%; }
+.fr-race-legend { display: flex; flex-wrap: wrap; gap: 8px; margin-block: 16px; }
+.fr-race-legend button { min-height: 40px; padding: 7px 10px; border: 1px solid var(--ink-3); border-radius: 2px; background: var(--paper); color: var(--ink); font: inherit; cursor: pointer; }
+.fr-race-legend button[aria-pressed="false"] { color: var(--ink-3); border-color: var(--rule); text-decoration: line-through; }
+.fr-race-legend button[aria-pressed="true"] { border-width: 2px; padding: 6px 9px; }
+.fr-race-figure { padding: 8px; overflow: hidden; }
+.fr-race-figure svg { display: block; width: 100%; height: auto; min-height: 240px; }
+.fr-race-figure text { fill: var(--ink-2); font-size: 13px; }
+.fr-race-grid { stroke: var(--rule); stroke-width: 1; }
+.fr-race-last { display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: 14px; }
+.fr-race-tracker summary { cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+.fr-race-tracker details .table-scroll { max-height: 400px; margin-top: 12px; }
+@media (max-width: 600px) { .fr-race-table { font-size: 14px; } .fr-race-table th, .fr-race-table td { padding: 9px 4px; } .fr-race-table thead th { font-size: 12px; } .fr-race-controls { flex-direction: column; } .fr-race-figure { padding: 0; } }
