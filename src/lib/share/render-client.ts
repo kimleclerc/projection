@@ -105,3 +105,11 @@ export async function renderBudgetPng(fmt: 'wide' | 'square' | 'story', lang: La
   const { w, h } = SIZE[fmt];
   return toPng(budgetCard(fmt, lang, payload), w, h);
 }
+
+/** France: the ranking or the chart with the reader's current filters. */
+export async function renderFranceRacePng(fmt: 'wide' | 'square' | 'story', lang: Lang, payload: import('./france-race-card').FranceRaceCardInput): Promise<Blob> {
+  const { franceRaceCard } = await import('./france-race-card');
+  const { SIZE } = await import('./cards');
+  const { w, h } = SIZE[fmt];
+  return toPng(franceRaceCard(fmt, lang, payload), w, h);
+}

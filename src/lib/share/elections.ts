@@ -71,9 +71,9 @@ export const SHARE_ELECTIONS: Record<string, ShareElection> = {
   quebec: {
     name: { fr: 'Québec', en: 'Quebec', es: 'Quebec' },
     question: { fr: 'Qui gouvernera le Québec ?', en: 'Who will govern Quebec?', es: '¿Quién gobernará Quebec?' },
-    when: { fr: '5 octobre 2026', en: 'October 5, 2026', es: '5 de octubre de 2026' },
+    when: { fr: 'Scrutin : cycle 2030 · date non fixée', en: 'Election: 2030 cycle · date not set', es: 'Elección: ciclo 2030 · fecha no fijada' },
     page: { fr: '/fr/canada/quebec/', en: '/en/canada/quebec/', es: '/es/canada/quebec/' },
-    unit: 'riding', fullChamber: true, baselineYear: 2022, date: '2026-10-05',
+    unit: 'riding', fullChamber: true, baselineYear: 2026,
     simulator: { fr: '/fr/outils/simulateur-quebec/', en: '/en/tools/quebec-simulator/', es: '/es/herramientas/simulador-quebec/' },
   },
   uk: {

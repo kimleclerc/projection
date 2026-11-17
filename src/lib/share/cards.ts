@@ -83,7 +83,7 @@ const seatsOf = (p: any) => Math.round(p.seats_projected ?? p.seats_median ?? p.
 // ------------------------------------------------------------------ cadre commun
 
 /** En-tête (nom du scrutin, date) et pied (symbole, signature, site) : petits. */
-function frame(fmt: Format, lang: Lang, title: string, sub: string, body: Node, foot: string): Node {
+export function frame(fmt: Format, lang: Lang, title: string, sub: string, body: Node, foot: string): Node {
   const { w, h: H } = SIZE[fmt];
   const pad = fmt === 'wide' ? 34 : 44;
   const mark = fmt === 'wide' ? 34 : 46;

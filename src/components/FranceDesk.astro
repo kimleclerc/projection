@@ -35,6 +35,7 @@ import { franceCandBase } from '../lib/fr-pres';
 import { pickHeroScenario, buildExplorerCards } from '../lib/fr-explorer';
 import { faceOff } from '../lib/share/fr-face';
 import ShareModule from '../islands/lib/ShareModule.tsx';
+import CopyLink from '../islands/lib/CopyLink.tsx';
 
 interface Props {
   locale: Locale;
@@ -486,7 +487,7 @@ const C = COPY[locale];
       <span>{C.voteDay}</span>
     </div>
 
-    <FranceRaceTracker contenders={contenders} surveys={trendSurveys} names={trendNames} locale={locale} candidateBase={candBase} slugs={candidateSlugs} client:load />
+    <FranceRaceTracker contenders={contenders} surveys={trendSurveys} names={trendNames} locale={locale} candidateBase={candBase} slugs={candidateSlugs} runDate={(latest as any).meta.run_date} client:load />
 
     <div class="fr-hero-headline">
       {latestPolls[0] && (
@@ -516,7 +517,7 @@ const C = COPY[locale];
         </div>
       )}
       {leader && opponents.length > 0 && (
-        <div class="fr-hl-card">
+        <div class="fr-hl-card" id="fr-faceoff">
           <span class="fr-hl-label">{C.secondWho(leader.name)}</span>
           <ul class="fr-hl-opp">
             {opponents.map((o) => (
@@ -535,6 +536,10 @@ const C = COPY[locale];
             ))}
           </ul>
           {face && <p class="fr-hl-note">{C.faceNote(face.nCastings)}</p>}
+          <div class="fr-module-share">
+            <CopyLink locale={locale} anchor="fr-faceoff" client:idle />
+            <ShareModule lang={locale} kind="projection" election="france-presidential" runDate={(latest as any).meta.run_date} client:idle />
+          </div>
         </div>
       )}
     </div>
@@ -543,7 +548,6 @@ const C = COPY[locale];
       {heroProvenance.text}
     </p>
 
-    <ShareModule lang={locale} kind="projection" election="france-presidential" runDate={(latest as any).meta.run_date} client:idle />
     <GooglePreferredSource locale={locale} />
   </header>
 
