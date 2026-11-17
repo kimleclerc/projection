@@ -21,7 +21,7 @@ import bcData from '../../web_data/british-columbia/latest.json';
 import fraserData from '../../web_data/on-fraser-interim/latest.json';
 import gooseData from '../../web_data/ca-canada-goose/latest.json';
 import showdownData from '../../web_data/cusma-showdown/latest.json';
-import qcResults from '../data/qc-results-2026.json';
+import quebecData from '../../web_data/quebec/latest.json';
 import RidingShareButton from '../islands/RidingShareButton.tsx';
 import { nextByelectionDay, byelectionRunDate, chance } from '../lib/canada-byelection-slate';
 import { partyMeta, subjectFr } from '../lib/riding-adapters/parties';
@@ -53,12 +53,12 @@ const subject = (jur: string, code: string) => {
 const fed = top(federalData);
 const on = top(ontarioData);
 const bc = top(bcData);
-const qc = qcResults.parties[0];
+const qc = top(quebecData);
 
 const PATHS = {
   federal: L('/canada/federal/', '/canada/federal/', '/canada/federal/'),
   federalRidings: L('/canada/federal/circonscriptions/', '/canada/federal/ridings/', '/canada/federal/distritos/'),
-  quebec: L('/canada/quebec/resultats/', '/canada/quebec/results/', '/canada/quebec/resultados/'),
+  quebec: '/canada/quebec/',
   quebecRidings: L('/canada/quebec/circonscriptions/', '/canada/quebec/ridings/', '/canada/quebec/distritos/'),
   ontario: L('/canada/ontario/', '/canada/ontario/', '/canada/ontario/'),
   ontarioRidings: L('/canada/ontario/circonscriptions/', '/canada/ontario/ridings/', '/canada/ontario/distritos/'),
@@ -77,11 +77,11 @@ const rows = [
   },
   {
     election: L('Québec', 'Quebec', 'Quebec'),
-    when: L('Résultats du 5 octobre 2026', 'Results, October 5, 2026', 'Resultados del 5 de octubre de 2026'),
-    jur: 'quebec', party: qcResults.winner,
-    seats: `${qc.seats} / ${qcResults.total_seats}`,
-    chance: L('Minoritaire', 'Minority', 'Minoría'),
-    href: root + PATHS.quebec, ridings: root + PATHS.quebecRidings, n: qcResults.total_seats,
+    when: L('Cycle 2030 · Vote le 7 octobre 2030', '2030 cycle · Votes October 7, 2030', 'Ciclo 2030 · Vota el 7 de octubre de 2030'),
+    jur: 'quebec', party: qc.party,
+    seats: `${qc.seats_projected} / ${quebecData.meta.total_seats}`,
+    chance: pctChance(qc.p_majority),
+    href: root + PATHS.quebec, ridings: root + PATHS.quebecRidings, n: quebecData.meta.total_seats,
   },
   {
     election: L('Canada (fédéral)', 'Canada (federal)', 'Canadá (federal)'),
@@ -179,7 +179,7 @@ const T = {
   seats: L('Sièges', 'Seats', 'Escaños'),
   chance: L('Chances de majorité', 'Chance of a majority', 'Probabilidad de mayoría'),
   ridings: (n: number) => L(`Les ${n} circonscriptions`, `All ${n} ridings`, `Los ${n} distritos`),
-  updated: L(`Projections mises à jour le ${longDate(federalData.meta.run_date, lang)}. Québec : résultats préliminaires d’Élections Québec.`, `Forecasts updated ${longDate(federalData.meta.run_date, lang)}. Quebec: Élections Québec preliminary results.`, `Proyecciones actualizadas el ${longDate(federalData.meta.run_date, lang)}. Quebec: resultados preliminares de Élections Québec.`),
+  updated: L(`Projections mises à jour le ${longDate(federalData.meta.run_date, lang)}. Québec : projection du cycle 2030 mise à jour le ${longDate(quebecData.meta.run_date, lang)}.`, `Forecasts updated ${longDate(federalData.meta.run_date, lang)}. Quebec: 2030-cycle forecast updated ${longDate(quebecData.meta.run_date, lang)}.`, `Proyecciones actualizadas el ${longDate(federalData.meta.run_date, lang)}. Quebec: proyección del ciclo 2030 actualizada el ${longDate(quebecData.meta.run_date, lang)}.`),
   indexes: L('Les indices', 'The indexes', 'Los índices'),
   byHeading: by ? L(`Partielles fédérales du ${longDate(by.date, lang)}`, `Federal by-elections, ${longDate(by.date, lang)}`, `Parciales federales del ${longDate(by.date, lang)}`) : '',
   riding: L('Circonscription', 'Riding', 'Circunscripción'),
@@ -267,6 +267,23 @@ const T = {
       </table>
     </div>
     <p class="vs-meta">{T.updated}</p>
+  </section>
+
+  <section class="container ca-block">
+    <StoryList heading={L('Archives', 'Archives', 'Archivo')} size="sm" items={[
+      {
+        meta: L('Québec · 5 octobre 2026', 'Quebec · October 5, 2026', 'Quebec · 5 de octubre de 2026'),
+        title: L('Résultats des élections québécoises de 2026', 'Quebec election 2026 results', 'Resultados de las elecciones de Quebec de 2026'),
+        text: L('Le résultat officiel et les gagnants des 127 circonscriptions du dernier scrutin.', 'The official result and winners in all 127 ridings of the last election.', 'El resultado oficial y los ganadores de los 127 distritos de la última elección.'),
+        href: root + L('/canada/quebec/resultats/', '/canada/quebec/results/', '/canada/quebec/resultados/'),
+      },
+      {
+        meta: L('Québec · Bilan de 2026', 'Quebec · 2026 review', 'Quebec · Balance de 2026'),
+        title: L('Notre projection face aux résultats de 2026', 'Our forecast against the 2026 results', 'Nuestra proyección frente a los resultados de 2026'),
+        text: L('Ce que notre projection a vu juste et ce qu’elle a manqué, circonscription par circonscription.', 'What our forecast got right and missed, riding by riding.', 'Lo que acertó y lo que no acertó nuestra proyección, distrito por distrito.'),
+        href: `${root}/track-record/quebec-2026/`,
+      },
+    ]} />
   </section>
 
   <section class="container ca-block">

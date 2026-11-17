@@ -170,9 +170,9 @@ export const DESKS: DeskGroup[] = [
         'Los 343 distritos, y cuántos escaños puede esperar cada partido.',
       )),
       fromJurisdiction('quebec', l10n(
-        'The October 2026 general election on the new 127-seat map.',
-        'La générale d’octobre 2026 sur la nouvelle carte à 127 sièges.',
-        'Las generales de octubre de 2026 en el nuevo mapa de 127 escaños.',
+        'The 2030 cycle: current polls and forecasts for all 127 ridings.',
+        'Le cycle 2030 : les sondages actuels et la projection des 127 circonscriptions.',
+        'El ciclo 2030: encuestas actuales y proyección de los 127 distritos.',
       )),
       fromJurisdiction('ontario', l10n(
         'Queen’s Park after 2025, riding by riding.',

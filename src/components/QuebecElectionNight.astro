@@ -116,7 +116,7 @@ const pollsBase = { fr: 'sondages', en: 'polls', es: 'sondeos' }[locale];
 // ── Textes ─────────────────────────────────────────────────────────
 const COPY = {
   fr: {
-    eyebrow: 'Élection générale québécoise · 5 octobre 2026',
+    eyebrow: 'Archives · Élection générale québécoise · 5 octobre 2026',
     h1: 'Élections Québec 2026 : les résultats, le PQ forme un gouvernement minoritaire',
     lede: 'Le soir du 5 octobre 2026, cette page a suivi en direct le dépouillement des 127 circonscriptions. Elle garde l’heure de chacune de nos annonces et l’écart avec notre projection. Le décompte affiché est celui des résultats officiels validés par Élections Québec, après le dépouillement judiciaire de Vachon.',
     scheduleTitle: 'Le déroulé de la soirée',
@@ -155,7 +155,7 @@ const COPY = {
     licenceNote: 'Comprend des données ouvertes octroyées sous la licence d’utilisation des données ouvertes du directeur général des élections disponible à l’adresse Web dgeq.org. L’octroi de la licence n’implique aucune approbation par le directeur général des élections de l’utilisation des données ouvertes qui en est faite.',
   },
   en: {
-    eyebrow: 'Quebec general election · October 5, 2026',
+    eyebrow: 'Archives · Quebec general election · October 5, 2026',
     h1: 'Quebec election 2026 results: the PQ forms a minority government',
     lede: 'On the night of October 5, 2026, this page followed the count live across all 127 ridings. It keeps the time of each of our calls and the gap with our forecast. The tally shown is the official result validated by Élections Québec, after the Vachon judicial recount.',
     scheduleTitle: 'How the night unfolds',
@@ -194,7 +194,7 @@ const COPY = {
     licenceNote: 'Comprend des données ouvertes octroyées sous la licence d’utilisation des données ouvertes du directeur général des élections disponible à l’adresse Web dgeq.org. L’octroi de la licence n’implique aucune approbation par le directeur général des élections de l’utilisation des données ouvertes qui en est faite. (Contains open data licensed under the Chief Electoral Officer’s open data licence, available at dgeq.org; the licence implies no endorsement of how the data is used.)',
   },
   es: {
-    eyebrow: 'Elección general de Quebec · 5 de octubre de 2026',
+    eyebrow: 'Archivo · Elección general de Quebec · 5 de octubre de 2026',
     h1: 'Elecciones de Quebec 2026: resultados, el PQ forma un gobierno minoritario',
     lede: 'La noche del 5 de octubre de 2026, esta página siguió en directo el recuento de los 127 distritos. Conserva la hora de cada uno de nuestros anuncios y la diferencia con nuestra proyección. El recuento que se muestra es el resultado oficial validado por Élections Québec, tras el recuento judicial de Vachon.',
     scheduleTitle: 'El desarrollo de la noche',
@@ -255,6 +255,11 @@ const runDateText = new Intl.DateTimeFormat(
     <p class="eyebrow">{COPY.eyebrow}</p>
     <h1>{COPY.h1}</h1>
     <p class="lede">{COPY.lede}</p>
+    <p>{({ fr: 'Archives du scrutin de 2026.', en: '2026 election archive.', es: 'Archivo de las elecciones de 2026.' })[locale]}{' '}<a class="vs-link" href={`/${locale}/canada/quebec/`}>{({
+      fr: 'Voir les sondages et la projection du cycle Québec 2030',
+      en: 'See the polls and forecast for Quebec’s 2030 cycle',
+      es: 'Ver las encuestas y la proyección del ciclo Quebec 2030',
+    })[locale]}</a></p>
   </div>
 </section>
 
