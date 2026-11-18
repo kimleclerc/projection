@@ -118,6 +118,8 @@ export function blocLabel(bloc: string, locale: Locale, partyFamily?: string): s
 export const STATUS_LABELS: Record<string, { fr: string; en: string; es: string }> = {
   declared: { fr: 'Candidature déclarée', en: 'Declared', es: 'Candidatura declarada' },
   probable: { fr: 'Probable', en: 'Probable', es: 'Probable' },
+  primary_lost: { fr: 'Primaire perdue', en: 'Primary lost', es: 'Primarias perdidas' },
+  declined: { fr: 'Ne se présente pas', en: 'Not running', es: 'No se presenta' },
   primary: { fr: 'Primaire PS', en: 'PS primary', es: 'Primarias PS' },
   testing: { fr: 'Testé', en: 'Tested', es: 'En encuestas' },
   withdrawn: { fr: 'Retiré', en: 'Withdrawn', es: 'Retirado' },

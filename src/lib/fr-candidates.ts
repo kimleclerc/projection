@@ -4,6 +4,8 @@
 // lib/riding-adapters pour les circonscriptions QC.
 import latest from '../../web_data/france-presidential/latest.json';
 import dataSheets from '../../web_data/france-presidential/data_sheets.json';
+import polls from '../../web_data/france-presidential/polls.json';
+import { observedPolling, type PollRow } from './fr-candidate-metrics';
 import { CANDIDATE_BIOS } from '../data/fr-candidate-bios';
 import { blocLabel, type Locale } from './fr-pres';
 
@@ -23,8 +25,10 @@ interface RawCandidate {
   bloc: string;
   party_family: string;
   status: string;
-  first_round_floor: number;
-  first_round_ceiling: number;
+  profile_visible?: boolean;
+  status_reviewed_on?: string | null;
+  status_source_url?: string | null;
+  status_note?: string;
   active_scenarios: number;
   featured_scenarios: number;
   best_first_round_mean: number | null;
@@ -39,6 +43,7 @@ export interface CandidateDuel {
   ownShare: number;
   opponentShare: number;
   wins: boolean;
+  probability: number;
 }
 
 export interface CandidateProfile {
@@ -49,8 +54,12 @@ export interface CandidateProfile {
   bloc: string;
   partyFamily: string;
   status: string;
-  floor: number;
-  ceiling: number;
+  polling: ReturnType<typeof observedPolling>;
+  runDate: string;
+  statusReviewedOn: string | null;
+  statusSource: string | null;
+  statusNote: string;
+  archived: boolean;
   bestMean: number | null;
   bestPTop2: number | null;
   activeScenarios: number;
@@ -59,7 +68,8 @@ export interface CandidateProfile {
   duels: CandidateDuel[];
 }
 
-const RANK: Record<string, number> = { declared: 0, probable: 1, testing: 2 };
+const RANK: Record<string, number> = { declared: 0, probable: 1, primary: 2, testing: 3 };
+const INACTIVE = new Set(['withdrawn', 'primary_lost', 'declined']);
 
 function buildProfiles(): CandidateProfile[] {
   const cands = ((dataSheets as any).candidates ?? []) as RawCandidate[];
@@ -72,55 +82,44 @@ function buildProfiles(): CandidateProfile[] {
   for (const c of cands) nameById.set(c.candidate_id, c.candidate_name);
 
   for (const s of scenarios) {
-    if (!s.scenario.featured || !s.top_duel) continue;
-    const d = s.top_duel;
-    const label = s.scenario.public_label || s.scenario.scenario_name;
-    const add = (ownId: string, ownShare: number, oppId: string, oppShare: number) => {
-      const list = duelsByCandidate.get(ownId) ?? [];
-      if (list.some((x) => x.opponentId === oppId)) return; // 1 duel par adversaire
-      list.push({
-        opponentId: oppId,
-        opponentName: nameById.get(oppId) ?? oppId,
-        scenarioId: s.scenario.scenario_id,
-        scenarioLabel: label,
-        ownShare,
-        opponentShare: oppShare,
-        wins: ownShare >= oppShare,
-      });
-      duelsByCandidate.set(ownId, list);
-    };
-    add(d.duel_left_id, d.left_share_expressed_mean, d.duel_right_id, d.right_share_expressed_mean);
-    add(d.duel_right_id, d.right_share_expressed_mean, d.duel_left_id, d.left_share_expressed_mean);
+    if (!s.scenario.featured) continue;
+    for (const d of s.duels ?? []) {
+      if (!Number.isFinite(d.left_share_expressed_mean) || !Number.isFinite(d.right_share_expressed_mean)) continue;
+      const label = s.scenario.public_label || s.scenario.scenario_name;
+      const add = (ownId: string, ownShare: number, oppId: string, oppShare: number) => {
+        const list = duelsByCandidate.get(ownId) ?? [];
+        const previous = list.findIndex(x => x.opponentId === oppId);
+        if (previous >= 0 && list[previous].probability >= (d.p_duel ?? 0)) return;
+        const item = {opponentId: oppId, opponentName: nameById.get(oppId) ?? oppId,
+          scenarioId: s.scenario.scenario_id, scenarioLabel: label, ownShare,
+          opponentShare: oppShare, wins: ownShare >= oppShare, probability: d.p_duel ?? 0};
+        if (previous >= 0) list[previous] = item; else list.push(item);
+        duelsByCandidate.set(ownId, list);
+      };
+      add(d.duel_left_id, d.left_share_expressed_mean, d.duel_right_id, d.right_share_expressed_mean);
+      add(d.duel_right_id, d.right_share_expressed_mean, d.duel_left_id, d.left_share_expressed_mean);
+    }
   }
-
-  // « primary » : candidature à la primaire sociale-démocrate d'octobre 2026
-  // (Glucksmann, Faure, Royal…) — sa fiche reste publiée.
-  return cands
-    .filter((c) => ['declared', 'primary', 'probable'].includes(c.status))
-    .map((c) => ({
-      id: c.candidate_id,
-      slug: slugify(c.candidate_name),
-      name: c.candidate_name,
-      shortLabel: c.short_label,
-      bloc: c.bloc,
-      partyFamily: c.party_family,
-      status: c.status,
-      floor: c.first_round_floor,
-      ceiling: c.first_round_ceiling,
-      bestMean: c.best_first_round_mean,
-      bestPTop2: c.best_p_top2,
-      activeScenarios: c.active_scenarios,
-      featuredScenarios: c.featured_scenarios,
+  return cands.map(c => {
+    const polling = observedPolling(c.candidate_id, (polls as any).first_round as PollRow[], (latest as any).meta.run_date);
+    const archived = INACTIVE.has(c.status);
+    const qualification = archived ? [] : scenarios.filter(s => s.scenario.featured)
+      .flatMap(s => s.qualification ?? []).filter(q => q.candidate_id === c.candidate_id);
+    const best = [...qualification].sort((a, b) => b.p_top2 - a.p_top2 || b.first_round_mean - a.first_round_mean)[0];
+    return {
+      id: c.candidate_id, slug: slugify(c.candidate_name), name: c.candidate_name,
+      shortLabel: c.short_label, bloc: c.bloc, partyFamily: c.party_family, status: c.status,
+      polling, runDate: (latest as any).meta.run_date,
+      statusReviewedOn: c.status_reviewed_on || null, statusSource: c.status_source_url || null,
+      statusNote: c.status_note || '', archived,
+      bestMean: best?.first_round_mean ?? null, bestPTop2: best?.p_top2 ?? null,
+      activeScenarios: qualification.length, featuredScenarios: qualification.length,
       bio: CANDIDATE_BIOS[c.candidate_id] ?? null,
-      duels: (duelsByCandidate.get(c.candidate_id) ?? []).sort(
-        (a, b) => b.ownShare - a.ownShare,
-      ),
-    }))
-    .sort((a, b) => {
-      const r = (RANK[a.status] ?? 9) - (RANK[b.status] ?? 9);
-      if (r !== 0) return r;
-      return (b.bestMean ?? 0) - (a.bestMean ?? 0);
-    });
+      duels: archived ? [] : (duelsByCandidate.get(c.candidate_id) ?? []).sort((a, b) => b.probability - a.probability),
+      visible: c.profile_visible ?? ['declared', 'probable', 'primary', 'primary_lost'].includes(c.status),
+    };
+  }).filter(c => c.visible || (c.status === 'testing' && c.polling.hypotheses > 0))
+    .sort((a, b) => (RANK[a.status] ?? 9) - (RANK[b.status] ?? 9) || (b.bestMean ?? 0) - (a.bestMean ?? 0));
 }
 
 let _cache: CandidateProfile[] | null = null;
@@ -135,44 +134,18 @@ export function getCandidateBySlug(slug: string): CandidateProfile | undefined {
 
 // Prose SEO data-driven (change à chaque run). Faits vérifiables : parti,
 // bloc, statut, fourchette de sondage, nombre de scénarios, meilleur duel.
-const STATUS_PHRASE: Record<string, { fr: string; en: string; es: string }> = {
-  declared: { fr: 'candidature officielle', en: 'an officially declared candidate', es: 'candidatura oficialmente declarada' },
-  probable: { fr: 'candidature probable', en: 'a probable candidate', es: 'candidatura probable' },
-  primary: { fr: 'candidature à la primaire sociale-démocrate d’octobre 2026', en: 'a candidate in the October 2026 social-democratic primary', es: 'candidatura en las primarias socialdemócratas de octubre de 2026' },
-  testing: { fr: 'testée dans les sondages', en: 'a candidate tested in polls', es: 'candidatura en encuestas' },
+const STATUS_PHRASE: Record<string, Record<Locale, string>> = {
+  declared: {fr: 'a déclaré sa candidature', en: 'has declared a candidacy', es: 'ha declarado su candidatura'},
+  probable: {fr: 'figure parmi les candidatures pressenties', en: 'is a potential candidate', es: 'figura entre las posibles candidaturas'},
+  primary: {fr: 'participe à une primaire', en: 'is running in a primary', es: 'participa en unas primarias'},
+  primary_lost: {fr: 'n’a pas remporté la primaire sociale-démocrate du 11 octobre 2026', en: 'did not win the social-democratic primary of 11 October 2026', es: 'no ganó las primarias socialdemócratas del 11 de octubre de 2026'},
+  withdrawn: {fr: 'ne poursuit plus cette candidature', en: 'is no longer pursuing this candidacy', es: 'ya no mantiene esta candidatura'},
+  declined: {fr: 'a exclu de se présenter', en: 'has ruled out running', es: 'ha descartado presentarse'},
+  testing: {fr: 'est une hypothèse testée par les sondeurs; cela ne constitue pas une déclaration de candidature', en: 'is a hypothetical candidate tested by pollsters; this does not establish a declared candidacy', es: 'es una candidatura hipotética probada por encuestadores; esto no constituye una candidatura declarada'},
 };
-
 export function candidateProse(c: CandidateProfile, locale: Locale): string[] {
   const party = blocLabel(c.bloc, locale, c.partyFamily);
-  const phrase =
-    STATUS_PHRASE[c.status]?.[locale] ??
-    (locale === 'fr' ? 'candidature' : locale === 'es' ? 'candidatura' : 'a candidate');
-  const range =
-    locale === 'fr'
-      ? `entre ${c.floor.toFixed(0)} et ${c.ceiling.toFixed(0)} %`
-      : locale === 'es'
-        ? `entre ${c.floor.toFixed(0)} y ${c.ceiling.toFixed(0)} %`
-        : `between ${c.floor.toFixed(0)} and ${c.ceiling.toFixed(0)}%`;
-  const bestDuel = c.duels.find((d) => d.wins) ?? c.duels[0];
-
-  if (locale === 'es') {
-    const p1 = `${c.name} (${party}) es ${phrase} en la elección presidencial francesa de 2027. Nuestras agregaciones prueban su candidatura en ${c.activeScenarios} configuraciones de candidaturas, con una intención de voto en primera vuelta ${range} según la combinación.`;
-    const p2 = bestDuel
-      ? `En segunda vuelta, en la combinación «${bestDuel.scenarioLabel}», nuestro pronóstico ${bestDuel.wins ? 'da la victoria a su candidatura' : 'da la derrota a su candidatura'} frente a ${bestDuel.opponentName} (${bestDuel.ownShare.toFixed(1).replace('.', ',')} % contra ${bestDuel.opponentShare.toFixed(1).replace('.', ',')} %). Es nuestra mejor estimación central para este escenario, dentro de un abanico de resultados plausibles.`
-      : '';
-    return [p1, p2].filter(Boolean);
-  }
-
-  if (locale === 'fr') {
-    const p1 = `${c.name} (${party}) est ${phrase} à l'élection présidentielle française de 2027. Nos agrégations le/la testent dans ${c.activeScenarios} configurations de candidatures, avec une intention de vote au premier tour ${range} selon le casting.`;
-    const p2 = bestDuel
-      ? `Au second tour, dans l’hypothèse « ${bestDuel.scenarioLabel} », notre projection ${bestDuel.wins ? 'le/la donne vainqueur' : 'le/la donne défaite'} face à ${bestDuel.opponentName} (${bestDuel.ownShare.toFixed(1).replace('.', ',')} % contre ${bestDuel.opponentShare.toFixed(1).replace('.', ',')} %). C’est notre meilleure estimation centrale pour ce scénario, au sein d’une plage d’issues plausibles.`
-      : '';
-    return [p1, p2].filter(Boolean);
-  }
-  const p1 = `${c.name} (${party}) is ${phrase} in the 2027 French presidential election. Our aggregations test them across ${c.activeScenarios} candidate configurations, with a first-round voting intention ${range} depending on the lineup.`;
-  const p2 = bestDuel
-    ? `In the runoff, in the "${bestDuel.scenarioLabel}" lineup, our forecast has them ${bestDuel.wins ? 'winning' : 'losing'} against ${bestDuel.opponentName} (${bestDuel.ownShare.toFixed(1)}% to ${bestDuel.opponentShare.toFixed(1)}%). This is our best central estimate for that lineup, within a range of plausible outcomes.`
-    : '';
-  return [p1, p2].filter(Boolean);
+  const statement = `${c.name} (${party}) ${STATUS_PHRASE[c.status]?.[locale] || ''}.`;
+  if (c.archived) return [statement, {fr: 'Cette fiche est conservée dans les archives de la campagne. Elle ne représente pas une candidature active.', en: 'This profile remains in the campaign archive and does not represent an active candidacy.', es: 'Esta ficha se conserva en el archivo de campaña y no representa una candidatura activa.'}[locale]];
+  return [statement];
 }

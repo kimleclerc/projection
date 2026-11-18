@@ -17,10 +17,11 @@ const { candidate: c, locale } = Astro.props;
 
 const prose = candidateProse(c, locale);
 const bio = c.bio ? c.bio[locale] : null;
-const AXIS_MAX = 45; // échelle de l'axe des intentions de vote (%)
+const AXIS_MAX = Math.max(45, Math.ceil((c.polling.ceiling ?? 0) / 15) * 15);
+const dateLabel = (value: string) => new Intl.DateTimeFormat(locale === 'fr' ? 'fr-FR' : locale === 'es' ? 'es-ES' : 'en-GB', {day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC'}).format(new Date(value.slice(0, 10) + 'T00:00:00Z')); // échelle de l'axe des intentions de vote (%)
 
 // Autres candidats du même bloc + quelques têtes d'affiche (rabbit-hole).
-const others = getAllCandidates().filter((x) => x.id !== c.id);
+const others = getAllCandidates().filter((x) => x.id !== c.id && !x.archived);
 const sameBloc = others.filter((x) => x.bloc === c.bloc).slice(0, 3);
 const topOthers = others.filter((x) => x.bloc !== c.bloc).slice(0, 4);
 const related = [...sameBloc, ...topOthers].slice(0, 5);
@@ -35,33 +36,33 @@ const COPY = {
         party: 'Famille politique',
         status: 'Statut',
         pollingTitle: 'Intentions de vote au premier tour',
-        pollingHelp: `Fourchette observée sur ${c.activeScenarios} hypothèses de candidatures testées par les sondeurs. Le repère marque la meilleure.`,
-        floor: 'Plancher',
-        ceiling: 'Plafond',
+        pollingHelp: `Minimum et maximum publiés dans les sondages des 90 derniers jours : ${c.polling.surveys} enquête(s), ${c.polling.hypotheses} hypothèse(s) de candidatures. Les listes diffèrent; ce n’est pas une marge d’erreur.`,
+        floor: 'Minimum observé',
+        ceiling: 'Maximum observé',
         best: 'Meilleure hypothèse',
-        top2: 'Probabilité de qualification',
+        top2: 'Qualification — meilleure hypothèse',
         duelsTitle: 'Duels de second tour',
-        duelsHelp: 'Issue projetée face à chaque adversaire, dans l’hypothèse la plus favorable parmi celles que nous suivons.',
+        duelsHelp: 'Estimations conditionnelles à la qualification des deux candidats. Pour chaque adversaire, le duel le plus probable parmi les hypothèses actuellement modélisées.',
         wins: 'en tête',
         loses: 'défaite',
         vs: 'face à',
         relatedTitle: 'Autres candidats',
         exploreCta: 'Comparer toutes les hypothèses',
         allCandidates: 'Tous les candidats',
-        noDuel: 'Aucun duel de second tour projeté pour l’instant.',
+        noDuel: 'Aucune estimation de second tour disponible dans les hypothèses actuellement modélisées.',
       },
   en: {
         back: '← France Desk',
         party: 'Political family',
         status: 'Status',
         pollingTitle: 'First-round voting intention',
-        pollingHelp: `Range observed across ${c.activeScenarios} tested lineups. The marker shows the best lineup.`,
-        floor: 'Floor',
-        ceiling: 'Ceiling',
+        pollingHelp: `Published minimum and maximum over the last 90 days: ${c.polling.surveys} survey(s), ${c.polling.hypotheses} hypothetical lineup(s). Fields differ; this is not a margin of error.`,
+        floor: 'Observed minimum',
+        ceiling: 'Observed maximum',
         best: 'Best lineup',
-        top2: 'Probability of advancing',
+        top2: 'Qualification — best lineup',
         duelsTitle: 'Runoff matchups',
-        duelsHelp: 'Projected outcome against each opponent, in the most favourable featured lineup.',
+        duelsHelp: 'Estimates conditional on both candidates qualifying. Each opponent uses the most probable matchup across currently modelled lineups.',
         wins: 'ahead',
         loses: 'behind',
         vs: 'vs',
@@ -75,13 +76,13 @@ const COPY = {
         party: 'Familia política',
         status: 'Estado',
         pollingTitle: 'Intención de voto en primera vuelta',
-        pollingHelp: `Rango observado en ${c.activeScenarios} combinaciones sondeadas. La marca señala la mejor combinación.`,
-        floor: 'Suelo',
-        ceiling: 'Techo',
+        pollingHelp: `Mínimo y máximo publicados en los últimos 90 días: ${c.polling.surveys} encuesta(s), ${c.polling.hypotheses} combinación(es). Las listas difieren; no es un margen de error.`,
+        floor: 'Mínimo observado',
+        ceiling: 'Máximo observado',
         best: 'Mejor combinación',
-        top2: 'Probabilidad de clasificación',
+        top2: 'Clasificación — mejor combinación',
         duelsTitle: 'Duelos de segunda vuelta',
-        duelsHelp: 'Resultado proyectado frente a cada rival, en la combinación destacada más favorable.',
+        duelsHelp: 'Estimaciones condicionadas a que ambos candidatos se clasifiquen. Para cada rival se muestra el duelo más probable entre las combinaciones modelizadas.',
         wins: 'en cabeza',
         loses: 'por detrás',
         vs: 'frente a',
@@ -92,6 +93,12 @@ const COPY = {
       },
 } as const;
 const C = COPY[locale];
+const detail = {
+  fr: {updated: 'Données et projections du', reviewed: 'Statut vérifié le', source: 'Source du statut', noPoll: 'Aucune intention de vote publiée dans les 90 derniers jours dans notre base.', lastPoll: 'Dernière mesure connue :', never: 'Aucune intention de vote recensée dans notre base.', model: 'Projection du modèle', modelHelp: `${c.activeScenarios} hypothèse(s) actuellement modélisée(s). Les chiffres ci-dessous dépendent de la liste des candidats; la probabilité est conditionnelle à la présence de cette candidature.`, noModel: 'Aucune projection actuelle pour cette candidature. Une absence de mesure ne vaut pas 0 %.', recent: 'Derniers sondages', trend: 'Voir la tendance de cette candidature', archive: 'Archive de campagne — candidature terminée', archiveHelp: 'Les éventuelles mesures ci-dessous sont historiques. Aucune probabilité actuelle de qualification n’est attribuée à cette candidature.'},
+  en: {updated: 'Data and forecasts as of', reviewed: 'Status reviewed on', source: 'Status source', noPoll: 'No published first-round voting intention in our database over the last 90 days.', lastPoll: 'Last known observation:', never: 'No first-round voting intention recorded in our database.', model: 'Model forecast', modelHelp: `${c.activeScenarios} currently modelled lineup(s). Estimates depend on the candidate field; qualification is conditional on this candidate appearing.`, noModel: 'No current forecast for this candidate. Missing data does not mean 0%.', recent: 'Latest polls', trend: 'See this candidate’s trend', archive: 'Campaign archive — candidacy ended', archiveHelp: 'Any observations below are historical. No current qualification probability is assigned to this candidacy.'},
+  es: {updated: 'Datos y proyecciones del', reviewed: 'Estado revisado el', source: 'Fuente del estado', noPoll: 'No hay intención de voto publicada en nuestra base durante los últimos 90 días.', lastPoll: 'Última observación conocida:', never: 'No hay intención de voto registrada en nuestra base.', model: 'Proyección del modelo', modelHelp: `${c.activeScenarios} combinación(es) modelizada(s). Las estimaciones dependen de la lista; la clasificación está condicionada a la presencia de esta candidatura.`, noModel: 'No hay proyección actual para esta candidatura. La falta de datos no significa 0 %.', recent: 'Últimas encuestas', trend: 'Ver la tendencia de esta candidatura', archive: 'Archivo de campaña — candidatura terminada', archiveHelp: 'Las posibles observaciones siguientes son históricas. No se atribuye una probabilidad actual de clasificación a esta candidatura.'},
+}[locale];
+
 ---
 
 <article class="frc" data-content-area>
@@ -105,12 +112,17 @@ const C = COPY[locale];
       <span class="frc-badge">{blocLabel(c.bloc, locale, c.partyFamily)}</span>
       <span class={`frc-badge frc-status is-${c.status}`}>{statusLabel(c.status, locale)}</span>
     </div>
+    <p class="frc-section-help">{detail.updated} <time datetime={c.runDate}>{dateLabel(c.runDate)}</time></p>
+    {c.archived && <p class="frc-archive">{detail.archive}</p>}
     <ShareModule lang={locale} kind="candidate" election={c.slug} runDate={(frLatest as any).meta.run_date} client:idle />
   </header>
 
   <section class="frc-section container frc-prose" aria-label={c.name}>
     {bio && <p class="frc-bio">{bio}</p>}
     {prose.map((p) => <p>{p}</p>)}
+    {locale === 'fr' && c.statusNote && <p>{c.statusNote}</p>}
+    {c.statusReviewedOn && <p class="frc-section-help">{detail.reviewed} <time datetime={c.statusReviewedOn}>{dateLabel(c.statusReviewedOn)}</time>. {c.statusSource && <a href={c.statusSource}>{detail.source}</a>}</p>}
+
   </section>
 
   {hasCandidateBooks && (
@@ -122,36 +134,37 @@ const C = COPY[locale];
   <!-- FOURCHETTE 1er TOUR -->
   <section class="frc-section container" aria-labelledby="frc-polling">
     <h2 id="frc-polling" class="frc-section-title">{C.pollingTitle}</h2>
-    <p class="frc-section-help">{C.pollingHelp}</p>
-    <div class="frc-range" role="img"
-      aria-label={`${C.floor} ${fmtPct1(c.floor, locale)}, ${C.ceiling} ${fmtPct1(c.ceiling, locale)}`}>
-      <div class="frc-range-track">
-        <div
-          class="frc-range-band"
-          style={`left:${(c.floor / AXIS_MAX) * 100}%; width:${((c.ceiling - c.floor) / AXIS_MAX) * 100}%; background:${blocVar(c.bloc)}`}
-        />
-        {typeof c.bestMean === 'number' && (
-          <div class="frc-range-marker" style={`left:${(c.bestMean / AXIS_MAX) * 100}%`} />
-        )}
+    {c.archived && <p class="frc-section-help">{detail.archiveHelp}</p>}
+    {c.polling.floor !== null && c.polling.ceiling !== null ? <>
+      <p class="frc-section-help">{C.pollingHelp}</p>
+      <div class="frc-range" role="img" aria-label={`${C.floor} ${fmtPct1(c.polling.floor, locale)}, ${C.ceiling} ${fmtPct1(c.polling.ceiling, locale)}`}>
+        <div class="frc-range-track"><div class="frc-range-band" style={`left:${c.polling.floor / AXIS_MAX * 100}%; width:${Math.max(0.2, (c.polling.ceiling - c.polling.floor) / AXIS_MAX * 100)}%; background:${blocVar(c.bloc)}`} /></div>
+        <div class="frc-range-scale">{[0, AXIS_MAX / 3, AXIS_MAX * 2 / 3, AXIS_MAX].map(v => <span>{v} %</span>)}</div>
       </div>
-      <div class="frc-range-scale">
-        {[0, 15, 30, 45].map((v) => <span>{locale === 'en' ? `${v}%` : `${v}\u00a0%`}</span>)}
-      </div>
-    </div>
-    <dl class="frc-stats">
-      <div><dt>{C.floor}</dt><dd>{fmtPct1(c.floor, locale)}</dd></div>
-      <div><dt>{C.ceiling}</dt><dd>{fmtPct1(c.ceiling, locale)}</dd></div>
-      {typeof c.bestMean === 'number' && (
-        <div><dt>{C.best}</dt><dd>{fmtPct1(c.bestMean, locale)}</dd></div>
-      )}
-      {typeof c.bestPTop2 === 'number' && (
-        <div><dt>{C.top2}</dt><dd>{locale === 'en' ? `${Math.round(c.bestPTop2 * 100)}%` : `${Math.round(c.bestPTop2 * 100)}\u00a0%`}</dd></div>
-      )}
-    </dl>
+      <dl class="frc-stats"><div><dt>{C.floor}</dt><dd>{fmtPct1(c.polling.floor, locale)}</dd></div><div><dt>{C.ceiling}</dt><dd>{fmtPct1(c.polling.ceiling, locale)}</dd></div></dl>
+    </> : <p class="frc-empty">{detail.noPoll} {c.polling.lastFieldEnd ? `${detail.lastPoll} ${dateLabel(c.polling.lastFieldEnd)}.` : detail.never}</p>}
+    {c.polling.recent.length > 0 && <>
+      <h3>{detail.recent}</h3>
+      <ul class="frc-polls">{c.polling.recent.map(p => <li>
+        <span>{p.source ? <a href={p.source}>{p.firm}</a> : p.firm} · <time datetime={p.date}>{dateLabel(p.date)}</time></span>
+        <strong>{p.min === p.max ? fmtPct1(p.min, locale) : `${fmtPct1(p.min, locale)} – ${fmtPct1(p.max, locale)}`}</strong>
+      </li>)}</ul>
+      <a href={`${base}?fr-candidates=${encodeURIComponent(c.id)}&fr-months=3#fr-trend`}>{detail.trend}</a>
+    </>}
   </section>
 
+  {!c.archived && <section class="frc-section container" aria-labelledby="frc-model">
+    <h2 id="frc-model" class="frc-section-title">{detail.model}</h2>
+    {typeof c.bestMean === 'number' ? <>
+      <p class="frc-section-help">{detail.modelHelp}</p>
+      <dl class="frc-stats"><div><dt>{C.best}</dt><dd>{fmtPct1(c.bestMean, locale)}</dd></div>
+        {typeof c.bestPTop2 === 'number' && <div><dt>{C.top2}</dt><dd>{Math.round(c.bestPTop2 * 100)} %</dd></div>}
+      </dl>
+    </> : <p class="frc-empty">{detail.noModel}</p>}
+  </section>}
+
   <!-- DUELS -->
-  <section class="frc-section container" aria-labelledby="frc-duels">
+  {!c.archived && <section class="frc-section container" aria-labelledby="frc-duels">
     <h2 id="frc-duels" class="frc-section-title">{C.duelsTitle}</h2>
     <p class="frc-section-help">{C.duelsHelp}</p>
     {c.duels.length ? (
@@ -173,7 +186,7 @@ const C = COPY[locale];
     ) : (
       <p class="frc-empty">{C.noDuel}</p>
     )}
-  </section>
+  </section>}
 
   <!-- RABBIT-HOLE : autres candidats + retour desk -->
   <section class="frc-section container" aria-labelledby="frc-related">
@@ -239,6 +252,9 @@ const C = COPY[locale];
     max-width: 620px; margin: 0 0 20px; font-family: var(--mono); font-size: 13px;
     line-height: 1.6; color: var(--ink-3);
   }
+  .frc-archive { border-top: 1px solid var(--rule); padding-top: 12px; }
+  .frc-polls { list-style: none; padding: 0; }
+  .frc-polls li { display: flex; justify-content: space-between; gap: 16px; padding: 10px 0; border-bottom: 1px solid var(--rule); flex-wrap: wrap; }
   .frc-range-track {
     position: relative; height: 26px; background: var(--paper-2);
     border: 1px solid var(--rule); border-radius: 2px; overflow: hidden;

@@ -38,7 +38,7 @@ export function candidateCardInput(c: CandidateProfile, lang: Lang, latest: any,
     bestMean: c.bestMean,
     nScenarios: c.activeScenarios,
     pTop2: c.bestPTop2,
-    duels: duelsOf(c.id, latest.scenarios ?? [], names),
+    duels: c.archived ? [] : duelsOf(c.id, latest.scenarios ?? [], names),
     runDate: latest.meta.run_date,
   };
 }

@@ -1,7 +1,7 @@
 ---
 import EditorialLayout from '../../../../layouts/EditorialLayout.astro';
 import FranceCandidatePage from '../../../../components/FranceCandidatePage.astro';
-import { getAllCandidates, slugify } from '../../../../lib/fr-candidates';
+import { getAllCandidates, slugify, candidateProse } from '../../../../lib/fr-candidates';
 import { blocLabel, statusLabel } from '../../../../lib/fr-pres';
 import latest from '../../../../../web_data/france-presidential/latest.json';
 
@@ -15,7 +15,7 @@ export function getStaticPaths() {
 const { candidate } = Astro.props;
 const meta = (latest as any).meta;
 const canonical = `https://vote-scope.com/en/france/candidates/${candidate.slug}/`;
-const desc = `${candidate.name} — 2027 French presidential election: ${statusLabel(candidate.status, 'en').toLowerCase()}, ${blocLabel(candidate.bloc, 'en', candidate.partyFamily)}. First-round voting intention and runoff matchups across ${candidate.activeScenarios} lineups. Run of ${meta.run_date}.`;
+const desc = candidateProse(candidate, 'en').join(' ') + ' · ' + meta.run_date;
 ---
 
 <EditorialLayout
@@ -36,7 +36,7 @@ const desc = `${candidate.name} — 2027 French presidential election: ${statusL
       '@type': 'Person',
       name: candidate.name,
       url: canonical,
-      description: `Candidate in the 2027 French presidential election (${blocLabel(candidate.bloc, 'en', candidate.partyFamily)}).`,
+      description: candidateProse(candidate, 'en')[0],
     },
   ]}
 >
