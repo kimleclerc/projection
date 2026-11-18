@@ -20,9 +20,9 @@ export const CANDIDATE_BIOS: Record<string, { fr: string; en: string; es: string
     es: "Fundador de La Francia Insumisa, Jean-Luc Mélenchon fue candidato presidencial en 2012, 2017 y 2022, quedándose a las puertas de la segunda vuelta en esta última. Declaró su candidatura para 2027 en mayo de 2026.",
   },
   centre_attal: {
-    fr: "Ancien Premier ministre et figure de Renaissance, Gabriel Attal incarne l'aile macroniste après le retrait d'Emmanuel Macron. Il a déclaré sa candidature pour 2027 en mai 2026.",
-    en: "A former prime minister and Renaissance figure, Gabriel Attal represents the Macronist wing after Emmanuel Macron's departure. He declared his 2027 candidacy in May 2026.",
-    es: "Ex primer ministro y figura de Renaissance, Gabriel Attal encarna el ala macronista tras la retirada de Emmanuel Macron. Declaró su candidatura para 2027 en mayo de 2026.",
+    fr: "Ancien Premier ministre et figure de Renaissance, Gabriel Attal incarne l'aile macroniste pour la présidentielle de 2027. Il a déclaré sa candidature pour 2027 en mai 2026.",
+    en: "A former prime minister and Renaissance figure, Gabriel Attal represents the Macronist wing for the 2027 presidential election. He declared his 2027 candidacy in May 2026.",
+    es: "Ex primer ministro y figura de Renaissance, Gabriel Attal encarna el ala macronista para la elección presidencial de 2027. Declaró su candidatura para 2027 en mayo de 2026.",
   },
   lr_retailleau: {
     fr: "Sénateur et figure des Républicains, Bruno Retailleau a porté la ligne de la droite conservatrice depuis le ministère de l'Intérieur. Il a été désigné candidat pour 2027 par les adhérents LR en avril 2026.",

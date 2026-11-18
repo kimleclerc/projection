@@ -11,6 +11,8 @@ const { locale } = Astro.props;
 const all = getAllCandidates();
 const declared = all.filter((c) => c.status === 'declared');
 const primary = all.filter((c) => c.status === 'primary');
+const archived = all.filter(c => c.archived);
+const tested = all.filter(c => c.status === 'testing');
 const probable = all.filter((c) => c.status === 'probable');
 const candBase = franceCandBase(locale);
 
@@ -18,7 +20,7 @@ const COPY = {
   fr: {
         kicker: 'Présidentielle 2027 · Candidats',
         title: 'Le champ des candidats.',
-        dek: `Une page par candidat : bio, intentions de vote au premier tour et duels de second tour. ${declared.length} candidatures déclarées, ${primary.length} à la primaire sociale-démocrate, remportée le 11 octobre par Raphaël Glucksmann, ${probable.length} probables.`,
+        dek: `Une page par candidat : bio, intentions de vote au premier tour et duels de second tour. ${declared.length} candidatures déclarées, ${archived.length} fiches de candidatures terminées, ${probable.length} probables.`,
         declared: 'Candidatures déclarées',
         primary: 'Primaire sociale-démocrate (PS, Place publique) — remportée par Raphaël Glucksmann le 11 octobre',
         probable: 'Candidatures probables',
@@ -28,7 +30,7 @@ const COPY = {
   en: {
         kicker: '2027 Presidential · Candidates',
         title: 'The field of candidates.',
-        dek: `One page per candidate: bio, first-round voting intention and runoff matchups. ${declared.length} declared candidacies, ${primary.length} in the social-democratic primary, won on October 11 by Raphaël Glucksmann, ${probable.length} probable.`,
+        dek: `One page per candidate: bio, first-round voting intention and runoff matchups. ${declared.length} declared candidacies, ${archived.length} archived candidacies, ${probable.length} probable.`,
         declared: 'Declared candidacies',
         primary: 'Social-democratic primary (PS, Place publique) — won by Raphaël Glucksmann on October 11',
         probable: 'Probable candidacies',
@@ -38,7 +40,7 @@ const COPY = {
   es: {
         kicker: 'Presidencial 2027 · Candidatos',
         title: 'El campo de candidatos.',
-        dek: `Una página por candidato: biografía, intención de voto en primera vuelta y duelos de segunda vuelta. ${declared.length} candidaturas declaradas, ${primary.length} en las primarias socialdemócratas, ganadas el 11 de octubre por Raphaël Glucksmann, ${probable.length} probables.`,
+        dek: `Una página por candidato: biografía, intención de voto en primera vuelta y duelos de segunda vuelta. ${declared.length} candidaturas declaradas, ${archived.length} candidaturas archivadas, ${probable.length} probables.`,
         declared: 'Candidaturas declaradas',
         primary: 'Primarias socialdemócratas (PS, Place publique) — ganadas por Raphaël Glucksmann el 11 de octubre',
         probable: 'Candidaturas probables',
@@ -54,6 +56,8 @@ const groups = [
   { label: C.declared, items: declared },
   { label: C.primary, items: primary, href: primaryHref },
   { label: C.probable, items: probable },
+  { label: {fr: 'Hypothèses testées dans les sondages — candidature non confirmée', en: 'Polled hypotheses — candidacy unconfirmed', es: 'Hipótesis en encuestas — candidatura sin confirmar'}[locale], items: tested },
+  { label: {fr: 'Archives — retraits et primaires perdues', en: 'Archives — withdrawals and primary losses', es: 'Archivo — retiradas y primarias perdidas'}[locale], items: archived, href: primaryHref },
 ];
 ---
 
