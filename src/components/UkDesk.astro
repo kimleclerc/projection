@@ -107,7 +107,7 @@ const copy = {
     compositionLabel: `Commons today — ${compTotal} of ${meta.total_seats} GB seats tracked`,
     transitionKicker: '1 September 2026 · Westminster',
     transitionTitle: 'Starmer has left the Commons — six weeks after leaving Downing Street.',
-    transitionBody: 'Keir Starmer stood down as MP for Holborn and St Pancras on 1 September, saying it was time to step aside for international work. Andy Burnham had already replaced him as prime minister on 20 July, with Healey at the Treasury, Streeting at Defence and Rayner back at Housing. Two things follow: the Commons has a vacancy again, and the model now reads Labour through a leader it has only a few months of polling on.',
+    transitionBody: "Keir Starmer stood down as MP for Holborn and St Pancras on 1 September. Labour’s Sagal Abdi-Wali won the by-election on 8 October. Andy Burnham had already succeeded Starmer as prime minister in July.",
     transitionCta: 'The by-election, seat by seat',
     byeLabel: 'By-elections',
     raceKicker: 'Seat vacant · polling day not yet set',
@@ -157,7 +157,7 @@ const copy = {
     compositionLabel: `Les Communes aujourd’hui : ${compTotal} des ${meta.total_seats} sièges de Grande-Bretagne`,
     transitionKicker: '1er septembre 2026 · Westminster',
     transitionTitle: 'Starmer quitte les Communes — six semaines après avoir quitté Downing Street.',
-    transitionBody: 'Keir Starmer a démissionné de son siège de Holborn and St Pancras le 1er septembre, disant qu’il était temps de « s’effacer » pour se consacrer aux dossiers internationaux. Andy Burnham l’avait déjà remplacé comme premier ministre le 20 juillet, avec Healey aux Finances, Streeting à la Défense et Rayner de retour au Logement. Deux conséquences : les Communes ont de nouveau un siège vacant, et le modèle lit désormais le Parti travailliste à travers un chef sur lequel il n’a que quelques mois de sondages.',
+    transitionBody: "Keir Starmer a quitté son siège de Holborn and St Pancras le 1er septembre. La travailliste Sagal Abdi-Wali a remporté la partielle du 8 octobre. Andy Burnham avait déjà succédé à Starmer comme premier ministre en juillet.",
     transitionCta: 'La partielle, siège par siège',
     byeLabel: 'Partielles',
     raceKicker: 'Siège vacant · date du scrutin pas encore fixée',
@@ -207,7 +207,7 @@ const copy = {
     compositionLabel: `Los Comunes hoy: ${compTotal} de los ${meta.total_seats} escaños de Gran Bretaña`,
     transitionKicker: '1 de septiembre de 2026 · Westminster',
     transitionTitle: 'Starmer deja los Comunes — seis semanas después de dejar Downing Street.',
-    transitionBody: 'Keir Starmer renunció a su escaño de Holborn and St Pancras el 1 de septiembre, diciendo que era hora de apartarse para dedicarse a asuntos internacionales. Andy Burnham ya lo había sustituido como primer ministro el 20 de julio, con Healey en el Tesoro, Streeting en Defensa y Rayner de vuelta en Vivienda. Dos consecuencias: los Comunes vuelven a tener una vacante, y el modelo lee ahora al laborismo a través de un líder del que solo tiene unos meses de encuestas.',
+    transitionBody: "Keir Starmer dejó su escaño de Holborn and St Pancras el 1 de septiembre. La laborista Sagal Abdi-Wali ganó la elección parcial del 8 de octubre. Andy Burnham ya había sucedido a Starmer como primer ministro en julio.",
     transitionCta: 'La parcial, escaño por escaño',
     byeLabel: 'Parciales',
     raceKicker: 'Escaño vacante · fecha de votación aún sin fijar',
@@ -309,7 +309,7 @@ const dateLabel = (iso: string) => {
   </section>
 
   <section class="container ukdesk-block">
-    <StoryList heading={t.byeLabel} items={[{ meta: t.raceKicker, title: t.raceTitle, text: `${t.raceBody} ${t.raceLever}`, href: racePath }]} />
+    {race.status === "pending" && <StoryList heading={t.byeLabel} items={[{ meta: t.raceKicker, title: t.raceTitle, text: `${t.raceBody} ${t.raceLever}`, href: racePath }]} />}
     <div class="ukdesk-resolved">
       <h3 class="ukdesk-sub">{t.resolvedLabel}</h3>
       {ukResolvedByelections2026.map((b) => (

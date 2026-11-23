@@ -4,10 +4,8 @@ import UsPresidentDesk from '../../../components/UsPresidentDesk.astro';
 import latest from '../../../../web_data/us-president/latest.json';
 
 const meta = (latest as any).meta;
-const demLead = (latest as any).primary.dem.standings[0];
-const repLead = (latest as any).primary.rep.standings[0];
-const demTop = demLead.short_label;
-const repTop = repLead.short_label;
+const demLead = (latest as any).primary.dem.standings.find((candidate: { status: string }) => candidate.status !== "ineligible") ?? (latest as any).primary.dem.standings[0];
+const repLead = (latest as any).primary.rep.standings.find((candidate: { status: string }) => candidate.status !== "ineligible") ?? (latest as any).primary.rep.standings[0];
 const demLeadName = demLead.name;
 const repLeadName = repLead.name;
 const demLeadShare = demLead.share.toFixed(1);
@@ -21,8 +19,8 @@ const alternates = {
 ---
 
 <EditorialLayout
-  title={`2028 Presidential Election Polls: ${repTop} vs ${demTop}? Who’s Running — Vote-Scope`}
-  description={`2028 presidential election polls: ${demLeadName} leads the Democrats (${demLeadShare}%), ${repLeadName} the Republicans (${repLeadShare}%). Who’s running, the primary polling average, early states and the electoral map. ${meta.n_primary_polls} polls, updated ${meta.run_date}.`}
+  title="2028 U.S. Presidential Election — Primary Polls and Candidates | Vote-Scope"
+  description={`2028 U.S. primary polls. ${repLeadName} leads Republicans (${repLeadShare}%) and ${demLeadName} leads Democrats (${demLeadShare}%). Candidates and debate calendar.`}
   canonical={canonical}
   lang="en"
   currentPage="us"
@@ -41,14 +39,6 @@ const alternates = {
       license: 'https://vote-scope.com/en/terms/',
       isAccessibleForFree: true,
       distribution: { '@type': 'DataDownload', contentUrl: 'https://vote-scope.com/web_data/us-president/latest.json', encodingFormat: 'application/json' },
-    },
-    {
-      '@context': 'https://schema.org',
-      '@type': 'FAQPage',
-      mainEntity: [
-        { '@type': 'Question', name: 'When is the next presidential election?', acceptedAnswer: { '@type': 'Answer', text: 'The next U.S. presidential election is on Tuesday, November 7, 2028. Primaries and caucuses begin in early 2028.' } },
-        { '@type': 'Question', name: 'Who is leading the 2028 primary polls?', acceptedAnswer: { '@type': 'Answer', text: `In our polling average, ${demLeadName} leads the Democratic field with ${demLeadShare}% and ${repLeadName} leads the Republican field with ${repLeadShare}%.` } },
-      ],
     },
     {
       '@context': 'https://schema.org',

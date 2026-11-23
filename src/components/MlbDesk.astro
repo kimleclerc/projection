@@ -157,6 +157,13 @@ const t = {
   },
 }[locale];
 
+const final = {
+  fr: { title: "Série mondiale 2026 : Milwaukee remporte son premier titre", body: "Les Brewers ont battu les Rays de Tampa Bay 4 à 1 au cinquième match, le 28 octobre, pour gagner la Série mondiale en cinq matchs.", source: "Résultats officiels de la MLB" },
+  en: { title: "2026 World Series: Milwaukee wins its first title", body: "The Brewers beat the Tampa Bay Rays 4–1 in Game 5 on October 28 to win the World Series in five games.", source: "Official MLB results" },
+  es: { title: "Serie Mundial 2026: Milwaukee gana su primer título", body: "Los Brewers vencieron 4–1 a los Rays de Tampa Bay en el quinto partido, el 28 de octubre, y ganaron la Serie Mundial en cinco juegos.", source: "Resultados oficiales de MLB" },
+}[locale];
+const complete = data.season === '2026' && meta.data_fetched_at >= '2026-10-29' && meta.remaining_games === 0;
+
 const sportsBase = `/${locale}/sports`;
 const embedPath = `/${locale}/embed/mlb`;
 
@@ -172,15 +179,20 @@ const heroCards = [
 
 <EditorialHero
   eyebrow={t.heroEyebrow}
-  title={t.heroTitle}
-  promise={t.heroPromise}
-  question={t.heroQuestion}
+  title={complete ? final.title : t.heroTitle}
+  promise={complete ? final.body : t.heroPromise}
+  question={complete ? undefined : t.heroQuestion}
   primaryHref={`${sportsBase}/`}
   primaryLabel={t.primaryLabel}
   secondaryHref={`${sportsBase}/nhl/`}
   secondaryLabel={t.secondaryLabel}
 />
 
+{complete && (
+  <div class="container"><a href="https://www.mlb.com/postseason/history/2026">{final.source}</a></div>
+)}
+
+{!complete && <>
 <!-- Cartes hero : favori + poursuivant + Blue Jays -->
 <section class="content-band">
   <div class="container">
@@ -219,6 +231,8 @@ const heroCards = [
   </div>
 </section>
 
+</>}
+
 <!-- Classements par division -->
 <section class="content-band">
   <div class="container">
@@ -244,7 +258,7 @@ const heroCards = [
                           {team.emoji} {teamLabel(team, locale)}
                         </td>
                         <td class="mlb-standings-num">{team.wins}-{team.losses}</td>
-                        <td class="mlb-standings-num">{fmtProb(team.p_division, locale)}</td>
+                        {!complete && <td class="mlb-standings-num">{fmtProb(team.p_division, locale)}</td>}
                       </tr>
                     );
                   })}
@@ -255,11 +269,11 @@ const heroCards = [
         </div>
       ))}
     </div>
-    <p style="margin-top:0.5rem;font-size:0.82rem;color:var(--ink-3);">{t.division} % — {t.metaLine}</p>
+    {!complete && <p style="margin-top:0.5rem;font-size:0.82rem;color:var(--ink-3);">{t.division} % — {t.metaLine}</p>}
   </div>
 </section>
 
-<MethodologyNote title={t.methodTitle} body={t.methodBody} bullets={t.methodBullets} />
+{!complete && <MethodologyNote title={t.methodTitle} body={t.methodBody} bullets={t.methodBullets} />}
 
 <style>
   .mlb-standings {

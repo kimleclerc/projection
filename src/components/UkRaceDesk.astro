@@ -168,6 +168,9 @@ const copy = {
 }[lang];
 
 const t = copy;
+const resolved = config.status === "resolved";
+const officialResultLabel = { en: "Full results from Camden Council", fr: "Résultats complets du conseil de Camden", es: "Resultados completos del ayuntamiento de Camden" }[lang];
+
 const jsonLd = [
   {
     '@context': 'https://schema.org',
@@ -176,7 +179,7 @@ const jsonLd = [
     description: config.description[lang],
     url: canonical,
     inLanguage: lang,
-    dateModified: meta.run_date,
+    dateModified: resolved ? config.electionDate : meta.run_date,
     author: { '@type': 'Person', name: 'Kim Leclerc', url: 'https://kimleclerc.ca' },
   },
   {
@@ -201,6 +204,15 @@ const jsonLd = [
   alternates={alternates}
   jsonLd={jsonLd}
 >
+  {resolved ? (
+    <article class="ukrace" data-content-area>
+      <header class="ukrace-hero container vs-page-head">
+        <h1>{config.title[lang].replace(' — Vote-Scope', '')}</h1>
+        <p class="ukrace-dek">{config.description[lang]}</p>
+        <p><a href="https://www.camden.gov.uk/en/holborn-and-st-pancras-by-election-2026-results">{officialResultLabel}</a></p>
+      </header>
+    </article>
+  ) : (
   <article class="ukrace" data-content-area>
     <header class="ukrace-hero container vs-page-head">
       <p class="ukrace-kicker">{t.kicker}</p>
@@ -356,6 +368,7 @@ const jsonLd = [
       ]}
     />
   </article>
+  )}
 </EditorialLayout>
 
 <style>

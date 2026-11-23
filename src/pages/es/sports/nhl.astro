@@ -46,8 +46,8 @@ const dLong = (iso: string) => new Date(`${iso}T12:00:00Z`).toLocaleDateString('
 ---
 
 <EditorialLayout
-  title="Playoffs NHL 2026 — Vote-Scope"
-  description="Proyecta el camino de cada equipo hacia la Copa Stanley: volatilidad de portero, diferencias modelo-mercado y tendencias. 10.000 simulaciones diarias — Vote-Scope."
+  title="Los Carolina Hurricanes ganan la Copa Stanley de 2026 — Vote-Scope"
+  description="Carolina venció a los Vegas Golden Knights en seis partidos. Esta página conserva el último corte de nuestro modelo de los playoffs de 2026."
   canonical="https://vote-scope.com/es/sports/nhl/"
   lang="es"
   currentPage="sports"
@@ -80,9 +80,8 @@ const dLong = (iso: string) => new Date(`${iso}T12:00:00Z`).toLocaleDateString('
 >
   <EditorialHero
     eyebrow="NHL"
-    title="¿Quién tiene el camino más despejado hacia la Copa?"
-    promise="10,000 simulaciones Monte Carlo. Capa de volatilidad del portero. Detector de brechas de mercado. Análisis de tendencias de equipos."
-    question="¿El favorito está realmente construido para la siguiente ronda, o el mercado se equivoca?"
+    title="Los Carolina Hurricanes ganan la Copa Stanley de 2026"
+    promise="Carolina venció a los Vegas Golden Knights en seis partidos. Esta página conserva el último corte de nuestro modelo de los playoffs de 2026."
     primaryHref="/es/sports/"
     primaryLabel="Deportes"
     secondaryHref="/en/indexes/"
@@ -92,7 +91,8 @@ const dLong = (iso: string) => new Date(`${iso}T12:00:00Z`).toLocaleDateString('
   <!-- Favoritos actuales -->
   <section class="content-band">
     <div class="container">
-      <p class="eyebrow">Favoritos actuales — al {dLong(boardMeta.run_date)}</p>
+      <p class="eyebrow">Último corte del modelo · {dLong(boardMeta.run_date)}</p>
+      <p><a href="https://www.nhl.com/news/2026-stanley-cup-final-schedule-television-results">Resultados oficiales de la NHL</a></p>
       <div class="content-grid-2" style="gap:1.5rem;margin-top:1rem;">
         {topThree.map((team, i) => (
           <div class="note-card" style={`border-top: 4px solid ${team.color};`}>

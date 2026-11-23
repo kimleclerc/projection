@@ -4,10 +4,8 @@ import UsPresidentDesk from '../../../components/UsPresidentDesk.astro';
 import latest from '../../../../web_data/us-president/latest.json';
 
 const meta = (latest as any).meta;
-const demLead = (latest as any).primary.dem.standings[0];
-const repLead = (latest as any).primary.rep.standings[0];
-const demTop = demLead.short_label;
-const repTop = repLead.short_label;
+const demLead = (latest as any).primary.dem.standings.find((candidate: { status: string }) => candidate.status !== "ineligible") ?? (latest as any).primary.dem.standings[0];
+const repLead = (latest as any).primary.rep.standings.find((candidate: { status: string }) => candidate.status !== "ineligible") ?? (latest as any).primary.rep.standings[0];
 const demLeadName = demLead.name;
 const repLeadName = repLead.name;
 const demLeadShare = demLead.share.toFixed(1).replace('.', ',');
@@ -21,8 +19,8 @@ const alternates = {
 ---
 
 <EditorialLayout
-  title={`Présidentielle américaine 2028 : sondages et candidats — ${repTop} ou ${demTop} ? — Vote-Scope`}
-  description={`Sondages de la présidentielle américaine 2028 : ${demLeadName} mène chez les démocrates (${demLeadShare} %), ${repLeadName} chez les républicains (${repLeadShare} %). Les candidats, la moyenne des sondages des primaires, les premiers États et la carte électorale. ${meta.n_primary_polls} sondages, mis à jour le ${meta.run_date}.`}
+  title="Présidentielle américaine 2028 — Sondages des primaires et candidats | Vote-Scope"
+  description={`Primaires américaines 2028. ${repLeadName} mène chez les républicains (${repLeadShare} %) et ${demLeadName} chez les démocrates (${demLeadShare} %). Calendrier et candidats.`}
   canonical={canonical}
   lang="fr"
   currentPage="us"
@@ -41,14 +39,6 @@ const alternates = {
       license: 'https://vote-scope.com/fr/terms/',
       isAccessibleForFree: true,
       distribution: { '@type': 'DataDownload', contentUrl: 'https://vote-scope.com/web_data/us-president/latest.json', encodingFormat: 'application/json' },
-    },
-    {
-      '@context': 'https://schema.org',
-      '@type': 'FAQPage',
-      mainEntity: [
-        { '@type': 'Question', name: 'Quand a lieu la prochaine élection présidentielle américaine ?', acceptedAnswer: { '@type': 'Answer', text: 'La prochaine présidentielle américaine a lieu le mardi 7 novembre 2028. Les primaires et caucus commencent au début de 2028.' } },
-        { '@type': 'Question', name: 'Qui mène dans les sondages des primaires de 2028 ?', acceptedAnswer: { '@type': 'Answer', text: `Dans notre moyenne des sondages, ${demLeadName} mène la primaire démocrate avec ${demLeadShare} % et ${repLeadName} la primaire républicaine avec ${repLeadShare} %.` } },
-      ],
     },
     {
       '@context': 'https://schema.org',

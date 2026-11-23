@@ -48,8 +48,8 @@ const dLong = (iso: string) => new Date(`${iso}T12:00:00Z`).toLocaleDateString('
 ---
 
 <EditorialLayout
-  title="NHL Stanley Cup 2026 — Vote-Scope"
-  description="Projects every team's path to the Stanley Cup — goalie volatility, model vs market gaps, and trend analysis. 10,000 simulations updated daily — Vote-Scope."
+  title="Carolina Hurricanes win the 2026 Stanley Cup — Vote-Scope"
+  description="Carolina beat the Vegas Golden Knights in six games. This page keeps the final snapshot of our 2026 playoff model."
   canonical="https://vote-scope.com/en/sports/nhl/"
   lang="en"
   currentPage="sports"
@@ -82,9 +82,8 @@ const dLong = (iso: string) => new Date(`${iso}T12:00:00Z`).toLocaleDateString('
 >
   <EditorialHero
     eyebrow="NHL Desk"
-    title="Who has the cleanest path to the Cup?"
-    promise="10,000 Monte Carlo simulations. Goalie volatility layer. Market gap detector. Team trend analysis."
-    question="Is the favorite actually built for the next round, or is the market wrong?"
+    title="Carolina Hurricanes win the 2026 Stanley Cup"
+    promise="Carolina beat the Vegas Golden Knights in six games. This page keeps the final snapshot of our 2026 playoff model."
     primaryHref="/en/sports/"
     primaryLabel="Sports hub"
     secondaryHref="/en/indexes/"
@@ -94,7 +93,8 @@ const dLong = (iso: string) => new Date(`${iso}T12:00:00Z`).toLocaleDateString('
   <!-- Hero stats -->
   <section class="content-band">
     <div class="container">
-      <p class="eyebrow">Current favorites — as of {dLong(boardMeta.run_date)}</p>
+      <p class="eyebrow">Final model snapshot · {dLong(boardMeta.run_date)}</p>
+      <p><a href="https://www.nhl.com/news/2026-stanley-cup-final-schedule-television-results">Official NHL results</a></p>
       <div class="content-grid-2" style="gap:1.5rem;margin-top:1rem;">
         {topThree.map((team, i) => (
           <div class="note-card" style={`border-top: 4px solid ${team.color};`}>

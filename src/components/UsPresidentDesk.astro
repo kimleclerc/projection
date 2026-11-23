@@ -56,18 +56,25 @@ const electionLong = new Date(`${meta.election_date}T00:00:00`).toLocaleDateStri
 const intro =
   locale === 'fr'
     ? [
-        `Nous sommes à mi-2026 : la présidentielle américaine de 2028 en est à sa « primaire invisible » — la course aux soutiens, aux financements et à la notoriété, bien avant le moindre vote. D'après notre agrégat pondéré qualité de ${nPolls} sondages nationaux de primaire (mis à jour le ${runDate}), ${repLead?.name} domine le champ républicain à ${fmtPct1(repLead?.share ?? 0, locale)}, tandis que ${demLead?.name} mène un champ démocrate bien plus ouvert à ${fmtPct1(demLead?.share ?? 0, locale)}.`,
+        `D'après notre agrégat pondéré qualité des sondages nationaux de primaire (mis à jour le ${runDate}), ${repLead?.name} mène chez les républicains à ${fmtPct1(repLead?.share ?? 0, locale)}, tandis que ${demLead?.name} mène chez les démocrates à ${fmtPct1(demLead?.share ?? 0, locale)}.`,
         `La carte du collège électoral ci-dessous montre le résultat certifié de 2024 (Trump 312 / Harris 226) comme point de référence — PAS une projection 2028. Le modèle d'affrontement général se branchera quand les sondages Démocrate-contre-Républicain s'accumuleront, à partir de 2027.`,
       ]
     : locale === 'es'
     ? [
-        `Estamos a mediados de 2026: la elección presidencial estadounidense de 2028 está en su «primaria invisible» — la carrera por apoyos, financiación y notoriedad, mucho antes de cualquier voto. Según nuestra media ponderada por calidad de ${nPolls} encuestas nacionales de primarias (actualizada el ${runDate}), ${repLead?.name} domina el campo republicano con ${fmtPct1(repLead?.share ?? 0, locale)}, mientras que ${demLead?.name} encabeza un campo demócrata mucho más abierto con ${fmtPct1(demLead?.share ?? 0, locale)}.`,
+        `Según nuestra media ponderada por calidad de encuestas nacionales de primarias (actualizada el ${runDate}), ${repLead?.name} lidera entre los republicanos con ${fmtPct1(repLead?.share ?? 0, locale)}, mientras que ${demLead?.name} lidera entre los demócratas con ${fmtPct1(demLead?.share ?? 0, locale)}.`,
         `El mapa del colegio electoral que sigue muestra el resultado certificado de 2024 (Trump 312 / Harris 226) como referencia — NO una proyección de 2028. El modelo de enfrentamiento general se activará cuando se acumulen las encuestas demócrata-contra-republicano, a partir de 2027.`,
       ]
     : [
-        `It is mid-2026: the 2028 U.S. presidential race is in its "invisible primary" — the contest for endorsements, money and name recognition, long before a single vote. Based on our quality-weighted aggregate of ${nPolls} national primary polls (updated ${runDate}), ${repLead?.name} dominates the Republican field at ${fmtPct1(repLead?.share ?? 0, locale)}, while ${demLead?.name} leads a far more open Democratic field at ${fmtPct1(demLead?.share ?? 0, locale)}.`,
+        `Based on our quality-weighted aggregate of national primary polls (updated ${runDate}), ${repLead?.name} leads the Republican field at ${fmtPct1(repLead?.share ?? 0, locale)}, while ${demLead?.name} leads the Democratic field at ${fmtPct1(demLead?.share ?? 0, locale)}.`,
         `The electoral-college map below shows the certified 2024 result (Trump 312 / Harris 226) as a reference point — NOT a 2028 projection. The general-election model switches on once Democrat-versus-Republican matchup polling accumulates, from 2027.`,
       ];
+
+
+const context = {
+  fr: { summary: "Donald Trump entre dans la période dite du « canard boiteux ». Le 22ᵉ amendement l’empêche d’être élu une troisième fois. Les démocrates ont remporté la Chambre et le Sénat en novembre 2026 et prendront le contrôle des deux chambres en janvier 2027.", schedule: "Le Comité national démocrate prévoit 12 débats pour les primaires de 2028, avec un premier débat en juin 2027. L’élection générale aura lieu le", amendment: "Le 22ᵉ amendement", midterms: "Résultats de mi-mandat", debates: "Calendrier des débats", index: "Indice canard boiteux" },
+  en: { summary: "Donald Trump is entering his lame-duck period. The 22nd Amendment bars him from being elected a third time. Democrats won the House and Senate in November 2026 and will take control of both chambers in January 2027.", schedule: "The Democratic National Committee plans 12 debates for the 2028 primaries, starting in June 2027. The general election is on", amendment: "22nd Amendment", midterms: "Midterm results", debates: "Debate schedule", index: "Lame-Duck Index" },
+  es: { summary: "Donald Trump entra en el periodo conocido como «pato cojo». La 22.ª Enmienda le impide ser elegido por tercera vez. Los demócratas ganaron la Cámara y el Senado en noviembre de 2026 y asumirán el control de ambas cámaras en enero de 2027.", schedule: "El Comité Nacional Demócrata prevé 12 debates para las primarias de 2028, con el primero en junio de 2027. Las elecciones generales se celebrarán el", amendment: "22.ª Enmienda", midterms: "Resultados de medio mandato", debates: "Calendario de debates", index: "Índice del pato cojo" },
+}[locale];
 
 const C = {
   fr: {
@@ -75,7 +82,7 @@ const C = {
     titleA: 'Présidentielle américaine : qui sera candidat en ',
     titleEm: '2028',
     titleEnd: ' ?',
-    dek: 'Bien avant le premier vote, la course se mesure aux soutiens et aux sondages de primaire. Voici où en sont les champs démocrate et républicain — et la carte du collège électoral.',
+    dek: "Après les élections de mi-mandat de 2026, la course à la succession de Donald Trump s’engage. Voici notre moyenne des sondages nationaux des primaires républicaines et démocrates.",
     runOf: `Mis à jour le ${runDate}`,
     pollsAgg: `${nPolls} sondages de primaire`,
     weighting: 'Pondération qualité',
@@ -94,7 +101,7 @@ const C = {
     kdBody: 'Comparez les autres indices Vote-Scope en attendant l’ouverture de la campagne 2028.',
     kdLinks: [
       { href: '/fr/us/', label: 'Bureau États-Unis', detail: 'Chambre, Sénat, index' },
-      { href: '/fr/us/indexes/lame-duck/', label: 'Index canard boiteux', detail: 'Pression pré-électorale' },
+      { href: '/fr/us/indexes/lame-duck/', label: 'Index canard boiteux', detail: 'Le second mandat après les mi-mandats' },
       { href: '/fr/france/', label: 'Présidentielle France', detail: 'Modèle par scénarios' },
       { href: '/fr/', label: 'Tous les bureaux', detail: 'Tous les indices' },
     ],
@@ -104,7 +111,7 @@ const C = {
     titleA: 'Who’s running for president in ',
     titleEm: '2028',
     titleEnd: '?',
-    dek: 'Long before the first vote, the race is measured in endorsements and primary polling. Here is where the Democratic and Republican fields stand — and the electoral-college map.',
+    dek: "After the 2026 midterms, the race to succeed Donald Trump is taking shape. Here are our national polling averages for the Republican and Democratic primaries.",
     runOf: `Updated ${runDate}`,
     pollsAgg: `${nPolls} primary polls`,
     weighting: 'Quality-weighted',
@@ -123,7 +130,7 @@ const C = {
     kdBody: 'Compare the other Vote-Scope instruments while the 2028 campaign gets going.',
     kdLinks: [
       { href: '/en/us/', label: 'United States desk', detail: 'House, Senate, indexes' },
-      { href: '/en/us/indexes/lame-duck/', label: 'Lame-Duck Index', detail: 'Pre-election drag' },
+      { href: '/en/us/indexes/lame-duck/', label: 'Lame-Duck Index', detail: 'Trump’s second term after the midterms' },
       { href: '/en/france/', label: 'French presidential', detail: 'Scenario model' },
       { href: '/en/', label: 'All desks', detail: 'Every instrument' },
     ],
@@ -133,7 +140,7 @@ const C = {
     titleA: '¿Quién será candidato a la presidencia de EE. UU. en ',
     titleEm: '2028',
     titleEnd: '?',
-    dek: 'Mucho antes del primer voto, la carrera se mide en apoyos y encuestas de primarias. Aquí está la situación de los campos demócrata y republicano — y el mapa del colegio electoral.',
+    dek: "Tras las elecciones de medio mandato de 2026, empieza a definirse la carrera por suceder a Donald Trump. Estas son nuestras medias nacionales de las primarias republicanas y demócratas.",
     runOf: `Actualizado el ${runDate}`,
     pollsAgg: `${nPolls} encuestas de primarias`,
     weighting: 'Ponderado por calidad',
@@ -152,7 +159,7 @@ const C = {
     kdBody: 'Compare los demás índices de Vote-Scope mientras arranca la campaña de 2028.',
     kdLinks: [
       { href: '/es/us/', label: 'EE. UU.', detail: 'Cámara, Senado, índices' },
-      { href: '/es/us/indexes/lame-duck/', label: 'Índice Lame-Duck', detail: 'Presión preelectoral' },
+      { href: '/es/us/indexes/lame-duck/', label: 'Índice Lame-Duck', detail: 'El segundo mandato tras las legislativas' },
       { href: '/es/france/', label: 'Presidencial de Francia', detail: 'Modelo por escenarios' },
       { href: '/es/', label: 'Todas las mesas', detail: 'Todos los índices' },
     ],
@@ -192,6 +199,9 @@ for (const u of ec.units) stateNameByAbbr[u.state] = placeName(u, locale);
   </header>
 
   <section class="up-section container up-intro">
+    <p>{context.summary} <a href={`/${locale}/us/indexes/lame-duck/`}>{context.index}</a>.</p>
+    <p>{context.schedule} <time datetime={meta.election_date}>{electionLong}</time>.</p>
+    <p><a href="https://constitution.congress.gov/constitution/amendment-22/">{context.amendment}</a> · <a href="https://www.ap.org/the-definitive-source/behind-the-news/calling-control-of-congress-in-the-2026-midterm-elections/">{context.midterms}</a> · <a href="https://democrats.org/dnc-announces-framework-for-the-2028-democratic-presidential-primary-debates/">{context.debates}</a></p>
     {intro.map((p) => <p>{p}</p>)}
   </section>
 

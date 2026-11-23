@@ -30,7 +30,6 @@ const copy = {
     updated: 'Updated',
     live: 'Live',
     meterTitle: 'Leverage gap.',
-    alertNext: 'Next: Canadian counter-tariffs',
     factsEyebrow: 'What is actually in force',
     marketEyebrow: 'What the money says',
     tariffCardTitle: 'Tariff-rate market',
@@ -96,7 +95,6 @@ const copy = {
     updated: 'Mis à jour',
     live: 'En direct',
     meterTitle: 'Écart de levier.',
-    alertNext: 'Prochaine étape : riposte canadienne',
     factsEyebrow: 'Ce qui est réellement en vigueur',
     marketEyebrow: 'Ce que dit l’argent',
     tariffCardTitle: 'Marché du taux tarifaire',
@@ -162,7 +160,6 @@ const copy = {
     updated: 'Actualizado',
     live: 'En vivo',
     meterTitle: 'Brecha de ventaja.',
-    alertNext: 'Próximo paso: contra-aranceles canadienses',
     factsEyebrow: 'Lo que realmente está en vigor',
     marketEyebrow: 'Lo que dice el dinero',
     tariffCardTitle: 'Mercado de la tasa arancelaria',
@@ -370,7 +367,7 @@ const watchList = editorial ? pickList(editorial, 'watch', locale) : [];
         <span class="tw-alert-tag">{t.live}</span>
         <strong>{pick(war, 'headline', locale)}</strong>
         <span>{t.updated} {fullDate(data.meta.as_of_date ?? war.since)}</span>
-        <span class="tw-alert-next">{t.alertNext} · {fullDate('2026-09-08')}</span>
+
       </div>
     </aside>
   )}

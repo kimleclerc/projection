@@ -58,9 +58,8 @@ const copy = {
     historyBody:
       'Scrub through the series, then compare the current trajectory with past second-term presidents using the same instrument language.',
     midtermsEyebrow: 'Midterms 2026',
-    midtermsTitle: 'What the quack means for November.',
-    midtermsBody:
-      'The index draws on the fight for Congress. For the seat-by-seat picture, see the House and Senate forecasts.',
+    midtermsTitle: "After the midterms",
+    midtermsBody: "Democrats won both chambers on November 3. When the new Congress convenes in January, Trump will serve the rest of his second term under divided government.",
     tradeEyebrow: 'Trade-war desk',
     tradeTitle: 'Where the quack meets the border.',
     tradeBody:
@@ -98,9 +97,8 @@ const copy = {
     historyBody:
       'Parcourez la série, puis comparez la trajectoire actuelle aux présidents passés avec le même langage d’indice.',
     midtermsEyebrow: 'Mi-mandat 2026',
-    midtermsTitle: 'Ce que le canard annonce pour novembre.',
-    midtermsBody:
-      'L’indice tient compte de la bataille pour le Congrès. Pour le détail siège par siège, voyez les projections de la Chambre et du Sénat.',
+    midtermsTitle: "Après les élections de mi-mandat",
+    midtermsBody: "Les démocrates ont remporté les deux chambres le 3 novembre. À partir de janvier, Donald Trump poursuivra son second mandat face à un Congrès contrôlé par l’opposition.",
     tradeEyebrow: 'Guerre commerciale',
     tradeTitle: 'Là où le coin-coin touche la frontière.',
     tradeBody:
@@ -138,9 +136,8 @@ const copy = {
     historyBody:
       'Recorre la serie y compara la trayectoria actual con presidentes de segundo mandato usando el mismo lenguaje instrumental.',
     midtermsEyebrow: 'Elecciones intermedias 2026',
-    midtermsTitle: 'Qué significa el quack para noviembre.',
-    midtermsBody:
-      'El índice tiene en cuenta la batalla por el Congreso. Para el detalle escaño por escaño, consulte los pronósticos de la Cámara y el Senado.',
+    midtermsTitle: "Después de las elecciones de medio mandato",
+    midtermsBody: "Los demócratas ganaron ambas cámaras el 3 de noviembre. Desde enero, Donald Trump continuará su segundo mandato con el Congreso en manos de la oposición.",
     tradeEyebrow: 'Guerra comercial',
     tradeTitle: 'Donde el cuac toca la frontera.',
     tradeBody:
@@ -337,7 +334,13 @@ const jsonLd = [
             <p>{t.midtermsBody}</p>
           </div>
         </div>
-        <MidtermsEngagement midterms={data.midterms} locale={locale} client:visible />
+        {data.midterms.resolved ? (
+          <p><a href={data.midterms.result_source_url}>{{
+            fr: 'Résultats du Congrès selon Associated Press',
+            en: 'Associated Press congressional results',
+            es: 'Resultados del Congreso según Associated Press',
+          }[locale]}</a></p>
+        ) : <MidtermsEngagement midterms={data.midterms} locale={locale} client:visible />}
       </div>
     </section>
 

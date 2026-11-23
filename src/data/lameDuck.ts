@@ -75,6 +75,8 @@ export interface LameDuckPresident {
 }
 
 export interface LameDuckMidterms {
+  resolved?: boolean;
+  result_source_url?: string | null;
   house_dem_prob?: number;
   senate_dem_prob?: number;
   house_seats_dem?: number;
