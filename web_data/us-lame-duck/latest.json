@@ -1,22 +1,22 @@
 {
   "meta": {
-    "generated_at": "2026-11-22T03:07:18.096323+00:00",
-    "as_of_date": "2026-11-21",
+    "generated_at": "2026-11-24T20:55:19.478594+00:00",
+    "as_of_date": "2026-11-24",
     "president": "Donald Trump",
     "term_start": "2025-01-20",
     "term_end": "2029-01-20",
     "midterm_date": "2026-11-03",
-    "days_to_midterms": -18,
+    "days_to_midterms": -21,
     "version": "1.0",
     "methodology_url": "https://vote-scope.com/lame-duck#methodology"
   },
   "ldi": {
-    "score": 83.6,
+    "score": 85.8,
     "label_en": "Fully Lame",
     "label_fr": "Canard boiteux",
     "label_es": "Pato cojo total",
     "zone_color": "#c94040",
-    "delta_7d": 0.1,
+    "delta_7d": 2.1,
     "data_quality": "real",
     "n_components": 4
   },
@@ -27,7 +27,7 @@
       "name_fr": "Approbation nette",
       "name_es": "Aprobación neta",
       "weight": 0.4,
-      "score": 84.2,
+      "score": 84.3,
       "raw_value": -23.7,
       "raw_label": "-23.7pp",
       "approve": 36.7,
@@ -35,7 +35,7 @@
       "delta_30d": 0.4,
       "trend": "flat",
       "data_quality": "real",
-      "last_updated": "2026-11-21",
+      "last_updated": "2026-11-24",
       "tooltip_en": "30-day rolling mean of The New York Times daily polling average of presidential approval. Higher = more lame.",
       "tooltip_fr": "Moyenne glissante sur 30 jours de la moyenne quotidienne des sondages d'approbation du New York Times. Élevé = plus boiteux.",
       "tooltip_es": "Media móvil de 30 días del promedio diario de encuestas de aprobación presidencial del New York Times. Más alto = más cojo."
@@ -46,43 +46,44 @@
       "name_fr": "Baromètre vote générique",
       "name_es": "Termómetro de voto genérico",
       "weight": 0.25,
-      "score": 90.9,
-      "raw_value": 8.2,
-      "raw_label": "D+8.2pp",
-      "delta_30d": 1.5,
+      "score": 91.8,
+      "raw_value": 8.4,
+      "raw_label": "D+8.4pp",
+      "delta_30d": 3.2,
       "trend": "up",
       "data_quality": "real",
       "last_updated": "2026-11-02",
       "tooltip_en": "30-day smoothed D-R generic congressional ballot. For a Republican president, higher D advantage = higher lame duck score.",
       "tooltip_fr": "Baromètre vote générique D-R lissé 30 jours. Pour un président républicain, avantage D élevé = score plus élevé.",
       "tooltip_es": "Boleta congresional genérica D-R suavizada a 30 días. Para un presidente republicano, mayor ventaja D = mayor puntaje de pato cojo.",
-      "n_polls": 24
+      "n_polls": 19
     },
     {
       "id": "congressional_ctrl",
-      "name_en": "Congressional Control Risk",
-      "name_fr": "Risque de perte du Congrès",
-      "name_es": "Riesgo de control del Congreso",
+      "name_en": "Congressional control",
+      "name_fr": "Contrôle du Congrès",
+      "name_es": "Control del Congreso",
       "weight": 0.2,
-      "score": 90.3,
+      "score": 100.0,
       "raw_value": {
-        "p_house": 96.3,
-        "p_senate": 81.3
+        "p_house": 100.0,
+        "p_senate": 100.0
       },
-      "raw_label": "House 96% / Senate 81%",
-      "raw_label_fr": "Chambre 96% / Sénat 81%",
-      "raw_label_es": "Cámara 96% / Senado 81%",
+      "raw_label": "Democrats won both chambers",
+      "raw_label_fr": "Les démocrates ont remporté les deux chambres",
+      "raw_label_es": "Los demócratas ganaron ambas cámaras",
       "delta_30d": null,
       "trend": "flat",
       "data_quality": "real",
-      "last_updated": "2026-11-21",
-      "tooltip_en": "VoteScope model: probability of opposition controlling House (60% weight) and Senate (40% weight). Directly from our midterms model.",
-      "tooltip_fr": "Modèle VoteScope: probabilité que l'opposition contrôle la Chambre (60%) et le Sénat (40%). Directement de notre modèle midterms.",
-      "tooltip_es": "Modelo VoteScope: probabilidad de que la oposición controle la Cámara (60%) y el Senado (40%). Tomado directamente de nuestro modelo de intermedias.",
-      "p_house": 96.3,
-      "p_senate": 81.3,
+      "last_updated": "2026-11-04",
+      "tooltip_en": "AP called Democratic control of both chambers of the incoming Congress.",
+      "tooltip_fr": "L’Associated Press a annoncé des majorités démocrates dans les deux chambres du prochain Congrès.",
+      "tooltip_es": "Associated Press anunció mayorías demócratas en ambas cámaras del próximo Congreso.",
+      "p_house": 100.0,
+      "p_senate": 100.0,
       "h_seats_dem": 235,
-      "s_seats_dem": 54
+      "s_seats_dem": 54,
+      "source_url": "https://www.ap.org/the-definitive-source/behind-the-news/calling-control-of-congress-in-the-2026-midterm-elections/"
     },
     {
       "id": "economic_sentiment",
@@ -103,8 +104,10 @@
     }
   ],
   "midterms": {
-    "house_dem_prob": 0.9634,
-    "senate_dem_prob": 0.8127,
+    "resolved": true,
+    "result_source_url": "https://www.ap.org/the-definitive-source/behind-the-news/calling-control-of-congress-in-the-2026-midterm-elections/",
+    "house_dem_prob": 0.964,
+    "senate_dem_prob": 0.812,
     "house_seats_dem": 235,
     "senate_seats_dem": 54,
     "house_seats_rep": 200,
@@ -1312,6 +1315,27 @@
       "ldi": 83.6,
       "net_approval": -23.7,
       "gb_spread": 8.2,
+      "umcsent": 51.5
+    },
+    {
+      "date": "2026-11-22",
+      "ldi": 83.7,
+      "net_approval": -23.7,
+      "gb_spread": 8.3,
+      "umcsent": 51.5
+    },
+    {
+      "date": "2026-11-23",
+      "ldi": 83.8,
+      "net_approval": -23.7,
+      "gb_spread": 8.4,
+      "umcsent": 51.5
+    },
+    {
+      "date": "2026-11-24",
+      "ldi": 85.8,
+      "net_approval": -23.7,
+      "gb_spread": 8.4,
       "umcsent": 51.5
     }
   ],
