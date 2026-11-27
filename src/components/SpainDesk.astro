@@ -297,7 +297,7 @@ const copy = {
     methodBody: 'Un promedio de encuestas, trasladado a cada provincia y repartido con la ley electoral real, miles de veces.',
     methodBullets: [
       'Las encuestas publicadas pasan por un modelo de series temporales bayesiano (BSTS), el mismo que usamos en todas nuestras proyecciones, tras corregir el sesgo medido de cada empresa. Las reestimaciones de terceros sobre los datos del CIS no cuentan.',
-      'El voto nacional se traslada a cada provincia a partir de las generales de 2023. Los partidos nuevos parten de su último resultado: SALF de las europeas de 2024, Aliança Catalana y Adelante Andalucía de sus elecciones autonómicas.',
+      'El voto nacional se traslada a cada provincia a partir de las generales de 2023. Los partidos nuevos parten de su último resultado: SALF de las europeas de 2024 y Adelante Andalucía de las autonómicas. Un partido solo recibe votos donde su candidatura está proclamada en el BOE: la CUP y Aliança Catalana no se presentan, y la lista de Navarra es UPN-PP, contada con el PP.',
       `Cada simulación añade el error real de las encuestas en España (medido de 2015 a 2023), un efecto por comunidad y otro por provincia, y reparte los escaños con D'Hondt y el umbral del 3 %. ${meta.n_draws.toLocaleString('es-ES')} simulaciones.`,
       `Votación el ${longDate(meta.election_day_assumed)}. El reparto de escaños por provincia está calculado con la población del INE hasta que el BOE publique el oficial.`,
     ],
@@ -387,7 +387,7 @@ const copy = {
     methodBody: 'Une moyenne des sondages, transposée dans chaque province et répartie selon la vraie loi électorale, des milliers de fois.',
     methodBullets: [
       'Les sondages publiés passent par un modèle bayésien de séries temporelles (BSTS), le même que dans toutes nos projections, après correction du biais mesuré de chaque institut. Les réestimations du CIS par des tiers ne comptent pas.',
-      'Le vote national est transposé dans chaque province à partir des générales de 2023. Les nouveaux partis partent de leur dernier résultat : SALF des européennes 2024, Aliança Catalana et Adelante Andalucía de leurs élections régionales.',
+      'Le vote national est transposé dans chaque province à partir des générales de 2023. Les nouveaux partis partent de leur dernier résultat : SALF des européennes 2024 et Adelante Andalucía des régionales. Un parti ne reçoit de voix que là où sa liste est proclamée au BOE : la CUP et Aliança Catalana ne se présentent pas, et la liste de Navarre est UPN-PP, comptée avec le PP.',
       `Chaque simulation ajoute l'erreur réelle des sondages en Espagne (mesurée de 2015 à 2023), un effet par communauté et un par province, puis répartit les sièges avec D'Hondt et le seuil de 3 %. ${meta.n_draws.toLocaleString('fr-FR')} simulations.`,
       `Vote le ${longDate(meta.election_day_assumed)}. La répartition des sièges par province est calculée sur la population de l'INE jusqu'à la publication officielle au BOE.`,
     ],
@@ -477,7 +477,7 @@ const copy = {
     methodBody: 'A polling average, carried into every province and allocated under the real electoral law, thousands of times.',
     methodBullets: [
       'Published polls go through a Bayesian time-series model (BSTS), the same one behind all our forecasts, after correcting each pollster for its measured lean. Third-party re-estimates of CIS data are left out.',
-      'The national vote is carried into each province from the 2023 general election. New parties start from their latest result: SALF from the 2024 European election, Aliança Catalana and Adelante Andalucía from their regional elections.',
+      'The national vote is carried into each province from the 2023 general election. New parties start from their latest result: SALF from the 2024 European election and Adelante Andalucía from the regional election. A party only gets votes where its list is proclaimed in the BOE: the CUP and Aliança Catalana are not running, and the Navarre list is UPN-PP, counted with the PP.',
       `Each simulation adds the real error of Spanish polls (measured 2015–2023), a regional effect and a provincial effect, then allocates seats under D'Hondt with the 3% threshold. ${meta.n_draws.toLocaleString('en-GB')} simulations.`,
       `Polling day: ${longDate(meta.election_day_assumed)}. Seats per province are computed from INE population until the official BOE allocation is published.`,
     ],

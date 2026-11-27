@@ -71,6 +71,24 @@ const titleCase = (s: string) =>
   String(s ?? '').replace(/(^|[\s\-—])(\p{Ll})/gu, (_, a, b) => a + b.toUpperCase());
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
+// Bulletin complet (liste confirmée d'Élections Canada) : les candidatures
+// que le modèle ne projette pas, nommées sans chiffre.
+const ballot = data.ballot ?? null;
+const ballotOthers = (ballot?.other_candidates ?? []) as any[];
+const ballotText = {
+  en: { also: 'Also on the ballot:', source: 'Confirmed candidate list — Elections Canada' },
+  fr: { also: 'Aussi sur le bulletin :', source: 'Liste des candidats confirmés — Élections Canada' },
+  es: { also: 'También en la papeleta:', source: 'Lista de candidatos confirmados — Elections Canada' },
+}[lang];
+const BALLOT_PARTY: Record<string, { en: string; es: string }> = {
+  'indépendant': { en: 'Independent', es: 'independiente' },
+  'aucune appartenance': { en: 'no affiliation', es: 'sin afiliación' },
+  'Rhinocéros': { en: 'Rhinoceros', es: 'Rinoceronte' },
+  'Parti Centriste': { en: 'Centrist Party', es: 'Partido Centrista' },
+  'Héritage chrétien': { en: 'Christian Heritage', es: 'Herencia Cristiana' },
+};
+const ballotParty = (p: string) => (lang === 'fr' ? p : BALLOT_PARTY[p]?.[lang] ?? p);
+
 const shown = candidates
   .filter((c) => c.projected_vote_mean >= 1 || c.first_place_probability >= 0.01)
   .sort((a, b) => b.projected_vote_mean - a.projected_vote_mean);
@@ -346,6 +364,14 @@ const nSims = Number(data.meta?.n_simulations ?? 0).toLocaleString(loc);
           </tbody>
         </table>
       </div>
+      {ballotOthers.length > 0 && (
+        <p class="vs-meta">
+          {ballotText.also} {ballotOthers.map((c: any) => `${c.name}${c.party ? ` (${ballotParty(c.party)})` : ''}`).join(', ')}.
+        </p>
+      )}
+      {ballot?.source_url && (
+        <p class="vs-meta"><a href={ballot.source_url} rel="noopener">{ballotText.source}</a></p>
+      )}
       <p class="vs-meta">{t.forecastMeta(longDate(data.meta?.run_date, lang), nSims)}</p>
       <RidingShareButton client:idle lang={lang} payload={sharePayload} />
       <p class="cabye-text">{config.modelNote[lang]}</p>

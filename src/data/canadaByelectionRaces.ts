@@ -181,16 +181,19 @@ export const canadaByelectionRaces = {
         'Savard-Tremblay resigned on June 19, 2026 to run for the Parti Québécois in Saint-Hyacinthe at the Quebec election of October 5, 2026.',
         'Bloc share compared with its Quebec-wide vote: +4.8 points in 2015, before his election, then +8.4 in 2019, +13.9 in 2021 and +15.3 in 2025.',
         'Since the edge existed before him, we remove only a small personal vote: 4 points.',
+        'Savard-Tremblay won Saint-Hyacinthe for the Parti Québécois on October 5. The Liberal candidate, Chantal Soucy, held that provincial seat for the CAQ from 2014 to 2026 and did not run again. The provincial riding covers about 70% of this federal one, so we add a modest 2 points for her name recognition.',
       ],
       fr: [
         'Savard-Tremblay a démissionné le 19 juin 2026 pour se présenter pour le Parti québécois dans Saint-Hyacinthe à l’élection québécoise du 5 octobre 2026.',
         'Part du Bloc par rapport à son vote québécois : +4,8 points en 2015, avant son élection, puis +8,4 en 2019, +13,9 en 2021 et +15,3 en 2025.',
         'L’avance existant avant lui, nous ne retirons qu’un faible vote personnel : 4 points.',
+        'Savard-Tremblay a remporté Saint-Hyacinthe pour le Parti québécois le 5 octobre. La candidate libérale, Chantal Soucy, a été députée caquiste de cette circonscription provinciale de 2014 à 2026 et ne s\'y est pas représentée. La circonscription provinciale couvre environ 70 % de la fédérale : nous ajoutons une prime modeste de 2 points pour sa notoriété.',
       ],
       es: [
         'Savard-Tremblay renunció el 19 de junio de 2026 para presentarse por el Parti Québécois en Saint-Hyacinthe en las elecciones quebequesas del 5 de octubre de 2026.',
         'Cuota del Bloque frente a su voto en Quebec: +4,8 puntos en 2015, antes de su elección, y luego +8,4 en 2019, +13,9 en 2021 y +15,3 en 2025.',
         'Como la ventaja existía antes que él, solo retiramos un voto personal pequeño: 4 puntos.',
+        'Savard-Tremblay ganó Saint-Hyacinthe por el Parti Québécois el 5 de octubre. La candidata liberal, Chantal Soucy, fue diputada de la CAQ por esa circunscripción provincial de 2014 a 2026 y no se volvió a presentar. La circunscripción provincial cubre cerca del 70 % de la federal: añadimos una prima modesta de 2 puntos por su notoriedad.',
       ],
     },
     modelNote: {
@@ -376,16 +379,19 @@ export const canadaByelectionRaces = {
         'Larry Brock announced his resignation on August 6, 2026; the seat has been vacant since September 18. He returned to the Crown attorney’s office in Brantford.',
         'He is the seventh MP to leave the Conservative caucus since the 2025 election. Four of them joined the Liberals.',
         'Conservative share compared with the party’s Ontario-wide vote: +5.8 points in 2015 and +7.2 in 2019, both before Brock was elected. Little of the edge is personal.',
+        'The Conservative candidate, Brantford mayor Kevin Davis, was chosen by the leader’s office without an open nomination. Dave Carrol, a pastor and longtime Conservative who sought that nomination, is running as an independent. With no riding poll, the forecast gives him about 8 points, most of them taken from the Conservatives. That figure is an estimate, not a measurement.',
       ],
       fr: [
         'Larry Brock a annoncé sa démission le 6 août 2026 ; le siège est vacant depuis le 18 septembre. Il est retourné au bureau du procureur de la Couronne à Brantford.',
         'Il est le septième député à quitter le caucus conservateur depuis l’élection de 2025. Quatre d’entre eux sont passés chez les libéraux.',
         'Part conservatrice par rapport au vote conservateur ontarien : +5,8 points en 2015 et +7,2 en 2019, avant son élection dans les deux cas. Peu de cette avance est personnelle.',
+        'Le candidat conservateur, le maire de Brantford Kevin Davis, a été désigné par le bureau du chef sans investiture ouverte. Dave Carrol, pasteur et conservateur de longue date qui briguait cette investiture, se présente comme indépendant. Faute de sondage local, la projection lui accorde environ 8 points, pris surtout aux conservateurs. Ce chiffre est une estimation, pas une mesure.',
       ],
       es: [
         'Larry Brock anunció su renuncia el 6 de agosto de 2026; el escaño está vacante desde el 18 de septiembre. Volvió a la fiscalía de la Corona en Brantford.',
         'Es el séptimo diputado que deja el caucus conservador desde las elecciones de 2025. Cuatro de ellos se pasaron a los liberales.',
         'Cuota conservadora frente al voto conservador en Ontario: +5,8 puntos en 2015 y +7,2 en 2019, en ambos casos antes de su elección. Poca de esa ventaja es personal.',
+        'El candidato conservador, el alcalde de Brantford Kevin Davis, fue designado por la oficina del líder sin una nominación abierta. Dave Carrol, pastor y conservador de larga data que aspiraba a esa nominación, se presenta como independiente. Sin encuesta local, la proyección le atribuye unos 8 puntos, tomados sobre todo a los conservadores. Esa cifra es una estimación, no una medición.',
       ],
     },
     modelNote: {
