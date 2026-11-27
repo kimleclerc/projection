@@ -1,5 +1,7 @@
 import { useMemo } from 'preact/hooks';
 import { useUrlParam } from './lib/urlState';
+import CopyLink from './lib/CopyLink';
+import ShareModule from './lib/ShareModule';
 
 /* Sélecteur de scénarios — Clacton 2.0.
  *
@@ -116,7 +118,7 @@ export default function ClactonScenarioPicker({ grid, locale, buckets, colors }:
   const label = (r: any) => r.labels?.[locale] ?? r.labels?.en ?? r.key;
 
   return (
-    <div class="csp">
+    <div class="csp" id="clacton-scenarios">
       <p class="csp-intro">{t.intro}</p>
 
       <div class="csp-controls">
@@ -192,6 +194,22 @@ export default function ClactonScenarioPicker({ grid, locale, buckets, colors }:
       </div>
 
       <p class="csp-caveat">{t.caveat}</p>
+      <ShareModule lang={locale} kind="scenario" election="clacton" scenario={{
+        title: { fr: 'Partielle de Clacton', en: 'Clacton by-election', es: 'Parcial de Clacton' }[locale],
+        label: `${t.hold} · ${prob(cell.p_reform_hold)}%`,
+        note: t.caveat,
+        highlights: [
+          `${t.farage} · ${farage === 'yes' ? t.farageYes : t.farageNo}`,
+          field === 'partial' ? t.fieldPartial : field === 'boycott_repeat' ? t.fieldBoycott : t.fieldAll,
+          `${t.binface} · ${binface === 'yes' ? t.binfaceYes : t.binfaceNo}`,
+          trigger === 'resignation' ? t.triggerResign : t.triggerForced,
+        ],
+        groups: [{ rows: rows.list.map((r) => ({
+          label: label(r), color: colors[r.key] ?? '#9a938a', value: `${nf(r.share.q50)}%`,
+          detail: `${nf(r.share.q10, 0)}–${nf(r.share.q90, 0)}%`,
+        })) }],
+      }} />
+      <CopyLink locale={locale} anchor="clacton-scenarios" />
     </div>
   );
 }

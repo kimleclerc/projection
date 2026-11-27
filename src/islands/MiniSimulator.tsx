@@ -207,7 +207,7 @@ export default function MiniSimulator({ doc, locale, map }: Props) {
       },
     };
   }), [doc.ridings, ridingStates]);
-  const shareKey = (() => { const k = electionOfCycle(doc.meta.election_cycle); return k && SHARE_ELECTIONS[k]?.simulator ? k : null; })();
+  const shareKey = geoKey && SHARE_ELECTIONS[geoKey] ? geoKey : null;
   const touched =
     Object.values(nat).some((v) => Math.abs(v) > 0.05) ||
     Object.values(reg).some((p) => Object.values(p).some((v) => Math.abs(v) > 0.05));
@@ -419,11 +419,11 @@ export default function MiniSimulator({ doc, locale, map }: Props) {
         <button type="button" class="msim-reset" onClick={reset} disabled={!touched}>
           {t.reset}
         </button>
-        {touched && !shareKey && <CopyLink locale={locale} />}
+        <CopyLink locale={locale} />
       </div>
       {/* « Fais ta carte » : le scénario a son image et son lien, qui rouvre le simulateur. */}
-      {touched && shareKey && (
-        <ShareModule lang={locale} kind="scenario" election={shareKey} runDate={doc.meta.run_date} sim={encodeState(nat, reg)} />
+      {shareKey && (
+        <ShareModule lang={locale} kind="scenario" election={shareKey} runDate={doc.meta.run_date} sim={encodeState(nat, reg)} simDoc={doc} />
       )}
 
       <SavedScenarios

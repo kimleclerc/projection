@@ -6,7 +6,9 @@
  * transforme le texte en tracés, le navigateur peint le SVG sur un canevas, qui
  * donne le PNG. Chargé seulement au clic : rien ne pèse sur la page avant.
  */
-import type { Lang } from './elections';
+import type { Lang, ShareFormat } from './elections';
+import type { SimDoc } from '../mini-sim';
+import type { GeoDoc, ScenarioDataCardInput } from './cards';
 
 const FONTS = [
   ['barlow-latin-500-normal.woff', 'Barlow', 500],
@@ -15,21 +17,30 @@ const FONTS = [
   ['barlow-condensed-latin-700-normal.woff', 'Barlow Condensed', 700],
 ] as const;
 let yogaPret: Promise<unknown> | null = null;
+let fontsPret: Promise<ArrayBuffer[]> | null = null;
+
+async function loadBinary(url: string): Promise<ArrayBuffer> {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(String(response.status));
+  return response.arrayBuffer();
+}
 
 /** Prépare satori une seule fois (moteur de mise en page + polices). */
 async function engine() {
   const [{ default: satori, init }, { default: yogaUrl }] = await Promise.all([
     import('satori/standalone'), import('satori/yoga.wasm?url'),
   ]);
-  if (!yogaPret) yogaPret = init(await (await fetch(yogaUrl)).arrayBuffer());
-  await yogaPret;
-  if (!fontsPret) {
-    fontsPret = Promise.all(FONTS.map(([file]) => fetch(`/og-fonts/${file}`).then((r) => r.arrayBuffer())));
-  }
-  const fonts = await fontsPret;
+  yogaPret ??= loadBinary(yogaUrl).then((wasm) => init(wasm)).catch((cause) => {
+    yogaPret = null;
+    throw cause;
+  });
+  fontsPret ??= Promise.all(FONTS.map(([file]) => loadBinary(`/og-fonts/${file}`))).catch((cause) => {
+    fontsPret = null;
+    throw cause;
+  });
+  const [, fonts] = await Promise.all([yogaPret, fontsPret]);
   return { satori, fonts: FONTS.map(([, name, weight], i) => ({ name, data: fonts[i], weight, style: 'normal' as const })) };
 }
-let fontsPret: Promise<ArrayBuffer[]> | null = null;
 
 /** Arbre satori → SVG → canevas → PNG. */
 async function toPng(tree: unknown, w: number, h: number): Promise<Blob> {
@@ -48,12 +59,25 @@ async function toPng(tree: unknown, w: number, h: number): Promise<Blob> {
   return new Promise((ok, ko) => canvas.toBlob((b) => (b ? ok(b) : ko(new Error('canvas'))), 'image/png'));
 }
 
-export async function renderScenarioPng(fmt: 'wide' | 'square' | 'story', key: string, lang: Lang, sim: string): Promise<Blob> {
-  const { scenarioCard, SIZE } = await import('./cards');
-  const get = (f: string) => fetch(`/web_data/${key}/${f}`).then((r) => r.json());
-  const [doc, geo] = await Promise.all([get('simulator.json'), get('geomap.json')]);
+export async function renderScenarioPng(fmt: ShareFormat, key: string, lang: Lang, sim: string, currentDoc?: SimDoc): Promise<Blob> {
+  const get = async <T>(file: string): Promise<T> => {
+    const response = await fetch(`/web_data/${key}/${file}`);
+    if (!response.ok) throw new Error(String(response.status));
+    return response.json();
+  };
+  const [{ scenarioCard, SIZE }, doc, geo] = await Promise.all([
+    import('./cards'),
+    currentDoc ?? get<SimDoc>('simulator.json'),
+    get<GeoDoc>('geomap.json').catch(() => undefined),
+  ]);
   const { w, h } = SIZE[fmt];
   return toPng(scenarioCard(fmt, { key, lang, doc, geo, sim }), w, h);
+}
+
+export async function renderScenarioDataPng(fmt: ShareFormat, lang: Lang, input: ScenarioDataCardInput): Promise<Blob> {
+  const { scenarioDataCard, SIZE } = await import('./cards');
+  const { w, h } = SIZE[fmt];
+  return toPng(scenarioDataCard(fmt, lang, input), w, h);
 }
 
 /** Image d'une fiche de circonscription ou de district, à partir des chiffres de la page. */

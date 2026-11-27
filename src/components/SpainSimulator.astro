@@ -16,7 +16,7 @@ const { locale } = Astro.props;
 const d = doc as any;
 const NATIONAL = ['pp', 'psoe', 'vox', 'sumar', 'podemos', 'salf'];
 const parties = (d.parties as { code: string; label: string; color: string; default: number; seats_projected: number }[])
-  .map((p) => ({ ...p, default: Math.round(p.default * 10) / 10 }));
+  .map((p) => ({ ...p, label: p.code === 'sumar' ? 'Frente Amplio' : p.label, default: Math.round(p.default * 10) / 10 }));
 const nationalParties = parties.filter((p) => NATIONAL.includes(p.code));
 const regionalParties = parties.filter((p) => !NATIONAL.includes(p.code));
 
@@ -52,13 +52,17 @@ const copy = {
     seats: 'escaños',
     vsProjection: 'vs. proyección',
     majority: 'Mayoría absoluta: 176',
-    ppVox: 'PP + Vox',
+    ppVox: 'PP + Vox + UPN',
     inv: 'Bloque de la investidura de 2023',
     yes: 'mayoría',
     no: 'sin mayoría',
     provinces: 'Provincia por provincia',
     share: 'Copiar el enlace de este escenario',
     copied: 'Enlace copiado',
+    imageTitle: 'España · Congreso de los Diputados',
+    imageLabel: 'Escenario personal · D’Hondt',
+    imageNote: 'Simulación de escaños a partir del voto indicado',
+    imageWhen: '29 de noviembre de 2026',
     note: 'Cada partido se traslada a las provincias desde su reparto de 2023 (o de su última elección si es nuevo), sin el ruido provincial de la proyección: el resultado es el reparto más probable de tu escenario.',
     back: 'Ver la proyección Vote-Scope',
   },
@@ -81,13 +85,17 @@ const copy = {
     seats: 'sièges',
     vsProjection: 'vs projection',
     majority: 'Majorité absolue : 176',
-    ppVox: 'PP + Vox',
+    ppVox: 'PP + Vox + UPN',
     inv: 'Bloc de l’investiture de 2023',
     yes: 'majorité',
     no: 'pas de majorité',
     provinces: 'Province par province',
     share: 'Copier le lien de ce scénario',
     copied: 'Lien copié',
+    imageTitle: 'Espagne · Congrès des députés',
+    imageLabel: 'Scénario personnel · D’Hondt',
+    imageNote: 'Simulation des sièges à partir du vote saisi',
+    imageWhen: '29 novembre 2026',
     note: 'Chaque parti est transposé dans les provinces à partir de sa répartition de 2023 (ou de sa dernière élection s’il est nouveau), sans le bruit provincial de la projection : le résultat est la répartition la plus probable de votre scénario.',
     back: 'Voir la projection Vote-Scope',
   },
@@ -110,13 +118,17 @@ const copy = {
     seats: 'seats',
     vsProjection: 'vs projection',
     majority: 'Majority: 176',
-    ppVox: 'PP + Vox',
+    ppVox: 'PP + Vox + UPN',
     inv: 'The bloc that re-elected Sánchez in 2023',
     yes: 'majority',
     no: 'no majority',
     provinces: 'Province by province',
     share: 'Copy a link to this scenario',
     copied: 'Link copied',
+    imageTitle: 'Spain · Congress of Deputies',
+    imageLabel: 'Personal scenario · D’Hondt',
+    imageNote: 'Seat simulation based on the selected vote shares',
+    imageWhen: 'November 29, 2026',
     note: 'Each party is carried into the provinces from its 2023 pattern (or its latest election if new), without the projection’s provincial noise: the result is the most likely split for your scenario.',
     back: 'See the Vote-Scope projection',
   },
@@ -133,7 +145,11 @@ const rows = [
   ...nationalParties.map((p) => slider(p, 50)),
   ...regionalParties.map((p) => slider(p, 6)),
 ];
-const clientCopy = { seats: copy.seats, yes: copy.yes, no: copy.no, copied: copy.copied, over: copy.over, locale };
+const clientCopy = {
+  seats: copy.seats, yes: copy.yes, no: copy.no, copied: copy.copied, locale,
+  title: copy.imageTitle, label: copy.imageLabel, note: copy.imageNote, when: copy.imageWhen,
+  ppVox: copy.ppVox, investiture: copy.inv,
+};
 ---
 
 <EditorialLayout
@@ -202,6 +218,7 @@ const clientCopy = { seats: copy.seats, yes: copy.yes, no: copy.no, copied: copy
             <tbody data-table></tbody>
           </table>
           <button type="button" class="sim-share" data-share>{copy.share}</button>
+          <div data-share-image></div>
           <p class="sim-note">{copy.note}</p>
           <p><a class="cta-link" href={paths.projection}>{copy.back}</a></p>
         </div>
@@ -220,10 +237,14 @@ const clientCopy = { seats: copy.seats, yes: copy.yes, no: copy.no, copied: copy
 <script type="application/json" id="sim-es-doc" set:html={JSON.stringify({ doc: { ...d, parties }, copy: clientCopy, preset2023: PRESET_2023 })} />
 
 <script>
+  import { h, render as mount } from 'preact';
+  import ShareModule from '../islands/lib/ShareModule';
+  import { type Lang } from '../lib/share/elections';
+
   type P = { code: string; label: string; color: string; default: number; seats_projected: number };
   type Prov = { code: string; name: string; seats: number; weight: number; base: number[] };
   const raw = JSON.parse(document.getElementById('sim-es-doc')!.textContent!);
-  const doc = raw.doc as { meta: { threshold: number; majority: number }; parties: P[]; provinces: Prov[] };
+  const doc = raw.doc as { meta: { threshold: number; majority: number; total_seats: number }; parties: P[]; provinces: Prov[] };
   const copy = raw.copy as Record<string, string>;
   const parties = doc.parties;
   const K = parties.length;
@@ -273,9 +294,13 @@ const clientCopy = { seats: copy.seats, yes: copy.yes, no: copy.no, copied: copy
   const get = () => parties.map((p) => Number(ranges.find((r) => r.dataset.party === p.code)?.value ?? 0));
   const set = (vals: Record<string, number>) => {
     for (const r of ranges) { const v = vals[r.dataset.party!]; if (v != null) r.value = String(v); }
-    for (const n of nums) { const v = vals[n.dataset.partyNum!]; if (v != null) n.value = String(v); }
+    for (const n of nums) {
+      const range = ranges.find((r) => r.dataset.party === n.dataset.partyNum);
+      if (range) n.value = range.value;
+    }
   };
 
+  const shareImage = document.querySelector<HTMLElement>('[data-share-image]')!;
   const bar = document.querySelector<HTMLElement>('[data-bar]')!;
   const tbody = document.querySelector<HTMLElement>('[data-table]')!;
   const provBox = document.querySelector<HTMLElement>('[data-provinces]')!;
@@ -308,7 +333,7 @@ const clientCopy = { seats: copy.seats, yes: copy.yes, no: copy.no, copied: copy
       const k = idx[code];
       if (k === undefined || !tot[k]) continue;
       const seg = document.createElement('div');
-      seg.style.width = `${(tot[k] / 350) * 100}%`;
+      seg.style.width = `${(tot[k] / doc.meta.total_seats) * 100}%`;
       seg.style.background = parties[k].color;
       seg.title = `${parties[k].label}: ${tot[k]}`;
       bar.appendChild(seg);
@@ -343,8 +368,28 @@ const clientCopy = { seats: copy.seats, yes: copy.yes, no: copy.no, copied: copy
         card.innerHTML = `<h3>${p.name} <em>${p.seats}</em></h3><p>${chips}</p>`;
         provBox.appendChild(card);
       });
+    const vote = (n: number) => `${fmt(n)}${copy.locale === 'en' ? '%' : ' %'}`;
+    mount(h(ShareModule, {
+      lang: copy.locale as Lang,
+      kind: 'scenario',
+      election: 'spain-dhondt',
+      scenario: {
+        title: copy.title, label: copy.label, note: copy.note, when: copy.when,
+        highlights: [`${copy.ppVox} · ${blocs[0][1]} ${copy.seats}`, `${copy.investiture} · ${blocs[1][1]} ${copy.seats}`],
+        chamber: {
+          total: doc.meta.total_seats, majority: doc.meta.majority,
+          seats: BAR_ORDER.filter((code) => Object.hasOwn(idx, code)).map((code) => ({ color: parties[idx[code]].color, count: tot[idx[code]] })),
+        },
+        groups: [{
+          heading: copy.seats[0].toUpperCase() + copy.seats.slice(1),
+          rows: parties.map((p, k) => ({ label: p.label, color: p.color, value: String(tot[k]), detail: vote(pct[k] * scale), count: tot[k], votes: pct[k] }))
+            .filter((r, k) => r.count > 0 || r.votes > 0 || parties[k].seats_projected > 0)
+            .sort((a, b) => b.count - a.count || b.votes - a.votes),
+        }],
+      },
+    }), shareImage);
     const hash = parties.map((p, k) => (pct[k] ? `${p.code}=${pct[k]}` : '')).filter(Boolean).join('&');
-    history.replaceState(null, '', `#${hash}`);
+    history.replaceState(null, '', `#${hash || `${parties[0].code}=0`}`);
   }
 
   // Le total ne dépasse jamais 100 % : l'excédent est retiré aux autres
@@ -386,9 +431,11 @@ const clientCopy = { seats: copy.seats, yes: copy.yes, no: copy.no, copied: copy
   document.querySelector<HTMLButtonElement>('[data-share]')!.addEventListener('click', async (e) => {
     try { await navigator.clipboard.writeText(location.href); (e.target as HTMLElement).textContent = copy.copied; } catch { /* presse-papiers indisponible */ }
   });
-  if (location.hash.length > 1) {
-    const vals: Record<string, number> = Object.fromEntries(parties.map((p) => [p.code, 0]));
-    for (const part of location.hash.slice(1).split('&')) { const [k, v] = part.split('='); if (k in vals && !Number.isNaN(Number(v))) vals[k] = Number(v); }
+  const incoming = [...new URLSearchParams(location.hash.slice(1))]
+    .filter(([code, value]) => Object.hasOwn(idx, code) && value !== '' && Number.isFinite(Number(value)));
+  if (incoming.length) {
+    const vals = Object.fromEntries(parties.map((p) => [p.code, 0]));
+    for (const [code, value] of incoming) vals[code] = Number(value);
     set(vals);
   }
   render();

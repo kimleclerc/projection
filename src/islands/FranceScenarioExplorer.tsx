@@ -1,6 +1,7 @@
 import { useMemo } from 'preact/hooks';
 import {
   blocVar,
+  blocHex,
   blocLabel,
   fmtPct1,
   scenarioProvenance,
@@ -9,6 +10,7 @@ import {
 } from '../lib/fr-pres';
 import { useUrlParam } from './lib/urlState';
 import CopyLink from './lib/CopyLink';
+import ShareModule from './lib/ShareModule';
 import EmbedCode from './lib/EmbedCode';
 
 interface Props {
@@ -192,6 +194,23 @@ export default function FranceScenarioExplorer({ scenarios, locale, embedPath }:
         )}
       </section>
 
+      <ShareModule lang={locale} kind="scenario" election="france-presidential" scenario={{
+        title: { fr: 'Présidentielle française', en: 'French presidential election', es: 'Presidencial francesa' }[locale],
+        label: current.label,
+        note: prov.text,
+        groups: [
+          { heading: t.firstRound, rows: current.qualification.map((q) => ({
+            label: q.name, color: blocHex(q.bloc), value: fmtPct1(q.mean, locale),
+          })) },
+          ...(current.duel ? [{
+            heading: t.secondRound,
+            rows: [
+              { label: current.duel.leftName, color: blocHex(blocOf(current, current.duel.leftId)), value: fmtPct1(current.duel.leftShare, locale) },
+              { label: current.duel.rightName, color: blocHex(blocOf(current, current.duel.rightId)), value: fmtPct1(current.duel.rightShare, locale) },
+            ],
+          }] : []),
+        ],
+      }} />
       <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:12px">
         <CopyLink locale={locale} anchor="fr-explorer" />
         {embedPath && <EmbedCode locale={locale} embedPath={embedPath} height={620} />}

@@ -11,7 +11,7 @@
 import { PARTY_ES } from '../party-names';
 import { SHARE_ELECTIONS, type Lang } from './elections';
 import { faceOff } from './fr-face';
-import { simulateRidings, decodeState, partyLabel as simPartyLabel, regionLabel, type SimDoc } from '../mini-sim';
+import { simulate, simulateRidings, decodeState, partyLabel as simPartyLabel, regionLabel, type SimDoc } from '../mini-sim';
 
 export type Format = 'wide' | 'square' | 'story';
 export type Node = { type: string; props: Record<string, unknown> };
@@ -694,13 +694,91 @@ function scenarioLine(doc: SimDoc, sim: string, lang: Lang): string {
   return out.join(' ; ');
 }
 
-export function scenarioCard(fmt: Format, { key, lang, doc, geo, sim }: { key: string; lang: Lang; doc: SimDoc; geo: GeoDoc; sim: string }): Node {
+export interface ScenarioDataRow {
+  label: string;
+  color: string;
+  value: string;
+  detail?: string;
+}
+
+interface ScenarioChamber {
+  total: number;
+  majority: number;
+  seats: { color: string; count: number }[];
+}
+
+export interface ScenarioDataCardInput {
+  title: string;
+  label: string;
+  when?: string;
+  note: string;
+  groups: { heading?: string; rows: ScenarioDataRow[] }[];
+  highlights?: string[];
+  chamber?: ScenarioChamber;
+}
+
+function scenarioSeatBar(lang: Lang, width: number, chamber: ScenarioChamber): Node {
+  const marker = (chamber.majority / chamber.total) * width;
+  return h('div', { flexDirection: 'column', width, marginBottom: 14 },
+    h('div', { position: 'relative', width, height: 23, backgroundColor: PAPER_2 },
+      ...chamber.seats.filter((p) => p.count > 0).map((p) => h('div', {
+        width: width * p.count / chamber.total, height: 23, backgroundColor: p.color,
+      })),
+      h('div', { position: 'absolute', left: marker - 1, top: -4, width: 2, height: 31, backgroundColor: INK })),
+    h('div', { justifyContent: 'flex-end', marginTop: 7, fontSize: 16, fontWeight: 600, color: INK_3 },
+      T[lang].majority(chamber.majority)));
+}
+
+export function scenarioDataCard(fmt: Format, lang: Lang, data: ScenarioDataCardInput): Node {
+  const wide = fmt === 'wide';
+  const story = fmt === 'story';
+  const inner = SIZE[fmt].w - (wide ? 68 : 88);
+  const groups = data.groups.flatMap((group) => {
+    if (data.groups.length !== 1 || group.rows.length <= 8 || story) return [group];
+    const split = Math.ceil(group.rows.length / 2);
+    return [{ ...group, rows: group.rows.slice(0, split) }, { ...group, rows: group.rows.slice(split) }];
+  });
+  const stacked = story || groups.length === 1;
+  const col = stacked ? inner : (inner - 24) / 2;
+  const rowHeight = wide ? Math.min(36, Math.floor(340 / Math.max(1, ...groups.map((g) => g.rows.length)))) : story ? 67 : 57;
+  const table = (group: ScenarioDataCardInput['groups'][number]) => h('div', { flexDirection: 'column', width: col, marginBottom: story ? 32 : 0 },
+    ...(group.heading ? [h('div', { fontSize: wide ? 18 : 25, color: INK_3, fontWeight: 700, marginBottom: 6 }, group.heading)] : []),
+    ...group.rows.map((row) => h('div', { height: rowHeight, alignItems: 'center', borderBottom: `1px solid ${RULE}` },
+      h('div', { width: 7, height: wide ? 20 : 30, flexShrink: 0, backgroundColor: row.color, marginRight: 11 }),
+      h('div', { flexGrow: 1, fontSize: wide ? 20 : 30, fontWeight: 700, lineHeight: 1.04 }, row.label),
+      ...(row.detail ? [h('div', { flexShrink: 0, marginLeft: 10, color: INK_3, fontSize: wide ? 17 : 24 }, row.detail)] : []),
+      h('div', { flexShrink: 0, marginLeft: 13, fontSize: wide ? 28 : 40, fontWeight: 700, fontFamily: 'Barlow Condensed' }, row.value))));
+  const body = h('div', { flexGrow: 1, flexDirection: 'column', justifyContent: wide ? 'flex-start' : 'center' },
+    h('div', { fontSize: wide ? 21 : 33, fontWeight: 700, marginBottom: 14 }, data.label),
+    ...(data.chamber ? [scenarioSeatBar(lang, inner, data.chamber)] : []),
+    ...((data.highlights?.length ?? 0) > 0 ? [h('div', { flexDirection: story ? 'column' : 'row', flexWrap: 'wrap', gap: wide ? 8 : 12, marginBottom: 12 },
+      ...data.highlights!.map((text) => h('div', { backgroundColor: PAPER_2, padding: wide ? '5px 9px' : '8px 12px', fontSize: wide ? 16 : 23, fontWeight: 600 }, text)))] : []),
+    h('div', { flexDirection: stacked ? 'column' : 'row', justifyContent: 'space-between' }, ...groups.map(table)));
+  return frame(fmt, lang, data.title, data.when ?? '', body, data.note);
+}
+
+export function scenarioCard(fmt: Format, { key, lang, doc, geo, sim }: { key: string; lang: Lang; doc: SimDoc; geo?: GeoDoc; sim: string }): Node {
   const el = SHARE_ELECTIONS[key];
   const s = SCEN[lang];
   const { w, h: H } = SIZE[fmt];
   const pad = fmt === 'wide' ? 34 : 44;
   const inner = w - pad * 2;
   const [nat, reg] = decodeState(sim, doc);
+  const seats = simulate(doc, nat, reg);
+  const leading = doc.parties.filter((p) => seats[p.code] > 0).sort((a, b) => seats[b.code] - seats[a.code]);
+  const chamber = {
+    total: doc.meta.total_seats,
+    majority: doc.meta.majority_threshold,
+    seats: leading.map((p) => ({ color: p.color, count: seats[p.code] })),
+  };
+  const label = { fr: 'Sièges estimés', en: 'Estimated seats', es: 'Escaños estimados' }[lang];
+  const number = (n: number) => nf(n, lang).replace(/[  ]/g, ' ');
+  const line = scenarioLine(doc, sim, lang);
+  if (!geo) return scenarioDataCard(fmt, lang, {
+    title: el.name[lang], label: s.title, when: el.when[lang], note: s.base, chamber,
+    highlights: line ? [line] : [],
+    groups: [{ heading: label, rows: leading.map((p) => ({ label: simPartyLabel(p, lang), color: p.color, value: number(seats[p.code]) })) }],
+  });
   const states = simulateRidings(doc, nat, reg, lang);
   const color: Record<string, string> = Object.fromEntries(doc.parties.map((p) => [p.code, p.color]));
   const byId = new Map(states.map((r) => [String(r.id).padStart(5, '0'), r]));
@@ -708,12 +786,15 @@ export function scenarioCard(fmt: Format, { key, lang, doc, geo, sim }: { key: s
   const tier = (m: number) => (m >= 8 ? 1 : m >= 3 ? 0.7 : 0.5);
   const fill = (id: string) => { const r = byId.get(id); return r ? fillFor(color[r.winner], tier(r.margin)) : VIDE; };
   const changed = (id: string) => !!byId.get(id)?.changed;
-  const parties = doc.parties.map((p) => ({ party: p.code, label_fr: p.label_fr, label_en: p.label_en, color: p.color }));
-  const ridings = states.map((r) => ({ winner: r.winner, p: tier(r.margin) }));
-  const top = seatBar(lang, inner, ridings, parties, doc.meta.majority_threshold, s.flip, fmt !== 'wide', [s.clear, s.thin, s.toss]);
-  const line = scenarioLine(doc, sim, lang);
+  const top = h('div', { flexDirection: 'column' },
+    h('div', { fontSize: 16, fontWeight: 700, color: INK_3 }, label),
+    h('div', { justifyContent: 'space-between', marginBottom: 9 }, ...leading.slice(0, 4).map((p) =>
+      h('div', { alignItems: 'baseline', gap: 8, color: p.color },
+        h('div', { fontFamily: 'Barlow Condensed', fontWeight: 700, fontSize: fmt === 'wide' ? 38 : 46 }, number(seats[p.code])),
+        h('div', { fontWeight: 700, fontSize: fmt === 'wide' ? 19 : 23 }, simPartyLabel(p, lang))))),
+    scenarioSeatBar(lang, inner, chamber));
   const [, , GW, GH] = geo.viewBox;
-  const boxH = H - pad * 2 - 60 - (fmt !== 'wide' ? 150 : 128) - 100;
+  const boxH = H - pad * 2 - 60 - (fmt !== 'wide' ? 172 : 144) - 100;
   const k = Math.min(inner / GW, boxH / GH);
   const mw = Math.round(GW * k);
   const mh = Math.round(GH * k);
@@ -724,12 +805,14 @@ export function scenarioCard(fmt: Format, { key, lang, doc, geo, sim }: { key: s
   // La légende du scénario parle d'écart, pas de probabilité.
   const legendTop = h('div', { flexDirection: 'column' },
     top,
-    h('div', { marginTop: 8, fontSize: 17, fontWeight: 700, color: INK_2 }, line));
+    h('div', { fontSize: 15, fontWeight: 600, color: INK_3 },
+      legend(lang, leading.slice(0, 2).map((p) => p.color), s.flip, false, [s.clear, s.thin, s.toss])),
+    ...(line ? [h('div', { marginTop: 6, fontSize: 16, fontWeight: 700, color: INK_2 }, line)] : []));
   const body = h('div', { flexDirection: 'column', flexGrow: 1 },
     legendTop,
     h('div', { flexGrow: 1, justifyContent: 'center', alignItems: fmt === 'story' ? 'flex-start' : 'center', marginTop: 10 },
       fmt === 'story'
-        ? storyMap(geo, fill, changed, inner, H - pad * 2 - 60 - 150 - 120, lang)
+        ? storyMap(geo, fill, changed, inner, H - pad * 2 - 60 - 172 - 120, lang)
         : h('div', { position: 'relative', width: mw, height: mh },
           img(svgUri(mapSvg(geo, fill, changed)), mw, mh, { position: 'absolute', left: 0, top: 0 }),
           ...titres)));
