@@ -9,6 +9,7 @@ import PageHeader from './PageHeader.astro';
 import RidingShareButton from '../islands/RidingShareButton.tsx';
 import { type Locale, type LabsKey, NAMES, hasLabs, loadLabs, labsUrl, partyLabel, partyColor, fmt, pct } from '../lib/labs';
 import { loadQuantumFile, QT } from '../lib/labs-quantum';
+import { QUANTUM_EXTRA } from '../lib/labs-quantum-extra';
 import { EXPLAINER, EXPLAINER_SLUG } from '../lib/labs-explainer';
 
 interface Props { locale: Locale }
@@ -25,14 +26,29 @@ const day = (iso: string) => new Date(iso).toLocaleDateString(loc, { day: 'numer
 const runs = files
   .filter((f) => !f.startsWith('entangled_') && !f.startsWith('correlation_'))
   .map((f) => loadQuantumFile(f))
-  .filter((q: any) => q && q.backend === 'ibm' && q.parties && KEY_OF[q.cycle] && hasLabs(KEY_OF[q.cycle]))
+  .filter((q: any) => q && q.backend === 'ibm' && q.parties
+    && ((KEY_OF[q.cycle] && hasLabs(KEY_OF[q.cycle])) || (QUANTUM_EXTRA as any)[q.cycle]))
   .map((q: any) => {
+    // Espagne, partielles : hors des pages Labs (lib/labs-quantum-extra.ts)
+    const ext = (QUANTUM_EXTRA as any)[q.cycle];
+    if (ext) {
+      const x = q.parties[ext.lead];
+      return {
+        key: q.cycle, desk: null, q, lead: ext.lead, x, ext,
+        name: ext.name[locale], href: ext.href[locale], color: ext.color,
+        cell: ext.hubCell(q, locale, (v: number) => pct(v, locale)),
+        tv: (q.total_variation_corrected?.[ext.lead] ?? null) as number | null,
+        seconds: q.ibm_job?.qpu_seconds ?? null,
+        qubits: Math.max(...(q.qubits_per_circuit as number[])),
+      };
+    }
     const key = KEY_OF[q.cycle];
     const desk = loadLabs(key);
     const [lead, x] = Object.entries(q.parties as Record<string, any>).sort((a, b) => b[1].exact_mean - a[1].exact_mean)[0];
     return {
-      key, desk, q, lead, x,
-      name: NAMES[key][locale],
+      key, desk, q, lead, x, ext: null,
+      name: NAMES[key][locale], href: `${labsUrl(locale, key)}#lq-title`,
+      color: partyColor(desk, lead), cell: `${partyLabel(desk, lead, locale)} ${pct(x.corrected_p_majority, locale)}`,
       tv: (q.total_variation_corrected?.[lead] ?? null) as number | null,
       seconds: q.ibm_job?.qpu_seconds ?? null,
       qubits: Math.max(...(q.qubits_per_circuit as number[])),
@@ -147,8 +163,8 @@ const payload = {
   rows: latest.map((r) => ({
     name: r.name,
     where: `${r.q.machine} · ${day(r.q.run_at)}`,
-    fav: partyLabel(r.desk, r.lead, locale), color: partyColor(r.desk, r.lead),
-    p: P(r.x.corrected_p_majority),
+    fav: r.ext ? r.ext.shareFav[locale] : partyLabel(r.desk, r.lead, locale), color: r.color,
+    p: r.ext ? r.ext.shareP(r.q, locale, P) : P(r.x.corrected_p_majority),
   })),
   thFav: T.share.thFav, thP: T.share.thP,
   voteDay: '',
@@ -168,12 +184,12 @@ const payload = {
           <tbody>
             {runs.map((r) => (
               <tr>
-                <td><a href={`${labsUrl(locale, r.key)}#lq-title`}>{r.name}</a></td>
+                <td><a href={r.href}>{r.name}</a></td>
                 <td>{r.q.machine}{r.q.twirling ? ` (${QT[locale].twirled})` : ''} · {day(r.q.run_at)}</td>
                 <td class="num">{fmt(r.q.elections_drawn, locale, 0)}</td>
                 <td class="num">{r.qubits}</td>
                 <td class="num">{r.seconds != null ? `${fmt(r.seconds, locale, 0)} s` : '—'}</td>
-                <td class="num"><span class="lqh-dot" style={`background:${partyColor(r.desk, r.lead)}`}></span>{partyLabel(r.desk, r.lead, locale)} {P(r.x.corrected_p_majority)}</td>
+                <td class="num"><span class="lqh-dot" style={`background:${r.color}`}></span>{r.cell}</td>
                 <td class="num">{r.tv != null ? `${pts(r.tv)} pt` : '—'}</td>
               </tr>
             ))}
@@ -207,7 +223,7 @@ const payload = {
   <section class="lqh-block vs-block" aria-labelledby="lqh-detail">
     <h2 id="lqh-detail">{T.detail}</h2>
     <ul class="lqh-list">
-      {elections.map((k) => <li><a class="vs-link" href={`${labsUrl(locale, k)}#lq-title`}>{NAMES[k][locale]}</a></li>)}
+      {latest.map((r) => <li><a class="vs-link" href={r.href}>{r.name}</a></li>)}
     </ul>
   </section>
 </article>

@@ -15,6 +15,7 @@ import { CURRENT_RELEASE } from '../data/modelVersion';
 import es from '../../web_data/spain/latest.json';
 import pollIndex from '../../web_data/spain/polls/index.json';
 import ShareModule from '../islands/lib/ShareModule.tsx';
+import QuantumDrawCard from './QuantumDrawCard.astro';
 
 type Locale = 'en' | 'fr' | 'es';
 interface Props {
@@ -897,6 +898,10 @@ const jsonLd = [
         </div>
       </div>
     </section>
+
+    <div class="container">
+      <QuantumDrawCard locale={locale} kind="es_2026" />
+    </div>
 
 
     <section class="content-band">

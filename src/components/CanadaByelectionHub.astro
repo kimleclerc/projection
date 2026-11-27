@@ -12,6 +12,7 @@ import PageHeader from './PageHeader.astro';
 import StoryList from './StoryList.astro';
 import KeepDigging from './KeepDigging.astro';
 import RidingShareButton from '../islands/RidingShareButton.tsx';
+import QuantumDrawCard from './QuantumDrawCard.astro';
 import { canadaByelections } from '../data/canadaByelections';
 import { writSource, type ByelectionRaceLocale } from '../data/canadaByelectionRaces';
 import { byelectionSlate, nextByelectionDay, byelectionRunDate, chance } from '../lib/canada-byelection-slate';
@@ -204,6 +205,10 @@ const fmtShare = (v: number) => {
         {sharePayload && <RidingShareButton client:idle lang={lang} payload={sharePayload} />}
       </section>
     )}
+
+    <div class="container">
+      <QuantumDrawCard locale={lang} kind="ca_byelections_2026_12_07" />
+    </div>
 
     {waitingItems.length > 0 && (
       <section class="container byhub-block">

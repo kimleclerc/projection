@@ -1,0 +1,234 @@
+---
+// Tirage quantique hors des pages Labs : Espagne (sièges PP + Vox, Orbite) et
+// partielles fédérales (six courses, modèle des partielles). Même lecture que
+// LabsQuantum : tirage brut de la puce, correction des erreurs de lecture,
+// calcul exact. Données : web_data/labs/quantum/<file>.json (moteur :
+// labs/quantum_spain.py, labs/quantum_byelections.py).
+import RidingShareButton from '../islands/RidingShareButton.tsx';
+import { fmt, pct, labsUrl, type Locale } from '../lib/labs';
+import { loadQuantumFile, QUANTUM_SLUG, QUANTUM_LINK } from '../lib/labs-quantum';
+import { QUANTUM_EXTRA } from '../lib/labs-quantum-extra';
+
+interface Props { locale: Locale; kind: 'es_2026' | 'ca_byelections_2026_12_07' }
+const { locale, kind } = Astro.props;
+const meta = QUANTUM_EXTRA[kind];
+const q = meta.files.map((f) => loadQuantumFile(f)).find(Boolean) as any;
+const C = locale === 'fr' ? ' : ' : ': ';
+const P = (v: number) => pct(v, locale);
+const loc = locale === 'fr' ? 'fr-CA' : locale === 'es' ? 'es-ES' : 'en-US';
+
+const T = {
+  fr: {
+    kicker: 'Tirage quantique',
+    machine: 'Machine', when: 'Tirage', drawn: 'Élections tirées', qubits: 'Qubits par circuit', seconds: 'Temps de machine',
+    legendDrawn: 'Tirage brut de la puce', legendCorrected: 'Après correction des erreurs de lecture', legendExact: 'Calcul exact',
+    colWhat: '', colExact: 'Calcul exact', colRaw: 'Puce, brut', colCorrected: 'Puce, corrigé',
+    majority: (n: number) => `Majorité (${n})`,
+    jobs: 'Tâches IBM', hub: QUANTUM_LINK.fr,
+    colRace: 'Course', colFav: 'Favori', colQ: 'Qubits',
+  },
+  en: {
+    kicker: 'Quantum draw',
+    machine: 'Machine', when: 'Draw', drawn: 'Elections drawn', qubits: 'Qubits per circuit', seconds: 'Machine time',
+    legendDrawn: 'Raw draw from the chip', legendCorrected: 'After readout-error correction', legendExact: 'Exact calculation',
+    colWhat: '', colExact: 'Exact', colRaw: 'Chip, raw', colCorrected: 'Chip, corrected',
+    majority: (n: number) => `Majority (${n})`,
+    jobs: 'IBM jobs', hub: QUANTUM_LINK.en,
+    colRace: 'Race', colFav: 'Favourite', colQ: 'Qubits',
+  },
+  es: {
+    kicker: 'Sorteo cuántico',
+    machine: 'Máquina', when: 'Sorteo', drawn: 'Elecciones sorteadas', qubits: 'Cúbits por circuito', seconds: 'Tiempo de máquina',
+    legendDrawn: 'Sorteo bruto del chip', legendCorrected: 'Tras corregir los errores de lectura', legendExact: 'Cálculo exacto',
+    colWhat: '', colExact: 'Cálculo exacto', colRaw: 'Chip, bruto', colCorrected: 'Chip, corregido',
+    majority: (n: number) => `Mayoría (${n})`,
+    jobs: 'Tareas de IBM', hub: QUANTUM_LINK.es,
+    colRace: 'Contienda', colFav: 'Favorito', colQ: 'Cúbits',
+  },
+}[locale];
+const txt = meta.text[locale];
+
+let chart: any = null;
+let lead: any = null;
+if (q) {
+  lead = q.parties[meta.lead];
+  const raw0 = lead.histogram as number[];
+  const total = raw0.reduce((a: number, b: number) => a + b, 0) || 1;
+  const raw = raw0.map((c) => c / total);
+  const ex = lead.exact_histogram as number[];
+  const co = lead.corrected_histogram as number[];
+  const n = ex.length;
+  const any = (i: number) => Math.max(raw[i] ?? 0, ex[i] ?? 0, co[i] ?? 0) > 0.0015;
+  let lo = 0, hi = n - 1;
+  while (lo < hi && !any(lo)) lo++;
+  while (hi > lo && !any(hi)) hi--;
+  lo = Math.max(0, lo - 2); hi = Math.min(n - 1, hi + 2);
+  const W = 720, H = 220, pad = { l: 8, r: 8, t: 12, b: 26 };
+  const span = hi - lo + 1;
+  const bw = (W - pad.l - pad.r) / span;
+  const ymax = Math.max(...raw.slice(lo, hi + 1), ...ex.slice(lo, hi + 1), ...co.slice(lo, hi + 1)) * 1.08 || 1;
+  const X = (i: number) => pad.l + (i - lo) * bw;
+  const Y = (v: number) => pad.t + (H - pad.t - pad.b) * (1 - v / ymax);
+  const line = (arr: number[]) => arr.slice(lo, hi + 1).map((v, k) => `${(X(lo + k) + bw / 2).toFixed(1)},${Y(v).toFixed(1)}`).join(' ');
+  const ticks: number[] = [];
+  const step = span > 60 ? 10 : span > 20 ? 5 : 1;
+  for (let s = Math.ceil(lo / step) * step; s <= hi; s += step) ticks.push(s);
+  chart = {
+    W, H, pad, bw, lo, hi, X, Y, ticks,
+    bars: raw.slice(lo, hi + 1).map((v, k) => ({ x: X(lo + k), y: Y(v), h: Y(0) - Y(v) })),
+    exact: line(ex), corrected: line(co), maj: lead.majority ?? null,
+  };
+}
+const whenTxt = q?.run_at
+  ? new Date(q.run_at).toLocaleString(loc, { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit', timeZone: 'America/Toronto', timeZoneName: 'short' })
+  : '';
+const races = ((q?.ridings ?? []) as any[]).map((r) => {
+  const [fav, pe] = Object.entries(r.exact as Record<string, number>).sort((a, b) => b[1] - a[1])[0];
+  return { ...r, fav, pe, pc: r.corrected?.[fav] ?? r.drawn?.[fav] ?? 0, favName: r.candidates?.[fav] ?? fav };
+});
+const isChip = q?.backend === 'ibm';
+const chipName = isChip ? q.machine : txt.simName;
+
+// Fiche à partager : la même lecture, en trois lignes (Espagne) ou une par course.
+const payload = q ? {
+  card: 'slate' as const,
+  slug: meta.shareSlug,
+  jurisdiction: 'labs-quantum',
+  title: txt.shareTitle,
+  heading: txt.shareHeading,
+  rows: kind === 'es_2026'
+    ? [
+        { name: txt.rowExact, where: txt.rowExactWhere, fav: txt.leadLabel, color: meta.color, p: P(lead.exact_p_majority) },
+        { name: chipName, where: T.legendDrawn, fav: txt.leadLabel, color: meta.color, p: P(lead.drawn_p_majority) },
+        { name: chipName, where: T.legendCorrected, fav: txt.leadLabel, color: meta.color, p: P(lead.corrected_p_majority) },
+      ]
+    : races.map((r) => ({ name: r.name, where: `${T.colExact} ${P(r.pe)}`, fav: r.favName, color: meta.partyColors[r.fav] ?? '#9a938a', p: P(r.pc) })),
+  thFav: txt.shareThFav, thP: txt.shareThP,
+  voteDay: meta.voteDay,
+  foot: txt.shareFoot(fmt(q.elections_drawn, locale, 0), chipName),
+} : null;
+---
+
+{q && chart && (
+  <section class="qdc" id="quantique" aria-labelledby="qdc-title">
+    <p class="eyebrow">{T.kicker}</p>
+    <h2 id="qdc-title">{txt.title}</h2>
+    <p class="qdc-dek">{txt.dek(q)}</p>
+    <dl class="qdc-facts">
+      <div><dt>{T.machine}{C.trimEnd()}</dt><dd>{chipName}</dd></div>
+      <div><dt>{T.when}{C.trimEnd()}</dt><dd>{whenTxt}</dd></div>
+      <div><dt>{T.drawn}{C.trimEnd()}</dt><dd>{fmt(q.elections_drawn, locale, 0)}</dd></div>
+      <div><dt>{T.qubits}{C.trimEnd()}</dt><dd>{Math.max(...q.qubits_per_circuit)}</dd></div>
+      {q.ibm_job?.qpu_seconds != null && <div><dt>{T.seconds}{C.trimEnd()}</dt><dd>{`${fmt(q.ibm_job.qpu_seconds, locale, 0)} s`}</dd></div>}
+    </dl>
+
+    <h3>{txt.chartTitle}</h3>
+    <div class="qdc-chart">
+      <svg viewBox={`0 0 ${chart.W} ${chart.H}`} role="img" aria-label={txt.chartTitle}>
+        {chart.bars.map((b: any) => (
+          <rect x={b.x + 0.5} y={b.y} width={Math.max(chart.bw - 1, 0.5)} height={b.h} fill={meta.color} opacity=".45" />
+        ))}
+        <polyline points={chart.exact} fill="none" stroke="var(--ink)" stroke-width="2" />
+        <polyline points={chart.corrected} fill="none" stroke={meta.color} stroke-width="2" stroke-dasharray="5 4" />
+        {chart.maj != null && chart.maj >= chart.lo && chart.maj <= chart.hi && (
+          <>
+            <line x1={chart.X(chart.maj)} x2={chart.X(chart.maj)} y1={chart.pad.t} y2={chart.H - chart.pad.b} stroke="var(--ink-3)" stroke-dasharray="3 3" />
+            <text x={chart.X(chart.maj) + 4} y={chart.pad.t + 10} class="qdc-axis">{T.majority(chart.maj)}</text>
+          </>
+        )}
+        {chart.ticks.map((s: number) => (
+          <text x={chart.X(s) + chart.bw / 2} y={chart.H - 8} text-anchor="middle" class="qdc-axis">{s}</text>
+        ))}
+      </svg>
+    </div>
+    <ul class="qdc-legend">
+      <li><span class="qdc-sw" style={`background:${meta.color}; opacity:.45`}></span>{T.legendDrawn}</li>
+      <li><span class="qdc-sw qdc-sw--dash" style={`border-color:${meta.color}`}></span>{T.legendCorrected}</li>
+      <li><span class="qdc-sw qdc-sw--line"></span>{T.legendExact}</li>
+    </ul>
+
+    <div class="qdc-scroll">
+      <table class="qdc-table">
+        <thead><tr><th></th><th>{T.colExact}</th><th>{T.colRaw}</th><th>{T.colCorrected}</th></tr></thead>
+        <tbody>
+          {meta.rows.map((key) => {
+            const x = q.parties[key];
+            return x && (
+              <tr>
+                <td><span class="qdc-dot" style={`background:${meta.partyColors[key] ?? meta.color}`}></span>{txt.rowLabel(key)}</td>
+                <td>{fmt(x.exact_mean, locale, 1)}</td>
+                <td>{fmt(x.drawn_mean, locale, 1)}</td>
+                <td><strong>{fmt(x.corrected_mean, locale, 1)}</strong></td>
+              </tr>
+            );
+          })}
+          {lead.exact_p_majority != null && (
+            <tr class="qdc-pmaj">
+              <td>{txt.pMajLabel}</td>
+              <td>{P(lead.exact_p_majority)}</td>
+              <td>{P(lead.drawn_p_majority)}</td>
+              <td><strong>{P(lead.corrected_p_majority)}</strong></td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+    </div>
+
+    {races.length > 0 && (
+      <div class="qdc-scroll">
+        <table class="qdc-table">
+          <thead><tr><th>{T.colRace}</th><th>{T.colQ}</th><th>{T.colFav}</th><th>{T.colExact}</th><th>{T.colCorrected}</th></tr></thead>
+          <tbody>
+            {races.map((r) => (
+              <tr>
+                <td><a href={meta.raceHref(locale, r.slug)}>{r.name}</a></td>
+                <td class="qdc-dim">{r.qubits}</td>
+                <td><span class="qdc-dot" style={`background:${meta.partyColors[r.fav] ?? '#9a938a'}`}></span>{r.favName}</td>
+                <td>{P(r.pe)}</td>
+                <td><strong>{P(r.pc)}</strong></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    )}
+
+    <ul class="qdc-what">{txt.what.map((w: string) => <li>{w}</li>)}</ul>
+    {payload && <RidingShareButton client:idle lang={locale} payload={payload} />}
+    {q.ibm_job?.job_ids?.length > 0 && (
+      <p class="qdc-jobs">{T.jobs}{C}<code>{q.ibm_job.job_ids.join(' · ')}</code></p>
+    )}
+    <p class="qdc-more"><a class="vs-link" href={`${labsUrl(locale)}${QUANTUM_SLUG[locale]}/`}>{T.hub}</a></p>
+  </section>
+)}
+
+<style>
+  .qdc { margin-top: 48px; padding-top: 16px; border-top: 2px solid var(--ink); }
+  .qdc h2 { font-family: var(--serif); font-size: clamp(26px, 3.4vw, 34px); font-weight: 700; margin: 0 0 12px; }
+  .qdc h3 { font-family: var(--serif); font-size: 20px; font-weight: 700; margin: 26px 0 10px; }
+  .qdc-dek { max-width: 760px; margin: 0; color: var(--ink-2); font-size: 17px; line-height: 1.6; }
+  .qdc-facts { display: flex; flex-wrap: wrap; gap: 4px 24px; margin: 16px 0 0; font-size: 15px; }
+  .qdc-facts div { display: flex; gap: 6px; }
+  .qdc-facts dt { color: var(--ink-3); font-weight: 600; }
+  .qdc-facts dd { margin: 0; color: var(--ink); }
+  .qdc-chart svg { width: 100%; height: auto; display: block; }
+  .qdc-axis { font-family: var(--mono); font-size: 13px; fill: var(--ink-3); }
+  .qdc-legend { list-style: none; padding: 0; margin: 8px 0 0; display: flex; flex-wrap: wrap; gap: 8px 20px; }
+  .qdc-legend li { display: inline-flex; align-items: center; gap: 8px; font-family: var(--mono); font-size: 13px; color: var(--ink-2); }
+  .qdc-sw { width: 14px; height: 10px; border-radius: 2px; display: inline-block; }
+  .qdc-sw--dash { height: 0; border-top: 2px dashed; border-radius: 0; }
+  .qdc-sw--line { height: 0; border-top: 2px solid var(--ink); border-radius: 0; }
+  .qdc-scroll { overflow-x: auto; margin-top: 18px; }
+  .qdc-table { width: 100%; border-collapse: collapse; font-size: 15px; }
+  .qdc-table th { text-align: left; font-family: var(--mono); font-size: 13px; color: var(--ink-3); border-bottom: 1px solid var(--ink); padding: 8px 10px; font-weight: 600; }
+  .qdc-table td { border-bottom: 1px solid var(--rule-2); padding: 9px 10px; white-space: nowrap; }
+  .qdc-table td a { color: var(--ink); font-weight: 600; }
+  .qdc-pmaj td { border-top: 1px solid var(--rule); }
+  .qdc-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; vertical-align: middle; }
+  .qdc-dim { color: var(--ink-3); }
+  .qdc-what { margin: 22px 0 16px; padding-left: 20px; color: var(--ink-2); line-height: 1.6; max-width: 780px; }
+  .qdc-what li + li { margin-top: 8px; }
+  .qdc-jobs { margin: 14px 0 0; font-size: 12px; color: var(--ink-3); overflow-wrap: anywhere; }
+  .qdc-jobs code { font-family: var(--mono); }
+  .qdc-more { margin: 14px 0 0; }
+</style>
