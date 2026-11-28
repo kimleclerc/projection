@@ -5,6 +5,7 @@
 import { blocVar, blocLabel, statusLabel, fmtPct1, franceBase, franceCandBase, type Locale } from '../lib/fr-pres';
 import { candidateProse, slugify, getAllCandidates, type CandidateProfile } from '../lib/fr-candidates';
 import ContextualBookShelf from './ContextualBookShelf.astro';
+import { candidateSeo, fmtChance } from '../lib/fr-candidate-seo';
 import ShareModule from '../islands/lib/ShareModule.tsx';
 import frLatest from '../../web_data/france-presidential/latest.json';
 import { contextualBooks } from '../data/contextualBooks';
@@ -17,6 +18,7 @@ const { candidate: c, locale } = Astro.props;
 
 const prose = candidateProse(c, locale);
 const bio = c.bio ? c.bio[locale] : null;
+const { answers } = candidateSeo(c, locale, prose[0]);
 const AXIS_MAX = Math.max(45, Math.ceil((c.polling.ceiling ?? 0) / 15) * 15);
 const dateLabel = (value: string) => new Intl.DateTimeFormat(locale === 'fr' ? 'fr-FR' : locale === 'es' ? 'es-ES' : 'en-GB', {day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC'}).format(new Date(value.slice(0, 10) + 'T00:00:00Z')); // échelle de l'axe des intentions de vote (%)
 
@@ -41,6 +43,9 @@ const COPY = {
         ceiling: 'Maximum observé',
         best: 'Meilleure hypothèse',
         top2: 'Qualification — meilleure hypothèse',
+        firstRound: 'Premier tour',
+        runoff: 'Chances de second tour',
+        bestLine: (share: string, chance: string) => `Dans la liste la plus favorable à sa qualification : ${share} au premier tour et ${chance} de chances de second tour.`,
         duelsTitle: 'Duels de second tour',
         duelsHelp: 'Estimations conditionnelles à la qualification des deux candidats. Pour chaque adversaire, le duel le plus probable parmi les hypothèses actuellement modélisées.',
         wins: 'en tête',
@@ -61,6 +66,9 @@ const COPY = {
         ceiling: 'Observed maximum',
         best: 'Best lineup',
         top2: 'Qualification — best lineup',
+        firstRound: 'First round',
+        runoff: 'Chance of reaching the runoff',
+        bestLine: (share: string, chance: string) => `In the lineup most favourable to qualifying: ${share} in the first round and a ${chance} chance of reaching the runoff.`,
         duelsTitle: 'Runoff matchups',
         duelsHelp: 'Estimates conditional on both candidates qualifying. Each opponent uses the most probable matchup across currently modelled lineups.',
         wins: 'ahead',
@@ -81,6 +89,9 @@ const COPY = {
         ceiling: 'Máximo observado',
         best: 'Mejor combinación',
         top2: 'Clasificación — mejor combinación',
+        firstRound: 'Primera vuelta',
+        runoff: 'Probabilidad de segunda vuelta',
+        bestLine: (share: string, chance: string) => `En la lista más favorable a su clasificación: ${share} en primera vuelta y ${chance} de probabilidad de pasar a la segunda.`,
         duelsTitle: 'Duelos de segunda vuelta',
         duelsHelp: 'Estimaciones condicionadas a que ambos candidatos se clasifiquen. Para cada rival se muestra el duelo más probable entre las combinaciones modelizadas.',
         wins: 'en cabeza',
@@ -94,9 +105,9 @@ const COPY = {
 } as const;
 const C = COPY[locale];
 const detail = {
-  fr: {updated: 'Données et projections du', reviewed: 'Statut vérifié le', source: 'Source du statut', noPoll: 'Aucune intention de vote publiée dans les 90 derniers jours dans notre base.', lastPoll: 'Dernière mesure connue :', never: 'Aucune intention de vote recensée dans notre base.', model: 'Projection du modèle', modelHelp: `${c.activeScenarios} hypothèse(s) actuellement modélisée(s). Les chiffres ci-dessous dépendent de la liste des candidats; la probabilité est conditionnelle à la présence de cette candidature.`, noModel: 'Aucune projection actuelle pour cette candidature. Une absence de mesure ne vaut pas 0 %.', recent: 'Derniers sondages', trend: 'Voir la tendance de cette candidature', archive: 'Archive de campagne — candidature terminée', archiveHelp: 'Les éventuelles mesures ci-dessous sont historiques. Aucune probabilité actuelle de qualification n’est attribuée à cette candidature.'},
-  en: {updated: 'Data and forecasts as of', reviewed: 'Status reviewed on', source: 'Status source', noPoll: 'No published first-round voting intention in our database over the last 90 days.', lastPoll: 'Last known observation:', never: 'No first-round voting intention recorded in our database.', model: 'Model forecast', modelHelp: `${c.activeScenarios} currently modelled lineup(s). Estimates depend on the candidate field; qualification is conditional on this candidate appearing.`, noModel: 'No current forecast for this candidate. Missing data does not mean 0%.', recent: 'Latest polls', trend: 'See this candidate’s trend', archive: 'Campaign archive — candidacy ended', archiveHelp: 'Any observations below are historical. No current qualification probability is assigned to this candidacy.'},
-  es: {updated: 'Datos y proyecciones del', reviewed: 'Estado revisado el', source: 'Fuente del estado', noPoll: 'No hay intención de voto publicada en nuestra base durante los últimos 90 días.', lastPoll: 'Última observación conocida:', never: 'No hay intención de voto registrada en nuestra base.', model: 'Proyección del modelo', modelHelp: `${c.activeScenarios} combinación(es) modelizada(s). Las estimaciones dependen de la lista; la clasificación está condicionada a la presencia de esta candidatura.`, noModel: 'No hay proyección actual para esta candidatura. La falta de datos no significa 0 %.', recent: 'Últimas encuestas', trend: 'Ver la tendencia de esta candidatura', archive: 'Archivo de campaña — candidatura terminada', archiveHelp: 'Las posibles observaciones siguientes son históricas. No se atribuye una probabilidad actual de clasificación a esta candidatura.'},
+  fr: {updated: 'Données et projections du', reviewed: 'Statut vérifié le', source: 'Source du statut', noPoll: 'Aucune intention de vote publiée dans les 90 derniers jours dans notre base.', lastPoll: 'Dernière mesure connue :', never: 'Aucune intention de vote recensée dans notre base.', model: 'Projection du modèle', weightedHelp: `Moyenne des listes récemment sondées qui incluent cette candidature, pondérée par leur nombre de sondages. C’est le même calcul que le tableau de la page France.`, modelHelp: `${c.activeScenarios} hypothèse(s) actuellement modélisée(s). Les chiffres ci-dessous dépendent de la liste des candidats; la probabilité est conditionnelle à la présence de cette candidature.`, noModel: 'Aucune projection actuelle pour cette candidature. Une absence de mesure ne vaut pas 0 %.', recent: 'Derniers sondages', trend: 'Voir la tendance de cette candidature', archive: 'Archive de campagne — candidature terminée', archiveHelp: 'Les éventuelles mesures ci-dessous sont historiques. Aucune probabilité actuelle de qualification n’est attribuée à cette candidature.'},
+  en: {updated: 'Data and forecasts as of', reviewed: 'Status reviewed on', source: 'Status source', noPoll: 'No published first-round voting intention in our database over the last 90 days.', lastPoll: 'Last known observation:', never: 'No first-round voting intention recorded in our database.', model: 'Model forecast', weightedHelp: `Average across recently polled lineups that include this candidate, weighted by their number of polls. It is the same calculation as the table on the France page.`, modelHelp: `${c.activeScenarios} currently modelled lineup(s). Estimates depend on the candidate field; qualification is conditional on this candidate appearing.`, noModel: 'No current forecast for this candidate. Missing data does not mean 0%.', recent: 'Latest polls', trend: 'See this candidate’s trend', archive: 'Campaign archive — candidacy ended', archiveHelp: 'Any observations below are historical. No current qualification probability is assigned to this candidacy.'},
+  es: {updated: 'Datos y proyecciones del', reviewed: 'Estado revisado el', source: 'Fuente del estado', noPoll: 'No hay intención de voto publicada en nuestra base durante los últimos 90 días.', lastPoll: 'Última observación conocida:', never: 'No hay intención de voto registrada en nuestra base.', model: 'Proyección del modelo', weightedHelp: `Media de las listas sondeadas recientemente que incluyen esta candidatura, ponderada por su número de encuestas. Es el mismo cálculo que la tabla de la página de Francia.`, modelHelp: `${c.activeScenarios} combinación(es) modelizada(s). Las estimaciones dependen de la lista; la clasificación está condicionada a la presencia de esta candidatura.`, noModel: 'No hay proyección actual para esta candidatura. La falta de datos no significa 0 %.', recent: 'Últimas encuestas', trend: 'Ver la tendencia de esta candidatura', archive: 'Archivo de campaña — candidatura terminada', archiveHelp: 'Las posibles observaciones siguientes son históricas. No se atribuye una probabilidad actual de clasificación a esta candidatura.'},
 }[locale];
 
 ---
@@ -117,6 +128,10 @@ const detail = {
     <ShareModule lang={locale} kind="candidate" election={c.slug} runDate={(frLatest as any).meta.run_date} client:idle />
   </header>
 
+  {answers.length > 0 && <section class="frc-section container frc-answers">
+    {answers.map((a) => <div class="frc-answer"><h2>{a.question}</h2><p>{a.answer}</p></div>)}
+  </section>}
+
   <section class="frc-section container frc-prose" aria-label={c.name}>
     {bio && <p class="frc-bio">{bio}</p>}
     {prose.map((p) => <p>{p}</p>)}
@@ -124,12 +139,6 @@ const detail = {
     {c.statusReviewedOn && <p class="frc-section-help">{detail.reviewed} <time datetime={c.statusReviewedOn}>{dateLabel(c.statusReviewedOn)}</time>. {c.statusSource && <a href={c.statusSource}>{detail.source}</a>}</p>}
 
   </section>
-
-  {hasCandidateBooks && (
-    <section class="frc-section container">
-      <ContextualBookShelf lang={locale} candidateId={c.id} candidateName={c.name} limit={2} />
-    </section>
-  )}
 
   <!-- FOURCHETTE 1er TOUR -->
   <section class="frc-section container" aria-labelledby="frc-polling">
@@ -155,10 +164,14 @@ const detail = {
 
   {!c.archived && <section class="frc-section container" aria-labelledby="frc-model">
     <h2 id="frc-model" class="frc-section-title">{detail.model}</h2>
-    {typeof c.bestMean === 'number' ? <>
+    {c.weighted ? <>
+      <p class="frc-section-help">{detail.weightedHelp}</p>
+      <dl class="frc-stats"><div><dt>{C.firstRound}</dt><dd>{fmtPct1(c.weighted.mean, locale)}</dd></div><div><dt>{C.runoff}</dt><dd>{fmtChance(c.weighted.pTop2, locale)}</dd></div></dl>
+      {typeof c.bestMean === 'number' && typeof c.bestPTop2 === 'number' && <p class="frc-section-help frc-best">{C.bestLine(fmtPct1(c.bestMean, locale), fmtChance(c.bestPTop2, locale))}</p>}
+    </> : typeof c.bestMean === 'number' ? <>
       <p class="frc-section-help">{detail.modelHelp}</p>
       <dl class="frc-stats"><div><dt>{C.best}</dt><dd>{fmtPct1(c.bestMean, locale)}</dd></div>
-        {typeof c.bestPTop2 === 'number' && <div><dt>{C.top2}</dt><dd>{Math.round(c.bestPTop2 * 100)} %</dd></div>}
+        {typeof c.bestPTop2 === 'number' && <div><dt>{C.top2}</dt><dd>{fmtChance(c.bestPTop2, locale)}</dd></div>}
       </dl>
     </> : <p class="frc-empty">{detail.noModel}</p>}
   </section>}
@@ -187,6 +200,12 @@ const detail = {
       <p class="frc-empty">{C.noDuel}</p>
     )}
   </section>}
+
+  {hasCandidateBooks && (
+    <section class="frc-section container">
+      <ContextualBookShelf lang={locale} candidateId={c.id} candidateName={c.name} limit={2} />
+    </section>
+  )}
 
   <!-- RABBIT-HOLE : autres candidats + retour desk -->
   <section class="frc-section container" aria-labelledby="frc-related">
@@ -241,6 +260,11 @@ const detail = {
   }
   .frc-status.is-declared { background: var(--blue-tint); border-color: var(--blue-soft); color: var(--blue); }
   .frc-section { max-width: 900px; margin-top: 44px; }
+  .frc-answers { max-width: 720px; margin-top: 32px; }
+  .frc-answer { padding: 12px 0; border-bottom: 1px solid var(--rule); }
+  .frc-answer h2 { margin: 0 0 4px; font-family: var(--serif); font-size: 1.2rem; font-weight: 700; }
+  .frc-answer p { margin: 0; color: var(--ink-2); font-size: 1.02rem; line-height: 1.6; }
+  .frc-best { margin-top: 16px; }
   .frc-prose { max-width: 720px; }
   .frc-prose p { margin: 0 0 0.9rem; color: var(--ink-2); font-size: 1.02rem; line-height: 1.7; }
   .frc-bio { font-family: var(--serif); font-size: 1.15rem; color: var(--ink) !important; }

@@ -6,6 +6,7 @@ import latest from '../../web_data/france-presidential/latest.json';
 import dataSheets from '../../web_data/france-presidential/data_sheets.json';
 import polls from '../../web_data/france-presidential/polls.json';
 import { observedPolling, type PollRow } from './fr-candidate-metrics';
+import { rankContenders } from './fr-race-tracker';
 import { CANDIDATE_BIOS } from '../data/fr-candidate-bios';
 import { blocLabel, type Locale } from './fr-pres';
 
@@ -62,6 +63,8 @@ export interface CandidateProfile {
   archived: boolean;
   bestMean: number | null;
   bestPTop2: number | null;
+  /** Moyenne des listes récentes, pondérée par leurs sondages : le chiffre du tableau de la page France. */
+  weighted: { mean: number; pTop2: number } | null;
   activeScenarios: number;
   featuredScenarios: number;
   bio: { fr: string; en: string; es: string } | null;
@@ -100,13 +103,16 @@ function buildProfiles(): CandidateProfile[] {
       add(d.duel_right_id, d.right_share_expressed_mean, d.duel_left_id, d.left_share_expressed_mean);
     }
   }
+  const ranked = new Map(rankContenders(scenarios, cands).map(x => [x.id, x]));
   return cands.map(c => {
     const polling = observedPolling(c.candidate_id, (polls as any).first_round as PollRow[], (latest as any).meta.run_date);
     const archived = INACTIVE.has(c.status);
     const qualification = archived ? [] : scenarios.filter(s => s.scenario.featured)
       .flatMap(s => s.qualification ?? []).filter(q => q.candidate_id === c.candidate_id);
     const best = [...qualification].sort((a, b) => b.p_top2 - a.p_top2 || b.first_round_mean - a.first_round_mean)[0];
+    const desk = archived ? undefined : ranked.get(c.candidate_id);
     return {
+      weighted: desk ? { mean: desk.mean, pTop2: desk.probability } : null,
       id: c.candidate_id, slug: slugify(c.candidate_name), name: c.candidate_name,
       shortLabel: c.short_label, bloc: c.bloc, partyFamily: c.party_family, status: c.status,
       polling, runDate: (latest as any).meta.run_date,
@@ -144,7 +150,8 @@ const STATUS_PHRASE: Record<string, Record<Locale, string>> = {
   testing: {fr: 'est une hypothèse testée par les sondeurs; cela ne constitue pas une déclaration de candidature', en: 'is a hypothetical candidate tested by pollsters; this does not establish a declared candidacy', es: 'es una candidatura hipotética probada por encuestadores; esto no constituye una candidatura declarada'},
 };
 export function candidateProse(c: CandidateProfile, locale: Locale): string[] {
-  const party = blocLabel(c.bloc, locale, c.partyFamily);
+  // « Centre droit (Horizons) » → « Centre droit, Horizons » : la phrase met déjà ce libellé entre parenthèses.
+  const party = blocLabel(c.bloc, locale, c.partyFamily).replace(/ \(([^()]+)\)$/, ', $1');
   const statement = `${c.name} (${party}) ${STATUS_PHRASE[c.status]?.[locale] || ''}.`;
   if (c.archived) return [statement, {fr: 'Cette fiche est conservée dans les archives de la campagne. Elle ne représente pas une candidature active.', en: 'This profile remains in the campaign archive and does not represent an active candidacy.', es: 'Esta ficha se conserva en el archivo de campaña y no representa una candidatura activa.'}[locale]];
   return [statement];

@@ -2,8 +2,7 @@
 import EditorialLayout from '../../../../layouts/EditorialLayout.astro';
 import FranceCandidatePage from '../../../../components/FranceCandidatePage.astro';
 import { getAllCandidates, slugify, candidateProse } from '../../../../lib/fr-candidates';
-import { blocLabel, statusLabel } from '../../../../lib/fr-pres';
-import latest from '../../../../../web_data/france-presidential/latest.json';
+import { candidateSeo } from '../../../../lib/fr-candidate-seo';
 
 export function getStaticPaths() {
   return getAllCandidates().map((candidate) => ({
@@ -13,14 +12,14 @@ export function getStaticPaths() {
 }
 
 const { candidate } = Astro.props;
-const meta = (latest as any).meta;
 const canonical = `https://vote-scope.com/en/france/candidates/${candidate.slug}/`;
-const desc = candidateProse(candidate, 'en').join(' ') + ' · ' + meta.run_date;
+const prose = candidateProse(candidate, 'en');
+const seo = candidateSeo(candidate, 'en', prose[0]);
 ---
 
 <EditorialLayout
-  title={`${candidate.name}: 2027 French Election Polls & Runoff Odds — Vote-Scope`}
-  description={desc}
+  title={seo.title}
+  description={seo.description}
   canonical={canonical}
   lang="en"
   currentPage="france"
@@ -33,10 +32,20 @@ const desc = candidateProse(candidate, 'en').join(' ') + ' · ' + meta.run_date;
   jsonLd={[
     {
       '@context': 'https://schema.org',
+      '@type': 'WebPage',
+      url: canonical,
+      name: seo.title,
+      description: seo.description,
+      inLanguage: 'en',
+      dateModified: candidate.runDate,
+      about: { '@type': 'Person', name: candidate.name, description: prose[0] },
+    },
+    {
+      '@context': 'https://schema.org',
       '@type': 'Person',
       name: candidate.name,
       url: canonical,
-      description: candidateProse(candidate, 'en')[0],
+      description: prose[0],
     },
   ]}
 >

@@ -14,14 +14,18 @@ export function observedPolling(id: string, rows: PollRow[], asOf: string, days 
     return [{...p, date: date!.slice(0, 10), time, share: entry.share}];
   }).sort((a, b) => b.date.localeCompare(a.date) || (b.release_date || '').localeCompare(a.release_date || ''));
   const recent = valid.filter(p => p.time >= start);
-  const surveys = new Map<string, {firm: string; date: string; release: string; min: number; max: number; hypotheses: number; source: string | null}>();
+  const surveys = new Map<string, {firm: string; date: string; release: string; min: number; max: number; hypotheses: number; sum: number; source: string | null}>();
   for (const p of recent) {
     const key = `${p.firm}|${p.date}`;
     const previous = surveys.get(key);
-    if (previous) {previous.min = Math.min(previous.min, p.share); previous.max = Math.max(previous.max, p.share); previous.hypotheses++;}
-    else surveys.set(key, {firm: p.firm_name, date: p.date, release: p.release_date || p.date, min: p.share, max: p.share, hypotheses: 1, source: p.source_url || null});
+    if (previous) {previous.min = Math.min(previous.min, p.share); previous.max = Math.max(previous.max, p.share); previous.hypotheses++; previous.sum += p.share;}
+    else surveys.set(key, {firm: p.firm_name, date: p.date, release: p.release_date || p.date, min: p.share, max: p.share, hypotheses: 1, sum: p.share, source: p.source_url || null});
   }
+  // Same method as the trend line on the France desk: one value per survey, last 30 days, at least two surveys.
+  const month = [...surveys.values()].filter(s => end - Date.parse(s.date + 'T00:00:00Z') <= 30 * 86400000);
+  const average30 = month.length >= 2 ? {value: month.reduce((sum, s) => sum + s.sum / s.hypotheses, 0) / month.length, surveys: month.length} : null;
   return {
+    average30,
     floor: recent.length ? Math.min(...recent.map(p => p.share)) : null,
     ceiling: recent.length ? Math.max(...recent.map(p => p.share)) : null,
     hypotheses: recent.length, surveys: surveys.size,

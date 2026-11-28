@@ -63,7 +63,7 @@ const copy = {
   fr: {
     kicker: context === 'cusma' ? 'La tablette derrière le dossier' : 'Livres de la course',
     title: candidateName
-      ? `Les livres de ${displayCandidateName}`
+      ? `Les livres ${/^[aàâeéèêëiîïoôöuùûœæh]/i.test(displayCandidateName) ? 'd’' : 'de '}${displayCandidateName}`
       : context === 'cusma'
         ? 'Lire l’argument, pas seulement la manchette.'
         : context === 'clacton'
