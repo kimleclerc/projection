@@ -1,0 +1,214 @@
+---
+/**
+ * Pages de la primaire présidentielle 2028 — une par parti, plus les premiers
+ * États. Même source que le desk présidentiel (web_data/us-president/latest.json),
+ * rendue en HTML statique : tableau complet, scénarios, premiers États. Les
+ * requêtes « 2028 democratic primary polls » / « 2028 republican primary polls »
+ * cherchent une page par parti ; le desk n'en avait qu'une pour les deux.
+ */
+import { longDate } from '../lib/format';
+import { placeName } from '../lib/place-names';
+import JurisdictionNav from './JurisdictionNav.astro';
+import KeepDigging from './KeepDigging.astro';
+import latest from '../../web_data/us-president/latest.json';
+import { fmtPct1, methodHref, type UsPresPayload, type Locale } from '../lib/us-pres';
+
+type View = 'dem' | 'rep' | 'early';
+interface Props { locale: Locale; view: View }
+const { locale, view } = Astro.props;
+
+const data = latest as unknown as UsPresPayload;
+const meta = data.meta;
+const runDate = longDate(meta.run_date, locale);
+const early = data.primary.early_states as Record<string, Record<string, { n_polls: number; top: { short_label: string; share: number; poll_count: number }[] }>>;
+const stateName: Record<string, string> = {};
+for (const u of data.electoral_college.units) stateName[u.state] = placeName(u, locale);
+const EARLY_ORDER = ['IA', 'NH', 'SC', 'NV'];
+const earlyStates = EARLY_ORDER.filter((s) => early[s]);
+
+const L = (en: string, fr: string, es: string) => (locale === 'fr' ? fr : locale === 'es' ? es : en);
+const HUB = { en: '/en/us/president/', fr: '/fr/us/presidentielle/', es: '/es/us/presidencial/' }[locale];
+const SEG = {
+  dem: { en: 'democratic-primary', fr: 'primaire-democrate', es: 'primaria-democrata' },
+  rep: { en: 'republican-primary', fr: 'primaire-republicaine', es: 'primaria-republicana' },
+  early: { en: 'early-states', fr: 'premiers-etats', es: 'primeros-estados' },
+};
+const href = (v: View) => `${HUB}${SEG[v][locale]}/`;
+
+const block = view === 'early' ? null : data.primary[view];
+const partyCode = view === 'dem' ? 'us_dem' : 'us_rep';
+const standings = block ? block.standings.filter((s) => s.share >= 1) : [];
+const eligible = standings.filter((s) => s.status !== 'ineligible');
+const [first, second, third] = eligible;
+const scenarios = block ? data.primary.scenarios.filter((s) => s.party === partyCode) : [];
+const partyAdj = view === 'dem' ? L('Democratic', 'démocrate', 'demócrata') : L('Republican', 'républicaine', 'republicana');
+
+const STATUS: Record<string, string> = {
+  probable: L('Likely to run', 'Candidature probable', 'Candidatura probable'),
+  declared: L('Declared', 'Candidat déclaré', 'Candidatura declarada'),
+  testing: L('Tested in polls', 'Testé par les sondeurs', 'Medido en encuestas'),
+  withdrawn: L('Not running', 'Ne se présente pas', 'No se presenta'),
+  ineligible: L('Ineligible (22nd Amendment)', 'Inéligible (22ᵉ amendement)', 'Inelegible (22.ª Enmienda)'),
+};
+
+const title = view === 'early'
+  ? L('2028 early-state primary polls', 'Sondages des premiers États, primaires 2028', 'Encuestas de los primeros estados, primarias 2028')
+  : view === 'dem'
+  ? L('2028 Democratic primary polls', 'Sondages de la primaire démocrate 2028', 'Encuestas de la primaria demócrata 2028')
+  : L('2028 Republican primary polls', 'Sondages de la primaire républicaine 2028', 'Encuestas de la primaria republicana 2028');
+
+const dek = view === 'early'
+  ? L(
+      'Iowa, New Hampshire, South Carolina and Nevada open the calendar. State polling is still thin: each average below says how many polls it rests on.',
+      'L’Iowa, le New Hampshire, la Caroline du Sud et le Nevada ouvrent le calendrier. Les sondages d’État restent rares : chaque moyenne ci-dessous indique sur combien de sondages elle repose.',
+      'Iowa, Nuevo Hampshire, Carolina del Sur y Nevada abren el calendario. Las encuestas estatales aún escasean: cada media indica en cuántas encuestas se basa.',
+    )
+  : L(
+      `${first.name} leads our quality-weighted average of national ${partyAdj} primary polls at ${fmtPct1(first.share, locale)}, ahead of ${second.name} (${fmtPct1(second.share, locale)}) and ${third.name} (${fmtPct1(third.share, locale)}). ${block!.n_polls} polls; ${fmtPct1(block!.undecided_other, locale)} undecided or for other names.`,
+      `${first.name} mène notre moyenne pondérée des sondages nationaux de la primaire ${partyAdj} avec ${fmtPct1(first.share, locale)}, devant ${second.name} (${fmtPct1(second.share, locale)}) et ${third.name} (${fmtPct1(third.share, locale)}). ${block!.n_polls} sondages ; ${fmtPct1(block!.undecided_other, locale)} d’indécis ou d’autres noms.`,
+      `${first.name} encabeza nuestra media ponderada de encuestas nacionales de la primaria ${partyAdj} con ${fmtPct1(first.share, locale)}, por delante de ${second.name} (${fmtPct1(second.share, locale)}) y ${third.name} (${fmtPct1(third.share, locale)}). ${block!.n_polls} encuestas; ${fmtPct1(block!.undecided_other, locale)} de indecisos u otros nombres.`,
+    );
+
+const earlyFor = (party: string) => earlyStates.filter((s) => early[s][party]).map((s) => ({ st: s, ...early[s][party] }));
+const pollsWord = (n: number) => (n === 1 ? L('poll', 'sondage', 'encuesta') : L('polls', 'sondages', 'encuestas'));
+
+const T = {
+  kicker: L('2028 Presidential · Primaries', 'Présidentielle 2028 · Primaires', 'Presidencial 2028 · Primarias'),
+  updated: L(`Updated ${runDate}`, `Mis à jour le ${runDate}`, `Actualizado el ${runDate}`),
+  weighting: L('Quality-weighted, 30-day half-life', 'Pondération qualité, demi-vie de 30 jours', 'Ponderado por calidad, vida media de 30 días'),
+  tableTitle: L('The national average, candidate by candidate', 'La moyenne nationale, candidat par candidat', 'La media nacional, candidato por candidato'),
+  tableHelp: L('Names polled at 1% or more. A candidate’s number of polls says how often pollsters have tested the name.', 'Noms sondés à 1 % ou plus. Le nombre de sondages dit combien de fois les sondeurs ont testé le nom.', 'Nombres medidos en 1 % o más. El número de encuestas indica cuántas veces se ha medido el nombre.'),
+  colRank: '#',
+  colName: L('Candidate', 'Candidat', 'Candidato'),
+  colShare: L('Average', 'Moyenne', 'Media'),
+  colPolls: L('Polls', 'Sondages', 'Encuestas'),
+  colStatus: L('Status', 'Statut', 'Estado'),
+  scenTitle: L('If the field changes', 'Si le champ change', 'Si cambia el campo'),
+  scenHelp: L('Shares among the scenario’s candidates only, rescaled to 100.', 'Parts parmi les seuls candidats du scénario, ramenées à 100.', 'Cuotas entre los candidatos del escenario, llevadas a 100.'),
+  earlyTitle: L('In the early states', 'Dans les premiers États', 'En los primeros estados'),
+  rests: L('based on', 'sur', 'sobre'),
+  noPolls: L('No poll yet for this party.', 'Pas encore de sondage pour ce parti.', 'Aún no hay encuestas para este partido.'),
+  dem: L('Democrats', 'Démocrates', 'Demócratas'),
+  rep: L('Republicans', 'Républicains', 'Republicanos'),
+  kdEyebrow: L('2028 desk', 'Desk 2028', 'Mesa 2028'),
+  kdTitle: L('The rest of the race', 'Le reste de la course', 'El resto de la carrera'),
+  kdBody: L('Both primaries, the early states and the electoral-college map.', 'Les deux primaires, les premiers États et la carte du collège électoral.', 'Ambas primarias, los primeros estados y el mapa del colegio electoral.'),
+  method: L('Methodology', 'Méthodologie', 'Metodología'),
+};
+
+const kdLinks = [
+  view !== 'dem' && { href: href('dem'), label: L('Democratic primary', 'Primaire démocrate', 'Primaria demócrata'), detail: L('National polling average', 'Moyenne nationale des sondages', 'Media nacional de encuestas') },
+  view !== 'rep' && { href: href('rep'), label: L('Republican primary', 'Primaire républicaine', 'Primaria republicana'), detail: L('National polling average', 'Moyenne nationale des sondages', 'Media nacional de encuestas') },
+  view !== 'early' && { href: href('early'), label: L('Early states', 'Premiers États', 'Primeros estados'), detail: 'Iowa, New Hampshire, South Carolina, Nevada' },
+  { href: HUB, label: L('2028 presidential desk', 'Desk présidentiel 2028', 'Mesa presidencial 2028'), detail: L('Both fields and the electoral college', 'Les deux champs et le collège électoral', 'Ambos campos y el colegio electoral') },
+].filter(Boolean) as { href: string; label: string; detail: string }[];
+---
+
+<JurisdictionNav webKey="us-president" lang={locale} active={view === 'dem' ? 'democratic' : view === 'rep' ? 'republican' : 'early'} />
+
+<article class="upv" data-content-area>
+  <header class="upv-hero container vs-page-head">
+    <p class="upv-kicker">{T.kicker}</p>
+    <h1 class="upv-title">{title}</h1>
+    <p class="upv-dek">{dek}</p>
+    <p class="upv-meta"><span>{T.updated}</span><span aria-hidden="true">·</span><span>{T.weighting}</span><span aria-hidden="true">·</span><a href={methodHref(locale)}>{T.method}</a></p>
+  </header>
+
+  {block && (
+    <section class="upv-section container" aria-labelledby="upv-table">
+      <h2 id="upv-table" class="upv-h2">{T.tableTitle}</h2>
+      <p class="upv-help">{T.tableHelp}</p>
+      <div class="table-scroll">
+        <table class="upv-table">
+          <thead><tr><th class="num">{T.colRank}</th><th>{T.colName}</th><th class="num">{T.colShare}</th><th class="num">{T.colPolls}</th><th>{T.colStatus}</th></tr></thead>
+          <tbody>
+            {standings.map((s, i) => (
+              <tr class={s.status === 'ineligible' ? 'is-out' : ''}>
+                <td class="num">{i + 1}</td>
+                <th scope="row">{s.name}</th>
+                <td class="num"><span class="upv-bar" style={`width:${Math.min(100, s.share * 2)}px;background:var(--${view})`} aria-hidden="true"></span>{fmtPct1(s.share, locale)}</td>
+                <td class="num">{s.poll_count}</td>
+                <td>{STATUS[s.status] ?? s.status}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  )}
+
+  {scenarios.length > 0 && (
+    <section class="upv-section container" aria-labelledby="upv-scen">
+      <h2 id="upv-scen" class="upv-h2">{T.scenTitle}</h2>
+      <p class="upv-help">{T.scenHelp}</p>
+      <div class="upv-grid">
+        {scenarios.map((sc) => (
+          <div class="upv-card">
+            <h3 class="upv-h3">{sc.label[locale]}</h3>
+            <ol class="upv-list">
+              {sc.field.slice(0, 6).map((f) => <li><span>{f.name}</span><b>{fmtPct1(f.renorm_share, locale)}</b></li>)}
+            </ol>
+          </div>
+        ))}
+      </div>
+    </section>
+  )}
+
+  <section class="upv-section container" aria-labelledby="upv-early">
+    <h2 id="upv-early" class="upv-h2">{view === 'early' ? L('State by state', 'État par État', 'Estado por estado') : T.earlyTitle}</h2>
+    <div class="upv-grid">
+      {earlyStates.map((st) => (
+        <div class="upv-card">
+          <h3 class="upv-h3">{stateName[st] ?? st}</h3>
+          {(view === 'early' ? ['us_rep', 'us_dem'] : [partyCode]).map((party) => {
+            const e = early[st][party];
+            return (
+              <div class="upv-early">
+                {view === 'early' && <p class="upv-party">{party === 'us_dem' ? T.dem : T.rep}</p>}
+                {e ? (
+                  <>
+                    <ol class="upv-list">{e.top.slice(0, 4).map((c) => <li><span>{c.short_label}</span><b>{fmtPct1(c.share, locale)}</b></li>)}</ol>
+                    <p class="upv-note">{T.rests} {e.n_polls} {pollsWord(e.n_polls)}</p>
+                  </>
+                ) : <p class="upv-note">{T.noPolls}</p>}
+              </div>
+            );
+          })}
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section class="upv-section container">
+    <KeepDigging eyebrow={T.kdEyebrow} title={T.kdTitle} body={T.kdBody} links={kdLinks} />
+  </section>
+</article>
+
+<style>
+  .upv { --dem: #1f77d0; --rep: #c62828; --early: var(--ink-3); padding-block: 48px 96px; }
+  :global(:root[data-theme='dark']) .upv { --dem: #4a9be0; --rep: #e05a5a; }
+  .upv-hero { max-width: 1080px; padding-bottom: 32px; border-bottom: 1px solid var(--rule); }
+  .upv-kicker { margin: 0 0 14px; font-family: var(--mono); font-size: 13px; color: var(--ink-3); }
+  .upv-title { margin: 0 0 16px; font-family: var(--serif); font-size: clamp(36px, 5.5vw, 64px); font-weight: 700; letter-spacing: -0.01em; line-height: 1.02; }
+  .upv-dek { max-width: 720px; margin: 0 0 18px; color: var(--ink-2); font-size: 17px; line-height: 1.6; }
+  .upv-meta { display: flex; flex-wrap: wrap; gap: 6px 12px; margin: 0; font-family: var(--mono); font-size: 13px; color: var(--ink-2); }
+  .upv-meta span[aria-hidden] { color: var(--rule); }
+  .upv-section { max-width: 1080px; margin-top: 48px; }
+  .upv-h2 { margin: 0 0 10px; font-family: var(--serif); font-size: clamp(24px, 3vw, 34px); font-weight: 700; line-height: 1.1; }
+  .upv-h3 { margin: 0 0 10px; font-family: var(--serif); font-size: 17px; }
+  .upv-help { max-width: 640px; margin: 0 0 18px; color: var(--ink-3); font-family: var(--mono); font-size: 13px; line-height: 1.6; }
+  .upv-table { width: 100%; border-collapse: collapse; font-size: 15px; }
+  .upv-table th, .upv-table td { padding: 8px 10px; border-bottom: 1px solid var(--rule); text-align: left; }
+  .upv-table thead th { font-family: var(--mono); font-size: 12px; color: var(--ink-3); font-weight: 500; }
+  .upv-table .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .upv-table tbody th { font-weight: 600; }
+  .upv-table tr.is-out { color: var(--ink-3); }
+  .upv-bar { display: inline-block; height: 8px; margin-right: 8px; border-radius: 2px; vertical-align: middle; }
+  .upv-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; }
+  .upv-card { border: 1px solid var(--rule); border-radius: 2px; background: var(--card); padding: 16px; }
+  .upv-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; font-size: 14px; }
+  .upv-list li { display: flex; justify-content: space-between; gap: 10px; }
+  .upv-list b { font-variant-numeric: tabular-nums; }
+  .upv-party { margin: 10px 0 6px; font-family: var(--mono); font-size: 12px; color: var(--ink-3); }
+  .upv-note { margin: 8px 0 0; font-family: var(--mono); font-size: 12px; color: var(--ink-3); }
+</style>

@@ -128,6 +128,9 @@ const CURATED = [
   // c'est le cycle que cherchent les lecteurs américains après les mi-mandats :
   // 5 sessions engagées américaines en 30 jours (GA4, 27 oct.-25 nov.).
   '/en/us/president/', '/fr/us/presidentielle/', '/es/us/presidencial/',
+  '/en/us/president/democratic-primary/', '/fr/us/presidentielle/primaire-democrate/', '/es/us/presidencial/primaria-democrata/',
+  '/en/us/president/republican-primary/', '/fr/us/presidentielle/primaire-republicaine/', '/es/us/presidencial/primaria-republicana/',
+  '/en/us/president/early-states/', '/fr/us/presidentielle/premiers-etats/', '/es/us/presidencial/primeros-estados/',
   '/en/us/specials/ga13/', '/fr/us/specials/ga13/', '/es/us/specials/ga13/',
   '/en/us/specials/ca14/', '/fr/us/specials/ca14/', '/es/us/specials/ca14/',
   '/en/us/specials/fl20/', '/fr/us/specials/fl20/', '/es/us/specials/fl20/',

@@ -15,7 +15,7 @@
  * POLLS_HUBS, and the band lights up across every shared page (uniformity).
  */
 export type NavLang = 'en' | 'fr' | 'es';
-export type SectionKey = 'projection' | 'polls' | 'districts' | 'uncertainty';
+export type SectionKey = 'projection' | 'polls' | 'districts' | 'uncertainty' | 'democratic' | 'republican' | 'early';
 
 /** Per-language URL segment for a section ('' → the base path itself). */
 type Seg = Record<NavLang, string>;
@@ -103,7 +103,12 @@ export const JURISDICTION_NAV: JurisdictionNavEntry[] = [
     label: { en: 'President', fr: 'Présidentielle', es: 'Presidencial' },
     base: { en: '/en/us/president', fr: '/fr/us/presidentielle', es: '/es/us/presidencial' },
     sections: {
-      projection: { seg: SEG_NONE },
+      projection: { seg: SEG_NONE, label: { en: 'Overview', fr: 'Vue d’ensemble', es: 'Panorama' } },
+      // Une page par primaire et une pour les premiers États (27 nov. 2026) :
+      // les lecteurs cherchent « 2028 democratic primary polls », pas le desk.
+      democratic: { seg: { en: 'democratic-primary', fr: 'primaire-democrate', es: 'primaria-democrata' }, label: { en: 'Democratic primary', fr: 'Primaire démocrate', es: 'Primaria demócrata' } },
+      republican: { seg: { en: 'republican-primary', fr: 'primaire-republicaine', es: 'primaria-republicana' }, label: { en: 'Republican primary', fr: 'Primaire républicaine', es: 'Primaria republicana' } },
+      early: { seg: { en: 'early-states', fr: 'premiers-etats', es: 'primeros-estados' }, label: { en: 'Early states', fr: 'Premiers États', es: 'Primeros estados' } },
     },
   },
   {
