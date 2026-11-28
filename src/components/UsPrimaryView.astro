@@ -10,6 +10,7 @@ import { longDate } from '../lib/format';
 import { placeName } from '../lib/place-names';
 import JurisdictionNav from './JurisdictionNav.astro';
 import KeepDigging from './KeepDigging.astro';
+import ShareModule from '../islands/lib/ShareModule.tsx';
 import latest from '../../web_data/us-president/latest.json';
 import { fmtPct1, methodHref, type UsPresPayload, type Locale } from '../lib/us-pres';
 
@@ -112,6 +113,7 @@ const kdLinks = [
     <h1 class="upv-title">{title}</h1>
     <p class="upv-dek">{dek}</p>
     <p class="upv-meta"><span>{T.updated}</span><span aria-hidden="true">·</span><span>{T.weighting}</span><span aria-hidden="true">·</span><a href={methodHref(locale)}>{T.method}</a></p>
+    <ShareModule lang={locale} kind="projection" election={`us-president-${view}`} runDate={meta.run_date} client:idle />
   </header>
 
   {block && (

@@ -319,6 +319,8 @@ export function mapCard(fmt: Format, { key, lang, latest, geo }: MapCardInput): 
 export function projectionCard(fmt: Format, { key, lang, latest }: { key: string; lang: Lang; latest: any }): Node {
   if (key === 'spain' && latest.blocs && latest.national) return spainCard(fmt, { key, lang, latest });
   if (key === 'us-president' && latest.primary) return primaryCard(fmt, { key, lang, latest });
+  if ((key === 'us-president-dem' || key === 'us-president-rep') && latest.primary) return partyPrimaryCard(fmt, { key, lang, latest });
+  if (key === 'us-president-early' && latest.primary) return earlyStatesCard(fmt, { key, lang, latest });
   const t = T[lang];
   const el = SHARE_ELECTIONS[key];
   const { w } = SIZE[fmt];
@@ -442,6 +444,74 @@ function primaryCard(fmt: Format, { key, lang, latest }: { key: string; lang: La
     h('div', { fontSize: big ? 22 : 17, fontWeight: 600, color: INK_2, marginTop: 6, marginBottom: big ? 26 : 12 }, t.avg),
     h('div', { flexDirection: fmt === 'wide' ? 'row' : 'column' }, col(p.dem, t.dem), col(p.rep, t.rep)));
   return frame(fmt, lang, el.name[lang], el.when[lang], body, t.foot(nf(latest.meta.n_primary_polls, lang), longDate(latest.meta.run_date, lang)));
+}
+
+/** Une seule primaire, plus de noms que la carte à deux colonnes. */
+function partyPrimaryCard(fmt: Format, { key, lang, latest }: { key: string; lang: Lang; latest: any }): Node {
+  const t = PRIM_T[lang];
+  const el = SHARE_ELECTIONS[key];
+  const party = latest.primary[key.endsWith('-dem') ? 'dem' : 'rep'];
+  const big = fmt !== 'wide';
+  const n = fmt === 'story' ? 14 : big ? 10 : 7;
+  const rows = (party.standings as any[]).filter((r) => r.share >= 1).slice(0, n);
+  const max = Math.max(...rows.map((r) => r.share), 1);
+  const colW = SIZE[fmt].w - (fmt === 'wide' ? 68 : 88);
+  const nameW = big ? 380 : 330;
+  const barW = colW - nameW - 90 - 70 - 10;
+  const one = (v: number) => (lang === 'en' ? v.toFixed(1) : v.toFixed(1).replace('.', ','));
+  const trend = (v: number) => (Math.abs(v) < 0.5 ? '=' : `${v > 0 ? '+' : '−'}${one(Math.abs(v))}`);
+  const body = h('div', { flexDirection: 'column', flexGrow: 1, justifyContent: fmt === 'wide' ? 'flex-start' : 'center' },
+    h('div', { fontSize: big ? 50 : 34, fontWeight: 700, lineHeight: 1.05 }, el.question[lang]),
+    h('div', { fontSize: big ? 22 : 17, fontWeight: 600, color: INK_2, marginTop: 6, marginBottom: big ? 22 : 10 }, t.avg),
+    ...rows.map((r) => h('div', { alignItems: 'center', padding: fmt === 'story' ? '12px 0' : big ? '8px 0' : '3px 0', borderBottom: `1px solid ${RULE}`, color: r.status === 'ineligible' ? INK_3 : INK },
+      h('div', { width: nameW, flexShrink: 0, fontSize: big ? 26 : 20, fontWeight: 700 }, r.name),
+      h('div', { width: barW, flexShrink: 0, height: big ? 18 : 13, backgroundColor: PAPER_2, marginRight: 10 },
+        h('div', { width: Math.round((r.share / max) * barW), height: big ? 18 : 13, backgroundColor: r.status === 'ineligible' ? VIDE : party.color })),
+      h('div', { width: 90, flexShrink: 0, justifyContent: 'flex-end', fontFamily: 'Barlow Condensed', fontWeight: 700, fontSize: big ? 38 : 28, lineHeight: 1 }, one(r.share)),
+      h('div', { width: 70, flexShrink: 0, justifyContent: 'flex-end', fontSize: big ? 19 : 15, fontWeight: 600, color: r.trend > 0.5 ? '#2e7d32' : r.trend < -0.5 ? '#b71c1c' : INK_3 }, trend(r.trend)))));
+  return frame(fmt, lang, el.name[lang], el.when[lang], body, t.foot(nf(party.n_polls, lang), longDate(latest.meta.run_date, lang)));
+}
+
+const EARLY_NAMES: Record<string, Record<Lang, string>> = {
+  IA: { fr: 'Iowa', en: 'Iowa', es: 'Iowa' },
+  NH: { fr: 'New Hampshire', en: 'New Hampshire', es: 'Nuevo Hampshire' },
+  SC: { fr: 'Caroline du Sud', en: 'South Carolina', es: 'Carolina del Sur' },
+  NV: { fr: 'Nevada', en: 'Nevada', es: 'Nevada' },
+};
+const EARLY_T = {
+  fr: { dem: 'Démocrates', rep: 'Républicains', none: 'Aucun sondage', polls: (n: number) => `${n} sondage${n > 1 ? 's' : ''}`, foot: (d: string) => `Moyenne des sondages d’État · ${d}` },
+  en: { dem: 'Democrats', rep: 'Republicans', none: 'No poll yet', polls: (n: number) => `${n} poll${n > 1 ? 's' : ''}`, foot: (d: string) => `State polling averages · ${d}` },
+  es: { dem: 'Demócratas', rep: 'Republicanos', none: 'Sin encuestas', polls: (n: number) => `${n} encuesta${n > 1 ? 's' : ''}`, foot: (d: string) => `Promedios de encuestas estatales · ${d}` },
+} as const;
+
+/** Premiers États : chaque moyenne avec le nombre de sondages derrière elle. */
+function earlyStatesCard(fmt: Format, { key, lang, latest }: { key: string; lang: Lang; latest: any }): Node {
+  const t = EARLY_T[lang];
+  const el = SHARE_ELECTIONS[key];
+  const early = latest.primary.early_states ?? {};
+  const states = ['IA', 'NH', 'SC', 'NV'].filter((s) => early[s]);
+  const big = fmt !== 'wide';
+  const cols = fmt === 'wide' ? 4 : fmt === 'square' ? 2 : 1;
+  const inner = SIZE[fmt].w - (fmt === 'wide' ? 68 : 88);
+  const cellW = Math.floor((inner - cols * 18) / cols);
+  const one = (v: number) => (lang === 'en' ? v.toFixed(0) : v.toFixed(0));
+  const partyBlock = (st: string, party: 'us_dem' | 'us_rep') => {
+    const e = early[st][party];
+    const color = party === 'us_dem' ? '#1f77d0' : '#c62828';
+    return h('div', { flexDirection: 'column', marginTop: big ? 12 : 8 },
+      h('div', { fontSize: big ? 19 : 14, fontWeight: 700, color, borderBottom: `2px solid ${color}`, paddingBottom: 3, marginBottom: 4 },
+        `${party === 'us_dem' ? t.dem : t.rep}${e ? ` · ${t.polls(e.n_polls)}` : ''}`),
+      ...(e ? e.top.slice(0, fmt === 'wide' ? 3 : 3).map((c: any) => h('div', { justifyContent: 'space-between', fontSize: big ? 24 : 17, fontWeight: 600, padding: '2px 0' },
+        h('div', {}, c.short_label), h('div', { fontFamily: 'Barlow Condensed', fontWeight: 700 }, one(c.share))))
+        : [h('div', { fontSize: big ? 20 : 15, color: INK_3 }, t.none)]));
+  };
+  const cells = states.map((st) => h('div', { flexDirection: 'column', width: cellW, flexShrink: 0, marginRight: 18, marginBottom: big ? 22 : 0 },
+    h('div', { fontSize: big ? 32 : 24, fontWeight: 700 }, EARLY_NAMES[st][lang]),
+    partyBlock(st, 'us_rep'), partyBlock(st, 'us_dem')));
+  const body = h('div', { flexDirection: 'column', flexGrow: 1, justifyContent: fmt === 'wide' ? 'flex-start' : 'center' },
+    h('div', { fontSize: big ? 50 : 34, fontWeight: 700, lineHeight: 1.05, marginBottom: big ? 22 : 12 }, el.question[lang]),
+    h('div', { flexDirection: 'row', flexWrap: 'wrap' }, ...cells));
+  return frame(fmt, lang, el.name[lang], el.when[lang], body, t.foot(longDate(latest.meta.run_date, lang)));
 }
 
 // ------------------------------------------------------------------ province espagnole

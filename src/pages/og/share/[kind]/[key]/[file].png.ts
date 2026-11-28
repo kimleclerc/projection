@@ -16,7 +16,8 @@ import { pollsAsLatest } from '../../../../../lib/share/fr-face';
 import { SHARE_ELECTIONS, type Lang } from '../../../../../lib/share/elections';
 
 const ROOT = process.cwd();
-const data = (key: string, f: string) => resolve(ROOT, 'web_data', key, f);
+// Une vue dérivée (primaire démocrate, républicaine…) lit le dossier de son desk.
+const data = (key: string, f: string) => resolve(ROOT, 'web_data', SHARE_ELECTIONS[key]?.dataKey ?? key, f);
 const read = (key: string, f: string) => JSON.parse(readFileSync(data(key, f), 'utf8'));
 // Le R.-U. garde ses circonscriptions détaillées (projection, résultat 2024) dans
 // ridings.json, latest.json n'en porte que le résumé : on prend le détail.
@@ -46,8 +47,8 @@ export const getStaticPaths: GetStaticPaths = () => {
     if (!existsSync(data(key, 'latest.json'))) continue;
     const latest = readLatest(key);
     const kinds = ['projection'];
-    if (existsSync(data(key, 'geomap.json'))) kinds.push('map');
-    if (key === FR || (latest.polls_history ?? []).length > 10) kinds.push('chart');
+    if (!SHARE_ELECTIONS[key].dataKey && existsSync(data(key, 'geomap.json'))) kinds.push('map');
+    if (!SHARE_ELECTIONS[key].dataKey && (key === FR || (latest.polls_history ?? []).length > 10)) kinds.push('chart');
     for (const kind of kinds) for (const lang of ['fr', 'en', 'es']) for (const suffix of ['', '-carre', '-story']) {
       out.push({ params: { kind, key, file: `${lang}${suffix}` } });
     }

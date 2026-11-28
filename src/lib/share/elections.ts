@@ -20,6 +20,8 @@ export interface ShareElection {
   date?: string;
   /** Simulateur (« fais ta carte ») : un scénario partagé rouvre cette page. */
   simulator?: L;
+  /** Dossier web_data à lire quand la clé n'en a pas (vues dérivées d'un même desk). */
+  dataKey?: string;
 }
 
 export const SHARE_ELECTIONS: Record<string, ShareElection> = {
@@ -97,6 +99,28 @@ export const SHARE_ELECTIONS: Record<string, ShareElection> = {
     when: { fr: '7 novembre 2028', en: 'November 7, 2028', es: '7 de noviembre de 2028' },
     page: { fr: '/fr/us/presidentielle/', en: '/en/us/president/', es: '/es/us/presidencial/' },
     unit: 'state', fullChamber: false, baselineYear: 2024, date: '2028-11-07',
+  },
+  // Vues de la primaire 2028 (une page chacune) : mêmes données que le desk.
+  'us-president-dem': {
+    name: { fr: 'Primaire démocrate 2028', en: '2028 Democratic primary', es: 'Primaria demócrata 2028' },
+    question: { fr: 'Qui mène la primaire démocrate ?', en: 'Who leads the Democratic primary?', es: '¿Quién encabeza la primaria demócrata?' },
+    when: { fr: '7 novembre 2028', en: 'November 7, 2028', es: '7 de noviembre de 2028' },
+    page: { fr: '/fr/us/presidentielle/primaire-democrate/', en: '/en/us/president/democratic-primary/', es: '/es/us/presidencial/primaria-democrata/' },
+    unit: 'state', fullChamber: false, baselineYear: 2024, dataKey: 'us-president',
+  },
+  'us-president-rep': {
+    name: { fr: 'Primaire républicaine 2028', en: '2028 Republican primary', es: 'Primaria republicana 2028' },
+    question: { fr: 'Qui mène la primaire républicaine ?', en: 'Who leads the Republican primary?', es: '¿Quién encabeza la primaria republicana?' },
+    when: { fr: '7 novembre 2028', en: 'November 7, 2028', es: '7 de noviembre de 2028' },
+    page: { fr: '/fr/us/presidentielle/primaire-republicaine/', en: '/en/us/president/republican-primary/', es: '/es/us/presidencial/primaria-republicana/' },
+    unit: 'state', fullChamber: false, baselineYear: 2024, dataKey: 'us-president',
+  },
+  'us-president-early': {
+    name: { fr: 'Primaires 2028 : premiers États', en: '2028 primaries: early states', es: 'Primarias 2028: primeros estados' },
+    question: { fr: 'Qui mène dans les premiers États ?', en: 'Who leads in the early states?', es: '¿Quién encabeza en los primeros estados?' },
+    when: { fr: '7 novembre 2028', en: 'November 7, 2028', es: '7 de noviembre de 2028' },
+    page: { fr: '/fr/us/presidentielle/premiers-etats/', en: '/en/us/president/early-states/', es: '/es/us/presidencial/primeros-estados/' },
+    unit: 'state', fullChamber: false, baselineYear: 2024, dataKey: 'us-president',
   },
   'france-presidential': {
     name: { fr: 'Présidentielle française', en: 'French presidential election', es: 'Presidencial francesa' },
