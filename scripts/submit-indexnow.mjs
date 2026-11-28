@@ -47,13 +47,13 @@ const BATCH_SIZE = 10000; // IndexNow hard cap per request
 const CURATED = [
   '/en/', '/fr/', '/es/',
   '/en/canada/', '/fr/canada/', '/es/canada/',
-  '/en/canada/federal', '/fr/canada/federal', '/es/canada/federal',
-  '/en/canada/quebec', '/fr/canada/quebec', '/es/canada/quebec',
+  '/en/canada/federal/', '/fr/canada/federal/', '/es/canada/federal/',
+  '/en/canada/quebec/', '/fr/canada/quebec/', '/es/canada/quebec/',
   // Soirée du 5 octobre 2026 : la page de résultats doit être connue des
   // moteurs AVANT le scrutin — une URL créée le soir même ne se classe pas
   // le soir même.
   '/fr/canada/quebec/resultats/', '/en/canada/quebec/results/', '/es/canada/quebec/resultados/',
-  '/en/canada/ontario', '/fr/canada/ontario', '/es/canada/ontario',
+  '/en/canada/ontario/', '/fr/canada/ontario/', '/es/canada/ontario/',
   // Espagne — desk ouvert le 2026-10-03 (élection anticipée probable) : hub et
   // sondages bougent à chaque mise à jour.
   '/en/spain/', '/fr/spain/', '/es/spain/',
@@ -62,16 +62,16 @@ const CURATED = [
   // scrutin anticipé possible : la projection et le hub de sondages bougent à
   // chaque run, et l'index des 93 circonscriptions est la porte d'entrée des
   // recherches par circonscription.
-  '/en/canada/british-columbia', '/fr/canada/colombie-britannique', '/es/canada/columbia-britanica',
+  '/en/canada/british-columbia/', '/fr/canada/colombie-britannique/', '/es/canada/columbia-britanica/',
   '/en/canada/british-columbia/ridings/', '/fr/canada/colombie-britannique/circonscriptions/', '/es/canada/columbia-britanica/distritos/',
   '/en/canada/british-columbia/polls/', '/fr/canada/colombie-britannique/sondages/', '/es/canada/columbia-britanica/sondeos/',
   '/en/canada/british-columbia/uncertainty/', '/fr/canada/colombie-britannique/incertitude/', '/es/canada/columbia-britanica/incertidumbre/',
   '/en/us/', '/fr/us/', '/es/us/',
-  '/en/us/house', '/fr/us/chambre', '/es/us/house',
-  '/en/us/senate', '/fr/us/senat', '/es/us/senate',
+  '/en/us/house/', '/fr/us/chambre/', '/es/us/house/',
+  '/en/us/senate/', '/fr/us/senat/', '/es/us/senate/',
   // Gouverneurs — section ouverte le 2026-09-04. Les trois pages de
   // projection et les deux index bougent à chaque run nocturne.
-  '/en/us/governors', '/fr/us/gouverneurs', '/es/us/gobernadores',
+  '/en/us/governors/', '/fr/us/gouverneurs/', '/es/us/gobernadores/',
   '/en/us/governors/races/', '/fr/us/gouverneurs/courses/', '/es/us/gobernadores/carreras/',
   '/en/us/governors/polls/', '/fr/us/gouverneurs/sondages/', '/es/us/gobernadores/sondeos/',
   // Vote anticipé — page ouverte le 2026-10-26, mise à jour chaque jour
@@ -123,7 +123,11 @@ const CURATED = [
   // 11/11), où CA-14 et GA-13 sont passés au résultat, et où le suivi des
   // primaires a gagné neuf États. Rien de tout ça n'aurait été annoncé.
   '/en/track-record/', '/fr/track-record/', '/es/track-record/',
-  '/en/us/primaries/', '/fr/us/primaires/', '/es/us/primaries/',
+  '/en/us/primaries/', '/fr/us/primaires/', '/es/us/primarias/',
+  // Présidentielle 2028 — absente de cette liste jusqu'au 2026-11-27, alors que
+  // c'est le cycle que cherchent les lecteurs américains après les mi-mandats :
+  // 5 sessions engagées américaines en 30 jours (GA4, 27 oct.-25 nov.).
+  '/en/us/president/', '/fr/us/presidentielle/', '/es/us/presidencial/',
   '/en/us/specials/ga13/', '/fr/us/specials/ga13/', '/es/us/specials/ga13/',
   '/en/us/specials/ca14/', '/fr/us/specials/ca14/', '/es/us/specials/ca14/',
   '/en/us/specials/fl20/', '/fr/us/specials/fl20/', '/es/us/specials/fl20/',

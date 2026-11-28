@@ -18,15 +18,24 @@ interface Props { chamber: Chamber; locale: 'fr' | 'en' | 'es'; compact?: boolea
 const { chamber, locale, compact = false } = Astro.props;
 const props = usLiveProps(chamber, locale);
 const liveUrl = (base: string) => `${base.replace(/\/$/, '')}/api/v1/elections/${US_LIVE_EVENT_ID}/live.json`;
+// Après le scrutin, chaque page de résultats envoie vers le cycle suivant :
+// ces trois pages portent l'essentiel du trafic américain, la page 2028 presque rien.
+const NEXT = {
+  en: { href: '/en/us/president/', lead: 'Next:', text: 'the 2028 presidential race — Democratic and Republican primary polls' },
+  fr: { href: '/fr/us/presidentielle/', lead: 'La suite :', text: 'la présidentielle de 2028 — sondages des primaires démocrate et républicaine' },
+  es: { href: '/es/us/presidencial/', lead: 'Lo que viene:', text: 'la presidencial de 2028 — encuestas de las primarias demócrata y republicana' },
+}[locale];
 ---
 <div class={`usl-wrap${compact ? ' is-compact' : ''}`} id="resultats">
   <UsNationalCalls client:load lang={locale} liveUrl={liveUrl(US_LIVE_API_BASE)} fallbackUrl={liveUrl(US_LIVE_FALLBACK_API_BASE)}
     demColor={partyMeta('us-house', 'us_dem').color} repColor={partyMeta('us-house', 'us_rep').color} pageUrl={`https://vote-scope.com/${locale}/us/`} />
   <UsMidtermsLive client:load eventId={US_LIVE_EVENT_ID} lang={locale} apiBase={US_LIVE_API_BASE}
     fallbackApiBase={US_LIVE_FALLBACK_API_BASE} embedPath={EMBED[chamber][locale]} compact={compact} {...props} />
+  {!compact && <p class="usl-next"><strong>{NEXT.lead}</strong> <a class="vs-link" href={NEXT.href}>{NEXT.text}</a></p>}
 </div>
 <style>
   .usl-wrap { max-width: 1080px; margin-inline: auto; padding-inline: 1.5rem; }
   .usl-wrap.is-compact { padding-inline: 0; }
+  .usl-next { margin: 1rem 0 0; font-size: 0.95rem; }
   @media (max-width: 620px) { .usl-wrap { padding-inline: 16px; } .usl-wrap.is-compact { padding-inline: 0; } }
 </style>

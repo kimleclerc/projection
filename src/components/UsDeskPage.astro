@@ -97,13 +97,38 @@ const specialDek = (s: SpecialElectionConfig) =>
 const pHouse = Math.round((houseDem?.p_majority ?? 0) * 100);
 const pSenate = Math.round((senateDem?.p_majority ?? 0) * 100);
 
+// Après le 3 novembre : les appels de majorité embarqués au build (snapshot du
+// direct) disent qui a gagné. Titre, description et titre de page les suivent ;
+// sans appel, on garde la formulation d'avant le scrutin.
+const resultsHome = usResultsHome(lang);
+const majSide = (ch: 'house' | 'senate') => resultsHome.initial.majorities.find((m) => m.chamber === ch)?.side ?? null;
+const wonHouse = majSide('house');
+const wonSenate = majSide('senate');
+const PARTY = {
+  en: { dem: 'Democrats', rep: 'Republicans' },
+  fr: { dem: 'Les démocrates', rep: 'Les républicains' },
+  es: { dem: 'Los demócratas', rep: 'Los republicanos' },
+}[lang];
+const wonLine = (() => {
+  if (!wonHouse || !wonSenate) return null;
+  if (wonHouse === wonSenate) {
+    return lang === 'fr' ? `${PARTY[wonHouse]} ont remporté la Chambre et le Sénat.`
+      : lang === 'es' ? `${PARTY[wonHouse]} ganaron la Cámara y el Senado.`
+      : `${PARTY[wonHouse]} won the House and the Senate.`;
+  }
+  const low = (x: string) => x.charAt(0).toLowerCase() + x.slice(1);
+  return lang === 'fr' ? `${PARTY[wonHouse]} ont remporté la Chambre, ${low(PARTY[wonSenate])} le Sénat.`
+    : lang === 'es' ? `${PARTY[wonHouse]} ganaron la Cámara; ${low(PARTY[wonSenate])}, el Senado.`
+    : `${PARTY[wonHouse]} won the House, ${PARTY[wonSenate]} the Senate.`;
+})();
+
 const COPY = {
   en: {
-    title: 'Trump\u2019s 2026 Midterms — House, Senate and Governor Forecast — Vote-Scope',
-    description: 'House control, Senate fragility, special elections, and the Lame-Duck Index in one place. Our final projection, and the results as the count comes in on November 3 — Vote-Scope.',
+    title: wonLine ? 'U.S. Elections: 2026 Midterm Results and the 2028 Presidential Race — Vote-Scope' : 'Trump\u2019s 2026 Midterms — House, Senate and Governor Forecast — Vote-Scope',
+    description: wonLine ? `${wonLine} Results for the House, Senate and governors, the seats that changed hands, and the 2028 presidential race: primary polls in both parties and the electoral map.` : 'House control, Senate fragility, special elections, and the Lame-Duck Index in one place. Our final projection, and the results as the count comes in on November 3 — Vote-Scope.',
     breadcrumb: 'U.S.',
-    heroTitle: `Democrats are favoured for the House at ${pHouse}%, and for the Senate at ${pSenate}%.`,
-    heroPromise: "House, Senate and governors, all decided tonight, November 3, 2026: our final projection from public polls, before the first results.",
+    heroTitle: wonLine ?? `Democrats are favoured for the House at ${pHouse}%, and for the Senate at ${pSenate}%.`,
+    heroPromise: wonLine ? 'The 2026 midterm results, chamber by chamber, and the race that has already begun: 2028.' : "House, Senate and governors, all decided tonight, November 3, 2026: our final projection from public polls, before the first results.",
     govRaces: (n: number) => `36 races on the ballot · ${n} open seats.`,
     primaries: 'Primaries 2026',
     primariesCount: (decided: number, awaiting: number) => `${decided} nominations settled · ${awaiting} races still awaiting official results.`,
@@ -141,11 +166,11 @@ const COPY = {
     homeHref: 'https://vote-scope.com/en/',
   },
   fr: {
-    title: 'Les mi-mandats de Trump 2026 — Chambre, Sénat, gouverneurs — Vote-Scope',
-    description: "Contrôle de la Chambre, fragilité du Sénat, partielles et indice Canard boiteux réunis. Notre projection finale, puis les résultats au fil du dépouillement le 3 novembre — Vote-Scope.",
+    title: wonLine ? 'Élections américaines : résultats des mi-mandats 2026 et présidentielle 2028 — Vote-Scope' : 'Les mi-mandats de Trump 2026 — Chambre, Sénat, gouverneurs — Vote-Scope',
+    description: wonLine ? `${wonLine} Les résultats de la Chambre, du Sénat et des gouverneurs, les sièges qui ont changé de parti, et la présidentielle de 2028 : sondages des primaires des deux partis et carte électorale.` : "Contrôle de la Chambre, fragilité du Sénat, partielles et indice Canard boiteux réunis. Notre projection finale, puis les résultats au fil du dépouillement le 3 novembre — Vote-Scope.",
     breadcrumb: 'États-Unis',
-    heroTitle: `Les démocrates sont favoris pour la Chambre à ${pHouse} %, et pour le Sénat à ${pSenate} %.`,
-    heroPromise: "Chambre, Sénat et gouverneurs, tous décidés ce soir, 3 novembre 2026 : notre projection finale, tirée des sondages publics, avant les premiers résultats.",
+    heroTitle: wonLine ?? `Les démocrates sont favoris pour la Chambre à ${pHouse} %, et pour le Sénat à ${pSenate} %.`,
+    heroPromise: wonLine ? 'Les résultats des mi-mandats de 2026, chambre par chambre, et la course qui a déjà commencé : 2028.' : "Chambre, Sénat et gouverneurs, tous décidés ce soir, 3 novembre 2026 : notre projection finale, tirée des sondages publics, avant les premiers résultats.",
     govRaces: (n: number) => `36 courses au bulletin · ${n} sièges ouverts.`,
     primaries: 'Primaires 2026',
     primariesCount: (decided: number, awaiting: number) => `${decided} investitures tranchées · ${awaiting} courses encore sans résultat officiel.`,
@@ -183,11 +208,11 @@ const COPY = {
     homeHref: 'https://vote-scope.com/fr/',
   },
   es: {
-    title: 'Las intermedias de Trump 2026 — Cámara, Senado, gobernadores — Vote-Scope',
-    description: 'Control de la Cámara, fragilidad del Senado, elecciones especiales y el índice Pato Cojo en un solo lugar. Nuestra proyección final y los resultados a medida que avanza el recuento el 3 de noviembre — Vote-Scope.',
+    title: wonLine ? 'Elecciones en EE. UU.: resultados de las intermedias 2026 y la presidencial de 2028 — Vote-Scope' : 'Las intermedias de Trump 2026 — Cámara, Senado, gobernadores — Vote-Scope',
+    description: wonLine ? `${wonLine} Los resultados de la Cámara, el Senado y los gobernadores, los escaños que cambiaron de partido y la presidencial de 2028: encuestas de primarias de ambos partidos y mapa electoral.` : 'Control de la Cámara, fragilidad del Senado, elecciones especiales y el índice Pato Cojo en un solo lugar. Nuestra proyección final y los resultados a medida que avanza el recuento el 3 de noviembre — Vote-Scope.',
     breadcrumb: 'EE. UU.',
-    heroTitle: `Los demócratas son favoritos para la Cámara con un ${pHouse} % y para el Senado con un ${pSenate} %.`,
-    heroPromise: "Cámara, Senado y gobernadores, todos decididos esta noche, 3 de noviembre de 2026: nuestra proyección final, a partir de encuestas públicas, antes de los primeros resultados.",
+    heroTitle: wonLine ?? `Los demócratas son favoritos para la Cámara con un ${pHouse} % y para el Senado con un ${pSenate} %.`,
+    heroPromise: wonLine ? 'Los resultados de las intermedias de 2026, cámara por cámara, y la carrera que ya empezó: 2028.' : "Cámara, Senado y gobernadores, todos decididos esta noche, 3 de noviembre de 2026: nuestra proyección final, a partir de encuestas públicas, antes de los primeros resultados.",
     govRaces: (n: number) => `36 contiendas en la papeleta · ${n} puestos abiertos.`,
     primaries: 'Primarias 2026',
     primariesCount: (decided: number, awaiting: number) => `${decided} nominaciones decididas · ${awaiting} contiendas aún sin resultado oficial.`,
@@ -313,7 +338,7 @@ const presItems = [
       demColor={houseDem.color} repColor={houseRep.color} pageUrl={canonical} />
   </div>
 
-  <UsResultsHome client:load lang={lang} {...usResultsHome(lang)} />
+  <UsResultsHome client:load lang={lang} {...resultsHome} />
 
   <UsPreCount lang={lang} />
 
@@ -349,11 +374,11 @@ const presItems = [
   </section>
 
   <section class="container us-block">
-    <StoryList heading={t.indexTitle2} items={indexItems} size="sm" />
+    <StoryList heading={t.presTitle} items={presItems} size="sm" />
   </section>
 
   <section class="container us-block">
-    <StoryList heading={t.presTitle} items={presItems} size="sm" />
+    <StoryList heading={t.indexTitle2} items={indexItems} size="sm" />
   </section>
 
   <section class="container us-block" aria-labelledby="us-markets">

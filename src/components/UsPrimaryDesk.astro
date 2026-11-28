@@ -39,9 +39,10 @@ const PARTY_LABEL: Record<string, Record<Lang, string>> = {
 
 const T = {
   en: {
-    title: 'US Primaries — Tracker — Vote-Scope',
+    title: '2026 Congressional Primary Results: House and Senate — Vote-Scope',
+    next: { lead: 'Looking for 2028?', text: 'Democratic and Republican presidential primary polls', href: '/en/us/president/' },
     description:
-      'Every 2026 congressional primary: what is coming, what has been decided, and — just as plainly — what we have not been able to source yet.',
+      'Every 2026 House and Senate primary, state by state: who won, by how much, and — just as plainly — what we have not been able to source. The 2028 presidential primaries have their own page.',
     kicker: 'US Desk · Primaries',
     h1: 'The primary season, gate by gate.',
     dekA: 'Each state sets its own primary date, and each date settles a slice of November. This page tracks both halves: the contests still ahead, and the ones already decided.',
@@ -82,9 +83,10 @@ const T = {
     house_link: 'House projection', senate_link: 'Senate projection',
   },
   fr: {
-    title: 'Primaires américaines — Suivi — Vote-Scope',
+    title: 'Primaires du Congrès américain 2026 : résultats Chambre et Sénat — Vote-Scope',
+    next: { lead: 'Vous cherchez 2028 ?', text: 'Sondages des primaires présidentielles démocrate et républicaine', href: '/fr/us/presidentielle/' },
     description:
-      'Toutes les primaires fédérales de 2026 : ce qui vient, ce qui est tranché, et — aussi clairement — ce qu’on n’a pas encore pu sourcer.',
+      'Toutes les primaires de 2026 pour la Chambre et le Sénat, État par État : qui a gagné, par combien, et — aussi clairement — ce qu’on n’a pas pu sourcer. Les primaires présidentielles de 2028 ont leur propre page.',
     kicker: 'Bureau américain · Primaires',
     h1: 'La saison des primaires, porte par porte.',
     dekA: 'Chaque État fixe sa propre date, et chaque date règle une part de novembre. Cette page suit les deux moitiés : les scrutins à venir et ceux déjà tranchés.',
@@ -125,9 +127,10 @@ const T = {
     house_link: 'Projection Chambre', senate_link: 'Projection Sénat',
   },
   es: {
-    title: 'Primarias de EE. UU. — Seguimiento — Vote-Scope',
+    title: 'Primarias al Congreso de EE. UU. 2026: resultados de Cámara y Senado — Vote-Scope',
+    next: { lead: '¿Busca 2028?', text: 'Encuestas de las primarias presidenciales demócrata y republicana', href: '/es/us/presidencial/' },
     description:
-      'Todas las primarias federales de 2026: lo que viene, lo ya decidido y — con la misma claridad — lo que aún no hemos podido documentar.',
+      'Todas las primarias de 2026 a la Cámara y el Senado, estado por estado: quién ganó, por cuánto y — con la misma claridad — lo que no hemos podido documentar. Las primarias presidenciales de 2028 tienen su propia página.',
     kicker: 'EE. UU. · Primarias',
     h1: 'La temporada de primarias, puerta por puerta.',
     dekA: 'Cada estado fija su propia fecha, y cada fecha resuelve una parte de noviembre. Esta página sigue ambas mitades: lo que falta y lo ya decidido.',
@@ -239,6 +242,7 @@ const upcomingByDate = upcoming.reduce((acc: Record<string, any[]>, g: any) => {
       <p class="pdesk-kicker">{T.kicker}</p>
       <h1>{T.h1}</h1>
       <p class="pdesk-dek">{T.dekA}</p>
+      <p class="pdesk-dek"><strong>{T.next.lead}</strong> <a class="vs-link" href={T.next.href}>{T.next.text}</a></p>
       <p class="pdesk-asof">{T.dekB} {fmtDate(desk.meta.as_of)} · {fmtNum(desk.meta.n_races_decided)} {pl(desk.meta.n_races_decided, T.decided)} · {fmtNum(desk.meta.n_races_awaiting)} {T.awaiting}</p>
     </header>
 

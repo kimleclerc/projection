@@ -12,7 +12,11 @@ import governorSource from '../../web_data/us-governor/latest.json';
 import { partyMeta } from '../lib/riding-adapters/parties';
 import { ridingSlug } from '../lib/riding-adapters/types';
 import { CHAMBER_PREFIX, type Chamber } from '../islands/usLive';
+import usResultsSnapshot from './us-results-snapshot.json';
 import type { UsRaceInfo } from '../islands/UsMidtermsLive';
+
+// Appels de majorité du direct, figés au build (repli de live.json).
+const US_SNAPSHOT_CALLS = ((usResultsSnapshot as unknown as { national_calls?: { kind: string; chamber: string; party: string }[] }).national_calls) ?? [];
 
 type Locale = 'fr' | 'en' | 'es';
 
@@ -102,51 +106,48 @@ export const EMBED: Record<Chamber, Record<Locale, string>> = {
 };
 
 /**
- * Titre et description de partage des trois pages, la semaine du vote. Une page
- * statique ne peut pas connaître le décompte : elle dit ce qu'elle montre (les
- * résultats du 3 novembre) et le dernier résultat connu au build, notre
- * projection, chiffres à l'appui. L'état du décompte voyage par l'image que le
- * lecteur télécharge depuis l'îlot.
+ * Titre et description de partage des trois pages. La semaine du vote, ils
+ * annonçaient le dépouillement et notre projection ; depuis le 27 novembre, ils
+ * disent le résultat (« 2026 Senate election results » est la requête qui
+ * reste) — la projection du jour n'a plus sa place dans un extrait de recherche.
  */
 export function usShareMeta(chamber: Chamber, locale: Locale): { title: string; description: string } {
   const desk = SOURCES[chamber] as Desk & { parties?: { party: string; seats_projected?: number; seats_median?: number }[]; meta: { run_date?: string } };
-  const seats = (code: string) => {
-    const p = desk.parties?.find((x) => x.party === code);
-    return Math.round(p?.seats_projected ?? p?.seats_median ?? 0);
-  };
-  // Chambre : la médiane, comme la tuile du bureau US et ProjectionEngine.
-  const houseDem = chamber === 'house'
-    ? desk.parties?.find((x) => x.party === 'us_dem')?.seats_median : undefined;
-  const d = houseDem != null ? Math.round(houseDem) : seats('us_dem');
-  const r = houseDem != null ? 435 - d : seats('us_rep');
-  const run = desk.meta.run_date ? new Date(`${desk.meta.run_date}T12:00:00Z`) : null;
-  const day = run ? run.toLocaleDateString(locale === 'en' ? 'en-US' : locale === 'es' ? 'es-ES' : 'fr-CA', { day: 'numeric', month: 'long', timeZone: 'UTC' }) : '';
   const n = desk.ridings.length;
   const maj = desk.meta.majority_threshold ?? 0;
+  // Après le scrutin : la page dit qui a gagné (appel de majorité du snapshot
+  // embarqué au build), plus « au fil du dépouillement » ni la projection du jour.
+  const won = (US_SNAPSHOT_CALLS.find((c) => c.kind === 'majority' && c.chamber === chamber)?.party) ?? null;
+  const W = {
+    fr: won === 'us_dem' ? 'les démocrates' : won === 'us_rep' ? 'les républicains' : null,
+    en: won === 'us_dem' ? 'Democrats' : won === 'us_rep' ? 'Republicans' : null,
+    es: won === 'us_dem' ? 'los demócratas' : won === 'us_rep' ? 'los republicanos' : null,
+  }[locale];
+  const cap = (x: string) => x.charAt(0).toUpperCase() + x.slice(1);
   const T = {
     house: {
-      fr: { title: 'Chambre des représentants : résultats du 3 novembre 2026, district par district — Vote-Scope',
-        description: `Les 435 districts au fil du dépouillement, à partir de 18 h (heure de l’Est) le 3 novembre. Notre projection du ${day} : démocrates ${d} sièges, républicains ${r} ; il en faut ${maj} pour la majorité.` },
-      en: { title: 'U.S. House: November 3, 2026 results, district by district — Vote-Scope',
-        description: `All 435 districts as the count comes in, from 6 p.m. Eastern on November 3. Our ${day} forecast: Democrats ${d} seats, Republicans ${r}; ${maj} make a majority.` },
-      es: { title: 'Cámara de Representantes: resultados del 3 de noviembre de 2026, distrito por distrito — Vote-Scope',
-        description: `Los 435 distritos a medida que avanza el recuento, desde las 18:00 (hora del Este) del 3 de noviembre. Nuestra proyección del ${day}: demócratas ${d} escaños, republicanos ${r}; la mayoría es ${maj}.` },
+      fr: { title: W ? `Résultats de la Chambre 2026 : ${W} remportent la majorité — Vote-Scope` : 'Chambre des représentants : résultats des élections de 2026, district par district — Vote-Scope',
+        description: `${W ? `${cap(W)} ont remporté la Chambre des représentants le 3 novembre 2026. ` : ''}Les résultats des 435 districts, course par course, et les sièges qui ont changé de parti. La majorité est à ${maj} sièges.` },
+      en: { title: W ? `2026 House Election Results: ${W} Win the Majority — Vote-Scope` : 'U.S. House: 2026 election results, district by district — Vote-Scope',
+        description: `${W ? `${W} won control of the House on November 3, 2026. ` : ''}Results in all 435 districts, race by race, and the seats that changed hands. ${maj} seats make a majority.` },
+      es: { title: W ? `Resultados de la Cámara 2026: ${W} ganan la mayoría — Vote-Scope` : 'Cámara de Representantes: resultados de las elecciones de 2026, distrito por distrito — Vote-Scope',
+        description: `${W ? `${cap(W)} ganaron la Cámara de Representantes el 3 de noviembre de 2026. ` : ''}Los resultados de los 435 distritos, contienda por contienda, y los escaños que cambiaron de partido. La mayoría era de ${maj} escaños.` },
     },
     senate: {
-      fr: { title: 'Sénat américain : résultats du 3 novembre 2026, État par État — Vote-Scope',
-        description: `Les ${n} courses au Sénat au fil du dépouillement, avec les 65 sièges non renouvelés. Notre projection du ${day} : démocrates ${d} sièges, républicains ${r} ; il en faut ${maj}, ou 50 pour le parti du vice-président, républicain.` },
-      en: { title: 'U.S. Senate: November 3, 2026 results, state by state — Vote-Scope',
-        description: `All ${n} Senate races as the count comes in, plus the 65 seats not up this year. Our ${day} forecast: Democrats ${d} seats, Republicans ${r}; ${maj} make a majority, or 50 for the vice president’s party, the Republicans.` },
-      es: { title: 'Senado de EE. UU.: resultados del 3 de noviembre de 2026, estado por estado — Vote-Scope',
-        description: `Las ${n} contiendas al Senado a medida que avanza el recuento, más los 65 escaños sin elección. Nuestra proyección del ${day}: demócratas ${d} escaños, republicanos ${r}; la mayoría es ${maj}, o 50 para el partido del vicepresidente, el republicano.` },
+      fr: { title: W ? `Résultats du Sénat 2026 : ${W} remportent la majorité — Vote-Scope` : 'Sénat américain : résultats des élections de 2026, État par État — Vote-Scope',
+        description: `${W ? `${cap(W)} ont remporté le Sénat américain le 3 novembre 2026. ` : ''}Les résultats des ${n} courses, État par État, avec les 65 sièges qui n’étaient pas en jeu et ceux qui ont changé de parti.` },
+      en: { title: W ? `2026 Senate Election Results: ${W} Win Control — Vote-Scope` : 'U.S. Senate: 2026 election results, state by state — Vote-Scope',
+        description: `${W ? `${W} won control of the U.S. Senate on November 3, 2026. ` : ''}Results in all ${n} races, state by state, plus the 65 seats not up this year and the seats that changed hands.` },
+      es: { title: W ? `Resultados del Senado 2026: ${W} ganan el control — Vote-Scope` : 'Senado de EE. UU.: resultados de las elecciones de 2026, estado por estado — Vote-Scope',
+        description: `${W ? `${cap(W)} ganaron el Senado de EE. UU. el 3 de noviembre de 2026. ` : ''}Los resultados de las ${n} contiendas, estado por estado, más los 65 escaños sin elección y los que cambiaron de partido.` },
     },
     governor: {
-      fr: { title: 'Gouverneurs américains : résultats du 3 novembre 2026, État par État — Vote-Scope',
-        description: `Les ${n} courses de gouverneur au fil du dépouillement, avec les 14 postes qui ne sont pas en jeu. Notre projection du ${day} : démocrates ${d} postes sur 50, républicains ${r}.` },
-      en: { title: 'U.S. governors: November 3, 2026 results, state by state — Vote-Scope',
-        description: `All ${n} governor races as the count comes in, plus the 14 offices not up this year. Our ${day} forecast: Democrats ${d} of 50 governorships, Republicans ${r}.` },
-      es: { title: 'Gobernadores de EE. UU.: resultados del 3 de noviembre de 2026, estado por estado — Vote-Scope',
-        description: `Las ${n} contiendas a gobernador a medida que avanza el recuento, más los 14 cargos sin elección. Nuestra proyección del ${day}: demócratas ${d} de 50 gobernaciones, republicanos ${r}.` },
+      fr: { title: 'Gouverneurs américains : résultats des élections de 2026, État par État — Vote-Scope',
+        description: `Les résultats des ${n} courses de gouverneur du 3 novembre 2026, État par État, avec les 14 postes qui n’étaient pas en jeu et ceux qui ont changé de parti.` },
+      en: { title: '2026 Governor Election Results, State by State — Vote-Scope',
+        description: `Results of all ${n} governor races on November 3, 2026, state by state, plus the 14 offices not up this year and the governorships that changed hands.` },
+      es: { title: 'Gobernadores de EE. UU.: resultados de las elecciones de 2026, estado por estado — Vote-Scope',
+        description: `Los resultados de las ${n} contiendas a gobernador del 3 de noviembre de 2026, estado por estado, más los 14 cargos sin elección y los que cambiaron de partido.` },
     },
   };
   return T[chamber][locale];
