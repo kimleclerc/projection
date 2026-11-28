@@ -103,7 +103,7 @@ const detail = {
 
 <article class="frc" data-content-area>
   <header class="frc-hero container vs-page-head">
-    <a class="frc-back" href={base}>{C.back}</a>
+    <a class="frc-back" href={`${base}/`}>{C.back}</a>
     <div class="frc-id">
       <span class="frc-swatch" style={`background:${blocVar(c.bloc)}`} />
       <h1 class="frc-name">{c.name}</h1>
@@ -149,7 +149,7 @@ const detail = {
         <span>{p.source ? <a href={p.source}>{p.firm}</a> : p.firm} · <time datetime={p.date}>{dateLabel(p.date)}</time></span>
         <strong>{p.min === p.max ? fmtPct1(p.min, locale) : `${fmtPct1(p.min, locale)} – ${fmtPct1(p.max, locale)}`}</strong>
       </li>)}</ul>
-      <a href={`${base}?fr-candidates=${encodeURIComponent(c.id)}&fr-months=3#fr-trend`}>{detail.trend}</a>
+      <a href={`${base}/?fr-candidates=${encodeURIComponent(c.id)}&fr-months=3#fr-trend`}>{detail.trend}</a>
     </>}
   </section>
 
@@ -203,8 +203,8 @@ const detail = {
       ))}
     </ul>
     <div class="frc-cta-row">
-      <a class="frc-cta frc-cta-strong" href={`${base}#fr-explorer-title`}>{C.exploreCta}</a>
-      <a class="frc-cta" href={candBase}>{C.allCandidates}</a>
+      <a class="frc-cta frc-cta-strong" href={`${base}/#fr-explorer-title`}>{C.exploreCta}</a>
+      <a class="frc-cta" href={`${candBase}/`}>{C.allCandidates}</a>
     </div>
   </section>
 </article>
