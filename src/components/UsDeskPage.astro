@@ -144,14 +144,14 @@ const COPY = {
     marketPres: 'U.S. Presidential 2028',
     methodTitle: "How the U.S. forecasts are built",
     methodBody: "Each forecast starts from public polls, corrected for each pollster’s usual lean, then simulates the election district by district and state by state.",
-    projTitle: "The forecasts",
+    projTitle: wonLine ? "Our final forecast before the vote" : "The forecasts",
     colRace: "Race",
     colD: "Democrats",
     colR: "Republicans",
     colChance: "Chance of a Democratic majority",
     indexTitle2: "The indexes",
     presTitle: "Beyond 2026",
-    updated: "Updated",
+    updated: wonLine ? "Final run" : "Updated",
     ldiTitle: "Lame-Duck Index",
     methodBullets: [
       "House polls feed a model that follows the national vote over time; the Senate and governors are modelled race by race, from state polls and the national climate.",
@@ -186,14 +186,14 @@ const COPY = {
     marketPres: 'Présidentielle américaine 2028',
     methodTitle: "Comment nous faisons les projections américaines",
     methodBody: "Chaque projection part des sondages publics, corrigés des écarts habituels de chaque institut, puis simule l’élection district par district et État par État.",
-    projTitle: "Les projections",
+    projTitle: wonLine ? "Notre dernière projection avant le vote" : "Les projections",
     colRace: "Course",
     colD: "Démocrates",
     colR: "Républicains",
     colChance: "Chances de majorité démocrate",
     indexTitle2: "Les indices",
     presTitle: "Après 2026",
-    updated: "Mis à jour",
+    updated: wonLine ? "Dernier calcul" : "Mis à jour",
     ldiTitle: "Indice Canard boiteux",
     methodBullets: [
       "Les sondages sur la Chambre alimentent un modèle qui suit le vote national dans le temps ; le Sénat et les gouverneurs sont projetés course par course, à partir des sondages d’État et du climat national.",
@@ -228,14 +228,14 @@ const COPY = {
     marketPres: 'Elección presidencial 2028',
     methodTitle: "Cómo hacemos las proyecciones de EE. UU.",
     methodBody: "Cada proyección parte de encuestas públicas, corregidas según el sesgo habitual de cada encuestadora, y simula la elección distrito por distrito y estado por estado.",
-    projTitle: "Las proyecciones",
+    projTitle: wonLine ? "Nuestro último pronóstico antes de la votación" : "Las proyecciones",
     colRace: "Contienda",
     colD: "Demócratas",
     colR: "Republicanos",
     colChance: "Probabilidad de mayoría demócrata",
     indexTitle2: "Los índices",
     presTitle: "Después de 2026",
-    updated: "Actualizado",
+    updated: wonLine ? "Último cálculo" : "Actualizado",
     ldiTitle: "Índice Pato Cojo",
     methodBullets: [
       "Las encuestas de la Cámara alimentan un modelo que sigue el voto nacional en el tiempo; el Senado y los gobernadores se proyectan contienda por contienda, con encuestas estatales y el clima nacional.",
@@ -383,7 +383,7 @@ const presItems = [
 
   <section class="container us-block" aria-labelledby="us-markets">
     <h2 id="us-markets">{t.marketEyebrow}</h2>
-    <PolymarketEmbed lang={lang} slug="2026-balance-of-power-d-senate-d-house-949" title={t.marketBalance} />
+    {!wonLine && <PolymarketEmbed lang={lang} slug="2026-balance-of-power-d-senate-d-house-949" title={t.marketBalance} />}
     <PolymarketEmbed lang={lang} slug="will-gavin-newsom-win-the-2028-us-presidential-election" title={t.marketPres} />
   </section>
 

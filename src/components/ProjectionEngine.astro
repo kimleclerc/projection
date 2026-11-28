@@ -259,14 +259,7 @@ const resultRows = bySeats
   }));
 const resultChanceKind: 'majority' | 'largest' = (lead.p_majority ?? 0) >= 0.01 ? 'majority' : 'largest';
 const marketByJurisdiction: Record<string, { slug: string; label: Record<Locale, string> } | undefined> = {
-  'us-house': {
-    slug: 'will-the-democratic-party-control-the-house-after-the-2026-midterm-elections',
-    label: { en: 'Democrats · Polymarket', fr: 'Démocrates · Polymarket', es: 'Demócratas · Polymarket' },
-  },
-  'us-senate': {
-    slug: 'will-the-democratic-party-control-the-senate-after-the-2026-midterm-elections',
-    label: { en: 'Democrats · Polymarket', fr: 'Démocrates · Polymarket', es: 'Demócratas · Polymarket' },
-  },
+  // Chambre et Sénat américains : marchés 2026 résolus depuis le 3 novembre.
   // Québec : le marché de 2026 (« le PQ remporte le plus de sièges ») est
   // résolu depuis le 5 octobre. Aucun marché 2030 coté à ce jour.
 };
@@ -311,7 +304,18 @@ const govLeads = (() => {
   return c;
 })();
 const nRacesAll = ((data as any).ridings ?? []).length;
-const snapshotHeadline = jurisdiction.id === 'us-senate'
+const usChamberFr = jurisdiction.id === 'us-house' ? 'à la Chambre' : 'au Sénat';
+const usChamberEs = jurisdiction.id === 'us-house' ? 'en la Cámara' : 'en el Senado';
+const usChamberEn = jurisdiction.id === 'us-house' ? 'House' : 'Senate';
+const snapshotHeadline = votePast && (jurisdiction.id === 'us-senate' || jurisdiction.id === 'us-house')
+  ? (locale === 'fr' ? `La veille du vote, notre projection donnait ${usChamberFr} ${headPct(Number(lead.p_majority ?? 0) * 100)} de chances de majorité au camp ${leadLabel.toLowerCase()}, et ${leadSeats} sièges sur ${totalSeats}.`
+    : locale === 'es' ? `La víspera de la votación, nuestra proyección daba al bando ${leadLabel.toLowerCase()} un ${headPct(Number(lead.p_majority ?? 0) * 100)} de probabilidad de mayoría ${usChamberEs} y ${leadSeats} de ${totalSeats} escaños.`
+    : `On the eve of the vote, our forecast put the ${leadLabel} chance of a ${usChamberEn} majority at ${headPct(Number(lead.p_majority ?? 0) * 100)}, with ${leadSeats} of ${totalSeats} seats.`)
+  : votePast && jurisdiction.id === 'us-governor'
+  ? (locale === 'fr' ? `La veille du vote, notre projection plaçait le camp ${leadLabel.toLowerCase()} en tête dans ${govLeads[lead.party] ?? 0} des ${nRacesAll} courses de gouverneur.`
+    : locale === 'es' ? `La víspera de la votación, nuestra proyección situaba al bando ${leadLabel.toLowerCase()} en cabeza en ${govLeads[lead.party] ?? 0} de las ${nRacesAll} contiendas a gobernador.`
+    : `On the eve of the vote, our forecast had the ${leadLabel} candidate ahead in ${govLeads[lead.party] ?? 0} of ${nRacesAll} governor races.`)
+  : jurisdiction.id === 'us-senate'
   ? (locale === 'fr' ? `Chances de majorité au Sénat : ${leadLabel} ${headPct(Number(lead.p_majority ?? 0) * 100)}, ${secondLabel2} ${headPct(Number((second as any)?.p_majority ?? 0) * 100)}.`
     : locale === 'es' ? `Probabilidad de mayoría en el Senado: ${leadLabel} ${headPct(Number(lead.p_majority ?? 0) * 100)}, ${secondLabel2} ${headPct(Number((second as any)?.p_majority ?? 0) * 100)}.`
     : `Chance of a Senate majority: ${leadLabel} ${headPct(Number(lead.p_majority ?? 0) * 100)}, ${secondLabel2} ${headPct(Number((second as any)?.p_majority ?? 0) * 100)}.`)
@@ -395,6 +399,10 @@ const t = {
   modelBadge: modelBadge(locale),
   runDate: (() => {
     const d = new Date(meta.run_date + 'T12:00:00Z').toLocaleDateString(isFr ? 'fr-CA' : isEs ? 'es-ES' : 'en-CA', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+    // Mi-mandats américaines : la projection est figée au run du 3 novembre.
+    if (votePast && jurisdiction.currentPage === 'us') {
+      return isFr ? `Dernière projection avant le vote : ${d}` : isEs ? `Última proyección antes de la votación: ${d}` : `Final forecast before the vote: ${d}`;
+    }
     return isFr ? `Mis à jour le ${d}` : isEs ? `Actualizado el ${d}` : `Updated ${d}`;
   })(),
   pollsCount: isFr

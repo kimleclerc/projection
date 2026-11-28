@@ -293,9 +293,9 @@ export const jurisdictions: Record<string, Jurisdiction> = {
       es: 'Fuentes: Cook Political Report, Inside Elections, encuestas públicas',
     },
     mapSubtitle: {
-      fr: 'Projection par district basée sur les résultats 2024, le climat national et les évaluations de course.',
-      en: 'District projection based on 2024 results, national environment and race ratings.',
-      es: 'Proyección por distrito basada en resultados 2024, entorno nacional y clasificaciones de carrera.',
+      fr: 'Projection d’avant-scrutin par district (dernier calcul, 3 novembre), à comparer aux résultats.',
+      en: 'Pre-election district forecast (final run, November 3), to compare with the results.',
+      es: 'Proyección previa por distrito (último cálculo, 3 de noviembre), para comparar con los resultados.',
     },
     pageTitle: {
       fr: 'Midterms 2026 : Trump gardera-t-il la Chambre? Sondages et projection — Vote-Scope',
@@ -304,7 +304,7 @@ export const jurisdictions: Record<string, Jurisdiction> = {
     },
     metaDescription: {
       fr: 'Qui contrôlera la Chambre après les mi-mandats 2026? Projection des 435 districts, sondages génériques agrégés, districts qui basculent, probabilités de contrôle et cotes Polymarket en direct. Mise à jour continue.',
-      en: 'Who controls the House after the 2026 midterms? All 435 districts projected, generic-ballot polls aggregated, flip districts, chamber-control odds and live Polymarket prices. Updated continuously.',
+      en: 'Democrats won the House in the 2026 midterms. Results in all 435 districts, and our final pre-election forecast district by district.',
       es: '¿Quién controla la Cámara tras las intermedias de 2026? 435 distritos proyectados, encuestas agregadas, distritos que cambian, probabilidades de control y precios de Polymarket en vivo. Actualizado continuamente.',
     },
     baselineYear: 2024,
@@ -316,6 +316,9 @@ export const jurisdictions: Record<string, Jurisdiction> = {
     parties: ['us_dem', 'us_rep', 'us_oth'],
     slug: { en: 'house', fr: 'chambre' },
     currentPage: 'us',
+    // Scrutin tranché : pages en mode résultats, projection d'avant-vote figée
+    // (gel us_*_2026 côté moteur, 27 nov. 2026). Pas de compte à rebours.
+    electionDate: '2026-11-03',
   },
 
   usSenate: {
@@ -338,9 +341,9 @@ export const jurisdictions: Record<string, Jurisdiction> = {
       es: 'Fuentes: Cook Political Report, Inside Elections, encuestas públicas',
     },
     mapSubtitle: {
-      fr: 'Projection des sièges en jeu en 2026 (classe II). Les États sans course cette année restent en gris.',
-      en: 'Projection for seats up in 2026 (Class II). States with no race this cycle stay greyed out.',
-      es: 'Proyección de escaños en disputa en 2026 (Clase II). Los estados sin carrera este ciclo permanecen en gris.',
+      fr: 'Projection d’avant-scrutin des sièges en jeu en 2026 (dernier calcul, 3 novembre), à comparer aux résultats. Les États sans course restent en gris.',
+      en: 'Pre-election forecast for the seats up in 2026 (final run, November 3), to compare with the results. States with no race stay greyed out.',
+      es: 'Proyección previa de los escaños en disputa en 2026 (último cálculo, 3 de noviembre), para comparar con los resultados. Los estados sin carrera quedan en gris.',
     },
     pageTitle: {
       fr: 'Midterms 2026 : Trump gardera-t-il le Sénat? Sondages et projection — Vote-Scope',
@@ -349,7 +352,7 @@ export const jurisdictions: Record<string, Jurisdiction> = {
     },
     metaDescription: {
       fr: 'Qui contrôlera le Sénat après les mi-mandats 2026? Projection des sièges en jeu État par État, sondages agrégés, États pivots, probabilités de contrôle et cotes Polymarket en direct. Mise à jour continue.',
-      en: 'Who controls the Senate after the 2026 midterms? Every seat up projected state by state, polls aggregated, tipping-point states, chamber-control odds and live Polymarket prices. Updated continuously.',
+      en: 'Democrats won the Senate in the 2026 midterms. Results state by state, and our final pre-election forecast for every seat that was up.',
       es: '¿Quién controla el Senado tras las intermedias de 2026? Escaños en disputa proyectados estado por estado, encuestas agregadas, probabilidades de control y precios de Polymarket en vivo. Actualizado continuamente.',
     },
     baselineYear: 2024,
@@ -361,6 +364,9 @@ export const jurisdictions: Record<string, Jurisdiction> = {
     parties: ['us_dem', 'us_rep'],
     slug: { en: 'senate', fr: 'senat' },
     currentPage: 'us',
+    // Scrutin tranché : pages en mode résultats, projection d'avant-vote figée
+    // (gel us_*_2026 côté moteur, 27 nov. 2026). Pas de compte à rebours.
+    electionDate: '2026-11-03',
   },
 
   usGovernor: {
@@ -373,9 +379,9 @@ export const jurisdictions: Record<string, Jurisdiction> = {
       es: 'Gobernadores <em>de EE. UU.</em>',
     },
     institution: {
-      fr: 'R\u00e9partition actuelle des 50 gouverneurs',
-      en: 'Current Split of the 50 Governorships',
-      es: 'Reparto actual de las 50 gobernaciones',
+      fr: 'R\u00e9partition des 50 gouverneurs avant les investitures',
+      en: 'Governorships Before the Inaugurations',
+      es: 'Reparto de las 50 gobernaciones antes de las investiduras',
     },
     source: {
       fr: 'Sources : sondages publics agr\u00e9g\u00e9s par le NYT, PVI de Cook, r\u00e9sultats 2018-2024',
@@ -383,9 +389,9 @@ export const jurisdictions: Record<string, Jurisdiction> = {
       es: 'Fuentes: encuestas p\u00fablicos v\u00eda el NYT, PVI de Cook, resultados 2018-2024',
     },
     mapSubtitle: {
-      fr: 'Projection des 36 courses de 2026. Les 14 \u00c9tats qui ne votent pas cette ann\u00e9e gardent leur gouverneur et restent en gris.',
-      en: 'Projection for the 36 races on the 2026 ballot. The 14 states not voting this year keep their governor and stay greyed out.',
-      es: 'Proyecci\u00f3n de las 36 contiendas de 2026. Los 14 estados que no votan este a\u00f1o conservan su gobernador y quedan en gris.',
+      fr: 'Projection d’avant-scrutin des 36 courses de 2026 (dernier calcul, 3 novembre), à comparer aux résultats. Les 14 États sans élection restent en gris.',
+      en: 'Pre-election forecast for the 36 races on the 2026 ballot (final run, November 3), to compare with the results. The 14 states not voting stay greyed out.',
+      es: 'Proyección previa de las 36 contiendas de 2026 (último cálculo, 3 de noviembre), para comparar con los resultados. Los 14 estados sin elección quedan en gris.',
     },
     pageTitle: {
       fr: 'Qui gagnera les postes de gouverneur en 2026 ? \u2014 Vote-Scope',
@@ -406,6 +412,9 @@ export const jurisdictions: Record<string, Jurisdiction> = {
     parties: ['us_dem', 'us_rep'],
     slug: { en: 'governors', fr: 'gouverneurs' },
     currentPage: 'us',
+    // Scrutin tranché : pages en mode résultats, projection d'avant-vote figée
+    // (gel us_*_2026 côté moteur, 27 nov. 2026). Pas de compte à rebours.
+    electionDate: '2026-11-03',
   },
 
   uk: {

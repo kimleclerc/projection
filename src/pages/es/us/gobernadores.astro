@@ -5,7 +5,6 @@ import NewsletterCta from '../../../components/NewsletterCta.astro';
 import ProjectionEngine from '../../../components/ProjectionEngine.astro';
 import UsMidtermsLive from '../../../components/UsMidtermsLive.astro';
 import { usShareMeta, usLiveJsonLd } from '../../../data/us-live';
-import KalshiBoard from '../../../components/KalshiBoard.astro';
 import ForecastCompareLinks from '../../../components/ForecastCompareLinks.astro';
 import RaceNarrative from '../../../components/RaceNarrative.astro';
 import { jurisdictions } from '../../../data/jurisdictions';
@@ -57,7 +56,7 @@ const alternates = {
     },
   ]}
 >
-  <ProjectionEngine jurisdiction={j} locale="es"><UsMidtermsLive slot="live" chamber="governor" locale="es" /><Fragment slot="markets"><ForecastCompareLinks locale="es" chamber="governor" /><KalshiBoard locale="es" chamber="governor" /></Fragment><Fragment slot="narrative"><RaceNarrative locale="es" {...raceEditorial.usGovernor.es} /></Fragment></ProjectionEngine>
+  <ProjectionEngine jurisdiction={j} locale="es"><UsMidtermsLive slot="live" chamber="governor" locale="es" /><Fragment slot="markets"><ForecastCompareLinks locale="es" chamber="governor" /></Fragment><Fragment slot="narrative"><RaceNarrative locale="es" {...raceEditorial.usGovernor.es} /></Fragment></ProjectionEngine>
 
   <RidingsCta
     eyebrow="Perfil de contienda"

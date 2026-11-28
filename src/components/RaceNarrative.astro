@@ -10,14 +10,17 @@ interface Props {
   history: string[];
   sinceRun: EventItem[];
   turningPoints: string[];
+  /** Remplace le titre par défaut de la liste (après un scrutin : « What comes next »). */
+  turnsTitle?: string;
   relatedIndexes?: LinkItem[];
 }
-const { locale, question, verdict, history, sinceRun, turningPoints, relatedIndexes = [] } = Astro.props;
+const { locale, question, verdict, history, sinceRun, turningPoints, turnsTitle, relatedIndexes = [] } = Astro.props;
 const t = locale === 'fr'
   ? { history: 'Comment nous en sommes arrivés là', since: 'Ce qui vient de changer', turns: 'Ce qui peut encore faire basculer la course', indexes: 'Indices liés', status: 'Notre lecture' }
   : locale === 'es'
     ? { history: 'Cómo llegamos hasta aquí', since: 'Lo que acaba de cambiar', turns: 'Qué todavía puede cambiar la carrera', indexes: 'Índices relacionados', status: 'Nuestra lectura' }
     : { history: 'How we got here', since: 'What just changed', turns: 'What can still change the race', indexes: 'Related indexes', status: 'Our read' };
+if (turnsTitle) t.turns = turnsTitle;
 const navItems = [
   { href: '#race-history', label: t.history },
   ...(sinceRun.length ? [{ href: '#since-last-run', label: t.since }] : []),
